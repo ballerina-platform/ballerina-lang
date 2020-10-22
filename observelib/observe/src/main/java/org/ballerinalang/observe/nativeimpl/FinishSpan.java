@@ -19,35 +19,25 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.scheduling.Scheduler;
 
 /**
  * This function which implements the finishSpan method for observe.
  */
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "observe", version = "0.8.0",
-        functionName = "finishSpan",
-        args = {
-                @Argument(name = "spanId", type = TypeKind.INT),
-        },
-        returnType = @ReturnType(type = TypeKind.BOOLEAN),
-        isPublic = true
-)
-public class FinishSpan {
 
-    public static Object finishSpan(Strand strand, long spanId) {
-        boolean isFinished = OpenTracerBallerinaWrapper.getInstance().finishSpan(strand, spanId);
+public class FinishSpan {
+    private static final OpenTracerBallerinaWrapper otWrapperInstance = OpenTracerBallerinaWrapper.getInstance();
+
+    public static Object finishSpan(long spanId) {
+        boolean isFinished = OpenTracerBallerinaWrapper.getInstance().finishSpan(Scheduler.getStrand(), spanId);
 
         if (isFinished) {
             return null;
         }
 
-        return BallerinaErrors.createError("Can not finish span with id " + spanId + ". Span already finished");
+        return ErrorCreator.createError(StringUtils.fromString(("Can not finish span with id " + spanId + ". Span " +
+                "already finished")));
     }
 }

@@ -18,12 +18,11 @@
 
 package org.ballerinalang.net.http.caching;
 
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 
 import java.util.Map;
 import java.util.StringJoiner;
@@ -49,22 +48,22 @@ import static org.ballerinalang.net.http.HttpUtil.TRUE;
  */
 public class ResponseCacheControlObj {
 
-    private ObjectValue responseCacheControl;
+    private BObject responseCacheControl;
 
-    public ResponseCacheControlObj(BPackage bPackage, String objectTypeName) {
-        responseCacheControl = BallerinaValues.createObjectValue(bPackage, objectTypeName);
+    public ResponseCacheControlObj(Module bPackage, String objectTypeName) {
+        responseCacheControl = BValueCreator.createObjectValue(bPackage, objectTypeName);
         init();
     }
 
-    public ResponseCacheControlObj(ObjectValue responseCacheControl) {
+    public ResponseCacheControlObj(BObject responseCacheControl) {
         this.responseCacheControl = responseCacheControl;
     }
 
-        public ObjectValue getObj() {
+        public BObject getObj() {
         return responseCacheControl;
     }
 
-    public void setObj(ObjectValue responseCacheControl) {
+    public void setObj(BObject responseCacheControl) {
         this.responseCacheControl = responseCacheControl;
     }
 
@@ -140,7 +139,7 @@ public class ResponseCacheControlObj {
                     if (value != null) {
                         value = value.replace("\"", "");
                         responseCacheControl.set(RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD,
-                                                         new ArrayValueImpl(value.split(",")));
+                                                         BValueCreator.createArrayValue(value.split(",")));
                     }
                     break;
                 case NO_STORE:
@@ -154,7 +153,7 @@ public class ResponseCacheControlObj {
                     if (value != null) {
                         value = value.replace("\"", "");
                         responseCacheControl.set(RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD,
-                                                         new ArrayValueImpl(value.split(",")));
+                                                         BValueCreator.createArrayValue(value.split(",")));
                     }
                     break;
                 case PUBLIC:
@@ -195,7 +194,7 @@ public class ResponseCacheControlObj {
 
         if (getBooleanValue(responseCacheControl, RES_CACHE_CONTROL_NO_CACHE_FIELD) == TRUE) {
             directivesBuilder.add("no-cache" + appendFields(
-                    (ArrayValue) responseCacheControl.get(RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD)));
+                    (BArray) responseCacheControl.get(RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD)));
         }
 
         if (getBooleanValue(responseCacheControl, RES_CACHE_CONTROL_NO_STORE_FIELD) == TRUE) {
@@ -208,7 +207,7 @@ public class ResponseCacheControlObj {
 
         if (getBooleanValue(responseCacheControl, RES_CACHE_CONTROL_IS_PRIVATE_FIELD) == TRUE) {
             directivesBuilder.add("private" + appendFields(
-                    (ArrayValue) responseCacheControl.get(RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD)));
+                    (BArray) responseCacheControl.get(RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD)));
         } else {
             directivesBuilder.add("public");
         }
@@ -228,7 +227,7 @@ public class ResponseCacheControlObj {
         return directivesBuilder.toString();
     }
 
-    private String appendFields(ArrayValue values) {
+    private String appendFields(BArray values) {
         if (values.size() > 0) {
             StringJoiner joiner = new StringJoiner(",");
 
@@ -242,11 +241,11 @@ public class ResponseCacheControlObj {
         return "";
     }
 
-    private boolean getBooleanValue(ObjectValue responseCacheControl, BString fieldName) {
+    private boolean getBooleanValue(BObject responseCacheControl, BString fieldName) {
         return (Boolean) responseCacheControl.get(fieldName);
     }
 
-    private long getIntValue(ObjectValue responseCacheControl, BString fieldName) {
+    private long getIntValue(BObject responseCacheControl, BString fieldName) {
         return Long.parseLong(responseCacheControl.get(fieldName).toString());
     }
 }

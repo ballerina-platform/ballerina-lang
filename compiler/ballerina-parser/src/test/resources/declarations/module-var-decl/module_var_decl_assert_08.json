@@ -15,15 +15,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "FINAL_KEYWORD",
               "trailingMinutiae": [
                 {
@@ -50,14 +41,17 @@
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
-                            "kind": "LISTENER_KEYWORD",
-                            "trailingMinutiae": [
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
                               {
-                                "kind": "WHITESPACE_MINUTIAE",
-                                "value": " "
+                                "kind": "LISTENER_KEYWORD"
                               }
                             ]
                           }
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
                         }
                       ],
                       "trailingMinutiae": [
@@ -99,7 +93,7 @@
               "kind": "STRING_LITERAL",
               "children": [
                 {
-                  "kind": "STRING_LITERAL",
+                  "kind": "STRING_LITERAL_TOKEN",
                   "value": "http://hello1.com"
                 }
               ]
@@ -118,15 +112,6 @@
         {
           "kind": "MODULE_VAR_DECL",
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "FINAL_KEYWORD",
               "leadingMinutiae": [
@@ -189,7 +174,7 @@
               "kind": "STRING_LITERAL",
               "children": [
                 {
-                  "kind": "STRING_LITERAL",
+                  "kind": "STRING_LITERAL_TOKEN",
                   "value": "http://hello2.com"
                 }
               ]
@@ -209,15 +194,6 @@
           "kind": "MODULE_VAR_DECL",
           "hasDiagnostics": true,
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "FINAL_KEYWORD",
               "leadingMinutiae": [
@@ -251,14 +227,17 @@
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
-                            "kind": "CONST_KEYWORD",
-                            "trailingMinutiae": [
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
                               {
-                                "kind": "WHITESPACE_MINUTIAE",
-                                "value": " "
+                                "kind": "CONST_KEYWORD"
                               }
                             ]
                           }
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
                         }
                       ],
                       "trailingMinutiae": [
@@ -300,7 +279,7 @@
               "kind": "STRING_LITERAL",
               "children": [
                 {
-                  "kind": "STRING_LITERAL",
+                  "kind": "STRING_LITERAL_TOKEN",
                   "value": "http://hello3.com"
                 }
               ]
@@ -319,15 +298,6 @@
         {
           "kind": "MODULE_VAR_DECL",
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "FINAL_KEYWORD",
               "leadingMinutiae": [

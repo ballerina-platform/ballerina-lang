@@ -27,11 +27,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -39,7 +41,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -52,7 +53,7 @@ import java.util.stream.Collectors;
 
 /**
  * Find the visible Symbols for Resources and Functions.
- * 
+ *
  * @since 0.985.0
  */
 public class VisibleEndpointVisitor extends LSNodeVisitor {
@@ -64,7 +65,7 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
     private SymbolTable symTable;
 
     private Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode;
-    
+
     private Map<PackageID, BLangImportPackage> packageMap;
 
     public VisibleEndpointVisitor(CompilerContext compilerContext) {
@@ -111,7 +112,7 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangService serviceNode) {
         SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, this.symbolEnv);
-        ((BLangObjectTypeNode) serviceNode.serviceTypeDefinition.typeNode).getFunctions().stream()
+        serviceNode.serviceClass.getFunctions().stream()
                 .filter(bLangFunction -> (bLangFunction.symbol.flags & Flags.RESOURCE) == Flags.RESOURCE)
                 .forEach(bLangFunction -> this.acceptNode(bLangFunction, serviceEnv));
     }
@@ -148,7 +149,15 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
     public void visit(BLangTransaction transactionNode) {
         this.acceptNode(transactionNode.transactionBody, this.symbolEnv);
     }
-    
+
+    @Override
+    public void visit(BLangObjectConstructorExpression bLangObjectConstructorExpression) {
+    }
+
+    @Override
+    public void visit(BLangClassDefinition classDefinition) {
+    }
+
     private void acceptNode(BLangNode node, SymbolEnv env) {
         if (node == null) {
             return;
@@ -170,15 +179,15 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
                 .map(bLangSimpleVariable -> bLangSimpleVariable.symbol)
                 .collect(Collectors.toList());
         List<BSymbol> visibleSymbols = new ArrayList<>();
-        symbolResolver.getAllVisibleInScopeSymbols(symbolEnv).forEach((key, value) -> 
+        symbolResolver.getAllVisibleInScopeSymbols(symbolEnv).forEach((key, value) ->
                 visibleSymbols.addAll(
                         value.stream()
                                 .map(scopeEntry -> scopeEntry.symbol)
                                 .collect(Collectors.toList())));
-        
+
         return visibleSymbols.stream()
-                .filter(symbol -> symbol instanceof BVarSymbol && CommonUtil.isClientObject(symbol)
-                    && (parameters.contains(symbol) || symbol.owner instanceof BPackageSymbol))
+                .filter(symbol -> symbol instanceof BVarSymbol && this.isClient(symbol)
+                        && (parameters.contains(symbol) || symbol.owner instanceof BPackageSymbol))
                 .map(symbol -> {
                     BLangImportPackage importPackage = this.packageMap.get(symbol.type.tsymbol.pkgID);
                     String typeName = symbol.type.tsymbol.getName().getValue();
@@ -199,12 +208,12 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
                 })
                 .collect(Collectors.toList());
     }
-    
+
     private void resolveEndpointsFromStatements(List<BLangStatement> statements, BLangNode owner) {
         statements.forEach(stmt -> {
-            if (stmt instanceof  BLangSimpleVariableDef) {
+            if (stmt instanceof BLangSimpleVariableDef) {
                 BVarSymbol symbol = ((BLangSimpleVariableDef) stmt).var.symbol;
-                if (CommonUtil.isClientObject(symbol)) {
+                if (this.isClient(symbol)) {
                     BLangImportPackage importPackage = this.packageMap.get(symbol.type.tsymbol.pkgID);
                     String typeName = symbol.type.tsymbol.getName().getValue();
                     String pkgName = symbol.pkgID.getName().getValue();
@@ -231,5 +240,10 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
                 stmt.accept(this);
             }
         });
+    }
+
+    private boolean isClient(BSymbol symbol) {
+        return symbol.type != null && symbol.type.tsymbol != null
+                && (symbol.type.tsymbol.flags & Flags.CLIENT) == Flags.CLIENT;
     }
 }

@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
-import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -81,11 +81,17 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
         this.cursorCol = position.getPosition().getCharacter();
         this.currentCUnitMode = currentCUnitMode;
         this.pkgName = pkgName;
-        this.isWithinNode = zeroBasedPos ->
-                ((cursorLine == zeroBasedPos.sLine && cursorCol >= zeroBasedPos.sCol && cursorCol <= zeroBasedPos.eCol)
-                        || (zeroBasedPos.sLine == zeroBasedPos.eLine && cursorLine == zeroBasedPos.eLine &&
-                        cursorCol <= zeroBasedPos.eCol)
-                        || (cursorLine > zeroBasedPos.sLine && cursorLine < zeroBasedPos.eLine));
+        this.isWithinNode = pos -> (
+                // if node is single-line
+                ((pos.sLine == pos.eLine && cursorLine == pos.sLine) &&
+                        (cursorCol >= pos.sCol && cursorCol <= pos.eCol)) ||
+                        // if node is multi-line
+                        ((pos.sLine != pos.eLine) && (
+                                cursorLine > pos.sLine && cursorLine < pos.eLine ||
+                                        cursorLine == pos.eLine && cursorCol <= pos.eCol ||
+                                        cursorLine == pos.sLine && cursorCol >= pos.sCol
+                        ))
+        );
     }
 
     @Override
@@ -104,8 +110,7 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
                 ? ((BVarSymbol) bSymbol).originalSymbol
                 : bSymbol;
         SymbolReferencesModel.Reference ref = this.getSymbolReference(zeroBasedPos, bSymbol, bLangNode);
-        if (this.cursorLine == zeroBasedPos.sLine && this.cursorCol >= zeroBasedPos.sCol
-                && this.cursorCol <= zeroBasedPos.eCol) {
+        if (isWithinNode.test(zeroBasedPos)) {
             // This is the symbol at current cursor position
             this.symbolReferences.setReferenceAtCursor(ref);
         }

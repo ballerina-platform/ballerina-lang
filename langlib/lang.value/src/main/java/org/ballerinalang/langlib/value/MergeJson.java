@@ -18,14 +18,7 @@
 
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.JSONUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
+import io.ballerina.runtime.JSONUtils;
 
 
 /**
@@ -33,16 +26,9 @@ import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.value", version = VALUE_VERSION,
-        functionName = "mergeJson",
-        args = {@Argument(name = "j1", type = TypeKind.JSON), @Argument(name = "j2", type = TypeKind.JSON)},
-        returnType = {@ReturnType(type = TypeKind.JSON), @ReturnType(type = TypeKind.ERROR)},
-        isPublic = true
-)
 public class MergeJson {
 
-    public static Object mergeJson(Strand strand, Object j1, Object j2) {
+    public static Object mergeJson(Object j1, Object j2) {
         return JSONUtils.mergeJson(j1, j2, true);
     }
 

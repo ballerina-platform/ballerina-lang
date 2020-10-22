@@ -18,30 +18,27 @@
 
 package org.ballerinalang.net.http.websocket;
 
+import io.ballerina.runtime.JSONParser;
+import io.ballerina.runtime.JSONUtils;
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.XMLNodeType;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.connector.CallableUnitCallback;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.StructureType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.observability.ObservabilityConstants;
+import io.ballerina.runtime.observability.ObserveUtils;
+import io.ballerina.runtime.services.ErrorHandlerUtils;
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.CorruptedFrameException;
-import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.JSONUtils;
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.observability.ObservabilityConstants;
-import org.ballerinalang.jvm.observability.ObserveUtils;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.services.ErrorHandlerUtils;
-import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BStructureType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
-import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
@@ -92,29 +89,29 @@ public class WebSocketResourceDispatcher {
     }
 
     public static void dispatchUpgrade(WebSocketHandshaker webSocketHandshaker, WebSocketServerService wsService,
-                                       MapValue<BString, Object> httpEndpointConfig,
+                                       BMap<BString, Object> httpEndpointConfig,
                                        WebSocketConnectionManager connectionManager) {
         HttpResource onUpgradeResource = wsService.getUpgradeResource();
         webSocketHandshaker.getHttpCarbonRequest().setProperty(HttpConstants.RESOURCES_CORS,
                                                                onUpgradeResource.getCorsHeaders());
-        AttachedFunction balResource = onUpgradeResource.getBalResource();
+        AttachedFunctionType balResource = onUpgradeResource.getBalResource();
         Object[] signatureParams = HttpDispatcher.getSignatureParameters(onUpgradeResource, webSocketHandshaker
                 .getHttpCarbonRequest(), httpEndpointConfig);
 
-        ObjectValue httpCaller = (ObjectValue) signatureParams[0];
+        BObject httpCaller = (BObject) signatureParams[0];
         httpCaller.addNativeData(WebSocketConstants.WEBSOCKET_HANDSHAKER, webSocketHandshaker);
         httpCaller.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
         httpCaller.addNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER, connectionManager);
 
-        Executor.submit(wsService.getScheduler(), onUpgradeResource.getParentService().getBalService(),
-                        balResource.getName(), null, ON_OPEN_METADATA,
-                        new OnUpgradeResourceCallback(webSocketHandshaker, wsService, connectionManager),
-                        new HashMap<>(), signatureParams);
+        wsService.getRuntime().invokeMethodAsync(onUpgradeResource.getParentService().getBalService(),
+                         balResource.getName(), null, ON_OPEN_METADATA,
+                         new OnUpgradeResourceCallback(webSocketHandshaker, wsService, connectionManager),
+                         new HashMap<>(), signatureParams);
     }
 
-    public static void dispatchOnOpen(WebSocketConnection webSocketConnection, ObjectValue webSocketCaller,
+    public static void dispatchOnOpen(WebSocketConnection webSocketConnection, BObject webSocketCaller,
                                        WebSocketServerService wsService) {
-        AttachedFunction onOpenResource = wsService.getResourceByName(RESOURCE_NAME_ON_OPEN);
+        AttachedFunctionType onOpenResource = wsService.getResourceByName(RESOURCE_NAME_ON_OPEN);
         if (onOpenResource != null) {
             executeOnOpenResource(wsService, onOpenResource, webSocketCaller, webSocketConnection);
         } else {
@@ -122,9 +119,9 @@ public class WebSocketResourceDispatcher {
         }
     }
 
-    private static void executeOnOpenResource(WebSocketService wsService, AttachedFunction onOpenResource,
-                                              ObjectValue webSocketEndpoint, WebSocketConnection webSocketConnection) {
-        BType[] parameterTypes = onOpenResource.getParameterType();
+    private static void executeOnOpenResource(WebSocketService wsService, AttachedFunctionType onOpenResource,
+                                              BObject webSocketEndpoint, WebSocketConnection webSocketConnection) {
+        Type[] parameterTypes = onOpenResource.getParameterType();
         Object[] bValues = new Object[parameterTypes.length * 2];
         bValues[0] = webSocketEndpoint;
         bValues[1] = true;
@@ -137,7 +134,7 @@ public class WebSocketResourceDispatcher {
             }
 
             @Override
-            public void notifyFailure(ErrorValue error) {
+            public void notifyFailure(BError error) {
                 ErrorHandlerUtils.printError("error: " + error.getPrintableStackTrace());
                 WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
                 WebSocketObservabilityUtil.observeError(connectionInfo,
@@ -153,22 +150,22 @@ public class WebSocketResourceDispatcher {
         try {
             WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
             WebSocketService wsService = connectionInfo.getService();
-            AttachedFunction onTextMessageResource = wsService.getResourceByName(RESOURCE_NAME_ON_TEXT);
+            AttachedFunctionType onTextMessageResource = wsService.getResourceByName(RESOURCE_NAME_ON_TEXT);
             if (onTextMessageResource == null) {
                 webSocketConnection.readNextFrame();
                 return;
             }
-            BType[] parameterTypes = onTextMessageResource.getParameterType();
+            Type[] parameterTypes = onTextMessageResource.getParameterType();
             Object[] bValues = new Object[parameterTypes.length * 2];
 
             bValues[0] = connectionInfo.getWebSocketEndpoint();
             bValues[1] = true;
 
             boolean finalFragment = textMessage.isFinalFragment();
-            BType dataType = parameterTypes[1];
+            Type dataType = parameterTypes[1];
             int dataTypeTag = dataType.getTag();
             if (dataTypeTag == TypeTags.STRING_TAG) {
-                bValues[2] = StringUtils.fromString(textMessage.getText());
+                bValues[2] = BStringUtils.fromString(textMessage.getText());
                 bValues[3] = true;
                 if (parameterTypes.length == 3) {
                     bValues[4] = finalFragment;
@@ -211,14 +208,14 @@ public class WebSocketResourceDispatcher {
                 dataTypeTag == TypeTags.XML_TAG || dataTypeTag == TypeTags.ARRAY_TAG;
     }
 
-    private static Object getAggregatedObject(WebSocketConnection webSocketConnection, BType dataType,
+    private static Object getAggregatedObject(WebSocketConnection webSocketConnection, Type dataType,
                                               String aggregateString, WebSocketConnectionInfo connectionInfo) {
         try {
             switch (dataType.getTag()) {
                 case TypeTags.JSON_TAG:
                     return JSONParser.parse(aggregateString);
                 case TypeTags.XML_TAG:
-                    XMLValue bxml = XMLFactory.parse(aggregateString);
+                    BXML bxml = XMLFactory.parse(aggregateString);
                     if (bxml.getNodeType() != XMLNodeType.SEQUENCE) {
                         throw WebSocketUtil.getWebSocketException("Invalid XML data", null,
                                 WebSocketConstants.ErrorCode.WsGenericError.errorCode(), null);
@@ -226,10 +223,10 @@ public class WebSocketResourceDispatcher {
                     return bxml;
                 case TypeTags.RECORD_TYPE_TAG:
                     return JSONUtils.convertJSONToRecord(JSONParser.parse(aggregateString),
-                                                         (BStructureType) dataType);
+                                                         (StructureType) dataType);
                 case TypeTags.ARRAY_TAG:
-                    if (((BArrayType) dataType).getElementType().getTag() == TypeTags.BYTE_TAG) {
-                        return new ArrayValueImpl(
+                    if (((ArrayType) dataType).getElementType().getTag() == TypeTags.BYTE_TAG) {
+                        return BValueCreator.createArrayValue(
                                 aggregateString.getBytes(StandardCharsets.UTF_8));
                     }
                     break;
@@ -237,7 +234,8 @@ public class WebSocketResourceDispatcher {
                     //Throw an exception because a different type is invalid.
                     //Cannot reach here because of compiler plugin validation.
                     throw WebSocketUtil.getWebSocketException("Invalid resource signature.", null,
-                            WebSocketConstants.ErrorCode.WsGenericError.errorCode(), null);
+                                                              WebSocketConstants.ErrorCode.WsGenericError.errorCode(),
+                                                              null);
             }
         } catch (WebSocketException ex) {
             webSocketConnection.terminateConnection(1003, ex.detailMessage());
@@ -266,17 +264,17 @@ public class WebSocketResourceDispatcher {
         try {
             WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
             WebSocketService wsService = connectionInfo.getService();
-            AttachedFunction onBinaryMessageResource = wsService.getResourceByName(
+            AttachedFunctionType onBinaryMessageResource = wsService.getResourceByName(
                     RESOURCE_NAME_ON_BINARY);
             if (onBinaryMessageResource == null) {
                 webSocketConnection.readNextFrame();
                 return;
             }
-            BType[] paramDetails = onBinaryMessageResource.getParameterType();
+            Type[] paramDetails = onBinaryMessageResource.getParameterType();
             Object[] bValues = new Object[paramDetails.length * 2];
             bValues[0] = connectionInfo.getWebSocketEndpoint();
             bValues[1] = true;
-            bValues[2] = new ArrayValueImpl(binaryMessage.getByteArray());
+            bValues[2] = BValueCreator.createArrayValue(binaryMessage.getByteArray());
             bValues[3] = true;
             if (paramDetails.length == 3) {
                 bValues[4] = binaryMessage.isFinalFragment();
@@ -307,17 +305,17 @@ public class WebSocketResourceDispatcher {
                                                     connectionInfo);
         try {
             WebSocketService wsService = connectionInfo.getService();
-            AttachedFunction onPingMessageResource = wsService.getResourceByName(
+            AttachedFunctionType onPingMessageResource = wsService.getResourceByName(
                     WebSocketConstants.RESOURCE_NAME_ON_PING);
             if (onPingMessageResource == null) {
                 pongAutomatically(controlMessage);
                 return;
             }
-            BType[] paramTypes = onPingMessageResource.getParameterType();
+            Type[] paramTypes = onPingMessageResource.getParameterType();
             Object[] bValues = new Object[paramTypes.length * 2];
             bValues[0] = connectionInfo.getWebSocketEndpoint();
             bValues[1] = true;
-            bValues[2] = new ArrayValueImpl(controlMessage.getByteArray());
+            bValues[2] = BValueCreator.createArrayValue(controlMessage.getByteArray());
             bValues[3] = true;
             executeResource(wsService, new WebSocketResourceCallback(
                     connectionInfo, WebSocketConstants.RESOURCE_NAME_ON_PING),
@@ -337,17 +335,17 @@ public class WebSocketResourceDispatcher {
         try {
             WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
             WebSocketService wsService = connectionInfo.getService();
-            AttachedFunction onPongMessageResource = wsService.getResourceByName(
+            AttachedFunctionType onPongMessageResource = wsService.getResourceByName(
                     WebSocketConstants.RESOURCE_NAME_ON_PONG);
             if (onPongMessageResource == null) {
                 webSocketConnection.readNextFrame();
                 return;
             }
-            BType[] paramDetails = onPongMessageResource.getParameterType();
+            Type[] paramDetails = onPongMessageResource.getParameterType();
             Object[] bValues = new Object[paramDetails.length * 2];
             bValues[0] = connectionInfo.getWebSocketEndpoint();
             bValues[1] = true;
-            bValues[2] = new ArrayValueImpl(controlMessage.getByteArray());
+            bValues[2] = BValueCreator.createArrayValue(controlMessage.getByteArray());
             bValues[3] = true;
             executeResource(wsService, new WebSocketResourceCallback(
                     connectionInfo, WebSocketConstants.RESOURCE_NAME_ON_PONG),
@@ -367,7 +365,7 @@ public class WebSocketResourceDispatcher {
             WebSocketUtil.setListenerOpenField(connectionInfo);
             WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
             WebSocketService wsService = connectionInfo.getService();
-            AttachedFunction onCloseResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_CLOSE);
+            AttachedFunctionType onCloseResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_CLOSE);
             int closeCode = closeMessage.getCloseCode();
             String closeReason = closeMessage.getCloseReason();
 
@@ -376,13 +374,13 @@ public class WebSocketResourceDispatcher {
                 return;
             }
 
-            BType[] paramDetails = onCloseResource.getParameterType();
+            Type[] paramDetails = onCloseResource.getParameterType();
             Object[] bValues = new Object[paramDetails.length * 2];
             bValues[0] = connectionInfo.getWebSocketEndpoint();
             bValues[1] = true;
             bValues[2] = closeCode;
             bValues[3] = true;
-            bValues[4] = closeReason == null ? StringUtils.fromString("") : StringUtils.fromString(closeReason);
+            bValues[4] = closeReason == null ? BStringUtils.fromString("") : BStringUtils.fromString(closeReason);
             bValues[5] = true;
             CallableUnitCallback onCloseCallback = new CallableUnitCallback() {
                 @Override
@@ -391,7 +389,7 @@ public class WebSocketResourceDispatcher {
                 }
 
                 @Override
-                public void notifyFailure(ErrorValue error) {
+                public void notifyFailure(BError error) {
                     ErrorHandlerUtils.printError(error.getPrintableStackTrace());
                     finishConnectionClosureIfOpen(webSocketConnection, closeCode, connectionInfo);
                     //Observe error
@@ -431,7 +429,7 @@ public class WebSocketResourceDispatcher {
             connectionInfo.getWebSocketEndpoint().set(WebSocketConstants.LISTENER_IS_OPEN_FIELD, false);
         }
         WebSocketService webSocketService = connectionInfo.getService();
-        AttachedFunction onErrorResource = webSocketService.getResourceByName(
+        AttachedFunctionType onErrorResource = webSocketService.getResourceByName(
                 WebSocketConstants.RESOURCE_NAME_ON_ERROR);
         if (isUnexpectedError(throwable)) {
             log.error("Unexpected error", throwable);
@@ -456,7 +454,7 @@ public class WebSocketResourceDispatcher {
             }
 
             @Override
-            public void notifyFailure(ErrorValue error) {
+            public void notifyFailure(BError error) {
                 ErrorHandlerUtils.printError(error.getPrintableStackTrace());
                 WebSocketObservabilityUtil.observeError(
                         connectionInfo, WebSocketObservabilityConstants.ERROR_TYPE_RESOURCE_INVOCATION,
@@ -476,12 +474,12 @@ public class WebSocketResourceDispatcher {
         try {
             WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
             WebSocketService wsService = connectionInfo.getService();
-            AttachedFunction onIdleTimeoutResource = wsService.getResourceByName(
+            AttachedFunctionType onIdleTimeoutResource = wsService.getResourceByName(
                     WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT);
             if (onIdleTimeoutResource == null) {
                 return;
             }
-            BType[] paramDetails = onIdleTimeoutResource.getParameterType();
+            Type[] paramDetails = onIdleTimeoutResource.getParameterType();
             Object[] bValues = new Object[paramDetails.length * 2];
             bValues[0] = connectionInfo.getWebSocketEndpoint();
             bValues[1] = true;
@@ -493,7 +491,7 @@ public class WebSocketResourceDispatcher {
                 }
 
                 @Override
-                public void notifyFailure(ErrorValue error) {
+                public void notifyFailure(BError error) {
                     ErrorHandlerUtils.printError(error.getPrintableStackTrace());
                     WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
                 }
@@ -528,11 +526,11 @@ public class WebSocketResourceDispatcher {
             Map<String, Object> properties = new HashMap<>();
             WebSocketObserverContext observerContext = new WebSocketObserverContext(connectionInfo);
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
-            Executor.submit(wsService.getScheduler(), wsService.getBalService(), resource, null, metaData, callback,
-                            properties, bValues);
+            wsService.getRuntime().invokeMethodAsync(wsService.getBalService(), resource, null, metaData, callback,
+                             properties, bValues);
         } else {
-            Executor.submit(wsService.getScheduler(), wsService.getBalService(), resource, null, metaData, callback,
-                            null, bValues);
+            wsService.getRuntime().invokeMethodAsync(wsService.getBalService(), resource, null, metaData, callback,
+                             null, bValues);
         }
         WebSocketObservabilityUtil.observeResourceInvocation(connectionInfo, resource);
     }

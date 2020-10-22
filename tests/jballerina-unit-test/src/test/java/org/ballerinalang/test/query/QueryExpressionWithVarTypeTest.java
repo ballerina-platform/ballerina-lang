@@ -18,10 +18,10 @@
 
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -247,4 +247,23 @@ public class QueryExpressionWithVarTypeTest {
         Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
         Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
+
+    @Test(description = "Test variable shadowing with query expressions (with global variables)")
+    public void testVariableShadowingWithQueryExpressions1() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testVariableShadowingWithQueryExpressions1");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+    }
+
+    @Test(description = "Test variable shadowing with query expressions (with local variables)")
+    public void testVariableShadowingWithQueryExpressions2() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testVariableShadowingWithQueryExpressions2");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+    }
+
 }

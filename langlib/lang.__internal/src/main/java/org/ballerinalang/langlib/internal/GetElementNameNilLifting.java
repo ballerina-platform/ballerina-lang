@@ -17,31 +17,20 @@
  */
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BXML;
 
-import static org.ballerinalang.jvm.BallerinaErrors.createError;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
+import static io.ballerina.runtime.api.ErrorCreator.createError;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
 
 /**
  * Return name of the element if `x` is a element or nil if element name is not set, else error.
  *
  * @since 1.2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0",
-        functionName = "getElementNameNilLifting",
-        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
-        returnType = {@ReturnType(type = TypeKind.UNION)},
-        isPublic = true
-)
 public class GetElementNameNilLifting {
 
-    public static Object getElementNameNilLifting(Strand strand, XMLValue xmlVal, String attrName) {
+    public static Object getElementNameNilLifting(BXML xmlVal) {
         if (IsElement.isElement(xmlVal)) {
             String elementName = xmlVal.getElementName();
             if (elementName.equals("")) {
@@ -50,6 +39,7 @@ public class GetElementNameNilLifting {
             return elementName;
         }
         String nodeTypeName = xmlVal.getNodeType().value();
-        return createError(XML_OPERATION_ERROR, "XML " + nodeTypeName + " does not contain element name");
+        return createError(XML_OPERATION_ERROR,
+                           StringUtils.fromString("XML " + nodeTypeName + " does not contain element name"));
     }
 }

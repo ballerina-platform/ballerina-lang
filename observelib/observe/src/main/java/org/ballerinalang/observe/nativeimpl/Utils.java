@@ -19,19 +19,17 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.observability.metrics.PercentileValue;
-import org.ballerinalang.jvm.observability.metrics.Snapshot;
-import org.ballerinalang.jvm.observability.metrics.StatisticConfig;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.BmpStringValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.observability.metrics.PercentileValue;
+import io.ballerina.runtime.observability.metrics.Snapshot;
+import io.ballerina.runtime.observability.metrics.StatisticConfig;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,19 +40,19 @@ import java.util.Map.Entry;
  */
 public class Utils {
 
-    private static final BType STATISTIC_CONFIG_TYPE =
-            BallerinaValues.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID,
-                    ObserveNativeImplConstants.STATISTIC_CONFIG).getType();
+    private static final Type STATISTIC_CONFIG_TYPE =
+            ValueCreator.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID,
+                                           ObserveNativeImplConstants.STATISTIC_CONFIG).getType();
 
-    private static final BType PERCENTILE_VALUE_TYPE =
-            BallerinaValues.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID,
-                    ObserveNativeImplConstants.PERCENTILE_VALUE).getType();
+    private static final Type PERCENTILE_VALUE_TYPE =
+            ValueCreator.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID,
+                                           ObserveNativeImplConstants.PERCENTILE_VALUE).getType();
 
-    private static final BType SNAPSHOT_TYPE =
-            BallerinaValues.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID,
-                    ObserveNativeImplConstants.SNAPSHOT).getType();
+    private static final Type SNAPSHOT_TYPE =
+            ValueCreator.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID,
+                                           ObserveNativeImplConstants.SNAPSHOT).getType();
 
-    public static Map<String, String> toStringMap(MapValue<BString, ?> map) {
+    public static Map<String, String> toStringMap(BMap<BString, ?> map) {
         Map<String, String> returnMap = new HashMap<>();
         if (map != null) {
             for (Entry<BString, ?> keyVals : map.entrySet()) {
@@ -65,32 +63,32 @@ public class Utils {
         return returnMap;
     }
 
-    public static ArrayValue createBSnapshots(Snapshot[] snapshots, Strand strand) {
+    public static BArray createBSnapshots(Snapshot[] snapshots) {
         if (snapshots != null && snapshots.length > 0) {
 
-            ArrayValue bSnapshots = new ArrayValueImpl(new BArrayType(SNAPSHOT_TYPE));
+            BArray bSnapshots = ValueCreator.createArrayValue(TypeCreator.createArrayType(SNAPSHOT_TYPE));
             int index = 0;
             for (Snapshot snapshot : snapshots) {
-                ArrayValue bPercentiles = new ArrayValueImpl(new BArrayType(PERCENTILE_VALUE_TYPE));
+                BArray bPercentiles = ValueCreator.createArrayValue(TypeCreator.createArrayType(PERCENTILE_VALUE_TYPE));
                 int percentileIndex = 0;
                 for (PercentileValue percentileValue : snapshot.getPercentileValues()) {
-                    MapValue<BString, Object> bPercentileValue =
-                            BallerinaValues.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID,
-                                                              ObserveNativeImplConstants.PERCENTILE_VALUE);
-                    bPercentileValue.put(new BmpStringValue("percentile"), percentileValue.getPercentile());
-                    bPercentileValue.put(new BmpStringValue("value"), percentileValue.getValue());
+                    BMap<BString, Object> bPercentileValue =
+                            ValueCreator.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID,
+                                                           ObserveNativeImplConstants.PERCENTILE_VALUE);
+                    bPercentileValue.put(StringUtils.fromString("percentile"), percentileValue.getPercentile());
+                    bPercentileValue.put(StringUtils.fromString("value"), percentileValue.getValue());
                     bPercentiles.add(percentileIndex, bPercentileValue);
                     percentileIndex++;
                 }
 
-                MapValue<BString, Object> aSnapshot = BallerinaValues.createRecordValue(
+                BMap<BString, Object> aSnapshot = ValueCreator.createRecordValue(
                         ObserveNativeImplConstants.OBSERVE_PACKAGE_ID, ObserveNativeImplConstants.SNAPSHOT);
-                aSnapshot.put(new BmpStringValue("timeWindow"), snapshot.getTimeWindow().toMillis());
-                aSnapshot.put(new BmpStringValue("mean"), snapshot.getMean());
-                aSnapshot.put(new BmpStringValue("max"), snapshot.getMax());
-                aSnapshot.put(new BmpStringValue("min"), snapshot.getMin());
-                aSnapshot.put(new BmpStringValue("stdDev"), snapshot.getStdDev());
-                aSnapshot.put(new BmpStringValue("percentileValues"), bPercentiles);
+                aSnapshot.put(StringUtils.fromString("timeWindow"), snapshot.getTimeWindow().toMillis());
+                aSnapshot.put(StringUtils.fromString("mean"), snapshot.getMean());
+                aSnapshot.put(StringUtils.fromString("max"), snapshot.getMax());
+                aSnapshot.put(StringUtils.fromString("min"), snapshot.getMin());
+                aSnapshot.put(StringUtils.fromString("stdDev"), snapshot.getStdDev());
+                aSnapshot.put(StringUtils.fromString("percentileValues"), bPercentiles);
                 bSnapshots.add(index, aSnapshot);
                 index++;
             }
@@ -100,28 +98,29 @@ public class Utils {
         }
     }
 
-    public static ArrayValue createBStatisticConfig(StatisticConfig[] configs) {
+    public static BArray createBStatisticConfig(StatisticConfig[] configs) {
         if (configs != null) {
-            ArrayValue bStatsConfig = new ArrayValueImpl(new BArrayType(STATISTIC_CONFIG_TYPE));
+            BArray bStatsConfig = ValueCreator.createArrayValue(TypeCreator.createArrayType(STATISTIC_CONFIG_TYPE));
             int index = 0;
             for (StatisticConfig config : configs) {
-                ArrayValue bPercentiles = new ArrayValueImpl(new BArrayType(BTypes.typeFloat));
+                BArray bPercentiles = ValueCreator.createArrayValue(TypeCreator.createArrayType(
+                        PredefinedTypes.TYPE_FLOAT));
                 int percentileIndex = 0;
                 for (Double percentile : config.getPercentiles()) {
                     bPercentiles.add(percentileIndex, percentile);
                     percentileIndex++;
                 }
-                MapValue<BString, Object> aSnapshot = BallerinaValues.createRecordValue(
+                BMap<BString, Object> aSnapshot = ValueCreator.createRecordValue(
                         ObserveNativeImplConstants.OBSERVE_PACKAGE_ID, ObserveNativeImplConstants.STATISTIC_CONFIG);
-                aSnapshot.put(new BmpStringValue("percentiles"), bPercentiles);
-                aSnapshot.put(new BmpStringValue("timeWindow"), config.getTimeWindow());
-                aSnapshot.put(new BmpStringValue("buckets"), config.getBuckets());
+                aSnapshot.put(StringUtils.fromString("percentiles"), bPercentiles);
+                aSnapshot.put(StringUtils.fromString("timeWindow"), config.getTimeWindow());
+                aSnapshot.put(StringUtils.fromString("buckets"), config.getBuckets());
                 bStatsConfig.add(index, aSnapshot);
                 index++;
             }
             return bStatsConfig;
         } else {
-            return new ArrayValueImpl(new BArrayType(STATISTIC_CONFIG_TYPE));
+            return ValueCreator.createArrayValue(TypeCreator.createArrayType(STATISTIC_CONFIG_TYPE));
         }
     }
 }

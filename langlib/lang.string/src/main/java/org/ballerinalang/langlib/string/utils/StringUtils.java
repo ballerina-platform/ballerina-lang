@@ -17,10 +17,12 @@
  */
 package org.ballerinalang.langlib.string.utils;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BString;
 
 import java.util.Arrays;
+
+import static io.ballerina.runtime.api.ErrorCreator.createError;
 
 /**
  * A string lib utility class.
@@ -29,10 +31,13 @@ import java.util.Arrays;
  */
 public class StringUtils {
 
+    private static final BString NULL_REF_EXCEPTION = io.ballerina.runtime.api.StringUtils
+            .fromString("NullReferenceException");
+
     public static void checkForNull(String... values) {
         Arrays.stream(values).forEach(value -> {
             if (value == null) {
-                throw BallerinaErrors.createNullReferenceError();
+                throw createNullReferenceError();
             }
         });
     }
@@ -40,8 +45,12 @@ public class StringUtils {
     public static void checkForNull(BString... values) {
         Arrays.stream(values).forEach(value -> {
             if (value == null) {
-                throw BallerinaErrors.createNullReferenceError();
+                throw createNullReferenceError();
             }
         });
+    }
+
+    public static BError createNullReferenceError() {
+        return createError(NULL_REF_EXCEPTION);
     }
 }

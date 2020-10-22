@@ -18,8 +18,8 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
 import org.slf4j.Logger;
@@ -42,7 +42,7 @@ public class Exec {
 
     private static final Logger log = LoggerFactory.getLogger(Exec.class);
 
-    public static Object exec(BString command, MapValue<BString, BString> env, Object dir, BString[] args) {
+    public static Object exec(BString command, BMap<BString, BString> env, Object dir, BString[] args) {
         List<String> commandList = new ArrayList<>();
         commandList.add(command.getValue());
         commandList.addAll(Arrays.stream(args).map(BString::getValue).collect(Collectors.toList()));

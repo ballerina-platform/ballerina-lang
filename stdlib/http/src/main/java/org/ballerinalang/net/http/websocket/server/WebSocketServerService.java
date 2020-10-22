@@ -18,10 +18,10 @@
 
 package org.ballerinalang.net.http.websocket.server;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.BRuntime;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpUtil;
@@ -40,28 +40,28 @@ public class WebSocketServerService extends WebSocketService {
     private int idleTimeoutInSeconds = 0;
     private HttpResource upgradeResource;
 
-    public WebSocketServerService(ObjectValue service, Scheduler scheduler) {
-        super(service, scheduler);
+    public WebSocketServerService(BObject service, BRuntime runtime) {
+        super(service, runtime);
         populateConfigs();
     }
 
-    public WebSocketServerService(String httpBasePath, HttpResource upgradeResource, ObjectValue service,
-                                  Scheduler scheduler) {
-        this(service, scheduler);
+    public WebSocketServerService(String httpBasePath, HttpResource upgradeResource, BObject service,
+                                  BRuntime runtime) {
+        this(service, runtime);
         setBasePathWithUpgradePath(httpBasePath, upgradeResource);
         this.upgradeResource = upgradeResource;
     }
 
     private void setBasePathWithUpgradePath(String httpBasePath, HttpResource upgradeResource) {
-        MapValue resourceConfigAnnotation = HttpResource.getResourceConfigAnnotation(upgradeResource.getBalResource());
-        MapValue webSocketConfig =
+        BMap resourceConfigAnnotation = HttpResource.getResourceConfigAnnotation(upgradeResource.getBalResource());
+        BMap webSocketConfig =
                 resourceConfigAnnotation.getMapValue(HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
         String upgradePath = webSocketConfig.getStringValue(HttpConstants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH).getValue();
         setBasePathToServiceObj(httpBasePath.concat(upgradePath));
     }
 
     private void populateConfigs() {
-        MapValue<BString, Object> configAnnotation = getServiceConfigAnnotation();
+        BMap<BString, Object> configAnnotation = getServiceConfigAnnotation();
         if (configAnnotation != null) {
             negotiableSubProtocols = WebSocketUtil.findNegotiableSubProtocols(configAnnotation);
             idleTimeoutInSeconds = WebSocketUtil.findTimeoutInSeconds(configAnnotation,
@@ -73,8 +73,8 @@ public class WebSocketServerService extends WebSocketService {
     }
 
     @SuppressWarnings(WebSocketConstants.UNCHECKED)
-    private MapValue<BString, Object> getServiceConfigAnnotation() {
-        return (MapValue<BString, Object>) service.getType().getAnnotation(
+    private BMap<BString, Object> getServiceConfigAnnotation() {
+        return (BMap<BString, Object>) service.getType().getAnnotation(
                 HttpConstants.PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION);
     }
 
@@ -115,7 +115,7 @@ public class WebSocketServerService extends WebSocketService {
         return basePath;
     }
 
-    private String findFullWebSocketUpgradePath(MapValue config) {
+    private String findFullWebSocketUpgradePath(BMap config) {
         String path = null;
         if (config != null) {
             String basePathVal = config.getStringValue(WebSocketConstants.ANNOTATION_ATTR_PATH).getValue();

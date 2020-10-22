@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.hover;
 
 import org.ballerinalang.langserver.common.constants.ContextConstants;
-import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.model.elements.Flag;
@@ -47,9 +46,9 @@ public class HoverUtil {
     /**
      * Get Hover from documentation attachment.
      *
-     * @param docAttachment     Documentation attachment
-     * @param symbol hovered symbol
-     * @param ctx   LS Context
+     * @param docAttachment Documentation attachment
+     * @param symbol        hovered symbol
+     * @param ctx           LS Context
      * @return {@link Hover}    hover object.
      */
     public static Hover getHoverFromDocAttachment(MarkdownDocAttachment docAttachment, BSymbol symbol, LSContext ctx) {
@@ -91,11 +90,12 @@ public class HoverUtil {
             if (symbol instanceof BInvokableSymbol) {
                 // Get type information
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) symbol;
-                returnType = " `" + CommonUtil.getBTypeName(invokableSymbol.retType, ctx, false) + "`";
+                // Fixme in the next phase
+//                returnType = " `" + CommonUtil.getBTypeName(invokableSymbol.retType, ctx, false) + "`";
             }
             content.append(getFormattedHoverDocContent(ContextConstants.RETURN_TITLE, returnType,
-                                                       getReturnValueDescription(
-                                                               docAttachment.returnValueDescription)));
+                    getReturnValueDescription(
+                            docAttachment.returnValueDescription)));
         }
 
         hoverMarkupContent.setValue(content.toString());
@@ -119,9 +119,9 @@ public class HoverUtil {
     }
 
     /**
-     * Get the markdown doc attachment for the symbol. 
+     * Get the markdown doc attachment for the symbol.
      * For the variable symbol direct markdown content is empty, hence consider the type symbol.
-     * 
+     *
      * @param bSymbol BSymbol to evaluate
      * @return {@link MarkdownDocAttachment} Doc Attachment
      */
@@ -131,7 +131,7 @@ public class HoverUtil {
             return bSymbol.markdownDocumentation;
         }
         MarkdownDocAttachment markdownDocAttachment = null;
-        
+
         switch (symbolKind) {
             case RECORD:
             case OBJECT:
@@ -146,14 +146,14 @@ public class HoverUtil {
             default:
                 break;
         }
-        
+
         return markdownDocAttachment;
     }
 
     /**
      * Filter documentation attributes to each tags.
      *
-     * @param docAttachment     documentation node
+     * @param docAttachment documentation node
      * @return {@link Map}      filtered content map
      */
     private static Map<String, List<MarkdownDocAttachment.Parameter>> filterDocumentationAttributes(
@@ -193,9 +193,9 @@ public class HoverUtil {
     /**
      * Get the doc annotation attributes.
      *
-     * @param parameters        parameters to be extracted
-     * @param symbol            symbol
-     * @param ctx               LS Context
+     * @param parameters parameters to be extracted
+     * @param symbol     symbol
+     * @param ctx        LS Context
      * @return {@link String }  extracted content of annotation
      */
     private static String getDocAttributes(List<MarkdownDocAttachment.Parameter> parameters, BSymbol symbol,
@@ -209,9 +209,7 @@ public class HoverUtil {
             // If it is a parameters set of a function invocation
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) symbol;
             List<BVarSymbol> params = invokableSymbol.params;
-            int invocationType = (ctx == null || ctx.get(NodeContextKeys.INVOCATION_TOKEN_TYPE_KEY) == null) ? -1
-                    : ctx.get(NodeContextKeys.INVOCATION_TOKEN_TYPE_KEY);
-            skipFirstParam = CommonUtil.skipFirstParam(invokableSymbol, invocationType);
+            skipFirstParam = skipFirstParam(ctx, invokableSymbol);
             for (int i = 0; i < params.size(); i++) {
                 if (i == 0 && skipFirstParam) {
                     continue;
@@ -243,7 +241,8 @@ public class HoverUtil {
             String type = "";
             if (!paramSymbols.isEmpty() && paramSymbols.get(parameter.name) != null) {
                 isOptional = ((paramSymbols.get(parameter.name).flags & Flags.OPTIONAL) == Flags.OPTIONAL);
-                type = "`" + CommonUtil.getBTypeName(paramSymbols.get(parameter.name).type, ctx, false) + "` ";
+                // Fixme in the next phase
+//                type = "`" + CommonUtil.getBTypeName(paramSymbols.get(parameter.name).type, ctx, false) + "` ";
             }
             value.append("- ")
                     .append(type).append("**")
@@ -275,5 +274,12 @@ public class HoverUtil {
         return "**" + header + "**" + subHeader + CommonUtil.MD_LINE_SEPARATOR + CommonUtil.MD_NEW_LINE_PATTERN.matcher(
                 content)
                 .replaceAll(CommonUtil.MD_LINE_SEPARATOR) + CommonUtil.MD_LINE_SEPARATOR;
+    }
+
+    private static boolean skipFirstParam(LSContext context, BInvokableSymbol invokableSymbol) {
+        // Fixme in the next phase
+//        NonTerminalNode evalNode = context.get(CompletionKeys.TOKEN_AT_CURSOR_KEY).parent();
+//        return CommonUtil.isLangLibSymbol(invokableSymbol) && evalNode.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
+        return false;
     }
 }

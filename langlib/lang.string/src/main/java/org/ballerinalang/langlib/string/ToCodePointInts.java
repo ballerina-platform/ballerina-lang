@@ -18,32 +18,25 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * Extern function lang.string:toCodePointInts(string).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "toCodePointInts",
-        args = {@Argument(name = "str", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.string", functionName = "toCodePointInts",
+//        args = {@Argument(name = "str", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.ARRAY)},
+//        isPublic = true
+//)
 public class ToCodePointInts {
 
-    public static ArrayValue toCodePointInts(Strand strand, BString str) {
+    public static BArray toCodePointInts(BString str) {
         long[] ints = str.getValue().codePoints().asLongStream().toArray();
-        return new ArrayValueImpl(ints);
+        return ValueCreator.createArrayValue(ints);
     }
 }

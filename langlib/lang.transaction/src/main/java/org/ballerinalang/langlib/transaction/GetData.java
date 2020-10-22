@@ -18,29 +18,17 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
+import io.ballerina.runtime.scheduling.Scheduler;
 
 /**
  * Extern function transaction:getData.
  *
  * @since 2.0.0-preview1
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.transaction", version = TRANSACTION_VERSION,
-        functionName = "getData",
-        args = {},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-        isPublic = true
-)
 public class GetData {
 
-    public static Object getData(Strand strand) {
+    public static Object getData() {
 
-        return strand.currentTrxContext.getTransactionData();
+        return Scheduler.getStrand().currentTrxContext.getTransactionData();
     }
 }

@@ -20,7 +20,7 @@ import ballerina/stringutils;
 # the characters pulled from the bufferReader is passed through
 # symbol recognizers, identifers, reserved words and numeric recognizers
 # to build tokens
-public type Lexer object {
+public class Lexer {
     TokenMapper tokenMapper = new;
     //token position relative to the line number
     int position = 0;
@@ -218,7 +218,7 @@ public type Lexer object {
             lineNumber: self.lineNum,
             index: self.tokenIndex,
             whiteSpace: self.wsStack.getWhiteSpace()
-        };
+        }
     }
 };
 
@@ -311,7 +311,7 @@ function getReservedKey(string word) returns int {
 # If a whitespace is reached it will be pushed to the stack.
 # once getWhitespace() method is called
 # stack will be popped and all the whitespaces which were infront of the character will be added to the token whitespcae field
-type WhiteSpaceStack object {
+class WhiteSpaceStack {
     string[] spaceStack = [];
     int top;
 
@@ -342,4 +342,4 @@ type WhiteSpaceStack object {
             return space;
         }
     }
-};
+}

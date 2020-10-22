@@ -1,6 +1,6 @@
 {
     "line": 29,
-    "character": 26,
+    "character": 4,
     "expected": {
         "title": "Create Local Variable",
         "edits": [
@@ -15,7 +15,7 @@
               "character": 4
           }
         },
-          "newText": "byte[] hashMd5Result = "
+          "newText": "byte[] bytes = "
       }
         ]
     }

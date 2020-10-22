@@ -16,7 +16,7 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import org.ballerinalang.jvm.BRuntime;
+import io.ballerina.runtime.scheduling.AsyncUtils;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -30,7 +30,7 @@ import java.util.concurrent.CompletableFuture;
 public class AsyncInterop {
 
     public static int countSlowly() {
-        CompletableFuture<Object> future = BRuntime.markAsync();
+        CompletableFuture<Object> future = AsyncUtils.markAsync();
 
         new Thread(() -> {
             sleep();

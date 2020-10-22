@@ -17,7 +17,7 @@ public function testObjectWithInterface () returns (int, string) {
 }
 
 
-type Person object {
+class Person {
 
     public int age;
     public string name;
@@ -59,7 +59,7 @@ type Person object {
     }
 
     function attachInterface(int add) returns int;
-};
+}
 
 
 function Person.attachInterface(int add) returns int {

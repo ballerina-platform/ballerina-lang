@@ -52,10 +52,6 @@
                               "kind": "OPEN_BRACE_TOKEN",
                               "trailingMinutiae": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
-                                {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
                                 }
@@ -69,11 +65,16 @@
                                   "children": [
                                     {
                                       "kind": "STRING_LITERAL",
-                                      "value": "name",
-                                      "leadingMinutiae": [
+                                      "children": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "    "
+                                          "kind": "STRING_LITERAL_TOKEN",
+                                          "value": "name",
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "    "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -90,7 +91,7 @@
                                       "kind": "STRING_LITERAL",
                                       "children": [
                                         {
-                                          "kind": "STRING_LITERAL",
+                                          "kind": "STRING_LITERAL_TOKEN",
                                           "value": "foo"
                                         }
                                       ]
@@ -100,10 +101,6 @@
                                 {
                                   "kind": "COMMA_TOKEN",
                                   "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    },
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
                                       "value": "\n"
@@ -136,7 +133,7 @@
                                       "kind": "STRING_LITERAL",
                                       "children": [
                                         {
-                                          "kind": "STRING_LITERAL",
+                                          "kind": "STRING_LITERAL_TOKEN",
                                           "value": "some function"
                                         }
                                       ]
@@ -157,11 +154,16 @@
                                   "children": [
                                     {
                                       "kind": "STRING_LITERAL",
-                                      "value": "info",
-                                      "leadingMinutiae": [
+                                      "children": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "    "
+                                          "kind": "STRING_LITERAL_TOKEN",
+                                          "value": "info",
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "    "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -181,8 +183,8 @@
                                           "kind": "OPEN_BRACE_TOKEN",
                                           "trailingMinutiae": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "END_OF_LINE_MINUTIAE",
+                                              "value": "\n"
                                             }
                                           ]
                                         },
@@ -194,7 +196,18 @@
                                               "children": [
                                                 {
                                                   "kind": "STRING_LITERAL",
-                                                  "value": "returns"
+                                                  "children": [
+                                                    {
+                                                      "kind": "STRING_LITERAL_TOKEN",
+                                                      "value": "returns",
+                                                      "leadingMinutiae": [
+                                                        {
+                                                          "kind": "WHITESPACE_MINUTIAE",
+                                                          "value": "        "
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "COLON_TOKEN",
@@ -209,7 +222,7 @@
                                                   "kind": "STRING_LITERAL",
                                                   "children": [
                                                     {
-                                                      "kind": "STRING_LITERAL",
+                                                      "kind": "STRING_LITERAL_TOKEN",
                                                       "value": "none"
                                                     }
                                                   ]
@@ -220,8 +233,8 @@
                                               "kind": "COMMA_TOKEN",
                                               "trailingMinutiae": [
                                                 {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
+                                                  "kind": "END_OF_LINE_MINUTIAE",
+                                                  "value": "\n"
                                                 }
                                               ]
                                             },
@@ -230,7 +243,13 @@
                                               "children": [
                                                 {
                                                   "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "status"
+                                                  "value": "status",
+                                                  "leadingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": "        "
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "COLON_TOKEN",
@@ -246,7 +265,13 @@
                                                   "children": [
                                                     {
                                                       "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "code"
+                                                      "value": "code",
+                                                      "trailingMinutiae": [
+                                                        {
+                                                          "kind": "END_OF_LINE_MINUTIAE",
+                                                          "value": "\n"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -256,6 +281,12 @@
                                         },
                                         {
                                           "kind": "CLOSE_BRACE_TOKEN",
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "    "
+                                            }
+                                          ],
                                           "trailingMinutiae": [
                                             {
                                               "kind": "END_OF_LINE_MINUTIAE",
@@ -273,10 +304,6 @@
                               "kind": "CLOSE_BRACE_TOKEN",
                               "trailingMinutiae": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
-                                {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
                                 }
@@ -291,11 +318,16 @@
               ]
             },
             {
-              "kind": "PUBLIC_KEYWORD",
-              "trailingMinutiae": [
+              "kind": "LIST",
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "PUBLIC_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },

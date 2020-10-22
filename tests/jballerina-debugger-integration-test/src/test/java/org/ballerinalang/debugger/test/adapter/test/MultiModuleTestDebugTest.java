@@ -34,6 +34,7 @@ import java.nio.file.Paths;
 /**
  * Test class for tests file related debug scenarios for test command.
  */
+@Test(enabled = false)
 public class MultiModuleTestDebugTest extends DebugAdapterBaseTestCase {
 
     @BeforeClass
@@ -45,14 +46,15 @@ public class MultiModuleTestDebugTest extends DebugAdapterBaseTestCase {
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMultiModuleDebugScenarios() throws BallerinaTestException {
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 24));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 30));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 40));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 49));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 56));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 63));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 29));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 38));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 47));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 54));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 60));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 70));
         initDebugSession(DebugUtils.DebuggeeExecutionKind.TEST);
 
         // Test for debug engage and break point hit @test:BeforeSuite
@@ -77,6 +79,11 @@ public class MultiModuleTestDebugTest extends DebugAdapterBaseTestCase {
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(3));
+
+        // Test for break point hit in mock function
+        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(6));
 
         // Test for break point hit @test:AfterSuite
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);

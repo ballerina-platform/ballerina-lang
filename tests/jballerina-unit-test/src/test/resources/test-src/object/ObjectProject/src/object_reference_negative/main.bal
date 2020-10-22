@@ -16,8 +16,8 @@
 
 import abstract_objects_with_non_public_symbols as abc;
 
-type Bar object {
+class Bar {
     *abc:Foo;
     *abc:Bar;
     *abc:Baz;
-};
+}

@@ -12,13 +12,8 @@
           "kind": "FUNCTION_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",
@@ -82,6 +77,10 @@
                             {
                               "kind": "FUNCTION_TYPE_DESC",
                               "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
                                 {
                                   "kind": "FUNCTION_KEYWORD",
                                   "leadingMinutiae": [
@@ -178,12 +177,12 @@
                                   "children": []
                                 },
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "FUNCTION_KEYWORD",
                                   "leadingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "    "
-                                    },
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
                                       "value": "\n"
@@ -256,10 +255,10 @@
                                       ]
                                     },
                                     {
-                                      "kind": "DECIMAL_INTEGER_LITERAL",
+                                      "kind": "NUMERIC_LITERAL",
                                       "children": [
                                         {
-                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                           "value": "5",
                                           "trailingMinutiae": [
                                             {

@@ -41,6 +41,16 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
         test("func-definition/func_def_source_08.bal", "func-definition/func_def_assert_08.json");
     }
 
+    @Test
+    public void testFunctionWithIsolatedQualifier() {
+        test("func-definition/isolated_func_def_01.bal", "func-definition/isolated_func_def_assert_01.json");
+        test("func-definition/isolated_func_def_02.bal", "func-definition/isolated_func_def_assert_02.json");
+        test("func-definition/isolated_func_def_03.bal", "func-definition/isolated_func_def_assert_03.json");
+        test("func-definition/isolated_func_def_04.bal", "func-definition/isolated_func_def_assert_04.json");
+        test("func-definition/isolated_func_def_05.bal", "func-definition/isolated_func_def_assert_05.json");
+        test("func-definition/isolated_func_def_06.bal", "func-definition/isolated_func_def_assert_06.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -145,5 +155,20 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
     @Test
     public void testFunctionWithInvalidExpressionStatement() {
         testFile("func-definition/func_def_source_24.bal", "func-definition/func_def_assert_24.json");
+    }
+
+    @Test
+    public void testMissingFunctionKeywordWithQualifiers() {
+        testFile("func-definition/func_def_source_25.bal", "func-definition/func_def_assert_25.json");
+    }
+
+    @Test
+    public void testMissingFunctionNameWithQualifiers() {
+        testFile("func-definition/func_def_source_26.bal", "func-definition/func_def_assert_26.json");
+    }
+
+    @Test
+    public void testMissingTokensWithQualifiers() {
+        testFile("func-definition/func_def_source_27.bal", "func-definition/func_def_assert_27.json");
     }
 }

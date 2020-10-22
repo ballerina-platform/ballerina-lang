@@ -18,36 +18,30 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 import org.ballerinalang.langlib.string.utils.StringUtils;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
-import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+import static io.ballerina.runtime.util.BLangConstants.STRING_LANG_LIB;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Extern function ballerina.model.strings:lastIndexOf.
  *
  * @since 1.2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION,
-        functionName = "lastIndexOf",
-        args = {@Argument(name = "s", type = TypeKind.STRING),
-                @Argument(name = "substring", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.UNION)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.string",
+//        functionName = "lastIndexOf",
+//        args = {@Argument(name = "s", type = TypeKind.STRING),
+//                @Argument(name = "substring", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.UNION)},
+//        isPublic = true
+//)
 public class LastIndexOf {
-    public static Object lastIndexOf(Strand strand, BString value, BString subString, long startIndex) {
+    public static Object lastIndexOf(BString value, BString subString, long startIndex) {
         StringUtils.checkForNull(value, subString);
         if (startIndex > Integer.MAX_VALUE) {
             throw BLangExceptionHelper.getRuntimeException(getModulePrefixedReason(STRING_LANG_LIB,

@@ -29,4 +29,5 @@ public abstract class BLangVariableReference extends BLangExpression implements 
     public boolean lhsVar = false;
     public boolean compoundAssignmentLhsVar = false;
     public BSymbol pkgSymbol;
+
 }

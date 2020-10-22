@@ -23,6 +23,8 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.util.HashMap;
+
 /**
  * Test class containing tests related to test grouping.
  */
@@ -104,6 +106,24 @@ public class GroupingTest extends BaseTestCase {
         balClient.runMain("test", new String[]{"--list-groups", "groups-test.bal"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);
         clientLeecher.waitForText(20000);
+    }
+
+    @Test
+    public void beforeGroupsAfterGroups1() throws BallerinaTestException {
+        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"before-groups-after-groups-test.bal"},
+                new HashMap<>(), projectPath, true);
+        if (errorOutput.contains("[fail] afterSuiteFunc")) {
+            throw new BallerinaTestException("Test failed due to assertion failure in after suite function");
+        }
+    }
+
+    @Test
+    public void beforeGroupsAfterGroups2() throws BallerinaTestException {
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"before-groups-after-groups-test2.bal"}, new HashMap<>(), projectPath, true);
+        if (errorOutput.contains("[fail] afterSuiteFunc")) {
+            throw new BallerinaTestException("Test failed due to assertion failure in after suite function");
+        }
     }
 
 }

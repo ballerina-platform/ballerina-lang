@@ -17,37 +17,25 @@
  */
 package org.ballerinalang.langserver.completions;
 
+import io.ballerina.compiler.api.types.FieldDescriptor;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.commons.completion.AbstractLSCompletionItem;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 
 /**
- * Represents a BField Completion Item.
+ * Represents a Field Descriptor Completion Item.
  *
  * @since 1.2.0
  */
-public class FieldCompletionItem implements LSCompletionItem {
-    private LSContext lsContext;
-    private CompletionItem completionItem;
-    private BField bField;
+public class FieldCompletionItem extends AbstractLSCompletionItem {
+    private final FieldDescriptor fieldDescriptor;
 
-    public FieldCompletionItem(LSContext lsContext, BField bField, CompletionItem completionItem) {
-        this.lsContext = lsContext;
-        this.completionItem = completionItem;
-        this.bField = bField;
+    public FieldCompletionItem(LSContext lsContext, FieldDescriptor fieldDescriptor, CompletionItem completionItem) {
+        super(lsContext, completionItem);
+        this.fieldDescriptor = fieldDescriptor;
     }
 
-    @Override
-    public CompletionItem getCompletionItem() {
-        return this.completionItem;
-    }
-
-    public LSContext getLsContext() {
-        return lsContext;
-    }
-
-    public BField getBField() {
-        return bField;
+    public FieldDescriptor getFieldDescriptor() {
+        return fieldDescriptor;
     }
 }

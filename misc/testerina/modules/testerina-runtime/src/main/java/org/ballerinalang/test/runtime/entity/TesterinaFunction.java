@@ -17,18 +17,20 @@
  */
 package org.ballerinalang.test.runtime.entity;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.FutureValue;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * TesterinaFunction entity class.
@@ -39,6 +41,7 @@ public class TesterinaFunction {
 
     private String bFunctionName;
     private Class<?> programFile;
+    private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[\\.:/<>]");
 
     // Annotation info
     private List<String> groups = new ArrayList<>();
@@ -49,7 +52,7 @@ public class TesterinaFunction {
         this.scheduler = scheduler;
     }
 
-    public Object invoke() throws BallerinaException {
+    public Object invoke() {
         return runOnSchedule(programFile, bFunctionName, scheduler, new Class[]{Strand.class}, new Object[1]);
     }
 
@@ -105,19 +108,18 @@ public class TesterinaFunction {
                 try {
                     return method.invoke(null, objects);
                 } catch (InvocationTargetException e) {
-                    //throw new BallerinaException(e);
                     return e.getTargetException();
                 } catch (IllegalAccessException e) {
                     throw new BallerinaException("Error while invoking function '" + funcName + "'", e);
                 }
             };
-            final FutureValue out = scheduler.schedule(params, func, null, null, null, BTypes.typeAny,
-                                                       null, null);
+            final BFuture out = scheduler.schedule(params, func, null, null, null, PredefinedTypes.TYPE_ANY,
+                                                   null, null);
             scheduler.start();
-            final Throwable t = out.panic;
-            final Object result = out.result;
-            if (result instanceof ErrorValue) {
-                throw new BallerinaException((ErrorValue) result);
+            final Throwable t = out.getPanic();
+            final Object result = out.getResult();
+            if (result instanceof BError) {
+                throw new BallerinaException((BError) result);
             }
             if (result instanceof Exception) {
                 throw new BallerinaException((Exception) result);
@@ -125,7 +127,7 @@ public class TesterinaFunction {
             if (t != null) {
                 throw new BallerinaException("Error while invoking function '" + funcName + "'", t.getMessage());
             }
-            return out.result;
+            return out.getResult();
         } catch (NoSuchMethodException e) {
             throw new BallerinaException("Error while invoking function '" + funcName + "'\n" +
                     "If you are using data providers please check if types return from data provider " +
@@ -134,7 +136,7 @@ public class TesterinaFunction {
     }
 
     private static String cleanupFunctionName(String name) {
-        return name.replaceAll("[.:/<>]", "_");
+        Matcher matcher = JVM_RESERVED_CHAR_SET.matcher(name);
+        return matcher.find() ? "$" + matcher.replaceAll("_") : name;
     }
-
 }

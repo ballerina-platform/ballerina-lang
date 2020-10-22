@@ -237,7 +237,7 @@ function multipleTrxSequence(boolean abort1, boolean abort2, boolean fail1, bool
     return a;
 }
 
-public type MyRetryManager object {
+public class MyRetryManager {
    private int count;
    public function init(int count = 2) {
        self.count = count;
@@ -250,7 +250,7 @@ public type MyRetryManager object {
         return false;
      }
    }
-};
+}
 
 function testCustomRetryManager() returns string|error {
     string str = "start";
@@ -327,4 +327,49 @@ function testNestedRetryTrxWithinTrx() returns string|error {
         str += " -> result commited -> trx1 end.";
     }
     return str;
+}
+
+function testNestedReturns () {
+    string nestedInnerReturnRes = testNestedInnerReturn();
+    assertEquality("start -> within trx 1 -> within trx 2 -> within trx 3", nestedInnerReturnRes);
+    string nestedMiddleReturnRes = testNestedMiddleReturn();
+    assertEquality("start -> within trx 1 -> within trx 2", nestedMiddleReturnRes);
+}
+
+function testNestedInnerReturn() returns string {
+    string str = "start";
+    retry transaction {
+        str += " -> within trx 1";
+        var res1 = commit;
+        retry transaction {
+            var res2 = commit;
+            str += " -> within trx 2";
+            retry transaction {
+                var res3 = commit;
+                str += " -> within trx 3";
+                return str;
+            }
+        }
+    }
+}
+
+function testNestedMiddleReturn() returns string {
+    string str = "start";
+    retry transaction {
+        str += " -> within trx 1";
+        var res1 = commit;
+        retry transaction {
+            int count = 1;
+            var res2 = commit;
+            str += " -> within trx 2";
+            if (count == 1) {
+                return str;
+            }
+            retry transaction {
+                var res3 = commit;
+                str += " -> within trx 3 -> should not reach here";
+                return str;
+            }
+        }
+    }
 }

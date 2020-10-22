@@ -15,16 +15,17 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.model.types.BErrorType;
-import org.ballerinalang.model.types.BHandleType;
-import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BHandleValue;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.types.BErrorType;
+import org.ballerinalang.core.model.types.BHandleType;
+import org.ballerinalang.core.model.values.BByte;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BHandleValue;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.nativeimpl.jvm.tests.InstanceMethods;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -244,9 +245,15 @@ public class InstanceMethodTest {
             Assert.fail("Unchecked exception not thrown");
         } catch (Throwable e) {
             Assert.assertTrue(e.getMessage().contains("error: java.lang.RuntimeException"));
-            Assert.assertTrue(e.getMessage().contains("message=Unchecked Exception"));
-            Assert.assertTrue(e.getMessage().contains("cause=error java.lang.Throwable message=Unchecked cause"));
+            Assert.assertTrue(e.getMessage().contains("{\"message\":\"Unchecked Exception"));
+            Assert.assertTrue(e.getMessage().contains("\"cause\":error(\"java.lang.Throwable\"," +
+                                                              "message=\"Unchecked cause\""));
         }
     }
 
+    @Test(description = "When instance and static methods have the same name resolve instance method based on the " +
+            "parameter type")
+    public void testInstanceResolve() {
+        BRunUtil.invoke(result, "testInstanceResolve");
+    }
 }

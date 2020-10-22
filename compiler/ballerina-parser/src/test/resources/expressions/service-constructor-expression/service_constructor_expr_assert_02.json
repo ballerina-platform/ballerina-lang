@@ -2,20 +2,16 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
+      "kind": "LIST",
       "children": [
         {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "PUBLIC_KEYWORD",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "PUBLIC_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -121,10 +117,6 @@
                     {
                       "kind": "WHITESPACE_MINUTIAE",
                       "value": " "
-                    },
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
                     }
                   ]
                 },
@@ -137,12 +129,6 @@
                     },
                     {
                       "kind": "SERVICE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "        "
-                        }
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -169,20 +155,15 @@
                               "kind": "FUNCTION_DEFINITION",
                               "children": [
                                 {
-                                  "kind": "METADATA",
-                                  "children": [
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    }
-                                  ]
+                                  "kind": "LIST",
+                                  "children": []
                                 },
                                 {
                                   "kind": "FUNCTION_KEYWORD",
                                   "leadingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "            "
+                                      "value": "                "
                                     }
                                   ],
                                   "trailingMinutiae": [
@@ -250,7 +231,7 @@
                                                       "leadingMinutiae": [
                                                         {
                                                           "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": "                "
+                                                          "value": "                    "
                                                         }
                                                       ],
                                                       "trailingMinutiae": [
@@ -315,7 +296,7 @@
                                       "leadingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "            "
+                                          "value": "                "
                                         }
                                       ],
                                       "trailingMinutiae": [
@@ -336,7 +317,7 @@
                           "leadingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
-                              "value": "        "
+                              "value": "            "
                             }
                           ]
                         }

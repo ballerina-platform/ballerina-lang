@@ -17,35 +17,28 @@
  */
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
 
 import java.nio.charset.StandardCharsets;
-
-import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
 
 /**
  * Convert String to byte array.
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION,
-        functionName = "toBytes",
-        args = {@Argument(name = "string", type = TypeKind.STRING),
-                @Argument(name = "encoding", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.string",
+//        functionName = "toBytes",
+//        args = {@Argument(name = "string", type = TypeKind.STRING),
+//                @Argument(name = "encoding", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
+//        isPublic = true
+//)
 public class ToBytes {
 
-    public static ArrayValue toBytes(Strand strand, BString value) {
+    public static BArray toBytes(BString value) {
 
         byte[] bytes = value.getValue().getBytes(StandardCharsets.UTF_8);
-        return new ArrayValueImpl(bytes);
+        return ValueCreator.createArrayValue(bytes);
     }
 }

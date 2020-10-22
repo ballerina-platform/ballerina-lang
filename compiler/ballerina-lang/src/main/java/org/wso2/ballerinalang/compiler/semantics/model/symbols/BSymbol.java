@@ -22,9 +22,12 @@ import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -46,19 +49,24 @@ public class BSymbol implements Symbol {
     public boolean tainted;
     public boolean closure;
     public MarkdownDocAttachment markdownDocumentation;
+    public DiagnosticPos pos;
+    public SymbolOrigin origin;
 
     /**
      * If a symbol has child symbols, then the scope will not be null.
      */
     public Scope scope;
 
-    public BSymbol(int tag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
+    public BSymbol(int tag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner, DiagnosticPos pos,
+                   SymbolOrigin origin) {
         this.tag = tag;
         this.flags = flags;
         this.name = name;
         this.pkgID = pkgID;
         this.type = type;
         this.owner = owner;
+        this.pos = pos;
+        this.origin = origin;
     }
 
     public MarkdownDocAttachment getMarkdownDocAttachment() {
@@ -93,6 +101,16 @@ public class BSymbol implements Symbol {
     @Override
     public List<BSymbol> getEnclosedSymbols() {
         return new ArrayList<>(0);
+    }
+
+    @Override
+    public DiagnosticPosition getPosition() {
+        return this.pos;
+    }
+
+    @Override
+    public SymbolOrigin getOrigin() {
+        return this.origin;
     }
 
     @Override

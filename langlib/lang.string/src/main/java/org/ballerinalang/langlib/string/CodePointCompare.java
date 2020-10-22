@@ -18,31 +18,24 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.values.BString;
 
 import java.util.PrimitiveIterator;
-
-import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
 
 /**
  * Extern function lang.string:codePointCompare(string, string).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "codePointCompare",
-        args = {@Argument(name = "str1", type = TypeKind.STRING), @Argument(name = "str2", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.string", functionName = "codePointCompare",
+//        args = {@Argument(name = "str1", type = TypeKind.STRING), @Argument(name = "str2", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.INT)},
+//        isPublic = true
+//)
 public class CodePointCompare {
 
-    public static long codePointCompare(Strand strand, BString str1, BString str2) {
+    public static long codePointCompare(BString str1, BString str2) {
         // Compare each code point of str1 with str2's codepoint at corresponding position.
         // If all all previous codepoints being equal and str1 is exhausted and str2 has more
         // codepoints remain in it then str2 is consider lager.

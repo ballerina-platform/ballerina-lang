@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.packerina.cmd;
 
+import io.ballerina.runtime.launch.LaunchUtils;
+import io.ballerina.runtime.util.BLangConstants;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.JarResolver;
-import org.ballerinalang.jvm.launch.LaunchUtils;
-import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.packerina.JarResolverImpl;
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
@@ -33,7 +33,6 @@ import org.ballerinalang.packerina.task.CreateBirTask;
 import org.ballerinalang.packerina.task.CreateJarTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.packerina.task.ListTestGroupsTask;
-import org.ballerinalang.packerina.task.ResolveMavenDependenciesTask;
 import org.ballerinalang.packerina.task.RunTestsTask;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
@@ -52,6 +51,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 
+import static io.ballerina.runtime.util.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
@@ -60,7 +60,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
-import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.ballerinalang.packerina.cmd.Constants.TEST_COMMAND;
 
@@ -152,6 +151,15 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--observability-included", description = "package observability in the executable.")
     private boolean observabilityIncluded;
 
+    @CommandLine.Option(names = "--tests", split = ",", description = "Test functions to be executed")
+    private List<String> testList;
+
+    @CommandLine.Option(names = "--old-parser", description = "Enable old parser.", hidden = true)
+    private boolean useOldParser;
+
+    @CommandLine.Option(names = "--rerun-failed", description = "Rerun failed tests.")
+    private boolean rerunTests;
+
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TEST_COMMAND);
@@ -197,6 +205,28 @@ public class TestCommand implements BLauncherCmd {
             return;
         }
 
+        if (this.rerunTests) {
+            // Cannot rerun failed tests using -a | -all flags
+            if (this.buildAll) {
+                CommandUtil.printError(this.errStream,
+                                       "Cannot specify --rerun-failed and -a | --all flags at the same time",
+                                       "ballerina test --rerun-failed <module-name>",
+                                       true);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+
+            // Cannot rerun failed tests for single bal files
+            if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+                CommandUtil.printError(this.errStream,
+                                       "--rerun-failed not supported for single bal files",
+                                       "ballerina test --rerun-failed <module-name>",
+                                       true);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+        }
+
         // validation and decide source root and source full path
         this.sourceRootPath = null != this.sourceRoot ?
                 Paths.get(this.sourceRoot).toAbsolutePath() : this.sourceRootPath;
@@ -210,11 +240,21 @@ public class TestCommand implements BLauncherCmd {
                     true);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
+        } else if ((groupList != null || disableGroupList != null) && testList != null) {
+            CommandUtil.printError(this.errStream,
+                    "Cannot specify --tests flag along with --groups/--disable-groups flags at the same time",
+                    "ballerina test --tests <testFunction1, ...> <module-name> | -a | --all",
+                    true);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
         }
 
-        if ((listGroups && disableGroupList != null) || (listGroups && groupList != null)) {
+        if ((listGroups && disableGroupList != null) || (listGroups && groupList != null) ||
+                (listGroups && testList != null)) {
+
             CommandUtil.printError(this.errStream,
-                    "Cannot specify both --list-groups and --disable-groups/--groups flags at the same time",
+                    "Cannot specify both --list-groups and --disable-groups/--groups/--tests flags at the " +
+                            "same time",
                     "ballerina test --list-groups <module-name> | -a | --all",
                     true);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -375,7 +415,7 @@ public class TestCommand implements BLauncherCmd {
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory.
-                .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
+                //.addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask()) // compile the modules
                 .addTask(new CreateBirTask(), listGroups)   // create the bir
                 .addTask(new CreateBaloTask(), isSingleFileBuild || listGroups) // create the balos for modules
@@ -386,7 +426,8 @@ public class TestCommand implements BLauncherCmd {
                 // skip the task or to execute
                 .addTask(new ListTestGroupsTask(), !listGroups) // list the available test groups
                 // run tests
-                .addTask(new RunTestsTask(testReport, coverage, args, groupList, disableGroupList), listGroups)
+                .addTask(new RunTestsTask(testReport, coverage, rerunTests, args, groupList, disableGroupList,
+                                testList), listGroups)
                 .build();
 
         taskExecutor.executeTasks(buildContext);

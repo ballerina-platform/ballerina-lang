@@ -152,9 +152,9 @@ public class NativePackagingTestCase extends BaseTest {
         });
         
         // Run and see output
-        String msg = "dog";
+        String msg = "1 passing";
         LogLeecher bazRunLeecher = new LogLeecher(msg);
-        balClient.runMain("run", new String[] {"baz"}, envVariables, new String[0],
+        balClient.runMain("build", new String[] {"baz"}, envVariables, new String[0],
                 new LogLeecher[]{bazRunLeecher}, testProj2Path.toString());
         bazRunLeecher.waitForText(10000);
     }
@@ -182,7 +182,7 @@ public class NativePackagingTestCase extends BaseTest {
         }
     }
     
-    @AfterClass
+    @AfterClass()
     private void cleanup() throws Exception {
         deleteFiles(this.tempHomeDirectory);
         deleteFiles(this.tempProjectsDirectory);

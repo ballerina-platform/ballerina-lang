@@ -195,3 +195,9 @@ function testInvalidRecordMemberAccessByConst() {
     int i1 = e[NAMEC];
     int i2 = e[AGEC];
 }
+
+function testMemberAccessWithoutIndex() {
+    int[] intArray = [];
+    int value = intArray[];
+    intArray[]
+}

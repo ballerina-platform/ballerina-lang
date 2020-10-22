@@ -18,21 +18,20 @@
 
 package org.ballerinalang.langlib.test;
 
-
-import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.types.BMapType;
+import org.ballerinalang.core.model.types.TypeTags;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BDecimal;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -72,7 +71,7 @@ public class LangLibMapTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  ".*error: \\{ballerina/lang.map\\}KeyNotFound message=cannot find key 'NonExistent'.*")
+                  ".*error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot find key 'NonExistent'\"\\}.*")
     public void testGetNonExistentKey() {
         BRunUtil.invoke(compileResult, "testGet", new BValue[]{new BString("NonExistent")});
     }
@@ -109,7 +108,7 @@ public class LangLibMapTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  ".*error: \\{ballerina/lang.map\\}KeyNotFound message=cannot find key 'NonExistent'.*")
+                  ".*error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot find key 'NonExistent'\"\\}.*")
     public void testRemoveNonExistentKey() {
         BRunUtil.invoke(compileResult, "testRemove", new BValue[]{new BString("NonExistent")});
     }

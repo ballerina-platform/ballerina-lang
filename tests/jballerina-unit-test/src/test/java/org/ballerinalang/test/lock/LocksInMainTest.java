@@ -18,11 +18,11 @@
  */
 package org.ballerinalang.test.lock;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -43,7 +43,7 @@ import static org.testng.Assert.assertTrue;
  */
 public class LocksInMainTest {
 
-    private  CompileResult parallelCompileResult;
+    private CompileResult parallelCompileResult;
 
     @BeforeClass
     public void setup() {
@@ -100,7 +100,7 @@ public class LocksInMainTest {
 
     }
 
-//    TODO:https://github.com/ballerina-platform/ballerina-lang/issues/11305
+    //    TODO:https://github.com/ballerina-platform/ballerina-lang/issues/11305
     @Test(description = "Tests throwing and error inside lock", enabled = false)
     public void testThrowErrorInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
@@ -251,9 +251,9 @@ public class LocksInMainTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions-negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 2);
         BAssertUtil.validateError(compileResult, 0, "undefined symbol 'val'",
-                8, 5);
+                                  8, 5);
         BAssertUtil.validateError(compileResult, 1, "undefined symbol 'val1'",
-                18, 9);
+                                  18, 9);
     }
 
     @Test(description = "Test for parallel run using locks", enabled = false)
@@ -279,8 +279,23 @@ public class LocksInMainTest {
     @Test(description = "Test for parallel run when invocations are imported and contains global var dependencies")
     public void testParallelRunWithImportInvocationDependencies() {
         CompileResult importInvocationDependencies = BCompileUtil.compile("test-src/lock/locks-in-imports-test",
-                "mod1", true);
+                                                                          "mod1", true);
 
         BRunUtil.invoke(importInvocationDependencies, "testLockWIthInvokableChainsAccessingGlobal");
+    }
+
+    @Test(description = "Test for locks on global references")
+    public void testLocksWhenGlobalVariablesReferToSameValue() {
+        BRunUtil.invoke(parallelCompileResult, "testLocksWhenGlobalVariablesReferToSameValue");
+    }
+
+    @Test(description = "Test for global reference update inside a worker")
+    public void testForGlobalRefUpdateInsideWorker() {
+        BRunUtil.invoke(parallelCompileResult, "testForGlobalRefUpdateInsideWorker");
+    }
+
+    @Test(description = "Test for global reference updated inside conditional statment")
+    public void testForGlobalRefUpdateInsideConditional() {
+        BRunUtil.invoke(parallelCompileResult, "testForGlobalRefUpdateInsideConditional");
     }
 }

@@ -24,10 +24,12 @@ import org.wso2.ballerinalang.compiler.bir.BIRGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DocumentationAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.IsolationAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ObserverbilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
@@ -41,7 +43,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Constants;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 
 import java.util.HashSet;
 import java.util.List;
@@ -56,6 +57,7 @@ import static org.ballerinalang.model.elements.PackageID.FLOAT;
 import static org.ballerinalang.model.elements.PackageID.FUTURE;
 import static org.ballerinalang.model.elements.PackageID.INT;
 import static org.ballerinalang.model.elements.PackageID.INTERNAL;
+import static org.ballerinalang.model.elements.PackageID.JAVA;
 import static org.ballerinalang.model.elements.PackageID.MAP;
 import static org.ballerinalang.model.elements.PackageID.OBJECT;
 import static org.ballerinalang.model.elements.PackageID.QUERY;
@@ -81,7 +83,7 @@ public class CompilerDriver {
             new CompilerContext.Key<>();
 
     private final CompilerOptions options;
-    private final BLangDiagnosticLogHelper dlog;
+    private final BLangDiagnosticLog dlog;
     private final PackageLoader pkgLoader;
     private final PackageCache pkgCache;
     private final SymbolTable symbolTable;
@@ -99,8 +101,8 @@ public class CompilerDriver {
     private final CodeGenerator codeGenerator;
     private final CompilerPhase compilerPhase;
     private final DataflowAnalyzer dataflowAnalyzer;
+    private final IsolationAnalyzer isolationAnalyzer;
     private boolean isToolingCompilation;
-
 
     public static CompilerDriver getInstance(CompilerContext context) {
         CompilerDriver compilerDriver = context.get(COMPILER_DRIVER_KEY);
@@ -114,7 +116,7 @@ public class CompilerDriver {
         context.put(COMPILER_DRIVER_KEY, this);
 
         this.options = CompilerOptions.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
         this.pkgCache = PackageCache.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
@@ -132,6 +134,7 @@ public class CompilerDriver {
         this.codeGenerator = CodeGenerator.getInstance(context);
         this.compilerPhase = this.options.getCompilerPhase();
         this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
+        this.isolationAnalyzer = IsolationAnalyzer.getInstance(context);
         this.isToolingCompilation = this.options.isSet(TOOLING_COMPILATION)
                 && Boolean.parseBoolean(this.options.get(TOOLING_COMPILATION));
     }
@@ -145,6 +148,7 @@ public class CompilerDriver {
         // This logic interested in loading lang modules from source. For others we can load from balo.
         if (!LOAD_BUILTIN_FROM_SOURCE) {
             symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
+            symbolTable.langJavaModuleSymbol = pkgLoader.loadPackageSymbol(JAVA, null, null);
             symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
             symResolver.reloadErrorAndDependentTypes();
             symResolver.reloadIntRangeType();
@@ -167,7 +171,6 @@ public class CompilerDriver {
             symbolTable.langQueryModuleSymbol = pkgLoader.loadPackageSymbol(QUERY, null, null);
             symbolTable.langTransactionModuleSymbol = pkgLoader.loadPackageSymbol(TRANSACTION, null, null);
             symbolTable.loadPredeclaredModules();
-            symResolver.loadFunctionalConstructors();
             return;
         }
 
@@ -185,6 +188,15 @@ public class CompilerDriver {
         symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
 
         symResolver.reloadErrorAndDependentTypes();
+
+        if (langLib.equals(JAVA)) {
+            symbolTable.langJavaModuleSymbol = getLangModuleFromSource(JAVA);
+            return; // Nothing else to load.
+        }
+
+        // Other lang modules requires annotation module. Hence loading it first.
+        symbolTable.langJavaModuleSymbol = pkgLoader.loadPackageSymbol(JAVA, null, null);
+
 
         if (langLib.equals(INTERNAL)) {
             symbolTable.langInternalModuleSymbol = getLangModuleFromSource(INTERNAL);
@@ -268,6 +280,11 @@ public class CompilerDriver {
             return;
         }
 
+        isolationAnalyze(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.ISOLATION_ANALYZE)) {
+            return;
+        }
+
         documentationAnalyze(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.TAINT_ANALYZE)) {
             return;
@@ -334,6 +351,10 @@ public class CompilerDriver {
         return this.dataflowAnalyzer.analyze(pkgNode);
     }
 
+    private BLangPackage isolationAnalyze(BLangPackage pkgNode) {
+        return this.isolationAnalyzer.analyze(pkgNode);
+    }
+
     private BLangPackage taintAnalyze(BLangPackage pkgNode) {
         return this.taintAnalyzer.analyze(pkgNode);
     }
@@ -358,7 +379,7 @@ public class CompilerDriver {
         if (compilerPhase.compareTo(nextPhase) < 0) {
             return true;
         }
-        return (checkNextPhase(nextPhase) && dlog.getErrorCount() > 0);
+        return (checkNextPhase(nextPhase) && pkgNode.getErrorCount() > 0);
     }
 
     private boolean checkNextPhase(CompilerPhase nextPhase) {
@@ -372,11 +393,10 @@ public class CompilerDriver {
 
         BLangPackage pkg = taintAnalyze(
                 documentationAnalyzer.analyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(modID)))));
-        if (dlog.getErrorCount() > 0) {
+        if (dlog.errorCount() > 0) {
             return null;
         }
 
         return codeGen(birGen(desugar(pkg))).symbol;
     }
-
 }

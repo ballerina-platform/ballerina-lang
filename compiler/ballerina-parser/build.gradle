@@ -18,6 +18,7 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
+    implementation project(':ballerina-tools-api')
     testImplementation 'org.testng:testng'
     testImplementation 'com.google.code.gson:gson'
     testImplementation ("org.bitbucket.cowwoc:diff-match-patch") {
@@ -30,5 +31,17 @@ description = 'Ballerina - Parser'
 test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
+    }
+}
+
+ext.moduleName = 'io.ballerina.parser'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
     }
 }

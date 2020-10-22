@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 3,
+    "character": 28
+  },
+  "source": "statement_context/source/sync_send_action_ctx_source2.bal",
+  "items": [
+    {
+      "label": "w1",
+      "kind": "Variable",
+      "detail": "worker",
+      "insertText": "w1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "w2",
+      "kind": "Variable",
+      "detail": "worker",
+      "insertText": "w2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "default",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "default",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

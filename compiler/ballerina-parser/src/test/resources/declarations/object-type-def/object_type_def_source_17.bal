@@ -1,3 +1,5 @@
-type Foo abstract client object {
-    string name;
+type Foo object {
+    final T a;
+    final int b;
+    final readonly c;
 };

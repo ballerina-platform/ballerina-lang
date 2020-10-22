@@ -18,22 +18,20 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.utils.GetFunction;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
+import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.scheduling.AsyncUtils;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
+import org.ballerinalang.langlib.array.utils.GetFunction;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.getElementAccessFunction;
+import static io.ballerina.runtime.util.BLangConstants.ARRAY_LANG_LIB;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.getElementAccessFunction;
 import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 
 /**
@@ -41,26 +39,26 @@ import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "forEach",
-        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "forEach",
+//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION)},
+//        isPublic = true
+//)
 public class ForEach {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
                                                                       ARRAY_VERSION, "forEach");
 
-    public static void forEach(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
+    public static void forEach(BArray arr, BFunctionPointer<Object, Object> func) {
         int size = arr.size();
-        BType arrType = arr.getType();
+        Type arrType = arr.getType();
         GetFunction getFn = getElementAccessFunction(arrType, "forEach()");
         AtomicInteger index = new AtomicInteger(-1);
-        BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{strand,
-                                                               getFn.get(arr, index.incrementAndGet()), true},
-                                                       result -> {
-                                                       }, () -> null);
+        Strand parentStrand = Scheduler.getStrand();
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                                                         () -> new Object[]{parentStrand,
+                                                                 getFn.get(arr, index.incrementAndGet()), true},
+                                                         result -> {
+                                                         }, () -> null, Scheduler.getStrand().scheduler);
     }
 }

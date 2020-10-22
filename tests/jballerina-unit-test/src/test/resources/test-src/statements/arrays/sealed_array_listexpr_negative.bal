@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Person abstract object {
+type Person object {
     public int age;
     function getFullName() returns string;
 };
@@ -31,12 +31,12 @@ function createAbstractObjectMultidimentionalSealedArray() {
     Person[5][1] z = [[]];
 }
 
-type Age object {
+class Age {
     public int age;
     public function init(int age) {
     	 self.age = age;
     }
-};
+}
 
 // cannot create object without properly initializing it
 function createDirtyObjectMultidimentionalSealedArray() {
@@ -44,12 +44,12 @@ function createDirtyObjectMultidimentionalSealedArray() {
     z[0][0].age = 30;
 }
 
-type AgeDefaulted object {
+class AgeDefaulted {
     public int age;
     public function init(int age = 5) {
     	 self.age = age;
     }
-};
+}
 
 // should not have a problem
 function createObjectWithDefaultInitializerParametersSealedArray() {
@@ -97,13 +97,13 @@ function createRecordTypeWithOptionalFieldsSealedArrayCreation() {
 }
 
 
-type ObjError object {
+class ObjError {
     int i;
 
     function init() returns error? {
         self.i = 1;
     }
-};
+}
 
 function createObjectWithErrorTypeReturningInitializerSealedArray() {
     ObjError [2] y = [];
@@ -124,11 +124,11 @@ function testInvalidUnionExpectedType() {
     NoFillerObject[3]|NoFillerObject[2] z = [];
 }
 
-type NoFillerObject object {
+class NoFillerObject {
     public function init(any arg) {
 
     }
-};
+}
 
 const MyFloatConst = 1.0;
 const MyIntZeroConst = 0;

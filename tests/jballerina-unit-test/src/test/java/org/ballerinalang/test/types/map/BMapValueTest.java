@@ -17,15 +17,15 @@
  */
 package org.ballerinalang.test.types.map;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.values.MapValue;
+import io.ballerina.runtime.values.MapValueImpl;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BRefType;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -182,7 +182,7 @@ public class BMapValueTest {
     void testInvalidGrammar1() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/map/map-value-validator-1-negative.bal");
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
-        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
+        Assert.assertEquals(compileResult.getDiagnostics()[0].message(),
                             "incompatible types: expected 'string', found 'any'");
     }
 
@@ -190,7 +190,7 @@ public class BMapValueTest {
     void testInvalidGrammar2() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/map/map-value-validator-2-negative.bal");
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
-        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
+        Assert.assertEquals(compileResult.getDiagnostics()[0].message(),
                             "incompatible types: expected 'string', found 'any'");
     }
 
@@ -198,17 +198,17 @@ public class BMapValueTest {
     void testInvalidGrammar3() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/map/map-value-validator-3-negative.bal");
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
-        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
+        Assert.assertEquals(compileResult.getDiagnostics()[0].message(),
                             "operator '+' not defined for 'any' and 'int'");
     }
 
     @Test(description = "Testing convert map values to string")
     public void testBMapToString() {
-        MapValue<org.ballerinalang.jvm.values.api.BString, Object> map = new MapValueImpl<>();
+        MapValue<io.ballerina.runtime.api.values.BString, Object> map = new MapValueImpl<>();
         map.put(StringUtils.fromString("key1"), 1);
         map.put(StringUtils.fromString("key2"), StringUtils.fromString("foo"));
         map.put(StringUtils.fromString("key3"), XMLFactory.parse("<bar>hello</bar>"));
-        Assert.assertEquals(map.stringValue(), "key1=1 key2=foo key3=<bar>hello</bar>");
+        Assert.assertEquals(map.stringValue(null), "{\"key1\":1,\"key2\":\"foo\",\"key3\":`<bar>hello</bar>`}");
     }
 
     @Test(dependsOnMethods = "testGrammar")

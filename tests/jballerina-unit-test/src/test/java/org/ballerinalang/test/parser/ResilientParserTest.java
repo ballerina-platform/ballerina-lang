@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.parser;
 
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -29,7 +30,6 @@ import org.testng.annotations.Test;
  *
  * @since 2.0.0
  */
-@Test(groups = {"disableOnOldParser"})
 public class ResilientParserTest {
 
     @Test(enabled = false)
@@ -68,7 +68,7 @@ public class ResilientParserTest {
         BAssertUtil.validateError(result, 28, "missing semicolon token", 52, 1);
         BAssertUtil.validateError(result, 29, "missing at token", 53, 1);
         BAssertUtil.validateError(result, 30, "missing type keyword", 53, 1);
-        BAssertUtil.validateError(result, 31, "undefined annotation '$missingNode$12'", 53, 1);
+        BAssertUtil.validateError(result, 31, "undefined annotation '$missingNode$_12'", 53, 1);
         BAssertUtil.validateError(result, 32, "invalid token '}'", 55, 2);
         BAssertUtil.validateError(result, 33, "redeclared symbol 'Foo1'", 55, 2);
         BAssertUtil.validateError(result, 34, "redeclared symbol 'Foo1'", 59, 6);
@@ -141,11 +141,11 @@ public class ResilientParserTest {
 
         BAssertUtil.validateError(result, 0, "redeclared symbol ''", 2, 1);
         BAssertUtil.validateError(result, 1, "missing identifier", 2, 12);
-        BAssertUtil.validateError(result, 2, "cannot resolve module '$missingNode$0/bar'", 3, 1);
+        BAssertUtil.validateError(result, 2, "cannot resolve module '$missingNode$_0/bar'", 3, 1);
         BAssertUtil.validateError(result, 3, "missing identifier", 3, 8);
-        BAssertUtil.validateError(result, 4, "cannot resolve module 'foo/bar version 1.0.0 as $missingNode$1'", 4, 1);
+        BAssertUtil.validateError(result, 4, "cannot resolve module 'foo/bar version 1.0.0 as $missingNode$_1'", 4, 1);
         BAssertUtil.validateError(result, 5, "missing identifier", 4, 32);
-        BAssertUtil.validateError(result, 6, "cannot resolve module 'foo/bar version 1.0.0 as $missingNode$2'", 5, 1);
+        BAssertUtil.validateError(result, 6, "cannot resolve module 'foo/bar version 1.0.0 as $missingNode$_2'", 5, 1);
         BAssertUtil.validateError(result, 7, "cannot resolve module 'foo/bar as foobar'", 6, 1);
         BAssertUtil.validateError(result, 8, "missing identifier", 6, 1);
         BAssertUtil.validateError(result, 9, "missing semicolon token", 6, 1);
@@ -195,5 +195,27 @@ public class ResilientParserTest {
                 "'map<anydata|readonly>' or 'map<anydata|readonly>[]', but found 'other'", 57, 19);
         BAssertUtil.validateError(result, 51, "unknown type 'typeName'", 57, 19);
         BAssertUtil.validateError(result, 52, "missing semicolon token", 58, 1);
+    }
+
+    @Test
+    public void testResilientParsingClassDefn() {
+        CompileResult result = BCompileUtil.compile("test-src/parser/resilient-parsing-class-defn.bal",
+                CompilerPhase.COMPILER_PLUGIN);
+        Assert.assertEquals(result.getErrorCount(), 4);
+        BAssertUtil.validateError(result, 0, "missing class keyword", 1, 16);
+        BAssertUtil.validateError(result, 1, "missing close brace token", 1, 16);
+        BAssertUtil.validateError(result, 2, "missing identifier", 1, 16);
+        BAssertUtil.validateError(result, 3, "missing open brace token", 1, 16);
+    }
+
+    @Test
+    public void testResilientParsingError() {
+        CompileResult result = BCompileUtil.compile("test-src/parser/resilient-parsing-error.bal",
+                CompilerPhase.COMPILER_PLUGIN);
+        Assert.assertEquals(result.getErrorCount(), 4);
+        BAssertUtil.validateError(result, 0, "missing error message binding pattern", 2, 5);
+        BAssertUtil.validateError(result, 1, "incompatible types: expected 'error', found 'other'", 2, 12);
+        BAssertUtil.validateError(result, 2, "missing equal token", 2, 12);
+        BAssertUtil.validateError(result, 3, "missing identifier", 2, 12);
     }
 }

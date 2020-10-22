@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.test.packaging;
 
+import io.ballerina.runtime.JSONParser;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.values.MapValue;
 import org.awaitility.Duration;
 import org.ballerinalang.cli.module.util.Utils;
-import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -55,7 +55,6 @@ import static org.ballerinalang.cli.module.util.Utils.createHttpUrlConnection;
 import static org.ballerinalang.cli.module.util.Utils.initializeSsl;
 import static org.ballerinalang.cli.module.util.Utils.setRequestMethod;
 import static org.ballerinalang.test.packaging.ModulePushTestCase.REPO_TO_CENTRAL_SUCCESS_MSG;
-import static org.ballerinalang.test.packaging.PackerinaTestUtils.copyFolder;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_STAGE_CENTRAL;
 
@@ -94,15 +93,13 @@ public class PackagingTestCase extends BaseTest {
     
         // Update org name
         PackerinaTestUtils.updateManifestOrgName(projectPath, orgName);
-        
-        Assert.assertTrue(Files.exists(projectPath));
+
         Assert.assertTrue(Files.isDirectory(projectPath));
     
         // Create module
         balClient.runMain("add", new String[]{moduleName}, envVariables, new String[]{}, new LogLeecher[]{},
                 projectPath.toString());
-    
-        Assert.assertTrue(Files.exists(projectPath.resolve("src").resolve(moduleName)));
+
         Assert.assertTrue(Files.isDirectory(projectPath.resolve("src").resolve(moduleName)));
     }
 
@@ -133,6 +130,12 @@ public class PackagingTestCase extends BaseTest {
         // Build module
         String buildMessage = "Created target" + File.separator + "balo" + File.separator + baloFileName;
         clientLeecher = new LogLeecher(buildMessage);
+
+        PackerinaTestUtils.copy(Paths.get("src", "test", "resources", "packaging", "pushingModule", "main.bal"),
+                projectPath.resolve("src").resolve(moduleName).resolve("main.bal"));
+        PackerinaTestUtils.copy(Paths.get("src", "test", "resources", "packaging", "pushingModule", "main_test.bal"),
+                projectPath.resolve("src").resolve(moduleName).resolve("tests").resolve("main_test.bal"));
+
         balClient.runMain("build", new String[]{"-c", moduleName}, envVariables, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath.toString());
         
@@ -144,7 +147,7 @@ public class PackagingTestCase extends BaseTest {
         clientLeecher.waitForText(60000);
     }
 
-    @Test(description = "Test pulling a package from central", dependsOnMethods = "testPush", enabled = false)
+    @Test(description = "Test pulling a package from central", dependsOnMethods = "testPush")
     public void testPull() {
         String baloFileName = moduleName + "-"
                               + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
@@ -182,7 +185,7 @@ public class PackagingTestCase extends BaseTest {
         Assert.assertTrue(actualMsg.contains("0.1.0"));
     }
 
-    @Test(description = "Test pullCount of a package from central", dependsOnMethods = "testPull", enabled = false)
+    @Test(description = "Test pullCount of a package from central", dependsOnMethods = "testPull")
     public void testPullCount() throws IOException {
         initializeSsl();
         String url = RepoUtils.getStagingURL() + "/modules/info/" + orgName + "/" + moduleName + "/*/";
@@ -220,8 +223,7 @@ public class PackagingTestCase extends BaseTest {
         // Create project
         balClient.runMain("new", new String[]{"pushAllPackageTest"}, envVariables, new String[]{}, new LogLeecher[]{},
                 projectPath.getParent().toString());
-    
-        Assert.assertTrue(Files.exists(projectPath));
+
         Assert.assertTrue(Files.isDirectory(projectPath));
         
         String firstPackage = "firstTestPkg" + PackerinaTestUtils.randomModuleName(10);
@@ -233,17 +235,29 @@ public class PackagingTestCase extends BaseTest {
         // Create first module
         balClient.runMain("add", new String[]{firstPackage}, envVariables, new String[]{}, new LogLeecher[]{},
                 projectPath.toString());
-    
-        Assert.assertTrue(Files.exists(projectPath.resolve("src").resolve(firstPackage)));
-        Assert.assertTrue(Files.isDirectory(projectPath.resolve("src").resolve(firstPackage)));
+
+        Path firstPackagePath = projectPath.resolve("src").resolve(firstPackage);
+
+        Assert.assertTrue(Files.isDirectory(firstPackagePath));
+
+        PackerinaTestUtils.copy(Paths.get("src", "test", "resources", "packaging", "pushingModule", "main.bal"),
+                firstPackagePath.resolve("main.bal"));
+        PackerinaTestUtils.copy(Paths.get("src", "test", "resources", "packaging", "pushingModule", "main_test.bal"),
+                firstPackagePath.resolve("tests").resolve("main_test.bal"));
     
         // Create second module
         balClient.runMain("add", new String[]{secondPackage}, envVariables, new String[]{}, new LogLeecher[]{},
                 projectPath.toString());
-    
-        Assert.assertTrue(Files.exists(projectPath.resolve("src").resolve(secondPackage)));
-        Assert.assertTrue(Files.isDirectory(projectPath.resolve("src").resolve(secondPackage)));
-    
+
+        Path secondPackagePath = projectPath.resolve("src").resolve(secondPackage);
+
+        Assert.assertTrue(Files.isDirectory(secondPackagePath));
+
+        PackerinaTestUtils.copy(Paths.get("src", "test", "resources", "packaging", "pushingModule", "main.bal"),
+                secondPackagePath.resolve("main.bal"));
+        PackerinaTestUtils.copy(Paths.get("src", "test", "resources", "packaging", "pushingModule", "main_test.bal"),
+                secondPackagePath.resolve("tests").resolve("main_test.bal"));
+
         // Build module
         balClient.runMain("build", new String[]{"-c", "-a"}, envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
@@ -274,7 +288,6 @@ public class PackagingTestCase extends BaseTest {
         balClient.runMain("new", new String[] { "buildAndRunModuleWithPeriodProject" }, envVariables, new String[] {},
                 new LogLeecher[] {}, projectPath.getParent().toString());
 
-        Assert.assertTrue(Files.exists(projectPath));
         Assert.assertTrue(Files.isDirectory(projectPath));
 
         // Create module named `foo.bar`
@@ -282,8 +295,13 @@ public class PackagingTestCase extends BaseTest {
         balClient.runMain("add", new String[] { moduleName }, envVariables, new String[] {}, new LogLeecher[] {},
                 projectPath.toString());
 
-        Assert.assertTrue(Files.exists(projectPath.resolve("src").resolve(moduleName)));
-        Assert.assertTrue(Files.isDirectory(projectPath.resolve("src").resolve(moduleName)));
+        Path modulePath = projectPath.resolve("src").resolve(moduleName);
+        Assert.assertTrue(Files.isDirectory(modulePath));
+
+        PackerinaTestUtils.copy(Paths.get("src", "test", "resources", "packaging", "pushingModule", "main.bal"),
+                modulePath.resolve("main.bal"));
+        PackerinaTestUtils.copy(Paths.get("src", "test", "resources", "packaging", "pushingModule", "main_test.bal"),
+                modulePath.resolve("tests").resolve("main_test.bal"));
 
         // Build module
         LogLeecher buildLeecher = new LogLeecher("[pass] testFunction");
@@ -291,29 +309,12 @@ public class PackagingTestCase extends BaseTest {
                 new LogLeecher[] { buildLeecher }, projectPath.toString());
         buildLeecher.waitForText(60000);
 
-        // Run module
-        LogLeecher runLeecher = new LogLeecher("Hello World!");
-        balClient.runMain("run", new String[] { moduleName }, envVariables, new String[] {},
-                new LogLeecher[] { runLeecher }, projectPath.toString());
-        buildLeecher.waitForText(5000);
-    }
-
-    @Test(description = "Test modules with org-name `ballerina` resolving from central, if new version is available")
-    public void testResolveBallerinaModulesFromCentral() throws BallerinaTestException, IOException {
-        // copy `ballerina-central-module` project from resources to a temp
-        Path originalTestProject = Paths
-                .get("src", "test", "resources", "packaging", "scope", "ballerina-central-module").toAbsolutePath();
-        Path projectPath = tempProjectDirectory.resolve("ballerinaCentralModuleProject");
-        copyFolder(originalTestProject, projectPath);
-
-        // Build module
-        LogLeecher buildLeecher = new LogLeecher("ballerina/socket:9.0.0 pulled from central successfully");
-        balClient.runMain("build", new String[] { "-c", "-a" }, envVariables, new String[] {},
-                new LogLeecher[] { buildLeecher }, projectPath.toString());
-        buildLeecher.waitForText(60000);
+        String fooModuleBaloFileName = "foo.bar-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
+                + BLANG_COMPILED_PKG_BINARY_EXT;
+        String runMsg = "target" + File.separator + "balo" + File.separator + fooModuleBaloFileName;
 
         // Run module
-        LogLeecher runLeecher = new LogLeecher("Hello World from new socket module!");
+        LogLeecher runLeecher = new LogLeecher(runMsg);
         balClient.runMain("run", new String[] { moduleName }, envVariables, new String[] {},
                 new LogLeecher[] { runLeecher }, projectPath.toString());
         buildLeecher.waitForText(5000);

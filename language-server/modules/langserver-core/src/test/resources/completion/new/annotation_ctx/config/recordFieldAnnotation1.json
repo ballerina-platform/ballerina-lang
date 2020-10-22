@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 20,
+    "character": 5
+  },
+  "source": "annotation_ctx/source/recordFieldAnnotation1.bal",
+  "items": [
+    {
+      "label": "module1:recordFieldAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:recordFieldAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "module1:recordFieldAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:recordFieldAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "recordFieldAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "recordFieldAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "recordFieldAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "recordFieldAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "fieldAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "fieldAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "fieldAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "fieldAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    }
+  ]
+}

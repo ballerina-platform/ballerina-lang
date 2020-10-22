@@ -12,15 +12,6 @@
           "kind": "TYPE_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "TYPE_KEYWORD",
               "trailingMinutiae": [
                 {
@@ -120,16 +111,13 @@
           "kind": "TYPE_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "TYPE_KEYWORD",
+              "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ],
               "trailingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",

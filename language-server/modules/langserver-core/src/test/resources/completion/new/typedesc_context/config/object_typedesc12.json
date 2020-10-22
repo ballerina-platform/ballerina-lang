@@ -1,0 +1,112 @@
+{
+  "position": {
+    "line": 8,
+    "character": 54
+  },
+  "source": "typedesc_context/source/object_typedesc12.bal",
+  "items": [
+    {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "insertText": "AnnotationType",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ResponseMessage",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
+      },
+      "insertText": "ResponseMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RequestMessage",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
+      },
+      "insertText": "RequestMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "insertText": "TestRecord1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord2",
+      "kind": "Struct",
+      "detail": "Record",
+      "insertText": "TestRecord2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord3",
+      "kind": "Struct",
+      "detail": "Record",
+      "insertText": "TestRecord3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap1",
+      "kind": "Unit",
+      "detail": "Map",
+      "insertText": "TestMap1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap2",
+      "kind": "Unit",
+      "detail": "Map",
+      "insertText": "TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap3",
+      "kind": "Unit",
+      "detail": "Map",
+      "insertText": "TestMap3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Client",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
+      },
+      "insertText": "Client",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Response",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a response.\n"
+      },
+      "insertText": "Response",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Listener",
+      "kind": "Interface",
+      "detail": "Object",
+      "insertText": "Listener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Object",
+      "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

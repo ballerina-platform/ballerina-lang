@@ -16,22 +16,22 @@ public function multiply(int x, int y) {
     c = a * b;
 }
 
-type Calculator object {
+class Calculator {
     function add(int x, int y) {
-         int a;
-         int b;
-         int c;
-         a = x;
-         b = y;
-         c = a + b;
+        int a;
+        int b;
+        int c;
+        a = x;
+        b = y;
+        c = a + b;
     }
 
     function add(int x, int y) {
-         int a;
-         int b;
-         int c;
-         a = x;
-         b = y;
-         c = a + b;
+        int a;
+        int b;
+        int c;
+        a = x;
+        b = y;
+        c = a + b;
     }
-};
+}

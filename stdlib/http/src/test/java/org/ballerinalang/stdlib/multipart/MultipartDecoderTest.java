@@ -18,16 +18,13 @@
 
 package org.ballerinalang.stdlib.multipart;
 
+import io.ballerina.runtime.api.values.BObject;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.util.internal.StringUtil;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
-import org.ballerinalang.model.util.StringUtils;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.Base64ByteChannel;
@@ -195,21 +192,21 @@ public class MultipartDecoderTest {
         String path = "/test/multipleparts";
         HttpHeaders headers = new DefaultHttpHeaders();
         String multipartDataBoundary = "\"------=_Part_19_966827328.1524324134617--\"";
-        String boudaryWithoutQuotes = "------=_Part_19_966827328.1524324134617--";
+        String boundaryWithoutQuotes = "------=_Part_19_966827328.1524324134617--";
         headers.add(HttpHeaderNames.CONTENT_TYPE.toString(),
                 "multipart/mixed; boundary=" + multipartDataBoundary);
-        String multipartBody = "--" + boudaryWithoutQuotes + "\r\n" +
+        String multipartBody = "--" + boundaryWithoutQuotes + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
                 "\r\n" +
                 "Part1" +
                 "\r\n" +
-                "--" + boudaryWithoutQuotes + "\r\n" +
+                "--" + boundaryWithoutQuotes + "\r\n" +
                 "Content-Type: text/plain" + "\r\n" +
                 "Content-Transfer-Encoding: binary" + "\r\n" +
                 "\r\n" +
                 "Part2" + StringUtil.NEWLINE +
                 "\r\n" +
-                "--" + boudaryWithoutQuotes + "--" + "\r\n";
+                "--" + boundaryWithoutQuotes + "--" + "\r\n";
 
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
                 multipartBody);
@@ -221,7 +218,7 @@ public class MultipartDecoderTest {
     @Test(enabled = false)
     public void testBase64DecodeByteChannel() {
         String expectedValue = "Hello Ballerina!";
-        ObjectValue byteChannelStruct = MultipartUtils.getByteChannelStruct();
+        BObject byteChannelStruct = MultipartUtils.getByteChannelStruct();
         byte[] encodedByteArray = Base64.getEncoder().encode(expectedValue.getBytes());
         InputStream encodedStream = new ByteArrayInputStream(encodedByteArray);
         Base64ByteChannel base64ByteChannel = new Base64ByteChannel(encodedStream);

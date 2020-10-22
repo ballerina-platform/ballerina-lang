@@ -1,0 +1,37 @@
+{
+  "position": {
+    "line": 5,
+    "character": 13
+  },
+  "source": "xml_typedesc_context/source/source3.bal",
+  "items": [
+    {
+      "label": "Element",
+      "kind": "Unit",
+      "detail": "Xml",
+      "insertText": "Element",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ProcessingInstruction",
+      "kind": "Unit",
+      "detail": "Xml",
+      "insertText": "ProcessingInstruction",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Comment",
+      "kind": "Unit",
+      "detail": "Xml",
+      "insertText": "Comment",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Text",
+      "kind": "Unit",
+      "detail": "Xml",
+      "insertText": "Text",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -146,12 +146,6 @@
             <!--<include name="simpleLock"/>-->
             <!--</methods>-->
             <!--</class>-->
-            <class name="org.ballerinalang.test.lock.LocksInServicesTest">
-                <methods>
-                    <!-- Not supported at the moment -->
-                    <exclude name="testFieldLock"></exclude>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.lock.LocksInMainTest"/>
             <class name="org.ballerinalang.test.lock.FieldLockTest">
                 <methods>

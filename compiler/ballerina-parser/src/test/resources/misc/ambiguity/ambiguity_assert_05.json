@@ -12,13 +12,8 @@
           "kind": "FUNCTION_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",
@@ -215,22 +210,12 @@
                                   "kind": "OPEN_BRACE_TOKEN",
                                   "leadingMinutiae": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "    "
-                                    },
-                                    {
                                       "kind": "END_OF_LINE_MINUTIAE",
                                       "value": "\n"
                                     },
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
                                       "value": "    "
-                                    }
-                                  ],
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
                                     }
                                   ]
                                 },
@@ -275,13 +260,7 @@
                                           "children": [
                                             {
                                               "kind": "IDENTIFIER_TOKEN",
-                                              "value": "b",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
+                                              "value": "b"
                                             }
                                           ]
                                         }

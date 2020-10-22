@@ -18,12 +18,12 @@
 
 package org.ballerinalang.stdlib.services.nativeimpl.cookie;
 
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -161,7 +161,7 @@ public class CookieNativeFunctionNegativeTest {
     @Test(description = "Test to remove a specific cookie which is not in the cookie store, when there is a " +
             "persistent cookie store",
             expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*KeyNotFound message=cannot find key.*")
+            expectedExceptionsMessageRegExp = ".*KeyNotFound \\{\"message\":\"cannot find key.*")
     public void testRemovePersistentCookieFromCookieStore_1() {
         BValue[] returnVals = BRunUtil.invoke(result, "testRemovePersistentCookieFromCookieStore_1");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,

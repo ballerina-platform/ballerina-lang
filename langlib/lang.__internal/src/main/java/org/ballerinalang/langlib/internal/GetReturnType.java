@@ -18,31 +18,21 @@
 
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BFunctionType;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.api.BValueCreator;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BTypedesc;
 
 /**
  * Native implementation of lang.internal:getReturnType(func).
  *
  * @since 1.2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0", functionName = "getReturnType",
-        args = {@Argument(name = "func", type = TypeKind.ANY)},
-        returnType = {@ReturnType(type = TypeKind.TYPEDESC)}
-)
 public class GetReturnType {
 
-    public static TypedescValue getReturnType(Strand strand, Object obj) {
-        FPValue fpValue = (FPValue) obj;
-        BFunctionType functionType = (BFunctionType) fpValue.getType();
-        return (TypedescValue) BValueCreator.createTypedescValue(functionType.retType);
+    public static BTypedesc getReturnType(Object obj) {
+        BFunctionPointer bFunctionPointer = (BFunctionPointer) obj;
+        FunctionType functionType = (FunctionType) bFunctionPointer.getType();
+        return ValueCreator.createTypedescValue(functionType.getReturnType());
     }
 }

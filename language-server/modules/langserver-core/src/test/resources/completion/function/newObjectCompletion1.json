@@ -6,67 +6,51 @@
   "source": "function/source/newObjectCompletion1.bal",
   "items": [
     {
-      "label": "new(int arg1, string arg2, http:Response arg3)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` arg1  \n- `string` arg2  \n- `http:Response` arg3"
-        }
-      },
-      "sortText": "120",
-      "insertText": "new(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "ObjectName(int arg1, string arg2, http:Response arg3)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` arg1  \n- `string` arg2  \n- `http:Response` arg3"
-        }
-      },
-      "sortText": "120",
-      "insertText": "ObjectName(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "get()(ObjectName)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `ObjectName`   \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "get()",
+      "label": "start",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "start ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunction()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "testFunction();",
+      "label": "wait",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "wait ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "flush",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "flush ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "check",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "check ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "checkpanic",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "checkpanic ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -76,6 +60,29 @@
       "sortText": "140",
       "insertText": "http",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ls_org1/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "140",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ls_org1/module1;\n"
+        }
+      ]
     },
     {
       "label": "ballerina/lang.object",
@@ -768,29 +775,6 @@
       ]
     },
     {
-      "label": "ballerina/nats",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "nats",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/nats;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.decimal",
       "kind": "Module",
       "detail": "Module",
@@ -1113,67 +1097,35 @@
       ]
     },
     {
-      "label": "check",
+      "label": "table",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "220",
-      "insertText": "check ",
+      "insertText": "table",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "checkpanic",
+      "label": "service",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "220",
-      "insertText": "checkpanic ",
+      "insertText": "service",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "wait",
+      "label": "string",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "220",
-      "insertText": "wait ",
+      "insertText": "string",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "start",
+      "label": "xml",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "220",
-      "insertText": "start ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "flush",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "220",
-      "insertText": "flush ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "untainted",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "220",
-      "insertText": "untainted ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "but",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "240",
-      "insertText": "but {\n\t${1}\n};",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "trap",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "240",
-      "insertText": "trap ",
+      "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
     {
@@ -1182,6 +1134,116 @@
       "detail": "Keyword",
       "sortText": "220",
       "insertText": "new ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "let",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "let",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typeof",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "typeof ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "trap",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "trap",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "error",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "error constructor",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "240",
+      "insertText": "error(\"${1}\")",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "res",
+      "kind": "Variable",
+      "detail": "ObjectName",
+      "sortText": "130",
+      "insertText": "res",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "get()(ObjectName)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `ObjectName`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "get()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testFunction()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "testFunction();",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "new(int arg1, string arg2, http:Response arg3)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` arg1  \n- `string` arg2  \n- `http:Response` arg3"
+        }
+      },
+      "sortText": "120",
+      "insertText": "new(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "is",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "is",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -17,10 +17,10 @@
 */
 package org.ballerinalang.test.statements.whilestatement;
 
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -38,11 +38,16 @@ public class WhileStmtTest {
 
     private CompileResult positiveCompileResult;
     private CompileResult negativeCompileResult;
+    private CompileResult onfailCompileResult;
+    private CompileResult onfailNegativeCompileResult;
 
     @BeforeClass
     public void setup() {
         positiveCompileResult = BCompileUtil.compile("test-src/statements/whilestatement/while-stmt.bal");
         negativeCompileResult = BCompileUtil.compile("test-src/statements/whilestatement/while-stmt-negative.bal");
+        onfailCompileResult = BCompileUtil.compile("test-src/statements/whilestatement/while-stmt-on-fail.bal");
+        onfailNegativeCompileResult = BCompileUtil.compile("test-src/statements/whilestatement/"
+                + "while-stmt-on-fail-negative.bal");
     }
 
     @Test(description = "Test while loop with a condition which evaluates to true")
@@ -185,5 +190,78 @@ public class WhileStmtTest {
         String actual = returns[0].stringValue();
         String expected = "foo1foo2foo3";
         Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test while loop with a condition which evaluates to true")
+    public void testWhileStmtWithOnFail() {
+        BValue[] args = {new BInteger(5)};
+        BValue[] returns = BRunUtil.invoke(onfailCompileResult, "testWhileStmtWithFail", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), " Value: 1 Value: 2 Value: 3-> error caught. " +
+                "Hence value returning", "mismatched output value");
+    }
+
+    @Test(description = "Test while loop with a condition which evaluates to true")
+    public void testWhileStmtWithCheck() {
+        BValue[] args = {new BInteger(5)};
+        BValue[] returns = BRunUtil.invoke(onfailCompileResult, "testWhileStmtWithCheck", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), " Value: 1 Value: 2 Value: 3-> error caught. " +
+                "Hence value returning", "mismatched output value");
+    }
+
+    @Test(description = "Test nested while loop with break 2")
+    public void testNestedWhileStmtWithFail() {
+        BValue[] returns = BRunUtil.invoke(onfailCompileResult, "testNestedWhileStmtWithFail");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+
+        String actual = returns[0].stringValue();
+        String expected = "level3-> error caught at level 3, level2-> error caught at level 2, " +
+                "level1-> error caught at level 1.";
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test while loop termination with fail statement")
+    public void testWhileStmtLoopEndingWithFail() {
+        BValue[] args = {new BInteger(5)};
+        BValue[] returns = BRunUtil.invoke(onfailCompileResult, "testWhileStmtLoopEndingWithFail", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), " Value: 1-> error caught. " +
+                "Hence value returning-> reached end", "mismatched output value");
+    }
+
+    @Test(description = "Test nested while loop termination with multiple fail statements")
+    public void testNestedWhileStmtLoopTerminationWithFail() {
+        BValue[] returns = BRunUtil.invoke(onfailCompileResult, "testNestedWhileStmtLoopTerminationWithFail");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+
+        String actual = returns[0].stringValue();
+        String expected = "level3-> error caught at level 3, level2-> error caught at level 2, " +
+                "level1-> error caught at level 1.";
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Check not incompatible types and reachable statements.")
+    public void testNegative1() {
+        Assert.assertEquals(onfailNegativeCompileResult.getErrorCount(), 7);
+        BAssertUtil.validateError(onfailNegativeCompileResult, 0, "unreachable code", 17, 6);
+        BAssertUtil.validateError(onfailNegativeCompileResult, 1, "incompatible error definition type: " +
+                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 34, 4);
+        BAssertUtil.validateError(onfailNegativeCompileResult, 2, "unreachable code", 68, 7);
+        BAssertUtil.validateError(onfailNegativeCompileResult, 3, "this function must return a result", 74, 1);
+        BAssertUtil.validateError(onfailNegativeCompileResult, 4, "incompatible error definition type: " +
+                "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 102, 4);
+        BAssertUtil.validateError(onfailNegativeCompileResult, 5, "unreachable code", 116, 9);
+        BAssertUtil.validateError(onfailNegativeCompileResult, 6, "unreachable code", 118, 5);
     }
 }

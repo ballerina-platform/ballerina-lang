@@ -28,7 +28,13 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "annot1"
+                              "value": "annot1",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -46,10 +52,6 @@
                               "kind": "CLOSE_BRACE_TOKEN",
                               "trailingMinutiae": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
-                                {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
                                 }
@@ -64,11 +66,16 @@
               ]
             },
             {
-              "kind": "PUBLIC_KEYWORD",
-              "trailingMinutiae": [
+              "kind": "LIST",
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "PUBLIC_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
@@ -153,10 +160,6 @@
                             {
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
-                            },
-                            {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
                             }
                           ]
                         },
@@ -165,7 +168,13 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "annot2"
+                              "value": "annot2",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -182,10 +191,6 @@
                             {
                               "kind": "CLOSE_BRACE_TOKEN",
                               "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
@@ -273,7 +278,13 @@
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "value": "annot3"
+                                          "value": "annot3",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -355,10 +366,6 @@
                                       "kind": "AT_TOKEN",
                                       "leadingMinutiae": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "    "
-                                        },
-                                        {
                                           "kind": "END_OF_LINE_MINUTIAE",
                                           "value": "\n"
                                         },
@@ -373,7 +380,13 @@
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "value": "annot4"
+                                          "value": "annot4",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -444,10 +457,10 @@
                           ]
                         },
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "3"
                             }
                           ]
@@ -499,10 +512,6 @@
                             {
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
-                            },
-                            {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
                             }
                           ]
                         },
@@ -511,7 +520,13 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "annot5"
+                              "value": "annot5",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -528,10 +543,6 @@
                             {
                               "kind": "CLOSE_BRACE_TOKEN",
                               "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
@@ -623,7 +634,13 @@
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "value": "annot6"
+                                          "value": "annot6",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -690,7 +707,7 @@
                       ]
                     },
                     {
-                      "kind": "OBJECT_METHOD_DEFINITION",
+                      "kind": "METHOD_DECLARATION",
                       "children": [
                         {
                           "kind": "METADATA",
@@ -704,10 +721,6 @@
                                     {
                                       "kind": "AT_TOKEN",
                                       "leadingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "    "
-                                        },
                                         {
                                           "kind": "END_OF_LINE_MINUTIAE",
                                           "value": "\n"
@@ -723,7 +736,13 @@
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "value": "annot7"
+                                          "value": "annot7",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -755,17 +774,22 @@
                           ]
                         },
                         {
-                          "kind": "PRIVATE_KEYWORD",
-                          "leadingMinutiae": [
+                          "kind": "LIST",
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "PUBLIC_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ],
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -793,46 +817,16 @@
                               "children": []
                             },
                             {
-                              "kind": "CLOSE_PAREN_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "CLOSE_PAREN_TOKEN"
                             }
                           ]
                         },
                         {
-                          "kind": "FUNCTION_BODY_BLOCK",
-                          "children": [
+                          "kind": "SEMICOLON_TOKEN",
+                          "trailingMinutiae": [
                             {
-                              "kind": "OPEN_BRACE_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "END_OF_LINE_MINUTIAE",
-                                  "value": "\n"
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            },
-                            {
-                              "kind": "CLOSE_BRACE_TOKEN",
-                              "leadingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "    "
-                                }
-                              ],
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "END_OF_LINE_MINUTIAE",
-                                  "value": "\n"
-                                }
-                              ]
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
                             }
                           ]
                         }
@@ -874,10 +868,6 @@
                             {
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
-                            },
-                            {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
                             }
                           ]
                         },
@@ -886,7 +876,13 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "annot8"
+                              "value": "annot8",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -903,10 +899,6 @@
                             {
                               "kind": "CLOSE_BRACE_TOKEN",
                               "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
@@ -953,20 +945,15 @@
               "kind": "LIST",
               "children": [
                 {
-                  "kind": "EXPRESSION_LIST_ITEM",
+                  "kind": "SIMPLE_NAME_REFERENCE",
                   "children": [
                     {
-                      "kind": "SIMPLE_NAME_REFERENCE",
-                      "children": [
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "bar",
+                      "trailingMinutiae": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "bar",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
                         }
                       ]
                     }
@@ -1019,7 +1006,13 @@
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "value": "annot9"
+                                          "value": "annot9",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -1051,17 +1044,22 @@
                           ]
                         },
                         {
-                          "kind": "RESOURCE_KEYWORD",
-                          "leadingMinutiae": [
+                          "kind": "LIST",
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "RESOURCE_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ],
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -1150,10 +1148,6 @@
                                       "kind": "AT_TOKEN",
                                       "leadingMinutiae": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "    "
-                                        },
-                                        {
                                           "kind": "END_OF_LINE_MINUTIAE",
                                           "value": "\n"
                                         },
@@ -1168,7 +1162,13 @@
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "value": "annot10"
+                                          "value": "annot10",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -1198,6 +1198,10 @@
                               ]
                             }
                           ]
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": []
                         },
                         {
                           "kind": "FUNCTION_KEYWORD",
@@ -1315,7 +1319,13 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "annot11"
+                              "value": "annot11",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -1332,10 +1342,6 @@
                             {
                               "kind": "CLOSE_BRACE_TOKEN",
                               "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
@@ -1382,7 +1388,7 @@
               "kind": "STRING_LITERAL",
               "children": [
                 {
-                  "kind": "STRING_LITERAL",
+                  "kind": "STRING_LITERAL_TOKEN",
                   "value": "hello"
                 }
               ]
@@ -1424,7 +1430,13 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "annot12"
+                              "value": "annot12",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -1441,10 +1453,6 @@
                             {
                               "kind": "CLOSE_BRACE_TOKEN",
                               "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
@@ -1503,10 +1511,10 @@
               ]
             },
             {
-              "kind": "DECIMAL_INTEGER_LITERAL",
+              "kind": "NUMERIC_LITERAL",
               "children": [
                 {
-                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                   "value": "4"
                 }
               ]
@@ -1548,7 +1556,13 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "annot13"
+                              "value": "annot13",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -1565,10 +1579,6 @@
                             {
                               "kind": "CLOSE_BRACE_TOKEN",
                               "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
@@ -1629,7 +1639,7 @@
               "kind": "STRING_LITERAL",
               "children": [
                 {
-                  "kind": "STRING_LITERAL",
+                  "kind": "STRING_LITERAL_TOKEN",
                   "value": "http://ballerinalang.io"
                 }
               ]

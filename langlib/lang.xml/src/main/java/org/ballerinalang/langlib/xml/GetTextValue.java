@@ -18,31 +18,26 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 
 /**
  * Get the text value of a XML.
  * 
  * @since 0.88
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
-        functionName = "getTextValue",
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "getTextValue",
+//        returnType = {@ReturnType(type = TypeKind.STRING)},
+//        isPublic = true
+//)
 public class GetTextValue {
 
     private static final String OPERATION = "get text from xml";
 
-    public static String getTextValue(Strand strand, XMLValue xml) {
+    public static String getTextValue(Strand strand, BXML xml) {
         try {
             return xml.getTextValue();
         } catch (Throwable e) {

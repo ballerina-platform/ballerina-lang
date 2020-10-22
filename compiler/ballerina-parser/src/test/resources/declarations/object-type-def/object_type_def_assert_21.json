@@ -3,15 +3,6 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "TYPE_KEYWORD",
       "trailingMinutiae": [
         {
@@ -48,11 +39,11 @@
               ]
             },
             {
-              "kind": "DECIMAL_INTEGER_LITERAL",
+              "kind": "NUMERIC_LITERAL",
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                   "isMissing": true,
                   "hasDiagnostics": true,
                   "diagnostics": [

@@ -2,13 +2,8 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -80,7 +75,7 @@
                                   "leadingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "   "
+                                      "value": "    "
                                     }
                                   ],
                                   "trailingMinutiae": [
@@ -132,26 +127,14 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "c",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "value": "c"
                             }
                           ]
                         }
                       ]
                     },
                     {
-                      "kind": "RIGHT_ARROW_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "RIGHT_ARROW_TOKEN"
                     },
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",

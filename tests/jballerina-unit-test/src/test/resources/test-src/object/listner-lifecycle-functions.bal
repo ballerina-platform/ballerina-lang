@@ -7,7 +7,7 @@ public function main(string... args) {
     io:println("running main");
 }
 
-type CustomListener object {
+class CustomListener {
     *lang:Listener;
 
     public function __attach(service s, string? name) returns error? {
@@ -29,4 +29,4 @@ type CustomListener object {
     public function __immediateStop() returns error? {
         io:println("running __immediateStop");
     }
-};
+}

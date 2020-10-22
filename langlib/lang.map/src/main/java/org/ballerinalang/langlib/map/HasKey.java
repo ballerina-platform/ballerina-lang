@@ -18,30 +18,23 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * Extern function to check existence of key.
  * ballerina.model.map:hasKey(string)
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION, functionName = "hasKey",
-        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "k", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.map", functionName = "hasKey",
+//        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "k", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+//        isPublic = true
+//)
 public class HasKey {
 
     @Deprecated
-    public static boolean hasKey(Strand strand, MapValue<?, ?> m, BString k) {
+    public static boolean hasKey(BMap<?, ?> m, BString k) {
         return m.containsKey(k);
     }
 }

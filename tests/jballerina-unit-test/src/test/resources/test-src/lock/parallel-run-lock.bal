@@ -194,3 +194,138 @@ function testLockWIthInvokableRecursiveAccessGlobal() {
         panic error("Invalid Value");
     }
 }
+
+int[] values = [];
+int[] numbers = values;
+
+function testLocksWhenGlobalVariablesReferToSameValue() {
+    @strand {thread: "any"}
+    worker w1 {
+        foreach var i in 1 ... 1000 {
+            lock {
+                values[values.length()] = 1;
+            }
+        }
+    }
+
+    @strand {thread: "any"}
+    worker w2 {
+        foreach var i in 1 ... 1000 {
+            lock {
+                values[values.length()] = 1;
+            }
+        }
+    }
+
+    @strand {thread: "any"}
+    worker w3 {
+        foreach var i in 1 ... 1000 {
+            lock {
+                values[values.length()] = 1;
+            }
+        }
+    }
+
+    @strand {thread: "any"}
+    worker w4 {
+        foreach var i in 1 ... 1000 {
+            lock {
+                numbers[numbers.length()] = 1;
+            }
+        }
+    }
+    var result = wait {w1, w2, w3, w4};
+
+    int length = numbers.length();
+    if ( length != 4000) {
+        panic error("Expected 4000, but found " + length.toString());
+    }
+
+}
+
+int[] ref = [];
+int[] toBeUpdateRef = ref;
+function testForGlobalRefUpdateInsideWorker() {
+    ref.removeAll();
+    toBeUpdateRef.removeAll();
+
+    @strand {thread: "any"}
+    worker w1 {
+        foreach var i in 1 ... 100 {
+            lock {
+                runtime:sleep(1);
+                ref[ref.length()] = 1;
+            }
+        }
+    }
+
+    @strand {thread: "any"}
+    worker w2 {
+        foreach var i in 1 ... 100 {
+            lock {
+                runtime:sleep(1);
+                ref[ref.length()] = 1;
+            }
+        }
+    }
+
+    @strand {thread: "any"}
+    worker w3 {
+        toBeUpdateRef = [];
+        foreach var i in 1 ... 100 {
+            lock {
+                runtime:sleep(1);
+                toBeUpdateRef[toBeUpdateRef.length()] = 1;
+            }
+        }
+    }
+
+    runtime:sleep(250);
+    if (toBeUpdateRef.length() == 100 && ref.length() == 200) {
+        panic error("Invalid value 1000 recieved in \"testForGlobalRefUpdateInsideWorker\"");
+    }
+}
+
+int[] refConditional = [];
+int[] toBeUpdateRefConditional = refConditional;
+function testForGlobalRefUpdateInsideConditional() {
+    boolean updateRef = true;
+
+    @strand {thread: "any"}
+    worker w1 {
+        foreach var i in 1 ... 100 {
+            lock {
+                runtime:sleep(1);
+                refConditional[refConditional.length()] = 1;
+            }
+        }
+    }
+
+    @strand {thread: "any"}
+    worker w2 {
+        foreach var i in 1 ... 100 {
+            lock {
+                runtime:sleep(1);
+                refConditional[refConditional.length()] = 1;
+            }
+        }
+    }
+
+    @strand {thread: "any"}
+    worker w3 {
+        if (updateRef) {
+            toBeUpdateRefConditional = [];
+        }
+        foreach var i in 1 ... 100 {
+            lock {
+                runtime:sleep(1);
+                toBeUpdateRefConditional[toBeUpdateRefConditional.length()] = 1;
+            }
+        }
+    }
+
+    runtime:sleep(250);
+    if (toBeUpdateRefConditional.length() == 100 && refConditional.length() == 200) {
+        panic error("Invalid value 100 recieved in \"testForGlobalRefUpdateInsideConditional\"");
+    }
+}

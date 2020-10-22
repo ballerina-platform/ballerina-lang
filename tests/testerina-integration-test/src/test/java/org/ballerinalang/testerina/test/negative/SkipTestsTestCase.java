@@ -26,7 +26,6 @@ import org.testng.annotations.Test;
 
 /**
  * Negative test cases for missing before,after and dependsOn functions.
- * TODO: enable the disabled test cases written for after and afterEach functions once the issue is fixed
  */
 public class SkipTestsTestCase extends BaseTestCase {
 
@@ -69,7 +68,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         clientLeecher3.waitForText(20000);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testSkipWhenAfterFails() throws BallerinaTestException {
         String msg1 = "2 passing";
         String msg2 = "0 failing";
@@ -100,7 +99,7 @@ public class SkipTestsTestCase extends BaseTestCase {
     }
 
 
-    @Test (enabled = false)
+    @Test
     public void testSkipWhenAfterEachFails() throws BallerinaTestException {
         String msg1 = "1 passing";
         String msg2 = "0 failing";
@@ -124,6 +123,36 @@ public class SkipTestsTestCase extends BaseTestCase {
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
         LogLeecher clientLeecher3 = new LogLeecher(msg3);
         balClient.runMain("test", new String[]{"skip-when-beforeSuite-fails.bal"}, null, new String[]{},
+                new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
+        clientLeecher1.waitForText(20000);
+        clientLeecher2.waitForText(20000);
+        clientLeecher3.waitForText(20000);
+    }
+
+    @Test
+    public void testSkipWhenBeforeGroupsFails() throws BallerinaTestException {
+        String msg1 = "2 passing";
+        String msg2 = "0 failing";
+        String msg3 = "3 skipped";
+        LogLeecher clientLeecher1 = new LogLeecher(msg1);
+        LogLeecher clientLeecher2 = new LogLeecher(msg2);
+        LogLeecher clientLeecher3 = new LogLeecher(msg3);
+        balClient.runMain("test", new String[]{"skip-when-beforeGroups-fails.bal"}, null, new String[]{},
+                new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
+        clientLeecher1.waitForText(20000);
+        clientLeecher2.waitForText(20000);
+        clientLeecher3.waitForText(20000);
+    }
+
+    @Test
+    public void testSkipWhenAfterGroupsFails() throws BallerinaTestException {
+        String msg1 = "4 passing";
+        String msg2 = "0 failing";
+        String msg3 = "1 skipped";
+        LogLeecher clientLeecher1 = new LogLeecher(msg1);
+        LogLeecher clientLeecher2 = new LogLeecher(msg2);
+        LogLeecher clientLeecher3 = new LogLeecher(msg3);
+        balClient.runMain("test", new String[]{"skip-when-afterGroups-fails.bal"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);

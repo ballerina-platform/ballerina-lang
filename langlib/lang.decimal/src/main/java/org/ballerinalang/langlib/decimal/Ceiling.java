@@ -18,31 +18,25 @@
 
 package org.ballerinalang.langlib.decimal;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.DecimalValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BDecimal;
 
 import java.math.RoundingMode;
-
-import static org.ballerinalang.util.BLangCompilerConstants.DECIMAL_VERSION;
 
 /**
  * Native implementation of lang.decimal:ceiling(decimal).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.decimal", version = DECIMAL_VERSION, functionName = "ceiling",
-        args = {@Argument(name = "x", type = TypeKind.DECIMAL)},
-        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.decimal", functionName = "ceiling",
+//        args = {@Argument(name = "x", type = TypeKind.DECIMAL)},
+//        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
+//        isPublic = true
+//)
 public class Ceiling {
 
-    public static DecimalValue ceiling(Strand strand, DecimalValue x) {
-        return new DecimalValue(x.value().setScale(0, RoundingMode.CEILING));
+    public static BDecimal ceiling(BDecimal x) {
+        return ValueCreator.createDecimalValue(x.value().setScale(0, RoundingMode.CEILING));
     }
 }

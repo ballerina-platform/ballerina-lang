@@ -17,18 +17,16 @@
  */
 package org.ballerinalang.packerina.cmd;
 
+import io.ballerina.runtime.util.BLangConstants;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.JarResolver;
-import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.packerina.JarResolverImpl;
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
 import org.ballerinalang.packerina.task.CreateDocsTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
-import org.ballerinalang.packerina.task.ResolveMavenDependenciesTask;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -45,7 +43,6 @@ import java.util.List;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.NEW_PARSER_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
@@ -101,8 +98,8 @@ public class DocCommand implements BLauncherCmd {
                                                               "dependencies.")
     private boolean offline;
 
-    @CommandLine.Option(names = "--new-parser", description = "Enable new parser.", hidden = true)
-    private boolean newParserEnabled;
+    @CommandLine.Option(names = "--old-parser", description = "Enable old parser.", hidden = true)
+    private boolean useOldParser;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -298,7 +295,6 @@ public class DocCommand implements BLauncherCmd {
         options.put(SKIP_TESTS, Boolean.toString(true));
         options.put(TEST_ENABLED, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
-        options.put(NEW_PARSER_ENABLED, Boolean.toString(this.newParserEnabled));
 
         // create builder context
         BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
@@ -309,9 +305,8 @@ public class DocCommand implements BLauncherCmd {
         buildContext.setErr(errStream);
         
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetDirTask())   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory.
-                .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
+                //.addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask()) // compile the modules
                 .addTask(new CreateDocsTask(toJson, jsonPath, excludeIndex, combine)) // creates API documentation
                 .build();

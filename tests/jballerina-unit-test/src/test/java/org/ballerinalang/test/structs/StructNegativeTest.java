@@ -17,11 +17,11 @@
 */
 package org.ballerinalang.test.structs;
 
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -101,7 +101,7 @@ public class StructNegativeTest {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src/structs/proj", "constants");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
+        Assert.assertEquals(compileResult.getDiagnostics()[0].message(),
                             "incompatible types: expected 'ballerina-test/constants:0.0.0:Person', found 'int'");
     }
 

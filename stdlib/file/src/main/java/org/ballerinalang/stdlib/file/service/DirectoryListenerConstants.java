@@ -18,8 +18,8 @@
 
 package org.ballerinalang.stdlib.file.service;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 import org.wso2.transport.localfilesystem.server.util.Constants;
 
 /**

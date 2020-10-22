@@ -17,20 +17,14 @@
  */
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.JSONParser;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
-import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 
 /**
  * Extern function lang.values:fromJsonWithType.
@@ -38,35 +32,21 @@ import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
  *
  * @since 2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "lang.value", version = VALUE_VERSION,
-        functionName = "fromJsonStringWithType",
-        args = {
-                @Argument(name = "str", type = TypeKind.STRING),
-                @Argument(name = "t", type = TypeKind.TYPEDESC)
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.ANYDATA),
-                @ReturnType(type = TypeKind.ERROR)
-        },
-        isPublic = true
-)
 public class FromJsonStringWithType {
 
-    public static Object fromJsonStringWithType(Strand strand, BString value, TypedescValue t) {
+    public static Object fromJsonStringWithType(BString value, BTypedesc t) {
 
         String str = value.getValue();
         try {
             if (str.equals("null")) {
-                return FromJsonWithType.fromJsonWithType(strand, null, t);
+                return FromJsonWithType.fromJsonWithType(null, t);
             } else {
                 Object jsonFromString = JSONParser.parse(str);
-                return FromJsonWithType.fromJsonWithType(strand, jsonFromString, t);
+                return FromJsonWithType.fromJsonWithType(jsonFromString, t);
             }
         } catch (BallerinaException e) {
-            return BallerinaErrors.createError(StringUtils.fromString(VALUE_LANG_LIB_CONVERSION_ERROR),
-                    StringUtils.fromString(e.getMessage()));
+            return ErrorCreator.createError(VALUE_LANG_LIB_CONVERSION_ERROR,
+                                            StringUtils.fromString(e.getMessage()));
         }
     }
 }

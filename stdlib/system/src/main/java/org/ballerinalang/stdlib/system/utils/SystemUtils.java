@@ -17,13 +17,14 @@
  */
 package org.ballerinalang.stdlib.system.utils;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,7 +56,7 @@ public class SystemUtils {
      *              "Unknown Error" sets to message by default.
      * @return Ballerina error object.
      */
-    public static ErrorValue getBallerinaError(String typeId, Throwable ex) {
+    public static BError getBallerinaError(String typeId, Throwable ex) {
         String errorMsg = ex != null && ex.getMessage() != null ? ex.getMessage() : UNKNOWN_MESSAGE;
         return getBallerinaError(typeId, errorMsg);
     }
@@ -69,28 +70,29 @@ public class SystemUtils {
      *                "Unknown Error" is set to message by default.
      * @return Ballerina error object.
      */
-    public static ErrorValue getBallerinaError(String typeId, String message) {
-        return BallerinaErrors.createDistinctError(typeId, SYSTEM_PACKAGE_ID, message);
+    public static BError getBallerinaError(String typeId, String message) {
+        return ErrorCreator.createDistinctError(typeId, SYSTEM_PACKAGE_ID, StringUtils.fromString(message));
     }
 
-    public static ObjectValue getFileInfo(File inputFile) throws IOException {
-        MapValue<BString, Object> lastModifiedInstance;
+    public static BObject getFileInfo(File inputFile) throws IOException {
+        BMap<BString, Object> lastModifiedInstance;
         FileTime lastModified = Files.getLastModifiedTime(inputFile.toPath());
         ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
         lastModifiedInstance = createTimeRecord(getTimeZoneRecord(), getTimeRecord(),
-                lastModified.toMillis(), StringUtils.fromString(zonedDateTime.getZone().toString()));
-        return BallerinaValues.createObjectValue(SYSTEM_PACKAGE_ID, FILE_INFO_TYPE,
-                                                 StringUtils.fromString(inputFile.getName()), inputFile.length(),
-                                                 lastModifiedInstance, inputFile.isDirectory());
+                                                lastModified.toMillis(), StringUtils
+                                                        .fromString(zonedDateTime.getZone().toString()));
+        return ValueCreator.createObjectValue(SYSTEM_PACKAGE_ID, FILE_INFO_TYPE,
+                                              StringUtils.fromString(inputFile.getName()), inputFile.length(),
+                                              lastModifiedInstance, inputFile.isDirectory());
     }
 
-    public static ObjectValue getProcessObject(Process process) throws IOException {
-        ObjectValue obj = BallerinaValues.createObjectValue(SYSTEM_PACKAGE_ID, PROCESS_TYPE);
+    public static BObject getProcessObject(Process process) throws IOException {
+        BObject obj = ValueCreator.createObjectValue(SYSTEM_PACKAGE_ID, PROCESS_TYPE);
         obj.addNativeData(PROCESS_FIELD, process);
         return obj;
     }
     
-    public static Process processFromObject(ObjectValue objVal) {
+    public static Process processFromObject(BObject objVal) {
         return (Process) objVal.getNativeData(PROCESS_FIELD);
     }
 
@@ -98,13 +100,13 @@ public class SystemUtils {
      * Returns the system property which corresponds to the given key.
      *
      * @param key system property key
-     * @return system property as a {@link String} or {@code BTypes.typeString.getZeroValue()} if the property does not
+     * @return system property as a {@link String} or {@code Types.typeString.getZeroValue()} if the property does not
      * exist.
      */
     public static String getSystemProperty(String key) {
         String value = System.getProperty(key);
         if (value == null) {
-            return org.ballerinalang.jvm.types.BTypes.typeString.getZeroValue();
+            return PredefinedTypes.TYPE_STRING.getZeroValue();
         }
         return value;
     }

@@ -17,17 +17,16 @@
  */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -689,17 +688,6 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) retChoose.get("val")).intValue(), 5);
     }
 
-    @Test(dataProvider = "missingNativeImplFiles")
-    public void testObjectWithMissingNativeImpl(String filePath) {
-        try {
-            BCompileUtil.compileInProc(filePath);
-        } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("native function not available: Person.printName"));
-            return;
-        }
-        Assert.fail("expected compilation to fail due to missing external implementation");
-    }
-
     @Test(description = "Test invoking object inits with union params in another object's function")
     public void testUnionsAsAnInitParam() {
         CompileResult objectTypeUnion = BCompileUtil.compile("test-src/object/object_type_union.bal");
@@ -758,39 +746,18 @@ public class ObjectTest {
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
-    @DataProvider
-    public Object[][] missingNativeImplFiles() {
-        return new Object[][]{
-                {"test-src/object/object_with_missing_native_impl.bal"},
-                {"test-src/object/object_with_missing_native_impl_2.bal"}
-        };
-    }
-
-    @Test(description = "Test field name and method name in different namespaces")
+    @Test(description = "Negative test for field name and method name being same")
     public void testFieldWithSameNameAsMethod() {
-        CompileResult compileResult = BCompileUtil.compile(
-                "test-src/object/object_field_with_same_name_as_method.bal");
-        BValue[] result = BRunUtil.invoke(compileResult, "testFieldWithSameNameAsMethod");
-        Assert.assertEquals(((BInteger) result[0]).intValue(), 13);
-        Assert.assertEquals(((BInteger) result[1]).intValue(), 23);
-        Assert.assertEquals(((BInteger) result[2]).intValue(), 23);
-        Assert.assertEquals(((BFloat) result[3]).floatValue(), 1.1);
-        Assert.assertEquals(((BFloat) result[4]).floatValue(), 2.2);
-        Assert.assertEquals(((BFloat) result[5]).floatValue(), 1.1);
-        Assert.assertEquals(((BFloat) result[6]).floatValue(), 2.2);
-    }
+        CompileResult resultNegative = BCompileUtil.compile(
+                "test-src/object/object_field_with_same_name_as_method_neg.bal");
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "redeclared symbol 'ObjectA.someInt'", 21, 14);
+        BAssertUtil.validateError(resultNegative, i++, "redeclared symbol 'ObjectA.someFloat'", 26, 14);
+        BAssertUtil.validateError(resultNegative, i++, "undefined method 'someFloat' in object 'ObjectA'", 36, 25);
+        BAssertUtil.validateError(resultNegative, i++, "undefined method 'someInt' in object 'ObjectA'", 44, 17);
+        BAssertUtil.validateError(resultNegative, i++, "undefined method 'someFloat' in object 'ObjectA'", 49, 19);
 
-    @Test(description = "Test field name and method name in different namespaces from balo")
-    public void testFieldWithSameNameAsMethodFromBalo() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "pkg2");
-        BValue[] result = BRunUtil.invoke(compileResult, "testBaloWithFieldWithSameNameAsMethod");
-        Assert.assertEquals(((BInteger) result[0]).intValue(), 13);
-        Assert.assertEquals(((BInteger) result[1]).intValue(), 23);
-        Assert.assertEquals(((BInteger) result[2]).intValue(), 23);
-        Assert.assertEquals(((BFloat) result[3]).floatValue(), 1.1);
-        Assert.assertEquals(((BFloat) result[4]).floatValue(), 2.2);
-        Assert.assertEquals(((BFloat) result[5]).floatValue(), 1.1);
-        Assert.assertEquals(((BFloat) result[6]).floatValue(), 2.2);
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
     @Test(description = "Test object attach func returning tuple with non blocking call")

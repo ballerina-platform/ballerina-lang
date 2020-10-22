@@ -18,14 +18,8 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BXML;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
@@ -36,18 +30,9 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
  *
  * @since ballerina-0.970.0-alpha3
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "io",
-        functionName = "writeXml",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "WritableCharacterChannel",
-                structPackage = "ballerina/io"),
-        args = {@Argument(name = "content", type = TypeKind.XML)},
-        returnType = {@ReturnType(type = TypeKind.ERROR)},
-        isPublic = true
-)
 public class WriteXml {
 
-    public static Object writeXml(Strand strand, ObjectValue characterChannelObj, XMLValue content) {
+    public static Object writeXml(BObject characterChannelObj, BXML content) {
         try {
             CharacterChannel characterChannel = (CharacterChannel) characterChannelObj.getNativeData(
                     IOConstants.CHARACTER_CHANNEL_NAME);

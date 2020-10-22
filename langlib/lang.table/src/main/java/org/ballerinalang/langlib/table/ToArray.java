@@ -18,41 +18,34 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BTableType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.TableType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BTable;
 
 import java.util.Collection;
-
-import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 
 /**
  * Function for returning the values of the table as an array. T[] vals = tbl.toArray();
  *
  * @since 1.3.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION,
-        functionName = "toArray",
-        args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANYDATA)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.table",
+//        functionName = "toArray",
+//        args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
+//        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANYDATA)},
+//        isPublic = true
+//)
 public class ToArray {
 
-    public static ArrayValue toArray(Strand strand, TableValueImpl tbl) {
-        BType constrainedType = ((BTableType) tbl.getType()).getConstrainedType();
+    public static BArray toArray(BTable tbl) {
+        Type constrainedType = ((TableType) tbl.getType()).getConstrainedType();
 
         Collection values = tbl.values();
         //Basic constrain types not applicable for table type
-        return new ArrayValueImpl(values.toArray(), new BArrayType(constrainedType));
+        return ValueCreator.createArrayValue(values.toArray(), TypeCreator.createArrayType(constrainedType));
     }
 }

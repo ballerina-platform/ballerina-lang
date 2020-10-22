@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -36,11 +37,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
@@ -60,9 +59,10 @@ import java.util.stream.Collectors;
 public class GlobalVariableRefAnalyzer {
     private static final CompilerContext.Key<GlobalVariableRefAnalyzer> REF_ANALYZER_KEY = new CompilerContext.Key<>();
 
-    private final BLangDiagnosticLogHelper dlog;
+    private final BLangDiagnosticLog dlog;
     private BLangPackage pkgNode;
     private Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
+    private Map<BSymbol, Set<BVarSymbol>> globalVariablesDependsOn;
     private final Map<BSymbol, NodeInfo> dependencyNodes;
     private final Deque<NodeInfo> nodeInfoStack;
     private final List<List<NodeInfo>> cycles;
@@ -79,12 +79,13 @@ public class GlobalVariableRefAnalyzer {
 
     private GlobalVariableRefAnalyzer(CompilerContext context) {
         context.put(REF_ANALYZER_KEY, this);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
 
         this.dependencyNodes = new HashMap<>();
         this.cycles = new ArrayList<>();
         this.nodeInfoStack = new ArrayDeque<>();
         this.dependencyOrder = new ArrayList<>();
+        this.globalVariablesDependsOn = new HashMap<>();
     }
 
     /**
@@ -103,6 +104,14 @@ public class GlobalVariableRefAnalyzer {
 
             analyzeDependenciesRecursively(dependent);
         }
+    }
+
+    /**
+     * Get the global variable dependency map.
+     * @return global variable dependency map.
+     */
+    public Map<BSymbol, Set<BVarSymbol>> getGlobalVariablesDependsOn() {
+        return this.globalVariablesDependsOn;
     }
 
     private void analyzeDependenciesRecursively(BSymbol dependent) {
@@ -125,28 +134,37 @@ public class GlobalVariableRefAnalyzer {
 
         node.visited = true;
 
-        if (isGlobalVarSymbol(node.symbol)) {
-            return new HashSet<>(Arrays.asList((BVarSymbol) node.symbol));
-        }
-
         node.onStack = true;
 
         Set<BSymbol> providers = this.globalNodeDependsOn.getOrDefault(node.symbol, new LinkedHashSet<>());
-        // No providers means either not a function or function does not have dependents.
+
+        // Means no dependencies for this node.
         if (providers.isEmpty()) {
             return new HashSet<>();
         }
 
-        // Means the current node is a function and has dependencies. Lets analyze its dependencies further.
+        // Means the current node has dependencies. Lets analyze its dependencies further.
+        Set<BVarSymbol> currentDependencies = new HashSet<>();
         for (BSymbol providerSym : providers) {
             NodeInfo providerNode =
                     this.dependencyNodes.computeIfAbsent(providerSym, s -> new NodeInfo(curNodeId++, providerSym));
-            ((BInvokableSymbol) node.symbol).dependentGlobalVars
-                    .addAll(analyzeDependenciesRecursively(providerNode));
+            if (isGlobalVarSymbol(providerSym)) {
+                currentDependencies.add((BVarSymbol) providerSym);
+            }
+            currentDependencies.addAll(analyzeDependenciesRecursively(providerNode));
         }
 
         node.onStack = false;
-        return ((BInvokableSymbol) node.symbol).dependentGlobalVars;
+
+        Set<BVarSymbol> dependentGlobalVars;
+        if (node.symbol.kind == SymbolKind.FUNCTION) {
+            dependentGlobalVars = ((BInvokableSymbol) node.symbol).dependentGlobalVars;
+        } else {
+            dependentGlobalVars = this.globalVariablesDependsOn.computeIfAbsent(node.symbol, s -> new HashSet<>());
+        }
+
+        dependentGlobalVars.addAll(currentDependencies);
+        return dependentGlobalVars;
     }
 
     private Set<BVarSymbol> getGlobalVarFromCurrentNode(NodeInfo node) {
@@ -166,9 +184,7 @@ public class GlobalVariableRefAnalyzer {
         if (isFunction(symbol)) {
             return ((BInvokableSymbol) symbol).dependentGlobalVars;
         } else if (isGlobalVarSymbol(symbol)) {
-            Set<BVarSymbol> dependentSet = new HashSet<>();
-            dependentSet.add((BVarSymbol) symbol);
-            return dependentSet;
+            return this.globalVariablesDependsOn.getOrDefault(symbol, new HashSet<>());
         }
 
         return new HashSet<>();
@@ -192,9 +208,7 @@ public class GlobalVariableRefAnalyzer {
             return false;
         }
 
-        return ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) ||
-                ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT);
-
+        return ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE);
     }
 
     /**
@@ -273,6 +287,7 @@ public class GlobalVariableRefAnalyzer {
         this.nodeInfoStack.clear();
         this.dependencyOrder.clear();
         this.curNodeId = 0;
+        this.globalVariablesDependsOn = new HashMap<>();
     }
 
     private void pruneDependencyRelations() {

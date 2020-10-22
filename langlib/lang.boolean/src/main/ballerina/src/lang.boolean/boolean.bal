@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/java;
+
 # Converts a string to a boolean.
 # Returns the boolean of which `s` is a string representation.
 # The accepted representations are `true`, `false`
@@ -23,4 +25,7 @@
 #
 # + s - string representing a boolean value
 # + return - boolean that `s` represents, or an error if there is no such boolean
-public function fromString(string s) returns boolean|error = external;
+public isolated function fromString(string s) returns boolean|error = @java:Method {
+    'class: "org.ballerinalang.langlib.bool.FromString",
+    name: "fromString"
+} external;

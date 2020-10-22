@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.model;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
@@ -31,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Root class of Ballerina intermediate representation-BIR.
@@ -127,6 +129,9 @@ public abstract class BIRNode {
         public BIRBasicBlock startBB;
         public int insOffset;
 
+        // Stores the scope of the current instruction with respect to local variables.
+        public BirScope insScope;
+
         public BIRVariableDcl(DiagnosticPos pos, BType type, Name name, VarScope scope,
                               VarKind kind, String metaVarName) {
             super(pos);
@@ -205,12 +210,14 @@ public abstract class BIRNode {
          */
         public int flags;
         public PackageID pkgId;
+        public SymbolOrigin origin;
 
         public BIRGlobalVariableDcl(DiagnosticPos pos, int flags, BType type, PackageID pkgId, Name name,
-                                    VarScope scope, VarKind kind, String metaVarName) {
+                                    VarScope scope, VarKind kind, String metaVarName, SymbolOrigin origin) {
             super(pos, type, name, scope, kind, metaVarName);
             this.flags = flags;
             this.pkgId = pkgId;
+            this.origin = origin;
         }
 
         @Override
@@ -255,6 +262,11 @@ public abstract class BIRNode {
          * Value represents flags.
          */
         public int flags;
+
+        /**
+         * The origin of the function.
+         */
+        public SymbolOrigin origin;
 
         /**
          * Type of this function. e.g., (int, int) returns (int).
@@ -324,8 +336,10 @@ public abstract class BIRNode {
 
         public List<BIRAnnotationAttachment> annotAttachments;
 
+        public Set<BIRGlobalVariableDcl> dependentGlobalVars = new TreeSet<>();
+
         public BIRFunction(DiagnosticPos pos, Name name, int flags, BInvokableType type, Name workerName,
-                int sendInsCount, TaintTable taintTable) {
+                           int sendInsCount, TaintTable taintTable, SymbolOrigin origin) {
             super(pos);
             this.name = name;
             this.flags = flags;
@@ -339,6 +353,7 @@ public abstract class BIRNode {
             this.workerChannels = new ChannelDetails[sendInsCount];
             this.taintTable = taintTable;
             this.annotAttachments = new ArrayList<>();
+            this.origin = origin;
         }
 
         @Override
@@ -347,7 +362,7 @@ public abstract class BIRNode {
         }
 
         public BIRFunction duplicate() {
-            BIRFunction f = new BIRFunction(pos, name, flags, type, workerName, 0, taintTable);
+            BIRFunction f = new BIRFunction(pos, name, flags, type, workerName, 0, taintTable, origin);
             f.localVars = localVars;
             f.parameters = parameters;
             f.requiredParams = requiredParams;
@@ -417,6 +432,8 @@ public abstract class BIRNode {
 
         public List<BType> referencedTypes;
 
+        public SymbolOrigin origin;
+
         /**
          * this is not serialized. it's used to keep the index of the def in the list.
          * otherwise the writer has to *find* it in the list.
@@ -424,7 +441,7 @@ public abstract class BIRNode {
         public int index;
 
         public BIRTypeDefinition(DiagnosticPos pos, Name name, int flags, boolean isLabel, boolean isBuiltin,
-                                 BType type, List<BIRFunction> attachedFuncs) {
+                                 BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin) {
 
             super(pos);
             this.name = name;
@@ -434,6 +451,7 @@ public abstract class BIRNode {
             this.type = type;
             this.attachedFuncs = attachedFuncs;
             this.referencedTypes = new ArrayList<>();
+            this.origin = origin;
         }
 
         @Override
@@ -521,6 +539,11 @@ public abstract class BIRNode {
         public int flags;
 
         /**
+         * The origin of the annotation.
+         */
+        public SymbolOrigin origin;
+
+        /**
          * Attach points, this is needed only in compiled symbol enter as it is.
          */
         public Set<AttachPoint> attachPoints;
@@ -531,12 +554,13 @@ public abstract class BIRNode {
         public BType annotationType;
 
         public BIRAnnotation(DiagnosticPos pos, Name name, int flags,
-                             Set<AttachPoint> points, BType annotationType) {
+                             Set<AttachPoint> points, BType annotationType, SymbolOrigin origin) {
             super(pos);
             this.name = name;
             this.flags = flags;
             this.attachPoints = points;
             this.annotationType = annotationType;
+            this.origin = origin;
         }
 
         @Override
@@ -572,13 +596,19 @@ public abstract class BIRNode {
          */
         public ConstValue constValue;
 
+        /**
+         * The origin of the symbol for the constant.
+         */
+        public SymbolOrigin origin;
+
         public BIRConstant(DiagnosticPos pos, Name name, int flags,
-                           BType type, ConstValue constValue) {
+                           BType type, ConstValue constValue, SymbolOrigin origin) {
             super(pos);
             this.name = name;
             this.flags = flags;
             this.type = type;
             this.constValue = constValue;
+            this.origin = origin;
         }
 
         @Override

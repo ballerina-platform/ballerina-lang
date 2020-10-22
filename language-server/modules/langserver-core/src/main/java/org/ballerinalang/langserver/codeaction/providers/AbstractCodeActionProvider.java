@@ -75,16 +75,20 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
      * {@inheritDoc}
      */
     @Override
-    public abstract List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                             List<Diagnostic> allDiagnostics);
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                                    List<Diagnostic> allDiagnostics) {
+        throw new UnsupportedOperationException("Not supported");
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public abstract List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                             List<Diagnostic> diagnosticsOfRange,
-                                                             List<Diagnostic> allDiagnostics);
+    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                                    List<Diagnostic> diagnosticsOfRange,
+                                                    List<Diagnostic> allDiagnostics) {
+        throw new UnsupportedOperationException("Not supported");
+    }
 
     /**
      * {@inheritDoc}
@@ -118,8 +122,8 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
      * @param document   {@link LSDocumentIdentifier}
      * @return diagnostic highlighted content
      */
-    protected static String getDiagnosedContent(Diagnostic diagnostic, LSContext context,
-                                                LSDocumentIdentifier document) {
+    public static String getDiagnosedContent(Diagnostic diagnostic, LSContext context,
+                                             LSDocumentIdentifier document) {
         WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         StringBuilder content = new StringBuilder();
         Position start = diagnostic.getRange().getStart();
@@ -159,7 +163,7 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
      * @param position         diagnose message position
      * @return offset position skipping package alias
      */
-    protected static Position offsetPositionToInvocation(String diagnosedContent, Position position) {
+    public static Position offsetPositionToInvocation(String diagnosedContent, Position position) {
 //        Need to capture the correct function invocation position in chain & nested invocations
 //        eg. General Invocations: lorry.get_color()
 //            Chain invocations: lorry.get_color().print(10),
@@ -283,7 +287,7 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
      * @param uri          uri
      * @return {@link CodeAction}
      */
-    protected static CodeAction createQuickFixCodeAction(String commandTitle, List<TextEdit> edits, String uri) {
+    public static CodeAction createQuickFixCodeAction(String commandTitle, List<TextEdit> edits, String uri) {
         List<Diagnostic> diagnostics = new ArrayList<>();
         CodeAction action = new CodeAction(commandTitle);
         action.setKind(CodeActionKind.QuickFix);

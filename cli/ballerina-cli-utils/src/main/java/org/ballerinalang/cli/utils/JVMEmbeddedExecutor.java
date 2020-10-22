@@ -18,19 +18,20 @@
 
 package org.ballerinalang.cli.utils;
 
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.util.ArgumentParser;
+import io.ballerina.runtime.util.RuntimeUtils;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.ArgumentParser;
-import org.ballerinalang.jvm.util.RuntimeUtils;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.FutureValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 import org.ballerinalang.spi.EmbeddedExecutor;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -44,6 +45,8 @@ import java.util.function.Function;
  */
 @JavaSPIService("org.ballerinalang.spi.EmbeddedExecutor")
 public class JVMEmbeddedExecutor implements EmbeddedExecutor {
+
+    private static final String MODULE_INIT_CLASS = ".$_init";
 
     /**
      * {@inheritDoc}
@@ -96,7 +99,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             throws RuntimeException {
         try {
             Class<?> initClazz = Class.forName("ballerina." + moduleName + "." +
-                                                       moduleVersion.replace(".", "_") + ".___init");
+                                                       moduleVersion.replace(".", "_") + MODULE_INIT_CLASS);
             final Method initMethod = initClazz.getDeclaredMethod("$moduleStart", Strand.class);
             //TODO fix following method invoke to scheduler.schedule()
             Function<Object[], Object> func = objects -> {
@@ -109,20 +112,20 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                     throw new BallerinaException("Method has private access", e);
                 }
             };
-            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
-                                                       BTypes.typeNull, strandName, metaData);
+            final BFuture out = scheduler.schedule(new Object[1], func, null, null, null,
+                                                   PredefinedTypes.TYPE_NULL, strandName, metaData);
             scheduler.start();
-            final Throwable t = out.panic;
+            final Throwable t = out.getPanic();
             if (t != null) {
-                if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                if (t instanceof io.ballerina.runtime.util.exceptions.BLangRuntimeException) {
+                    throw new BLangRuntimeException(t.getMessage());
                 }
-                if (t instanceof org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                if (t instanceof io.ballerina.runtime.util.exceptions.BallerinaConnectorException) {
+                    throw new BLangRuntimeException(t.getMessage());
                 }
-                if (t instanceof ErrorValue) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(
-                            "error: " + ((ErrorValue) t).getPrintableStackTrace().replaceAll("\\{}", ""));
+                if (t instanceof BError) {
+                    throw new BLangRuntimeException(
+                            "error: " + ((BError) t).getPrintableStackTrace().replaceAll("\\{}", ""));
                 }
                 throw (RuntimeException) t;
             }
@@ -148,13 +151,13 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
         try {
             Class<?> mainClass = Class.forName("ballerina." + moduleName + "." +
                                                        moduleVersion.replace(".", "_") + "." + moduleName);
-            final Method mainMethod = mainClass.getDeclaredMethod("main", Strand.class, ArrayValue.class,
-                    boolean.class);
+            final Method mainMethod = mainClass.getDeclaredMethod("main", Strand.class, BArray.class,
+                                                                  boolean.class);
             Object[] entryFuncArgs =
                     ArgumentParser.extractEntryFuncArgs(new RuntimeUtils.ParamInfo[]{
-                            new RuntimeUtils.ParamInfo(false,
-                                    "%1",
-                                    new BArrayType(BTypes.typeString, stringArgs.length))
+                            new RuntimeUtils.ParamInfo(false, "%1",
+                                                       TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING,
+                                                                                   stringArgs.length))
                     }, stringArgs, true);
 
             //TODO fix following method invoke to scheduler.schedule()
@@ -168,20 +171,20 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                     throw new BallerinaException("Method has private access", e);
                 }
             };
-            final FutureValue out = scheduler.schedule(entryFuncArgs, func, null, null, null,
-                                                       BTypes.typeNull, strandName, metaData);
+            final BFuture out = scheduler.schedule(entryFuncArgs, func, null, null, null,
+                                                   PredefinedTypes.TYPE_NULL, strandName, metaData);
             scheduler.start();
-            final Throwable t = out.panic;
+            final Throwable t = out.getPanic();
             if (t != null) {
-                if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                if (t instanceof io.ballerina.runtime.util.exceptions.BLangRuntimeException) {
+                    throw new BLangRuntimeException(t.getMessage());
                 }
-                if (t instanceof org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                if (t instanceof io.ballerina.runtime.util.exceptions.BallerinaConnectorException) {
+                    throw new BLangRuntimeException(t.getMessage());
                 }
-                if (t instanceof ErrorValue) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(
-                            "error: " + ((ErrorValue) t).getPrintableStackTrace().replaceAll("\\{}", ""));
+                if (t instanceof BError) {
+                    throw new BLangRuntimeException(
+                            "error: " + ((BError) t).getPrintableStackTrace().replaceAll("\\{}", ""));
                 }
                 throw (RuntimeException) t;
             }
@@ -205,7 +208,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             throws RuntimeException {
         try {
             Class<?> initClazz = Class.forName("ballerina." + moduleName + "." +
-                                                       moduleVersion.replace(".", "_") + ".___init");
+                                                       moduleVersion.replace(".", "_") + MODULE_INIT_CLASS);
             final Method initMethod = initClazz.getDeclaredMethod("$moduleInit", Strand.class);
             //TODO fix following method invoke to scheduler.schedule()
             Function<Object[], Object> func = objects -> {
@@ -218,20 +221,20 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                     throw new BallerinaException("Method has private access", e);
                 }
             };
-            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
-                    BTypes.typeNull, strandName, metaData);
+            final BFuture out = scheduler.schedule(new Object[1], func, null, null, null,
+                                                   PredefinedTypes.TYPE_NULL, strandName, metaData);
             scheduler.start();
-            final Throwable t = out.panic;
+            final Throwable t = out.getPanic();
             if (t != null) {
-                if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                if (t instanceof io.ballerina.runtime.util.exceptions.BLangRuntimeException) {
+                    throw new BLangRuntimeException(t.getMessage());
                 }
-                if (t instanceof org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                if (t instanceof io.ballerina.runtime.util.exceptions.BallerinaConnectorException) {
+                    throw new BLangRuntimeException(t.getMessage());
                 }
-                if (t instanceof ErrorValue) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(
-                            "error: " + ((ErrorValue) t).getPrintableStackTrace().replaceAll("\\{}", ""));
+                if (t instanceof BError) {
+                    throw new BLangRuntimeException(
+                            "error: " + ((BError) t).getPrintableStackTrace().replaceAll("\\{}", ""));
                 }
                 throw (RuntimeException) t;
             }

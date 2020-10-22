@@ -92,13 +92,13 @@ function testFieldOptionalFieldAndMemberAccess3() {
     string? s1 = a.betas[0]?.s;
 }
 
-public type Gamma object {
+public class Gamma {
     Delta? delta;
 
     public function init(Delta? d) {
         self.delta = d;
     }
-};
+}
 
 public type Delta record {
     Status status = ();

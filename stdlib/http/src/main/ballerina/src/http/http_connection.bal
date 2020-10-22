@@ -21,7 +21,7 @@ import ballerina/java;
 # + remoteAddress - The remote address
 # + localAddress - The local address
 # + protocol - The protocol associated with the service endpoint
-public type Caller client object {
+public client class Caller {
 
     private ListenerConfiguration config = {};
     private FilterContext? filterContext = ();
@@ -78,7 +78,7 @@ public type Caller client object {
     #
     # + headers - A `map` of custom headers for handshake
     # + return - An `http:WebSocketCaller` instance or else an `http:WebSocketError` on failure to upgrade
-    public remote function acceptWebSocketUpgrade(map<string> headers) 
+    public remote function acceptWebSocketUpgrade(map<string> headers)
                                                 returns WebSocketCaller | WebSocketError {
         return externAcceptWebSocketUpgrade(self, headers);
     }
@@ -242,15 +242,15 @@ public type Caller client object {
     public function getRemoteHostName() returns string? {
         return nativeGetRemoteHostName(self);
     }
-};
+}
 
 function nativeRespond(Caller caller, Response response) returns ListenerError? = @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.connection.Respond",
+    'class: "org.ballerinalang.net.http.nativeimpl.connection.Respond",
     name: "nativeRespond"
 } external;
 
 function nativeGetRemoteHostName(Caller caller) returns string = @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.connection.GetRemoteHostName",
+    'class: "org.ballerinalang.net.http.nativeimpl.connection.GetRemoteHostName",
     name: "nativeGetRemoteHostName"
 } external;
 
@@ -281,25 +281,24 @@ public const REDIRECT_PERMANENT_REDIRECT_308 = 308;
 
 function externPromise(Caller caller, PushPromise promise) returns ListenerError? =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.connection.Promise",
+    'class: "org.ballerinalang.net.http.nativeimpl.connection.Promise",
     name: "promise"
 } external;
 
 function externPushPromisedResponse(Caller caller, PushPromise promise, Response response) returns ListenerError? =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.connection.PushPromisedResponse",
+    'class: "org.ballerinalang.net.http.nativeimpl.connection.PushPromisedResponse",
     name: "pushPromisedResponse"
 } external;
 
 function externAcceptWebSocketUpgrade(Caller caller, map<string> headers) returns WebSocketCaller | WebSocketError =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.connection.AcceptWebSocketUpgrade",
+    'class: "org.ballerinalang.net.http.nativeimpl.connection.AcceptWebSocketUpgrade",
     name: "acceptWebSocketUpgrade"
 } external;
 
 function externCancelWebSocketUpgrade(Caller caller, int status, string reason) returns WebSocketError? =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.connection.CancelWebSocketUpgrade",
-    name: "cancelWebSocketUpgrade",
-    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "long", "org.ballerinalang.jvm.values.api.BString"]
+    'class: "org.ballerinalang.net.http.nativeimpl.connection.CancelWebSocketUpgrade",
+    name: "cancelWebSocketUpgrade"
 } external;

@@ -139,7 +139,7 @@ function testFuture() {
     assert("Hello Pubudu", res);
 }
 
-type PersonObj object {
+class PersonObj {
     string fname;
     string lname;
 
@@ -149,7 +149,7 @@ type PersonObj object {
     }
 
     function name() returns string => self.fname + " " + self.lname;
-};
+}
 
 type PersonTable table<Person>;
 type IntStream stream<int>;

@@ -18,8 +18,8 @@
 
 package org.ballerinalang.net.http.clientendpoint;
 
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.PoolConfiguration;
 
@@ -32,7 +32,7 @@ import static org.ballerinalang.net.http.HttpUtil.populatePoolingConfig;
  * @since 0.995.0
  */
 public class InitGlobalPool {
-    public static void initGlobalPool(MapValue<BString, Long> globalPoolConfig) {
+    public static void initGlobalPool(BMap<BString, Long> globalPoolConfig) {
         PoolConfiguration globalPool = new PoolConfiguration();
         populatePoolingConfig(globalPoolConfig, globalPool);
         ConnectionManager connectionManager = new ConnectionManager(globalPool);

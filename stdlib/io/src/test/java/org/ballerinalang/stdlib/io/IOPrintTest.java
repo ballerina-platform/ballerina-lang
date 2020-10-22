@@ -17,18 +17,18 @@
  */
 package org.ballerinalang.stdlib.io;
 
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.model.values.BValueType;
+import org.ballerinalang.core.model.types.BTypes;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BValueType;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -288,7 +288,7 @@ public class IOPrintTest {
         fArgs.add(0, arr);
         BValue[] args = {new BString("%s"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
-        Assert.assertEquals(returns[0].stringValue(), "111 222 333");
+        Assert.assertEquals(returns[0].stringValue(), "[111,222,333]");
     }
 
     @Test

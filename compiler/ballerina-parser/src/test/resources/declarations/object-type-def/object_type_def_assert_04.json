@@ -2,15 +2,6 @@
   "kind": "TYPE_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "TYPE_KEYWORD",
       "trailingMinutiae": [
         {
@@ -58,29 +49,25 @@
           "kind": "LIST",
           "children": [
             {
-              "kind": "OBJECT_METHOD_DEFINITION",
+              "kind": "METHOD_DECLARATION",
               "children": [
                 {
-                  "kind": "METADATA",
+                  "kind": "LIST",
                   "children": [
                     {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "kind": "PUBLIC_KEYWORD",
-                  "leadingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    }
-                  ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "PUBLIC_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -108,62 +95,27 @@
                       "children": []
                     },
                     {
-                      "kind": "CLOSE_PAREN_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "CLOSE_PAREN_TOKEN"
                     }
                   ]
                 },
                 {
-                  "kind": "FUNCTION_BODY_BLOCK",
-                  "children": [
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
                     {
-                      "kind": "OPEN_BRACE_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    },
-                    {
-                      "kind": "CLOSE_BRACE_TOKEN",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ]
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
                     }
                   ]
                 }
               ]
             },
             {
-              "kind": "OBJECT_METHOD_DEFINITION",
+              "kind": "METHOD_DECLARATION",
               "children": [
                 {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
+                  "kind": "LIST",
+                  "children": []
                 },
                 {
                   "kind": "FUNCTION_KEYWORD",
@@ -199,35 +151,34 @@
                       "children": []
                     },
                     {
-                      "kind": "CLOSE_PAREN_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "CLOSE_PAREN_TOKEN"
                     }
                   ]
                 },
                 {
-                  "kind": "FUNCTION_BODY_BLOCK",
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "METHOD_DECLARATION",
+              "children": [
+                {
+                  "kind": "LIST",
                   "children": [
                     {
-                      "kind": "OPEN_BRACE_TOKEN",
-                      "trailingMinutiae": [
+                      "kind": "PUBLIC_KEYWORD",
+                      "leadingMinutiae": [
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
                           "value": "\n"
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    },
-                    {
-                      "kind": "CLOSE_BRACE_TOKEN",
-                      "leadingMinutiae": [
+                        },
                         {
                           "kind": "WHITESPACE_MINUTIAE",
                           "value": "    "
@@ -235,52 +186,19 @@
                       ],
                       "trailingMinutiae": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
                         }
                       ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "OBJECT_METHOD_DEFINITION",
-              "children": [
-                {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "kind": "PRIVATE_KEYWORD",
-                  "leadingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
                     },
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    }
-                  ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "REMOTE_KEYWORD",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "REMOTE_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -308,46 +226,16 @@
                       "children": []
                     },
                     {
-                      "kind": "CLOSE_PAREN_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "CLOSE_PAREN_TOKEN"
                     }
                   ]
                 },
                 {
-                  "kind": "FUNCTION_BODY_BLOCK",
-                  "children": [
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
                     {
-                      "kind": "OPEN_BRACE_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    },
-                    {
-                      "kind": "CLOSE_BRACE_TOKEN",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ]
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
                     }
                   ]
                 }
@@ -356,13 +244,7 @@
           ]
         },
         {
-          "kind": "CLOSE_BRACE_TOKEN",
-          "leadingMinutiae": [
-            {
-              "kind": "END_OF_LINE_MINUTIAE",
-              "value": "\n"
-            }
-          ]
+          "kind": "CLOSE_BRACE_TOKEN"
         }
       ]
     },

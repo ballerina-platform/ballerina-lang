@@ -15,56 +15,55 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
-import org.antlr.v4.runtime.CommonToken;
-import org.antlr.v4.runtime.Token;
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextRange;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider;
+import org.ballerinalang.langserver.commons.completion.spi.CompletionProvider;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.completions.LSCompletionProviderHolder;
-import org.ballerinalang.langserver.completions.TreeVisitor;
-import org.ballerinalang.langserver.completions.sourceprune.CompletionsTokenTraverserFactory;
-import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
-import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
-import org.ballerinalang.langserver.sourceprune.SourcePruner;
-import org.ballerinalang.langserver.sourceprune.TokenTraverserFactory;
+import org.ballerinalang.langserver.completions.ProviderFactory;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.InsertTextFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
-import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
  * Common utility methods for the completion operation.
  */
 public class CompletionUtil {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CompletionUtil.class);
-
     /**
      * Resolve the visible symbols from the given BLang Package and the current context.
      *
-     * @param completionContext     Completion Service Context
+     * @param completionContext Completion Service Context
      */
     public static void resolveSymbols(LSContext completionContext) {
         // Visit the package to resolve the symbols
-        TreeVisitor treeVisitor = new TreeVisitor(completionContext);
         BLangPackage bLangPackage = completionContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        bLangPackage.accept(treeVisitor);
+        SemanticModel semanticModel = new BallerinaSemanticModel(bLangPackage,
+                completionContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
+        Position position = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        String filePath = completionContext.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        completionContext.put(CommonKeys.VISIBLE_SYMBOLS_KEY, semanticModel
+                .visibleSymbols(filePath, LinePosition.from(position.getLine(), position.getCharacter())));
     }
 
     /**
@@ -73,99 +72,91 @@ public class CompletionUtil {
      * @param ctx Completion context
      * @return {@link List}         List of resolved completion Items
      */
-    public static List<CompletionItem>  getCompletionItems(LSContext ctx) {
-        List<LSCompletionItem> items = new ArrayList<>();
-        if (ctx == null) {
-            return new ArrayList<>();
-        }
-        // Set the invocation or field access token type
-        setInvocationOrInteractionOrFieldAccessToken(ctx);
-        BLangNode scope = ctx.get(CompletionKeys.SCOPE_NODE_KEY);
-        Map<Class, LSCompletionProvider> scopeProviders = LSCompletionProviderHolder.getInstance().getProviders();
-        LSCompletionProvider completionProvider = scopeProviders.get(scope.getClass());
-        try {
-            items.addAll(completionProvider.getCompletions(ctx));
-        } catch (Exception e) {
-            LOGGER.error("Error while retrieving completions from: " + completionProvider.getClass());
-        }
+    public static List<CompletionItem> getCompletionItems(LSContext ctx)
+            throws WorkspaceDocumentException, LSCompletionException {
+        fillTokenInfoAtCursor(ctx);
+        NonTerminalNode nodeAtCursor = ctx.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        List<LSCompletionItem> items = route(ctx, nodeAtCursor);
 
-        return getPreparedCompletionItems(ctx, items);
-    }
-
-    private static List<CompletionItem> getPreparedCompletionItems(LSContext context, List<LSCompletionItem> items) {
-        List<CompletionItem> completionItems = new ArrayList<>();
-        boolean isSnippetSupported = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
-                .getSnippetSupport();
-        List<CompletionItem> sortedItems = ItemSorters.get(context.get(CompletionKeys.SCOPE_NODE_KEY).getClass())
-                .sortItems(context, items);
-
-        // TODO: Remove this
-        for (CompletionItem item : sortedItems) {
-            if (!isSnippetSupported) {
-                item.setInsertText(CommonUtil.getPlainTextSnippet(item.getInsertText()));
-                item.setInsertTextFormat(InsertTextFormat.PlainText);
-            } else {
-                item.setInsertTextFormat(InsertTextFormat.Snippet);
-            }
-            completionItems.add(item);
-        }
-
-        return completionItems;
-    }
-
-    /**
-     * Check whether the token stream corresponds to a action invocation or a function invocation.
-     *
-     * @param context Completion operation context
-     */
-    private static void setInvocationOrInteractionOrFieldAccessToken(LSContext context) {
-        List<CommonToken> lhsTokens = context.get(SourcePruneKeys.LHS_TOKENS_KEY);
-        List<Integer> invocationTokens = Arrays.asList(
-                BallerinaParser.COLON, BallerinaParser.DOT, BallerinaParser.RARROW, BallerinaParser.NOT,
-                BallerinaParser.OPTIONAL_FIELD_ACCESS
-        );
-        context.put(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY, -1);
-        if (lhsTokens == null) {
-            return;
-        }
-        List<CommonToken> lhsDefaultTokens = lhsTokens.stream()
-                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
+        return items.stream()
+                .map(LSCompletionItem::getCompletionItem)
                 .collect(Collectors.toList());
-        if (lhsDefaultTokens.isEmpty()) {
-            return;
-        }
-        int lastToken = CommonUtil.getLastItem(lhsDefaultTokens).getType();
-        int tokenBeforeLast = lhsDefaultTokens.size() >= 2 ?
-                lhsDefaultTokens.get(lhsDefaultTokens.size() - 2).getType() : -1;
-        int resultToken = -1;
-        if (invocationTokens.contains(lastToken)) {
-            resultToken = lastToken;
-        } else if (lhsDefaultTokens.size() >= 2 && invocationTokens.contains(tokenBeforeLast)) {
-            resultToken = tokenBeforeLast;
-        }
-        context.put(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY, resultToken);
     }
 
     /**
-     * Prune source if syntax errors exists.
+     * Get the nearest matching provider for the context node.
+     * Router can be called recursively. Therefore, if there is an already checked resolver in the resolver chain,
+     * that means the particular resolver could not handle the completions request. Therefore skip the particular node
+     * and traverse the parent ladder to find the nearest matching resolver. In order to handle this, the particular
+     * resolver chain check has been added.
      *
-     * @param lsContext {@link LSContext}
-     * @throws SourcePruneException when file uri is invalid
-     * @throws WorkspaceDocumentException when document read error occurs
+     * @param node node to evaluate
+     * @return {@link Optional} provider which resolved
      */
-    public static void pruneSource(LSContext lsContext) throws SourcePruneException, WorkspaceDocumentException {
-        WorkspaceDocumentManager documentManager = lsContext.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        String uri = lsContext.get(DocumentServiceKeys.FILE_URI_KEY);
-        if (uri == null) {
-            throw new SourcePruneException("fileUri cannot be null!");
+    public static List<LSCompletionItem> route(LSContext ctx, Node node)
+            throws LSCompletionException {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        if (node == null) {
+            return completionItems;
+        }
+        Map<Class<?>, CompletionProvider<Node>> providers = ProviderFactory.instance().getProviders();
+        Node reference = node;
+        CompletionProvider<Node> provider = null;
+
+        while ((reference != null)) {
+            provider = providers.get(reference.getClass());
+            // Resolver chain check has been added to cover the use-case in the documentation of the method
+            if (provider != null && provider.onPreValidation(ctx, reference)
+                    && !ctx.get(CompletionKeys.RESOLVER_CHAIN).contains(provider.getClass())) {
+                break;
+            }
+            reference = reference.parent();
         }
 
-        Path filePath = Paths.get(URI.create(uri));
-        TokenTraverserFactory tokenTraverserFactory = new CompletionsTokenTraverserFactory(filePath, documentManager,
-                                                                                           SourcePruner.newContext());
-        SourcePruner.pruneSource(lsContext, tokenTraverserFactory);
+        if (provider == null) {
+            return completionItems;
+        }
+        ctx.get(CompletionKeys.RESOLVER_CHAIN).add(provider.getClass());
 
-        // Update document manager
-        documentManager.setPrunedContent(filePath, tokenTraverserFactory.getTokenStream().getText());
+        return provider.getCompletions(ctx, reference);
+    }
+
+    /**
+     * Find the token at cursor.
+     *
+     * @throws WorkspaceDocumentException while retrieving the syntax tree from the document manager
+     */
+    public static void fillTokenInfoAtCursor(LSContext context) throws WorkspaceDocumentException {
+        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+        Optional<Path> filePath = CommonUtil.getPathFromURI(context.get(DocumentServiceKeys.FILE_URI_KEY));
+        if (filePath.isEmpty()) {
+            return;
+        }
+        SyntaxTree syntaxTree = docManager.getTree(filePath.get());
+        TextDocument textDocument = syntaxTree.textDocument();
+
+        Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
+        context.put(CompletionKeys.TEXT_POSITION_IN_TREE, txtPos);
+        TextRange range = TextRange.from(txtPos, 0);
+        NonTerminalNode nonTerminalNode = ((ModulePartNode) syntaxTree.rootNode()).findNode(range);
+
+        while (true) {
+            if (!withinTextRange(txtPos, nonTerminalNode)) {
+                nonTerminalNode = nonTerminalNode.parent();
+                continue;
+            }
+            break;
+        }
+
+        context.put(CompletionKeys.NODE_AT_CURSOR_KEY, nonTerminalNode);
+    }
+
+    private static boolean withinTextRange(int position, NonTerminalNode node) {
+        TextRange rangeWithMinutiae = node.textRangeWithMinutiae();
+        TextRange textRange = node.textRange();
+        TextRange leadingMinutiaeRange = TextRange.from(rangeWithMinutiae.startOffset(),
+                textRange.startOffset() - rangeWithMinutiae.startOffset());
+        return leadingMinutiaeRange.endOffset() <= position;
     }
 }

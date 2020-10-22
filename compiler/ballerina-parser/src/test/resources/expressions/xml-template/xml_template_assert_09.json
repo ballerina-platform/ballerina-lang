@@ -3,13 +3,8 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -169,32 +164,39 @@
                                         {
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
-                                            "kind": "INTERPOLATION",
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                             "children": [
                                               {
-                                                "kind": "INTERPOLATION_START_TOKEN",
-                                                "trailingMinutiae": [
-                                                  {
-                                                    "kind": "WHITESPACE_MINUTIAE",
-                                                    "value": " "
-                                                  }
-                                                ]
-                                              },
+                                                "kind": "INTERPOLATION_START_TOKEN"
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        },
+                                        {
+                                          "kind": "INVALID_NODE_MINUTIAE",
+                                          "invalidNode": {
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "children": [
                                               {
-                                                "kind": "SIMPLE_NAME_REFERENCE",
-                                                "children": [
-                                                  {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "y",
-                                                    "trailingMinutiae": [
-                                                      {
-                                                        "kind": "WHITESPACE_MINUTIAE",
-                                                        "value": " "
-                                                      }
-                                                    ]
-                                                  }
-                                                ]
-                                              },
+                                                "kind": "IDENTIFIER_TOKEN",
+                                                "value": "y"
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        },
+                                        {
+                                          "kind": "INVALID_NODE_MINUTIAE",
+                                          "invalidNode": {
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "children": [
                                               {
                                                 "kind": "CLOSE_BRACE_TOKEN"
                                               }

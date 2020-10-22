@@ -18,35 +18,19 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.transactions.TransactionResourceManager;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.transactions.TransactionResourceManager;
 
 /**
  * Extern function transaction:abortResourceManagers.
  *
  * @since 2.0.0-preview1
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.transaction", version = TRANSACTION_VERSION,
-        functionName = "abortResourceManagers",
-        args = {
-                @Argument(name = "transactionId", type = TypeKind.STRING),
-                @Argument(name = "transactionBlockId", type = TypeKind.STRING)
-        },
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-        isPublic = true
-)
 public class AbortResourceManagers {
 
-    public static boolean abortResourceManagers(Strand strand, BString transactionId, BString transactionBlockId) {
-        return TransactionResourceManager.getInstance().notifyAbort(strand, transactionId.getValue(),
+    public static boolean abortResourceManagers(BString transactionId, BString transactionBlockId) {
+        return TransactionResourceManager.getInstance().notifyAbort(Scheduler.getStrand(), transactionId.getValue(),
                 transactionBlockId.getValue(), null);
     }
 }

@@ -2,13 +2,8 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -161,8 +156,8 @@
                                   "value": "b",
                                   "trailingMinutiae": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
                                     }
                                   ]
                                 }
@@ -178,6 +173,12 @@
                     },
                     {
                       "kind": "DO_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "        "
+                        }
+                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -206,7 +207,7 @@
                           "leadingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
+                              "value": "        "
                             }
                           ]
                         }
@@ -235,10 +236,6 @@
                       "kind": "IDENTIFIER_TOKEN",
                       "value": "x",
                       "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        },
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
                           "value": "\n"
@@ -335,8 +332,8 @@
                                   "value": "b",
                                   "trailingMinutiae": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
                                     }
                                   ]
                                 }
@@ -352,6 +349,12 @@
                               "children": [
                                 {
                                   "kind": "WHERE_KEYWORD",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "        "
+                                    }
+                                  ],
                                   "trailingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
@@ -407,8 +410,8 @@
                                       "kind": "CLOSE_PAREN_TOKEN",
                                       "trailingMinutiae": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
                                         }
                                       ]
                                     }
@@ -422,6 +425,12 @@
                     },
                     {
                       "kind": "DO_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "        "
+                        }
+                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -462,7 +471,7 @@
                                           "leadingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
+                                              "value": "            "
                                             }
                                           ],
                                           "trailingMinutiae": [
@@ -514,7 +523,7 @@
                                           "leadingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
+                                              "value": "            "
                                             }
                                           ],
                                           "trailingMinutiae": [
@@ -553,10 +562,10 @@
                                   ]
                                 },
                                 {
-                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "kind": "NUMERIC_LITERAL",
                                   "children": [
                                     {
-                                      "kind": "DECIMAL_INTEGER_LITERAL",
+                                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                       "value": "4"
                                     }
                                   ]
@@ -579,7 +588,7 @@
                           "leadingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
+                              "value": "        "
                             }
                           ]
                         }

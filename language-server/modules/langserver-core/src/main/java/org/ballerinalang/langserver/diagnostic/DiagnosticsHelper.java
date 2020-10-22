@@ -15,22 +15,22 @@
  */
 package org.ballerinalang.langserver.diagnostic;
 
+import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
+import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -72,14 +72,12 @@ public class DiagnosticsHelper {
                                                        LSDocumentIdentifier lsDoc, WorkspaceDocumentManager docManager)
             throws CompilationFailedException {
         // Compile diagnostics
-        List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics = new ArrayList<>();
-        LSModuleCompiler.getBLangPackages(context, docManager, null, true, true, true, true);
-        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
-            diagnostics = ((CollectDiagnosticListener) compilerContext.get(DiagnosticListener.class)).getDiagnostics();
+        List<BLangPackage> packages = LSModuleCompiler.getBLangPackages(context, docManager, true, true, true);
+        Map<String, List<Diagnostic>> diagnosticMap = new HashMap<>();
+        for (BLangPackage pkg : packages) {
+            populateDiagnostics(diagnosticMap, pkg.packageID, pkg.getDiagnostics(), lsDoc);
         }
 
-        Map<String, List<Diagnostic>> diagnosticMap = getDiagnostics(diagnostics, lsDoc);
         // If the client is null, returns
         if (client == null) {
             return;
@@ -95,52 +93,46 @@ public class DiagnosticsHelper {
         lastDiagnosticMap = diagnosticMap;
     }
 
-    /**
-     * Returns diagnostics for this file.
-     *
-     * @param diagnostics  List of ballerina diagnostics
-     * @param lsDocument project path
-     * @return diagnostics map
-     */
-    private Map<String, List<Diagnostic>> getDiagnostics(List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics,
-                                                         LSDocumentIdentifier lsDocument) {
-        Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<>();
-        for (org.ballerinalang.util.diagnostic.Diagnostic diag : diagnostics) {
+    private void populateDiagnostics(Map<String, List<Diagnostic>> diagnosticsMap, PackageID pkgId,
+                                     List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics,
+                                     LSDocumentIdentifier lsDocument) {
+        for (io.ballerina.tools.diagnostics.Diagnostic diag : diagnostics) {
             Path diagnosticRoot = lsDocument.getProjectRootPath();
-            final org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition position = diag.getPosition();
-            String moduleName = position.getSource().getPackageName();
-            String fileName = position.getSource().getCompilationUnitName();
+            Location location = diag.location();
+            String moduleName = pkgId.getName().getValue();
+            String fileName = location.lineRange().filePath();
             if (lsDocument.isWithinProject()) {
                 diagnosticRoot = diagnosticRoot.resolve("src");
             }
+            
             if (!".".equals(moduleName)) {
                 diagnosticRoot = diagnosticRoot.resolve(moduleName);
             }
             String fileURI = diagnosticRoot.resolve(fileName).toUri().toString() + "";
             diagnosticsMap.putIfAbsent(fileURI, new ArrayList<>());
 
-            List<Diagnostic> clientDiagnostics = diagnosticsMap.get(fileURI);
-            int startLine = position.getStartLine() - 1; // LSP diagnostics range is 0 based
-            int startChar = position.getStartColumn() - 1;
-            int endLine = position.getEndLine() - 1;
-            int endChar = position.getEndColumn() - 1;
+            LineRange lineRange = location.lineRange();
+            int startLine = lineRange.startLine().line();
+            int startChar = lineRange.startLine().offset();
+            int endLine = lineRange.endLine().line();
+            int endChar = lineRange.endLine().offset();
 
             endLine = (endLine <= 0) ? startLine : endLine;
             endChar = (endChar <= 0) ? startChar + 1 : endChar;
 
             Range range = new Range(new Position(startLine, startChar), new Position(endLine, endChar));
-            Diagnostic diagnostic = new Diagnostic(range, diag.getMessage());
-            org.ballerinalang.util.diagnostic.Diagnostic.Kind diagnosticKind = diag.getKind();
+            Diagnostic diagnostic = new Diagnostic(range, diag.message());
 
-            // set diagnostic log kind
-            if (diagnosticKind.equals(org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR)) {
+            io.ballerina.tools.diagnostics.DiagnosticSeverity severity = diag.diagnosticInfo().severity();
+            if (severity == io.ballerina.tools.diagnostics.DiagnosticSeverity.ERROR) {
+                // set diagnostic log kind
                 diagnostic.setSeverity(DiagnosticSeverity.Error);
-            } else if (diagnosticKind.equals(org.ballerinalang.util.diagnostic.Diagnostic.Kind.WARNING)) {
+            } else if (severity == io.ballerina.tools.diagnostics.DiagnosticSeverity.WARNING) {
                 diagnostic.setSeverity(DiagnosticSeverity.Warning);
             }
 
+            List<Diagnostic> clientDiagnostics = diagnosticsMap.get(fileURI);
             clientDiagnostics.add(diagnostic);
         }
-        return diagnosticsMap;
     }
 }

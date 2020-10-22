@@ -14,6 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+type F1 function (int) returns function (int) returns int;
+F1 f1 = a => b => a + b;
+
+type F2 function (int) returns function (int) returns function (int) returns int;
+F2 f2 = a => b => c => a + b + c;
+
 function testArrowExprWithOneParam() returns int {
     function (int) returns int lambda = param1 => param1*2;
     return lambda(12);
@@ -161,9 +167,9 @@ type Foo record {
     function (int) returns int lambda = (i) => i * k;
 };
 
-type Bar object {
+class Bar {
     function (int) returns int lambda = (i) => i * k;
-};
+}
 
 function testArrowExprInRecord() returns int {
     Foo f = {};
@@ -218,6 +224,35 @@ function testNestedArrowExpressionWithOneParameter() {
     var newFunction = sum(7);
     var result = newFunction(5);
     assertEquality(12, result);
+}
+
+function testTypeNarrowingInArrowExpression() {
+    var expected = "Hello World";
+    var result = "Wrong Text Here";
+
+    string|int s1 = "World";
+    if (s1 is string) {
+        string s2 = s1;
+        function() returns string arrowFun = () => "Hello " + s2;
+        result = arrowFun();
+    }
+
+    assertEquality(expected, result);
+}
+
+function testGlobalArrowExpressionsWithClosure() {
+    var expected = 5;
+
+    var a = f1(2);
+    var result = a(3);
+    assertEquality(expected, result);
+
+    expected = 18;
+
+    var b = f2(5);
+    var c = b(6);
+    result = c(7);
+    assertEquality(expected, result);
 }
 
 const ASSERTION_ERR_REASON = "AssertionError";

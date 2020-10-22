@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.websocket.server;
 
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.net.http.HttpResourceArguments;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketException;
@@ -68,7 +68,7 @@ public class WebSocketServicesRegistry {
         return uriTemplate.matches(path, pathParams, webSocketHandshaker);
     }
 
-    public WebSocketException unRegisterService(ObjectValue serviceObj) {
+    public WebSocketException unRegisterService(BObject serviceObj) {
         try {
             String basePath = (String) serviceObj.getNativeData(WebSocketConstants.NATIVE_DATA_BASE_PATH);
             if (basePath == null) {

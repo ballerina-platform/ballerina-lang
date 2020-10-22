@@ -2,13 +2,8 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -136,15 +131,6 @@
                               "kind": "OBJECT_FIELD",
                               "children": [
                                 {
-                                  "kind": "METADATA",
-                                  "children": [
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    }
-                                  ]
-                                },
-                                {
                                   "kind": "INT_TYPE_DESC",
                                   "children": [
                                     {
@@ -152,7 +138,7 @@
                                       "leadingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "        "
+                                          "value": "                  "
                                         }
                                       ],
                                       "trailingMinutiae": [
@@ -183,15 +169,6 @@
                               "kind": "OBJECT_FIELD",
                               "children": [
                                 {
-                                  "kind": "METADATA",
-                                  "children": [
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    }
-                                  ]
-                                },
-                                {
                                   "kind": "INT_TYPE_DESC",
                                   "children": [
                                     {
@@ -199,7 +176,7 @@
                                       "leadingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "        "
+                                          "value": "                  "
                                         }
                                       ],
                                       "trailingMinutiae": [
@@ -230,15 +207,6 @@
                               "kind": "OBJECT_FIELD",
                               "children": [
                                 {
-                                  "kind": "METADATA",
-                                  "children": [
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    }
-                                  ]
-                                },
-                                {
                                   "kind": "STRING_TYPE_DESC",
                                   "children": [
                                     {
@@ -246,7 +214,7 @@
                                       "leadingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "        "
+                                          "value": "                  "
                                         }
                                       ],
                                       "trailingMinutiae": [
@@ -274,16 +242,11 @@
                               ]
                             },
                             {
-                              "kind": "OBJECT_METHOD_DEFINITION",
+                              "kind": "METHOD_DECLARATION",
                               "children": [
                                 {
-                                  "kind": "METADATA",
-                                  "children": [
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    }
-                                  ]
+                                  "kind": "LIST",
+                                  "children": []
                                 },
                                 {
                                   "kind": "FUNCTION_KEYWORD",
@@ -294,7 +257,7 @@
                                     },
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "        "
+                                      "value": "                  "
                                     }
                                   ],
                                   "trailingMinutiae": [
@@ -345,17 +308,17 @@
                                           ]
                                         },
                                         {
+                                          "kind": "COMMA_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
+                                        },
+                                        {
                                           "kind": "REQUIRED_PARAM",
                                           "children": [
-                                            {
-                                              "kind": "COMMA_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
-                                            },
                                             {
                                               "kind": "LIST",
                                               "children": []
@@ -381,17 +344,17 @@
                                           ]
                                         },
                                         {
+                                          "kind": "COMMA_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
+                                        },
+                                        {
                                           "kind": "REQUIRED_PARAM",
                                           "children": [
-                                            {
-                                              "kind": "COMMA_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
-                                            },
                                             {
                                               "kind": "LIST",
                                               "children": []
@@ -419,257 +382,16 @@
                                       ]
                                     },
                                     {
-                                      "kind": "CLOSE_PAREN_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "CLOSE_PAREN_TOKEN"
                                     }
                                   ]
                                 },
                                 {
-                                  "kind": "FUNCTION_BODY_BLOCK",
-                                  "children": [
+                                  "kind": "SEMICOLON_TOKEN",
+                                  "trailingMinutiae": [
                                     {
-                                      "kind": "OPEN_BRACE_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "END_OF_LINE_MINUTIAE",
-                                          "value": "\n"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": [
-                                        {
-                                          "kind": "ASSIGNMENT_STATEMENT",
-                                          "children": [
-                                            {
-                                              "kind": "FIELD_ACCESS",
-                                              "children": [
-                                                {
-                                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                                  "children": [
-                                                    {
-                                                      "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "self",
-                                                      "leadingMinutiae": [
-                                                        {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": "            "
-                                                        }
-                                                      ]
-                                                    }
-                                                  ]
-                                                },
-                                                {
-                                                  "kind": "DOT_TOKEN"
-                                                },
-                                                {
-                                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                                  "children": [
-                                                    {
-                                                      "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "x",
-                                                      "trailingMinutiae": [
-                                                        {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": " "
-                                                        }
-                                                      ]
-                                                    }
-                                                  ]
-                                                }
-                                              ]
-                                            },
-                                            {
-                                              "kind": "EQUAL_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
-                                            },
-                                            {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "x"
-                                                }
-                                              ]
-                                            },
-                                            {
-                                              "kind": "SEMICOLON_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "END_OF_LINE_MINUTIAE",
-                                                  "value": "\n"
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "ASSIGNMENT_STATEMENT",
-                                          "children": [
-                                            {
-                                              "kind": "FIELD_ACCESS",
-                                              "children": [
-                                                {
-                                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                                  "children": [
-                                                    {
-                                                      "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "self",
-                                                      "leadingMinutiae": [
-                                                        {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": "            "
-                                                        }
-                                                      ]
-                                                    }
-                                                  ]
-                                                },
-                                                {
-                                                  "kind": "DOT_TOKEN"
-                                                },
-                                                {
-                                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                                  "children": [
-                                                    {
-                                                      "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "y",
-                                                      "trailingMinutiae": [
-                                                        {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": " "
-                                                        }
-                                                      ]
-                                                    }
-                                                  ]
-                                                }
-                                              ]
-                                            },
-                                            {
-                                              "kind": "EQUAL_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
-                                            },
-                                            {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "y"
-                                                }
-                                              ]
-                                            },
-                                            {
-                                              "kind": "SEMICOLON_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "END_OF_LINE_MINUTIAE",
-                                                  "value": "\n"
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "ASSIGNMENT_STATEMENT",
-                                          "children": [
-                                            {
-                                              "kind": "FIELD_ACCESS",
-                                              "children": [
-                                                {
-                                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                                  "children": [
-                                                    {
-                                                      "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "self",
-                                                      "leadingMinutiae": [
-                                                        {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": "            "
-                                                        }
-                                                      ]
-                                                    }
-                                                  ]
-                                                },
-                                                {
-                                                  "kind": "DOT_TOKEN"
-                                                },
-                                                {
-                                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                                  "children": [
-                                                    {
-                                                      "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "z",
-                                                      "trailingMinutiae": [
-                                                        {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": " "
-                                                        }
-                                                      ]
-                                                    }
-                                                  ]
-                                                }
-                                              ]
-                                            },
-                                            {
-                                              "kind": "EQUAL_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
-                                            },
-                                            {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "z"
-                                                }
-                                              ]
-                                            },
-                                            {
-                                              "kind": "SEMICOLON_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "END_OF_LINE_MINUTIAE",
-                                                  "value": "\n"
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CLOSE_BRACE_TOKEN",
-                                      "leadingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "        "
-                                        }
-                                      ],
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "END_OF_LINE_MINUTIAE",
-                                          "value": "\n"
-                                        }
-                                      ]
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
                                     }
                                   ]
                                 }
@@ -682,13 +404,7 @@
                           "leadingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "value": "              "
                             }
                           ]
                         }
@@ -707,10 +423,10 @@
                               "kind": "POSITIONAL_ARG",
                               "children": [
                                 {
-                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "kind": "NUMERIC_LITERAL",
                                   "children": [
                                     {
-                                      "kind": "DECIMAL_INTEGER_LITERAL",
+                                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                       "value": "10"
                                     }
                                   ]
@@ -756,7 +472,7 @@
                                   "kind": "STRING_LITERAL",
                                   "children": [
                                     {
-                                      "kind": "STRING_LITERAL",
+                                      "kind": "STRING_LITERAL_TOKEN",
                                       "value": "z"
                                     }
                                   ]

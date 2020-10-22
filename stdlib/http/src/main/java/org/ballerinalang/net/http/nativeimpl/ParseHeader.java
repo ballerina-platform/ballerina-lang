@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.net.http.nativeimpl;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.api.BArray;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.types.TupleType;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.net.http.HttpUtil;
 
@@ -41,8 +41,8 @@ import static org.ballerinalang.net.http.HttpErrorType.GENERIC_CLIENT_ERROR;
  */
 public class ParseHeader {
 
-    private static final BTupleType parseHeaderTupleType = new BTupleType(
-            Arrays.asList(BTypes.typeString, BTypes.typeMap));
+    private static final TupleType parseHeaderTupleType = TypeCreator.createTupleType(
+            Arrays.asList(Types.TYPE_STRING, Types.TYPE_MAP));
 
     public static Object parseHeader(BString headerValue) {
         if (headerValue == null) {
@@ -59,11 +59,11 @@ public class ParseHeader {
                 value = HeaderUtil.getHeaderValue(value);
             }
             BArray contentTuple = BValueCreator.createTupleValue(parseHeaderTupleType);
-            contentTuple.add(0, StringUtils.fromString(value));
+            contentTuple.add(0, BStringUtils.fromString(value));
             contentTuple.add(1, HeaderUtil.getParamMap(headerValue.getValue()));
             return contentTuple;
         } catch (Exception ex) {
-            String errMsg = ex instanceof ErrorValue ? ex.toString() : ex.getMessage();
+            String errMsg = ex instanceof BError ? ex.toString() : ex.getMessage();
             return HttpUtil.createHttpError(FAILED_TO_PARSE + errMsg, GENERIC_CLIENT_ERROR);
         }
     }

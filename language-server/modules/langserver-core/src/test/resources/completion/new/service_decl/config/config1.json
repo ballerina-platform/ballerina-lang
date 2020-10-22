@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 4,
+    "character": 23
+  },
+  "source": "service_decl/source/source1.bal",
+  "items": [
+    {
+      "label": "l1",
+      "kind": "Variable",
+      "detail": "ballerina/module1:0.1.0:Listener",
+      "insertText": "l1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "new",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "new ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

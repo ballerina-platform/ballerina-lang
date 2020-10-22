@@ -18,12 +18,12 @@
 
 package org.ballerinalang.net.http.actions.httpclient;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import io.ballerina.runtime.api.BalEnv;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -40,19 +40,19 @@ import static org.ballerinalang.net.http.HttpUtil.checkRequestBodySizeHeadersAva
  */
 public class Forward extends AbstractHTTPAction {
     @SuppressWarnings("unchecked")
-    public static Object forward(ObjectValue httpClient, BString path, ObjectValue requestObj) {
+    public static Object forward(BalEnv env, BObject httpClient, BString path, BObject requestObj) {
         String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI).getValue();
         Strand strand = Scheduler.getStrand();
         HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, path.getValue(), requestObj);
         HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
-        DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
+        DataContext dataContext = new DataContext(strand, clientConnector, env.markAsync(), requestObj,
                                                   outboundRequestMsg);
         executeNonBlockingAction(dataContext, false);
         return null;
     }
 
     protected static HttpCarbonMessage createOutboundRequestMsg(Strand strand, String serviceUri, String path,
-                                                                ObjectValue requestObj) {
+                                                                BObject requestObj) {
         if (requestObj.getNativeData(HttpConstants.REQUEST) == null &&
                 !HttpUtil.isEntityDataSourceAvailable(requestObj)) {
             throw new BallerinaException("invalid inbound request parameter");

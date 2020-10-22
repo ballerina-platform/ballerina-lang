@@ -1,0 +1,34 @@
+public globalVarsAndAnonFunctions function() -> () {
+    %0(RETURN) ();
+    %0(RETURN) ();
+    %1(SYNTHETIC) map<any | error>;
+    %2(TEMP) typeDesc<any | error>;
+    %4(TEMP) any | error;
+    %5(TEMP) int;
+    %7(TEMP) string;
+    %12(LOCAL) function(int) -> int;
+
+    bb0 {
+;
+        %1 = NewMap %2;
+        %5 = ConstLoad 3;
+        %4 = <any | error> %5;
+        %7 = ConstLoad a;
+        %1[%7] = %4;
+        %7 = ConstLoad b;
+        %4 = <any | error> %7;
+        %7 = ConstLoad l;
+        %1[%7] = %4;
+        %12 = fp $anon/.:0.0.0::$lambda$_0(%1);
+        %0 = ConstLoad 0;
+        GOTO bb2;
+    }
+    bb1 {
+        GOTO bb2;
+    }
+    bb2 {
+        return;
+    }
+
+
+}

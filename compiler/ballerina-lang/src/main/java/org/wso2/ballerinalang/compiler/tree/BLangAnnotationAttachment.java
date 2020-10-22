@@ -87,4 +87,5 @@ public class BLangAnnotationAttachment extends BLangNode implements AnnotationAt
     public void setExpression(ExpressionNode expression) {
         this.expr = (BLangExpression) expression;
     }
+
 }

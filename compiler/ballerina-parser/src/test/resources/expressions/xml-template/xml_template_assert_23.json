@@ -2,13 +2,8 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -1652,22 +1647,16 @@
                                                   "kind": "INTERPOLATION",
                                                   "children": [
                                                     {
-                                                      "kind": "INTERPOLATION_START_TOKEN",
-                                                      "trailingMinutiae": [
-                                                        {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": " "
-                                                        }
-                                                      ]
+                                                      "kind": "INTERPOLATION_START_TOKEN"
                                                     },
                                                     {
                                                       "kind": "BINARY_EXPRESSION",
                                                       "children": [
                                                         {
-                                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                                          "kind": "NUMERIC_LITERAL",
                                                           "children": [
                                                             {
-                                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                                               "value": "3",
                                                               "trailingMinutiae": [
                                                                 {
@@ -1691,10 +1680,10 @@
                                                           "kind": "BINARY_EXPRESSION",
                                                           "children": [
                                                             {
-                                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                                              "kind": "NUMERIC_LITERAL",
                                                               "children": [
                                                                 {
-                                                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                                                   "value": "6",
                                                                   "trailingMinutiae": [
                                                                     {
@@ -1715,10 +1704,10 @@
                                                               ]
                                                             },
                                                             {
-                                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                                              "kind": "NUMERIC_LITERAL",
                                                               "children": [
                                                                 {
-                                                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                                                   "value": "3"
                                                                 }
                                                               ]
@@ -1735,13 +1724,7 @@
                                               ]
                                             },
                                             {
-                                              "kind": "DOUBLE_QUOTE_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
+                                              "kind": "DOUBLE_QUOTE_TOKEN"
                                             }
                                           ]
                                         }
@@ -1944,22 +1927,16 @@
                                                   "kind": "INTERPOLATION",
                                                   "children": [
                                                     {
-                                                      "kind": "INTERPOLATION_START_TOKEN",
-                                                      "trailingMinutiae": [
-                                                        {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": " "
-                                                        }
-                                                      ]
+                                                      "kind": "INTERPOLATION_START_TOKEN"
                                                     },
                                                     {
                                                       "kind": "BINARY_EXPRESSION",
                                                       "children": [
                                                         {
-                                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                                          "kind": "NUMERIC_LITERAL",
                                                           "children": [
                                                             {
-                                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                                               "value": "3",
                                                               "trailingMinutiae": [
                                                                 {
@@ -1983,10 +1960,10 @@
                                                           "kind": "BINARY_EXPRESSION",
                                                           "children": [
                                                             {
-                                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                                              "kind": "NUMERIC_LITERAL",
                                                               "children": [
                                                                 {
-                                                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                                                   "value": "6",
                                                                   "trailingMinutiae": [
                                                                     {
@@ -2007,10 +1984,10 @@
                                                               ]
                                                             },
                                                             {
-                                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                                              "kind": "NUMERIC_LITERAL",
                                                               "children": [
                                                                 {
-                                                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                                                   "value": "3"
                                                                 }
                                                               ]
@@ -2027,13 +2004,7 @@
                                               ]
                                             },
                                             {
-                                              "kind": "DOUBLE_QUOTE_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
+                                              "kind": "DOUBLE_QUOTE_TOKEN"
                                             }
                                           ]
                                         }

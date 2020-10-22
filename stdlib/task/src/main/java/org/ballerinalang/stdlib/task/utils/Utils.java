@@ -17,13 +17,15 @@
  */
 package org.ballerinalang.stdlib.task.utils;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.objects.Appointment;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
@@ -59,19 +61,19 @@ public class Utils {
     // an attached function.
     private static final int VALID_RESOURCE_COUNT = 1;
 
-    public static ErrorValue createTaskError(String message) {
+    public static BError createTaskError(String message) {
         return createTaskError(LISTENER_ERROR, message);
     }
 
-    public static ErrorValue createTaskError(String reason, String message) {
-        return BallerinaErrors.createDistinctError(reason, TASK_PACKAGE_ID, message);
+    public static BError createTaskError(String reason, String message) {
+        return ErrorCreator.createDistinctError(reason, TASK_PACKAGE_ID, StringUtils.fromString(message));
     }
 
     @SuppressWarnings("unchecked")
     public static String getCronExpressionFromAppointmentRecord(Object record) throws SchedulingException {
         String cronExpression;
         if (RECORD_APPOINTMENT_DATA.equals(TypeChecker.getType(record).getName())) {
-            cronExpression = buildCronExpression((MapValue<BString, Object>) record);
+            cronExpression = buildCronExpression((BMap<BString, Object>) record);
             if (!isValidExpression(cronExpression)) {
                 throw new SchedulingException("AppointmentData \"" + record.toString() + "\" is invalid.");
             }
@@ -85,7 +87,7 @@ public class Utils {
     }
 
     // Following code is reported as duplicates since all the lines doing same function call.
-    private static String buildCronExpression(MapValue<BString, Object> record) {
+    private static String buildCronExpression(BMap<BString, Object> record) {
         String cronExpression = getStringFieldValue(record, FIELD_SECONDS) + " " +
                 getStringFieldValue(record, FIELD_MINUTES) + " " +
                 getStringFieldValue(record, FIELD_HOURS) + " " +
@@ -96,7 +98,7 @@ public class Utils {
         return cronExpression.trim();
     }
 
-    private static String getStringFieldValue(MapValue<BString, Object> record, BString fieldName) {
+    private static String getStringFieldValue(BMap<BString, Object> record, BString fieldName) {
         if (FIELD_DAYS_OF_MONTH.equals(fieldName) && Objects.isNull(record.get(FIELD_DAYS_OF_MONTH))) {
             return "?";
         } else if (Objects.nonNull(record.get(fieldName))) {
@@ -112,13 +114,13 @@ public class Utils {
      *       Issue: https://github.com/ballerina-platform/ballerina-lang/issues/14148
      */
     public static void validateService(ServiceInformation serviceInformation) throws SchedulingException {
-        AttachedFunction[] resources = serviceInformation.getService().getType().getAttachedFunctions();
+        AttachedFunctionType[] resources = serviceInformation.getService().getType().getAttachedFunctions();
         if (resources.length != VALID_RESOURCE_COUNT) {
             throw new SchedulingException(
                     "Invalid number of resources found in service \'" + serviceInformation.getServiceName()
                             + "\'. Task service should include only one resource.");
         }
-        AttachedFunction resource = resources[0];
+        AttachedFunctionType resource = resources[0];
 
         if (RESOURCE_ON_TRIGGER.equals(resource.getName())) {
             validateOnTriggerResource(resource.getReturnParameterType());
@@ -128,14 +130,14 @@ public class Utils {
         }
     }
 
-    private static void validateOnTriggerResource(BType returnParameterType) throws SchedulingException {
-        if (returnParameterType != org.ballerinalang.jvm.types.BTypes.typeNull) {
+    private static void validateOnTriggerResource(Type returnParameterType) throws SchedulingException {
+        if (returnParameterType != PredefinedTypes.TYPE_NULL) {
             throw new SchedulingException(
                     "Invalid resource function signature: \'" + RESOURCE_ON_TRIGGER + "\' should not return a value.");
         }
     }
 
-    public static Timer processTimer(MapValue<BString, Object> configurations) throws SchedulingException {
+    public static Timer processTimer(BMap<BString, Object> configurations) throws SchedulingException {
         Timer task;
         long interval = configurations.getIntValue(FIELD_INTERVAL).intValue();
         long delay = configurations.getIntValue(FIELD_DELAY).intValue();
@@ -149,7 +151,7 @@ public class Utils {
         return task;
     }
 
-    public static Appointment processAppointment(MapValue<BString, Object> configurations) throws SchedulingException {
+    public static Appointment processAppointment(BMap<BString, Object> configurations) throws SchedulingException {
         Appointment appointment;
         Object appointmentDetails = configurations.get(MEMBER_APPOINTMENT_DETAILS);
         String cronExpression = getCronExpressionFromAppointmentRecord(appointmentDetails);

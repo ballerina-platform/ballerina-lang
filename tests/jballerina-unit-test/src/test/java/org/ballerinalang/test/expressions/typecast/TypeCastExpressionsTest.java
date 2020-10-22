@@ -16,15 +16,15 @@
  */
 package org.ballerinalang.test.expressions.typecast;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -80,7 +80,7 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
                     "types: '\\(string\\|int\\|\\(\\)\\)\\[2\\]' cannot be cast to 'string\\[2\\]'.*")
     public void testArrayCastNegative() {
         BRunUtil.invoke(result, "testArrayCastNegative");
@@ -171,14 +171,14 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
                     "types: 'int' cannot be cast to 'string\\|boolean'.*")
     public void testDirectlyUnmatchedUnionToUnionCastNegativeOne() {
         BRunUtil.invoke(result, "testDirectlyUnmatchedUnionToUnionCastNegative_1");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
                     "types: 'string' cannot be cast to 'Lead\\|int'.*")
     public void testDirectlyUnmatchedUnionToUnionCastNegativeTwo() {
         BRunUtil.invoke(result, "testDirectlyUnmatchedUnionToUnionCastNegative_2");

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
 
 /**
@@ -28,7 +28,7 @@ import org.ballerinalang.stdlib.system.utils.SystemUtils;
  */
 public class Destroy {
 
-    public static void destroy(ObjectValue objVal) {
+    public static void destroy(BObject objVal) {
         Process process = SystemUtils.processFromObject(objVal);
         process.destroy();
     }

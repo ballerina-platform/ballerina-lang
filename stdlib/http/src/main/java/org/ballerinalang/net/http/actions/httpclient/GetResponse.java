@@ -16,12 +16,12 @@
 
 package org.ballerinalang.net.http.actions.httpclient;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import io.ballerina.runtime.api.BalEnv;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -35,10 +35,10 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
  */
 public class GetResponse extends AbstractHTTPAction {
 
-    public static Object getResponse(ObjectValue clientObj, ObjectValue handleObj) {
+    public static Object getResponse(BalEnv env, BObject clientObj, BObject handleObj) {
         Strand strand = Scheduler.getStrand();
         HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.CLIENT);
-        DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), handleObj,
+        DataContext dataContext = new DataContext(strand, clientConnector, env.markAsync(), handleObj,
                                                   null);
         ResponseHandle responseHandle = (ResponseHandle) handleObj.getNativeData(HttpConstants.TRANSPORT_HANDLE);
         if (responseHandle == null) {
@@ -64,7 +64,7 @@ public class GetResponse extends AbstractHTTPAction {
         }
 
         public void onError(Throwable throwable) {
-            ErrorValue httpConnectorError = HttpUtil
+            BError httpConnectorError = HttpUtil
                     .createHttpError(throwable.getMessage());
             dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }

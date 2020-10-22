@@ -2,13 +2,8 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -91,7 +86,13 @@
           ]
         },
         {
-          "kind": "CLOSE_PAREN_TOKEN"
+          "kind": "CLOSE_PAREN_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -102,8 +103,8 @@
           "kind": "OPEN_BRACE_TOKEN",
           "trailingMinutiae": [
             {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
             }
           ]
         },

@@ -17,17 +17,13 @@ package org.ballerinalang.langserver.compiler;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
-import org.ballerinalang.util.diagnostic.Diagnostic;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -96,14 +92,7 @@ public class LSCompilerCache {
                 ((isSinglePkg) ? !cacheEntry.get().isLeft() : !cacheEntry.get().isRight())) {
             return null;
         }
-        List<Diagnostic> diagnostics = cacheEntry.diagnostics;
-        DiagnosticListener diagnosticListener = cacheEntry.compilerContext.get(DiagnosticListener.class);
-        if (diagnostics != null && diagnosticListener instanceof CollectDiagnosticListener) {
-            // Restore diagnostics, since same CompilerContext is shared between different operations
-            CollectDiagnosticListener listener = (CollectDiagnosticListener) diagnosticListener;
-            listener.clearAll();
-            diagnostics.forEach(listener::received);
-        }
+
         context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, cacheEntry.compilerContext);
         return cacheEntry;
     }
@@ -142,7 +131,7 @@ public class LSCompilerCache {
         String sourceRoot = key.sourceRoot;
         packageMap.put(key, new CacheEntry(bLangPackages, compilerContext));
         LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" + sourceRoot +
-                                        "'} added cache entry with {key: " + key + "}");
+                "'} added cache entry with {key: " + key + "}");
     }
 
     /**
@@ -159,7 +148,7 @@ public class LSCompilerCache {
             count.getAndIncrement();
         });
         LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" + sourceRoot +
-                                        "'} cleared " + count + " cached entries for the project");
+                "'} cleared " + count + " cached entries for the project");
     }
 
     /**
@@ -182,8 +171,6 @@ public class LSCompilerCache {
      */
     public static class Key {
         private final String sourceRoot;
-        private final String errorStrategy;
-
         private final String compilerPhase;
         private final String preserveWhitespace;
         private final String testEnabled;
@@ -198,8 +185,6 @@ public class LSCompilerCache {
             this.preserveWhitespace = options.get(PRESERVE_WHITESPACE);
             this.testEnabled = options.get(TEST_ENABLED);
             this.skipTests = options.get(SKIP_TESTS);
-            DefaultErrorStrategy defaultErrorStrategy = compilerContext.get(DefaultErrorStrategy.class);
-            this.errorStrategy = defaultErrorStrategy != null ? defaultErrorStrategy.getClass().getName() : null;
             SourceDirectory sourceDirectory = compilerContext.get(SourceDirectory.class);
             this.sourceDirectory = sourceDirectory != null ? sourceDirectory.getClass().getName() : null;
         }
@@ -211,7 +196,6 @@ public class LSCompilerCache {
             }
             Key key = (Key) o;
             return (key.sourceRoot.equals(sourceRoot)
-                    && errorStrategy != null && errorStrategy.equals(key.errorStrategy)
                     && compilerPhase != null && compilerPhase.equals(key.compilerPhase)
                     && preserveWhitespace != null && preserveWhitespace.equals(key.preserveWhitespace)
                     && testEnabled != null && testEnabled.equals(key.testEnabled)
@@ -222,17 +206,16 @@ public class LSCompilerCache {
         @Override
         public int hashCode() {
             return Arrays.hashCode(
-                    new String[]{sourceRoot, errorStrategy, compilerPhase, preserveWhitespace, testEnabled, skipTests,
+                    new String[]{sourceRoot, compilerPhase, preserveWhitespace, testEnabled, skipTests,
                             sourceDirectory});
         }
 
         @Override
         public String toString() {
             return String.format(
-                    "sourceRoot %s, errorStrategy: %s, compilerPhase: %s, preserveWS: %s, testEnabled: %s, " +
+                    "sourceRoot %s, compilerPhase: %s, preserveWS: %s, testEnabled: %s, " +
                             "skipTests: %s, sourceDirectory: %s",
                     sourceRoot,
-                    errorStrategy != null ? errorStrategy.substring(errorStrategy.lastIndexOf(".") + 1) : "",
                     compilerPhase != null ? compilerPhase : "",
                     preserveWhitespace != null ? preserveWhitespace : "",
                     testEnabled != null ? testEnabled : "",
@@ -247,20 +230,12 @@ public class LSCompilerCache {
     public static class CacheEntry {
         private EitherPair<BLangPackage, List<BLangPackage>> bLangPackages;
         private CompilerContext compilerContext;
-        private final List<Diagnostic> diagnostics;
         private boolean isOutdated = false;
 
         CacheEntry(EitherPair<BLangPackage, List<BLangPackage>> bLangPackages,
                    CompilerContext compilerContext) {
             this.bLangPackages = bLangPackages;
             this.compilerContext = compilerContext;
-            DiagnosticListener diagnosticListener = compilerContext.get(DiagnosticListener.class);
-            List<Diagnostic> diagnostics = null;
-            if (diagnosticListener instanceof CollectDiagnosticListener) {
-                CollectDiagnosticListener listener = (CollectDiagnosticListener) diagnosticListener;
-                diagnostics = new ArrayList<>(listener.getDiagnostics());
-            }
-            this.diagnostics = diagnostics;
         }
 
         /**

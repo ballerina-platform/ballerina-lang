@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.stdlib.io.channels.AbstractNativeChannel;
 import org.ballerinalang.stdlib.io.channels.BlobChannel;
 import org.ballerinalang.stdlib.io.channels.BlobIOChannel;
@@ -35,7 +35,7 @@ import java.nio.channels.WritableByteChannel;
  */
 public class Stdin extends AbstractNativeChannel {
 
-    public static ObjectValue stdin(ObjectValue objVal) {
+    public static BObject stdin(BObject objVal) {
         Process process = SystemUtils.processFromObject(objVal);
         OutputStream out = process.getOutputStream();
         WritableByteChannel writableByteChannel = Channels.newChannel(out);        

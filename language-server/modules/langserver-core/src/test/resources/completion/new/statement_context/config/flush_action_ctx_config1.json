@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 4,
+    "character": 14
+  },
+  "source": "statement_context/source/flush_action_ctx_source1.bal",
+  "items": [
+    {
+      "label": "w1",
+      "kind": "Variable",
+      "detail": "worker",
+      "insertText": "w1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "w3",
+      "kind": "Variable",
+      "detail": "worker",
+      "insertText": "w3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "default",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "default",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

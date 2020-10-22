@@ -186,7 +186,7 @@ public class PackagingNegativeTestCase extends BaseTest {
 
     @Test(description = "Pull a non-existing module")
     public void testPullNonExistingPackage() throws Exception {
-        String msg = "error: module not found: natasha/nomodule:*_java8 or natasha/nomodule:*_any";
+        String msg = "error: module not found: natasha/nomodule:*_java11 or natasha/nomodule:*_any";
         LogLeecher leecher = new LogLeecher(msg, LogLeecher.LeecherType.ERROR);
         balClient.runMain("pull", new String[]{"natasha/nomodule"}, envVariables, new String[0],
                 new LogLeecher[]{leecher}, balServer.getServerHome());
@@ -313,12 +313,12 @@ public class PackagingNegativeTestCase extends BaseTest {
         // Copy TestProject1 to projectDir
         Path originalTestProj = Paths.get("src", "test", "resources", "packaging", "packagingNegative", "TestProject1")
                 .toAbsolutePath();
-        new LockFileTestCase().copyFolder(originalTestProj, projectDirPath);
+        PackerinaTestUtils.copyFolder(originalTestProj, projectDirPath);
 
         // rename module names
         Path testProjModule1Path = projectDirPath.resolve("src").resolve(moduleName);
         Files.createDirectories(projectDirPath.resolve("src").resolve(moduleName));
-        new LockFileTestCase().copyFolder(projectDirPath.resolve("src").resolve("foo"), testProjModule1Path);
+        PackerinaTestUtils.copyFolder(projectDirPath.resolve("src").resolve("foo"), testProjModule1Path);
         deleteFiles(projectDirPath.resolve("src").resolve("foo"));
     }
 

@@ -15,15 +15,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
               "children": [
@@ -31,6 +22,10 @@
                   "kind": "FUNCTION_TYPE_DESC",
                   "hasDiagnostics": true,
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "FUNCTION_KEYWORD"
                     },
@@ -138,15 +133,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
               "children": [
@@ -154,6 +140,10 @@
                   "kind": "FUNCTION_TYPE_DESC",
                   "hasDiagnostics": true,
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "FUNCTION_KEYWORD"
                     },
@@ -202,17 +192,16 @@
                               ]
                             },
                             {
-                              "kind": "DEFAULTABLE_PARAM",
+                              "kind": "COMMA_TOKEN",
+                              "isMissing": true,
                               "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_COMMA_TOKEN"
+                              ]
+                            },
+                            {
+                              "kind": "DEFAULTABLE_PARAM",
                               "children": [
-                                {
-                                  "kind": "COMMA_TOKEN",
-                                  "isMissing": true,
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_MISSING_COMMA_TOKEN"
-                                  ]
-                                },
                                 {
                                   "kind": "LIST",
                                   "children": []
@@ -268,17 +257,16 @@
                               ]
                             },
                             {
-                              "kind": "REST_PARAM",
+                              "kind": "COMMA_TOKEN",
+                              "isMissing": true,
                               "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_COMMA_TOKEN"
+                              ]
+                            },
+                            {
+                              "kind": "REST_PARAM",
                               "children": [
-                                {
-                                  "kind": "COMMA_TOKEN",
-                                  "isMissing": true,
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_MISSING_COMMA_TOKEN"
-                                  ]
-                                },
                                 {
                                   "kind": "LIST",
                                   "children": []
@@ -372,15 +360,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
               "children": [
@@ -388,6 +367,10 @@
                   "kind": "FUNCTION_TYPE_DESC",
                   "hasDiagnostics": true,
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "FUNCTION_KEYWORD",
                       "trailingMinutiae": [
@@ -430,17 +413,17 @@
                               ]
                             },
                             {
+                              "kind": "COMMA_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
                               "kind": "DEFAULTABLE_PARAM",
                               "children": [
-                                {
-                                  "kind": "COMMA_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
-                                },
                                 {
                                   "kind": "LIST",
                                   "children": []
@@ -480,17 +463,17 @@
                               ]
                             },
                             {
+                              "kind": "COMMA_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
                               "kind": "REST_PARAM",
                               "children": [
-                                {
-                                  "kind": "COMMA_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
-                                },
                                 {
                                   "kind": "LIST",
                                   "children": []
@@ -574,13 +557,8 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",
@@ -655,6 +633,10 @@
                               "kind": "FUNCTION_TYPE_DESC",
                               "hasDiagnostics": true,
                               "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
                                 {
                                   "kind": "FUNCTION_KEYWORD",
                                   "leadingMinutiae": [
@@ -780,6 +762,10 @@
                               "hasDiagnostics": true,
                               "children": [
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "FUNCTION_KEYWORD",
                                   "leadingMinutiae": [
                                     {
@@ -833,17 +819,16 @@
                                           ]
                                         },
                                         {
-                                          "kind": "DEFAULTABLE_PARAM",
+                                          "kind": "COMMA_TOKEN",
+                                          "isMissing": true,
                                           "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_COMMA_TOKEN"
+                                          ]
+                                        },
+                                        {
+                                          "kind": "DEFAULTABLE_PARAM",
                                           "children": [
-                                            {
-                                              "kind": "COMMA_TOKEN",
-                                              "isMissing": true,
-                                              "hasDiagnostics": true,
-                                              "diagnostics": [
-                                                "ERROR_MISSING_COMMA_TOKEN"
-                                              ]
-                                            },
                                             {
                                               "kind": "LIST",
                                               "children": []
@@ -899,17 +884,16 @@
                                           ]
                                         },
                                         {
-                                          "kind": "REST_PARAM",
+                                          "kind": "COMMA_TOKEN",
+                                          "isMissing": true,
                                           "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_COMMA_TOKEN"
+                                          ]
+                                        },
+                                        {
+                                          "kind": "REST_PARAM",
                                           "children": [
-                                            {
-                                              "kind": "COMMA_TOKEN",
-                                              "isMissing": true,
-                                              "hasDiagnostics": true,
-                                              "diagnostics": [
-                                                "ERROR_MISSING_COMMA_TOKEN"
-                                              ]
-                                            },
                                             {
                                               "kind": "LIST",
                                               "children": []
@@ -1015,6 +999,10 @@
                               "hasDiagnostics": true,
                               "children": [
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "FUNCTION_KEYWORD",
                                   "leadingMinutiae": [
                                     {
@@ -1062,17 +1050,17 @@
                                           ]
                                         },
                                         {
+                                          "kind": "COMMA_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
+                                        },
+                                        {
                                           "kind": "DEFAULTABLE_PARAM",
                                           "children": [
-                                            {
-                                              "kind": "COMMA_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
-                                            },
                                             {
                                               "kind": "LIST",
                                               "children": []
@@ -1112,17 +1100,17 @@
                                           ]
                                         },
                                         {
+                                          "kind": "COMMA_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
+                                        },
+                                        {
                                           "kind": "REST_PARAM",
                                           "children": [
-                                            {
-                                              "kind": "COMMA_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
-                                            },
                                             {
                                               "kind": "LIST",
                                               "children": []
@@ -1211,6 +1199,119 @@
                       "value": "\n"
                     }
                   ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "FUNCTION_TYPE_DESC",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "FUNCTION_KEYWORD",
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_QUALIFIER_NOT_ALLOWED"
+                      ],
+                      "leadingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
+                              {
+                                "kind": "PUBLIC_KEYWORD"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "FUNCTION_SIGNATURE",
+                      "children": [
+                        {
+                          "kind": "OPEN_PAREN_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "CLOSE_PAREN_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "foo",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "main"
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
                 }
               ]
             }

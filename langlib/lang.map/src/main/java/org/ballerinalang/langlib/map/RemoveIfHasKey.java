@@ -18,18 +18,13 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 
-import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
-import static org.ballerinalang.jvm.MapUtils.validateRequiredFieldForRecord;
-import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
+import static io.ballerina.runtime.MapUtils.checkIsMapOnlyOperation;
+import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFieldForRecord;
 
 /**
  * Extern function to remove element from the map if key exists.
@@ -37,24 +32,18 @@ import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
  *
  * @since 1.2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION, functionName = "removeIfHasKey",
-        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "k", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.ANY)},
-        isPublic = true
-)
 public class RemoveIfHasKey {
 
-    public static Object removeIfHasKey(Strand strand, MapValue<?, ?> m, BString k) {
+    public static Object removeIfHasKey(BMap<?, ?> m, BString k) {
         String op = "removeIfHasKey()";
 
         checkIsMapOnlyOperation(m.getType(), op);
         validateRequiredFieldForRecord(m, k.getValue());
         try {
             return m.remove(k);
-        } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
-            throw BallerinaErrors.createError(e.getMessage(),
-                                              "Failed to remove element: " + e.getDetail());
+        } catch (io.ballerina.runtime.util.exceptions.BLangFreezeException e) {
+            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()),
+                                           StringUtils.fromString("Failed to remove element: " + e.getDetail()));
         }
     }
 }

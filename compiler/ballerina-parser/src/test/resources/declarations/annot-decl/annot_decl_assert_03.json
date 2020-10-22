@@ -15,15 +15,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "ANNOTATION_KEYWORD"
             },
             {
@@ -53,15 +44,6 @@
           "kind": "ANNOTATION_DECLARATION",
           "hasDiagnostics": true,
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "ANNOTATION_KEYWORD",
               "leadingMinutiae": [

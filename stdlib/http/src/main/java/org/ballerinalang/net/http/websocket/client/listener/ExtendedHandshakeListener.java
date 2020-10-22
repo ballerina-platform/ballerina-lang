@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.websocket.client.listener;
 
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeListener;
 
@@ -29,7 +29,7 @@ import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeListener;
  */
 public interface ExtendedHandshakeListener extends ClientHandshakeListener {
 
-    ObjectValue getWebSocketClient();
+    BObject getWebSocketClient();
 
     WebSocketConnectionInfo getWebSocketConnectionInfo();
 }

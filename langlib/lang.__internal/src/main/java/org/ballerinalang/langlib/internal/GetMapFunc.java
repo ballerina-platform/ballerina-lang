@@ -18,33 +18,30 @@
 
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BFunctionType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+
+import java.util.List;
 
 /**
  * Native implementation of lang.internal:getMapFunc(func).
  *
  * @since 1.2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0", functionName = "getMapFunc",
-        args = {@Argument(name = "func", type = TypeKind.ANY)},
-        returnType = {@ReturnType(type = TypeKind.FUNCTION)}
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.__internal", functionName = "getMapFunc",
+//        args = {@Argument(name = "func", type = TypeKind.ANY)},
+//        returnType = {@ReturnType(type = TypeKind.FUNCTION)}
+//)
 public class GetMapFunc {
 
-    public static FPValue getMapFunc(Strand strand, Object obj) {
-        FPValue fpValue = (FPValue) obj;
-        BFunctionType functionType = (BFunctionType) fpValue.getType();
-        functionType.paramTypes[0] = new BUnionType(new BType[]{BTypes.typeAny, BTypes.typeError}, 0);
-        return fpValue;
+    public static BFunctionPointer getMapFunc(Object obj) {
+        BFunctionPointer functionPointer = (BFunctionPointer) obj;
+        FunctionType functionType = (FunctionType) functionPointer.getType();
+        functionType.getParameterTypes()[0] = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_ANY,
+                                                                                  PredefinedTypes.TYPE_ERROR), 0);
+        return functionPointer;
     }
 }

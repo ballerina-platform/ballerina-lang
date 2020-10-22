@@ -81,7 +81,7 @@ public class DependencyScopeTestCase extends BaseTest {
      */
     @Test(description = "Test 'provided' scope for platform dependency jars")
     public void providedScopeDependencyCase() throws BallerinaTestException, IOException {
-        String moduleUtilsBaloFileName = "utils-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-0.1.0"
+        String moduleUtilsBaloFileName = "utils-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
         String moduleUtilsBuildMsg = "target" + File.separator + "balo" + File.separator + moduleUtilsBaloFileName;
 
@@ -104,8 +104,7 @@ public class DependencyScopeTestCase extends BaseTest {
         // Define the scope as provided for a dependency jar which is needed for testable package
         copy(tempTestResources.resolve("provided").resolve(MANIFEST_FILE_NAME),
                 projectResources.resolve("TestProject2").resolve(MANIFEST_FILE_NAME));
-        String moduleFooTestMsg = "Tested utils getString method using interop and received: " +
-                "This is a test string value !!!";
+        String moduleFooTestMsg = "1 passing";
         LogLeecher moduleFooTestLeecher = new LogLeecher(moduleFooTestMsg);
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{moduleFooTestLeecher}, projectResources.resolve("TestProject2").toString());
@@ -122,14 +121,13 @@ public class DependencyScopeTestCase extends BaseTest {
     public void testOnlyScopeDependencyCase() throws BallerinaTestException, IOException {
         Path baloPath = projectResources.resolve("TestProject2" + File.separator + "target" + File.separator +
                 "balo");
-        String moduleFooBaloFileName = "foo-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-0.1.0"
+        String moduleFooBaloFileName = "foo-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
         File baloFile = new File(baloPath.toString() + File.separator + moduleFooBaloFileName);
         File baloZipFile = new File(baloPath.toString() + File.separator +
                 moduleFooBaloFileName.concat(".zip"));
 
-        String moduleFooTestMsg = "Tested utils getString method using interop and received: " +
-                "This is a test string value !!!";
+        String moduleFooTestMsg = "1 passing";
         LogLeecher moduleFooTestLeecher = new LogLeecher(moduleFooTestMsg);
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{moduleFooTestLeecher}, projectResources.resolve("TestProject2").toString());
@@ -148,7 +146,6 @@ public class DependencyScopeTestCase extends BaseTest {
         balClient.runMain("build", new String[]{"-a", "-c"}, envVariables, new String[]{},
                 new LogLeecher[]{utilsCompileLeecher}, projectResources.resolve("TestProject1").toString());
         utilsCompileLeecher.waitForText(5000);
-
     }
 
     /**
@@ -161,7 +158,7 @@ public class DependencyScopeTestCase extends BaseTest {
     public void testValidatingDependenciesFromBaloToml() throws BallerinaTestException {
         copy(tempTestResources.resolve("validate-dependency").resolve("TestProject1").resolve(MANIFEST_FILE_NAME),
                 projectResources.resolve("TestProject1").resolve(MANIFEST_FILE_NAME));
-        String moduleUtilsBaloFileName = "utils-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-0.1.0"
+        String moduleUtilsBaloFileName = "utils-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
         String moduleUtilsBuildMsg = "target" + File.separator + "balo" + File.separator + moduleUtilsBaloFileName;
         LogLeecher moduleUtilsBuildLeecher = new LogLeecher(moduleUtilsBuildMsg);
@@ -171,7 +168,7 @@ public class DependencyScopeTestCase extends BaseTest {
         moduleUtilsBuildLeecher.waitForText(5000);
 
         // Build TestProject3 without adding the provided scope jars to the toml
-        String warningMsg = "warning: wso2/utils:0.1.0::utils:1:1: native dependency 'utils.jar' is missing";
+        String warningMsg = "warning: native dependency 'utils.jar' is missing";
         LogLeecher moduleFooWarningLeecher = new LogLeecher(warningMsg, LogLeecher.LeecherType.ERROR);
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{moduleFooWarningLeecher}, projectResources.resolve("TestProject3").toString());
@@ -227,7 +224,7 @@ public class DependencyScopeTestCase extends BaseTest {
         }
     }
 
-    @AfterClass
+    @AfterClass()
     private void cleanup() throws Exception {
         deleteFiles(this.tempHomeDirectory);
         deleteFiles(this.tempTestResources);

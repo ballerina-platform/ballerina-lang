@@ -17,16 +17,16 @@
  */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.jvm.observability.ObservabilityConstants;
-import org.ballerinalang.jvm.observability.ObserveUtils;
-import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.runtime.RuntimeConstants;
-import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
-import org.ballerinalang.jvm.values.connector.Executor;
+import io.ballerina.runtime.api.BRuntime;
+import io.ballerina.runtime.api.connector.CallableUnitCallback;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.observability.ObservabilityConstants;
+import io.ballerina.runtime.observability.ObserveUtils;
+import io.ballerina.runtime.observability.ObserverContext;
+import io.ballerina.runtime.runtime.RuntimeConstants;
+import io.ballerina.runtime.util.exceptions.BallerinaConnectorException;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -35,11 +35,11 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.SERVER_CONNECTOR_HTTP;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_PROTOCOL;
+import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
+import static io.ballerina.runtime.observability.ObservabilityConstants.SERVER_CONNECTOR_HTTP;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_PROTOCOL;
 import static org.ballerinalang.net.http.HttpConstants.ON_MESSAGE_METADATA;
 
 /**
@@ -52,9 +52,9 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     private final HTTPServicesRegistry httpServicesRegistry;
 
-    protected final MapValue endpointConfig;
+    protected final BMap endpointConfig;
 
-    public BallerinaHTTPConnectorListener(HTTPServicesRegistry httpServicesRegistry, MapValue endpointConfig) {
+    public BallerinaHTTPConnectorListener(HTTPServicesRegistry httpServicesRegistry, BMap endpointConfig) {
         this.httpServicesRegistry = httpServicesRegistry;
         this.endpointConfig = endpointConfig;
     }
@@ -113,9 +113,10 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
         }
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
-        ObjectValue service = httpResource.getParentService().getBalService();
-        Executor.submit(httpServicesRegistry.getScheduler(), service, httpResource.getName(), null,
-                        ON_MESSAGE_METADATA, callback, properties, signatureParams);
+        BObject service = httpResource.getParentService().getBalService();
+        BRuntime runtime = httpServicesRegistry.getRuntime();
+        runtime.invokeMethodAsync(service, httpResource.getName(), null, ON_MESSAGE_METADATA,
+                                  callback, properties, signatureParams);
     }
 
     protected boolean accessed(HttpCarbonMessage inboundMessage) {

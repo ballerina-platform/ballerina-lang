@@ -19,28 +19,28 @@ package org.ballerinalang.debugadapter.variable.types;
 import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableContext;
-import org.eclipse.lsp4j.debug.Variable;
+import org.ballerinalang.debugadapter.variable.VariableUtils;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.ballerinalang.debugadapter.variable.VariableUtils.getBType;
 
 /**
  * Ballerina object variable type.
  */
 public class BObject extends BCompoundVariable {
 
-    public BObject(VariableContext context, Value value, Variable dapVariable) {
-        super(context, BVariableType.OBJECT, value, dapVariable);
+    private static final String OBJECT_FIELD_PATTERN_IDENTIFIER = "$value$";
+
+    public BObject(SuspendedContext context, String name, Value value) {
+        super(context, name, BVariableType.OBJECT, value);
     }
 
     @Override
     public String computeValue() {
-        return getBType(jvmValue);
+        return VariableUtils.getBType(jvmValue);
     }
 
     @Override
@@ -52,10 +52,8 @@ public class BObject extends BCompoundVariable {
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
             Map<String, Value> values = new HashMap<>();
-            // Uses ballerina object type name to filter object fields from the jvm reference.
-            String balObjectFiledIdentifier = this.computeValue() + ".";
             fieldValueMap.forEach((field, value) -> {
-                if (field.toString().contains(balObjectFiledIdentifier)) {
+                if (field.toString().contains(OBJECT_FIELD_PATTERN_IDENTIFIER)) {
                     values.put(field.name(), value);
                 }
             });

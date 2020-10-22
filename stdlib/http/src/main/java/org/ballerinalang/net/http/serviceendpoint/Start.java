@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.serviceendpoint;
 
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
 import org.ballerinalang.net.http.HttpConnectorPortBindingListener;
 import org.ballerinalang.net.http.HttpConstants;
@@ -36,14 +36,14 @@ import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG;
  * @since 0.966
  */
 public class Start extends AbstractHttpNativeFunction {
-    public static Object start(ObjectValue listener) {
+    public static Object start(BObject listener) {
         if (!isConnectorStarted(listener)) {
             return startServerConnector(listener);
         }
         return null;
     }
 
-    private static Object startServerConnector(ObjectValue serviceEndpoint) {
+    private static Object startServerConnector(BObject serviceEndpoint) {
         ServerConnector serverConnector = getServerConnector(serviceEndpoint);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         BallerinaHTTPConnectorListener httpListener =

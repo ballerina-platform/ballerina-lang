@@ -3,13 +3,8 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -80,22 +75,23 @@
                   ],
                   "leadingMinutiae": [
                     {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    },
+                    {
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
-                        "kind": "BITWISE_AND_TOKEN",
-                        "leadingMinutiae": [
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "children": [
                           {
-                            "kind": "WHITESPACE_MINUTIAE",
-                            "value": "    "
-                          }
-                        ],
-                        "trailingMinutiae": [
-                          {
-                            "kind": "WHITESPACE_MINUTIAE",
-                            "value": " "
+                            "kind": "BITWISE_AND_TOKEN"
                           }
                         ]
                       }
+                    },
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ],
                   "trailingMinutiae": [
@@ -142,7 +138,7 @@
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
+                                  "kind": "STRING_LITERAL_TOKEN",
                                   "value": "south",
                                   "leadingMinutiae": [
                                     {
@@ -301,7 +297,7 @@
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
+                                  "kind": "STRING_LITERAL_TOKEN",
                                   "value": "south",
                                   "leadingMinutiae": [
                                     {

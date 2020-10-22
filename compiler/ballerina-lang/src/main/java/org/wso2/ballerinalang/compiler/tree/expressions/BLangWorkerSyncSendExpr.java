@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.WorkerSendSyncExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -34,6 +35,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 public class BLangWorkerSyncSendExpr extends BLangExpression implements WorkerSendSyncExpressionNode {
 
     public BLangIdentifier workerIdentifier;
+    public BSymbol workerSymbol;
     public BLangExpression expr;
     public BLangWorkerReceive receive;
     public SymbolEnv env;

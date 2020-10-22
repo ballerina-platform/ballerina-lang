@@ -40,7 +40,9 @@ public class Module {
     @Expose
     public List<Record> records = new ArrayList<>();
     @Expose
-    public List<Object> objects = new ArrayList<>();
+    public List<BClass> classes = new ArrayList<>();
+    @Expose
+    public List<BAbstractObject> abstractObjects = new ArrayList<>();
     @Expose
     public List<Client> clients = new ArrayList<>();
     @Expose
@@ -60,4 +62,5 @@ public class Module {
 
     @Expose
     public List<Path> resources = new ArrayList<>();
+
 }

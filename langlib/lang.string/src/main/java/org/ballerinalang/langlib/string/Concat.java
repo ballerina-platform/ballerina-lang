@@ -18,36 +18,22 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * Extern function lang.string:concat(string...).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "concat",
-        args = {@Argument(name = "str", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
 public class Concat {
 
-    public static BString concat(Strand strand, ArrayValue str) {
+    public static BString concat(BString[] str) {
         StringBuilder stringBuilder = new StringBuilder();
-        int size = str.size();
+        int size = str.length;
 
         for (int i = 0; i < size; i++) {
-            stringBuilder.append(str.getString(i));
+            stringBuilder.append(str[i]);
         }
 
         return StringUtils.fromString(stringBuilder.toString());

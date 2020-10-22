@@ -18,9 +18,11 @@
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.symbols.VariableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.VARIABLE;
 
@@ -34,14 +36,14 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
     // Only used for type-narrowing. Cache of the original symbol.
     public BVarSymbol originalSymbol;
 
-
     /**
      * This indicate the indicated (by programmer) taintedness of a variable.
      */
     public TaintabilityAllowance taintabilityAllowance = TaintabilityAllowance.IGNORED;
 
-    public BVarSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
-        super(VARIABLE, flags, name, pkgID, type, owner);
+    public BVarSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner, DiagnosticPos pos,
+                      SymbolOrigin origin) {
+        super(VARIABLE, flags, name, pkgID, type, owner, pos, origin);
     }
 
     @Override

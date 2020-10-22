@@ -18,12 +18,11 @@
 
 package org.ballerinalang.net.uri;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -61,7 +60,7 @@ public class URIUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public static void populateQueryParamMap(String queryParamString, MapValue<BString, Object> queryParamsMap)
+    public static void populateQueryParamMap(String queryParamString, BMap<BString, Object> queryParamsMap)
             throws UnsupportedEncodingException {
         Map<String, List<String>> tempParamMap = new HashMap<>();
         String[] queryParamVals = queryParamString.split("&");
@@ -90,21 +89,21 @@ public class URIUtil {
 
         for (Map.Entry<String, List<String>> entry : tempParamMap.entrySet()) {
             List<String> entryValue = entry.getValue();
-            queryParamsMap.put(StringUtils.fromString(entry.getKey()), BValueCreator
-                    .createArrayValue(StringUtils.fromStringArray(entryValue.toArray(new String[0]))));
+            queryParamsMap.put(BStringUtils.fromString(entry.getKey()), BValueCreator
+                    .createArrayValue(BStringUtils.fromStringArray(entryValue.toArray(new String[0]))));
         }
     }
 
     @SuppressWarnings("unchecked")
-    public static MapValue<BString, Object> getMatrixParamsMap(String path, HttpCarbonMessage carbonMessage) {
-        MapValue<BString, Object> matrixParamsBMap = new MapValueImpl<>();
+    public static BMap<BString, Object> getMatrixParamsMap(String path, HttpCarbonMessage carbonMessage) {
+        BMap<BString, Object> matrixParamsBMap = BValueCreator.createMapValue();
         Map<String, Map<String, String>> pathToMatrixParamMap =
                 (Map<String, Map<String, String>>) carbonMessage.getProperty(HttpConstants.MATRIX_PARAMS);
         Map<String, String> matrixParamsMap = pathToMatrixParamMap.get(path);
         if (matrixParamsMap != null) {
             for (Map.Entry<String, String> matrixParamEntry : matrixParamsMap.entrySet()) {
-                matrixParamsBMap.put(StringUtils.fromString(matrixParamEntry.getKey()),
-                                     StringUtils.fromString(matrixParamEntry.getValue()));
+                matrixParamsBMap.put(BStringUtils.fromString(matrixParamEntry.getKey()),
+                                     BStringUtils.fromString(matrixParamEntry.getValue()));
             }
         }
         return matrixParamsBMap;

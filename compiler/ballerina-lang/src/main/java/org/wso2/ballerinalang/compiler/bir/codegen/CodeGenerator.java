@@ -24,13 +24,13 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
-import org.wso2.ballerinalang.util.RepoUtils;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,6 +42,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -50,10 +51,8 @@ import java.util.List;
 import java.util.Set;
 
 import static org.ballerinalang.compiler.JarResolver.JAR_RESOLVER_KEY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.encodeModuleIdentifiers;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * JVM byte code generator from BIR model.
@@ -65,12 +64,13 @@ public class CodeGenerator {
     private static final CompilerContext.Key<CodeGenerator> CODE_GEN = new CompilerContext.Key<>();
     private SymbolTable symbolTable;
     private PackageCache packageCache;
-    private BLangDiagnosticLogHelper dlog;
+    private BLangDiagnosticLog dlog;
     private BIREmitter birEmitter;
     private boolean baloGen;
     private CompilerContext compilerContext;
     private boolean skipTests;
     private boolean dumbBIR;
+    private final String dumpBIRFile;
     private boolean skipModuleDependencies;
     private Path ballerinaHome = Paths.get(System.getProperty(BALLERINA_HOME));
 
@@ -79,13 +79,14 @@ public class CodeGenerator {
         compilerContext.put(CODE_GEN, this);
         this.symbolTable = SymbolTable.getInstance(compilerContext);
         this.packageCache = PackageCache.getInstance(compilerContext);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(compilerContext);
+        this.dlog = BLangDiagnosticLog.getInstance(compilerContext);
         this.birEmitter = BIREmitter.getInstance(compilerContext);
         this.compilerContext = compilerContext;
         CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
         this.skipTests = getBooleanValueIfSet(compilerOptions, CompilerOptionName.SKIP_TESTS);
         this.baloGen = getBooleanValueIfSet(compilerOptions, CompilerOptionName.BALO_GENERATION);
         this.dumbBIR = getBooleanValueIfSet(compilerOptions, CompilerOptionName.DUMP_BIR);
+        this.dumpBIRFile = compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE);
         this.skipModuleDependencies = getBooleanValueIfSet(compilerOptions,
                 CompilerOptionName.SKIP_MODULE_DEPENDENCIES);
     }
@@ -109,6 +110,15 @@ public class CodeGenerator {
 
         if (dumbBIR) {
             birEmitter.emit(bLangPackage.symbol.bir);
+        }
+
+        if (dumpBIRFile != null) {
+            try {
+                Files.write(Paths.get(dumpBIRFile),
+                            bLangPackage.symbol.birPackageFile.pkgBirBinaryContent);
+            } catch (IOException e) {
+                throw new BLangCompilerException("BIR file dumping failed", e);
+            }
         }
 
         // find module dependencies path
@@ -141,6 +151,10 @@ public class CodeGenerator {
 
         ClassLoader interopValidationClassLoader = makeClassLoader(moduleDependencies);
         InteropValidator interopValidator = new InteropValidator(interopValidationClassLoader, symbolTable);
+
+        //Rewrite identiifier names with encoding special characters
+        encodeModuleIdentifiers(packageSymbol.bir, Names.getInstance(this.compilerContext));
+
         packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, interopValidator, true);
     }
 
@@ -160,7 +174,6 @@ public class CodeGenerator {
 
         if (jarResolver != null) {
             moduleDependencies.addAll(jarResolver.nativeDependencies(packageID));
-            moduleDependencies.add(getRuntimeAllJarPath());
         }
 
         return moduleDependencies;
@@ -194,13 +207,6 @@ public class CodeGenerator {
         return interopDependencies;
     }
 
-    private Path getRuntimeAllJarPath() {
-
-        String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
-        String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
-        return Paths.get(ballerinaHome.toString(), BALLERINA_HOME_BRE, BALLERINA_HOME_LIB, runtimeJarName);
-    }
-
     private ClassLoader makeClassLoader(Set<Path> moduleDependencies) {
 
         if (moduleDependencies == null || moduleDependencies.size() == 0) {
@@ -215,7 +221,7 @@ public class CodeGenerator {
             }
         }
 
-        return new URLClassLoader(dependentJars.toArray(new URL[]{}), null);
+        return new URLClassLoader(dependentJars.toArray(new URL[]{}), ClassLoader.getPlatformClassLoader());
     }
 
     private void populateExternalMap(JvmPackageGen jvmPackageGen) {

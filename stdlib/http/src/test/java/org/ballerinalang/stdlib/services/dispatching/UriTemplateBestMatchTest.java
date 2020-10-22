@@ -17,10 +17,9 @@
 */
 package org.ballerinalang.stdlib.services.dispatching;
 
-import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.JSONParser;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -59,7 +58,7 @@ public class UriTemplateBestMatchTest {
         Assert.assertNotNull(response, "Response message not found");
         Object bJson = JSONParser.parse(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(((MapValueImpl<BString, Object>) bJson).get(StringUtils.fromString("echo1")).toString(),
+        Assert.assertEquals(((BMap<BString, Object>) bJson).get(BStringUtils.fromString("echo1")).toString(),
                             "echo1", "Resource dispatched to wrong template");
 
     }
@@ -73,7 +72,7 @@ public class UriTemplateBestMatchTest {
         Assert.assertNotNull(response, "Response message not found");
         Object bJson = JSONParser.parse(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(((MapValueImpl<BString, Object>) bJson).get(StringUtils.fromString("echo2")).toString(),
+        Assert.assertEquals(((BMap<BString, Object>) bJson).get(BStringUtils.fromString("echo2")).toString(),
                             "echo2", "Resource dispatched to wrong template");
     }
 
@@ -86,7 +85,7 @@ public class UriTemplateBestMatchTest {
         Assert.assertNotNull(response, "Response message not found");
         Object bJson = JSONParser.parse(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(((MapValueImpl<BString, Object>) bJson).get(StringUtils.fromString("echo3")).toString(),
+        Assert.assertEquals(((BMap<BString, Object>) bJson).get(BStringUtils.fromString("echo3")).toString(),
                             "echo3", "Resource dispatched to wrong template");
     }
 
@@ -99,7 +98,7 @@ public class UriTemplateBestMatchTest {
         Assert.assertNotNull(response, "Response message not found");
         Object bJson = JSONParser.parse(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(((MapValueImpl<BString, Object>) bJson).get(StringUtils.fromString("echo5")).toString(),
+        Assert.assertEquals(((BMap<BString, Object>) bJson).get(BStringUtils.fromString("echo5")).toString(),
                             "echo5"
                 , "Resource dispatched to wrong template");
     }
@@ -113,7 +112,7 @@ public class UriTemplateBestMatchTest {
         Assert.assertNotNull(response, "Response message not found");
         Object bJson = JSONParser.parse(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(((MapValueImpl<BString, Object>) bJson).get(StringUtils.fromString("echo3")).toString(),
+        Assert.assertEquals(((BMap<BString, Object>) bJson).get(BStringUtils.fromString("echo3")).toString(),
                             "shafreen", "Resource dispatched to wrong template");
     }
 
@@ -126,7 +125,7 @@ public class UriTemplateBestMatchTest {
         Assert.assertNotNull(response, "Response message not found");
         Object bJson = JSONParser.parse(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(((MapValueImpl<BString, Object>) bJson).get(StringUtils.fromString("echo3")).toString(),
+        Assert.assertEquals(((BMap<BString, Object>) bJson).get(BStringUtils.fromString("echo3")).toString(),
                             "shafreen-anfar", "Resource dispatched to wrong template");
 
         path = "/hello/echo2/shafreen+anfar";
@@ -135,7 +134,7 @@ public class UriTemplateBestMatchTest {
         Assert.assertNotNull(response, "Response message not found");
         bJson = JSONParser.parse(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(((MapValueImpl<BString, Object>) bJson).get(StringUtils.fromString("echo3")).toString(),
+        Assert.assertEquals(((BMap<BString, Object>) bJson).get(BStringUtils.fromString("echo3")).toString(),
                             "shafreen anfar", "Resource dispatched to wrong template");
     }
 
@@ -148,10 +147,10 @@ public class UriTemplateBestMatchTest {
         Assert.assertNotNull(response, "Response message not found");
         Object bJson = JSONParser.parse(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(((MapValueImpl<BString, Object>) bJson).get(StringUtils.fromString("first")).toString(),
+        Assert.assertEquals(((BMap<BString, Object>) bJson).get(BStringUtils.fromString("first")).toString(),
                             "shafreen anfar", "Resource dispatched to wrong template");
 
-        Assert.assertEquals(((MapValueImpl<BString, Object>) bJson).get(StringUtils.fromString("echo4")).toString(),
+        Assert.assertEquals(((BMap<BString, Object>) bJson).get(BStringUtils.fromString("echo4")).toString(),
                             "echo4", "Resource dispatched to wrong template");
     }
 
@@ -165,7 +164,7 @@ public class UriTemplateBestMatchTest {
         Assert.assertNotNull(response, "Response message not found");
         Object bJson = JSONParser.parse(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(((MapValueImpl<BString, Object>) bJson).get(StringUtils.fromString("echo5")).toString(),
+        Assert.assertEquals(((BMap<BString, Object>) bJson).get(BStringUtils.fromString("echo5")).toString(),
                             "any"
                 , "Resource dispatched to wrong template");
     }

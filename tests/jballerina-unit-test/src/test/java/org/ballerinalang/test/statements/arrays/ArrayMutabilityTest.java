@@ -18,14 +18,14 @@
  */
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -62,8 +62,8 @@ public class ArrayMutabilityTest {
     @Test(description = "Test mutation of record type using covariant array",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*error: \\{ballerina/lang.array\\}InherentTypeViolation message=incompatible types: expected " +
-                            "'Employee', found 'Person'.*")
+                    ".*error: \\{ballerina/lang.array\\}InherentTypeViolation " +
+                            "\\{\"message\":\"incompatible types: expected 'Employee', found 'Person'.*")
     public void testAssignmentOfSuperTypeMember() {
         BRunUtil.invoke(compileResult, "testAssignmentOfSuperTypeMember");
     }
@@ -87,7 +87,8 @@ public class ArrayMutabilityTest {
     @Test(description = "Test mutation of arrays which include structural and simple values",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array\\}InherentTypeViolation message=incompatible types: expected " +
+                    "error: \\{ballerina/lang.array\\}InherentTypeViolation " +
+                            "\\{\"message\":\"incompatible types: expected " +
                             "'boolean\\|float\\|\\(\\)', found 'Person'.*?")
     public void testCovarianceBooleanOrFloatOrRecordArray() {
         BRunUtil.invoke(compileResult, "testCovarianceBooleanOrFloatOrRecordArray");
@@ -142,7 +143,8 @@ public class ArrayMutabilityTest {
     @Test(description = "Test mutation of int array assigned to a json array",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*\\{ballerina/lang.array\\}InherentTypeViolation message=incompatible types: expected 'int', " +
+                    ".*\\{ballerina/lang.array\\}InherentTypeViolation " +
+                            "\\{\"message\":\"incompatible types: expected 'int', " +
                             "found 'string'.*")
     public void testJsonArrayMutability() {
         BRunUtil.invoke(compileResult, "testJsonArrayMutability");
@@ -151,7 +153,8 @@ public class ArrayMutabilityTest {
     @Test(description = "Test mutation of boolean array assigned to a json array",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*\\{ballerina/lang.array\\}InherentTypeViolation message=incompatible types: expected " +
+                    ".*\\{ballerina/lang.array\\}InherentTypeViolation " +
+                            "\\{\"message\":\"incompatible types: expected " +
                             "'boolean', found 'string'.*")
     public void testJsonArrayMutability2() {
         BRunUtil.invoke(compileResult, "testJsonArrayMutability2");
@@ -160,7 +163,8 @@ public class ArrayMutabilityTest {
     @Test(description = "Test mutation of arrays through chained assignments",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array\\}InherentTypeViolation message=incompatible types: expected " +
+                    "error: \\{ballerina/lang.array\\}InherentTypeViolation " +
+                            "\\{\"message\":\"incompatible types: expected " +
                             "\\'int\\|string\\|\\(\\)\\', found \\'boolean\\'.*")
     public void testChainingAssignment() {
         BRunUtil.invoke(compileResult, "testChainingAssignment");

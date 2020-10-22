@@ -18,12 +18,12 @@
 
 package org.ballerinalang.stdlib.multipart;
 
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.util.JsonParser;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BXML;
+import org.ballerinalang.core.model.util.JsonParser;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.ResponseReader;
 import org.ballerinalang.stdlib.utils.Services;
@@ -75,7 +75,7 @@ public class MultipartFormDataDecoderTest {
     public void testTextBodyPart() {
         String path = "/test/textbodypart";
         Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
-        ArrayList<ObjectValue> bodyParts = new ArrayList<>();
+        ArrayList<BObject> bodyParts = new ArrayList<>();
         bodyParts.add(getTextBodyPart());
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
         HttpCarbonMessage response = Services.invoke(TEST_PORT, cMsg);
@@ -87,7 +87,7 @@ public class MultipartFormDataDecoderTest {
     public void testTextBodyPartAsFileUpload() {
         String path = "/test/textbodypart";
         Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
-        ArrayList<ObjectValue> bodyParts = new ArrayList<>();
+        ArrayList<BObject> bodyParts = new ArrayList<>();
         bodyParts.add(getTextFilePart());
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
         HttpCarbonMessage response = Services.invoke(TEST_PORT, cMsg);
@@ -99,7 +99,7 @@ public class MultipartFormDataDecoderTest {
     public void testJsonBodyPart() {
         String path = "/test/jsonbodypart";
         Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
-        ArrayList<ObjectValue> bodyParts = new ArrayList<>();
+        ArrayList<BObject> bodyParts = new ArrayList<>();
         bodyParts.add(getJsonBodyPart());
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
         HttpCarbonMessage response = Services.invoke(TEST_PORT, cMsg);
@@ -112,7 +112,7 @@ public class MultipartFormDataDecoderTest {
     public void testJsonBodyPartAsFileUpload() {
         String path = "/test/jsonbodypart";
         Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
-        ArrayList<ObjectValue> bodyParts = new ArrayList<>();
+        ArrayList<BObject> bodyParts = new ArrayList<>();
         bodyParts.add(getJsonFilePart());
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
         HttpCarbonMessage response = Services.invoke(TEST_PORT, cMsg);
@@ -125,12 +125,12 @@ public class MultipartFormDataDecoderTest {
     public void testXmlBodyPart() {
         String path = "/test/xmlbodypart";
         Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
-        ArrayList<ObjectValue> bodyParts = new ArrayList<>();
+        ArrayList<BObject> bodyParts = new ArrayList<>();
         bodyParts.add(getXmlBodyPart());
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
         HttpCarbonMessage response = Services.invoke(TEST_PORT, cMsg);
         Assert.assertNotNull(response, "Response message not found");
-        XMLValue value = XMLFactory.parse(ResponseReader.getReturnValue(response));
+        BXML value = XMLFactory.parse(ResponseReader.getReturnValue(response));
         Assert.assertEquals(value.getTextValue(), "Ballerina");
     }
 
@@ -138,12 +138,12 @@ public class MultipartFormDataDecoderTest {
     public void testXmlBodyPartAsFileUpload() {
         String path = "/test/xmlbodypart";
         Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
-        ArrayList<ObjectValue> bodyParts = new ArrayList<>();
+        ArrayList<BObject> bodyParts = new ArrayList<>();
         bodyParts.add(getXmlFilePart());
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
         HttpCarbonMessage response = Services.invoke(TEST_PORT, cMsg);
         Assert.assertNotNull(response, "Response message not found");
-        XMLValue omNode = XMLFactory.parse(ResponseReader.getReturnValue(response));
+        BXML omNode = XMLFactory.parse(ResponseReader.getReturnValue(response));
         Assert.assertEquals(omNode.getTextValue(), "Ballerina xml file part");
     }
 
@@ -151,7 +151,7 @@ public class MultipartFormDataDecoderTest {
     public void testBinaryBodyPart() {
         String path = "/test/binarybodypart";
         Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
-        ArrayList<ObjectValue> bodyParts = new ArrayList<>();
+        ArrayList<BObject> bodyParts = new ArrayList<>();
         bodyParts.add(getBinaryBodyPart());
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
         HttpCarbonMessage response = Services.invoke(TEST_PORT, cMsg);
@@ -164,7 +164,7 @@ public class MultipartFormDataDecoderTest {
     public void testBinaryBodyPartAsFileUpload() {
         String path = "/test/binarybodypart";
         Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
-        ArrayList<ObjectValue> bodyParts = new ArrayList<>();
+        ArrayList<BObject> bodyParts = new ArrayList<>();
         bodyParts.add(getBinaryFilePart());
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
         HttpCarbonMessage response = Services.invoke(TEST_PORT, cMsg);
@@ -176,7 +176,7 @@ public class MultipartFormDataDecoderTest {
     public void testMultiplePartsForFormData() {
         String path = "/test/multipleparts";
         Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
-        ArrayList<ObjectValue> bodyParts = new ArrayList<>();
+        ArrayList<BObject> bodyParts = new ArrayList<>();
         bodyParts.add(getJsonBodyPart());
         bodyParts.add(getXmlFilePart());
         bodyParts.add(getTextBodyPart());
@@ -192,7 +192,7 @@ public class MultipartFormDataDecoderTest {
     public void testTextBodyPartWith7BitEncoding() {
         String path = "/test/textbodypart";
         Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
-        ArrayList<ObjectValue> bodyParts = new ArrayList<>();
+        ArrayList<BObject> bodyParts = new ArrayList<>();
         bodyParts.add(getTextFilePartWithEncoding(CONTENT_TRANSFER_ENCODING_7_BIT, "èiiii"));
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
         HttpCarbonMessage response = Services.invoke(TEST_PORT, cMsg);
@@ -204,7 +204,7 @@ public class MultipartFormDataDecoderTest {
     public void testTextBodyPartWith8BitEncoding() {
         String path = "/test/textbodypart";
         Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
-        ArrayList<ObjectValue> bodyParts = new ArrayList<>();
+        ArrayList<BObject> bodyParts = new ArrayList<>();
         bodyParts.add(getTextFilePartWithEncoding(CONTENT_TRANSFER_ENCODING_8_BIT, "èlllll"));
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
         HttpCarbonMessage response = Services.invoke(TEST_PORT, cMsg);

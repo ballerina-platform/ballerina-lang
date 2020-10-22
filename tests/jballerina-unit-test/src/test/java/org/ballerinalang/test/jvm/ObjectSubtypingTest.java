@@ -18,12 +18,12 @@
 
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -92,10 +92,8 @@ public class ObjectSubtypingTest {
         CompileResult result = BCompileUtil.compile("test-src/jvm/object_negatives.bal");
         String msgFormat = "incompatible types: expected '%s', found '%s'";
         int i = 0;
-        validateError(result, i++, "abstract object field: 'ssn' can not be declared as private", 21, 5);
-        validateError(result, i++,
-                      "interface function: 'test' of abstract object 'ObjWithPvtMethod' can not be declared as private",
-                      28, 5);
+        validateError(result, i++, "'private' qualifier not allowed", 21, 13);
+        validateError(result, i++, "'private' qualifier not allowed", 28, 13);
         validateError(result, i++, format(msgFormat, "ObjWithPvtField", "AnotherObjWithAPvtField"), 45, 26);
         validateError(result, i++, format(msgFormat, "ObjWithPvtMethod", "AnotherObjWithPvtMethod"), 46, 27);
         validateError(result, i++, format(msgFormat, "testorg/subtyping:1.0.0:ModuleLevelSubtypableObj", "Subtype1"),
@@ -122,8 +120,6 @@ public class ObjectSubtypingTest {
     public void testObjSubtypingNegatives() {
         CompileResult result = BCompileUtil.compile("test-src/jvm/object-subtype-negative.bal");
         int i = 0;
-        validateError(result, i++, "uninitialized field 'intField1'", 18, 46);
-        validateError(result, i++, "uninitialized field 'intField2'", 18, 61);
         validateError(result, i++, "uninitialized field 'intField1'", 27, 5);
         validateError(result, i++, "uninitialized field 'intField2'", 28, 5);
         assertEquals(result.getErrorCount(), i);

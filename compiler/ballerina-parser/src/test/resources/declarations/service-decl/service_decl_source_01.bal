@@ -5,4 +5,7 @@ service on listner1 {
 
     resource function bar() {
     }
+
+    transactional resource function bar() {
+    }
 }

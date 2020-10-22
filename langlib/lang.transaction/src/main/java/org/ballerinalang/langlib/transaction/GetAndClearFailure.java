@@ -18,28 +18,16 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
+import io.ballerina.runtime.scheduling.Scheduler;
 
 /**
  * Extern function transaction:getAndClearFailure.
  *
  * @since 2.0.0-preview1
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.transaction", version = TRANSACTION_VERSION,
-        functionName = "getAndClearFailure",
-        args = {},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-        isPublic = true
-)
 public class GetAndClearFailure {
 
-    public static boolean getAndClearFailure(Strand strand) {
-        return strand.currentTrxContext.getAndClearFailure() != null;
+    public static boolean getAndClearFailure() {
+        return Scheduler.getStrand().currentTrxContext.getAndClearFailure() != null;
     }
 }

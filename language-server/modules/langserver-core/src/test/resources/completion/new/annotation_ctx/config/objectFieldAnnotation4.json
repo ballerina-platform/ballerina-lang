@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 18,
+    "character": 18
+  },
+  "source": "annotation_ctx/source/objectFieldAnnotation4.bal",
+  "items": [
+    {
+      "label": "fieldAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "fieldAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "fieldAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "fieldAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "objectFieldAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "objectFieldAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "objectFieldAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "objectFieldAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    }
+  ]
+}

@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/java;
+
 # The type to which error detail records must belong.
 public type Detail record {|
    (anydata|readonly)...;
@@ -29,26 +31,38 @@ type DetailType Detail;
 #
 # + e - the error value
 # + return - error message
-public function message(error e) returns string = external;
+public isolated function message(error e) returns string = @java:Method {
+    'class: "org.ballerinalang.langlib.error.Message",
+    name: "message"
+} external;
 
 # Returns the error's cause.
 #
 # + e - the error value
 # + return - error cause
-public function cause(error e) returns error? = external;
+public isolated function cause(error e) returns error? = @java:Method {
+   'class: "org.ballerinalang.langlib.error.Cause",
+   name: "cause"
+} external;
 
 # Returns the error's detail record.
 # The returned value will be immutable.
 # + e - the error value
 # + return - error detail value
-public function detail(error<DetailType> e) returns DetailType = external;
+public isolated function detail(error<DetailType> e) returns DetailType = @java:Method {
+    'class: "org.ballerinalang.langlib.error.Detail",
+    name: "detail"
+} external;
 //public function detail(error<DetailType> e) returns readonly & DetailType = external;
 
 # Returns an object representing the stack trace of the error.
 #
 # + e - the error value
 # + return - a new object representing the stack trace of the error value
-public function stackTrace(error e) returns CallStack = external;
+public isolated function stackTrace(error e) returns CallStack = @java:Method {
+    'class: "org.ballerinalang.langlib.error.StackTrace",
+    name: "stackTrace"
+} external;
 
 # Representation of `CallStackElement`
 #
@@ -66,6 +80,6 @@ public type CallStackElement record {|
 # Represent error call stack.
 #
 # + callStack - call stack
-public type CallStack object {
+public class CallStack {
     public CallStackElement[] callStack = [];
-};
+}

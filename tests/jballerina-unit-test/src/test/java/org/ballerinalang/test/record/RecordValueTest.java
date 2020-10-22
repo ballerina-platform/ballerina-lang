@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.record;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.values.MapValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -93,7 +93,7 @@ public class RecordValueTest {
 
         Assert.assertEquals(person.size(), 3);
         Assert.assertFalse(person.isEmpty());
-        Assert.assertEquals(person.stringValue(), "name=John age=30 last-name=Doe");
+        Assert.assertEquals(person.stringValue(null), "{\"name\":\"John\",\"age\":30,\"last-name\":\"Doe\"}");
 
         // set optional field
         person.put(StringUtils.fromString("spouse"), StringUtils.fromString("Jane"));
@@ -149,7 +149,8 @@ public class RecordValueTest {
         Assert.assertEquals(person.size(), 4);
         Assert.assertFalse(person.isEmpty());
 
-        Assert.assertEquals(person.stringValue(), "name=Jane age=25 spouse=John gender=female");
+        Assert.assertEquals(person.stringValue(null),
+                "{\"name\":\"Jane\",\"age\":25,\"spouse\":\"John\",\"gender\":\"female\"}");
     }
 
     @Test(expectedExceptions = {UnsupportedOperationException.class})

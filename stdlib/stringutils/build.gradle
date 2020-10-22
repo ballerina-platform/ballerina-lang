@@ -29,7 +29,7 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-io')
-    implementation project(':ballerina-java')
+
     implementation 'org.apache.ws.commons.axiom:axiom-api:1.2.22'
     implementation 'org.apache.ws.commons.axiom:axiom-impl:1.2.22'
 
@@ -43,7 +43,7 @@ dependencies {
     testCompile 'org.testng:testng'
 
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+
 }
 
 createBalo {

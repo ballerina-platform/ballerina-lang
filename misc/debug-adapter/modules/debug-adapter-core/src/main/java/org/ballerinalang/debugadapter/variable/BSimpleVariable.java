@@ -17,32 +17,59 @@
 package org.ballerinalang.debugadapter.variable;
 
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.eclipse.lsp4j.debug.Variable;
+
+import static io.ballerina.runtime.IdentifierUtils.decodeIdentifier;
 
 /**
  * Base implementation for ballerina variable types with no child variables.
  */
 public abstract class BSimpleVariable implements BVariable {
 
-    protected final VariableContext context;
+    protected final SuspendedContext context;
+    private final String name;
+    private final BVariableType type;
     protected final Value jvmValue;
-    private final Variable dapVariable;
+    private Variable dapVariable;
 
-    public BSimpleVariable(VariableContext context, BVariableType bVariableType, Value jvmValue, Variable dapVar) {
+    public BSimpleVariable(SuspendedContext context, String varName, BVariableType bVariableType, Value jvmValue) {
         this.context = context;
+        // all the runtime variable names should be decoded in order to support quoted identifiers.
+        this.name = decodeIdentifier(varName);
+        this.type = bVariableType;
         this.jvmValue = jvmValue;
-        dapVar.setType(bVariableType.getString());
-        dapVar.setValue(computeValue());
-        this.dapVariable = dapVar;
+        this.dapVariable = null;
     }
 
     @Override
-    public VariableContext getContext() {
+    public SuspendedContext getContext() {
         return context;
     }
 
     @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public BVariableType getBType() {
+        return type;
+    }
+
+    @Override
+    public Value getJvmValue() {
+        return jvmValue;
+    }
+
+    @Override
     public Variable getDapVariable() {
+        if (dapVariable == null) {
+            dapVariable = new Variable();
+            dapVariable.setName(this.name);
+            dapVariable.setType(this.type.getString());
+            dapVariable.setValue(computeValue());
+        }
         return dapVariable;
     }
 }

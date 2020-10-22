@@ -33,6 +33,7 @@ import static org.testng.Assert.assertEquals;
  *
  * @since 2.0.0
  */
+@Test(groups = { "brokenOnOldParser" })
 public class ReadOnlyObjectBaloTest {
 
     private CompileResult result;
@@ -44,7 +45,7 @@ public class ReadOnlyObjectBaloTest {
         result = BCompileUtil.compile("test-src/balo/test_balo/object/test_readonly_objects.bal");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testReadonlyType() {
         BRunUtil.invoke(result, "testReadonlyObjects");
     }
@@ -66,4 +67,3 @@ public class ReadOnlyObjectBaloTest {
                                                "readonly_objects");
     }
 }
-

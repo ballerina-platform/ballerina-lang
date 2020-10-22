@@ -18,12 +18,13 @@
 
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.ErrorValue;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -31,9 +32,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BOOLEAN_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.BOOLEAN_PARSING_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.util.BLangConstants.BOOLEAN_LANG_LIB;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.BOOLEAN_PARSING_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * This class tests boolean lang module functionality.
@@ -72,10 +73,11 @@ public class LangLibBooleanTest {
         };
     }
 
-    private ErrorValue getError(String value) {
-        String reason = getModulePrefixedReason(BOOLEAN_LANG_LIB, BOOLEAN_PARSING_ERROR_IDENTIFIER);
-        String msg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
-                BTypes.typeString, value, BTypes.typeBoolean);
-        return BallerinaErrors.createError(reason, msg);
+    private BError getError(String value) {
+        BString reason = getModulePrefixedReason(BOOLEAN_LANG_LIB, BOOLEAN_PARSING_ERROR_IDENTIFIER);
+        BString msg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
+                                                           PredefinedTypes.TYPE_STRING, value,
+                                                           PredefinedTypes.TYPE_BOOLEAN);
+        return ErrorCreator.createError(reason, msg);
     }
 }

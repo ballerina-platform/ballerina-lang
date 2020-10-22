@@ -18,30 +18,17 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * Extern function transaction:uuid.
  *
  * @since 2.0.0-preview1
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.transaction", version = TRANSACTION_VERSION,
-        functionName = "uuid",
-        args = {},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
 public class UUID {
 
-    public static BString uuid(Strand strand) {
+    public static BString uuid() {
         return StringUtils.fromString(java.util.UUID.randomUUID().toString());
     }
 }

@@ -18,14 +18,9 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-
-import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 
 /**
  * Remove any children that matches a given name, from an XML.
@@ -33,17 +28,17 @@ import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
  * 
  * @since 0.982.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
-        functionName = "removeChildren",
-        args = {@Argument(name = "qname", type = TypeKind.STRING)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "removeChildren",
+//        args = {@Argument(name = "qname", type = TypeKind.STRING)},
+//        isPublic = true
+//)
 public class RemoveChildren {
 
     private static final String OPERATION = "remove children from xml element";
 
-    public static void removeChildren(Strand strand, XMLValue xml, String qname) {
+    public static void removeChildren(Strand strand, BXML xml, String qname) {
         try {
             xml.removeChildren(qname);
         } catch (Throwable e) {

@@ -26,12 +26,10 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 import org.ballerinalang.packerina.model.DependencyJar;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 
 import java.nio.file.Path;
 import java.util.HashSet;
@@ -49,7 +47,7 @@ public class CompileTask implements Task {
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
         Compiler compiler = Compiler.getInstance(context);
         compiler.setOutStream(buildContext.out());
-        BLangDiagnosticLogHelper dlog = BLangDiagnosticLogHelper.getInstance(context);
+        compiler.setErrorStream(buildContext.err());
         if (buildContext.getSourceType() == SourceType.SINGLE_BAL_FILE) {
             SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
             Path balFile = singleFileContext.getBalFile().getFileName();
@@ -71,7 +69,7 @@ public class CompileTask implements Task {
             }
             multiModuleContext.setModules(compiledModules);
         }
-        
+
         // check if there are any build errors
         List<BLangPackage> modules = buildContext.getModules();
         for (BLangPackage module : modules) {
@@ -81,18 +79,17 @@ public class CompileTask implements Task {
                     DependencyJar jar = buildContext.missedJarMap.get(importSymbol.pkgID);
                     if (jar != null && jar.nativeLibs.size() > 0) {
                         for (Path missedLib : jar.nativeLibs) {
-                            dlog.logDiagnostic(Diagnostic.Kind.WARNING, importSymbol.bir.pos,
-                                    "native dependency '" + missedLib + "' is missing");
+                            buildContext.err().println("warning: native dependency '" + missedLib + "' is missing");
                         }
                     }
                 }
             }
 
-            if (module.diagCollector.hasErrors()) {
+            if (module.hasErrors()) {
                 throw new BLangCompilerException("compilation contains errors");
             }
         }
-        
+
         // update build context.
         buildContext.put(BuildContextField.COMPILER_CONTEXT, context);
     }

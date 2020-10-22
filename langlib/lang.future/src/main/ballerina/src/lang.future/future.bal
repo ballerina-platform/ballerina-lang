@@ -14,10 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/java;
+
 # Requests cancellation of a future.
 # This sets the cancellation flag in the strand corresponding to `f`.
 # Each time that a strand yields, it will check the cancellation flag
 # and terminate abnormally if the flag is set.
 #
 # + f - the future to be cancelled
-public function cancel(future<any|error> f) returns () = external;
+public isolated function cancel(future<any|error> f) returns () = @java:Method {
+    'class: "org.ballerinalang.langlib.future.Cancel",
+    name: "cancel"
+} external;

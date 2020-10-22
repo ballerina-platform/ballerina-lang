@@ -18,14 +18,11 @@
 
 package org.ballerinalang.stdlib.multipart;
 
+import io.ballerina.runtime.api.values.BObject;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
-import org.ballerinalang.model.util.StringUtils;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.Base64ByteChannel;
@@ -86,7 +83,7 @@ public class MultipartEncoderTest {
 
     @Test(description = "Test whether the body parts get correctly encoded for multipart/mixed")
     public void testMultipartWriterForMixed() {
-        ObjectValue multipartEntity = getMultipartEntity();
+        BObject multipartEntity = getMultipartEntity();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
         MultipartDataSource multipartDataSource = new MultipartDataSource(multipartEntity, multipartDataBoundary);
@@ -96,7 +93,7 @@ public class MultipartEncoderTest {
             List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts("multipart/mixed; boundary=" +
                     multipartDataBoundary, inputStream);
             Assert.assertEquals(mimeParts.size(), 4);
-            ObjectValue bodyPart = createEntityObject();
+            BObject bodyPart = createEntityObject();
             validateBodyPartContent(mimeParts, bodyPart);
         } catch (MimeTypeParseException e) {
             log.error("Error occurred while testing mulitpart/mixed encoding", e.getMessage());
@@ -107,7 +104,7 @@ public class MultipartEncoderTest {
 
     @Test(description = "Test whether the body parts get correctly encoded for any new multipart sub type")
     public void testMultipartWriterForNewSubTypes() {
-        ObjectValue multipartEntity = getMultipartEntity();
+        BObject multipartEntity = getMultipartEntity();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
         MultipartDataSource multipartDataSource = new MultipartDataSource(multipartEntity, multipartDataBoundary);
@@ -117,7 +114,7 @@ public class MultipartEncoderTest {
             List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts("multipart/new-sub-type; boundary=" +
                     multipartDataBoundary, inputStream);
             Assert.assertEquals(mimeParts.size(), 4);
-            ObjectValue bodyPart = createEntityObject();
+            BObject bodyPart = createEntityObject();
             validateBodyPartContent(mimeParts, bodyPart);
         } catch (MimeTypeParseException e) {
             log.error("Error occurred while testing mulitpart/mixed encoding", e.getMessage());
@@ -128,7 +125,7 @@ public class MultipartEncoderTest {
 
     @Test(description = "Test whether the nested body parts within a multipart entity can be properly encoded")
     public void testNestedParts() {
-        ObjectValue nestedMultipartEntity = getNestedMultipartEntity();
+        BObject nestedMultipartEntity = getNestedMultipartEntity();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
         MultipartDataSource multipartDataSource = new MultipartDataSource(nestedMultipartEntity, multipartDataBoundary);
@@ -157,19 +154,19 @@ public class MultipartEncoderTest {
         List<MIMEPart> nestedParts = MultipartDecoder.decodeBodyParts(mimePart.getContentType(),
                 mimePart.readOnce());
         Assert.assertEquals(nestedParts.size(), 4);
-        ObjectValue ballerinaBodyPart = createEntityObject();
+        BObject ballerinaBodyPart = createEntityObject();
         validateBodyPartContent(nestedParts, ballerinaBodyPart);
     }
 
     @Test(description = "Test whether the body part builds the ContentDisposition struct properly for " +
             "multipart/form-data")
     public void testContentDispositionForFormData() {
-        ObjectValue bodyPart = createEntityObject();
-        ObjectValue contentDispositionStruct = getContentDispositionStruct();
+        BObject bodyPart = createEntityObject();
+        BObject contentDispositionStruct = getContentDispositionStruct();
         MimeUtil.setContentDisposition(contentDispositionStruct, bodyPart,
                                    "form-data; name=\"filepart\"; filename=\"file-01.txt\"");
-        ObjectValue contentDisposition =
-                (ObjectValue) bodyPart.get(CONTENT_DISPOSITION_FIELD);
+        BObject contentDisposition =
+                (BObject) bodyPart.get(CONTENT_DISPOSITION_FIELD);
         Assert.assertEquals(contentDisposition.get(CONTENT_DISPOSITION_FILENAME_FIELD).toString(), "file-01.txt");
         Assert.assertEquals(contentDisposition.get(CONTENT_DISPOSITION_NAME_FIELD).toString(), "filepart");
         Assert.assertEquals(contentDisposition.get(DISPOSITION_FIELD).toString(), "form-data");
@@ -186,7 +183,7 @@ public class MultipartEncoderTest {
             List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts("multipart/mixed; boundary=" +
                     "e3a0b9ad7b4e7cdb", inputStream);
             Assert.assertEquals(mimeParts.size(), 4);
-            ObjectValue bodyPart = createEntityObject();
+            BObject bodyPart = createEntityObject();
             validateBodyPartContent(mimeParts, bodyPart);
         } catch (MimeTypeParseException e) {
             log.error("Error occurred while testing mulitpart/mixed encoding", e.getMessage());
@@ -218,7 +215,7 @@ public class MultipartEncoderTest {
     @Test(enabled = false)
     public void testBase64EncodeByteChannel() {
         String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
-        ObjectValue byteChannelStruct = MultipartUtils.getByteChannelStruct();
+        BObject byteChannelStruct = MultipartUtils.getByteChannelStruct();
         InputStream inputStream = new ByteArrayInputStream("Hello Ballerina".getBytes());
         Base64ByteChannel base64ByteChannel = new Base64ByteChannel(inputStream);
         byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(base64ByteChannel));

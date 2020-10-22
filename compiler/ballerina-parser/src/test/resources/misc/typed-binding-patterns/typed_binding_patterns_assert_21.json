@@ -12,13 +12,8 @@
           "kind": "FUNCTION_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",
@@ -143,7 +138,7 @@
                                           ]
                                         },
                                         {
-                                          "kind": "FUNCTIONAL_BINDING_PATTERN",
+                                          "kind": "ERROR_BINDING_PATTERN",
                                           "children": [
                                             {
                                               "kind": "ERROR_KEYWORD"
@@ -158,13 +153,8 @@
                                                   "kind": "CAPTURE_BINDING_PATTERN",
                                                   "children": [
                                                     {
-                                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                                      "children": [
-                                                        {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "a"
-                                                        }
-                                                      ]
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "a"
                                                     }
                                                   ]
                                                 },
@@ -181,13 +171,8 @@
                                                   "kind": "CAPTURE_BINDING_PATTERN",
                                                   "children": [
                                                     {
-                                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                                      "children": [
-                                                        {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "b"
-                                                        }
-                                                      ]
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "b"
                                                     }
                                                   ]
                                                 }
@@ -223,8 +208,8 @@
                                           "value": "d",
                                           "trailingMinutiae": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "END_OF_LINE_MINUTIAE",
+                                              "value": "\n"
                                             }
                                           ]
                                         }
@@ -236,6 +221,12 @@
                             },
                             {
                               "kind": "IN_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "        "
+                                }
+                              ],
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -339,8 +330,17 @@
                                           ]
                                         },
                                         {
-                                          "kind": "FUNCTIONAL_BINDING_PATTERN",
+                                          "kind": "ERROR_BINDING_PATTERN",
                                           "children": [
+                                            {
+                                              "kind": "ERROR_KEYWORD",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
+                                            },
                                             {
                                               "kind": "SIMPLE_NAME_REFERENCE",
                                               "children": [
@@ -360,13 +360,8 @@
                                                   "kind": "CAPTURE_BINDING_PATTERN",
                                                   "children": [
                                                     {
-                                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                                      "children": [
-                                                        {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "a"
-                                                        }
-                                                      ]
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "a"
                                                     }
                                                   ]
                                                 },
@@ -383,13 +378,8 @@
                                                   "kind": "CAPTURE_BINDING_PATTERN",
                                                   "children": [
                                                     {
-                                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                                      "children": [
-                                                        {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "b"
-                                                        }
-                                                      ]
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "b"
                                                     }
                                                   ]
                                                 }
@@ -425,8 +415,8 @@
                                           "value": "d",
                                           "trailingMinutiae": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "END_OF_LINE_MINUTIAE",
+                                              "value": "\n"
                                             }
                                           ]
                                         }
@@ -438,6 +428,12 @@
                             },
                             {
                               "kind": "IN_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "        "
+                                }
+                              ],
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -540,7 +536,7 @@
                                           ]
                                         },
                                         {
-                                          "kind": "FUNCTIONAL_BINDING_PATTERN",
+                                          "kind": "ERROR_BINDING_PATTERN",
                                           "children": [
                                             {
                                               "kind": "ERROR_KEYWORD"
@@ -555,13 +551,8 @@
                                                   "kind": "CAPTURE_BINDING_PATTERN",
                                                   "children": [
                                                     {
-                                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                                      "children": [
-                                                        {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "a"
-                                                        }
-                                                      ]
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "a"
                                                     }
                                                   ]
                                                 },
@@ -578,13 +569,8 @@
                                                   "kind": "CAPTURE_BINDING_PATTERN",
                                                   "children": [
                                                     {
-                                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                                      "children": [
-                                                        {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "b"
-                                                        }
-                                                      ]
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "b"
                                                     }
                                                   ]
                                                 }
@@ -620,8 +606,8 @@
                                           "value": "d",
                                           "trailingMinutiae": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "END_OF_LINE_MINUTIAE",
+                                              "value": "\n"
                                             }
                                           ]
                                         }
@@ -633,6 +619,12 @@
                             },
                             {
                               "kind": "IN_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "        "
+                                }
+                              ],
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",

@@ -8,5 +8,5 @@ const annotation Foo;
 
 public const annotation Foo;
 
-@differentAnnot{}
+@differentAnnot {}
 annotation Foo;

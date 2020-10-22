@@ -24,7 +24,9 @@ import javassist.CtMethod;
 import org.ballerinalang.test.agent.server.WebServer;
 
 import java.io.PrintStream;
+import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
+import java.security.ProtectionDomain;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -75,6 +77,10 @@ public class BallerinaServerAgent {
     private static String agentHost = DEFAULT_AGENT_HOST;
     private static int agentPort = DEFAULT_AGENT_PORT;
 
+    public BallerinaServerAgent() {
+
+    }
+
     /**
      * This method will be called before invoking ballerina Main method.
      *
@@ -101,30 +107,35 @@ public class BallerinaServerAgent {
             throw new RuntimeException("Invalid agent port - " + agentPort);
         }
 
-        //TODO find a way to fail the process if this instrumentation is not successful
-        instrumentation.addTransformer((classLoader, s, aClass, protectionDomain, bytes) -> {
+        ClassFileTransformer transformer = new ClassFileTransformer() {
+            @Override
+            public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                    ProtectionDomain protectionDomain, byte[] classfileBuffer) {
+                if ("io/ballerina/runtime/scheduling/Scheduler".equals(className)) {
+                    try {
+                        ClassPool cp = ClassPool.getDefault();
+                        CtClass cc = cp.get("io.ballerina.runtime.scheduling.Scheduler");
+                        cc.addField(CtField.make("boolean agentStarted;", cc));
 
-            if ("org/ballerinalang/jvm/scheduling/Scheduler".equals(s)) {
-                try {
-                    ClassPool cp = ClassPool.getDefault();
-                    CtClass cc = cp.get("org.ballerinalang.jvm.scheduling.Scheduler");
-                    cc.addField(CtField.make("boolean agentStarted;", cc));
-
-                    CtMethod m = cc.getDeclaredMethod("start");
-                    m.insertBefore("if (!agentStarted && immortal) {" +
-                            "org.ballerinalang.test.agent.BallerinaServerAgent.startAgentServer();" +
-                            "agentStarted = true;" +
-                            " }");
-                    byte[] byteCode = cc.toBytecode();
-                    cc.detach();
-                    return byteCode;
-                } catch (Throwable ex) {
-                    outStream.println("Error injecting the start agent code to the server, error - "
-                            + ex.getMessage());
+                        CtMethod m = cc.getDeclaredMethod("start");
+                        m.insertBefore("if (!agentStarted && immortal) {" +
+                                "org.ballerinalang.test.agent.BallerinaServerAgent.startAgentServer();" +
+                                "agentStarted = true;" +
+                                " }");
+                        byte[] byteCode = cc.toBytecode();
+                        cc.detach();
+                        return byteCode;
+                    } catch (Throwable ex) {
+                        outStream.println("Error injecting the start agent code to the server, error - "
+                                + ex.getMessage());
+                    }
                 }
+                return new byte[]{};
             }
-            return new byte[]{};
-        });
+        };
+
+        //TODO find a way to fail the process if this instrumentation is not successful
+        instrumentation.addTransformer(transformer);
     }
 
     /**

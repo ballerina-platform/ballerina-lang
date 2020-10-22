@@ -3,13 +3,8 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -46,6 +41,10 @@
                 {
                   "kind": "FUNCTION_TYPE_DESC",
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "FUNCTION_KEYWORD"
                     },
@@ -100,6 +99,10 @@
                       "children": []
                     },
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "FUNCTION_KEYWORD",
                       "trailingMinutiae": [
                         {
@@ -122,8 +125,13 @@
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
-                                "kind": "IDENTIFIER_TOKEN",
-                                "value": "bar"
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
+                                  {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "bar"
+                                  }
+                                ]
                               }
                             }
                           ],
@@ -218,22 +226,23 @@
                                           "value": "baz",
                                           "leadingMinutiae": [
                                             {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "                                "
+                                            },
+                                            {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
-                                                "kind": "RETURNS_KEYWORD",
-                                                "leadingMinutiae": [
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
                                                   {
-                                                    "kind": "WHITESPACE_MINUTIAE",
-                                                    "value": "                                "
-                                                  }
-                                                ],
-                                                "trailingMinutiae": [
-                                                  {
-                                                    "kind": "WHITESPACE_MINUTIAE",
-                                                    "value": " "
+                                                    "kind": "RETURNS_KEYWORD"
                                                   }
                                                 ]
                                               }
+                                            },
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
                                             }
                                           ]
                                         }
@@ -352,6 +361,10 @@
                       "children": []
                     },
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "FUNCTION_KEYWORD"
                     },
                     {
@@ -449,10 +462,10 @@
                                   ]
                                 },
                                 {
-                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "kind": "NUMERIC_LITERAL",
                                   "children": [
                                     {
-                                      "kind": "DECIMAL_INTEGER_LITERAL",
+                                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                       "value": "3"
                                     }
                                   ]
@@ -526,10 +539,10 @@
                                   ]
                                 },
                                 {
-                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "kind": "NUMERIC_LITERAL",
                                   "children": [
                                     {
-                                      "kind": "DECIMAL_INTEGER_LITERAL",
+                                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                       "value": "4",
                                       "trailingMinutiae": [
                                         {
@@ -728,6 +741,10 @@
                       "children": []
                     },
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "FUNCTION_KEYWORD",
                       "trailingMinutiae": [
                         {
@@ -750,8 +767,13 @@
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
-                                "kind": "IDENTIFIER_TOKEN",
-                                "value": "bar"
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
+                                  {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "bar"
+                                  }
+                                ]
                               }
                             }
                           ]
@@ -794,17 +816,16 @@
                               ]
                             },
                             {
-                              "kind": "REQUIRED_PARAM",
+                              "kind": "COMMA_TOKEN",
+                              "isMissing": true,
                               "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_COMMA_TOKEN"
+                              ]
+                            },
+                            {
+                              "kind": "REQUIRED_PARAM",
                               "children": [
-                                {
-                                  "kind": "COMMA_TOKEN",
-                                  "isMissing": true,
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_MISSING_COMMA_TOKEN"
-                                  ]
-                                },
                                 {
                                   "kind": "LIST",
                                   "children": []
@@ -836,17 +857,16 @@
                               ]
                             },
                             {
-                              "kind": "REST_PARAM",
+                              "kind": "COMMA_TOKEN",
+                              "isMissing": true,
                               "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_COMMA_TOKEN"
+                              ]
+                            },
+                            {
+                              "kind": "REST_PARAM",
                               "children": [
-                                {
-                                  "kind": "COMMA_TOKEN",
-                                  "isMissing": true,
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_MISSING_COMMA_TOKEN"
-                                  ]
-                                },
                                 {
                                   "kind": "LIST",
                                   "children": []
@@ -912,6 +932,10 @@
                               "hasDiagnostics": true,
                               "children": [
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "FUNCTION_KEYWORD"
                                 },
                                 {
@@ -949,17 +973,16 @@
                                           ]
                                         },
                                         {
-                                          "kind": "REQUIRED_PARAM",
+                                          "kind": "COMMA_TOKEN",
+                                          "isMissing": true,
                                           "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_COMMA_TOKEN"
+                                          ]
+                                        },
+                                        {
+                                          "kind": "REQUIRED_PARAM",
                                           "children": [
-                                            {
-                                              "kind": "COMMA_TOKEN",
-                                              "isMissing": true,
-                                              "hasDiagnostics": true,
-                                              "diagnostics": [
-                                                "ERROR_MISSING_COMMA_TOKEN"
-                                              ]
-                                            },
                                             {
                                               "kind": "LIST",
                                               "children": []
@@ -1041,22 +1064,23 @@
                                           "value": "baz",
                                           "leadingMinutiae": [
                                             {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "            "
+                                            },
+                                            {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
-                                                "kind": "RETURNS_KEYWORD",
-                                                "leadingMinutiae": [
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
                                                   {
-                                                    "kind": "WHITESPACE_MINUTIAE",
-                                                    "value": "            "
-                                                  }
-                                                ],
-                                                "trailingMinutiae": [
-                                                  {
-                                                    "kind": "WHITESPACE_MINUTIAE",
-                                                    "value": " "
+                                                    "kind": "RETURNS_KEYWORD"
                                                   }
                                                 ]
                                               }
+                                            },
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
                                             }
                                           ]
                                         }

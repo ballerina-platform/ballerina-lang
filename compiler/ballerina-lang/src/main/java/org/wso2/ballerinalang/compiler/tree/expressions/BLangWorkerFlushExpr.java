@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.WorkerFlushExpressionNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -29,12 +30,13 @@ import java.util.List;
 
 /**
  * Implementation of {@link BLangWorkerFlushExpr}.
- * 
+ *
  * @since 0.985.0
  */
 public class BLangWorkerFlushExpr extends BLangExpression implements WorkerFlushExpressionNode {
 
     public BLangIdentifier workerIdentifier;
+    public BSymbol workerSymbol;
     public List<BLangIdentifier> workerIdentifierList = new ArrayList<>();
     public List<BLangWorkerSend> cachedWorkerSendStmts = new ArrayList<>();
 
@@ -60,4 +62,5 @@ public class BLangWorkerFlushExpr extends BLangExpression implements WorkerFlush
     public IdentifierNode getWorkerName() {
         return workerIdentifier;
     }
+
 }

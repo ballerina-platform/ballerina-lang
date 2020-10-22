@@ -21,22 +21,22 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.ballerinalang.compiler.internal.parser.BallerinaParser;
-import io.ballerinalang.compiler.internal.parser.ParserFactory;
-import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
-import io.ballerinalang.compiler.internal.parser.tree.STIdentifierToken;
-import io.ballerinalang.compiler.internal.parser.tree.STInvalidNodeMinutiae;
-import io.ballerinalang.compiler.internal.parser.tree.STMinutiae;
-import io.ballerinalang.compiler.internal.parser.tree.STNode;
-import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
-import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
-import io.ballerinalang.compiler.internal.parser.tree.STToken;
-import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.text.TextDocument;
-import io.ballerinalang.compiler.text.TextDocuments;
+import io.ballerina.compiler.internal.parser.BallerinaParser;
+import io.ballerina.compiler.internal.parser.ParserFactory;
+import io.ballerina.compiler.internal.parser.ParserRuleContext;
+import io.ballerina.compiler.internal.parser.tree.STIdentifierToken;
+import io.ballerina.compiler.internal.parser.tree.STInvalidNodeMinutiae;
+import io.ballerina.compiler.internal.parser.tree.STMinutiae;
+import io.ballerina.compiler.internal.parser.tree.STNode;
+import io.ballerina.compiler.internal.parser.tree.STNodeDiagnostic;
+import io.ballerina.compiler.internal.parser.tree.STNodeList;
+import io.ballerina.compiler.internal.parser.tree.STToken;
+import io.ballerina.compiler.internal.syntax.SyntaxUtils;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
 import org.testng.Assert;
 
 import java.io.BufferedWriter;
@@ -48,7 +48,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 
-import static io.ballerinalang.compiler.internal.syntax.SyntaxUtils.isSTNodePresent;
+import static io.ballerina.compiler.internal.syntax.SyntaxUtils.isSTNodePresent;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.CHILDREN_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.DIAGNOSTICS_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.HAS_DIAGNOSTICS;
@@ -293,14 +293,6 @@ public class ParserTestUtils {
     }
 
     private static void assertNonTerminalNode(JsonObject json, STNode tree) {
-        // TODO This is an error in the syntax tree structure
-        // Here we get a MissingToken, but we should get a non-terminal node instead.
-        // This case is reported in this issue, https://github.com/ballerina-platform/ballerina-lang/issues/23902
-        // TODO Remove the following if condition once the above issue is fixed.
-        if (tree.isMissing()) {
-            return;
-        }
-
         JsonArray children = json.getAsJsonArray(CHILDREN_FIELD);
         int size = children.size();
         int j = 0;
@@ -356,18 +348,19 @@ public class ParserTestUtils {
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
                 return ((STIdentifierToken) token).text;
-            case STRING_LITERAL:
+            case STRING_LITERAL_TOKEN:
                 String val = token.text();
                 int stringLen = val.length();
                 int lastCharPosition = val.endsWith("\"") ? stringLen - 1 : stringLen;
                 return val.substring(1, lastCharPosition);
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
+            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
+            case HEX_FLOATING_POINT_LITERAL_TOKEN:
             case PARAMETER_NAME:
             case BACKTICK_CONTENT:
             case DEPRECATION_LITERAL:
+            case INVALID_TOKEN:
                 return token.text();
             case XML_TEXT:
             case XML_TEXT_CONTENT:
@@ -453,6 +446,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ANNOTATION_DECLARATION;
             case "ENUM_DECLARATION":
                 return SyntaxKind.ENUM_DECLARATION;
+            case "CLASS_DEFINITION":
+                return SyntaxKind.CLASS_DEFINITION;
 
             // Keywords
             case "PUBLIC_KEYWORD":
@@ -629,6 +624,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ROLLBACK_KEYWORD;
             case "TRANSACTIONAL_KEYWORD":
                 return SyntaxKind.TRANSACTIONAL_KEYWORD;
+            case "ISOLATED_KEYWORD":
+                return SyntaxKind.ISOLATED_KEYWORD;
             case "ENUM_KEYWORD":
                 return SyntaxKind.ENUM_KEYWORD;
             case "BASE16_KEYWORD":
@@ -637,6 +634,18 @@ public class ParserTestUtils {
                 return SyntaxKind.BASE64_KEYWORD;
             case "MATCH_KEYWORD":
                 return SyntaxKind.MATCH_KEYWORD;
+            case "CLASS_KEYWORD":
+                return SyntaxKind.CLASS_KEYWORD;
+            case "CONFLICT_KEYWORD":
+                return SyntaxKind.CONFLICT_KEYWORD;
+            case "LIMIT_KEYWORD":
+                return SyntaxKind.LIMIT_KEYWORD;
+            case "JOIN_KEYWORD":
+                return SyntaxKind.JOIN_KEYWORD;
+            case "EQUALS_KEYWORD":
+                return SyntaxKind.EQUALS_KEYWORD;
+            case "OUTER_KEYWORD":
+                return SyntaxKind.OUTER_KEYWORD;
 
             // Documentation reference
             case "TYPE_DOC_REFERENCE_TOKEN":
@@ -781,14 +790,22 @@ public class ParserTestUtils {
                 return SyntaxKind.BINARY_EXPRESSION;
             case "STRING_LITERAL":
                 return SyntaxKind.STRING_LITERAL;
-            case "DECIMAL_INTEGER_LITERAL":
-                return SyntaxKind.DECIMAL_INTEGER_LITERAL;
-            case "HEX_INTEGER_LITERAL":
-                return SyntaxKind.HEX_INTEGER_LITERAL;
-            case "DECIMAL_FLOATING_POINT_LITERAL":
-                return SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL;
-            case "HEX_FLOATING_POINT_LITERAL":
-                return SyntaxKind.HEX_FLOATING_POINT_LITERAL;
+            case "STRING_LITERAL_TOKEN":
+                return SyntaxKind.STRING_LITERAL_TOKEN;
+            case "NUMERIC_LITERAL":
+                return SyntaxKind.NUMERIC_LITERAL;
+            case "BOOLEAN_LITERAL":
+                return SyntaxKind.BOOLEAN_LITERAL;
+            case "DECIMAL_INTEGER_LITERAL_TOKEN":
+                return SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN;
+            case "HEX_INTEGER_LITERAL_TOKEN":
+                return SyntaxKind.HEX_INTEGER_LITERAL_TOKEN;
+            case "DECIMAL_FLOATING_POINT_LITERAL_TOKEN":
+                return SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN;
+            case "HEX_FLOATING_POINT_LITERAL_TOKEN":
+                return SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN;
+            case "ASTERISK_LITERAL":
+                return SyntaxKind.ASTERISK_LITERAL;
             case "FUNCTION_CALL":
                 return SyntaxKind.FUNCTION_CALL;
             case "POSITIONAL_ARG":
@@ -807,8 +824,6 @@ public class ParserTestUtils {
                 return SyntaxKind.INDEXED_EXPRESSION;
             case "CHECK_EXPRESSION":
                 return SyntaxKind.CHECK_EXPRESSION;
-            case "FAIL_EXPRESSION":
-                return SyntaxKind.FAIL_EXPRESSION;
             case "MAPPING_CONSTRUCTOR":
                 return SyntaxKind.MAPPING_CONSTRUCTOR;
             case "TYPEOF_EXPRESSION":
@@ -819,6 +834,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPE_TEST_EXPRESSION;
             case "NIL_LITERAL":
                 return SyntaxKind.NIL_LITERAL;
+            case "NULL_LITERAL":
+                return SyntaxKind.NULL_LITERAL;
             case "SIMPLE_NAME_REFERENCE":
                 return SyntaxKind.SIMPLE_NAME_REFERENCE;
             case "TRAP_EXPRESSION":
@@ -875,8 +892,6 @@ public class ParserTestUtils {
                 return SyntaxKind.BRACED_ACTION;
             case "CHECK_ACTION":
                 return SyntaxKind.CHECK_ACTION;
-            case "FAIL_ACTION":
-                return SyntaxKind.FAIL_ACTION;
             case "START_ACTION":
                 return SyntaxKind.START_ACTION;
             case "TRAP_ACTION":
@@ -909,6 +924,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ELSE_BLOCK;
             case "WHILE_STATEMENT":
                 return SyntaxKind.WHILE_STATEMENT;
+            case "DO_STATEMENT":
+                return SyntaxKind.DO_STATEMENT;
             case "CALL_STATEMENT":
                 return SyntaxKind.CALL_STATEMENT;
             case "PANIC_STATEMENT":
@@ -917,6 +934,8 @@ public class ParserTestUtils {
                 return SyntaxKind.CONTINUE_STATEMENT;
             case "BREAK_STATEMENT":
                 return SyntaxKind.BREAK_STATEMENT;
+            case "FAIL_STATEMENT":
+                return SyntaxKind.FAIL_STATEMENT;
             case "RETURN_STATEMENT":
                 return SyntaxKind.RETURN_STATEMENT;
             case "COMPOUND_ASSIGNMENT_STATEMENT":
@@ -979,6 +998,8 @@ public class ParserTestUtils {
                 return SyntaxKind.RECORD_TYPE_DESC;
             case "OBJECT_TYPE_DESC":
                 return SyntaxKind.OBJECT_TYPE_DESC;
+            case "OBJECT_CONSTRUCTOR":
+                return SyntaxKind.OBJECT_CONSTRUCTOR;
             case "UNION_TYPE_DESC":
                 return SyntaxKind.UNION_TYPE_DESC;
             case "ERROR_TYPE_DESC":
@@ -1043,8 +1064,6 @@ public class ParserTestUtils {
                 return SyntaxKind.SUB_MODULE_NAME;
             case "IMPORT_VERSION":
                 return SyntaxKind.IMPORT_VERSION;
-            case "IMPORT_SUB_VERSION":
-                return SyntaxKind.IMPORT_SUB_VERSION;
             case "IMPORT_PREFIX":
                 return SyntaxKind.IMPORT_PREFIX;
             case "SPECIFIC_FIELD":
@@ -1055,8 +1074,6 @@ public class ParserTestUtils {
                 return SyntaxKind.SPREAD_FIELD;
             case "SERVICE_BODY":
                 return SyntaxKind.SERVICE_BODY;
-            case "EXPRESSION_LIST_ITEM":
-                return SyntaxKind.EXPRESSION_LIST_ITEM;
             case "ARRAY_DIMENSION":
                 return SyntaxKind.ARRAY_DIMENSION;
             case "METADATA":
@@ -1093,6 +1110,8 @@ public class ParserTestUtils {
                 return SyntaxKind.WHERE_CLAUSE;
             case "LET_CLAUSE":
                 return SyntaxKind.LET_CLAUSE;
+            case "ON_FAIL_CLAUSE":
+                return SyntaxKind.ON_FAIL_CLAUSE;
             case "QUERY_PIPELINE":
                 return SyntaxKind.QUERY_PIPELINE;
             case "SELECT_CLAUSE":
@@ -1121,8 +1140,8 @@ public class ParserTestUtils {
                 return SyntaxKind.FIELD_BINDING_PATTERN;
             case "MAPPING_BINDING_PATTERN":
                 return SyntaxKind.MAPPING_BINDING_PATTERN;
-            case "FUNCTIONAL_BINDING_PATTERN":
-                return SyntaxKind.FUNCTIONAL_BINDING_PATTERN;
+            case "ERROR_BINDING_PATTERN":
+                return SyntaxKind.ERROR_BINDING_PATTERN;
             case "NAMED_ARG_BINDING_PATTERN":
                 return SyntaxKind.NAMED_ARG_BINDING_PATTERN;
             case "TYPE_PARAMETER":
@@ -1155,10 +1174,18 @@ public class ParserTestUtils {
                 return SyntaxKind.MAPPING_MATCH_PATTERN;
             case "FIELD_MATCH_PATTERN":
                 return SyntaxKind.FIELD_MATCH_PATTERN;
-            case "FUNCTIONAL_MATCH_PATTERN":
-                return SyntaxKind.FUNCTIONAL_MATCH_PATTERN;
+            case "ERROR_MATCH_PATTERN":
+                return SyntaxKind.ERROR_MATCH_PATTERN;
             case "NAMED_ARG_MATCH_PATTERN":
                 return SyntaxKind.NAMED_ARG_MATCH_PATTERN;
+            case "ON_CONFLICT_CLAUSE":
+                return SyntaxKind.ON_CONFLICT_CLAUSE;
+            case "LIMIT_CLAUSE":
+                return SyntaxKind.LIMIT_CLAUSE;
+            case "JOIN_CLAUSE":
+                return SyntaxKind.JOIN_CLAUSE;
+            case "ON_CLAUSE":
+                return SyntaxKind.ON_CLAUSE;
 
             // XML template
             case "XML_ELEMENT":
@@ -1241,6 +1268,8 @@ public class ParserTestUtils {
             // Invalid Token
             case "INVALID_TOKEN":
                 return SyntaxKind.INVALID_TOKEN;
+            case "INVALID_TOKEN_MINUTIAE_NODE":
+                return SyntaxKind.INVALID_TOKEN_MINUTIAE_NODE;
 
             // Unsupported
             default:

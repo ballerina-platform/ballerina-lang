@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.functions;
 
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -43,7 +43,7 @@ public class ExprBodiedFunctionTest {
         compileResult = BCompileUtil.compile("test-src/functions/expr_bodied_functions.bal");
     }
 
-    @Test(groups = { "disableOnOldParser", "brokenOnNewParser" })
+    @Test(groups = { "disableOnOldParser" })
     public void testSyntaxErrors() {
         CompileResult result = BCompileUtil.compile("test-src/functions/expr_bodied_functions_negative.bal");
         int index = 0;
@@ -54,15 +54,18 @@ public class ExprBodiedFunctionTest {
         validateError(result, index++, "invalid token 'return'", 19, 12);
         validateError(result, index++, "missing close bracket token", 19, 17);
         validateError(result, index++, "missing colon token", 19, 17);
-        validateError(result, index++, "invalid token ';'", 23, 1);
-        validateError(result, index++, "invalid token '}'", 23, 1);
-        validateError(result, index++, "invalid token 'add'", 23, 13);
+        validateError(result, index++, "missing identifier", 19, 17);
+        validateError(result, index++, "missing object keyword", 19, 17);
+        validateError(result, index++, "missing open brace token", 19, 17);
+        validateError(result, index++, "invalid token ';'", 20, 1);
+        validateError(result, index++, "missing close brace token", 21, 1);
+        validateError(result, index++, "missing semicolon token", 21, 1);
+
         validateError(result, index++,
                 "incompatible types: expected 'int', found 'function (int,int) returns (int)'", 26, 1);
         validateError(result, index++, "invalid token 'external'", 26, 1);
         validateError(result, index++, "invalid token 'sum'", 26, 13);
         validateError(result, index++, "incompatible types: expected 'int', found 'typedesc<int>'", 26, 43);
-        validateError(result, index++, "missing close brace token", 26, 47);
         validateError(result, index++, "missing semicolon token", 26, 47);
         validateError(result, index++, "unknown type 'x'", 26, 47);
         validateError(result, index++, "missing identifier", 26, 49);
@@ -91,7 +94,7 @@ public class ExprBodiedFunctionTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*NumberParsingError message='string' value " +
+          expectedExceptionsMessageRegExp = ".*NumberParsingError \\{\"message\":\"'string' value " +
                   "'invalid' cannot be converted to 'int'.*")
     public void testCheckPanic() {
         BRunUtil.invoke(compileResult, "testCheckPanic");

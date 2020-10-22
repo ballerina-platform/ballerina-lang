@@ -18,32 +18,25 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * Extern function to get key arrays from the map.
  * ballerina.model.map:keys()
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION,
-        functionName = "keys",
-        args = {@Argument(name = "m", type = TypeKind.MAP)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.map",
+//        functionName = "keys",
+//        args = {@Argument(name = "m", type = TypeKind.MAP)},
+//        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
+//        isPublic = true
+//)
 public class GetKeys {
 
-    public static ArrayValue keys(Strand strand, MapValue<?, ?> m) {
-        return new ArrayValueImpl((BString[]) m.getKeys());
+    public static BArray keys(BMap<?, ?> m) {
+        return ValueCreator.createArrayValue((BString[]) m.getKeys());
     }
 }

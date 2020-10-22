@@ -14,9 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 xmlns "http://sample.com/wso2/a1" as ns;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
+
+final boolean serviceEPAvailable = false;
+final string LOCK_STORE = "lockStore";
 
 int name = 10;
 
@@ -25,14 +30,14 @@ type Person record {
     int age = 20;
 };
 
-type Employee object {
+class Employee {
     string name = "Employee";
 
     function getName() returns string {
         string name = "Name in object";
         return name;
     }
-};
+}
 
 function testLocalVarScope() returns string {
     string name = "John Doe";
@@ -167,13 +172,13 @@ type Person1 record {
     int id = 0;
 };
 
-type Student object {
+class Student {
     string Student = "Smith";
 
     public function getName() returns string {
          return self.Student;
     }
-};
+}
 
 function testTypeNameAsVariable5() {
     Student s = new;
@@ -183,4 +188,9 @@ function testTypeNameAsVariable5() {
     }
     var t = typeof name;
     panic error(ASSERTION_ERROR_REASON, message = "expected 'string', found '" + t.toString() + "'");
+}
+
+function testGeneratedNames() {
+    test:assertFalse(serviceEPAvailable);
+    test:assertEquals(LOCK_STORE, "lockStore");
 }

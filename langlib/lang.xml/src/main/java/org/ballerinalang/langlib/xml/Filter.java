@@ -18,24 +18,20 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BXML;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.scheduling.AsyncUtils;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.XML_LANG_LIB;
 import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
@@ -43,45 +39,47 @@ import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION, functionName = "filter",
-        args = {
-                @Argument(name = "x", type = TypeKind.XML),
-                @Argument(name = "func", type = TypeKind.FUNCTION)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml", functionName = "filter",
+//        args = {
+//                @Argument(name = "x", type = TypeKind.XML),
+//                @Argument(name = "func", type = TypeKind.FUNCTION)},
+//        returnType = {@ReturnType(type = TypeKind.XML)},
+//        isPublic = true
+//)
 public class Filter {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
                                                                       XML_VERSION, "filter");
 
-    public static XMLValue filter(Strand strand, XMLValue x, FPValue<Object, Boolean> func) {
+    public static BXML filter(BXML x, BFunctionPointer<Object, Boolean> func) {
         if (x.isSingleton()) {
-            Object[] args = new Object[]{strand, x, true};
+            Object[] args = new Object[]{Scheduler.getStrand(), x, true};
             func.asyncCall(args,
                       result -> {
                           if ((Boolean) result) {
-                              return new XMLSequence(x);
+                              return ValueCreator.createXMLSequence(x);
                           }
-                          return new XMLSequence();
+                          return ValueCreator.createXMLSequence();
                       }, METADATA);
-            return new XMLSequence();
+            return ValueCreator.createXMLSequence();
         }
 
         List<BXML> elements = new ArrayList<>();
         int size = x.size();
         AtomicInteger index = new AtomicInteger(-1);
-        BRuntime.getCurrentRuntime()
+        Strand parentStrand = Scheduler.getStrand();
+        AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{strand,
+                                                       () -> new Object[]{parentStrand,
                                                                x.getItem(index.incrementAndGet()), true},
                                                        result -> {
                                                            if ((Boolean) result) {
                                                                elements.add(x.getItem(index.get()));
                                                            }
-                                                       }, () -> new XMLSequence(elements));
+                                                       }, () -> ValueCreator.createXMLSequence(elements),
+                                                       Scheduler.getStrand().scheduler);
 
-        return new XMLSequence(elements);
+        return ValueCreator.createXMLSequence(elements);
     }
 }

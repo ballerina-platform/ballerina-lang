@@ -12,15 +12,6 @@
           "kind": "TYPE_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "PUBLIC_KEYWORD",
               "trailingMinutiae": [
                 {
@@ -162,31 +153,7 @@
                         },
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "name",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "EQUAL_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "STRING_LITERAL",
-                          "children": [
-                            {
-                              "kind": "STRING_LITERAL",
-                              "value": "Saman"
-                            }
-                          ]
+                          "value": "name"
                         },
                         {
                           "kind": "SEMICOLON_TOKEN",
@@ -285,31 +252,7 @@
                         },
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "age",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "EQUAL_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
-                          "children": [
-                            {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
-                              "value": "15"
-                            }
-                          ]
+                          "value": "age"
                         },
                         {
                           "kind": "SEMICOLON_TOKEN",

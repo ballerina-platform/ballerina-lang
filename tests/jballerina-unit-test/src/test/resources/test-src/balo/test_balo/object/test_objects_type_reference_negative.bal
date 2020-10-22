@@ -16,7 +16,7 @@
 
 import testorg/foo;
 
-type Manager1 object {
+class Manager1 {
     string dpt = "HR";
 
     *foo:Employee1;
@@ -30,14 +30,14 @@ type Manager1 object {
     public function getBonus(float ratio, int months=6) returns float {
         return self.salary*ratio*months;
     }
-};
+}
 
-type Manager2 object {
+class Manager2 {
     string dpt = "HR";
 
     *foo:Manager1;  // Referring a non-abstract object in a BALO
-};
+}
 
-type NamedPerson object {
+class NamedPerson {
     *foo:NormalPerson;
-};
+}

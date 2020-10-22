@@ -1,0 +1,27 @@
+{
+  "position": {
+    "line": 3,
+    "character": 35
+  },
+  "source": "expression_context/source/field_access_ctx_source3.bal",
+  "items": [
+    {
+      "label": "rec1Field1",
+      "detail": "int",
+      "insertText": "rec1Field1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rec1Field2",
+      "detail": "string",
+      "insertText": "rec1Field2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "optionalInt",
+      "detail": "int",
+      "insertText": "optionalInt",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

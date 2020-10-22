@@ -44,17 +44,17 @@ public class BStringToStringTest extends BStringTestCommons {
 
     @Test
     public void testMapToString() {
-        testAndAssert("testMapToString", 63);
+        testAndAssert("testMapToString", 81);
     }
 
     @Test
     public void testMapToStringWithSymbol() {
-        testAndAssert("testMapToStringWithSymbol", 66);
+        testAndAssert("testMapToStringWithSymbol", 84);
     }
 
     @Test
     public void testArrayToString() {
-        testAndAssert("testArrayToString", 14);
+        testAndAssert("testArrayToString", 22);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class BStringToStringTest extends BStringTestCommons {
 
     @Test
     public void testJsonToString() {
-        testAndAssert("testJsonToString", 12);
+        testAndAssert("testJsonToString", 18);
     }
 
     @Test
@@ -74,6 +74,6 @@ public class BStringToStringTest extends BStringTestCommons {
 
     @Test
     public void testArrayValueToString() {
-        testAndAssert("testArrayValueToString", 22);
+        testAndAssert("testArrayValueToString", 30);
     }
 }

@@ -18,10 +18,11 @@
 
 package org.ballerinalang.cli.module;
 
-import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.JSONParser;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.values.ArrayValue;
+import io.ballerina.runtime.values.MapValue;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -56,7 +57,7 @@ public class SearchTest {
                 .get("src", "test", "resources", "test-resources", "search", "search-results.json");
         MapValue arr = (MapValue) JSONParser
                 .parse(new String(Files.readAllBytes(searchResultsFilePath), StandardCharsets.UTF_8));
-        ArrayValue modules = arr.getArrayValue(StringUtils.fromString("modules"));
+        BArray modules = arr.getArrayValue(StringUtils.fromString("modules"));
         return new Object[][] {
                 { modules, "100", "search-output-100.txt" },
                 { modules, "150", "search-output-150.txt" },

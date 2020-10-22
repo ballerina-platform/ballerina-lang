@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/math;
+import ballerina/lang.'float;
 import ballerina/runtime;
 
 # Derived set of configurations from the `RetryConfig`.
@@ -40,7 +40,7 @@ public type RetryInferredConfig record {|
 # + retryInferredConfig - Derived set of configurations associated with retry
 # + httpClient - Chain of different HTTP clients which provides the capability for initiating contact with a remote
 #                HTTP service in resilient manner.
-public type RetryClient client object {
+public client class RetryClient {
 
     public string url;
     public ClientConfiguration config;
@@ -85,7 +85,7 @@ public type RetryClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
-    public remote function head(string path, public RequestMessage message = ()) returns @tainted Response|ClientError {
+    public remote function head(string path, RequestMessage message = ()) returns @tainted Response|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_HEAD, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -167,7 +167,7 @@ public type RetryClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel`, or `mime:Entity[]`
     # + return - An `http:Response` message, or else an `http:ClientError` if the invocation fails
-    public remote function delete(string path, public RequestMessage message = ()) returns
+    public remote function delete(string path, RequestMessage message = ()) returns
             @tainted Response|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_DELETE, self);
         if (result is HttpFuture) {
@@ -184,7 +184,7 @@ public type RetryClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel`, or `mime:Entity[]`
     # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
-    public remote function get(string path, public RequestMessage message = ()) returns @tainted Response|ClientError {
+    public remote function get(string path, RequestMessage message = ()) returns @tainted Response|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_GET, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -200,7 +200,7 @@ public type RetryClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel`, or `mime:Entity[]`
     # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
-    public remote function options(string path, public RequestMessage message = ()) returns
+    public remote function options(string path, RequestMessage message = ()) returns
             @tainted Response|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_OPTIONS, self);
         if (result is HttpFuture) {
@@ -269,7 +269,7 @@ public type RetryClient client object {
     public remote function rejectPromise(PushPromise promise) {
         return self.httpClient->rejectPromise(promise);
     }
-};
+}
 
 
 // Performs execute remote function of the retry client. extract the corresponding http integer value representation
@@ -347,7 +347,7 @@ function initializeBackOffFactorAndMaxWaitInterval(RetryClient retryClient) {
 }
 
 function getWaitTime(float backOffFactor, int maxWaitTime, int interval) returns int {
-    int waitTime = math:round(interval * backOffFactor);
+    int waitTime = <int>'float:round(interval * backOffFactor);
     waitTime = waitTime > maxWaitTime ? maxWaitTime : waitTime;
     return waitTime;
 }

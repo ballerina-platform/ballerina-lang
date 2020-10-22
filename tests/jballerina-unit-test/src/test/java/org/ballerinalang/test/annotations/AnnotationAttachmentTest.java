@@ -23,8 +23,10 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -62,7 +64,8 @@ public class AnnotationAttachmentTest {
     @Test
     public void testAnnotOnObjectType() {
         List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
-                compileResult.getAST().getTypeDefinitions().get(3).getAnnotationAttachments();
+                ((BLangClassDefinition) ((BLangPackage) compileResult.getAST()).topLevelNodes.get(17))
+                        .getAnnotationAttachments();
         Assert.assertEquals(attachments.size(), 2);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v1", "val", "v1 value object");
         assertAnnotationNameAndKeyValuePair(attachments.get(1), "v2", "val", "v2 value");
@@ -145,7 +148,7 @@ public class AnnotationAttachmentTest {
 
     @Test
     public void testAnnotOnResourceOne() {
-        BLangFunction function = getFunction("ser$$service$0.res");
+        BLangFunction function = getFunction("ser$$service$_0.res");
         List<BLangAnnotationAttachment> attachments = function.annAttachments;
         Assert.assertEquals(attachments.size(), 2);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v3", "val", "v34");
@@ -166,7 +169,7 @@ public class AnnotationAttachmentTest {
     public void testAnnotOnServiceTwo() {
         List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
                 compileResult.getAST().getServices().stream()
-                        .filter(serviceNode -> serviceNode.getName().getValue().equals("$anonService$1"))
+                        .filter(serviceNode -> serviceNode.getName().getValue().equals("$anonService$_1"))
                         .findFirst()
                         .get().getAnnotationAttachments();
         Assert.assertEquals(attachments.size(), 1);
@@ -175,7 +178,7 @@ public class AnnotationAttachmentTest {
 
     @Test
     public void testAnnotOnResourceTwo() {
-        BLangFunction function = getFunction("$anonService$1$$service$2.res");
+        BLangFunction function = getFunction("$anonService$_1$$service$_2.res");
         List<BLangAnnotationAttachment> attachments = function.annAttachments;
         Assert.assertEquals(attachments.size(), 1);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v5", "val", "542");
@@ -289,7 +292,7 @@ public class AnnotationAttachmentTest {
         CompileResult result = BCompileUtil.compile("test-src/annotations/annots_with_list_consts.bal");
         List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
                 result.getAST().getServices().stream()
-                        .filter(serviceNode -> serviceNode.getName().getValue().equals("$anonService$0"))
+                        .filter(serviceNode -> serviceNode.getName().getValue().equals("$anonService$_0"))
                         .findFirst()
                         .get().getAnnotationAttachments();
         Assert.assertEquals(attachments.size(), 1);

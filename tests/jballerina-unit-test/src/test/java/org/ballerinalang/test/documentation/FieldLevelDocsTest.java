@@ -19,9 +19,9 @@
 package org.ballerinalang.test.documentation;
 
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
+import org.ballerinalang.docgen.generator.model.BClass;
 import org.ballerinalang.docgen.generator.model.DefaultableVariable;
 import org.ballerinalang.docgen.generator.model.Module;
-import org.ballerinalang.docgen.generator.model.Object;
 import org.ballerinalang.docgen.generator.model.Project;
 import org.ballerinalang.docgen.generator.model.Record;
 import org.ballerinalang.docgen.model.ModuleDoc;
@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Test class to check record/object field-level documentation in docerina.
+ * Test class to check record/bClass field-level documentation in docerina.
  */
 public class FieldLevelDocsTest {
 
@@ -52,12 +52,12 @@ public class FieldLevelDocsTest {
     private Record personRecord;
     // record with both module-level & field-level documentation
     private Record apartmentRecord;
-    // Object with module-level documentation
-    private Object studentObj;
-    // Object with field-level documentation
-    private Object teacherObj;
-    // object with both module-level & field-level documentation
-    private Object employeeObj;
+    // BClass with module-level documentation
+    private BClass studentCls;
+    // BClass with field-level documentation
+    private BClass teacherCls;
+    // bClass with both module-level & field-level documentation
+    private BClass employeeCls;
 
     private static final String PARAGRAPH_OPEN_TAG = "<p>";
     private static final String PARAGRAPH_CLOSE_TAG = "</p>";
@@ -92,15 +92,15 @@ public class FieldLevelDocsTest {
             }
         }
 
-        for (Object obj : testModule.objects) {
-            String objName = obj.name;
+        for (BClass cls : testModule.classes) {
+            String objName = cls.name;
 
             if ("Student".equals(objName)) {
-                studentObj = obj;
+                studentCls = cls;
             } else if ("Teacher".equals(objName)) {
-                teacherObj = obj;
+                teacherCls = cls;
             } else if ("Employee".equals(objName)) {
-                employeeObj = obj;
+                employeeCls = cls;
             }
         }
     }
@@ -181,12 +181,12 @@ public class FieldLevelDocsTest {
         testDescription(countryCodeField, formatHtmlDescription("apartment country-code"));
     }
 
-    @Test(description = "Test object with module-level field docs")
+    @Test(description = "Test bClass with module-level field docs")
     public void testObjectWithModuleLevelFieldDocs() {
         DefaultableVariable nameField = null;
         DefaultableVariable ageField = null;
 
-        List<DefaultableVariable> fields = studentObj.fields;
+        List<DefaultableVariable> fields = studentCls.fields;
 
         for (DefaultableVariable field : fields) {
             String fieldName = field.name;
@@ -202,12 +202,12 @@ public class FieldLevelDocsTest {
         testDescription(ageField, formatHtmlDescription("student age"));
     }
 
-    @Test(description = "Test object with field-level field docs")
+    @Test(description = "Test bClass with field-level field docs")
     public void testObjectWithFieldLevelFieldDocs() {
         DefaultableVariable nameField = null;
         DefaultableVariable ageField = null;
 
-        List<DefaultableVariable> fields = teacherObj.fields;
+        List<DefaultableVariable> fields = teacherCls.fields;
 
         for (DefaultableVariable field : fields) {
             String fieldName = field.name;
@@ -223,12 +223,12 @@ public class FieldLevelDocsTest {
         testDescription(ageField, formatHtmlDescription("Teacher age"));
     }
 
-    @Test(description = "Test object with both module-level & field-level field docs. field-level is the priority")
+    @Test(description = "Test bClass with both module-level & field-level field docs. field-level is the priority")
     public void testObjWithModuleLevelAndFieldLevelFieldDocs() {
         DefaultableVariable empNoField = null;
         DefaultableVariable ageField = null;
 
-        List<DefaultableVariable> fields = employeeObj.fields;
+        List<DefaultableVariable> fields = employeeCls.fields;
 
         for (DefaultableVariable field : fields) {
             String fieldName = field.name;
@@ -244,9 +244,9 @@ public class FieldLevelDocsTest {
         testDescription(ageField, formatHtmlDescription("funny age"));
     }
 
-    @Test(description = "Test documentation of objects with markdown styles")
+    @Test(description = "Test documentation of bClasses with markdown styles")
     public void testObjectDocsWithMarkdownStyles() {
-        Assert.assertEquals(teacherObj.description.trim(),
+        Assert.assertEquals(teacherCls.description.trim(),
                 "<p><code>Teacher</code> object in <em>school</em> located in <strong>New York</strong>\n"
                         + "<code>Senior</code> teacher of the school</p>");
     }

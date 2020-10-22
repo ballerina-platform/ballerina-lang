@@ -18,17 +18,17 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.BalFuture;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Strand;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_ID;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_ID;
 import static org.ballerinalang.net.http.HttpConstants.STRUCT_GENERIC_ERROR;
 
 /**
@@ -37,44 +37,42 @@ import static org.ballerinalang.net.http.HttpConstants.STRUCT_GENERIC_ERROR;
 public class DataContext {
     private Strand strand;
     private HttpClientConnector clientConnector;
-    private ObjectValue requestObj;
-    private NonBlockingCallback callback;
+    private BObject requestObj;
+    private BalFuture future;
     private HttpCarbonMessage correlatedMessage;
 
-    public DataContext(Strand strand, HttpClientConnector clientConnector, NonBlockingCallback callback,
-                       ObjectValue requestObj, HttpCarbonMessage outboundRequestMsg) {
+    public DataContext(Strand strand, HttpClientConnector clientConnector, BalFuture future,
+                       BObject requestObj, HttpCarbonMessage outboundRequestMsg) {
         this.strand = strand;
-        this.callback = callback;
+        this.future = future;
         this.clientConnector = clientConnector;
         this.requestObj = requestObj;
         this.correlatedMessage = outboundRequestMsg;
     }
 
-    public DataContext(Strand strand, NonBlockingCallback callback, HttpCarbonMessage inboundRequestMsg) {
+    public DataContext(Strand strand, BalFuture future, HttpCarbonMessage inboundRequestMsg) {
         this.strand = strand;
-        this.callback = callback;
+        this.future = future;
         this.clientConnector = null;
         this.requestObj = null;
         this.correlatedMessage = inboundRequestMsg;
     }
 
-    public void notifyInboundResponseStatus(ObjectValue inboundResponse, ErrorValue httpConnectorError) {
+    public void notifyInboundResponseStatus(BObject inboundResponse, BError httpConnectorError) {
         //Make the request associate with this response consumable again so that it can be reused.
         if (inboundResponse != null) {
-            getCallback().setReturnValues(inboundResponse);
+            getFuture().complete(inboundResponse);
         } else if (httpConnectorError != null) {
-            getCallback().setReturnValues(httpConnectorError);
+            getFuture().complete(httpConnectorError);
         } else {
-            MapValue<BString, Object> err = BallerinaValues.createRecordValue(BALLERINA_BUILTIN_PKG_ID,
-                                                                              STRUCT_GENERIC_ERROR);
-            getCallback().setReturnValues(err);
+            BMap<BString, Object> err = BValueCreator.createRecordValue(BALLERINA_BUILTIN_PKG_ID,
+                                                                        STRUCT_GENERIC_ERROR);
+            getFuture().complete(err);
         }
-        getCallback().notifySuccess();
     }
 
-    public void notifyOutboundResponseStatus(ErrorValue httpConnectorError) {
-        getCallback().setReturnValues(httpConnectorError);
-        getCallback().notifySuccess();
+    public void notifyOutboundResponseStatus(BError httpConnectorError) {
+        getFuture().complete(httpConnectorError);
     }
 
     public HttpCarbonMessage getOutboundRequest() {
@@ -85,7 +83,7 @@ public class DataContext {
         return clientConnector;
     }
 
-    public ObjectValue getRequestObj() {
+    public BObject getRequestObj() {
         return requestObj;
     }
 
@@ -93,7 +91,7 @@ public class DataContext {
         return strand;
     }
 
-    public NonBlockingCallback getCallback() {
-        return callback;
+    public BalFuture getFuture() {
+        return future;
     }
 }

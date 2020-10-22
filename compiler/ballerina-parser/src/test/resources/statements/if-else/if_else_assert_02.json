@@ -2,20 +2,16 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
+      "kind": "LIST",
       "children": [
         {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "PUBLIC_KEYWORD",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "PUBLIC_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -131,10 +127,6 @@
                     {
                       "kind": "CLOSE_BRACE_TOKEN",
                       "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        },
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
                           "value": "\n"
@@ -271,10 +263,6 @@
                                           "kind": "CLOSE_BRACE_TOKEN",
                                           "leadingMinutiae": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
-                                            },
-                                            {
                                               "kind": "END_OF_LINE_MINUTIAE",
                                               "value": "\n"
                                             },
@@ -350,10 +338,6 @@
                                                 {
                                                   "kind": "CLOSE_BRACE_TOKEN",
                                                   "leadingMinutiae": [
-                                                    {
-                                                      "kind": "WHITESPACE_MINUTIAE",
-                                                      "value": "        "
-                                                    },
                                                     {
                                                       "kind": "END_OF_LINE_MINUTIAE",
                                                       "value": "\n"
@@ -467,10 +451,6 @@
                                       "kind": "CLOSE_BRACE_TOKEN",
                                       "leadingMinutiae": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "    "
-                                        },
-                                        {
                                           "kind": "END_OF_LINE_MINUTIAE",
                                           "value": "\n"
                                         },
@@ -519,10 +499,6 @@
                                         {
                                           "kind": "CLOSE_BRACE_TOKEN",
                                           "leadingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "    "
-                                            },
                                             {
                                               "kind": "END_OF_LINE_MINUTIAE",
                                               "value": "\n"

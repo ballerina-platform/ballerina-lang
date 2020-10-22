@@ -18,27 +18,25 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BFunctionType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.utils.GetFunction;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.scheduling.AsyncUtils;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
+import org.ballerinalang.langlib.array.utils.GetFunction;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
+import static io.ballerina.runtime.util.BLangConstants.ARRAY_LANG_LIB;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSupportedError;
 import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 
 /**
@@ -46,42 +44,43 @@ import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "map",
-        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "map",
+//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION)},
+//        returnType = {@ReturnType(type = TypeKind.ARRAY)},
+//        isPublic = true
+//)
 public class Map {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
                                                                       ARRAY_VERSION, "map");
 
-    public static ArrayValue map(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
-        BType elemType = ((BFunctionType) func.getType()).retType;
-        BType retArrType = new BArrayType(elemType);
-        ArrayValue retArr = new ArrayValueImpl((BArrayType) retArrType);
+    public static BArray map(BArray arr, BFunctionPointer<Object, Object> func) {
+        Type elemType = ((FunctionType) func.getType()).getReturnType();
+        Type retArrType = TypeCreator.createArrayType(elemType);
+        BArray retArr = ValueCreator.createArrayValue((ArrayType) retArrType);
         int size = arr.size();
         GetFunction getFn;
 
-        BType arrType = arr.getType();
+        Type arrType = arr.getType();
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
-                getFn = ArrayValue::get;
+                getFn = BArray::get;
                 break;
             case TypeTags.TUPLE_TAG:
-                getFn = ArrayValue::getRefValue;
+                getFn = BArray::getRefValue;
                 break;
             default:
                 throw createOpNotSupportedError(arrType, "map()");
         }
         AtomicInteger index = new AtomicInteger(-1);
-        BRuntime.getCurrentRuntime()
+        Strand parentStrand = Scheduler.getStrand();
+        AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{strand,
+                                                       () -> new Object[]{parentStrand,
                                                                getFn.get(arr, index.incrementAndGet()), true},
                                                        result -> retArr.add(index.get(), result),
-                                                       () -> retArr);
+                                                       () -> retArr, Scheduler.getStrand().scheduler);
 
         return retArr;
     }

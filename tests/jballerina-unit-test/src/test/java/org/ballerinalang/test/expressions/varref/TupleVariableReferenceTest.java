@@ -18,12 +18,12 @@
  */
 package org.ballerinalang.test.expressions.varref;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BByte;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -279,7 +279,6 @@ public class TupleVariableReferenceTest {
     public void testTupleVariablesReferencesSemanticsNegative() {
         resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/varref/tuple-variable-reference" +
                 "-semantics-negative.bal");
-        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 43);
         int i = -1;
         String errorMsg1 = "incompatible types: expected ";
 
@@ -324,15 +323,24 @@ public class TupleVariableReferenceTest {
                 errorMsg1 + "'[[string,[int,[boolean,int]]],[float,int]]', found 'any'", 139, 84);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "invalid expr in assignment lhs", 160, 33);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 's1'", 167, 6);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'f1'", 167, 10);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 's2'", 171, 6);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'f2'", 171, 11);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'b2'", 171, 15);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'n2'", 171, 23);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 's2'", 172, 5);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'f2'", 173, 6);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'b2'", 173, 10);
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
+    }
+
+    @Test(groups = { "disableOnOldParser" })
+    public void testTupleVariablesReferencesDataFlowNegative() {
+        resultSemanticsNegative = BCompileUtil.compile(
+                "test-src/expressions/varref/tuple_variable_reference_dataflow_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(resultSemanticsNegative, i++, "cannot assign a value to final 's1'", 20, 6);
+        BAssertUtil.validateError(resultSemanticsNegative, i++, "cannot assign a value to final 'f1'", 20, 10);
+        BAssertUtil.validateError(resultSemanticsNegative, i++, "cannot assign a value to final 's2'", 24, 6);
+        BAssertUtil.validateError(resultSemanticsNegative, i++, "cannot assign a value to final 'f2'", 24, 11);
+        BAssertUtil.validateError(resultSemanticsNegative, i++, "cannot assign a value to final 'b2'", 24, 15);
+        BAssertUtil.validateError(resultSemanticsNegative, i++, "cannot assign a value to final 'n2'", 24, 23);
+        BAssertUtil.validateError(resultSemanticsNegative, i++, "cannot assign a value to final 's2'", 25, 5);
+        BAssertUtil.validateError(resultSemanticsNegative, i++, "cannot assign a value to final 'f2'", 26, 6);
+        BAssertUtil.validateError(resultSemanticsNegative, i++, "cannot assign a value to final 'b2'", 26, 10);
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i);
     }
 
     @Test

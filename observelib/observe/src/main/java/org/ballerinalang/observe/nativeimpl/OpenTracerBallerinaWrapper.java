@@ -19,37 +19,36 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
+import io.ballerina.runtime.observability.ObserveUtils;
+import io.ballerina.runtime.observability.ObserverContext;
+import io.ballerina.runtime.observability.TracingUtils;
+import io.ballerina.runtime.observability.tracer.TracersStore;
+import io.ballerina.runtime.scheduling.Strand;
 import io.opentracing.Tracer;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.jvm.observability.ObserveUtils;
-import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.observability.TracingUtils;
-import org.ballerinalang.jvm.observability.tracer.TracersStore;
-import org.ballerinalang.jvm.scheduling.Strand;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_RESOURCE;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_SERVICE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
+import static io.ballerina.runtime.observability.ObservabilityConstants.UNKNOWN_RESOURCE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.UNKNOWN_SERVICE;
 
 /**
  * This class wraps opentracing apis and exposes extern functions to use within ballerina.
  */
 public class OpenTracerBallerinaWrapper {
 
-    private static OpenTracerBallerinaWrapper instance = new OpenTracerBallerinaWrapper();
-    private TracersStore tracerStore;
+    private static final OpenTracerBallerinaWrapper instance = new OpenTracerBallerinaWrapper();
+    private final TracersStore tracerStore;
     private final boolean enabled;
-    private Map<Long, ObserverContext> observerContextList = new HashMap<>();
-    private AtomicLong spanId = new AtomicLong();
+    private final Map<Long, ObserverContext> observerContextMap = new HashMap<>();
+    private final AtomicLong spanIdCounter = new AtomicLong();
+
     private static final int SYSTEM_TRACE_INDICATOR = -1;
-
     static final int ROOT_SPAN_INDICATOR = -2;
-
 
     private OpenTracerBallerinaWrapper() {
         enabled = ConfigRegistry.getInstance().getAsBoolean(CONFIG_TRACING_ENABLED);
@@ -63,8 +62,8 @@ public class OpenTracerBallerinaWrapper {
     private long startSpan(ObserverContext observerContext, boolean isClient, String spanName) {
         observerContext.setFunctionName(spanName);
         TracingUtils.startObservation(observerContext, isClient);
-        long spanId = this.spanId.getAndIncrement();
-        observerContextList.put(spanId, observerContext);
+        long spanId = this.spanIdCounter.getAndIncrement();
+        observerContextMap.put(spanId, observerContext);
         return spanId;
     }
 
@@ -110,7 +109,7 @@ public class OpenTracerBallerinaWrapper {
             ObserveUtils.setObserverContextToCurrentFrame(strand, observerContext);
             return startSpan(observerContext, true, spanName);
         } else if (parentSpanId != ROOT_SPAN_INDICATOR) {
-            ObserverContext parentOContext = observerContextList.get(parentSpanId);
+            ObserverContext parentOContext = observerContextMap.get(parentSpanId);
             if (parentOContext == null) {
                 return -1;
             }
@@ -133,14 +132,14 @@ public class OpenTracerBallerinaWrapper {
         if (!enabled) {
             return false;
         }
-        ObserverContext observerContext = observerContextList.get(spanId);
+        ObserverContext observerContext = observerContextMap.get(spanId);
         if (observerContext != null) {
             if (observerContext.isSystemSpan()) {
                 ObserveUtils.setObserverContextToCurrentFrame(strand, observerContext.getParent());
             }
             TracingUtils.stopObservation(observerContext);
             observerContext.setFinished();
-            observerContextList.remove(spanId);
+            observerContextMap.remove(spanId);
             return true;
         } else {
             return false;
@@ -160,7 +159,6 @@ public class OpenTracerBallerinaWrapper {
         if (!enabled) {
             return false;
         }
-        ObserverContext observerContext = observerContextList.get(spanId);
         if (spanId == -1) {
             Optional<ObserverContext> observer = ObserveUtils.getObserverContextOfCurrentFrame(strand);
             if (observer.isPresent()) {
@@ -168,6 +166,7 @@ public class OpenTracerBallerinaWrapper {
                 return true;
             }
         }
+        ObserverContext observerContext = observerContextMap.get(spanId);
         if (observerContext != null) {
             observerContext.addTag(tagKey, tagValue);
             return true;

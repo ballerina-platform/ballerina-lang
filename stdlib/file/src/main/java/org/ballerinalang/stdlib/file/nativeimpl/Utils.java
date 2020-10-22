@@ -18,13 +18,13 @@
 
 package org.ballerinalang.stdlib.file.nativeimpl;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 import org.ballerinalang.stdlib.file.utils.FileConstants;
 import org.ballerinalang.stdlib.file.utils.FileUtils;
 import org.slf4j.Logger;
@@ -55,7 +55,7 @@ public class Utils {
     private static final Logger log = LoggerFactory.getLogger(Utils.class);
     private static final String CURRENT_DIR_PROPERTY_KEY = "user.dir";
     private static final String TEMP_DIR_PROPERTY_KEY = "java.io.tmpdir";
-    private static BType fileInfoType;
+    private static Type fileInfoType;
 
     public static BString getCurrentDirectory() {
         return StringUtils.fromString(FileUtils.getSystemProperty(CURRENT_DIR_PROPERTY_KEY));
@@ -77,19 +77,19 @@ public class Utils {
         } catch (FileAlreadyExistsException e) {
             String msg = "File already exists. Failed to create the file: " + dir;
             log.error(msg, e);
-            return FileUtils.getBallerinaError(FileConstants.INVALID_OPERATION_ERROR, msg);
+            return FileUtils.getBallerinaError(FileConstants.INVALID_OPERATION_ERROR, StringUtils.fromString(msg));
         } catch (SecurityException e) {
             String msg = "Permission denied. Failed to create the file: " + dir;
             log.error(msg, e);
-            return FileUtils.getBallerinaError(FileConstants.PERMISSION_ERROR, msg);
+            return FileUtils.getBallerinaError(FileConstants.PERMISSION_ERROR, StringUtils.fromString(msg));
         } catch (IOException e) {
             String msg = "IO error while creating the file " + dir;
             log.error(msg, e);
-            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, msg);
+            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, StringUtils.fromString(msg));
         } catch (Exception e) {
             String msg = "Error while creating the file " + dir;
             log.error(msg, e);
-            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, msg);
+            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, StringUtils.fromString(msg));
         }
     }
 
@@ -99,7 +99,8 @@ public class Utils {
 
         if (Files.notExists(oldFilePath)) {
             return FileUtils.getBallerinaError(FileConstants.FILE_NOT_FOUND_ERROR,
-                    "File not found: " + oldFilePath.toAbsolutePath());
+                                               StringUtils
+                                                       .fromString("File not found: " + oldFilePath.toAbsolutePath()));
         }
 
         try {
@@ -107,7 +108,8 @@ public class Utils {
             return null;
         } catch (FileAlreadyExistsException e) {
             return FileUtils.getBallerinaError(FileConstants.INVALID_OPERATION_ERROR,
-                    "File already exists in the new path " + newFilePath);
+                                               StringUtils.fromString(
+                                                       "File already exists in the new path " + newFilePath));
         } catch (IOException e) {
             return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, e);
         } catch (SecurityException e) {
@@ -126,29 +128,31 @@ public class Utils {
         } catch (FileAlreadyExistsException e) {
             String msg = "File already exists. Failed to create the file: " + path;
             log.error(msg, e);
-            return FileUtils.getBallerinaError(FileConstants.INVALID_OPERATION_ERROR, msg);
+            return FileUtils.getBallerinaError(FileConstants.INVALID_OPERATION_ERROR,
+                                               StringUtils.fromString(msg));
         } catch (SecurityException e) {
             String msg = "Permission denied. Failed to create the file: " + path;
             log.error(msg, e);
-            return FileUtils.getBallerinaError(FileConstants.PERMISSION_ERROR, msg);
+            return FileUtils.getBallerinaError(FileConstants.PERMISSION_ERROR, StringUtils.fromString(msg));
         } catch (NoSuchFileException e) {
             String msg = "The file does not exist in path " + path;
-            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, msg);
+            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, StringUtils.fromString(msg));
         } catch (IOException e) {
             String msg = "IO error occurred while creating the file " + path;
             log.error(msg, e);
-            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, msg);
+            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, StringUtils.fromString(msg));
         } catch (Exception e) {
             String msg = "Error occurred while creating the file " + path;
             log.error(msg, e);
-            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, msg);
+            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, StringUtils.fromString(msg));
         }
     }
 
     public static Object getFileInfo(BString path) {
         File inputFile = Paths.get(path.getValue()).toAbsolutePath().toFile();
         if (!inputFile.exists()) {
-            return FileUtils.getBallerinaError(FileConstants.FILE_NOT_FOUND_ERROR, "File not found: " + path);
+            return FileUtils.getBallerinaError(FileConstants.FILE_NOT_FOUND_ERROR,
+                                               StringUtils.fromString("File not found: " + path));
         }
         try {
             return FileUtils.getFileInfo(inputFile);
@@ -166,12 +170,15 @@ public class Utils {
         try {
             if (wd.getCanonicalPath().equals(removeFile.getCanonicalPath())) {
                 return FileUtils.getBallerinaError(FileConstants.INVALID_OPERATION_ERROR,
-                        "Cannot delete the current working directory " + wd.getCanonicalPath());
+                                                   StringUtils.fromString("Cannot delete the current working " +
+                                                                                   "directory " +
+                                                                                   wd.getCanonicalPath()));
             }
 
             if (!removeFile.exists()) {
                 return FileUtils.getBallerinaError(FileConstants.FILE_NOT_FOUND_ERROR,
-                        "File not found: " + removeFile.getCanonicalPath());
+                                                   StringUtils.fromString("File not found: " +
+                                                                                   removeFile.getCanonicalPath()));
             }
 
             if (recursive) {
@@ -180,7 +187,8 @@ public class Utils {
             } else {
                 if (!removeFile.delete()) {
                     return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR,
-                            "Error while deleting " + removeFile.getCanonicalPath());
+                                                       StringUtils.fromString("Error while deleting " +
+                                                                                       removeFile.getCanonicalPath()));
                 }
             }
             return null;
@@ -210,12 +218,13 @@ public class Utils {
 
         if (!inputFile.exists()) {
             return FileUtils.getBallerinaError(FileConstants.FILE_NOT_FOUND_ERROR,
-                    "File not found: " + path);
+                                               StringUtils.fromString("File not found: " + path));
         }
 
         if (!inputFile.isDirectory()) {
             return FileUtils.getBallerinaError(FileConstants.INVALID_OPERATION_ERROR,
-                    "File in path " + path + " is not a directory");
+                                               StringUtils
+                                                       .fromString("File in path " + path + " is not a directory"));
         }
 
         if (maxDepth == FileConstants.DEFAULT_MAX_DEPTH) {
@@ -226,23 +235,23 @@ public class Utils {
             return readFileTree(inputFile, Math.toIntExact(maxDepth));
         } else {
             return FileUtils.getBallerinaError(FileConstants.INVALID_OPERATION_ERROR,
-                    "Invalid maxDepth value " + maxDepth);
+                                               StringUtils.fromString("Invalid maxDepth value " + maxDepth));
         }
     }
 
     private static Object readFileTree(File inputFile, int maxDepth) {
-        ObjectValue[] results;
+        BObject[] results;
         try (Stream<Path> walk = Files.walk(inputFile.toPath(), maxDepth)) {
             results = walk.map(x -> {
                 try {
-                    ObjectValue objectValue = FileUtils.getFileInfo(x.toFile());
-                    fileInfoType = objectValue.getType();
-                    return objectValue;
+                    BObject bObject = FileUtils.getFileInfo(x.toFile());
+                    fileInfoType = bObject.getType();
+                    return bObject;
                 } catch (IOException e) {
                     throw new BallerinaException("Error while accessing file info", e);
                 }
-            }).skip(1).toArray(ObjectValue[]::new);
-            return new ArrayValueImpl(results, new BArrayType(fileInfoType));
+            }).skip(1).toArray(BObject[]::new);
+            return ValueCreator.createArrayValue(results, TypeCreator.createArrayType(fileInfoType));
         } catch (IOException | BallerinaException ex) {
             return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, ex);
         } catch (SecurityException ex) {
@@ -256,7 +265,7 @@ public class Utils {
 
         if (Files.notExists(srcPath)) {
             return FileUtils.getBallerinaError(FileConstants.FILE_NOT_FOUND_ERROR,
-                    "File not found: " + sourcePath);
+                                               StringUtils.fromString("File not found: " + sourcePath));
         }
         try {
             Files.walkFileTree(srcPath, new RecursiveFileCopyVisitor(srcPath, destPath, replaceExisting));

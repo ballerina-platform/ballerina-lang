@@ -17,12 +17,12 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
-import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
-import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -43,26 +43,26 @@ public class ChildNodeListTest extends AbstractSyntaxTreeAPITest {
         ModulePartNode modulePartNode = syntaxTree.rootNode();
         FunctionDefinitionNode firstFunctionNode = (FunctionDefinitionNode) modulePartNode.members().get(0);
         int actualChildCount = firstFunctionNode.children().size();
-        Assert.assertEquals(actualChildCount, 6);
+        Assert.assertEquals(actualChildCount, 5);
         // Check signature child count
         FunctionSignatureNode signature = firstFunctionNode.functionSignature();
         int actualSignatureChildCount = signature.children().size();
-        Assert.assertEquals(actualSignatureChildCount, 5);
+        Assert.assertEquals(actualSignatureChildCount, 6);
 
         // The 'public' keyword and the return type desc is missing in the second function
         FunctionDefinitionNode secondFunctionNode = (FunctionDefinitionNode) modulePartNode.members().get(1);
         actualChildCount = secondFunctionNode.children().size();
-        Assert.assertEquals(actualChildCount, 5);
+        Assert.assertEquals(actualChildCount, 4);
         // Check signature child count
         signature = secondFunctionNode.functionSignature();
         actualSignatureChildCount = signature.children().size();
-        Assert.assertEquals(actualSignatureChildCount, 4);
+        Assert.assertEquals(actualSignatureChildCount, 5);
     }
 
     @Test
     public void testIterator() {
         List<SyntaxKind> expectedKinds = new ArrayList<>();
-        Collections.addAll(expectedKinds, SyntaxKind.METADATA, SyntaxKind.PUBLIC_KEYWORD,
+        Collections.addAll(expectedKinds, SyntaxKind.PUBLIC_KEYWORD,
                 SyntaxKind.FUNCTION_KEYWORD, SyntaxKind.IDENTIFIER_TOKEN, SyntaxKind.FUNCTION_SIGNATURE,
                 SyntaxKind.FUNCTION_BODY_BLOCK);
 

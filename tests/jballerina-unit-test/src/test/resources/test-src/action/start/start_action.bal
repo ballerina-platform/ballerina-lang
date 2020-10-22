@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 type FooRec record {|
     function () returns string fn = () => "FOO";
     any...;
@@ -32,11 +34,11 @@ function testRecFieldFuncPointerAsyncCall() {
     assert("FOO", result2);
 }
 
-type BarObj client object {
+client class BarObj {
     remote function getInt() returns int => 100;
 
     function getName() returns string => "BAR";
-};
+}
 
 function testObjectMethodsAsAsyncCalls() {
     BarObj bo = new;
@@ -60,4 +62,19 @@ function assert(anydata expected, anydata actual) {
                             + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
         panic error("{AssertionError}", message = detail);
     }
+}
+
+function testCast() {
+    future<string> fs1 = start getMessage([1,2]);
+    string result1 = wait fs1;
+    test:assertEquals(result1, "The value is [1,2]");
+
+    map<int> marks = {sam: 50, jon: 60};
+    future<string> fs2 = start getMessage(marks);
+    string result2 = wait fs2;
+    test:assertEquals(result2, "The value is {\"sam\":50,\"jon\":60}");
+}
+
+function getMessage(any j) returns string {
+   return "The value is " + j.toString();
 }

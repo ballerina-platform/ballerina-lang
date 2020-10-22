@@ -53,11 +53,12 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tool')
     implementation project(':ballerina-lang:annotations')
-    implementation project(':ballerina-http')
+//    implementation project(':ballerina-http')
     implementation project(':ballerina-config')
     implementation project(':ballerina-mime')
     implementation 'info.picocli:picocli'
-    implementation 'com.github.jknack:handlebars'
+    implementation 'com.github.jknack:handlebars:4.2.0'
+    implementation 'org.antlr:antlr4:4.8'
     implementation 'com.atlassian.commonmark:commonmark'
     implementation 'com.atlassian.commonmark:commonmark-ext-gfm-tables'
     implementation 'org.apache.commons:commons-lang3'
@@ -65,7 +66,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.7'
     implementation 'org.slf4j:slf4j-api'
     distBal project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-http', configuration: 'baloImplementation')
+//    distBal project(path: ':ballerina-http', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-io', configuration: 'baloImplementation')
     
     testCompile 'org.testng:testng'
@@ -98,7 +99,8 @@ jar {
 shadowJar {
     configurations = [project.configurations.runtimeClasspath]
     dependencies {
-        include(dependency('com.github.jknack:handlebars'))
+        include(dependency('com.github.jknack:handlebars:4.2.0'))
+        include(dependency('org.antlr:antlr4:4.8'))
         include(dependency('com.atlassian.commonmark:commonmark'))
         include(dependency('com.atlassian.commonmark:commonmark-ext-gfm-tables'))
         exclude('META-INF/*.SF')
@@ -140,3 +142,15 @@ test {
 }
 
 description = 'Ballerina - Docerina'
+
+ext.moduleName = 'docerina'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

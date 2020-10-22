@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
 
 /**

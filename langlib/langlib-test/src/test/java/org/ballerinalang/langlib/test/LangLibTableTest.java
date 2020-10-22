@@ -18,15 +18,15 @@
 
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -140,7 +140,7 @@ public class LangLibTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.table\\}KeyNotFound message=cannot find key 'AAA'.*")
+                    "error: \\{ballerina/lang.table\\}KeyNotFound \\{\"message\":\"cannot find key 'AAA'\"\\}.*")
     public void getWithInvalidKey() {
         BRunUtil.invoke(compileResult, "getWithInvalidKey");
         Assert.fail();
@@ -148,7 +148,7 @@ public class LangLibTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.table\\}KeyNotFound message=cannot find key 'AAA'.*")
+                    "error: \\{ballerina/lang.table\\}KeyNotFound \\{\"message\":\"cannot find key 'AAA'\"\\}.*")
     public void removeWithInvalidKey() {
         BRunUtil.invoke(compileResult, "removeWithInvalidKey");
         Assert.fail();
@@ -165,7 +165,7 @@ public class LangLibTableTest {
         validateError(negativeResult, index++, "incompatible types: expected " +
                         "'object { public function next () returns (record {| Employee value; |}?); }', found " +
                         "'object { public function next () returns (record {| Person value; |}?); }'",
-                77, 92);
+                77, 83);
         validateError(negativeResult, index++, "incompatible types: expected 'table<(any|error)> " +
                 "key<int>', found 'table<Person> key(name)'", 84, 12);
         validateError(negativeResult, index++, "incompatible types: expected 'table<(any|error)> " +
@@ -196,7 +196,8 @@ public class LangLibTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.table\\}KeyConstraintViolation message=A value found for key '5'.*")
+                    "error: \\{ballerina/lang.table\\}KeyConstraintViolation \\{\"message\":\"A value found for key " +
+                            "'5'\"\\}.*")
     public void testAddExistingMember() {
         BRunUtil.invoke(compileResult, "testAddExistingMember");
         Assert.fail();
@@ -204,8 +205,8 @@ public class LangLibTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
-                    "message=value type 'Person' inconsistent with the inherent table type " +
-                    "'table<Engineer> key\\(name\\)'.*")
+                    "\\{\"message\":\"value type 'Person' inconsistent with the inherent table type 'table<Engineer> "
+                    + "key\\(name\\)'\"\\}.*")
     public void testAddInconsistentData() {
         BRunUtil.invoke(compileResult, "testAddInconsistentData");
         Assert.fail();
@@ -213,8 +214,8 @@ public class LangLibTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
-                    "message=value type 'Student' inconsistent with the inherent table type " +
-                    "'table<Engineer> key\\(name\\)'.*")
+                    "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type 'table<Engineer>"
+                    + " key\\(name\\)'\"\\}.*")
     public void testAddInconsistentData2() {
         BRunUtil.invoke(compileResult, "testAddInconsistentData2");
         Assert.fail();
@@ -222,7 +223,8 @@ public class LangLibTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
-                    "message=value type 'Student' inconsistent with the inherent table type 'table<Engineer>'.*")
+                    "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type " +
+                    "'table<Engineer>'\"\\}.*")
     public void testAddInconsistentDataWithMapConstrTbl() {
         BRunUtil.invoke(compileResult, "testAddInconsistentDataWithMapConstrTbl");
         Assert.fail();
@@ -230,7 +232,8 @@ public class LangLibTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
-                    "message=value type 'map<string>' inconsistent with the inherent table type 'table<Teacher>'.*")
+                    "\\{\"message\":\"value type 'map<string>' inconsistent with the inherent table type " +
+                    "'table<Teacher>'\"\\}.*")
     public void testAddInconsistentDataWithMapConstrTbl2() {
         BRunUtil.invoke(compileResult, "testAddInconsistentDataWithMapConstrTbl2");
         Assert.fail();
@@ -262,8 +265,8 @@ public class LangLibTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
-                    "message=value type 'Person' inconsistent with the inherent table type " +
-                    "'table<Engineer> key\\(name\\)'.*")
+                    "\\{\"message\":\"value type 'Person' inconsistent with the inherent table type 'table<Engineer> "
+                    + "key\\(name\\)'\"\\}.*")
     public void testPutInconsistentData() {
         BRunUtil.invoke(compileResult, "testPutInconsistentData");
         Assert.fail();
@@ -271,8 +274,8 @@ public class LangLibTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
-                    "message=value type 'Student' inconsistent with the inherent table type " +
-                    "'table<Engineer> key\\(name\\)'.*")
+                    "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type 'table<Engineer>"
+                    + " key\\(name\\)'\"\\}.*")
     public void testPutInconsistentData2() {
         BRunUtil.invoke(compileResult, "testPutInconsistentData2");
         Assert.fail();
@@ -280,8 +283,8 @@ public class LangLibTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
-                    "message=value type 'Student' inconsistent with the inherent table type " +
-                    "'table<Engineer>'.*")
+                    "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type " +
+                    "'table<Engineer>'\"\\}.*")
     public void testPutInconsistentDataWithMapConstrTbl() {
         BRunUtil.invoke(compileResult, "testPutInconsistentDataWithMapConstrTbl");
         Assert.fail();
@@ -289,7 +292,8 @@ public class LangLibTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
-                    "message=value type 'map<string>' inconsistent with the inherent table type 'table<Teacher>'.*")
+                    "\\{\"message\":\"value type 'map<string>' inconsistent with the inherent table type " +
+                    "'table<Teacher>'\"\\}.*")
     public void testPutInconsistentDataWithMapConstrTbl2() {
         BRunUtil.invoke(compileResult, "testPutInconsistentDataWithMapConstrTbl2");
         Assert.fail();
@@ -326,8 +330,8 @@ public class LangLibTableTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IteratorMutabilityError message=Table was " +
-                    "mutated after the iterator was created.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IteratorMutabilityError \\{\"message\":\"Table "
+                    + "was mutated after the iterator was created\"\\}.*")
     public void testAddNewRecordAfterIteratorCreation() {
         BRunUtil.invoke(compileResult, "testAddNewRecordAfterIteratorCreation");
     }
@@ -357,30 +361,30 @@ public class LangLibTableTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IteratorMutabilityError message=Table was " +
-                    "mutated after the iterator was created.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IteratorMutabilityError \\{\"message\":\"Table "
+                    + "was mutated after the iterator was created\"\\}.*")
     public void testPutWithKeylessTableAfterIteratorCreation() {
         BRunUtil.invoke(compileResult, "testPutWithKeylessTableAfterIteratorCreation");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IteratorMutabilityError message=Table was " +
-                    "mutated after the iterator was created.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IteratorMutabilityError \\{\"message\":\"Table "
+                    + "was mutated after the iterator was created\"\\}.*")
     public void testAddWithKeylessTableAfterIteratorCreation() {
         BRunUtil.invoke(compileResult, "testAddWithKeylessTableAfterIteratorCreation");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IteratorMutabilityError message=Table was " +
-                    "mutated after the iterator was created.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IteratorMutabilityError \\{\"message\":\"Table "
+                    + "was mutated after the iterator was created\"\\}.*")
     public void testRemoveAllReturnedRecordsFromIteratorKeylessTbl() {
         BRunUtil.invoke(compileResult, "testRemoveAllReturnedRecordsFromIteratorKeylessTbl");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
-                    "message=value type 'Person' inconsistent with the inherent table type " +
-                    "'table<Engineer>'.*")
+                    "\\{\"message\":\"value type 'Person' inconsistent with the inherent table type " +
+                    "'table<Engineer>'\"\\}.*")
     public void testAddInconsistentDataToKeylessTbl() {
         BRunUtil.invoke(compileResult, "testAddInconsistentDataToKeylessTbl");
         Assert.fail();
@@ -388,8 +392,8 @@ public class LangLibTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
-                    "message=value type 'Student' inconsistent with the inherent table type " +
-                    "'table<Engineer>'.*")
+                    "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type " +
+                    "'table<Engineer>'\"\\}.*")
     public void testAddInconsistentDataToKeylessTbl2() {
         BRunUtil.invoke(compileResult, "testAddInconsistentDataToKeylessTbl2");
         Assert.fail();
@@ -397,8 +401,8 @@ public class LangLibTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
-                    "message=value type 'Person' inconsistent with the inherent table type " +
-                    "'table<Engineer>'.*")
+                    "\\{\"message\":\"value type 'Person' inconsistent with the inherent table type " +
+                    "'table<Engineer>'\"\\}.*")
     public void testPutInconsistentDataToKeylessTbl() {
         BRunUtil.invoke(compileResult, "testPutInconsistentDataToKeylessTbl");
         Assert.fail();
@@ -406,8 +410,8 @@ public class LangLibTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
-                    "message=value type 'Student' inconsistent with the inherent table type " +
-                    "'table<Engineer>'.*")
+                    "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type " +
+                    "'table<Engineer>'\"\\}.*")
     public void testPutInconsistentDataToKeylessTbl2() {
         BRunUtil.invoke(compileResult, "testPutInconsistentDataToKeylessTbl2");
         Assert.fail();

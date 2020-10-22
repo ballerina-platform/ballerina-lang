@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.caching;
 
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
 
 import java.util.Map;
 
@@ -39,9 +39,9 @@ import static org.ballerinalang.net.http.HttpUtil.TRUE;
  */
 public class RequestCacheControlObj {
 
-    private ObjectValue requestCacheControl;
+    private BObject requestCacheControl;
 
-    public RequestCacheControlObj(ObjectValue requestCacheControl) {
+    public RequestCacheControlObj(BObject requestCacheControl) {
         this.requestCacheControl = requestCacheControl;
 
         // Initialize the struct fields to default values we use
@@ -51,7 +51,7 @@ public class RequestCacheControlObj {
         requestCacheControl.set(REQ_CACHE_CONTROL_MIN_FRESH_FIELD, -1);
     }
 
-    public ObjectValue getObj() {
+    public BObject getObj() {
         return requestCacheControl;
     }
 

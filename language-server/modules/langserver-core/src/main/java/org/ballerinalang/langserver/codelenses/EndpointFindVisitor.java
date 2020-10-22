@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -93,7 +92,7 @@ public class EndpointFindVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        ((BLangObjectTypeNode) serviceNode.serviceTypeDefinition.typeNode).getFunctions().stream()
+        serviceNode.serviceClass.getFunctions().stream()
                 .filter(bLangFunction -> (bLangFunction.symbol.flags & Flags.RESOURCE) == Flags.RESOURCE)
                 .forEach(this::acceptNode);
     }
@@ -102,13 +101,16 @@ public class EndpointFindVisitor extends LSNodeVisitor {
         node.accept(this);
     }
 
+    @Deprecated
     private List<BLangSimpleVariable> resolveEndpoints(BLangSimpleVariable variable) {
-        List<BLangSimpleVariable> list = new ArrayList<>();
-        boolean isClientObj = CommonUtil.isClientObject(variable.symbol);
-        if (isClientObj) {
-            list.add(variable);
-        }
-        return list;
+//        List<BLangSimpleVariable> list = new ArrayList<>();
+//        boolean isClientObj = CommonUtil.isClientObject(variable.symbol);
+//        if (isClientObj) {
+//            list.add(variable);
+//        }
+//        return list;
+        
+        return new ArrayList<>();
     }
 
     @Override

@@ -1,0 +1,72 @@
+{
+  "position": {
+    "line": 11,
+    "character": 22
+  },
+  "source": "annotation_ctx/source/paramAnnotation5.bal",
+  "items": [
+    {
+      "label": "module1:parameterAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:parameterAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "module1:parameterAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:parameterAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "tainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "tainted",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "untainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "untainted",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "isolatedParam",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "isolatedParam",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "deprecated",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "deprecated",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "parameterAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "parameterAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "pa2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "pa2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    }
+  ]
+}

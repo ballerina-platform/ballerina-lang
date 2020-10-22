@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 11,
+    "character": 26
+  },
+  "source": "annotation_ctx/source/returnTypeDescAnnotation2.bal",
+  "items": [
+    {
+      "label": "module1:returnAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:returnAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "module1:returnAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:returnAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "tainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "tainted",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "untainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "untainted",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "returnAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "returnAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "returnAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "returnAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    }
+  ]
+}

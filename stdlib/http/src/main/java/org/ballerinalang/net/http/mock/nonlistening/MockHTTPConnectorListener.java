@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.mock.nonlistening;
 
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 
 import java.util.HashMap;
@@ -44,7 +44,7 @@ public class MockHTTPConnectorListener {
     }
 
     public void setHttpServicesRegistry(int listenerPort, HTTPServicesRegistry httpServicesRegistry,
-                                        MapValue endpointConfig) {
+                                        BMap endpointConfig) {
         listenerServicesRegistries.put(listenerPort, new RegistryHolder(httpServicesRegistry, endpointConfig));
     }
 
@@ -53,9 +53,9 @@ public class MockHTTPConnectorListener {
      */
     public static class RegistryHolder {
         private final HTTPServicesRegistry registry;
-        private final MapValue endpointConfig;
+        private final BMap endpointConfig;
 
-        public RegistryHolder(HTTPServicesRegistry registry, MapValue endpointConfig) {
+        public RegistryHolder(HTTPServicesRegistry registry, BMap endpointConfig) {
             this.registry = registry;
             this.endpointConfig = endpointConfig;
         }
@@ -64,7 +64,7 @@ public class MockHTTPConnectorListener {
             return registry;
         }
 
-        public MapValue getEndpointConfig() {
+        public BMap getEndpointConfig() {
             return endpointConfig;
         }
     }

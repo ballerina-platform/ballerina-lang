@@ -2,20 +2,16 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
+      "kind": "LIST",
       "children": [
         {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "PUBLIC_KEYWORD",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "PUBLIC_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -108,10 +104,10 @@
                           "kind": "OPEN_BRACKET_TOKEN"
                         },
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "kind": "NUMERIC_LITERAL",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                               "value": "2"
                             }
                           ]
@@ -131,13 +127,7 @@
                       "kind": "LIST_BINDING_PATTERN",
                       "children": [
                         {
-                          "kind": "OPEN_BRACKET_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "OPEN_BRACKET_TOKEN"
                         },
                         {
                           "kind": "LIST",
@@ -152,7 +142,13 @@
                               ]
                             },
                             {
-                              "kind": "COMMA_TOKEN"
+                              "kind": "COMMA_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "CAPTURE_BINDING_PATTERN",
@@ -164,20 +160,20 @@
                               ]
                             },
                             {
-                              "kind": "COMMA_TOKEN"
+                              "kind": "COMMA_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "CAPTURE_BINDING_PATTERN",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "value": "foobar",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "value": "foobar"
                                 }
                               ]
                             }
@@ -292,10 +288,10 @@
                               ]
                             },
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "NUMERIC_LITERAL",
                               "children": [
                                 {
-                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                   "value": "2"
                                 }
                               ]
@@ -325,6 +321,12 @@
                                       "kind": "WHITESPACE_MINUTIAE",
                                       "value": "        "
                                     }
+                                  ],
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
                                   ]
                                 }
                               ]
@@ -333,13 +335,19 @@
                               "kind": "PLUS_TOKEN"
                             },
                             {
-                              "kind": "EQUAL_TOKEN"
+                              "kind": "EQUAL_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "kind": "NUMERIC_LITERAL",
                               "children": [
                                 {
-                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                                   "value": "5"
                                 }
                               ]
@@ -380,12 +388,6 @@
         },
         {
           "kind": "CLOSE_BRACE_TOKEN",
-          "leadingMinutiae": [
-            {
-              "kind": "END_OF_LINE_MINUTIAE",
-              "value": "\n"
-            }
-          ],
           "trailingMinutiae": [
             {
               "kind": "END_OF_LINE_MINUTIAE",

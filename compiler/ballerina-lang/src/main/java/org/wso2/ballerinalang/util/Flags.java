@@ -38,8 +38,7 @@ public class Flags {
     public static final int RECORD = REQUIRED << 1;
     public static final int PRIVATE = RECORD << 1;
     public static final int ANONYMOUS = PRIVATE << 1;
-    public static final int ABSTRACT = ANONYMOUS << 1;
-    public static final int OPTIONAL = ABSTRACT << 1;
+    public static final int OPTIONAL = ANONYMOUS << 1;
     public static final int TESTABLE = OPTIONAL << 1;
     public static final int CONSTANT = TESTABLE << 1;
     public static final int REMOTE = CONSTANT << 1;
@@ -55,6 +54,9 @@ public class Flags {
     public static final int TRANSACTIONAL = FORKED << 1;
     public static final int PARAMETERIZED = TRANSACTIONAL << 1;
     public static final int DISTINCT = PARAMETERIZED << 1;
+    public static final int CLASS = DISTINCT << 1;
+    public static final int ISOLATED = CLASS << 1;
+    public static final int ISOLATED_PARAM = ISOLATED << 1;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -95,9 +97,6 @@ public class Flags {
                     break;
                 case ANONYMOUS:
                     mask |= ANONYMOUS;
-                    break;
-                case ABSTRACT:
-                    mask |= ABSTRACT;
                     break;
                 case OPTIONAL:
                     mask |= OPTIONAL;
@@ -140,6 +139,12 @@ public class Flags {
                     break;
                 case DISTINCT:
                     mask |= DISTINCT;
+                    break;
+                case CLASS:
+                    mask |= CLASS;
+                    break;
+                case ISOLATED:
+                    mask |= ISOLATED;
                     break;
             }
         }
@@ -187,9 +192,6 @@ public class Flags {
                 case ANONYMOUS:
                     flagVal = ANONYMOUS;
                     break;
-                case ABSTRACT:
-                    flagVal = ABSTRACT;
-                    break;
                 case OPTIONAL:
                     flagVal = OPTIONAL;
                     break;
@@ -225,6 +227,12 @@ public class Flags {
                     break;
                 case DISTINCT:
                     flagVal = DISTINCT;
+                    break;
+                case CLASS:
+                    flagVal = CLASS;
+                    break;
+                case ISOLATED:
+                    flagVal = ISOLATED;
                     break;
                 default:
                     continue;

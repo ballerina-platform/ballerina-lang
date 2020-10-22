@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.statements.transaction;
 
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases for flow validation in TransactionStatement.
  */
-
+@Test(groups = {"disableOnOldParser"})
 public class TransactionStmtTest {
 
     private CompileResult programFile, resultNegative, trxHandlersNegative;
@@ -133,9 +133,19 @@ public class TransactionStmtTest {
         BRunUtil.invoke(programFile, "testNewStrandWithTransactionalFunc");
     }
 
+    @Test
+    public void testRollbackWithBlockFailure() {
+        BRunUtil.invoke(programFile, "testRollbackWithBlockFailure");
+    }
+
+    @Test
+    public void testRollbackWithCommitFailure() {
+        BRunUtil.invoke(programFile, "testRollbackWithCommitFailure");
+    }
+
     @Test(description = "Test transaction statement with errors")
     public void testTransactionNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 26);
+        Assert.assertEquals(resultNegative.getErrorCount(), 28);
         BAssertUtil.validateError(resultNegative, 0, "invalid transaction commit count",
                 6, 5);
         BAssertUtil.validateError(resultNegative, 1, "rollback not allowed here",
@@ -189,6 +199,10 @@ public class TransactionStmtTest {
                 "transactional scope is prohibited", 241, 17);
         BAssertUtil.validateError(resultNegative, 25, "invoking transactional function outside " +
                 "transactional scope is prohibited", 274, 17);
+        BAssertUtil.validateError(resultNegative, 26, "invoking transactional function outside " +
+                "transactional scope is prohibited", 291, 27);
+        BAssertUtil.validateError(resultNegative, 27, "invoking transactional function outside " +
+                "transactional scope is prohibited", 292, 26);
     }
 
     @Test(description = "Test incompatible transaction handlers")
@@ -202,5 +216,17 @@ public class TransactionStmtTest {
                         "'function (ballerina/lang.transaction:0.0.1:Info) returns ()', found " +
                         "'function (string) returns ()'",
                 17, 31);
+    }
+
+    @Test
+    public void testInvokeRemoteTransactionalMethodInTransactionalScope() {
+        BRunUtil.invoke(programFile, "testInvokeRemoteTransactionalMethodInTransactionalScope");
+    }
+
+    @Test
+    public void testAsyncReturn() {
+        BValue[] result = BRunUtil.invoke(programFile, "testAsyncReturn");
+        Assert.assertTrue(result[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) result[0]).intValue(), 10);
     }
 }

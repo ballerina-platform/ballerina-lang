@@ -18,9 +18,9 @@
 
 package org.ballerinalang.net.http.serviceendpoint;
 
-import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
@@ -34,11 +34,11 @@ import org.ballerinalang.net.http.websocket.server.WebSocketServicesRegistry;
  * @since 1.0
  */
 public class Detach extends AbstractHttpNativeFunction {
-    public static Object detach(ObjectValue serviceEndpoint, ObjectValue serviceObj) {
+    public static Object detach(BObject serviceEndpoint, BObject serviceObj) {
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
-        BType param;
-        AttachedFunction[] resourceList = serviceObj.getType().getAttachedFunctions();
+        Type param;
+        AttachedFunctionType[] resourceList = serviceObj.getType().getAttachedFunctions();
         try {
             if (resourceList.length > 0 && (param = resourceList[0].getParameterType()[0]) != null) {
                 String callerType = param.getQualifiedName();

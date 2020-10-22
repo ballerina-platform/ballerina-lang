@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.websocket.server;
 
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpResourceArguments;
@@ -49,9 +49,9 @@ public class WebSocketServerListener implements WebSocketConnectorListener {
 
     private final WebSocketServicesRegistry servicesRegistry;
     private final WebSocketConnectionManager connectionManager;
-    private final MapValue httpEndpointConfig;
+    private final BMap httpEndpointConfig;
 
-    public WebSocketServerListener(WebSocketServicesRegistry servicesRegistry, MapValue httpEndpointConfig) {
+    public WebSocketServerListener(WebSocketServicesRegistry servicesRegistry, BMap httpEndpointConfig) {
         this.servicesRegistry = servicesRegistry;
         this.connectionManager = new WebSocketConnectionManager();
         this.httpEndpointConfig = httpEndpointConfig;

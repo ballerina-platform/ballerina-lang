@@ -17,34 +17,27 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
 
 /**
  * Create XML processing instruction.
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
-        functionName = "createProcessingInstruction",
-        args = {
-                @Argument(name = "target", type = TypeKind.STRING),
-                @Argument(name = "content", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "createProcessingInstruction",
+//        args = {
+//                @Argument(name = "target", type = TypeKind.STRING),
+//                @Argument(name = "content", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.XML)},
+//        isPublic = true
+//)
 public class CreateProcessingInstruction {
 
-    public static XMLValue createProcessingInstruction(Strand strand, BString target, BString content) {
+    public static BXML createProcessingInstruction(BString target, BString content) {
         return XMLFactory.createXMLProcessingInstruction(target, content);
     }
 }

@@ -345,7 +345,7 @@ function transactionParticipantWrapper(function () returns any|error trxFunc) re
 # # Deprecated
 @deprecated
 function prepareResourceManagers(string transactionId, string transactionBlockId) returns boolean = @java:Method {
-    class: "io.ballerina.transactions.Utils",
+    'class: "io.ballerina.transactions.Utils",
     name: "prepareResourceManagers"
 } external;
 
@@ -357,7 +357,7 @@ function prepareResourceManagers(string transactionId, string transactionBlockId
 # # Deprecated
 @deprecated
 function commitResourceManagers(string transactionId, string transactionBlockId) returns boolean = @java:Method {
-    class: "io.ballerina.transactions.Utils",
+    'class: "io.ballerina.transactions.Utils",
     name: "commitResourceManagers"
 } external;
 
@@ -369,7 +369,7 @@ function commitResourceManagers(string transactionId, string transactionBlockId)
 # # Deprecated
 @deprecated
 function abortResourceManagers(string transactionId, string transactionBlockId) returns boolean = @java:Method {
-    class: "io.ballerina.transactions.Utils",
+    'class: "io.ballerina.transactions.Utils",
     name: "abortResourceManagers"
 } external;
 
@@ -381,7 +381,7 @@ function abortResourceManagers(string transactionId, string transactionBlockId) 
 # # Deprecated
 @deprecated
 public function getCurrentTransactionId() returns string = @java:Method {
-    class: "io.ballerina.transactions.Utils",
+    'class: "io.ballerina.transactions.Utils",
     name: "getCurrentTransactionId"
 } external;
 
@@ -391,7 +391,7 @@ public function getCurrentTransactionId() returns string = @java:Method {
 # # Deprecated
 @deprecated
 function isNestedTransaction() returns boolean = @java:Method {
-    class: "io.ballerina.transactions.Utils",
+    'class: "io.ballerina.transactions.Utils",
     name: "isNestedTransaction"
 } external;
 
@@ -402,7 +402,7 @@ function isNestedTransaction() returns boolean = @java:Method {
 # # Deprecated
 @deprecated
 public function setTransactionContext(TransactionContext transactionContext, Info? prevAttempt = ()) = @java:Method {
-    class: "io.ballerina.transactions.Utils",
+    'class: "io.ballerina.transactions.Utils",
     name: "setTransactionContext"
 } external;
 
@@ -416,7 +416,7 @@ public function setTransactionContext(TransactionContext transactionContext, Inf
 @deprecated
 function registerLocalParticipant(string transactionBlockId, function (string trxId) committedFunc,
                                   function (string trxId) abortedFunc) returns TransactionContext? = @java:Method {
-    class: "io.ballerina.transactions.Utils",
+    'class: "io.ballerina.transactions.Utils",
     name: "registerLocalParticipant"
 } external;
 
@@ -430,7 +430,7 @@ function registerLocalParticipant(string transactionBlockId, function (string tr
 @deprecated
 function registerRemoteParticipant(string transactionBlockId, function (string trxId) committedFunc,
                                    function (string trxId) abortedFunc) returns  TransactionContext? = @java:Method {
-    class: "io.ballerina.transactions.Utils",
+    'class: "io.ballerina.transactions.Utils",
     name: "registerRemoteParticipant"
 } external;
 
@@ -438,7 +438,7 @@ function registerRemoteParticipant(string transactionBlockId, function (string t
 # # Deprecated
 @deprecated
 function notifyLocalParticipantOnFailure() = @java:Method {
-    class: "io.ballerina.transactions.Utils",
+    'class: "io.ballerina.transactions.Utils",
     name: "notifyLocalParticipantOnFailure"
 } external;
 
@@ -446,7 +446,7 @@ function notifyLocalParticipantOnFailure() = @java:Method {
 # # Deprecated
 @deprecated
 function notifyRemoteParticipantOnFailure() = @java:Method {
-    class: "io.ballerina.transactions.Utils",
+    'class: "io.ballerina.transactions.Utils",
     name: "notifyRemoteParticipantOnFailure"
 } external;
 
@@ -456,7 +456,7 @@ function notifyRemoteParticipantOnFailure() = @java:Method {
 # # Deprecated
 @deprecated
 function notifyResourceManagerOnAbort(string transactionBlockId) = @java:Method {
-    class: "io.ballerina.transactions.Utils",
+    'class: "io.ballerina.transactions.Utils",
     name: "notifyResourceManagerOnAbort"
 } external;
 
@@ -467,7 +467,7 @@ function notifyResourceManagerOnAbort(string transactionBlockId) = @java:Method 
 # # Deprecated
 @deprecated
 public function rollbackTransaction(string transactionBlockId, error? err = ()) = @java:Method {
-    class: "io.ballerina.transactions.Utils",
+    'class: "io.ballerina.transactions.Utils",
     name: "rollbackTransaction"
 } external;
 
@@ -477,7 +477,7 @@ public function rollbackTransaction(string transactionBlockId, error? err = ()) 
 # # Deprecated
 @deprecated
 public function cleanupTransactionContext(string transactionBlockId) = @java:Method {
-    class: "io.ballerina.transactions.Utils",
+    'class: "io.ballerina.transactions.Utils",
     name: "cleanupTransactionContext"
 } external;
 
@@ -487,6 +487,6 @@ public function cleanupTransactionContext(string transactionBlockId) = @java:Met
 # # Deprecated
 @deprecated
 public function getAndClearFailure() returns boolean = @java:Method {
-    class: "io.ballerina.transactions.Utils",
+    'class: "io.ballerina.transactions.Utils",
     name: "getAndClearFailure"
 } external;

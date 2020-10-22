@@ -1,0 +1,49 @@
+{
+  "position": {
+    "line": 11,
+    "character": 1
+  },
+  "source": "annotation_ctx/source/moduleVarAnnotation1.bal",
+  "items": [
+    {
+      "label": "module1:sourceVarAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:sourceVarAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "module1:sourceVarAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:sourceVarAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "tainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "tainted",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "sourceVarAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "sourceVarAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "sourceVarAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "sourceVarAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    }
+  ]
+}

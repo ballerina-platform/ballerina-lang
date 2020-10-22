@@ -4,7 +4,7 @@ public function testObjectWithSelfKeyword () returns string {
     return p.getNameWrapper();
 }
 
-type Person object {
+class Person {
     public int age = 10;
     public string name = "sample name";
 
@@ -18,4 +18,4 @@ type Person object {
     function getNameWrapper() returns string {
         return self.getName();
     }
-};
+}

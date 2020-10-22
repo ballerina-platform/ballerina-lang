@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
 import org.slf4j.Logger;
@@ -33,7 +33,7 @@ public class WaitForExit {
 
     private static final Logger log = LoggerFactory.getLogger(WaitForExit.class);
 
-    public static Object waitForExit(ObjectValue objVal) {
+    public static Object waitForExit(BObject objVal) {
         Process process = SystemUtils.processFromObject(objVal);
         try {
             return process.waitFor();

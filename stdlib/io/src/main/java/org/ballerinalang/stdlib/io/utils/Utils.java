@@ -17,14 +17,15 @@
  */
 package org.ballerinalang.stdlib.io.utils;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 
 import java.io.ByteArrayInputStream;
@@ -35,7 +36,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
 /**
  * A util class for handling common functions across native implementation.
@@ -45,15 +46,15 @@ import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PR
 public class Utils {
 
     private static final int READABLE_BUFFER_SIZE = 8192; //8KB
-    private static final BPackage PACKAGE_ID_MIME = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "mime", "1.0.0");
+    private static final Module PACKAGE_ID_MIME = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "mime", "1.0.0");
     private static final String STRUCT_TYPE = "ReadableByteChannel";
     private static final String ENCODING_ERROR = "EncodeError";
     private static final String DECODING_ERROR = "DecodeError";
 
 
-    private static ErrorValue createBase64Error(String errorType, String msg, boolean isMimeSpecific) {
+    private static BError createBase64Error(String errorType, String msg, boolean isMimeSpecific) {
         if (isMimeSpecific) {
-            return BallerinaErrors.createDistinctError(errorType, PACKAGE_ID_MIME, msg);
+            return ErrorCreator.createDistinctError(errorType, PACKAGE_ID_MIME, StringUtils.fromString(msg));
         }
         return IOUtils.createError(IOConstants.ErrorCode.GenericError, msg);
     }
@@ -87,17 +88,17 @@ public class Utils {
     @SuppressWarnings("unchecked")
     public static Object encode(Object input, String charset, boolean isMimeSpecific) {
         switch (TypeChecker.getType(input).getTag()) {
-            case org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG:
-                return encodeBlob(((ArrayValue) input).getBytes(), isMimeSpecific);
-            case org.ballerinalang.jvm.types.TypeTags.OBJECT_TYPE_TAG:
-            case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
+            case TypeTags.ARRAY_TAG:
+                return encodeBlob(((BArray) input).getBytes(), isMimeSpecific);
+            case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
                 //TODO : recheck following casing
-                ObjectValue byteChannel = (ObjectValue) input;
+                BObject byteChannel = (BObject) input;
                 if (STRUCT_TYPE.equals(byteChannel.getType().getName())) {
                     return encodeByteChannel(byteChannel, isMimeSpecific);
                 }
                 return Utils.createBase64Error(ENCODING_ERROR, "incompatible object", isMimeSpecific);
-            case org.ballerinalang.jvm.types.TypeTags.STRING_TAG:
+            case TypeTags.STRING_TAG:
                 return encodeString(input.toString(), charset, isMimeSpecific);
             default:
                 return Utils.createBase64Error(ENCODING_ERROR, "incompatible input", isMimeSpecific);
@@ -114,12 +115,12 @@ public class Utils {
      */
     public static Object decode(Object encodedInput, String charset, boolean isMimeSpecific) {
         switch (TypeChecker.getType(encodedInput).getTag()) {
-            case org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG:
-                return decodeBlob(((ArrayValue) encodedInput).getBytes(), isMimeSpecific);
-            case org.ballerinalang.jvm.types.TypeTags.OBJECT_TYPE_TAG:
-            case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
-                return decodeByteChannel((ObjectValue) encodedInput, isMimeSpecific);
-            case org.ballerinalang.jvm.types.TypeTags.STRING_TAG:
+            case TypeTags.ARRAY_TAG:
+                return decodeBlob(((BArray) encodedInput).getBytes(), isMimeSpecific);
+            case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
+                return decodeByteChannel((BObject) encodedInput, isMimeSpecific);
+            case TypeTags.STRING_TAG:
                 return decodeString(encodedInput, charset, isMimeSpecific);
             default:
                 return Utils.createBase64Error(DECODING_ERROR, "incompatible input", isMimeSpecific);
@@ -178,9 +179,9 @@ public class Utils {
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      * @return encoded ReadableByteChannel or an error
      */
-    public static Object encodeByteChannel(ObjectValue byteChannel, boolean isMimeSpecific) {
+    public static Object encodeByteChannel(BObject byteChannel, boolean isMimeSpecific) {
         Channel channel = (Channel) byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-        ObjectValue byteChannelObj;
+        BObject byteChannelObj;
         try {
             byte[] encodedByteArray;
             if (isMimeSpecific) {
@@ -190,7 +191,7 @@ public class Utils {
             }
             InputStream encodedStream = new ByteArrayInputStream(encodedByteArray);
             Base64ByteChannel decodedByteChannel = new Base64ByteChannel(encodedStream);
-            byteChannelObj = BallerinaValues.createObjectValue(IOConstants.IO_PACKAGE_ID, STRUCT_TYPE);
+            byteChannelObj = ValueCreator.createObjectValue(IOConstants.IO_PACKAGE_ID, STRUCT_TYPE);
             byteChannelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(decodedByteChannel));
             return byteChannelObj;
         } catch (IOException e) {
@@ -205,9 +206,9 @@ public class Utils {
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      * @return decoded ReadableByteChannel or an error
      */
-    public static Object decodeByteChannel(ObjectValue byteChannel, boolean isMimeSpecific) {
+    public static Object decodeByteChannel(BObject byteChannel, boolean isMimeSpecific) {
         Channel channel = (Channel) byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-        ObjectValue byteChannelObj;
+        BObject byteChannelObj;
         byte[] decodedByteArray;
         try {
             if (isMimeSpecific) {
@@ -217,7 +218,7 @@ public class Utils {
             }
             InputStream decodedStream = new ByteArrayInputStream(decodedByteArray);
             Base64ByteChannel decodedByteChannel = new Base64ByteChannel(decodedStream);
-            byteChannelObj = BallerinaValues.createObjectValue(IOConstants.IO_PACKAGE_ID, STRUCT_TYPE);
+            byteChannelObj = ValueCreator.createObjectValue(IOConstants.IO_PACKAGE_ID, STRUCT_TYPE);
             byteChannelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(decodedByteChannel));
             return byteChannelObj;
         } catch (IOException e) {
@@ -232,14 +233,14 @@ public class Utils {
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      * @return encoded blob
      */
-    public static ArrayValue encodeBlob(byte[] bytes, boolean isMimeSpecific) {
+    public static BArray encodeBlob(byte[] bytes, boolean isMimeSpecific) {
         byte[] encodedContent;
         if (isMimeSpecific) {
             encodedContent = Base64.getMimeEncoder().encode(bytes);
         } else {
             encodedContent = Base64.getEncoder().encode(bytes);
         }
-        return new ArrayValueImpl(encodedContent);
+        return ValueCreator.createArrayValue(encodedContent);
     }
 
     /**
@@ -249,13 +250,13 @@ public class Utils {
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      * @return decoded blob
      */
-    public static ArrayValue decodeBlob(byte[] encodedContent, boolean isMimeSpecific) {
+    public static BArray decodeBlob(byte[] encodedContent, boolean isMimeSpecific) {
         byte[] decodedContent;
         if (isMimeSpecific) {
             decodedContent = Base64.getMimeDecoder().decode(encodedContent);
         } else {
             decodedContent = Base64.getDecoder().decode(encodedContent);
         }
-        return new ArrayValueImpl(decodedContent);
+        return ValueCreator.createArrayValue(decodedContent);
     }
 }

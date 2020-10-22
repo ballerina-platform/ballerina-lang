@@ -19,39 +19,26 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Scheduler;
 
 /**
  * This function adds tags to a span.
  */
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "observe", version = "0.8.0",
-        functionName = "addTagToSpan",
-        args = {
-                @Argument(name = "tagKey", type = TypeKind.STRING),
-                @Argument(name = "tagValue", type = TypeKind.STRING),
-                @Argument(name = "spanId", type = TypeKind.INT)
-        },
-        returnType = @ReturnType(type = TypeKind.BOOLEAN),
-        isPublic = true
-)
 public class AddTagToSpan {
+    private static final OpenTracerBallerinaWrapper otWrapperInstance = OpenTracerBallerinaWrapper.getInstance();
 
-    public static Object addTagToSpan(Strand strand, BString tagKey, BString tagValue, long spanId) {
-        boolean tagAdded = OpenTracerBallerinaWrapper.getInstance().addTag(tagKey.getValue(), tagValue.getValue(),
-                                                                           spanId, strand);
+    public static Object addTagToSpan(BString tagKey, BString tagValue, long spanId) {
+        boolean tagAdded = otWrapperInstance.addTag(tagKey.getValue(), tagValue.getValue(),
+                                                    spanId, Scheduler.getStrand());
 
         if (tagAdded) {
             return null;
         }
 
-        return BallerinaErrors.createError("Span already finished. Can not add tag {" + tagKey + ":" + tagValue + "}");
+        return ErrorCreator.createError(
+                StringUtils.fromString(("Span already finished. Can not add tag {" + tagKey + ":" + tagValue + "}")));
     }
 }

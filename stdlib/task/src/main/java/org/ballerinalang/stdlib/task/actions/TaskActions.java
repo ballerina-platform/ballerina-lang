@@ -17,10 +17,11 @@
  */
 package org.ballerinalang.stdlib.task.actions;
 
-import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.stdlib.task.api.TaskServerConnector;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.impl.TaskServerConnectorImpl;
@@ -43,7 +44,7 @@ import static org.ballerinalang.stdlib.task.utils.Utils.validateService;
  */
 public class TaskActions {
 
-    public static Object pause(ObjectValue taskListener) {
+    public static Object pause(BObject taskListener) {
         Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
         try {
             task.pause();
@@ -53,7 +54,7 @@ public class TaskActions {
         return null;
     }
 
-    public static Object resume(ObjectValue taskListener) {
+    public static Object resume(BObject taskListener) {
         Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
         try {
             task.resume();
@@ -63,7 +64,7 @@ public class TaskActions {
         return null;
     }
 
-    public static Object detach(ObjectValue taskListener, ObjectValue service) {
+    public static Object detach(BObject taskListener, BObject service) {
         try {
             Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
             String serviceName = service.getType().getName();
@@ -74,7 +75,7 @@ public class TaskActions {
         return null;
     }
 
-    public static Object start(ObjectValue taskListener) {
+    public static Object start(BObject taskListener) {
         Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
         TaskServerConnector serverConnector = new TaskServerConnectorImpl(task);
         try {
@@ -85,7 +86,7 @@ public class TaskActions {
         return null;
     }
 
-    public static Object stop(ObjectValue taskListener) {
+    public static Object stop(BObject taskListener) {
         Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
         TaskServerConnector serverConnector = new TaskServerConnectorImpl(task);
         try {
@@ -96,12 +97,13 @@ public class TaskActions {
         return null;
     }
 
-    public static Object attach(ObjectValue taskListener, ObjectValue service, Object... attachments) {
+    public static Object attach(Environment env, BObject taskListener, BObject service, Object... attachments) {
         ServiceInformation serviceInformation;
+        Runtime runtime = env.getRuntime();
         if (attachments == null) {
-            serviceInformation = new ServiceInformation(BRuntime.getCurrentRuntime(), service);
+            serviceInformation = new ServiceInformation(runtime, service);
         } else {
-            serviceInformation = new ServiceInformation(BRuntime.getCurrentRuntime(), service, attachments);
+            serviceInformation = new ServiceInformation(runtime, service, attachments);
         }
 
         /*
@@ -119,8 +121,8 @@ public class TaskActions {
     }
 
     @SuppressWarnings("unchecked")
-    public static Object init(ObjectValue taskListener) {
-        MapValue<BString, Object> configurations = taskListener.getMapValue(MEMBER_LISTENER_CONFIGURATION);
+    public static Object init(BObject taskListener) {
+        BMap<BString, Object> configurations = taskListener.getMapValue(MEMBER_LISTENER_CONFIGURATION);
         String configurationTypeName = configurations.getType().getName();
         Task task;
         try {

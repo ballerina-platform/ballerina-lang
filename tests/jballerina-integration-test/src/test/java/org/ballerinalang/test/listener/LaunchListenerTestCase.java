@@ -35,25 +35,25 @@ import java.nio.file.Paths;
  */
 public class LaunchListenerTestCase extends BaseTest {
 
-    @Test(description = "Case1: Test launch listener for init failure with runtime exception")
+    @Test(enabled = false, description = "Case1: Test launch listener for init failure with runtime exception")
     public void testInitRuntimeFailure() throws BallerinaTestException {
 
         verify("test-launch-listener-01.jar", "hello_world_service.bal", "Oh no, something really went wrong.");
     }
 
-    @Test(description = "Case2: Test launch listener for init failure with error value")
+    @Test(enabled = false, description = "Case2: Test launch listener for init failure with error value")
     public void testInitError() throws BallerinaTestException {
 
         verify("test-launch-listener-02.jar", "hello_world_service.bal", "error: An error in beforeRunProgram method");
     }
 
-    @Test(description = "Case3: Test launch listener for shutdown failure with runtime exception")
+    @Test(enabled = false, description = "Case3: Test launch listener for shutdown failure with runtime exception")
     public void testShutdownRuntimeFailure() throws BallerinaTestException {
 
         verify("test-launch-listener-03.jar", "hello_world.bal", "Oh no, something really went wrong.");
     }
 
-    @Test(description = "Case4: Test launch listener for shutdown failure with error value")
+    @Test(enabled = false, description = "Case4: Test launch listener for shutdown failure with error value")
     public void testShutdownError() throws BallerinaTestException {
 
         verify("test-launch-listener-04.jar", "hello_world.bal", "error: An error in afterRunProgram method");

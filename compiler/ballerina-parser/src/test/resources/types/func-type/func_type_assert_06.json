@@ -15,15 +15,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
               "children": [
@@ -31,6 +22,10 @@
                   "kind": "FUNCTION_TYPE_DESC",
                   "hasDiagnostics": true,
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "FUNCTION_KEYWORD"
                     },
@@ -146,13 +141,8 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_KEYWORD",
@@ -227,6 +217,10 @@
                               "kind": "FUNCTION_TYPE_DESC",
                               "hasDiagnostics": true,
                               "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
                                 {
                                   "kind": "FUNCTION_KEYWORD",
                                   "leadingMinutiae": [

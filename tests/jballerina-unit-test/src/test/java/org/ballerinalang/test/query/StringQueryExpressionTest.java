@@ -18,8 +18,8 @@
 
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -154,5 +154,21 @@ public class StringQueryExpressionTest {
 
         Assert.assertEquals(returnValues[0].stringValue(),
                 "Everyday Italian|Harry Potter|XQuery Kick Start|Learning XML|");
+    }
+
+    @Test(description = "Test query expression with limit clause")
+    public void testQueryExprWithLimitForStringResult() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithLimitForStringResult");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(), "Ranjan ");
+    }
+
+    @Test(description = "Test query expression with limit clause-v2", enabled = false)
+    public void testQueryExprWithLimitForStringResultV2() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithLimitForStringResultV2");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(), "Ranjan John ");
     }
 }

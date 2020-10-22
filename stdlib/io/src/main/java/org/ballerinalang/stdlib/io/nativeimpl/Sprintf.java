@@ -17,15 +17,15 @@
  */
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.utils.StringUtils;
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 
 import java.util.IllegalFormatConversionException;
 
@@ -109,7 +109,8 @@ public class Sprintf {
                             break;
                         case 's':
                             if (ref != null) {
-                                result.append(String.format("%" + padding + "s", StringUtils.getStringValue(ref)));
+                                result.append(String.format("%" + padding + "s", StringUtils.getStringValue(ref,
+                                                                                                            null)));
                             }
                             break;
                         case '%':
@@ -137,14 +138,14 @@ public class Sprintf {
             // no match, copy and continue
             result.append(format.getValue().charAt(i));
         }
-        return org.ballerinalang.jvm.StringUtils.fromString(result.toString());
+        return StringUtils.fromString(result.toString());
     }
 
     private static void formatHexString(StringBuilder result, int k, StringBuilder padding, char x, Object... args) {
         final Object argsValues = args[k];
-        final BType type = TypeChecker.getType(argsValues);
-        if (TypeTags.ARRAY_TAG == type.getTag() && TypeTags.BYTE_TAG == ((BArrayType) type).getElementType().getTag()) {
-            ArrayValue byteArray = ((ArrayValue) argsValues);
+        final Type type = TypeChecker.getType(argsValues);
+        if (TypeTags.ARRAY_TAG == type.getTag() && TypeTags.BYTE_TAG == ((ArrayType) type).getElementType().getTag()) {
+            BArray byteArray = ((BArray) argsValues);
             for (int i = 0; i < byteArray.size(); i++) {
                 result.append(String.format("%" + padding + x, byteArray.getByte(i)));
             }
