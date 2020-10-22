@@ -249,11 +249,6 @@ public isolated function mergeJson(json j1, json j2) returns json|error = @java:
     name: "mergeJson"
 } external;
 
-# Converts a field in map<json> to a user-specified basic simple type.
-# The basic simple types are ()|int|float|decimal|string|boolean.
-# + v - field value of map<json> or json value
-# + t - basic simple type to convert to
-# + return - value belonging to `t`, or error if this cannot be done
 public isolated function ensureType(any|error v, typedesc<any> t) returns any|error =  @java:Method {
     'class: "org.ballerinalang.langlib.value.EnsureType",
     name: "ensureType"
