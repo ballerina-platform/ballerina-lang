@@ -656,7 +656,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ServiceDeclarationNode transform(ServiceDeclarationNode serviceDeclarationNode) {
         if (serviceDeclarationNode.metadata().isPresent()) {
-            MetadataNode metadata = formatNode(serviceDeclarationNode.metadata().get(), 1, 0);
+            MetadataNode metadata = formatNode(serviceDeclarationNode.metadata().get(), 0, 1);
             serviceDeclarationNode = serviceDeclarationNode.modify().withMetadata(metadata).apply();
         }
         Token serviceKeyword = formatToken(serviceDeclarationNode.serviceKeyword(), 1, 0);
@@ -1065,7 +1065,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ConstantDeclarationNode transform(ConstantDeclarationNode constantDeclarationNode) {
         if (constantDeclarationNode.metadata().isPresent()) {
-            MetadataNode metadata = formatNode(constantDeclarationNode.metadata().get(), 1, 0);
+            MetadataNode metadata = formatNode(constantDeclarationNode.metadata().get(), 0, 1);
             constantDeclarationNode = constantDeclarationNode.modify()
                     .withMetadata(metadata).apply();
         }
@@ -3568,7 +3568,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ClassDefinitionNode transform(ClassDefinitionNode classDefinitionNode) {
         if (classDefinitionNode.metadata().isPresent()) {
-            MetadataNode metadata = formatNode(classDefinitionNode.metadata().get(), 1, 0);
+            MetadataNode metadata = formatNode(classDefinitionNode.metadata().get(), 0, 1);
             classDefinitionNode = classDefinitionNode.modify().withMetadata(metadata).apply();
         }
 
