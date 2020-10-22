@@ -1,5 +1,5 @@
 function foo() {
-    map<string> countryCapitals = { "Sri Lanka": "Colombo" };
+    map<string> countryCapitals = {"Sri Lanka": "Colombo"};
 
     foreach var capital in countryCapitals {
     }

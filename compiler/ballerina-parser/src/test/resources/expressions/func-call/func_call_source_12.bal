@@ -1,4 +1,4 @@
 function foo() {
-    x = bar({ });
-    x = new({ });
+    x = bar({});
+    x = new ({});
 }
