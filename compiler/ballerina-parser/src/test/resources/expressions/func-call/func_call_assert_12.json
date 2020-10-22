@@ -112,13 +112,7 @@
                               "kind": "MAPPING_CONSTRUCTOR",
                               "children": [
                                 {
-                                  "kind": "OPEN_BRACE_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "kind": "OPEN_BRACE_TOKEN"
                                 },
                                 {
                                   "kind": "LIST",
@@ -186,7 +180,13 @@
                   "kind": "IMPLICIT_NEW_EXPRESSION",
                   "children": [
                     {
-                      "kind": "NEW_KEYWORD"
+                      "kind": "NEW_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     },
                     {
                       "kind": "PARENTHESIZED_ARG_LIST",
@@ -204,13 +204,7 @@
                                   "kind": "MAPPING_CONSTRUCTOR",
                                   "children": [
                                     {
-                                      "kind": "OPEN_BRACE_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "OPEN_BRACE_TOKEN"
                                     },
                                     {
                                       "kind": "LIST",

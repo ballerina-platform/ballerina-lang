@@ -140,13 +140,7 @@
                               "kind": "MAPPING_CONSTRUCTOR",
                               "children": [
                                 {
-                                  "kind": "OPEN_BRACE_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "kind": "OPEN_BRACE_TOKEN"
                                 },
                                 {
                                   "kind": "LIST",
@@ -172,13 +166,7 @@
                                           "children": [
                                             {
                                               "kind": "STRING_LITERAL_TOKEN",
-                                              "value": "any",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
+                                              "value": "any"
                                             }
                                           ]
                                         }

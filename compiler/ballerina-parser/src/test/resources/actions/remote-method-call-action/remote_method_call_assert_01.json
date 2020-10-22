@@ -71,24 +71,12 @@
                               "kind": "WHITESPACE_MINUTIAE",
                               "value": "    "
                             }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
                           ]
                         }
                       ]
                     },
                     {
-                      "kind": "RIGHT_ARROW_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "RIGHT_ARROW_TOKEN"
                     },
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",
