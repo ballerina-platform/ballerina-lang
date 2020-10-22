@@ -18,15 +18,11 @@
 
 package io.ballerina.projects.env;
 
+import io.ballerina.projects.*;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageId;
-import io.ballerina.projects.Project;
 import io.ballerina.projects.balo.BaloProject;
-import io.ballerina.projects.environment.GlobalPackageCache;
-import io.ballerina.projects.environment.ModuleLoadRequest;
-import io.ballerina.projects.environment.ModuleLoadResponse;
-import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.*;
 import io.ballerina.projects.repos.PackageRepo;
 
 import java.nio.file.Path;
@@ -42,10 +38,10 @@ import java.util.Optional;
  */
 public class DefaultPackageResolver extends PackageResolver {
     private final Project project;
-    private final PackageRepo distCache;
+    private final Repository distCache;
     private final GlobalPackageCache globalPackageCache;
 
-    public DefaultPackageResolver(Project project, PackageRepo distCache, GlobalPackageCache globalPackageCache) {
+    public DefaultPackageResolver(Project project, Repository distCache, GlobalPackageCache globalPackageCache) {
         this.project = project;
         this.distCache = distCache;
         this.globalPackageCache = globalPackageCache;
@@ -88,20 +84,32 @@ public class DefaultPackageResolver extends PackageResolver {
 
     private Module loadFromDistributionCache(ModuleLoadRequest modLoadRequest) {
         // If version is null load the latest package
-        Optional<Path> balo;
-        if (modLoadRequest.version().isEmpty()) {
-            balo = distCache.getLatestPackageBalo(modLoadRequest);
-        } else {
-            balo = distCache.getPackageBalo(modLoadRequest);
+        PackageLoadRequest loadRequest = PackageLoadRequest.from(modLoadRequest);
+        if (loadRequest.version().isEmpty()) {
+            // find the latest version
+            List<SemanticVersion> packageVersions = distCache.getPackageVersions(loadRequest);
+            if (packageVersions.isEmpty()) {
+                // no versions found.
+                // todo handle package not found with exception
+                return null;
+            }
+            SemanticVersion latest = findlatest(packageVersions);
+            loadRequest = new PackageLoadRequest(loadRequest.orgName().orElse(""), loadRequest.packageName(), latest);
         }
-        if (balo.isEmpty()) {
+
+        Optional<Package> packageOptional = distCache.getPackage(loadRequest);
+        if ( packageOptional.isEmpty()){
+            // we will return null if the package is not found
             return null;
+        } else {
+            globalPackageCache.put(packageOptional.get());
+            return packageOptional.get().getDefaultModule();
         }
-        BaloProject buildProject = BaloProject.loadProject(balo.get());
-        Package pkg = buildProject.currentPackage();
-        pkg.resolveDependencies();
-        globalPackageCache.put(pkg);
-        return pkg.module(modLoadRequest.moduleName());
+    }
+
+    private SemanticVersion findlatest(List<SemanticVersion> packageVersions) {
+        // todo Fix me
+        return packageVersions.get(0);
     }
 
     private Module loadFromCache(ModuleLoadRequest modLoadRequest) {

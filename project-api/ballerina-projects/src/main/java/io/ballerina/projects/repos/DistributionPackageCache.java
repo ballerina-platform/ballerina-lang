@@ -26,7 +26,7 @@ import java.nio.file.Paths;
  *
  * @since 2.0.0
  */
-public class DistributionPackageCache extends PackageCache {
+public class DistributionPackageCache extends FileSystemRepository {
 
     public DistributionPackageCache() {
         super(Paths.get(System.getProperty(ProjectConstants.BALLERINA_INSTALL_DIR_PROP))

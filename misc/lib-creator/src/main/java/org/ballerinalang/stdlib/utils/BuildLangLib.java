@@ -26,10 +26,15 @@ import io.ballerina.projects.model.Target;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Class providing utility methods to generate balo from package.
@@ -61,10 +66,95 @@ public class BuildLangLib {
             packageCompilation.diagnostics().forEach(d -> out.println(d.toString()));
             System.exit(1);
         }
-
-        String baloName = ProjectUtils.getBaloName(pkg);
-        packageCompilation.emit(PackageCompilation.OutputType.BALO, target.getBaloPath().resolve(baloName));
-        packageCompilation.emit(PackageCompilation.OutputType.JAR, target.getJarCachePath());
+        LangLibArchive langLibArchive = new LangLibArchive(target.path(), pkg);
     }
 
+}
+
+
+class LangLibArchive {
+    Path archive;
+    Path balos;
+    Path cache;
+    Path bir;
+    Path jar;
+    Package aPackage;
+    Path zipFile;
+
+    LangLibArchive(Path target, Package pkg) throws IOException {
+        archive = target.resolve(pkg.getDefaultModule().moduleName().toString());
+        Files.createDirectories(archive);
+        aPackage = pkg;
+        zipFile = target.resolve(pkg.packageName().value()+".zip");
+        createDirectoryStructure();
+        createArtafacts();
+        createZip();
+        deleteFiles();
+    }
+
+    private void deleteFiles() throws IOException {
+        Files.walk(archive)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
+    }
+
+    private void createZip() throws IOException {
+        try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(zipFile))) {
+            Files.walk(archive)
+                    .filter(path -> !Files.isDirectory(path))
+                    .forEach(path -> {
+                        ZipEntry zipEntry = new ZipEntry(archive.relativize(path).toString());
+                        try {
+                            zs.putNextEntry(zipEntry);
+                            Files.copy(path, zs);
+                            zs.closeEntry();
+                        } catch (IOException e) {
+                            System.err.println(e);
+                        }
+                    });
+        }
+    }
+
+    private void createArtafacts() {
+        String baloName = ProjectUtils.getBaloName(aPackage);
+        PackageCompilation packageCompilation = aPackage.getCompilation();
+        packageCompilation.emit(PackageCompilation.OutputType.BALO, balos.resolve(baloName));
+        packageCompilation.emit(PackageCompilation.OutputType.BIR, bir);
+        packageCompilation.emit(PackageCompilation.OutputType.JAR, jar);
+    }
+
+    void createDirectoryStructure() throws IOException {
+        /* The exported archive will contain the following
+         * lang.annotations.zip
+         * - balo
+         *    - org
+         *      - package-name
+         *         - version
+         *            - org-package-name-version-any.balo
+         * - cache
+         *    - org
+         *       - package-name
+         *          - version
+         *            - bir
+         *               - mod1.bir
+         *               - mod2.bir
+         *            - jar
+         *               - org-package-name-version.jar
+         */
+        this.balos = archive.resolve("balo")
+                .resolve(aPackage.packageOrg().toString())
+                .resolve(aPackage.packageName().value())
+                .resolve(aPackage.packageVersion().version().toString());
+        this.cache = archive.resolve("cache")
+                .resolve(aPackage.packageOrg().toString())
+                .resolve(aPackage.packageName().value())
+                .resolve(aPackage.packageVersion().version().toString());
+        this.bir = this.cache.resolve("bir");
+        this.jar = this.cache.resolve("jar");
+        Files.createDirectories(this.cache);
+        Files.createDirectories(this.balos);
+        Files.createDirectories(this.bir);
+        Files.createDirectories(this.jar);
+    }
 }

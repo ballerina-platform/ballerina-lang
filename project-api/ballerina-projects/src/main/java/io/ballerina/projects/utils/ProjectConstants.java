@@ -69,4 +69,8 @@ public class ProjectConstants {
     public static final String ANON_ORG = "$anon";
     public static final String DOT = ".";
     public static final String DEFAULT_VERSION = "0.0.0";
+
+    // Constants related to file system repo
+    public static final String REPO_BALO_DIR_NAME = TARGET_BALO_DIR_NAME;
+    public static final String REPO_CACHE_DIR_NAME = "cache";
 }

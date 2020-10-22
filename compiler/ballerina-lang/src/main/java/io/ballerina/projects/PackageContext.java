@@ -17,14 +17,10 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.environment.Repository;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Maintains the internal state of a {@code Package} instance.
@@ -41,6 +37,7 @@ class PackageContext {
     private final PackageDescriptor packageDescriptor;
     private ModuleContext defaultModuleContext;
     private boolean dependenciesResolved;
+    private Optional<Repository> repository;
 
     private Set<PackageDependency> packageDependencies;
     private DependencyGraph<ModuleId> moduleDependencyGraph;
