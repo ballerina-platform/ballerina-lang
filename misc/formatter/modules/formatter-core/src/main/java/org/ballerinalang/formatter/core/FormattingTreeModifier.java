@@ -391,7 +391,12 @@ public class FormattingTreeModifier extends TreeModifier {
         if (variableDeclarationNode.equalsToken().isPresent()) {
             typedBindingPatternNode = formatNode(variableDeclarationNode.typedBindingPattern(), 1, 0);
             Token equalToken = formatToken(variableDeclarationNode.equalsToken().get(), 1, 0);
+
+            boolean previousInLineAnnotation = env.inLineAnnotation;
+            setInLineAnnotation(true);
             ExpressionNode initializer = formatNode(variableDeclarationNode.initializer().get(), 0, 0);
+            setInLineAnnotation(previousInLineAnnotation);
+
             Token semicolonToken = formatToken(variableDeclarationNode.semicolonToken(),
                     env.trailingWS, env.trailingNL);
             return variableDeclarationNode.modify()
@@ -492,12 +497,10 @@ public class FormattingTreeModifier extends TreeModifier {
     public RecordTypeDescriptorNode transform(RecordTypeDescriptorNode recordTypeDesc) {
         final int recordKeywordTrailingWS = 1;
         Token recordKeyword = formatNode(recordTypeDesc.recordKeyword(), recordKeywordTrailingWS, 0);
-        int fieldTrailingWS = 0;
+
         int fieldTrailingNL = 0;
         if (shouldExpand(recordTypeDesc)) {
             fieldTrailingNL++;
-        } else {
-            fieldTrailingWS++;
         }
 
         int prevIndentation = env.currentIndentation;
@@ -510,14 +513,13 @@ public class FormattingTreeModifier extends TreeModifier {
             setIndentation(fieldIndentation);
         }
 
-        Token bodyStartDelimiter = formatToken(recordTypeDesc.bodyStartDelimiter(), fieldTrailingWS, fieldTrailingNL);
+        Token bodyStartDelimiter = formatToken(recordTypeDesc.bodyStartDelimiter(), 0, fieldTrailingNL);
         indent(); // Set indentation for record fields
-        NodeList<Node> fields = formatNodeList(recordTypeDesc.fields(), fieldTrailingWS, fieldTrailingNL,
-                fieldTrailingWS, fieldTrailingNL, true);
+        NodeList<Node> fields = formatNodeList(recordTypeDesc.fields(), 0, fieldTrailingNL, 0, fieldTrailingNL, true);
 
         if (recordTypeDesc.recordRestDescriptor().isPresent()) {
             RecordRestDescriptorNode recordRestDescriptor =
-                    formatNode(recordTypeDesc.recordRestDescriptor().get(), fieldTrailingWS, fieldTrailingNL);
+                    formatNode(recordTypeDesc.recordRestDescriptor().get(), 0, fieldTrailingNL);
             recordTypeDesc = recordTypeDesc.modify().withRecordRestDescriptor(recordRestDescriptor).apply();
         }
 
@@ -788,8 +790,8 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public RemoteMethodCallActionNode transform(RemoteMethodCallActionNode remoteMethodCallActionNode) {
-        ExpressionNode expression = formatNode(remoteMethodCallActionNode.expression(), 1, 0);
-        Token rightArrowToken = formatToken(remoteMethodCallActionNode.rightArrowToken(), 1, 0);
+        ExpressionNode expression = formatNode(remoteMethodCallActionNode.expression(), 0, 0);
+        Token rightArrowToken = formatToken(remoteMethodCallActionNode.rightArrowToken(), 0, 0);
         SimpleNameReferenceNode methodName = formatNode(remoteMethodCallActionNode.methodName(), 0, 0);
         Token openParenToken = formatToken(remoteMethodCallActionNode.openParenToken(), 0, 0);
         SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(remoteMethodCallActionNode
@@ -1187,19 +1189,15 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public MappingConstructorExpressionNode transform(
             MappingConstructorExpressionNode mappingConstructorExpressionNode) {
-        int fieldTrailingWS = 0;
         int fieldTrailingNL = 0;
         if (shouldExpand(mappingConstructorExpressionNode.fields())) {
             fieldTrailingNL++;
-        } else {
-            fieldTrailingWS++;
         }
 
-        Token openBrace = formatToken(mappingConstructorExpressionNode.openBrace(), fieldTrailingWS, fieldTrailingNL);
+        Token openBrace = formatToken(mappingConstructorExpressionNode.openBrace(), 0, fieldTrailingNL);
         indent();
         SeparatedNodeList<MappingFieldNode> fields = formatSeparatedNodeList(
-                mappingConstructorExpressionNode.fields(), 0, 0, fieldTrailingWS, fieldTrailingNL,
-                fieldTrailingWS, fieldTrailingNL);
+                mappingConstructorExpressionNode.fields(), 0, 0, 0, fieldTrailingNL, 0, fieldTrailingNL);
         unindent();
         Token closeBrace = formatToken(mappingConstructorExpressionNode.closeBrace(), env.trailingWS, env.trailingNL);
 
@@ -1616,7 +1614,8 @@ public class FormattingTreeModifier extends TreeModifier {
             metadataNode = metadataNode.modify().withDocumentationString(documentationString).apply();
         }
 
-        NodeList<AnnotationNode> annotations = formatNodeList(metadataNode.annotations(), 0, 1, env.trailingWS, env.trailingNL);
+        NodeList<AnnotationNode> annotations = formatNodeList(metadataNode.annotations(),
+                0, 1, env.trailingWS, env.trailingNL);
 
         return metadataNode.modify()
                 .withAnnotations(annotations)
@@ -2370,18 +2369,15 @@ public class FormattingTreeModifier extends TreeModifier {
                 1, 0, 1, 0);
         Token objectKeyword = formatToken(objectTypeDescriptorNode.objectKeyword(), 1, 0);
 
-        int fieldTrailingWS = 0;
         int fieldTrailingNL = 0;
         if (shouldExpand(objectTypeDescriptorNode)) {
             fieldTrailingNL++;
-        } else {
-            fieldTrailingWS++;
         }
 
-        Token openBrace = formatToken(objectTypeDescriptorNode.openBrace(), fieldTrailingWS, fieldTrailingNL);
+        Token openBrace = formatToken(objectTypeDescriptorNode.openBrace(), 0, fieldTrailingNL);
         indent();
-        NodeList<Node> members = formatNodeList(objectTypeDescriptorNode.members(), fieldTrailingWS, fieldTrailingNL,
-                fieldTrailingWS, fieldTrailingNL, true);
+        NodeList<Node> members = formatNodeList(objectTypeDescriptorNode.members(), 0, fieldTrailingNL,
+                0, fieldTrailingNL, true);
         unindent();
         Token closeBrace = formatToken(objectTypeDescriptorNode.closeBrace(), env.trailingWS, env.trailingNL);
         setIndentation(prevIndentation);  // Revert indentation for braces
@@ -2403,13 +2399,11 @@ public class FormattingTreeModifier extends TreeModifier {
                 1, 0, 1, 0);
         Token objectKeyword = formatToken(objectConstructorExpressionNode.objectKeyword(), 1, 0);
 
-        int fieldTrailingWS = 0;
         int fieldTrailingNL = 0;
         if (shouldExpandObjectMembers(objectConstructorExpressionNode.members())) {
             fieldTrailingNL++;
-        } else {
-            fieldTrailingWS++;
         }
+
         int prevIndentation = env.currentIndentation;
 
         // Set indentation for braces.
@@ -2423,11 +2417,10 @@ public class FormattingTreeModifier extends TreeModifier {
                     .withTypeReference(typeReference).apply();
         }
 
-        Token openBraceToken = formatToken(objectConstructorExpressionNode.openBraceToken(),
-                fieldTrailingWS, fieldTrailingNL);
+        Token openBraceToken = formatToken(objectConstructorExpressionNode.openBraceToken(), 0, fieldTrailingNL);
         indent();
         NodeList<Node> members = formatNodeList(objectConstructorExpressionNode.members(),
-                fieldTrailingWS, fieldTrailingNL, fieldTrailingWS, fieldTrailingNL, true);
+                0, fieldTrailingNL, 0, fieldTrailingNL, true);
         unindent();
         Token closeBraceToken = formatToken(objectConstructorExpressionNode.closeBraceToken(),
                 env.trailingWS, env.trailingNL);
@@ -2803,7 +2796,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ImplicitNewExpressionNode transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
         if (implicitNewExpressionNode.parenthesizedArgList().isPresent()) {
-            Token newKeyword = formatToken(implicitNewExpressionNode.newKeyword(), 0, 0);
+            Token newKeyword = formatToken(implicitNewExpressionNode.newKeyword(), 1, 0);
             ParenthesizedArgList parenthesizedArgList =
                     formatNode(implicitNewExpressionNode.parenthesizedArgList().get(), env.trailingWS,
                             env.trailingNL);
@@ -3143,8 +3136,8 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public WaitFieldsListNode transform(WaitFieldsListNode waitFieldsListNode) {
-        Token openBrace = formatToken(waitFieldsListNode.openBrace(), 1, 0);
-        SeparatedNodeList<Node> waitFields = formatSeparatedNodeList(waitFieldsListNode.waitFields(), 0, 0, 1, 0);
+        Token openBrace = formatToken(waitFieldsListNode.openBrace(), 0, 0);
+        SeparatedNodeList<Node> waitFields = formatSeparatedNodeList(waitFieldsListNode.waitFields(), 0, 0, 0, 0);
         Token closeBrace = formatToken(waitFieldsListNode.closeBrace(), env.trailingWS, env.trailingNL);
 
         return waitFieldsListNode.modify()
