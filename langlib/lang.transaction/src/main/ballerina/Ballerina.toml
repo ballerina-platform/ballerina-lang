@@ -1,34 +1,3 @@
 [project]
 org-name = "ballerina"
 version = "0.0.1"
-
-
-[platform]
-target = "java11"
-    [[platform.libraries]]
-    artifactId = "transactions-jta"
-    version = "@atomikos.version@"
-    path = "./lib/transactions-jta-@atomikos.version@.jar"
-    groupId = "com.atomikos"
-    modules = ["lang.transaction"]
-
-    [[platform.libraries]]
-    artifactId = "transactions-api"
-    version = "@atomikos.version@"
-    path = "./lib/transactions-@atomikos.version@.jar"
-    groupId = "com.atomikos"
-    modules = ["lang.transaction"]
-
-    [[platform.libraries]]
-    artifactId = "transactions"
-    version = "@atomikos.version@"
-    path = "./lib/transactions-@atomikos.version@.jar"
-    groupId = "com.atomikos"
-    modules = ["lang.transaction"]
-
-    [[platform.libraries]]
-    artifactId = "javax.transaction-api"
-    version = "@javax.transaction.version@"
-    path = "./lib/javax.transaction-api-@javax.transaction.version@.jar"
-    groupId = "javax.transaction"
-    modules = ["lang.transaction"]
