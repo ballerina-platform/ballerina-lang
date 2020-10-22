@@ -1769,9 +1769,9 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public MappingBindingPatternNode transform(MappingBindingPatternNode mappingBindingPatternNode) {
-        Token openBraceToken = formatToken(mappingBindingPatternNode.openBrace(), 1, 0);
+        Token openBraceToken = formatToken(mappingBindingPatternNode.openBrace(), 0, 0);
         SeparatedNodeList<FieldBindingPatternNode> fieldBindingPatternNodes =
-                formatSeparatedNodeList(mappingBindingPatternNode.fieldBindingPatterns(), 0, 0, 1, 0);
+                formatSeparatedNodeList(mappingBindingPatternNode.fieldBindingPatterns(), 0, 0, 0, 0);
         if (mappingBindingPatternNode.restBindingPattern().isPresent()) {
             RestBindingPatternNode restBindingPattern =
                     formatNode(mappingBindingPatternNode.restBindingPattern().get(), 1, 0);
