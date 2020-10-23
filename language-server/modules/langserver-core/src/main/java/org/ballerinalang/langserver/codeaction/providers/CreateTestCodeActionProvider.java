@@ -16,9 +16,9 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.builder.NodeBasedCodeAction;
-import org.ballerinalang.langserver.codeaction.builder.impl.CreateFunctionTestCodeAction;
-import org.ballerinalang.langserver.codeaction.builder.impl.CreateServiceTestCodeAction;
+import org.ballerinalang.langserver.codeaction.impl.CreateFunctionTestCodeAction;
+import org.ballerinalang.langserver.codeaction.impl.CreateServiceTestCodeAction;
+import org.ballerinalang.langserver.codeaction.impl.NodeBasedCodeAction;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;

@@ -39,7 +39,7 @@ type Type1 any|error;
 # + stm - the stream
 # + func - a predicate to apply to each member to test whether it should be selected
 # + return - new stream only containing members of `stm` for which `func` evaluates to true
-public function filter(stream<Type,ErrorType> stm, function(Type val) returns boolean func)
+public isolated function filter(stream<Type,ErrorType> stm, @isolatedParam function(Type val) returns boolean func)
    returns stream<Type,ErrorType>  {
     FilterSupport itrObj = new(stm, func);
     return internal:construct(internal:getElementType(typeof stm), itrObj);
@@ -71,7 +71,7 @@ public function next(stream<Type, ErrorType> strm) returns record {| Type value;
 # + stm - the stream
 # + func - a function to apply to each member
 # + return - new stream containing result of applying `func` to each member of `stm` in order
-public function 'map(stream<Type,ErrorType> stm, function(Type val) returns Type1 func)
+public isolated function 'map(stream<Type,ErrorType> stm, @isolatedParam function(Type val) returns Type1 func)
    returns stream<Type1,ErrorType> {
     MapSupport  iteratorObj = new(stm, func);
     return internal:construct(internal:getReturnType(func), iteratorObj);
@@ -86,7 +86,7 @@ public function 'map(stream<Type,ErrorType> stm, function(Type val) returns Type
 # + func - combining function
 # + initial - initial value for the first argument of combining function
 # + return - result of combining the members of `stm` using the combining function
-public function reduce(stream<Type,ErrorType> stm, function(Type1 accum, Type val) returns Type1 func, Type1 initial)
+public isolated function reduce(stream<Type,ErrorType> stm, @isolatedParam function(Type1 accum, Type val) returns Type1 func, Type1 initial)
    returns Type1|ErrorType {
     any | error reducedValue = initial;
     while (true) {
@@ -108,7 +108,7 @@ public function reduce(stream<Type,ErrorType> stm, function(Type1 accum, Type va
 # + stm - the stream
 # + func - a function to apply to each member
 # + return - An error if iterating the stream encounters an error
-public function forEach(stream<Type,ErrorType> stm, function(Type val) returns () func) returns ErrorType? {
+public isolated function forEach(stream<Type,ErrorType> stm, @isolatedParam function(Type val) returns () func) returns ErrorType? {
     var nextVal = next(stm);
     while(true) {
         if (nextVal is ()) {

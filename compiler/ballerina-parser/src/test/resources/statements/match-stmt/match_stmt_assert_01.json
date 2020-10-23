@@ -16,13 +16,7 @@
     },
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "foo",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
-        }
-      ]
+      "value": "foo"
     },
     {
       "kind": "FUNCTION_SIGNATURE",
@@ -583,7 +577,7 @@
                                   "trailingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "  "
+                                      "value": " "
                                     }
                                   ]
                                 }

@@ -31,6 +31,7 @@ public enum AnnotationAttachPoint {
     PARAMETER,
     RETURN,
     SERVICE,
+    CLASS,
     FIELD,
     OBJECT_FIELD,
     RECORD_FIELD,

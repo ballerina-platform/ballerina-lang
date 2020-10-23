@@ -13,5 +13,26 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/java;
+
+isolated function system_out() returns handle = @java:FieldGet {
+    name: "out",
+    'class: "java.lang.System"
+} external;
+
+isolated function println(handle receiver, handle arg0) = @java:Method {
+    name: "println",
+    'class: "java.io.PrintStream",
+    paramTypes: ["java.lang.String"]
+} external;
+
+isolated function print(string str) {
+    println(system_out(), java:fromString(str));
+}
+
+public function main() {
+   print("hello-isolated");
+   print("hello-non-isolated");
+}
 
 isolated function bar() returns int => 34;

@@ -45,7 +45,7 @@ public class TableConstructorExpressionNode extends ExpressionNode {
         return childInBucket(2);
     }
 
-    public SeparatedNodeList<Node> mappingConstructors() {
+    public SeparatedNodeList<Node> rows() {
         return new SeparatedNodeList<>(childInBucket(3));
     }
 
@@ -69,7 +69,7 @@ public class TableConstructorExpressionNode extends ExpressionNode {
                 "tableKeyword",
                 "keySpecifier",
                 "openBracket",
-                "mappingConstructors",
+                "rows",
                 "closeBracket"};
     }
 
@@ -77,13 +77,13 @@ public class TableConstructorExpressionNode extends ExpressionNode {
             Token tableKeyword,
             KeySpecifierNode keySpecifier,
             Token openBracket,
-            SeparatedNodeList<Node> mappingConstructors,
+            SeparatedNodeList<Node> rows,
             Token closeBracket) {
         if (checkForReferenceEquality(
                 tableKeyword,
                 keySpecifier,
                 openBracket,
-                mappingConstructors.underlyingListNode(),
+                rows.underlyingListNode(),
                 closeBracket)) {
             return this;
         }
@@ -92,7 +92,7 @@ public class TableConstructorExpressionNode extends ExpressionNode {
                 tableKeyword,
                 keySpecifier,
                 openBracket,
-                mappingConstructors,
+                rows,
                 closeBracket);
     }
 
@@ -110,7 +110,7 @@ public class TableConstructorExpressionNode extends ExpressionNode {
         private Token tableKeyword;
         private KeySpecifierNode keySpecifier;
         private Token openBracket;
-        private SeparatedNodeList<Node> mappingConstructors;
+        private SeparatedNodeList<Node> rows;
         private Token closeBracket;
 
         public TableConstructorExpressionNodeModifier(TableConstructorExpressionNode oldNode) {
@@ -118,7 +118,7 @@ public class TableConstructorExpressionNode extends ExpressionNode {
             this.tableKeyword = oldNode.tableKeyword();
             this.keySpecifier = oldNode.keySpecifier().orElse(null);
             this.openBracket = oldNode.openBracket();
-            this.mappingConstructors = oldNode.mappingConstructors();
+            this.rows = oldNode.rows();
             this.closeBracket = oldNode.closeBracket();
         }
 
@@ -143,10 +143,10 @@ public class TableConstructorExpressionNode extends ExpressionNode {
             return this;
         }
 
-        public TableConstructorExpressionNodeModifier withMappingConstructors(
-                SeparatedNodeList<Node> mappingConstructors) {
-            Objects.requireNonNull(mappingConstructors, "mappingConstructors must not be null");
-            this.mappingConstructors = mappingConstructors;
+        public TableConstructorExpressionNodeModifier withRows(
+                SeparatedNodeList<Node> rows) {
+            Objects.requireNonNull(rows, "rows must not be null");
+            this.rows = rows;
             return this;
         }
 
@@ -162,7 +162,7 @@ public class TableConstructorExpressionNode extends ExpressionNode {
                     tableKeyword,
                     keySpecifier,
                     openBracket,
-                    mappingConstructors,
+                    rows,
                     closeBracket);
         }
     }

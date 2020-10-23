@@ -18,10 +18,10 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 import java.util.zip.CRC32;
@@ -34,34 +34,34 @@ import java.util.zip.Checksum;
  */
 public class Hash {
 
-    public static BString crc32b(ArrayValue input) {
+    public static BString crc32b(BArray input) {
         Checksum checksum = new CRC32();
         byte[] bytes = input.getBytes();
         long checksumVal;
 
         checksum.update(bytes, 0, bytes.length);
         checksumVal = checksum.getValue();
-        return BStringUtils.fromString(Long.toHexString(checksumVal));
+        return StringUtils.fromString(Long.toHexString(checksumVal));
     }
 
-    public static ArrayValue hashMd5(ArrayValue inputValue) {
-        return new ArrayValueImpl(CryptoUtils.hash("MD5", inputValue.getBytes()));
+    public static BArray hashMd5(BArray inputValue) {
+        return ValueCreator.createArrayValue(CryptoUtils.hash("MD5", inputValue.getBytes()));
     }
 
-    public static ArrayValue hashSha1(ArrayValue inputValue) {
-        return new ArrayValueImpl(CryptoUtils.hash("SHA-1", inputValue.getBytes()));
+    public static BArray hashSha1(BArray inputValue) {
+        return ValueCreator.createArrayValue(CryptoUtils.hash("SHA-1", inputValue.getBytes()));
     }
 
-    public static ArrayValue hashSha256(ArrayValue inputValue) {
-        return new ArrayValueImpl(CryptoUtils.hash("SHA-256", inputValue.getBytes()));
+    public static BArray hashSha256(BArray inputValue) {
+        return ValueCreator.createArrayValue(CryptoUtils.hash("SHA-256", inputValue.getBytes()));
     }
 
-    public static ArrayValue hashSha384(ArrayValue inputValue) {
-        return new ArrayValueImpl(CryptoUtils.hash("SHA-384", inputValue.getBytes()));
+    public static BArray hashSha384(BArray inputValue) {
+        return ValueCreator.createArrayValue(CryptoUtils.hash("SHA-384", inputValue.getBytes()));
     }
 
-    public static ArrayValue hashSha512(ArrayValue inputValue) {
-        return new ArrayValueImpl(CryptoUtils.hash("SHA-512", inputValue.getBytes()));
+    public static BArray hashSha512(BArray inputValue) {
+        return ValueCreator.createArrayValue(CryptoUtils.hash("SHA-512", inputValue.getBytes()));
     }
 
 }

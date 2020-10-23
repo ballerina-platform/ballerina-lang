@@ -28,9 +28,9 @@ import java.util.Map;
  * Enum to hold the state of a {@link BArrayType}.
  */
 public enum BArrayState {
-    CLOSED_SEALED((byte) 1),
-    OPEN_SEALED((byte) 2),
-    UNSEALED((byte) 3);
+    CLOSED((byte) 1),
+    INFERRED((byte) 2),
+    OPEN((byte) 3);
 
     byte value;
     private static final Map<Byte, BArrayState> map = new HashMap<>();

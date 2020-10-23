@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.impl.types.BallerinaNilTypeDescriptor;
 import io.ballerina.compiler.api.impl.types.BallerinaObjectTypeDescriptor;
 import io.ballerina.compiler.api.impl.types.BallerinaRecordTypeDescriptor;
 import io.ballerina.compiler.api.impl.types.BallerinaSimpleTypeDescriptor;
+import io.ballerina.compiler.api.impl.types.BallerinaSingletonTypeDescriptor;
 import io.ballerina.compiler.api.impl.types.BallerinaStreamTypeDescriptor;
 import io.ballerina.compiler.api.impl.types.BallerinaTupleTypeDescriptor;
 import io.ballerina.compiler.api.impl.types.BallerinaTypeDescTypeDescriptor;
@@ -38,6 +39,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -49,8 +51,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
+
+import java.util.Set;
 
 import static org.ballerinalang.model.types.TypeKind.OBJECT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
@@ -69,19 +74,17 @@ public class TypesFactory {
     /**
      * Get the type descriptor for the given type.
      *
-     * @param bType {@link BType} of the type descriptor
+     * @param bType       {@link BType} of the type descriptor
      * @param rawTypeOnly Whether to convert the type descriptor to type reference or keep the raw type
      * @return {@link BallerinaTypeDescriptor} generated
      */
     public static BallerinaTypeDescriptor getTypeDescriptor(BType bType, boolean rawTypeOnly) {
-        BallerinaTypeDescriptor typeDescriptorImpl;
         if (bType == null || bType.tag == TypeTags.NONE) {
             return null;
         }
 
         ModuleID moduleID = bType.tsymbol == null ? null : new BallerinaModuleID(bType.tsymbol.pkgID);
 
-        // TODO: Revisit this: Why need a type-reference type?
         if (isTypeReference(bType, rawTypeOnly)) {
             return new BallerinaTypeReferenceTypeDescriptor(moduleID, bType, bType.tsymbol.getName().getValue());
         }
@@ -109,6 +112,16 @@ public class TypesFactory {
                 return new BallerinaTypeDescTypeDescriptor(moduleID, (BTypedescType) bType);
             case NIL:
                 return new BallerinaNilTypeDescriptor(moduleID, (BNilType) bType);
+            case FINITE:
+                BFiniteType finiteType = (BFiniteType) bType;
+                Set<BLangExpression> valueSpace = finiteType.getValueSpace();
+
+                if (valueSpace.size() == 1) {
+                    BLangExpression shape = valueSpace.iterator().next();
+                    return new BallerinaSingletonTypeDescriptor(moduleID, shape, bType);
+                }
+
+                return new BallerinaUnionTypeDescriptor(moduleID, finiteType);
             case OTHER:
                 if (bType instanceof BInvokableType) {
                     return new BallerinaFunctionTypeDescriptor(moduleID, (BInvokableTypeSymbol) bType.tsymbol);

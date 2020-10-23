@@ -18,13 +18,13 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.transactions.TransactionLocalContext;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.transactions.TransactionLocalContext;
 
 /**
  * Extern function transaction:info.
@@ -33,13 +33,13 @@ import org.ballerinalang.jvm.values.MapValue;
  */
 public class Info {
 
-    public static MapValue<BString, Object> info() {
+    public static BMap<BString, Object> info() {
         Strand strand = Scheduler.getStrand();
         if (IsTransactional.isTransactional()) {
             TransactionLocalContext context = strand.currentTrxContext;
-            return (MapValue<BString, Object>) context.getInfoRecord();
+            return (BMap<BString, Object>) context.getInfoRecord();
         }
-        throw BErrorCreator.createError(BStringUtils
+        throw ErrorCreator.createError(StringUtils
                 .fromString("cannot call info() if the strand is not in transaction mode"));
     }
 }

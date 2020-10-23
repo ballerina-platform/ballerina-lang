@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * Return the string that represents `v` in JSON format.
@@ -30,6 +30,6 @@ public class ToJsonString {
 
     public static BString toJsonString(Object value) {
         Object jsonValue = ToJson.toJson(value);
-        return BStringUtils.fromString(BStringUtils.getJsonString(jsonValue));
+        return StringUtils.fromString(StringUtils.getJsonString(jsonValue));
     }
 }

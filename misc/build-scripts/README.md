@@ -26,7 +26,7 @@ to nexus, in order for the build/release process to work as expected,
 all repositories should be using the same local m2 repository.
 
 * Now go to Jenkins Dashboard -> Manage Jenkins -> Global Tools Configuration
-and add a JDK 8 installation and an appropriate Maven installation.
+and add a JDK 11 installation and an appropriate Maven installation.
 
 * Now, go to Jenkins Dashboard -> New Item and create a Pipeline Job. 
 Then you will be directed to configuration section of the job,
@@ -38,7 +38,7 @@ GIT_CREDENTIALS_ID - This is the id of the git credentials you added
 GIT_EMAIL - This is the email of the git user associated with the above credentials  
 SETTINGS_XML_ID - This is the id of the settings.xml you added  
 MAVEN_TOOL=One of the appropriate maven installations you added  
-JDK - JDK 8 installation you added  
+JDK - JDK 11 installation you added  
 GIT_USER - ballerinalang. (We are cloning repositories from ballerinalang  
 organization. This can be changed as needed)
  
@@ -47,7 +47,7 @@ GIT_CREDENTIALS_ID=git-credentials-id
 GIT_EMAIL=ballerinalang@wso2.com  
 SETTINGS_XML_ID=adb07180-fa9c-4bea-94c4-130813b8018c  
 MAVEN_TOOL=apache-maven-3.3.9  
-JDK=Oracle-JDK-1.8.0_45  
+JDK=Oracle-JDK-11  
 GIT_USER=ballerinalang  
 
 Save your configuration.

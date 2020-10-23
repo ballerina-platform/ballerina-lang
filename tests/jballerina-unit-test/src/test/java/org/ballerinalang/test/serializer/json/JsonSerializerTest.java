@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.test.serializer.json;
 
 import org.ballerinalang.core.model.types.BArrayType;

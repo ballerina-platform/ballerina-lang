@@ -5,7 +5,7 @@ module io.ballerina.lang {
     requires gson;
     requires java.xml;
     requires org.objectweb.asm;
-    requires io.ballerina.jvm;
+    requires io.ballerina.runtime;
     requires io.netty.buffer;
     requires io.ballerina.cli.module;
     requires io.ballerina.parser;

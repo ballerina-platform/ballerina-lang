@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DocumentationAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.IsolationAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ObserverbilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
@@ -73,6 +74,7 @@ public class CompilerPhaseRunner {
     private final CodeGenerator codeGenerator;
     private final CompilerPhase compilerPhase;
     private final DataflowAnalyzer dataflowAnalyzer;
+    private final IsolationAnalyzer isolationAnalyzer;
     private boolean isToolingCompilation;
 
 
@@ -105,6 +107,7 @@ public class CompilerPhaseRunner {
         this.codeGenerator = CodeGenerator.getInstance(context);
         this.compilerPhase = this.options.getCompilerPhase();
         this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
+        this.isolationAnalyzer = IsolationAnalyzer.getInstance(context);
         this.isToolingCompilation = this.options.isSet(TOOLING_COMPILATION)
                 && Boolean.parseBoolean(this.options.get(TOOLING_COMPILATION));
     }
@@ -138,6 +141,11 @@ public class CompilerPhaseRunner {
             return;
         }
 
+        isolationAnalyze(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.ISOLATION_ANALYZE)) {
+            return;
+        }
+
         documentationAnalyze(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.TAINT_ANALYZE)) {
             return;
@@ -158,7 +166,45 @@ public class CompilerPhaseRunner {
             return;
         }
 
-//        generateObservabilityData(pkgNode);
+        generateObservabilityData(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.DESUGAR)) {
+            return;
+        }
+
+        desugar(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.BIR_GEN)) {
+            return;
+        }
+
+        birGen(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.CODE_GEN)) {
+            return;
+        }
+
+        codeGen(pkgNode);
+    }
+
+    public void compileLangLibs(BLangPackage pkgNode) {
+        if (this.stopCompilation(pkgNode, CompilerPhase.TYPE_CHECK)) {
+            return;
+        }
+
+        typeCheck(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.CODE_ANALYZE)) {
+            return;
+        }
+
+        codeAnalyze(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.DOCUMENTATION_ANALYZE)) {
+            return;
+        }
+
+        documentationAnalyze(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.TAINT_ANALYZE)) {
+            return;
+        }
+
+        taintAnalyze(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.DESUGAR)) {
             return;
         }
@@ -202,6 +248,10 @@ public class CompilerPhaseRunner {
 
     private BLangPackage dataflowAnalyze(BLangPackage pkgNode) {
         return this.dataflowAnalyzer.analyze(pkgNode);
+    }
+
+    private BLangPackage isolationAnalyze(BLangPackage pkgNode) {
+        return this.isolationAnalyzer.analyze(pkgNode);
     }
 
     private BLangPackage taintAnalyze(BLangPackage pkgNode) {

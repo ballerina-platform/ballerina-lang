@@ -27,6 +27,9 @@ public const annotation typeParam on source type;
 # Denotes annotated type is a builtin sub type.
 public const annotation builtinSubtype on source type;
 
+# Denotes that the annotated parameter expects an `isolated` value when used in an `isolated` context.
+public const annotation isolatedParam on source parameter;
+
 # Defaultable argument names. This is for internal use.
 #
 # + args - Defaultable argument names are set at compile time.

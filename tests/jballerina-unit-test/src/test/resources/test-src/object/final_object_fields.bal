@@ -32,6 +32,7 @@ function testFinalObjectFields() {
     testSubTypingWithReadOnlyFieldsNegativeComposite();
     testSubTypingWithMutableFinalFields();
     testSubTypingWithMutableFinalFieldsNegative();
+    testUpdatingMutableFinalField();
 }
 
 public class Student {
@@ -257,6 +258,19 @@ function testTypeReadOnlyFlagForAllFinalFields() {
 
     readonly rd = st;
     assertTrue(rd is Bar);
+
+    var ob = object {
+        final map<int> & readonly config;
+
+        function init() {
+            self.config = {
+                a: 1,
+                b: 2
+            };
+        }
+    };
+    readonly rd2 = ob;
+    assertTrue(rd2 is readonly & object {map<int> config;});
 }
 
 class Person {
@@ -584,6 +598,22 @@ function testSubTypingWithMutableFinalFieldsNegative() {
         }
     };
     assertFalse(ob is Controller);
+}
+
+function testUpdatingMutableFinalField() {
+    map<int> c1 = {
+        factor: 1,
+        pressure: 2
+    };
+    MyController mc = new (c1);
+
+    assertEquality(1, mc.config["factor"]);
+    assertEquality(2, mc.config["pressure"]);
+
+    mc.config["pressure"] = 3;
+
+    assertEquality(1, mc.config["factor"]);
+    assertEquality(3, mc.config["pressure"]);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

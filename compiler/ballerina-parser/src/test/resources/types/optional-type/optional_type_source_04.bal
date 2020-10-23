@@ -1,1 +1,2 @@
-function foo(int?... nums) { }
+function foo(int?... nums) {
+}

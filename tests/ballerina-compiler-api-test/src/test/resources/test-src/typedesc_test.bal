@@ -59,8 +59,16 @@ function test() {
     Number n = 20;
 
     Digit d = 1;
+
+    Format fmt = DEFAULT;
 }
 
 type Number int|float|decimal;
 
 type Digit 0|1|2|3;
+
+public type Format DEFAULT|CSV|TDF;
+
+public const DEFAULT = "default";
+public const CSV = "csv";
+public const TDF = "tdf";

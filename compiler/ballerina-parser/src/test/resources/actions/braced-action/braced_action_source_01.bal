@@ -1,3 +1,3 @@
 function foo() {
-    int x = (a -> b());
+    int x = (a->b());
 }

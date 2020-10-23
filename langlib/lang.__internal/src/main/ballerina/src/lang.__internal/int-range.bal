@@ -30,7 +30,7 @@ class IntRange {
         self.iCurrent = s;
     }
 
-    public function hasNext() returns boolean {
+    public isolated function hasNext() returns boolean {
         return (self.iStart <= self.iCurrent) && (self.iCurrent <= self.iEnd);
     }
 

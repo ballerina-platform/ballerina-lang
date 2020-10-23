@@ -1,4 +1,4 @@
 function foo() {
-    trap a() -> b();
+    trap a()->b();
     x = trap start a();
 }

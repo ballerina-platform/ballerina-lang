@@ -1,4 +1,4 @@
 function foo() {
     start foo();
-    x = start a -> b();
+    x = start a->b();
 }

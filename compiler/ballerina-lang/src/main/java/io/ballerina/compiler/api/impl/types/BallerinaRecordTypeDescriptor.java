@@ -37,17 +37,13 @@ import java.util.StringJoiner;
  * @since 2.0.0
  */
 public class BallerinaRecordTypeDescriptor extends AbstractTypeDescriptor implements RecordTypeDescriptor {
-
     private List<FieldDescriptor> fieldDescriptors;
-    private boolean isInclusive;
-    // private TypeDescriptor typeReference;
+    private final boolean isInclusive;
     private BallerinaTypeDescriptor restTypeDesc;
 
     public BallerinaRecordTypeDescriptor(ModuleID moduleID, BRecordType recordType) {
         super(TypeDescKind.RECORD, moduleID, recordType);
         this.isInclusive = !recordType.sealed;
-        // TODO: Fix this
-        // this.typeReference = null;
     }
 
     /**
@@ -99,7 +95,6 @@ public class BallerinaRecordTypeDescriptor extends AbstractTypeDescriptor implem
         }
 
         restTypeDescriptor().ifPresent(typeDescriptor -> joiner.add(typeDescriptor.signature() + "..."));
-        // this.getTypeReference().ifPresent(typeDescriptor -> joiner.add("*" + typeDescriptor.getSignature()));
 
         return joiner.toString();
     }
