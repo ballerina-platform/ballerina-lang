@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.matchpatterns;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.matchpatterns.FieldMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.MappingMatchPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.RestMatchPatternNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ import java.util.List;
 public class BLangMappingMatchPattern extends BLangMatchPattern implements MappingMatchPatternNode {
 
     public List<BLangFieldMatchPattern> fieldMatchPatterns = new ArrayList<>();
+    public BLangRestMatchPattern restMatchPattern;
     // TODO : add rest-match-pattern
 
     @Override
@@ -47,5 +49,15 @@ public class BLangMappingMatchPattern extends BLangMatchPattern implements Mappi
     public List<? extends FieldMatchPatternNode> getFieldMatchPatterns() {
 
         return fieldMatchPatterns;
+    }
+
+    @Override
+    public RestMatchPatternNode getRestMatchPattern() {
+        return restMatchPattern;
+    }
+
+    @Override
+    public void setRestMatchPattern(RestMatchPatternNode restMatchPattern) {
+        this.restMatchPattern = (BLangRestMatchPattern) restMatchPattern;
     }
 }

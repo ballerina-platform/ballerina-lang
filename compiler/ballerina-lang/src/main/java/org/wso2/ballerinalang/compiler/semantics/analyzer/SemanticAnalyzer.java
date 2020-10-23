@@ -2591,6 +2591,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (BLangFieldMatchPattern fieldMatchPattern : mappingMatchPattern.fieldMatchPatterns) {
             fieldMatchPattern.accept(this);
         }
+        if(mappingMatchPattern.restMatchPattern != null) {
+            mappingMatchPattern.restMatchPattern.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
+            mappingMatchPattern.restMatchPattern.accept(this);
+        }
 
         BType patternType = getMatchPatternType(mappingMatchPattern);
         if (mappingMatchPattern.matchExpr == null) {
@@ -2599,6 +2603,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         mappingMatchPattern.type = types.resolvePatternTypeFromMatchExpr(mappingMatchPattern.matchExpr.type,
                 (BRecordType) patternType);
+    }
+
+    @Override
+    public void visit(BLangRestMatchPattern restMatchPattern) {
+        Name name = new Name(restMatchPattern.variableName.value);
+        BSymbol symbol = symResolver.lookupSymbolInMainSpace(env, name);
+        if (symbol == symTable.notFoundSymbol) {
+            symbol = new BVarSymbol(0, name, env.enclPkg.packageID, restMatchPattern.type, env.scope.owner,
+                    restMatchPattern.pos, SOURCE);
+            symbolEnter.defineSymbol(restMatchPattern.pos, symbol, env);
+        }
+        restMatchPattern.symbol = (BVarSymbol) symbol;
     }
 
     @Override

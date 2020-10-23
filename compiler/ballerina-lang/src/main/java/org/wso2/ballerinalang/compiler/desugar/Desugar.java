@@ -3512,6 +3512,7 @@ public class Desugar extends BLangNodeVisitor {
                 matchPatternType);
         BLangExpression typeConvertedExpr = addConversionExprIfRequired(matchExprVarRef, matchPatternType);
         BLangSimpleVariableDef tempCastVarDef = createVarDef("$castTemp$", matchPatternType, typeConvertedExpr, pos);
+        BLangSimpleVarRef tempCastVarRef = ASTBuilderUtil.createVariableRef(pos, tempCastVarDef.var.symbol);
 
         BLangBlockStmt ifBlock = ASTBuilderUtil.createBlockStmt(pos);
         ifBlock.addStatement(tempCastVarDef);
@@ -3523,6 +3524,30 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangBlockStmt tempBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
         tempBlockStmt.addStatement(successResult);
+        if (mappingMatchPattern.restMatchPattern != null) {
+            BLangRestMatchPattern restMatchPattern = mappingMatchPattern.restMatchPattern;
+            DiagnosticPos restPatternPos = restMatchPattern.pos;
+            List<String> keysToRemove = getKeysToRemove(mappingMatchPattern);
+            BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(symTable.stringType,
+                    ((BRecordType) matchPatternType).restFieldType)), null);
+            BLangInvocation entriesInvocation = generateMapEntriesInvocation(tempCastVarRef, entriesType);
+            BLangSimpleVariableDef entriesVarDef = createVarDef("$entries$", entriesType, entriesInvocation,
+                    restPatternPos);
+            tempBlockStmt.addStatement(entriesVarDef);
+            BLangLambdaFunction filteringFunction = createFuncToFilterOutRestParam(keysToRemove, restPatternPos);
+            BLangInvocation filterInvocation = generateMapFilterInvocation(pos, entriesVarDef.var, filteringFunction);
+            BLangSimpleVariableDef filtersVarDef = createVarDef("$filteredVarDef$", entriesType, filterInvocation,
+                    restPatternPos);
+            tempBlockStmt.addStatement(filtersVarDef);
+            BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos);
+            BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
+                    backToMapLambda);
+            BLangSimpleVariable restVar =
+                    ASTBuilderUtil.createVariable(restPatternPos, restMatchPattern.getIdentifier().getValue(),
+                            restMatchPattern.symbol.type, mapInvocation, restMatchPattern.symbol);
+            BLangSimpleVariableDef restVarDef = ASTBuilderUtil.createVariableDef(restPatternPos, restVar);
+            tempBlockStmt.addStatement(restVarDef);
+        }
         BLangIf ifStmtForMatchPatterns = ASTBuilderUtil.createIfElseStmt(pos, condition, tempBlockStmt, null);
         ifBlock.addStatement(ifStmtForMatchPatterns);
 
@@ -3533,6 +3558,15 @@ public class Desugar extends BLangNodeVisitor {
         addAsRecordTypeDefinition((BRecordType) matchPatternType, pos);
 
         return statementExpression;
+    }
+
+    private List<String> getKeysToRemove(BLangMappingMatchPattern mappingMatchPattern) {
+        List<String> allKeys = new ArrayList<>(((BRecordType) mappingMatchPattern.type).fields.keySet());
+        List<String> keysToRemove = new ArrayList<>();
+        for (int i = 0; i < mappingMatchPattern.fieldMatchPatterns.size(); i++) {
+            keysToRemove.add(allKeys.get(i));
+        }
+        return keysToRemove;
     }
 
     private BLangExpression createConditionForFieldMatchPatterns(List<BLangFieldMatchPattern> fieldMatchPatterns,
@@ -3718,6 +3752,9 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void addAsRecordTypeDefinition(BRecordType recordType, DiagnosticPos pos) {
+        if (isRecordTypeDefExist(recordType.tsymbol, env)) {
+            return;
+        }
         BLangRecordTypeNode recordTypeNode = new BLangRecordTypeNode();
         recordTypeNode.pos = pos;
         recordTypeNode.type = recordType;
@@ -3732,10 +3769,18 @@ public class Desugar extends BLangNodeVisitor {
         recordTypeNode.isLocal = true;
         recordTypeNode.type.tsymbol.scope = new Scope(recordTypeNode.type.tsymbol);
         recordTypeNode.initFunction =
-                rewrite(TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names,
-                        symTable),
+                rewrite(TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable),
                         env);
         TypeDefBuilderHelper.addTypeDefinition(recordType, recordType.tsymbol, recordTypeNode, env);
+    }
+
+    private boolean isRecordTypeDefExist(BTypeSymbol recordTypeSymbol, SymbolEnv env) {
+        for (BLangTypeDefinition typeDef : env.enclPkg.getTypeDefinitions()) {
+            if (typeDef.symbol == recordTypeSymbol) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

@@ -4105,8 +4105,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLangListMatchPattern.pos = matchPatternPos;
 
             for (Node memberMatchPattern : listMatchPatternNode.matchPatterns()) {
-                BLangMatchPattern bLangMemberMatchPattern = transformMatchPattern(memberMatchPattern,
-                        getPosition(memberMatchPattern));
+                BLangMatchPattern bLangMemberMatchPattern = transformMatchPattern(memberMatchPattern);
                 if (bLangMemberMatchPattern == null) {
                     continue;
                 }
@@ -4116,8 +4115,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             if (listMatchPatternNode.restMatchPattern().isPresent()) {
                 RestMatchPatternNode restMatchPatternNode = listMatchPatternNode.restMatchPattern().get();
                 bLangListMatchPattern.setRestMatchPattern(
-                        (BLangRestMatchPattern) transformMatchPattern(restMatchPatternNode,
-                                getPosition(restMatchPatternNode)));
+                        (BLangRestMatchPattern) transformMatchPattern(restMatchPatternNode));
             }
             return bLangListMatchPattern;
         }
@@ -4141,6 +4139,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             for (FieldMatchPatternNode fieldMatchPatternNode : mappingMatchPatternNode.fieldMatchPatterns()) {
                 bLangMappingMatchPattern.fieldMatchPatterns.add((BLangFieldMatchPattern)
                         transformMatchPattern(fieldMatchPatternNode));
+            }
+            if (mappingMatchPatternNode.restMatchPattern().isPresent()) {
+                bLangMappingMatchPattern.restMatchPattern =
+                        (BLangRestMatchPattern) transformMatchPattern(mappingMatchPatternNode.restMatchPattern().get());
             }
 
             return bLangMappingMatchPattern;
