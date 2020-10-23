@@ -1074,11 +1074,12 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ModuleVariableDeclarationNode createModuleVariableDeclarationNode(
             MetadataNode metadata,
-            Token finalKeyword,
+            NodeList<Token> qualifiers,
             TypedBindingPatternNode typedBindingPattern,
             Token equalsToken,
             ExpressionNode initializer,
             Token semicolonToken) {
+        Objects.requireNonNull(qualifiers, "qualifiers must not be null");
         Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
         Objects.requireNonNull(equalsToken, "equalsToken must not be null");
         Objects.requireNonNull(initializer, "initializer must not be null");
@@ -1086,7 +1087,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
         STNode stModuleVariableDeclarationNode = STNodeFactory.createModuleVariableDeclarationNode(
                 getOptionalSTNode(metadata),
-                getOptionalSTNode(finalKeyword),
+                qualifiers.underlyingListNode().internalNode(),
                 typedBindingPattern.internalNode(),
                 equalsToken.internalNode(),
                 initializer.internalNode(),
