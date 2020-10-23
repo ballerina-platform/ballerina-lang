@@ -853,7 +853,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         symTable.defineOperators();
     }
 
-    public void boostrapAnydataType() {
+    public void bootstrapAnydataType() {
         ScopeEntry entry = symTable.langAnnotationModuleSymbol.scope.lookup(Names.ANYDATA);
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
@@ -877,7 +877,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         throw new IllegalStateException("built-in 'anydata' type not found");
     }
 
-    public void boostrapJsonType() {
+    public void bootstrapJsonType() {
         ScopeEntry entry = symTable.langAnnotationModuleSymbol.scope.lookup(Names.JSON);
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
@@ -899,7 +899,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         throw new IllegalStateException("built-in 'json' type not found");
     }
 
-    public void boostrapCloneableType() {
+    public void bootstrapCloneableType() {
         boolean foundCloneableType = false;
         if (symTable.langValueModuleSymbol != null) {
             ScopeEntry entry = symTable.langValueModuleSymbol.scope.lookup(Names.CLONEABLE);
@@ -961,7 +961,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         throw new IllegalStateException("built-in error not found ?");
     }
 
-    public void boostrapIntRangeType() {
+    public void bootstrapIntRangeType() {
 
         ScopeEntry entry = symTable.langInternalModuleSymbol.scope.lookup(Names.CREATE_INT_RANGE);
         while (entry != NOT_FOUND_ENTRY) {

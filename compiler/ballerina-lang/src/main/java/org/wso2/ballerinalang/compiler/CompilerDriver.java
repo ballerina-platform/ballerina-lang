@@ -150,13 +150,13 @@ public class CompilerDriver {
             symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
             symbolTable.langJavaModuleSymbol = pkgLoader.loadPackageSymbol(JAVA, null, null);
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
-            symResolver.boostrapJsonType();
-            symResolver.boostrapAnydataType();
+            symResolver.bootstrapJsonType();
+            symResolver.bootstrapAnydataType();
             symResolver.boostrapErrorType();
-            symResolver.boostrapCloneableType();
+            symResolver.bootstrapCloneableType();
             symResolver.defineOperators();
             symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
-            symResolver.boostrapIntRangeType();
+            symResolver.bootstrapIntRangeType();
             symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
             symbolTable.langDecimalModuleSymbol = pkgLoader.loadPackageSymbol(DECIMAL, null, null);
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
@@ -185,16 +185,16 @@ public class CompilerDriver {
         }
         if (langLib.equals(ANNOTATIONS)) {
             symbolTable.langAnnotationModuleSymbol = getLangModuleFromSource(ANNOTATIONS);
-            symResolver.boostrapCloneableType();
+            symResolver.bootstrapCloneableType();
             return; // Nothing else to load.
         }
 
         // Other lang modules requires annotation module. Hence loading it first.
         symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
         symResolver.boostrapErrorType();
-        symResolver.boostrapAnydataType();
-        symResolver.boostrapJsonType();
-        symResolver.boostrapCloneableType();
+        symResolver.bootstrapAnydataType();
+        symResolver.bootstrapJsonType();
+        symResolver.bootstrapCloneableType();
         symResolver.defineOperators();
 
         if (langLib.equals(JAVA)) {
@@ -227,7 +227,7 @@ public class CompilerDriver {
             symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
             symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null, null);
             symbolTable.langStreamModuleSymbol = pkgLoader.loadPackageSymbol(STREAM, null, null);
-            symResolver.boostrapCloneableType();
+            symResolver.bootstrapCloneableType();
         }
 
         if (langLib.equals(TRANSACTION)) {
@@ -237,14 +237,14 @@ public class CompilerDriver {
             symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null, null);
             symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
-            symResolver.boostrapCloneableType();
+            symResolver.bootstrapCloneableType();
         }
 
         if (langLib.equals(ERROR)) {
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
-            symResolver.boostrapCloneableType();
+            symResolver.bootstrapCloneableType();
         }
-        symResolver.boostrapIntRangeType();
+        symResolver.bootstrapIntRangeType();
 
         // Now load each module.
         getLangModuleFromSource(langLib);
