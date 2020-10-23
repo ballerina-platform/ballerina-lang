@@ -708,7 +708,7 @@ class JvmValueGen {
         this.createRecordInitWrapper(cw, className, typeDef);
         this.createLambdas(cw, asyncDataCollector, moduleInitClass);
         JvmCodeGenUtil.visitStrandMetadataField(cw, asyncDataCollector);
-        this.generateStaticInitializer(cw, className, module, asyncDataCollector);
+        this.generateStaticInitializer(cw, className, moduleInitClass, module, asyncDataCollector);
         cw.visitEnd();
 
         return jvmPackageGen.getBytes(cw, typeDef);
@@ -764,14 +764,15 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    private void generateStaticInitializer(ClassWriter cw, String moduleClass, BIRNode.BIRPackage module,
+    private void generateStaticInitializer(ClassWriter cw, String moduleClass,
+                                           String moduleInitClass, BIRNode.BIRPackage module,
                                                   AsyncDataCollector asyncDataCollector) {
 
         if (asyncDataCollector.getStrandMetadata().isEmpty()) {
             return;
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
-        JvmCodeGenUtil.generateStrandMetadata(mv, moduleClass, module, asyncDataCollector);
+        JvmCodeGenUtil.generateStrandMetadata(mv, moduleClass, moduleInitClass, asyncDataCollector);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -1401,7 +1402,7 @@ class JvmValueGen {
         this.createObjectSetOnInitializationMethod(cw, fields, className);
         this.createLambdas(cw, asyncDataCollector, moduleInitClass);
         JvmCodeGenUtil.visitStrandMetadataField(cw, asyncDataCollector);
-        this.generateStaticInitializer(cw, className, module, asyncDataCollector);
+        this.generateStaticInitializer(cw, className, moduleInitClass, module, asyncDataCollector);
 
         cw.visitEnd();
         return jvmPackageGen.getBytes(cw, typeDef);

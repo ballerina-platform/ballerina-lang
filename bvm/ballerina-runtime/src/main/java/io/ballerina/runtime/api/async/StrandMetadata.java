@@ -17,6 +17,7 @@
  */
 package io.ballerina.runtime.api.async;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.scheduling.Strand;
 
 /**
@@ -28,19 +29,9 @@ import io.ballerina.runtime.scheduling.Strand;
 public class StrandMetadata {
 
     /**
-     * Organization name of module @{@link Strand} was initiated.
+     * Module @{@link Strand} was initiated.
      */
-    private final String moduleOrg;
-
-    /**
-     * Name of module @{@link Strand} was initiated.
-     */
-    private final String moduleName;
-
-    /**
-     * Version of module @{@link Strand} was initiated.
-     */
-    private final String moduleVersion;
+    private final Module module;
 
     /**
      * Type name if @{@link Strand} was initiated inside type.
@@ -54,9 +45,7 @@ public class StrandMetadata {
 
     public StrandMetadata(String moduleOrg, String moduleName, String moduleVersion, String typeName,
                           String parentFunctionName) {
-        this.moduleOrg = moduleOrg;
-        this.moduleName = moduleName;
-        this.moduleVersion = moduleVersion;
+        this.module = new Module(moduleOrg, moduleName, moduleVersion);
         this.typeName = typeName;
         this.parentFunctionName = parentFunctionName;
     }
@@ -65,31 +54,23 @@ public class StrandMetadata {
         this(moduleOrg, moduleName, moduleVersion, null, parentFunctionName);
     }
 
-    /**
-     * Gets the organization name of module @{@link Strand} was initiated.
-     *
-     * @return Strand module org name.
-     */
-    public String getModuleOrg() {
-        return moduleOrg;
+    public StrandMetadata(Module module, String typeName, String parentFunctionName) {
+        this.module = module;
+        this.typeName = typeName;
+        this.parentFunctionName = parentFunctionName;
+    }
+
+    public StrandMetadata(Module module, String parentFunctionName) {
+        this(module, null, parentFunctionName);
     }
 
     /**
-     * Gets the name of module @{@link Strand} was initiated.
+     * Gets the module @{@link Strand} was initiated.
      *
-     * @return Strand module name.
+     * @return Strand module.
      */
-    public String getModuleName() {
-        return moduleName;
-    }
-
-    /**
-     * Gets the version of module @{@link Strand} was initiated.
-     *
-     * @return Strand module version.
-     */
-    public String getModuleVersion() {
-        return moduleVersion;
+    public Module getModule() {
+        return module;
     }
 
     /**

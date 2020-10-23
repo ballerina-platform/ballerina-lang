@@ -56,6 +56,7 @@ import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
@@ -68,6 +69,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTEN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FILE_NAME_PERIOD_SEPERATOR;
@@ -229,29 +231,25 @@ public class JvmCodeGenUtil {
         mv.visitEnd();
     }
 
-    static void generateStrandMetadata(MethodVisitor mv, String moduleClass,
-                                       BIRNode.BIRPackage module, AsyncDataCollector asyncDataCollector) {
+    static void generateStrandMetadata(MethodVisitor mv, String moduleClass, String moduleInitClass,
+                                       AsyncDataCollector asyncDataCollector) {
         asyncDataCollector.getStrandMetadata().forEach(
-                (varName, metaData) -> genStrandMetadataField(mv, moduleClass, module, varName, metaData));
+                (varName, metaData) -> genStrandMetadataField(mv, moduleClass, moduleInitClass, varName, metaData));
     }
 
-    private static void genStrandMetadataField(MethodVisitor mv, String moduleClass, BIRNode.BIRPackage module,
+    private static void genStrandMetadataField(MethodVisitor mv, String moduleClass, String moduleInitClass,
                                                String varName, ScheduleFunctionInfo metaData) {
-
         mv.visitTypeInsn(Opcodes.NEW, STRAND_METADATA);
         mv.visitInsn(Opcodes.DUP);
-        mv.visitLdcInsn(module.org.value);
-        mv.visitLdcInsn(module.name.value);
-        mv.visitLdcInsn(module.version.value);
+        mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", MODULE));
         if (metaData.typeName == null) {
             mv.visitInsn(Opcodes.ACONST_NULL);
         } else {
             mv.visitLdcInsn(metaData.typeName);
         }
         mv.visitLdcInsn(metaData.parentFunctionName);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, STRAND_METADATA,
-                           JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE,
-                                                                  STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, STRAND_METADATA, JVM_INIT_METHOD,
+                           String.format("(L%s;L%s;L%s;)V", MODULE, STRING_VALUE, STRING_VALUE), false);
         mv.visitFieldInsn(Opcodes.PUTSTATIC, moduleClass, varName, String.format("L%s;", STRAND_METADATA));
     }
 

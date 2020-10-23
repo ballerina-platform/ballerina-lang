@@ -236,7 +236,7 @@ public class JvmPackageGen {
         fv.visitEnd();
     }
 
-    private static void generateStaticInitializer(ClassWriter cw, String className,
+    private static void generateStaticInitializer(ClassWriter cw, String className, String moduleInitClass,
                                                   BIRPackage module, boolean isInitClass,
                                                   boolean serviceEPAvailable, AsyncDataCollector asyncDataCollector) {
 
@@ -250,7 +250,7 @@ public class JvmPackageGen {
             setModuleStatusField(cw, mv, className);
             setCurrentModuleField(cw, mv, module, className);
         }
-        JvmCodeGenUtil.generateStrandMetadata(mv, className, module, asyncDataCollector);
+        JvmCodeGenUtil.generateStrandMetadata(mv, className, moduleInitClass, asyncDataCollector);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -547,7 +547,7 @@ public class JvmPackageGen {
                 jvmMethodGen.generateLambdaMethod(call, cw, name, moduleInitClass);
             }
             JvmCodeGenUtil.visitStrandMetadataField(cw, asyncDataCollector);
-            generateStaticInitializer(cw, moduleClass, module, isInitClass, serviceEPAvailable,
+            generateStaticInitializer(cw, moduleClass, moduleInitClass, module, isInitClass, serviceEPAvailable,
                                       asyncDataCollector);
             cw.visitEnd();
 
