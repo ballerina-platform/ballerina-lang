@@ -28,10 +28,14 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -97,6 +101,7 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
+import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
@@ -129,6 +134,7 @@ public class Types {
     private Names names;
     private int finiteTypeCount = 0;
     private BUnionType expandedXMLBuiltinSubtypes;
+    private final BLangAnonymousModelHelper anonymousModelHelper;
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
@@ -150,6 +156,7 @@ public class Types {
                                                             symTable.xmlElementType, symTable.xmlCommentType,
                                                             symTable.xmlPIType, symTable.xmlTextType);
         this.typeBuilder = new ResolvedTypeBuilder();
+        this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
 
     public List<BType> checkTypes(BLangExpression node,
@@ -3108,6 +3115,11 @@ public class Types {
                 }
             } else if (type.tag == TypeTags.NULL_SET) {
                 return type;
+            } else if (type.tag == TypeTags.ERROR && lhsType.tag == TypeTags.ERROR) {
+                BType intersectionType = getIntersectionForErrorTypes(lhsType, type);
+                if (intersectionType != symTable.semanticError) {
+                    return intersectionType;
+                }
             }
             return null;
         }).filter(type -> type != null).collect(Collectors.toCollection(LinkedHashSet::new));
@@ -3126,6 +3138,61 @@ public class Types {
         } else {
             return BUnionType.create(null, intersection);
         }
+    }
+
+    private BType getIntersectionForErrorTypes(BType lhsType, BType rhsType) {
+
+        BRecordType detailTypeOne = (BRecordType) ((BErrorType) lhsType).detailType;
+        BRecordType detailTypeTwo = (BRecordType) ((BErrorType) rhsType).detailType;
+
+        if (detailTypeOne.sealed || detailTypeTwo.sealed) {
+            // TODO: Log error for sealed detail type
+        }
+
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(lhsType.tsymbol.owner);
+
+        BRecordType detailIntersectionType = createRecordIntersection(detailTypeOne, detailTypeTwo, pkgEnv);
+
+        return null;
+    }
+
+    private BRecordType createRecordIntersection(BRecordType detailTypeOne, BRecordType detailTypeTwo,
+                                                 SymbolEnv pkgEnv) {
+        EnumSet<Flag> flags = EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS);
+        BRecordTypeSymbol intersectionRecordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
+                                                                                pkgEnv.enclPkg.packageID, null,
+                                                                                pkgEnv.scope.owner, null, VIRTUAL);
+        BRecordType recordType = new BRecordType(intersectionRecordSymbol);
+        intersectionRecordSymbol.type = recordType;
+        intersectionRecordSymbol.name = names.fromString(
+                anonymousModelHelper.getNextAnonymousTypeKey(pkgEnv.enclPkg.packageID));
+        populateRecordFields(recordType, pkgEnv, detailTypeOne);
+        populateRecordFields(recordType, pkgEnv, detailTypeTwo);
+
+        return recordType;
+    }
+
+    private void populateRecordFields(BRecordType recordType, SymbolEnv pkgEnv, BRecordType originalRecordType) {
+        BTypeSymbol intersectionRecordSymbol = recordType.tsymbol;
+        LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
+        for (BField origField : originalRecordType.fields.values()) {
+            org.wso2.ballerinalang.compiler.util.Name origFieldName = origField.name;
+            BType recordFieldType = origField.type;
+            BVarSymbol recordFieldSymbol = new BVarSymbol(origField.symbol.flags, origFieldName,
+                                                          pkgEnv.enclPkg.packageID, recordFieldType,
+                                                          intersectionRecordSymbol, origField.pos, SOURCE);
+            if (recordFieldType.tag == TypeTags.INVOKABLE && recordFieldType.tsymbol != null) {
+                BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) recordFieldType.tsymbol;
+                BInvokableSymbol invokableSymbol = (BInvokableSymbol) recordFieldSymbol;
+                invokableSymbol.params = tsymbol.params;
+                invokableSymbol.restParam = tsymbol.restParam;
+                invokableSymbol.retType = tsymbol.returnType;
+                invokableSymbol.flags = tsymbol.flags;
+            }
+            String nameString = origFieldName.value;
+            fields.put(nameString, new BField(origFieldName, null, recordFieldSymbol));
+        }
+        recordType.fields.putAll(fields);
     }
 
     private BType getRemainingType(BUnionType originalType, List<BType> removeTypes) {

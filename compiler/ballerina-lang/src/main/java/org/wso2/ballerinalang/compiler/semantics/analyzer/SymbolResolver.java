@@ -1673,9 +1673,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         boolean hasReadOnlyType = typeOne == symTable.readonlyType || typeTwo == symTable.readonlyType;
 
-        boolean hasErrorType = typeOne.tag == TypeTags.ERROR || typeTwo.tag == TypeTags.ERROR;
-
-        if (hasErrorType) {
+        // Error intersection is calculated later in defineConstructs.
+        if (typeOne.tag == TypeTags.ERROR || typeTwo.tag == TypeTags.ERROR) {
             return symTable.errorIntersectionType;
         }
 

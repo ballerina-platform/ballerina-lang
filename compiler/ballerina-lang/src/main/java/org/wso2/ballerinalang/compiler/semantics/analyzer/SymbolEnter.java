@@ -416,8 +416,27 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .forEach(varSymbol -> varSymbol.tag = SymTag.ENDPOINT);
     }
 
-    private void defineErrorIntersection(SymbolEnv pkgEnv) {
+    private void defineErrorIntersection(SymbolEnv env) {
+        for (BLangNode typeDescriptor : this.errorIntersectionTypes) {
+            BLangTypeDefinition typeDefinition = (BLangTypeDefinition) typeDescriptor;
 
+            BLangIntersectionTypeNode intersectionTypeNode = (BLangIntersectionTypeNode) typeDefinition.typeNode;
+            List<BLangType> constituentTypes = intersectionTypeNode.constituentTypeNodes;
+
+            BLangType bLangTypeOne = constituentTypes.get(0);
+            BType typeOne = symResolver.resolveTypeNode(bLangTypeOne, env);
+            if (typeOne.tag != TypeTags.ERROR && typeOne.tag != TypeTags.READONLY) {
+                // TODO: log error for intersection type with other types.
+            }
+
+            BLangType bLangTypeTwo = constituentTypes.get(1);
+            BType typeTwo = symResolver.resolveTypeNode(bLangTypeTwo, env);
+            if (typeTwo.tag != TypeTags.ERROR && typeTwo.tag != TypeTags.READONLY) {
+                // TODO: log error for intersection type with other types.
+            }
+
+            BType potentialIntersectionType = types.getTypeIntersection(typeOne, typeTwo);
+        }
     }
 
     private void defineDistinctClassAndObjectDefinitions(List<BLangNode> typDefs) {
