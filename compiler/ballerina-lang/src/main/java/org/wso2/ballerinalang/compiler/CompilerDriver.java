@@ -238,8 +238,6 @@ public class CompilerDriver {
             symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
             symResolver.boostrapCloneableType();
-            symResolver.boostrapAnydataType();
-            symResolver.boostrapJsonType();
         }
 
         if (langLib.equals(ERROR)) {

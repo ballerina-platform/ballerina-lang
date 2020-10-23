@@ -912,9 +912,6 @@ public class SymbolResolver extends BLangNodeVisitor {
 
                 symTable.cloneableType = (BUnionType) entry.symbol.type;
                 symTable.cloneableType.flags |= Flags.CYCLIC;
-                if (Symbols.isFlagOn(symTable.cloneableType.flags, Flags.TYPE_PARAM)) {
-                    symTable.cloneableType.flags ^= Flags.TYPE_PARAM;
-                }
                 symTable.cloneableType.tsymbol =
                         new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
                                 symTable.cloneableType, symTable.langValueModuleSymbol, symTable.builtinPos, BUILTIN);
@@ -935,7 +932,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                         continue;
                     }
                     entry.symbol.type = symTable.cloneableType;
-//                symTable.rootPkgSymbol.scope.renameTypeSymbol(Names.__CLONEABLE, Names.CLONEABLE);
                     break;
                 }
             }
@@ -948,11 +944,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 continue;
             }
             entry.symbol.type = symTable.cloneableType;
-            if (Symbols.isFlagOn(symTable.cloneableType.flags, Flags.TYPE_PARAM)) {
-                symTable.cloneableType.flags ^= Flags.TYPE_PARAM;
-            }
             symTable.detailType.constraint = symTable.cloneableType;
-//            symTable.rootPkgSymbol.scope.renameTypeSymbol(Names.__CLONEABLE, Names.CLONEABLE);
             break;
         }
 
