@@ -26,8 +26,11 @@ import io.ballerina.projects.internal.balo.adaptors.JsonCollectionsAdaptor;
 import io.ballerina.projects.internal.balo.adaptors.JsonStringsAdaptor;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -88,6 +91,7 @@ public class BaloWriter {
         addPackageJson(baloOutputStream, pkg);
         addPackageDoc(baloOutputStream, pkg.project().sourceRoot(), pkg.packageName().toString());
         addPackageSource(baloOutputStream, pkg);
+        addBIr(baloOutputStream, pkg);
         // Add platform libs only if it is not a template module
         //        if (!ballerinaToml.isTemplateModule(packageName)) {
         //            addPlatformLibs(root, packagePath, ballerinaToml);
@@ -102,6 +106,31 @@ public class BaloWriter {
                     new ByteArrayInputStream(baloJson.getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
             throw new RuntimeException("Failed to write 'balo.json' file: " + e.getMessage(), e);
+        }
+    }
+
+    private static void addBIr(ZipOutputStream baloOutputStream, Package pkg) {
+        for (ModuleId moduleId : pkg.moduleIds()) {
+            Module module = pkg.module(moduleId);
+            try {
+                String moduleName = module.moduleName().toString();
+                byte[] bir = writePackage(module.bir());
+                putZipEntry(baloOutputStream, moduleName + ".bir",
+                        new ByteArrayInputStream(bir));
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to write 'balo.json' file: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    private static byte[] writePackage(CompiledBinaryFile.BIRPackageFile packageFile) throws IOException {
+        ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
+        try (DataOutputStream dataOutStream = new DataOutputStream(byteArrayOS)) {
+            dataOutStream.write(CompiledBinaryFile.BIRPackageFile.BIR_MAGIC);
+            dataOutStream.writeInt(CompiledBinaryFile.BIRPackageFile.BIR_VERSION);
+
+            dataOutStream.write(packageFile.pkgBirBinaryContent);
+            return byteArrayOS.toByteArray();
         }
     }
 

@@ -93,7 +93,9 @@ public class PackageLoader {
 
         List<DocumentConfig> srcDocs = getDocumentConfigs(moduleId, moduleData.sourceDocs());
         List<DocumentConfig> testSrcDocs = getDocumentConfigs(moduleId, moduleData.testSourceDocs());
-        return ModuleConfig.from(moduleId, moduleName, moduleDirPath, srcDocs, testSrcDocs);
+        final ModuleConfig moduleConfig = ModuleConfig.from(moduleId, moduleName, moduleDirPath, srcDocs, testSrcDocs);
+        moduleConfig.birBytes = moduleData.birBytes();
+        return moduleConfig;
     }
 
     private static List<DocumentConfig> getDocumentConfigs(ModuleId moduleId, List<DocumentData> documentData) {

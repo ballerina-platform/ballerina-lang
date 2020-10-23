@@ -18,6 +18,7 @@
 package org.ballerinalang.test;
 
 import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.apache.axiom.om.OMNode;
 import org.ballerinalang.core.model.types.BArrayType;
 import org.ballerinalang.core.model.types.BErrorType;
@@ -1156,9 +1157,12 @@ public class BRunUtil {
     }
 
     private static BIRNode.BIRFunction getInvokedFunction(CompileResult compileResult, String functionName) {
-
         if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException("There were compilation errors");
+            StringJoiner stringJoiner = new StringJoiner("\n", "\n", "");
+            for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
+                stringJoiner.add(diagnostic.toString());
+            }
+            throw new IllegalStateException("There were compilation errors: " + stringJoiner.toString());
         }
 
         BIRNode.BIRPackage birPackage = compileResult.defaultModuleBIR();

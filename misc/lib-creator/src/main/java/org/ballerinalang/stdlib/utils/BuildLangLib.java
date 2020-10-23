@@ -48,15 +48,20 @@ public class BuildLangLib {
         System.setProperty(ProjectConstants.BALLERINA_INSTALL_DIR_PROP, distCache.toString());
         out.println("Building langlib ...");
         out.println("Project Dir: " + projectDir);
+
+        // TODO Temporary fix
+        String pkgName = projectDir.getFileName().toString();
+        System.setProperty("BOOTSTRAP_LANG_LIB", pkgName);
         Project project = BuildProject.loadProject(projectDir);
         Target target = new Target(projectDir);
         Package pkg = project.currentPackage();
         PackageCompilation packageCompilation = pkg.getCompilation();
-        if ( packageCompilation.diagnostics().size() > 0) {
+        if (packageCompilation.diagnostics().size() > 0) {
             out.println("Error building module");
             packageCompilation.diagnostics().forEach(d -> out.println(d.toString()));
             System.exit(1);
         }
+
         String baloName = ProjectUtils.getBaloName(pkg);
         packageCompilation.emit(PackageCompilation.OutputType.BALO, target.getBaloPath().resolve(baloName));
         packageCompilation.emit(PackageCompilation.OutputType.JAR, target.getJarCachePath());
