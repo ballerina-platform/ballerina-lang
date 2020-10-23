@@ -412,7 +412,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         boolean isResourceFuncDef = funcNode.flagSet.contains(Flag.RESOURCE) && !funcNode.interfaceFunction;
-        if (isResourceFuncDef || CompilerUtils.isMainFunction(funcNode)) {
+
+        boolean isServiceRemote = false;
+        if (funcNode.symbol.receiverSymbol != null) {
+            boolean isRemoteFuncDef = funcNode.flagSet.contains(Flag.REMOTE) && !funcNode.interfaceFunction;
+            isServiceRemote = Symbols.isService(funcNode.symbol.receiverSymbol) && isRemoteFuncDef;
+        }
+
+        if (isResourceFuncDef || isServiceRemote || CompilerUtils.isMainFunction(funcNode)) {
             // This is to analyze the entry-point function and attach taint table to it.
             entryPointPreAnalysis = true;
             boolean isBlocked = visitInvokable(funcNode, funcEnv);
