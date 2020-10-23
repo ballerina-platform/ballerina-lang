@@ -29,11 +29,13 @@ import org.testng.annotations.Test;
  */
 @Test(groups = { "disableOnOldParser" })
 public class MatchStmtErrorMatchPatternTest {
-    private CompileResult result;
+    private CompileResult result, restPatternResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/matchstmt/error-match-pattern.bal");
+        restPatternResult = BCompileUtil.compile("test-src/statements/matchstmt/error-match-pattern-with-rest-match" +
+                "-pattern.bal");
     }
 
     @Test
@@ -74,5 +76,20 @@ public class MatchStmtErrorMatchPatternTest {
     @Test
     public void testErrorMatchPattern8() {
         BRunUtil.invoke(result, "testErrorMatchPattern8");
+    }
+
+    @Test
+    public void testErrorMatchPatternWithRestPattern1() {
+        BRunUtil.invoke(restPatternResult, "testErrorMatchPattern1");
+    }
+
+    @Test
+    public void testErrorMatchPatternWithRestPattern2() {
+        BRunUtil.invoke(restPatternResult, "testErrorMatchPattern2");
+    }
+
+    @Test
+    public void testErrorMatchPatternWithRestPattern3() {
+        BRunUtil.invoke(restPatternResult, "testErrorMatchPattern3");
     }
 }

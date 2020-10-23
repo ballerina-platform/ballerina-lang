@@ -166,7 +166,6 @@ function testErrorMatchPattern8() {
     assertEquals("No match", errorMatchPattern8(MyError1("Message1", x = 1)));
 }
 
-
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
