@@ -103,6 +103,7 @@ dependencies {
     // Following dependencies are required for transactions
     dist 'com.atomikos:transactions-jta:5.0.8'
     dist 'com.atomikos:transactions-api:5.0.8'
+    dist 'com.atomikos:atomikos-util:5.0.8'
     dist 'com.atomikos:transactions:5.0.8'
 
     dist project(':ballerina-tools-api')
