@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/io;
 import ballerina/log;
 import ballerina/java;
 
@@ -137,7 +138,8 @@ function beginLocalParticipant(string transactionBlockId, function () returns an
             notifyLocalParticipantOnFailure();
             panic returnContext;
         } else {
-            log:printInfo("participant registered: " + returnContext.transactionId);
+            var trxId = returnContext.transactionId;
+            log:printDebug(() => io:sprintf("participant registered: %s", trxId));
         }
         var result = trap transactionParticipantWrapper(trxFunc);
         if (result is error) {
@@ -170,7 +172,8 @@ function beginRemoteParticipant(string transactionBlockId, function () returns a
             notifyRemoteParticipantOnFailure();
             panic returnContext;
         } else {
-            log:printInfo("participant registered: " + returnContext.transactionId);
+            var trxId = returnContext.transactionId;
+            log:printDebug(() => io:sprintf("participant registered: %s", trxId));
         }
         var result = trap transactionParticipantWrapper(trxFunc);
         if (result is error) {
