@@ -42,17 +42,18 @@ class EmptyIterator {
 # + td - The narrowed type to be set.
 # + val - The value of which the type being set.
 # + return - The value with the narrowed type.
-public function setNarrowType(typedesc<Type> td, record {|Type value;|} val) returns record {|Type value;|} = @java:Method {
-    'class: "org.ballerinalang.langlib.internal.SetNarrowType",
-    name: "setNarrowType"
-} external;
+public isolated function setNarrowType(typedesc<Type> td, record {|Type value;|} val)
+    returns record {|Type value;|} = @java:Method {
+            'class: "org.ballerinalang.langlib.internal.SetNarrowType",
+            name: "setNarrowType"
+        } external;
 
 # Takes in an iterator object and returns a new stream out of it.
 #
 # + td - A type description.
 # + iteratorObj - An iterator object.
 # + return - New stream containing results of `iteratorObj` object's next function invocations.
-public function construct(typedesc<Type> td, object { public function next() returns
+public function construct(typedesc<Type> td, object { public isolated function next() returns
         record {|Type value;|}|ErrorType?;} iteratorObj = new EmptyIterator())
         returns stream<Type, ErrorType> = @java:Method {
             'class: "org.ballerinalang.langlib.internal.Construct",
