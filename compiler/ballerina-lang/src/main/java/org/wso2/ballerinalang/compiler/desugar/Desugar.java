@@ -648,8 +648,6 @@ public class Desugar extends BLangNodeVisitor {
 
         functionSymbol.scope = new Scope(functionSymbol);
         bLangFunction.symbol = functionSymbol;
-
-        env.scope.define(functionSymbol.name, functionSymbol);
     }
 
     /**
@@ -4087,12 +4085,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void fixTypeCastInTypeParamInvocation(BLangInvocation iExpr, BLangInvocation genIExpr) {
-
-        if (!iExpr.langLibInvocation) {
-            return;
-        }
-
-        if (TypeParamAnalyzer.containsTypeParam(((BInvokableSymbol) iExpr.symbol).retType)) {
+        if (iExpr.langLibInvocation || TypeParamAnalyzer.containsTypeParam(((BInvokableSymbol) iExpr.symbol).retType)) {
             BType originalInvType = genIExpr.type;
             genIExpr.type = ((BInvokableSymbol) genIExpr.symbol).retType;
             BLangExpression expr = addConversionExprIfRequired(genIExpr, originalInvType);
