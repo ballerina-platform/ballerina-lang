@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.repos;
 
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.utils.ProjectConstants;
 
 import java.nio.file.Paths;
@@ -33,4 +34,8 @@ public class DistributionPackageCache extends FileSystemRepository {
                 .resolve(ProjectConstants.DIST_CACHE_DIRECTORY));
     }
 
+    @Override
+    public void cacheCompilation(PackageCompilation packageCompilation) {
+        // do nothing
+    }
 }

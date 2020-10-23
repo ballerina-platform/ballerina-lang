@@ -31,7 +31,7 @@ public class ModuleData {
     private final Path moduleDirPath;
     private final List<DocumentData> srcDocs;
     private final List<DocumentData> testSrcDocs;
-    private byte[] birBytes = new byte[0];
+
     // TODO do we need to maintain resources and test resources
 
     private ModuleData(Path moduleDirPath,
@@ -55,10 +55,6 @@ public class ModuleData {
         final ModuleData moduleData = new ModuleData(path, srcDocuments, testSrcDocuments);
         moduleData.birBytes = birBytes;
         return moduleData;
-    }
-
-    public byte[] birBytes() {
-        return Arrays.copyOf(birBytes, birBytes.length);
     }
 
     public Path moduleDirectoryPath() {

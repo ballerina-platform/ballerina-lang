@@ -72,38 +72,6 @@ public class FileSystemRepository implements Repository {
     }
 
 
-    public Optional<Path> getPackageBalo(ModuleLoadRequest pkg) {
-        String baloName = ProjectUtils.getBaloName(pkg.orgName().orElse(""),
-                pkg.packageName().toString(),
-                pkg.version().orElse(SemanticVersion.from("0.0.0")).toString(),
-                null);
-        Path baloPath = balo.resolve(baloName);
-        if (Files.exists(baloPath)) {
-            return Optional.of(baloPath);
-        }
-        return Optional.empty();
-    }
-
-    public Optional<Path> getLatestPackageBalo(ModuleLoadRequest pkg) {
-        String orgName = pkg.orgName().orElse("");
-        String pkgName = pkg.packageName().value();
-        String glob = "glob:**/" + orgName + "-" + pkgName + "-*.balo";
-        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(glob);
-        List<Path> modules = new ArrayList<>();
-        try {
-            Files.walkFileTree(balo, new SearchModules(pathMatcher, modules));
-        } catch (IOException e) {
-            throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
-        }
-
-        if (modules.isEmpty()) {
-            return Optional.empty();
-        } else {
-            modules.sort(Comparator.comparing(Path::toString));
-            return Optional.of(modules.get(modules.size() - 1));
-        }
-    }
-
     @Override
     public Optional<Package> getPackage(PackageLoadRequest packageLoadRequest) {
         // if version and org name is empty we add empty string so we return empty package anyway
@@ -163,7 +131,6 @@ public class FileSystemRepository implements Repository {
         } catch (IOException e) {
             throw new RuntimeException("Unable to update cache in repo :" + e.getMessage());
         }
-        // todo only update if cache is empty
         packageCompilation.emit(PackageCompilation.OutputType.BIR, birPath);
         packageCompilation.emit(PackageCompilation.OutputType.JAR, jarPath);
     }

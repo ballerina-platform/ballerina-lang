@@ -66,6 +66,7 @@ public class BuildLangLib {
             packageCompilation.diagnostics().forEach(d -> out.println(d.toString()));
             System.exit(1);
         }
+        packageCompilation.emit(PackageCompilation.OutputType.JAR, target.path());
         LangLibArchive langLibArchive = new LangLibArchive(target.path(), pkg);
     }
 
