@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * Returns a simple, human-readable representation of the given value as a String.
@@ -28,6 +28,6 @@ import org.ballerinalang.jvm.api.values.BString;
  */
 public class ToString {
     public static BString toString(Object value) {
-        return BStringUtils.fromString(BStringUtils.getStringValue(value, null));
+        return StringUtils.fromString(StringUtils.getStringValue(value, null));
     }
 }

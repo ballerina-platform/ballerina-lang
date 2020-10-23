@@ -174,7 +174,6 @@ public class CompilerDriver {
             symbolTable.internalTransactionModuleSymbol = pkgLoader.loadPackageSymbol(TRANSACTION_INTERNAL, null,
                     null);
             symbolTable.loadPredeclaredModules();
-            symResolver.loadFunctionalConstructors();
             return;
         }
 

@@ -40,15 +40,17 @@ public class MatchStatementSyntaxErrorsTest {
 
     @Test
     public void testSyntaxErrors() {
-        Assert.assertEquals(result.getErrorCount(), 9);
+        Assert.assertEquals(result.getErrorCount(), 11);
 
         int i = -1;
         BAssertUtil.validateError(result, ++i, "undefined symbol 'v'", 5, 9);
         BAssertUtil.validateError(result, ++i, "missing open brace token", 6, 1);
         BAssertUtil.validateError(result, ++i, "missing right double arrow token", 6, 1);
         BAssertUtil.validateError(result, ++i, "missing close brace token", 8, 1);
+        BAssertUtil.validateError(result, ++i, "match statement should have one or more match clauses", 12, 1);
         BAssertUtil.validateError(result, ++i, "missing open brace token", 12, 1);
         BAssertUtil.validateError(result, ++i, "missing close brace token", 13, 1);
+        BAssertUtil.validateError(result, ++i, "match statement should have one or more match clauses", 17, 1);
         BAssertUtil.validateError(result, ++i, "missing identifier", 17, 1);
         BAssertUtil.validateError(result, ++i, "missing open brace token", 17, 1);
         BAssertUtil.validateError(result, ++i, "missing close brace token", 18, 1);

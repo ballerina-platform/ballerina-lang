@@ -18,14 +18,11 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.IdentifiableNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -40,7 +37,7 @@ import java.util.Set;
  *
  *  TODO : Fix me.
  */
-public class BLangService extends BLangNode implements ServiceNode, IdentifiableNode {
+public class BLangService extends BLangNode implements ServiceNode {
 
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
@@ -122,16 +119,6 @@ public class BLangService extends BLangNode implements ServiceNode, Identifiable
     @Override
     public void setMarkdownDocumentationAttachment(MarkdownDocumentationNode documentationNode) {
         this.markdownDocumentationAttachment = (BLangMarkdownDocumentation) documentationNode;
-    }
-
-    @Override
-    public Symbol getSymbol() {
-        return this.symbol;
-    }
-
-    @Override
-    public void setSymbol(Symbol symbol) {
-        this.symbol = (BServiceSymbol) symbol;
     }
 
     @Override

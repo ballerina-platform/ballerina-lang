@@ -28,6 +28,24 @@ import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_DECIMAL_VALUE_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_TYPE_CHECKER_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_XML_FACTORY_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_XML_VALUE_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.DECIMAL_GT;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.DECIMAL_GT_EQUALS;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.DECIMAL_LT;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.DECIMAL_LT_EQUALS;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.JAVA_OBJECT_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.REF_EQUAL_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.VALUE_EQUAL_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.XML_CONCAT_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.getRuntimeMethod;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.getValueAsObject;
+
 /**
  * Evaluator implementation for binary expressions.
  *
@@ -104,6 +122,12 @@ public class BinaryExpressionEvaluator extends Evaluator {
                 return logicalOR(lVar, rVar);
             case ELVIS_TOKEN:
                 return conditionalReturn(lVar, rVar);
+            case DOUBLE_EQUAL_TOKEN:
+            case NOT_EQUAL_TOKEN:
+                return checkValueEquality(lVar, rVar, operatorType);
+            case TRIPPLE_EQUAL_TOKEN:
+            case NOT_DOUBLE_EQUAL_TOKEN:
+                return checkReferenceEquality(lVar, rVar, operatorType);
             default:
                 throw createUnsupportedOperationException(lVar, rVar, operatorType);
         }
@@ -134,12 +158,21 @@ public class BinaryExpressionEvaluator extends Evaluator {
             throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PLUS_TOKEN);
         } else if (lVar.getBType() == BVariableType.STRING && rVar.getBType() == BVariableType.STRING) {
             // string + string
-            String result = lVar.computeValue() + rVar.computeValue();
-            return EvaluationUtils.make(context, result);
+            Value result = EvaluationUtils.concatBStrings(context, lVar.getJvmValue(), rVar.getJvmValue());
+            return new BExpressionValue(context, result);
         } else if (lVar.getBType() == BVariableType.XML && rVar.getBType() == BVariableType.XML) {
-            // xml + xml
-            // Todo - Add support
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PLUS_TOKEN);
+            // Prepares to invoke the JVM runtime util function which is responsible for XML concatenation.
+            List<Value> argList = new ArrayList<>();
+            argList.add(getValueAsObject(context, lVar));
+            argList.add(getValueAsObject(context, rVar));
+            List<String> argTypeNames = new ArrayList<>();
+            argTypeNames.add(B_XML_VALUE_CLASS);
+            argTypeNames.add(B_XML_VALUE_CLASS);
+            RuntimeStaticMethod runtimeMethod = getRuntimeMethod(context, B_XML_FACTORY_CLASS, XML_CONCAT_METHOD,
+                    argTypeNames);
+            runtimeMethod.setArgValues(argList);
+            Value result = runtimeMethod.invoke();
+            return new BExpressionValue(context, result);
         } else {
             throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PLUS_TOKEN);
         }
@@ -294,14 +327,44 @@ public class BinaryExpressionEvaluator extends Evaluator {
                     result = Double.parseDouble(lVar.computeValue()) >= Double.parseDouble(rVar.computeValue());
                     return EvaluationUtils.make(context, result);
             }
+        } else if (lVar.getBType() == BVariableType.DECIMAL && rVar.getBType() == BVariableType.DECIMAL) {
+            List<Value> argList = new ArrayList<>();
+            argList.add(getValueAsObject(context, lVar));
+            argList.add(getValueAsObject(context, rVar));
+            List<String> argTypeNames = new ArrayList<>();
+            argTypeNames.add(B_DECIMAL_VALUE_CLASS);
+            argTypeNames.add(B_DECIMAL_VALUE_CLASS);
+
+            RuntimeStaticMethod runtimeMethod;
+            switch (operator) {
+                case LT_TOKEN:
+                    runtimeMethod = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, DECIMAL_LT, argTypeNames);
+                    break;
+                case GT_TOKEN:
+                    runtimeMethod = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, DECIMAL_GT, argTypeNames);
+                    break;
+                case LT_EQUAL_TOKEN:
+                    runtimeMethod = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, DECIMAL_LT_EQUALS, argTypeNames);
+                    break;
+                case GT_EQUAL_TOKEN:
+                    runtimeMethod = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, DECIMAL_GT_EQUALS, argTypeNames);
+                    break;
+                default:
+                    throw createUnsupportedOperationException(lVar, rVar, operator);
+            }
+            runtimeMethod.setArgValues(argList);
+            Value result = runtimeMethod.invoke();
+            BVariable variable = VariableFactory.getVariable(context, result);
+            boolean booleanValue = Boolean.parseBoolean(variable.getDapVariable().getValue());
+            return EvaluationUtils.make(context, booleanValue);
         } else if (lVar.getBType() == BVariableType.DECIMAL || rVar.getBType() == BVariableType.DECIMAL) {
             // Todo - Add support for
             // decimal <=> decimal
             // decimal <=>  int or int <=> decimal
             // decimal <=> float or float <=> decimal
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PERCENT_TOKEN);
+            throw createUnsupportedOperationException(lVar, rVar, operator);
         }
-        throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PERCENT_TOKEN);
+        throw createUnsupportedOperationException(lVar, rVar, operator);
     }
 
     /**
@@ -385,6 +448,50 @@ public class BinaryExpressionEvaluator extends Evaluator {
         } else {
             return new BExpressionValue(context, rVar.getJvmValue());
         }
+    }
+
+    /**
+     * Checks for deep value equality.
+     */
+    private BExpressionValue checkValueEquality(BVariable lVar, BVariable rVar, SyntaxKind operatorType)
+            throws EvaluationException {
+        List<Value> argList = new ArrayList<>();
+        argList.add(getValueAsObject(context, lVar));
+        argList.add(getValueAsObject(context, rVar));
+
+        List<String> argTypeNames = new ArrayList<>();
+        argTypeNames.add(JAVA_OBJECT_CLASS);
+        argTypeNames.add(JAVA_OBJECT_CLASS);
+        RuntimeStaticMethod runtimeMethod = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, VALUE_EQUAL_METHOD,
+                argTypeNames);
+        runtimeMethod.setArgValues(argList);
+        Value result = runtimeMethod.invoke();
+        BVariable variable = VariableFactory.getVariable(context, result);
+        boolean booleanValue = Boolean.parseBoolean(variable.getDapVariable().getValue());
+        booleanValue = operatorType == SyntaxKind.DOUBLE_EQUAL_TOKEN ? booleanValue : !booleanValue;
+        return EvaluationUtils.make(context, booleanValue);
+    }
+
+    /**
+     * Checks for reference equality.
+     */
+    private BExpressionValue checkReferenceEquality(BVariable lVar, BVariable rVar, SyntaxKind operatorType)
+            throws EvaluationException {
+        List<Value> argList = new ArrayList<>();
+        argList.add(getValueAsObject(context, lVar));
+        argList.add(getValueAsObject(context, rVar));
+
+        List<String> argTypeNames = new ArrayList<>();
+        argTypeNames.add(JAVA_OBJECT_CLASS);
+        argTypeNames.add(JAVA_OBJECT_CLASS);
+        RuntimeStaticMethod runtimeMethod = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, REF_EQUAL_METHOD,
+                argTypeNames);
+        runtimeMethod.setArgValues(argList);
+        Value result = runtimeMethod.invoke();
+        BVariable variable = VariableFactory.getVariable(context, result);
+        boolean booleanValue = Boolean.parseBoolean(variable.getDapVariable().getValue());
+        booleanValue = operatorType == SyntaxKind.TRIPPLE_EQUAL_TOKEN ? booleanValue : !booleanValue;
+        return EvaluationUtils.make(context, booleanValue);
     }
 
     private EvaluationException createUnsupportedOperationException(BVariable lVar, BVariable rVar,

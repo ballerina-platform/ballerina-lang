@@ -18,10 +18,10 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.transactions.TransactionLocalContext;
-import org.ballerinalang.jvm.transactions.TransactionResourceManager;
-import org.ballerinalang.jvm.values.FPValue;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.transactions.TransactionLocalContext;
+import io.ballerina.runtime.transactions.TransactionResourceManager;
 
 /**
  * Extern function transaction:onRollback.
@@ -30,10 +30,10 @@ import org.ballerinalang.jvm.values.FPValue;
  */
 public class OnRollback {
 
-    public static void onRollback(FPValue fpValue) {
+    public static void onRollback(BFunctionPointer bFunctionPointer) {
         TransactionLocalContext transactionLocalContext = Scheduler.getStrand().currentTrxContext;
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
         transactionResourceManager.registerAbortedFunction(transactionLocalContext.getGlobalTransactionId(),
-                fpValue);
+                bFunctionPointer);
     }
 }

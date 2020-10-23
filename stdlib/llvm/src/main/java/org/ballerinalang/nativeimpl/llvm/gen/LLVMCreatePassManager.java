@@ -16,9 +16,9 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.scheduling.Strand;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -41,10 +41,10 @@ import static org.bytedeco.llvm.global.LLVM.LLVMCreatePassManager;
 )
 public class LLVMCreatePassManager {
 
-    public static MapValue<String, Object> llvmCreatePassManager(Strand strand) {
+    public static BMap<String, Object> llvmCreatePassManager(Strand strand) {
 
         LLVMPassManagerRef returnValue = LLVMCreatePassManager();
-        MapValue<String, Object> rerunWrapperRecode = FFIUtil.newRecord(new BPackage("ballerina",
+        BMap<String, Object> rerunWrapperRecode = FFIUtil.newRecord(new Module("ballerina",
                 "llvm"), "LLVMPassManagerRef");
         FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
         return rerunWrapperRecode;

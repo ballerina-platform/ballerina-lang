@@ -82,7 +82,7 @@ public isolated function entries(map<Type> m) returns map<[string, Type]> = @jav
 # + m - the map
 # + func - a function to apply to each member
 # + return - new map containing result of applying parameter `func` to each member
-public function 'map(map<Type> m, function(Type val) returns Type1 func) returns map<Type1> = @java:Method {
+public isolated function 'map(map<Type> m, @isolatedParam function(Type val) returns Type1 func) returns map<Type1> = @java:Method {
     'class: "org.ballerinalang.langlib.map.Map",
     name: "map"
 } external;
@@ -92,7 +92,7 @@ public function 'map(map<Type> m, function(Type val) returns Type1 func) returns
 #
 # + m - the map
 # + func - a function to apply to each member
-public function forEach(map<Type> m, function(Type val) returns () func) returns () = @java:Method {
+public isolated function forEach(map<Type> m, @isolatedParam function(Type val) returns () func) returns () = @java:Method {
     'class: "org.ballerinalang.langlib.map.ForEach",
     name: "forEach"
 } external;
@@ -102,7 +102,7 @@ public function forEach(map<Type> m, function(Type val) returns () func) returns
 # + m - the map
 # + func - a predicate to apply to each element to test whether it should be included
 # + return - new map containing members for which `func` evaluates to true
-public function filter(map<Type> m, function(Type val) returns boolean func) returns map<Type> = @java:Method {
+public isolated function filter(map<Type> m, @isolatedParam function(Type val) returns boolean func) returns map<Type> = @java:Method {
     'class: "org.ballerinalang.langlib.map.Filter",
     name: "filter"
 } external;
@@ -115,7 +115,7 @@ public function filter(map<Type> m, function(Type val) returns boolean func) ret
 # + func - combining function
 # + initial - initial value for the first argument of combining parameter `func`
 # + return - result of combining the members of `m` using `func`
-public function reduce(map<Type> m, function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 =
+public isolated function reduce(map<Type> m, @isolatedParam function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 =
 @java:Method {
     'class: "org.ballerinalang.langlib.map.Reduce",
     name: "reduce"

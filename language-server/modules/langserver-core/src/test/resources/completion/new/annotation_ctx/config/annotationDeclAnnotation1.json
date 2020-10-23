@@ -10,35 +10,40 @@
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "module1:sourceAnnotationAnnotation1 {\n\tfoo: \"${1}\"\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "module1:sourceAnnotationAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "module1:sourceAnnotationAnnotation2",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "deprecated",
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "deprecated",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "sourceAnnotationAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "sourceAnnotationAnnotation1 {\n\tfoo: \"${1}\"\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "sourceAnnotationAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "sourceAnnotationAnnotation2",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     }
   ]
 }

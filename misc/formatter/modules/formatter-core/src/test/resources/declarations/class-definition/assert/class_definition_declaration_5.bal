@@ -4,9 +4,15 @@ class Foo {
     } parent;
 
     function init(object {
-                    public int x;
-                    public function foo() returns int
-                    } a) {
-  	    self.parent = a;
+                      public int x;
+                      public function foo() returns int;
+
+                      public object {
+                                 public int x;
+                                 public function foo() returns int;
+                             } b;
+                      public int y;
+                  } a) {
+        self.parent = a;
     }
 }
