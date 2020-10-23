@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/log;
 import ballerina/http;
 import ballerina/io;
+import ballerina/log;
 
 const string TWO_PHASE_COMMIT = "2pc";
 const string PROTOCOL_COMPLETION = "completion";
@@ -88,7 +88,8 @@ service InitiatorService on coordinatorListener {
             } else {
                 RemoteProtocol[] participantProtocols = regReq.participantProtocols;
                 if (isRegisteredParticipant(participantId, initiatedTxn.participants)) {
-                    log:printDebug(io:sprintf("Already-Registered. TID:%s,participant ID:%s", txnId, participantId));
+                    log:printDebug(() => io:sprintf("Already-Registered. TID:%s,participant ID:%s", txnId,
+                            participantId));
                 } else {
                     RemoteParticipant participant = new(participantId, initiatedTxn.transactionId,
                                                         participantProtocols);
@@ -116,7 +117,8 @@ service InitiatorService on coordinatorListener {
                         log:printError("Sending response for register request for transaction " + txnId +
                                 " failed", resResult);
                     } else {
-                        log:printDebug(io:sprintf("Registered remote participant: %s for transaction: %s", participantId, txnId));
+                        log:printDebug(() => io:sprintf("Registered remote participant: %s for transaction: %s",
+                                participantId, txnId));
                     }
                 } else {
                     error resPayloadError = <error>resPayload;

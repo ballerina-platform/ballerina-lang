@@ -15,9 +15,9 @@
 // under the License.
 
 
-import ballerina/log;
 import ballerina/http;
 import ballerina/io;
+import ballerina/log;
 
 @http:ServiceConfig {
     basePath:"/balcoordinator/participant/2pc"
@@ -42,7 +42,7 @@ service Participant2pcService on coordinatorListener {
         http:Response res = new;
         string transactionId = prepareReq.transactionId;
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-        log:printDebug(io:sprintf("Prepare received for transaction: %s", participatedTxnId));
+        log:printDebug(() => io:sprintf("Prepare received for transaction: %s", participatedTxnId));
         PrepareResponse prepareRes = {};
 
         var participatedTxn = participatedTransactions[participatedTxnId];
@@ -61,13 +61,13 @@ service Participant2pcService on coordinatorListener {
                     res.statusCode = http:STATUS_OK;
                     participatedTxn.state = TXN_STATE_PREPARED;
                     prepareRes.message = PREPARE_RESULT_PREPARED_STR;
-                    log:printDebug(io:sprintf("Prepared transaction: %s", transactionId));
+                    log:printDebug(() => io:sprintf("Prepared transaction: %s", transactionId));
                 } else {
                     res.statusCode = http:STATUS_OK;
                     prepareRes.message = PREPARE_RESULT_ABORTED_STR;
                     participatedTxn.state = TXN_STATE_ABORTED;
                     removeParticipatedTransaction(participatedTxnId);
-                    log:printDebug(io:sprintf("Aborted transaction: %s", transactionId));
+                    log:printDebug(() => io:sprintf("Aborted transaction: %s", transactionId));
                 }
             }
         }
@@ -104,7 +104,8 @@ service Participant2pcService on coordinatorListener {
         http:Response res = new;
         string transactionId = notifyReq.transactionId;
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-        log:printDebug(io:sprintf("Notify(%s) received for transaction: %s", notifyReq.message, participatedTxnId));
+        log:printDebug(() => io:sprintf("Notify(%s) received for transaction: %s", notifyReq.message,
+                participatedTxnId));
         NotifyResponse notifyRes = {};
         var txn = participatedTransactions[participatedTxnId];
         if (txn is ()) {
