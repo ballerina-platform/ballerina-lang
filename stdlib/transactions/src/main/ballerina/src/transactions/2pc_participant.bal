@@ -117,7 +117,9 @@ type RemoteParticipant object {
                 log:printDebug(() => io:sprintf("Remote participant: %s prepared", self.participantId));
                 return PREPARE_RESULT_PREPARED;
             } else {
-                log:printDebug(() => io:sprintf("Remote participant: %s, outcome: %s", self.participantId, result));
+                log:printDebug(function () returns string {
+                    return io:sprintf("Remote participant: %s, outcome: %s", self.participantId, result);
+                });
             }
         }
         error err = error("Remote participant:" + self.participantId + " replied with invalid outcome");

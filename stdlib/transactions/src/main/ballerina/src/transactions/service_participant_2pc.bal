@@ -104,8 +104,8 @@ service Participant2pcService on coordinatorListener {
         http:Response res = new;
         string transactionId = notifyReq.transactionId;
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-        log:printDebug(() => io:sprintf("Notify(%s) received for transaction: %s", notifyReq.message,
-                participatedTxnId));
+        var message = notifyReq.message;
+        log:printDebug(() => io:sprintf("Notify(%s) received for transaction: %s", message, participatedTxnId));
         NotifyResponse notifyRes = {};
         var txn = participatedTransactions[participatedTxnId];
         if (txn is ()) {

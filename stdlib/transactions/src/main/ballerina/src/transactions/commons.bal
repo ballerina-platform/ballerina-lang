@@ -92,8 +92,11 @@ function cleanupTransactions() returns error? {
                     // Commit the transaction since prepare hasn't been received
                     var result = twopcTxn.twoPhaseCommit();
                     if (result is string) {
-                        log:printDebug(() => io:sprintf("Auto-committed initiated transaction: %s. Result: %s",
-                                twopcTxn.transactionId, result));
+                        string trxId = twopcTxn.transactionId;
+                        log:printDebug(function () returns string {
+                            return io:sprintf("Auto-committed initiated transaction: %s. Result: %s",
+                                    trxId, result);
+                        });
                         removeInitiatedTransaction(twopcTxn.transactionId);
                     } else {
                         log:printError("Auto-commit of participated transaction: " +
