@@ -33,10 +33,13 @@ public class MatchStmtMappingMatchPatternTest {
 
     private CompileResult result;
     private CompileResult resultNegative;
+    private CompileResult resultRestPattern;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/matchstmt/mapping-match-pattern.bal");
+        resultRestPattern = BCompileUtil.compile("test-src/statements/matchstmt/mapping-match-pattern-with-rest-match" +
+                "-pattern.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/mapping-mach-pattern-negative.bal");
     }
 
@@ -128,6 +131,26 @@ public class MatchStmtMappingMatchPatternTest {
     @Test
     public void testMappingMatchPattern18() {
         BRunUtil.invoke(result, "testMappingMatchPattern18");
+    }
+
+    @Test
+    public void testMappingMatchPattern19() {
+        BRunUtil.invoke(result, "testMappingMatchPattern19");
+    }
+
+    @Test
+    public void testMappingMatchPatternWithRestPattern1() {
+        BRunUtil.invoke(resultRestPattern, "testMappingMatchPattern1");
+    }
+
+    @Test
+    public void testMappingMatchPatternWithRestPattern2() {
+        BRunUtil.invoke(resultRestPattern, "testMappingMatchPattern2");
+    }
+
+    @Test
+    public void testMappingMatchPatternWithRestPattern3() {
+        BRunUtil.invoke(resultRestPattern, "testMappingMatchPattern3");
     }
 
     @Test

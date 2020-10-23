@@ -407,6 +407,28 @@ function testMappingMatchPattern18() {
     assertEquals("No match", mappingMatchPattern18("No match"));
 }
 
+function mappingMatchPattern19(record {int x; int|string y;} v) returns string {
+    match v {
+        { x : 2, y : 3 } => {
+            return "match1";
+        }
+        { x : 2, y : "3" } => {
+            return "match2";
+        }
+        { x : 2, y : var a } => {
+            return "match3";
+        }
+    }
+    return "No match";
+}
+
+function testMappingMatchPattern19() {
+    assertEquals("match1", mappingMatchPattern19({ x : 2, y : 3 }));
+    assertEquals("match2", mappingMatchPattern19({ x : 2, y : "3" }));
+    assertEquals("match3", mappingMatchPattern19({ x : 2, y : 8 }));
+    assertEquals("No match", mappingMatchPattern19({ x : 8, y : "3" }));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

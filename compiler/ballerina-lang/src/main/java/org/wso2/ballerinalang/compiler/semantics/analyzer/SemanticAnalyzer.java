@@ -2591,7 +2591,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (BLangFieldMatchPattern fieldMatchPattern : mappingMatchPattern.fieldMatchPatterns) {
             fieldMatchPattern.accept(this);
         }
-        if(mappingMatchPattern.restMatchPattern != null) {
+        if (mappingMatchPattern.restMatchPattern != null) {
             mappingMatchPattern.restMatchPattern.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
             mappingMatchPattern.restMatchPattern.accept(this);
         }
