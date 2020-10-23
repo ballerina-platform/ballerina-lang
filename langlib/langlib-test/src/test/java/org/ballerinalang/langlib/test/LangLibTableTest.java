@@ -67,7 +67,7 @@ public class LangLibTableTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test (enabled = false)
+    @Test
     public void testMap() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMap");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());

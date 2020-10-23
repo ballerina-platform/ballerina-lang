@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.ballerinalang.jvm.util.BLangConstants.UNDERSCORE;
+import static io.ballerina.runtime.util.BLangConstants.UNDERSCORE;
 
 /**
  * {@link BLangAnonymousModelHelper} is a util for holding the number of anonymous constructs found so far in the

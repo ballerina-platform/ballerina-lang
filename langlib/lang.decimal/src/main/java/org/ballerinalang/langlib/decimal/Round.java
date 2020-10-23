@@ -18,7 +18,8 @@
 
 package org.ballerinalang.langlib.decimal;
 
-import org.ballerinalang.jvm.values.DecimalValue;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BDecimal;
 
 import java.math.RoundingMode;
 
@@ -35,7 +36,7 @@ import java.math.RoundingMode;
 //)
 public class Round {
 
-    public static DecimalValue round(DecimalValue x) {
-        return new DecimalValue(x.value().setScale(0, RoundingMode.HALF_EVEN));
+    public static BDecimal round(BDecimal x) {
+        return ValueCreator.createDecimalValue(x.value().setScale(0, RoundingMode.HALF_EVEN));
     }
 }

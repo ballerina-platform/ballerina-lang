@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_STAGE_CENTRAL;
@@ -53,8 +54,7 @@ public class ModulePushTestCase extends BaseTest {
         balClient = new BMainInstance(balServer);
     }
 
-    @Test(enabled = false, description = "Test pushing a package to central by specifying " +
-            "the access token as an environment variable")
+    @Test(description = "Test pushing a package to central by specifying the access token as an environment variable")
     public void testPush() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("initPushProject");
         
@@ -67,16 +67,21 @@ public class ModulePushTestCase extends BaseTest {
     
         // Update org name
         PackerinaTestUtils.updateManifestOrgName(projectPath, orgName);
-    
-        Assert.assertTrue(Files.exists(projectPath));
+
         Assert.assertTrue(Files.isDirectory(projectPath));
+
+        Path modulePath = projectPath.resolve("src").resolve(moduleName);
     
         // Create module
         balClient.runMain("add", new String[]{moduleName}, envVariables, new String[]{}, new LogLeecher[]{},
                 projectPath.toString());
-    
-        Assert.assertTrue(Files.exists(projectPath.resolve("src").resolve(moduleName)));
-        Assert.assertTrue(Files.isDirectory(projectPath.resolve("src").resolve(moduleName)));
+
+        Assert.assertTrue(Files.isDirectory(modulePath));
+
+        PackerinaTestUtils.copy(Paths.get("src", "test", "resources", "packaging", "pushingModule", "main.bal"),
+                modulePath.resolve("main.bal"));
+        PackerinaTestUtils.copy(Paths.get("src", "test", "resources", "packaging", "pushingModule", "main_test.bal"),
+                modulePath.resolve("tests").resolve("main_test.bal"));
     
         balClient.runMain("build", new String[]{"-c", moduleName}, envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());

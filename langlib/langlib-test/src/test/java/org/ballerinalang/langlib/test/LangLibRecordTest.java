@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.test;
 
-
 import org.ballerinalang.core.model.types.BMapType;
 import org.ballerinalang.core.model.types.TypeTags;
 import org.ballerinalang.core.model.values.BBoolean;

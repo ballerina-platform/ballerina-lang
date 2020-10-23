@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.task.objects;
 
-import org.ballerinalang.jvm.api.BRuntime;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.types.AttachedFunction;
+import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.values.BObject;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIGGER;
 
@@ -30,11 +30,11 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIG
  * @since 0.995.0
  */
 public class ServiceInformation {
-    private BRuntime runtime;
+    private Runtime runtime;
     private BObject service;
     private final Object[] attachments;
 
-    public ServiceInformation(BRuntime runtime, BObject service, Object... attachments) {
+    public ServiceInformation(Runtime runtime, BObject service, Object... attachments) {
         this.runtime = runtime;
         this.service = service;
         this.attachments = attachments;
@@ -48,8 +48,8 @@ public class ServiceInformation {
         return this.service.getType().getName().split("\\$\\$")[0];
     }
 
-    public AttachedFunction getOnTriggerFunction() {
-        for (AttachedFunction resource : service.getType().getAttachedFunctions()) {
+    public AttachedFunctionType getOnTriggerFunction() {
+        for (AttachedFunctionType resource : service.getType().getAttachedFunctions()) {
             if (RESOURCE_ON_TRIGGER.equals(resource.getName())) {
                 return resource;
             }
@@ -61,7 +61,7 @@ public class ServiceInformation {
         return this.attachments.clone();
     }
 
-    public BRuntime getRuntime() {
+    public Runtime getRuntime() {
         return this.runtime;
     }
 }

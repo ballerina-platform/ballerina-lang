@@ -53,7 +53,6 @@ public enum SymbolKind {
     OTHER,
 
     ERROR_CONSTRUCTOR,
-    FUNCTIONAL_CONSTRUCTOR,
 
     INVOKABLE_TYPE
 }

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langlib.java;
 
-import org.ballerinalang.jvm.values.HandleValue;
+import io.ballerina.runtime.api.values.BHandle;
 
 /**
  * This class contains the implementation of the "isNull" ballerina function in ballerina/java module.
@@ -26,7 +26,7 @@ import org.ballerinalang.jvm.values.HandleValue;
  */
 public class IsNull {
 
-    public static boolean isNull(HandleValue value) {
+    public static boolean isNull(BHandle value) {
         return value.getValue() == null;
     }
 }

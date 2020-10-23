@@ -82,7 +82,7 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
     /**
      * Represents Ballerina XML Namespace Symbol Builder.
      */
-    static class VariableSymbolBuilder extends SymbolBuilder<VariableSymbolBuilder> {
+    public static class VariableSymbolBuilder extends SymbolBuilder<VariableSymbolBuilder> {
 
         protected Set<Qualifier> qualifiers = new HashSet<>();
         protected BallerinaTypeDescriptor typeDescriptor;

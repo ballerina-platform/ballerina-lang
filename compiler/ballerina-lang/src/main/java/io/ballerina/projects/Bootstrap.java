@@ -151,7 +151,6 @@ public class Bootstrap {
         symbolTable.langQueryModuleSymbol = loadLib(QUERY, compilerContext);
         symbolTable.langTransactionModuleSymbol = loadLib(TRANSACTION, compilerContext);
         symbolTable.loadPredeclaredModules();
-        symResolver.loadFunctionalConstructors();
     }
 
     private BPackageSymbol loadLib(PackageID langLib, CompilerContext compilerContext) {
