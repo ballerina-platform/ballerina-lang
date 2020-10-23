@@ -184,6 +184,44 @@ public class CompilerPhaseRunner {
         codeGen(pkgNode);
     }
 
+    public void compileLangLibs(BLangPackage pkgNode) {
+        if (this.stopCompilation(pkgNode, CompilerPhase.TYPE_CHECK)) {
+            return;
+        }
+
+        typeCheck(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.CODE_ANALYZE)) {
+            return;
+        }
+
+        codeAnalyze(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.DOCUMENTATION_ANALYZE)) {
+            return;
+        }
+
+        documentationAnalyze(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.TAINT_ANALYZE)) {
+            return;
+        }
+
+        taintAnalyze(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.DESUGAR)) {
+            return;
+        }
+
+        desugar(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.BIR_GEN)) {
+            return;
+        }
+
+        birGen(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.CODE_GEN)) {
+            return;
+        }
+
+        codeGen(pkgNode);
+    }
+
     private BLangPackage codeGen(BLangPackage pkgNode) {
         return this.codeGenerator.generate(pkgNode);
     }

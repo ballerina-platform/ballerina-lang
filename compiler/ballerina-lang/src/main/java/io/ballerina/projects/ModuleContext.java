@@ -234,7 +234,12 @@ class ModuleContext {
         pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgId, this.moduleName.toString()), 1, 1, 1, 1);
         symbolEnter.definePackage(pkgNode);
         packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
-        compilerPhaseRunner.compile(pkgNode);
+
+        if (bootstrapLangLibName != null) {
+            compilerPhaseRunner.compileLangLibs(pkgNode);
+        } else {
+            compilerPhaseRunner.compile(pkgNode);
+        }
         this.bLangPackage = pkgNode;
     }
 
