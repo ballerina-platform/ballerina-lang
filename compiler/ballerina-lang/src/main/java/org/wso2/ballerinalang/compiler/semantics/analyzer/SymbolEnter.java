@@ -1209,8 +1209,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             typeDefSymbol.origin = VIRTUAL;
         }
 
-        definedType.flags |= typeDefSymbol.flags;
-
         if (typeDefinition.annAttachments.stream()
                 .anyMatch(attachment -> attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value))) {
             // TODO : Clean this. Not a nice way to handle this.
@@ -1227,6 +1225,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
+        definedType.flags |= typeDefSymbol.flags;
         typeDefinition.symbol = typeDefSymbol;
 
         if (!typeDefinition.hasCyclicReference) {

@@ -4213,7 +4213,7 @@ public class Desugar extends BLangNodeVisitor {
                 break;
         }
 
-        fixTypeCastInTypeParamInvocation(invocation, invRef);
+//        fixTypeCastInTypeParamInvocation(invocation, invRef);
     }
 
     private void fixNonRestArgTypeCastInTypeParamInvocation(BLangInvocation iExpr) {

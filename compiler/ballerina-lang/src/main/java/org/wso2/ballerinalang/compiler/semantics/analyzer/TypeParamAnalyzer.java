@@ -263,6 +263,14 @@ public class TypeParamAnalyzer {
                 return new BAnydataType(null, name, flag);
             case TypeTags.READONLY: // TODO: 4/5/20 validate for cloneXxx
                 return new BReadonlyType(type.tag, null, name, flag);
+            case TypeTags.UNION: // TODO: 4/5/20 validate for cloneXxx
+                BUnionType unionType = (BUnionType) type;
+                if (unionType == symTable.cloneableType) {
+                    BUnionType newCloneable = BUnionType.create(null, unionType.getMemberTypes());
+                    newCloneable.tag = unionType.tag;
+                    newCloneable.name = unionType.tsymbol.name;
+                    return newCloneable;
+                }
         }
         // For others, we will use TSymbol.
         return type;
