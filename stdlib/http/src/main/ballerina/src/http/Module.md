@@ -24,7 +24,7 @@ http:Client clientEndpoint = new("https://my-simple-backend.com");
 The defined `Client` endpoint can be used to call a remote service as follows:
 
 ``` ballerina
-// Send a GET request to the specified endpoint.
+// Send a GET request to the specified endpoint. 
 var response = clientEndpoint->get("/get?id=123");
 ```
 
