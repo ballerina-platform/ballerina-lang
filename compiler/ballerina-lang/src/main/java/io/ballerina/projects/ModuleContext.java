@@ -20,6 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.ModuleLoadResponse;
 import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.Repository;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.TreeBuilder;
@@ -68,11 +69,10 @@ class ModuleContext {
     private BLangPackage bLangPackage;
     private BPackageSymbol bPackageSymbol;
     private List<Diagnostic> diagnostics;
+    private byte[] birBytes = new byte[0];
 
     private final Bootstrap bootstrap;
 
-    // TODO temporary fix
-    private byte[] birBytes;
 
     // TODO How about introducing a ModuleState concept. ModuleState.DEPENDENCIES_RESOLVED
     private boolean dependenciesResolved;
@@ -113,8 +113,6 @@ class ModuleContext {
 
         final ModuleContext moduleContext = new ModuleContext(project, moduleConfig.moduleId(),
                 moduleConfig.moduleName(), moduleConfig.isDefaultModule(), srcDocContextMap, testDocContextMap);
-        // TODO This is a temporary change
-        moduleContext.birBytes = moduleConfig.birBytes;
         return moduleContext;
     }
 
@@ -319,5 +317,15 @@ class ModuleContext {
         for (DocumentContext documentContext : testDocContextMap.values()) {
             testablePkg.addCompilationUnit(documentContext.compilationUnit(compilerContext, pkgId));
         }
+    }
+
+    void loadBirFromCache(Repository repository, Module module) {
+        if ( this.birBytes.length == 0) {
+            repository.getCachedBir(module);
+        }
+    }
+
+    void cacheBir(Repository repository, Module module) {
+        // todo
     }
 }

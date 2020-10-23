@@ -26,6 +26,7 @@ import io.ballerina.projects.environment.PackageLoadRequest;
 import io.ballerina.projects.environment.Repository;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
+import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -121,18 +122,35 @@ public class FileSystemRepository implements Repository {
     }
 
     @Override
-    public void cacheCompilation(PackageCompilation packageCompilation) {
-        Package aPackage = packageCompilation.getPackage();
-        Path birPath = this.getBirPath(aPackage);
-        Path jarPath = this.getJarPath(aPackage);
-        try {
-            Files.createDirectories(jarPath);
-            Files.createDirectories(birPath);
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to update cache in repo :" + e.getMessage());
+    public byte[] getCachedBir(Module module) {
+        Path birFilePath = getBirPath(module.packageInstance()).resolve(module.moduleName().toString()
+                + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT);
+        if (Files.exists(birFilePath)) {
+            try {
+                return FileUtils.readFileToByteArray(birFilePath.toFile());
+            } catch (IOException e) {
+                // todo log
+            }
         }
-        packageCompilation.emit(PackageCompilation.OutputType.BIR, birPath);
-        packageCompilation.emit(PackageCompilation.OutputType.JAR, jarPath);
+        return new byte[0];
+    }
+
+    @Override
+    public void cacheBir(Module module, byte[] bir) {
+        Path birFilePath = getBirPath(module.packageInstance()).resolve(module.moduleName().toString()
+                + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT);
+        if (!Files.exists(birFilePath)) {
+            try {
+                FileUtils.writeByteArrayToFile(birFilePath.toFile(), bir);
+            } catch (IOException e) {
+                // todo log
+            }
+        }
+    }
+
+    @Override
+    public Path getCachedJar(Module aPackage) {
+        return null;
     }
 
     public Path getJarPath(Package aPackage) {
@@ -149,31 +167,6 @@ public class FileSystemRepository implements Repository {
         String version = aPackage.packageVersion().version().toString();
         return this.cache.resolve(orgName).resolve(packageName).resolve(version)
                 .resolve(ProjectConstants.REPO_BIR_CACHE_NAME);
-    }
-
-    @Override
-    public Map<ModuleId, Path> getCachedBirs(Package aPackage) {
-        Map<ModuleId, Path> birs = new HashMap<>();
-        for (Module module : aPackage.modules()) {
-            birs.put(module.moduleId(), getBirPath(aPackage)
-                    .resolve(module.moduleName().toString() + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT));
-        }
-        return birs;
-    }
-
-    @Override
-    public Map<ModuleId, Path> getCachedJar(Package aPackage) {
-        Map<ModuleId, Path> birs = new HashMap<>();
-        for (Module module : aPackage.modules()) {
-            birs.put(module.moduleId(), getBirPath(aPackage)
-                    .resolve(module.moduleName().toString() + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT));
-        }
-        return birs;
-    }
-
-    @Override
-    public void cachePackageCompilation(PackageCompilation packageCompilation) {
-
     }
 
     private static class SearchModules extends SimpleFileVisitor<Path> {

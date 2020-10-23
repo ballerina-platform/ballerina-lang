@@ -18,14 +18,13 @@
 
 package io.ballerina.projects.environment;
 
-import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.SemanticVersion;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -39,13 +38,10 @@ public interface Repository {
 
     public List<SemanticVersion> getPackageVersions(PackageLoadRequest packageLoadRequest);
 
-    public void cacheCompilation(PackageCompilation packageCompilation);
+    public byte[] getCachedBir(Module module);
 
-    public Map<ModuleId, Path> getCachedBirs(Package aPackage);
+    public void cacheBir(Module module, byte[] bir);
 
-    public Map<ModuleId, Path> getCachedJar(Package aPackage);
-
-    // todo handle io errors
-    public void cachePackageCompilation(PackageCompilation packageCompilation);
+    public Path getCachedJar(Module aPackage);
 
 }

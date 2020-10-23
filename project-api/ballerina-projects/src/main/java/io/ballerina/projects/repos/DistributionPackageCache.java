@@ -17,9 +17,14 @@
  */
 package io.ballerina.projects.repos;
 
+import io.ballerina.projects.Module;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.utils.ProjectConstants;
+import org.apache.commons.io.FileUtils;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
@@ -35,7 +40,7 @@ public class DistributionPackageCache extends FileSystemRepository {
     }
 
     @Override
-    public void cacheCompilation(PackageCompilation packageCompilation) {
-        // do nothing
+    public void cacheBir(Module module, byte[] bir) {
+        // this is a read only repository
     }
 }

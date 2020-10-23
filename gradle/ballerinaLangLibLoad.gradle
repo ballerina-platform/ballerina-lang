@@ -70,14 +70,20 @@ dependencies {
     testRuntime project(path: ':ballerina-lang:java', configuration: 'distributionBirJar')
 }
 
-task createDistCache(type: Copy) {
+task createDistributionCache() {
     dependsOn configurations.distributionBalo
-    from configurations.distributionBalo
-    into "$buildDir/distribution-cache"
+    doLast {
+        configurations.distributionBalo.each { artifact ->
+            copy {
+                from zipTree( artifact.getPath() )
+                into "$buildDir/distribution-cache"
+            }
+        }
+    }
 }
 
 test {
-    dependsOn createDistCache
+    dependsOn createDistributionCache
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
     systemProperty "enableJBallerinaTests", "true"

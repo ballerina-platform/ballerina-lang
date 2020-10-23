@@ -48,15 +48,6 @@ public class ModuleData {
         return new ModuleData(path, srcDocuments, testSrcDocuments);
     }
 
-    // Temp code
-    public static ModuleData from(Path path,
-                                  List<DocumentData> srcDocuments,
-                                  List<DocumentData> testSrcDocuments, byte[] birBytes) {
-        final ModuleData moduleData = new ModuleData(path, srcDocuments, testSrcDocuments);
-        moduleData.birBytes = birBytes;
-        return moduleData;
-    }
-
     public Path moduleDirectoryPath() {
         return moduleDirPath;
     }
