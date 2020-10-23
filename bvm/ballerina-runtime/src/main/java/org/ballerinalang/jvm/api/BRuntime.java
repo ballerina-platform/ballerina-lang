@@ -25,6 +25,8 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -96,4 +98,45 @@ public class BRuntime {
         };
         scheduler.schedule(new Object[1], func, null, callback, properties, BTypes.typeNull, strandName, metadata);
     }
+
+    /**
+     * Get a value stored in a stored resource of a service object.
+     *
+     * @param object       Service object containing the resource field.
+     * @param resourceName Name of the resource field.
+     * @return             Value stored in the field.
+     */
+    public Object getStoredResource(BObject object, String resourceName) {
+        return object.get(BStringUtils.fromString(resourceName));
+    }
+
+    /**
+     * Get a value stored in a hierarchical stored resource of a service object.
+     *
+     * @param object        Service object containing the resource field.
+     * @param resourceNames Names of each step of the hierarchy.
+     * @return              Value stored in the field.
+     */
+    public Object getStoredResource(BObject object, String[] resourceNames) {
+        BObject parent = object;
+        Object storedResource = null;
+        for (int i = 0; i < resourceNames.length; i++) {
+            String name = resourceNames[i];
+            storedResource = getStoredResource(parent, name);
+
+            if (isServiceResource(storedResource)) {
+                parent = (BObject) storedResource;
+            } else if (i + 1 < resourceNames.length) {
+                throw new BLangRuntimeException("Invalid hierarchical resource: " + name);
+            }
+        }
+        return storedResource;
+    }
+
+    private boolean isServiceResource(Object storedResource) {
+        return (storedResource instanceof BObject)
+                && ((BObject) storedResource).getType().getTag() == TypeTags.SERVICE_TAG;
+    }
+
+
 }

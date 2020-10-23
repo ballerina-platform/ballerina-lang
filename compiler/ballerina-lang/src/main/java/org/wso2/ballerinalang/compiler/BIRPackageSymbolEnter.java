@@ -378,6 +378,7 @@ public class BIRPackageSymbolEnter {
                 } else {
                     scopeToDefine = attachedType.tsymbol.scope;
                 }
+                // todo: Define resource function from BIR
                 BAttachedFunction attachedFunc =
                         new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType,
                                               symTable.builtinPos);
@@ -1047,6 +1048,7 @@ public class BIRPackageSymbolEnter {
                                         initFuncName, env.pkgSymbol.pkgID, recordInitFuncType,
                                         env.pkgSymbol, isNative, symTable.builtinPos, COMPILED_SOURCE);
                         recordInitFuncSymbol.retType = recordInitFuncType.retType;
+                        // Define resource function
                         recordSymbol.initializerFunc = new BAttachedFunction(initFuncName, recordInitFuncSymbol,
                                                                              recordInitFuncType, symTable.builtinPos);
                         recordSymbol.scope.define(initFuncName, recordInitFuncSymbol);
