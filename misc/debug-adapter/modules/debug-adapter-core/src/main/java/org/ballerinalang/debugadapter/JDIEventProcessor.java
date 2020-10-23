@@ -167,6 +167,7 @@ public class JDIEventProcessor {
             if (threadReference.status() == ThreadReference.THREAD_STATUS_RUNNING
                     && !threadReference.name().equals("Reference Handler")
                     && !threadReference.name().equals("Signal Dispatcher")
+                    && threadReference.isSuspended() && threadReference.isAtBreakpoint()
             ) {
                 breakPointThreads.put(threadReference.uniqueID(), threadReference);
             }
