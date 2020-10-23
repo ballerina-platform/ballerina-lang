@@ -53,11 +53,12 @@ public class BallerinaErrorTypeDescriptor extends AbstractTypeDescriptor impleme
 
     @Override
     public String signature() {
+        String definitionName = getBType().tsymbol.name.value;
         if (this.moduleID().moduleName().equals("lang.annotations") && this.moduleID().orgName().equals("ballerina")) {
-            return ((BErrorType) this.getBType()).name.getValue();
+            return definitionName;
         }
         return this.moduleID().orgName() + Names.ORG_NAME_SEPARATOR +
                 this.moduleID().moduleName() + Names.VERSION_SEPARATOR + this.moduleID().version() + ":" +
-                ((BErrorType) this.getBType()).name.getValue();
+                definitionName;
     }
 }
