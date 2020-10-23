@@ -15,15 +15,13 @@
  */
 package org.ballerinalang.formatter.core;
 
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
-import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.ballerinalang.formatter.core.FormatterUtils.handleNewLineEndings;
 
 /**
  * Class that exposes the formatting APIs.
@@ -105,9 +103,7 @@ public class Formatter {
         FormattingTreeModifier treeModifier = new FormattingTreeModifier(options, range);
         ModulePartNode modulePartNode = syntaxTree.rootNode();
         try {
-            SyntaxTree newSyntaxTree = syntaxTree.modifyWith(treeModifier.transform(modulePartNode));
-            return handleNewLineEndings(newSyntaxTree.modifyWith(treeModifier
-                    .transform((ModulePartNode) newSyntaxTree.rootNode())));
+            return syntaxTree.modifyWith(treeModifier.transform(modulePartNode));
         } catch (Exception e) {
             LOGGER.error(String.format("Error while formatting the source: %s", e.getMessage()));
             return syntaxTree;

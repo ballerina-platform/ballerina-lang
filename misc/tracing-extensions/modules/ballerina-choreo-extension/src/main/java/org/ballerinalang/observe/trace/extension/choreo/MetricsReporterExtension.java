@@ -16,17 +16,17 @@
 
 package org.ballerinalang.observe.trace.extension.choreo;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.observability.metrics.Counter;
-import org.ballerinalang.jvm.observability.metrics.DefaultMetricRegistry;
-import org.ballerinalang.jvm.observability.metrics.Gauge;
-import org.ballerinalang.jvm.observability.metrics.Metric;
-import org.ballerinalang.jvm.observability.metrics.PercentileValue;
-import org.ballerinalang.jvm.observability.metrics.PolledGauge;
-import org.ballerinalang.jvm.observability.metrics.Snapshot;
-import org.ballerinalang.jvm.observability.metrics.Tag;
-import org.ballerinalang.jvm.observability.metrics.spi.MetricReporter;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.observability.metrics.Counter;
+import io.ballerina.runtime.observability.metrics.DefaultMetricRegistry;
+import io.ballerina.runtime.observability.metrics.Gauge;
+import io.ballerina.runtime.observability.metrics.Metric;
+import io.ballerina.runtime.observability.metrics.PercentileValue;
+import io.ballerina.runtime.observability.metrics.PolledGauge;
+import io.ballerina.runtime.observability.metrics.Snapshot;
+import io.ballerina.runtime.observability.metrics.Tag;
+import io.ballerina.runtime.observability.metrics.spi.MetricReporter;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClient;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClientHolder;
 import org.ballerinalang.observe.trace.extension.choreo.client.error.ChoreoClientException;
@@ -74,13 +74,13 @@ public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
         try {
             choreoClient = ChoreoClientHolder.getChoreoClient(this);
         } catch (ChoreoClientException e) {
-            throw BErrorCreator.createError(
-                    BStringUtils.fromString("Could not initialize the client. Please check Ballerina configurations."),
-                    BStringUtils.fromString(e.getMessage()));
+            throw ErrorCreator.createError(
+                    StringUtils.fromString("Could not initialize the client. Please check Ballerina configurations."),
+                    StringUtils.fromString(e.getMessage()));
         }
 
         if (Objects.isNull(choreoClient)) {
-            throw BErrorCreator.createError(BStringUtils.fromString("Choreo client is not initialized"));
+            throw ErrorCreator.createError(StringUtils.fromString("Choreo client is not initialized"));
         }
 
         executorService = new ScheduledThreadPoolExecutor(1);

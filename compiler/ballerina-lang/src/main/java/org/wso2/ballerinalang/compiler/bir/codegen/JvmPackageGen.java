@@ -88,19 +88,18 @@ import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTRUCTOR_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_THREAD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_EP_AVAILABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
@@ -158,11 +157,22 @@ public class JvmPackageGen {
     }
 
     private static void addBuiltinImports(BIRPackage currentModule, Set<PackageID> dependentModuleArray) {
+        Name ballerinaOrgName = new Name("ballerina");
+        Name builtInVersion = new Name("");
+
         // Add the builtin and utils modules to the imported list of modules
         if (isSameModule(currentModule, PackageID.ANNOTATIONS)) {
             return;
         }
+
         dependentModuleArray.add(PackageID.ANNOTATIONS);
+
+        if (isSameModule(currentModule, PackageID.JAVA)) {
+            return;
+        }
+
+        dependentModuleArray.add(PackageID.JAVA);
+
         if (isLangModule(currentModule)) {
             return;
         }
@@ -206,7 +216,7 @@ public class JvmPackageGen {
         if (!BALLERINA.equals(moduleId.org.value)) {
             return false;
         }
-        return moduleId.name.value.indexOf("lang.") == 0;
+        return moduleId.name.value.indexOf("lang.") == 0 || moduleId.name.equals(Names.JAVA);
     }
 
     private static void generatePackageVariable(BIRGlobalVariableDcl globalVar, ClassWriter cw) {
@@ -249,18 +259,17 @@ public class JvmPackageGen {
     private static void setCurrentModuleField(ClassWriter cw, MethodVisitor mv, BIRPackage module,
                                               String moduleInitClass) {
         FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_VAR_NAME,
-                                        String.format("L%s;", RUNTIME_MODULE), null, null);
+                                        String.format("L%s;", MODULE), null, null);
         fv.visitEnd();
-        mv.visitTypeInsn(Opcodes.NEW, RUNTIME_MODULE);
+        mv.visitTypeInsn(Opcodes.NEW, MODULE);
         mv.visitInsn(Opcodes.DUP);
         mv.visitLdcInsn(module.org.value);
         mv.visitLdcInsn(module.name.value);
         mv.visitLdcInsn(module.version.value);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, RUNTIME_MODULE,
-                           CONSTRUCTOR_INIT_METHOD, String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE,
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, MODULE,
+                           JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE,
                                                                   STRING_VALUE), false);
-        mv.visitFieldInsn(Opcodes.PUTSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;",
-                                                                                                     RUNTIME_MODULE));
+        mv.visitFieldInsn(Opcodes.PUTSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", MODULE));
     }
 
     private static void setLockStoreField(MethodVisitor mv, String className) {
@@ -611,7 +620,7 @@ public class JvmPackageGen {
             }
         }
 
-        globalVarClassMap.put(pkgName + "LOCK_STORE", initClass);
+        globalVarClassMap.put(pkgName + LOCK_STORE_VAR_NAME, initClass);
     }
 
     private void linkTypeDefinitions(BIRPackage module, String pkgName,

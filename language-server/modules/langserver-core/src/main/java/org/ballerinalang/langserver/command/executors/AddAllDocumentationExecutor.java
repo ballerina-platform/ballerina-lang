@@ -16,8 +16,8 @@
 package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.JsonObject;
-import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -81,7 +81,7 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
 
             List<TextEdit> textEdits = new ArrayList<>();
             ((ModulePartNode) syntaxTree.rootNode()).members().forEach(member -> {
-                getDocumentationEditForNode(member).ifPresent(docs -> textEdits.add(getTextEdit(docs)));
+                getDocumentationEditForNode(member, true).ifPresent(docs -> textEdits.add(getTextEdit(docs)));
             });
             TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, textEdits);
             LanguageClient languageClient = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);

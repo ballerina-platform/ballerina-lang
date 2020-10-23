@@ -16,11 +16,11 @@
 
 package org.ballerinalang.debugadapter.evaluation;
 
-import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
-import io.ballerinalang.compiler.syntax.tree.TreeModifier;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.TreeModifier;
 
-import static org.ballerinalang.jvm.IdentifierUtils.encodeIdentifier;
-import static org.ballerinalang.jvm.IdentifierUtils.unescapeUnicodeCodepoints;
+import static io.ballerina.runtime.IdentifierUtils.encodeIdentifier;
+import static io.ballerina.runtime.IdentifierUtils.unescapeUnicodeCodepoints;
 
 /**
  * Identifier specific expression modifier implementation.

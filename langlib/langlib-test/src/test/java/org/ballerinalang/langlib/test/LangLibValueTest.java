@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.types.TypeTags;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -224,7 +224,7 @@ public class LangLibValueTest {
         BRunUtil.invokeFunction(compileResult, "testToStringMethodForTable");
     }
 
-    @Test(dataProvider = "mergeJsonFunctions")
+    @Test(dataProvider = "mergeJsonFunctions", enabled = false)
     public void testMergeJson(String function) {
         BValue[] returns = BRunUtil.invoke(compileResult, function);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
@@ -253,6 +253,23 @@ public class LangLibValueTest {
         BRunUtil.invokeFunction(testFile, "testToBalStringOnCycles");
     }
 
+    @Test
+    public void testXmlFromBalString() {
+        CompileResult file = BCompileUtil.compile("test-src/valuelib_fromBalString_test.bal");
+        BRunUtil.invokeFunction(file, "testIntValueFromBalString");
+        BRunUtil.invokeFunction(file, "testStringValueFromBalString");
+        BRunUtil.invokeFunction(file, "testFloatingPointNumbersFromBalString");
+        BRunUtil.invokeFunction(file, "testAnydataNilFromBalString");
+        BRunUtil.invokeFunction(file, "testMapFromBalString");
+        BRunUtil.invokeFunction(file, "testTableFromBalString");
+        BRunUtil.invokeFunction(file, "testArrayFromBalString");
+        BRunUtil.invokeFunction(file, "testTupleFromBalString");
+        BRunUtil.invokeFunction(file, "testJsonFromBalString");
+        BRunUtil.invokeFunction(file, "testXmlFromBalString");
+        BRunUtil.invokeFunction(file, "testObjectFromString");
+        BRunUtil.invokeFunction(file, "testFromBalStringOnCycles");
+    }
+
     @DataProvider(name = "mergeJsonFunctions")
     public Object[][] mergeJsonFunctions() {
         return new Object[][] {
@@ -269,7 +286,7 @@ public class LangLibValueTest {
         };
     }
 
-    @Test(dataProvider = "cloneWithTypeFunctions")
+    @Test(dataProvider = "cloneWithTypeFunctions", enabled = false)
     public void testCloneWithType(String function) {
         BValue[] returns = BRunUtil.invoke(compileResult, function);
     }
@@ -355,5 +372,15 @@ public class LangLibValueTest {
                 { "testToJsonWithIntArray" },
                 { "testToJsonWithTable" }
         };
+    }
+
+    @Test
+    public void testEnsureType() {
+        BRunUtil.invokeFunction(compileResult, "testEnsureType");
+    }
+
+    @Test
+    public void testEnsureTypeNegative() {
+        BRunUtil.invokeFunction(compileResult, "testEnsureTypeNegative");
     }
 }

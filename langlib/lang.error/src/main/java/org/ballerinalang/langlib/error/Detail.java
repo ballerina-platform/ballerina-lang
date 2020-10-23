@@ -17,29 +17,22 @@
  **/
 package org.ballerinalang.langlib.error;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.ERROR_VERSION;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
 
 /**
  * Get the reason phrase of an error value.
  *
  * @since 0.990.4
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.error", version = ERROR_VERSION,
-        functionName = "detail",
-        args = {@Argument(name = "value", type = TypeKind.ERROR)},
-        returnType = {@ReturnType(type = TypeKind.ANYDATA)})
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.error",
+//        functionName = "detail",
+//        args = {@Argument(name = "value", type = TypeKind.ERROR)},
+//        returnType = {@ReturnType(type = TypeKind.ANYDATA)})
 public class Detail {
 
-    public static MapValue detail(Strand strand, ErrorValue value) {
-        return (MapValue) value.getDetails();
+    public static BMap detail(BError value) {
+        return (BMap) value.getDetails();
     }
 }

@@ -1,5 +1,3 @@
-import ballerina/io;
-
-public function say() {
-    io:println("bzzz");
+public function say() returns string {
+    return "bzzz";
 }

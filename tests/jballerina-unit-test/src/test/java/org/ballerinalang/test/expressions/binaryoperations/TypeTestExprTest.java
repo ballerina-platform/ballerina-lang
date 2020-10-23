@@ -16,9 +16,9 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -364,6 +364,31 @@ public class TypeTestExprTest {
     }
 
     @Test
+    public void testRestType() {
+        BRunUtil.invoke(result, "testRestType");
+    }
+
+    @Test
+    public void testUnionType() {
+        BRunUtil.invoke(result, "testUnionType");
+    }
+
+    @Test
+    public void testInferredArrayType() {
+        BRunUtil.invoke(result, "testInferredArrayType");
+    }
+
+    @Test
+    public void testClosedArrayType() {
+        BRunUtil.invoke(result, "testClosedArrayType");
+    }
+
+    @Test
+    public void testEmptyArrayType() {
+        BRunUtil.invoke(result, "testEmptyArrayType");
+    }
+
+    @Test
     public void testRecordArrays() {
         BValue[] returns = BRunUtil.invoke(result, "testRecordArrays");
         Assert.assertEquals(returns.length, 4);
@@ -669,5 +694,10 @@ public class TypeTestExprTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
         returns = BRunUtil.invoke(result, "testFutureFalse");
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testMapAsRecord() {
+        BRunUtil.invoke(result, "testMapAsRecord");
     }
 }

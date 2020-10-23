@@ -16,8 +16,8 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.scheduling.Strand;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -41,7 +41,7 @@ import static org.bytedeco.llvm.global.LLVM.LLVMPassManagerBuilderSetOptLevel;
         })
 public class LLVMPassManagerBuilderSetOptLevel {
 
-    public static void llvmPassManagerBuilderSetOptLevel(Strand strand, MapValue<String, Object> m, long optLevel) {
+    public static void llvmPassManagerBuilderSetOptLevel(Strand strand, BMap<String, Object> m, long optLevel) {
 
         LLVMPassManagerBuilderRef pmb = (LLVMPassManagerBuilderRef) FFIUtil.getRecodeArgumentNative(m);
         LLVMPassManagerBuilderSetOptLevel(pmb, (int) optLevel);

@@ -72,7 +72,7 @@
                           "leadingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
-                              "value": "   "
+                              "value": "    "
                             }
                           ],
                           "trailingMinutiae": [
@@ -118,24 +118,12 @@
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "a",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "value": "a"
                         }
                       ]
                     },
                     {
-                      "kind": "RIGHT_ARROW_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "RIGHT_ARROW_TOKEN"
                     },
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",
@@ -195,16 +183,12 @@
                       "value": "x",
                       "leadingMinutiae": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "   "
-                        },
-                        {
                           "kind": "END_OF_LINE_MINUTIAE",
                           "value": "\n"
                         },
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "   "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -233,24 +217,12 @@
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "a",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "value": "a"
                         }
                       ]
                     },
                     {
-                      "kind": "RIGHT_ARROW_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "RIGHT_ARROW_TOKEN"
                     },
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",
@@ -310,16 +282,12 @@
                       "value": "x",
                       "leadingMinutiae": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "   "
-                        },
-                        {
                           "kind": "END_OF_LINE_MINUTIAE",
                           "value": "\n"
                         },
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "   "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -351,24 +319,12 @@
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "a",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "value": "a"
                         }
                       ]
                     },
                     {
-                      "kind": "RIGHT_ARROW_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "RIGHT_ARROW_TOKEN"
                     },
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",
@@ -424,16 +380,12 @@
                   "kind": "RETURN_KEYWORD",
                   "leadingMinutiae": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "   "
-                    },
-                    {
                       "kind": "END_OF_LINE_MINUTIAE",
                       "value": "\n"
                     },
                     {
                       "kind": "WHITESPACE_MINUTIAE",
-                      "value": "   "
+                      "value": "    "
                     }
                   ],
                   "trailingMinutiae": [
@@ -451,24 +403,12 @@
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "a",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "value": "a"
                         }
                       ]
                     },
                     {
-                      "kind": "RIGHT_ARROW_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "RIGHT_ARROW_TOKEN"
                     },
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",

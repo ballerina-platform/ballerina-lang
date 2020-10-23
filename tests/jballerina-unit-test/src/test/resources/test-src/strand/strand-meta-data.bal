@@ -128,7 +128,7 @@ function assertStrandMetadataResult(string assertString) {
 }
 
 function getName(handle strand) returns handle = @java:Method {
-    'class: "org.ballerinalang.jvm.scheduling.Strand"
+    'class: "io.ballerina.runtime.scheduling.Strand"
 } external;
 
 function get(handle optional) returns handle = @java:Method {
@@ -144,17 +144,18 @@ function isPresent(handle optional) returns boolean = @java:Method {
 } external;
 
 function getId(handle strand) returns int = @java:Method {
-    'class: "org.ballerinalang.jvm.scheduling.Strand"
+    'class: "io.ballerina.runtime.scheduling.Strand"
 } external;
 
 function getStrand() returns handle = @java:Method {
-    'class: "org.ballerinalang.jvm.scheduling.Scheduler"
+    'class: "io.ballerina.runtime.scheduling.Scheduler"
 } external;
 
 function getMetadata(handle strand) returns handle = @java:Method {
-    'class: "org.ballerinalang.jvm.scheduling.Strand"
+    'class: "io.ballerina.runtime.scheduling.Strand"
 } external;
 
+<<<<<<< HEAD
 function getModule(handle strandMetadata) returns handle = @java:Method {
     'class: "org.ballerinalang.jvm.scheduling.StrandMetadata"
 } external;
@@ -169,14 +170,26 @@ function getModuleName(handle module) returns handle = @java:Method {
 
 function getModuleVersion(handle module) returns handle = @java:Method {
     'class: "org.ballerinalang.jvm.api.runtime.Module"
+=======
+function getModuleOrg(handle strandMetadata) returns handle = @java:Method {
+    'class: "io.ballerina.runtime.api.async.StrandMetadata"
+} external;
+
+function getModuleName(handle strandMetadata) returns handle = @java:Method {
+    'class: "io.ballerina.runtime.api.async.StrandMetadata"
+} external;
+
+function getModuleVersion(handle strandMetadata) returns handle = @java:Method {
+    'class: "io.ballerina.runtime.api.async.StrandMetadata"
+>>>>>>> cd3eff872b26c58b30af38f3e70995dec38a6090
 } external;
 
 function getParentFunctionName(handle strandMetadata) returns handle = @java:Method {
-    'class: "org.ballerinalang.jvm.scheduling.StrandMetadata"
+    'class: "io.ballerina.runtime.api.async.StrandMetadata"
 } external;
 
 function getTypeName(handle strandMetadata) returns handle = @java:Method {
-    'class: "org.ballerinalang.jvm.scheduling.StrandMetadata"
+    'class: "io.ballerina.runtime.api.async.StrandMetadata"
 } external;
 
 const ASSERTION_ERROR_REASON = "AssertionError";

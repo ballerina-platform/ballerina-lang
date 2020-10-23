@@ -34,8 +34,8 @@ rem ----- if JAVA_HOME is not set we're not happy ------------------------------
 :checkJava
 
 set BALLERINA_HOME=%~sdp0..
-if exist %BALLERINA_HOME%\..\..\dependencies\jdk8u202-b08-jre (
-   set "JAVA_HOME=%BALLERINA_HOME%\..\..\dependencies\jdk8u202-b08-jre"
+if exist %BALLERINA_HOME%\..\..\dependencies\jdk-11.0.8+10-jre (
+   set "JAVA_HOME=%BALLERINA_HOME%\..\..\dependencies\jdk-11.0.8+10-jre"
 )
 
 if "%JAVA_HOME%" == "" goto noJavaHome
@@ -127,8 +127,7 @@ if %JVER% EQU 18 goto jdk8
 goto unknownJdk
 
 :unknownJdk
-echo Ballerina is supported only on JDK 1.8
-goto end
+goto runServer
 
 :jdk8
 goto runServer

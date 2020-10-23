@@ -17,20 +17,20 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import org.ballerinalang.jvm.api.BalEnv;
-import org.ballerinalang.jvm.api.values.BArray;
-import org.ballerinalang.jvm.api.values.BDecimal;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BFunctionPointer;
-import org.ballerinalang.jvm.api.values.BFuture;
-import org.ballerinalang.jvm.api.values.BHandle;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BStream;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.api.values.BTypedesc;
-import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.values.TableValue;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BDecimal;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.values.BHandle;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BStream;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.api.values.BXML;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -44,6 +44,7 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -268,7 +269,7 @@ class JMethodResolver {
                 jParamType = jParamTypes[0];
             }
             BType bParamType = jMethod.getReceiverType();
-            if (!isValidParamBType(jParamType, bParamType, jMethodRequest)) {
+            if (!isValidParamBType(jParamTypes[0], bParamType, false, jMethodRequest.restParamExist)) {
                 throw getNoSuchMethodError(jMethodRequest.methodName, jParamType, bParamType,
                                            jMethodRequest.declaringClass);
             }
@@ -286,7 +287,9 @@ class JMethodResolver {
             }
 
             BType receiverType = bParamTypes[0];
-            if (!isValidParamBType(jMethodRequest.declaringClass, receiverType, jMethodRequest)) {
+            boolean isLastParam = bParamTypes.length == 1;
+            if (!isValidParamBType(jMethodRequest.declaringClass, receiverType, isLastParam,
+                    jMethodRequest.restParamExist)) {
                 throw getNoSuchMethodError(jMethodRequest.methodName, jParamTypes[0], receiverType,
                                            jMethodRequest.declaringClass);
             }
@@ -302,7 +305,8 @@ class JMethodResolver {
         for (int k = j; k < jParamTypes.length; i++, k++) {
             BType bParamType = bParamTypes[i];
             Class<?> jParamType = jParamTypes[k];
-            if (!isValidParamBType(jParamType, bParamType, jMethodRequest)) {
+            boolean isLastPram = jParamTypes.length == k + 1;
+            if (!isValidParamBType(jParamType, bParamType, isLastPram, jMethodRequest.restParamExist)) {
                 throw getNoSuchMethodError(jMethodRequest.methodName, jParamType, bParamType,
                         jMethodRequest.declaringClass);
             }
@@ -326,7 +330,7 @@ class JMethodResolver {
         }
     }
 
-    private boolean isValidParamBType(Class<?> jType, BType bType, JMethodRequest jMethodRequest) {
+    private boolean isValidParamBType(Class<?> jType, BType bType, boolean isLastParam, boolean restParamExist) {
 
         try {
             String jTypeName = jType.getTypeName();
@@ -397,7 +401,7 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TUPLE:
                 case TypeTags.ARRAY:
-                    return isValidListType(jType, jMethodRequest);
+                    return isValidListType(jType, isLastParam, restParamExist);
                 case TypeTags.UNION:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
@@ -406,7 +410,7 @@ class JMethodResolver {
                     Set<BType> members = ((BUnionType) bType).getMemberTypes();
                     // for method arguments, all ballerina member types should be assignable to java-type.
                     for (BType member : members) {
-                        if (!isValidParamBType(jType, member, jMethodRequest)) {
+                        if (!isValidParamBType(jType, member, isLastParam, restParamExist)) {
                             return false;
                         }
                     }
@@ -414,15 +418,17 @@ class JMethodResolver {
                 case TypeTags.READONLY:
                     return jTypeName.equals(J_OBJECT_TNAME);
                 case TypeTags.INTERSECTION:
-                    return isValidParamBType(jType, ((BIntersectionType) bType).effectiveType, jMethodRequest);
+                    return isValidParamBType(jType, ((BIntersectionType) bType).effectiveType, isLastParam,
+                            restParamExist);
                 case TypeTags.FINITE:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
                     }
 
                     Set<BLangExpression> valueSpace = ((BFiniteType) bType).getValueSpace();
-                    for (BLangExpression value : valueSpace) {
-                        if (!isValidParamBType(jType, value.type, jMethodRequest)) {
+                    for (Iterator<BLangExpression> iterator = valueSpace.iterator(); iterator.hasNext(); ) {
+                        BLangExpression value = iterator.next();
+                        if (!isValidParamBType(jType, value.type, isLastParam, restParamExist)) {
                             return false;
                         }
                     }
@@ -438,7 +444,7 @@ class JMethodResolver {
                 case TypeTags.STREAM:
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE:
-                    return this.classLoader.loadClass(TableValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 default:
                     return false;
             }
@@ -540,7 +546,7 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TUPLE:
                 case TypeTags.ARRAY:
-                    return isValidListType(jType, jMethodRequest);
+                    return isValidListType(jType, true, jMethodRequest.restParamExist);
                 case TypeTags.UNION:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
@@ -581,7 +587,7 @@ class JMethodResolver {
                 case TypeTags.STREAM:
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE:
-                    return this.classLoader.loadClass(TableValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 default:
                     return false;
             }
@@ -590,8 +596,9 @@ class JMethodResolver {
         }
     }
 
-    private boolean isValidListType(Class<?> jType, JMethodRequest jMethodRequest) throws ClassNotFoundException {
-        if (jMethodRequest.restParamExist) {
+    private boolean isValidListType(Class<?> jType, boolean isLastParam, boolean restParamExists)
+            throws ClassNotFoundException {
+        if (isLastParam && restParamExists) {
             return jType.isArray();
         }
         return this.classLoader.loadClass(BArray.class.getCanonicalName()).isAssignableFrom(jType);
@@ -623,9 +630,9 @@ class JMethodResolver {
                 isAssignableFrom(BTypedesc.class, jType) ||
                 isAssignableFrom(BHandle.class, jType) ||
                 isAssignableFrom(BXML.class, jType) ||
-                this.isValidListType(jType, jMethodRequest) ||
+                this.isValidListType(jType, true, jMethodRequest.restParamExist) ||
                 isAssignableFrom(BMap.class, jType) ||
-                isAssignableFrom(TableValue.class, jType);
+                isAssignableFrom(BTable.class, jType);
     }
 
     private boolean isAssignableFrom(Class<?> targetType, Class<?> jType) throws ClassNotFoundException {
@@ -656,7 +663,7 @@ class JMethodResolver {
     private Executable tryResolveExactWithBalEnv(Class<?>[] paramTypes, Class<?> clazz, String name) {
         Class<?>[] paramTypesWithBalEnv = new Class<?>[paramTypes.length + 1];
         System.arraycopy(paramTypes, 0, paramTypesWithBalEnv, 1, paramTypes.length);
-        paramTypesWithBalEnv[0] = BalEnv.class;
+        paramTypesWithBalEnv[0] = Environment.class;
         return resolveMethod(clazz, name, paramTypesWithBalEnv);
     }
 

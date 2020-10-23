@@ -65,10 +65,9 @@ import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTRUCTOR_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FILE_NAME_PERIOD_SEPERATOR;
@@ -79,15 +78,15 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACKAGE_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WINDOWS_PATH_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
@@ -99,7 +98,7 @@ public class JvmCodeGenUtil {
     public static final ResolvedTypeBuilder TYPE_BUILDER = new ResolvedTypeBuilder();
     public static final String INITIAL_MEHOD_DESC = String.format("(L%s;", STRAND_CLASS);
     public static final String INITIAL_MEHOD_DESC_WITH_MODULE =
-            INITIAL_MEHOD_DESC.concat(String.format("L%s;", RUNTIME_MODULE));
+            INITIAL_MEHOD_DESC.concat(String.format("L%s;", MODULE));
     private static final Pattern IMMUTABLE_TYPE_CHAR_PATTERN = Pattern.compile("[/.]");
     private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[\\.:/<>]");
 
@@ -122,7 +121,7 @@ public class JvmCodeGenUtil {
     private static String getMapsDesc(long count) {
         StringBuilder builder = new StringBuilder();
         for (long i = count; i > 0; i--) {
-            builder.append("Lorg/ballerinalang/jvm/values/MapValue;");
+            builder.append("Lio/ballerina/runtime/values/MapValue;");
         }
         return builder.toString();
     }
@@ -137,7 +136,7 @@ public class JvmCodeGenUtil {
         mv.visitInsn(Opcodes.ACONST_NULL);
         mv.visitInsn(Opcodes.ICONST_0); // mark as not-concurrent ie: 'parent'
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, FUNCTION_POINTER, JVM_INIT_METHOD,
-                           String.format("(L%s;L%s;L%s;Z)V", FUNCTION, BTYPE, STRING_VALUE), false);
+                           String.format("(L%s;L%s;L%s;Z)V", FUNCTION, TYPE, STRING_VALUE), false);
     }
 
     /**
@@ -205,7 +204,7 @@ public class JvmCodeGenUtil {
                 case TypeTags.FUTURE:
                     return String.format("L%s;", FUTURE_VALUE);
                 case TypeTags.OBJECT:
-                    return String.format("L%s;", OBJECT_VALUE);
+                    return String.format("L%s;", B_OBJECT);
                 case TypeTags.TYPEDESC:
                     return String.format("L%s;", TYPEDESC_VALUE);
                 case TypeTags.INVOKABLE:
@@ -251,7 +250,7 @@ public class JvmCodeGenUtil {
         }
         mv.visitLdcInsn(metaData.parentFunctionName);
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, STRAND_METADATA,
-                           CONSTRUCTOR_INIT_METHOD, String.format("(L%s;L%s;L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE,
+                           JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE,
                                                                   STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
         mv.visitFieldInsn(Opcodes.PUTSTATIC, moduleClass, varName, String.format("L%s;", STRAND_METADATA));
     }
@@ -423,7 +422,7 @@ public class JvmCodeGenUtil {
             case TypeTags.TYPEDESC:
                 return String.format("L%s;", TYPEDESC_VALUE);
             case TypeTags.OBJECT:
-                return String.format("L%s;", OBJECT_VALUE);
+                return String.format("L%s;", B_OBJECT);
             case TypeTags.HANDLE:
                 return String.format("L%s;", HANDLE_VALUE);
             default:
@@ -478,7 +477,7 @@ public class JvmCodeGenUtil {
             case TypeTags.READONLY:
                 return String.format(")L%s;", OBJECT);
             case TypeTags.OBJECT:
-                return String.format(")L%s;", OBJECT_VALUE);
+                return String.format(")L%s;", B_OBJECT);
             case TypeTags.INVOKABLE:
                 return String.format(")L%s;", FUNCTION_POINTER);
             case TypeTags.HANDLE:
@@ -583,7 +582,8 @@ public class JvmCodeGenUtil {
     private static void generateDiagnosticPos(DiagnosticPos pos, MethodVisitor mv, Label label) {
         if (pos != null && pos.sLine != 0x80000000) {
             mv.visitLabel(label);
-            mv.visitLineNumber(pos.sLine, label);
+            // Adding +1 since 'pos' is 0-based and we want 1-based positions at run time
+            mv.visitLineNumber(pos.sLine + 1, label);
         }
     }
 

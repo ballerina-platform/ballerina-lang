@@ -18,14 +18,9 @@
 
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,30 +31,23 @@ import java.util.List;
  * 
  * @since 0.92
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0",
-        functionName = "selectDescendants",
-        args = {@Argument(name = "qname", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
-)
 public class SelectDescendants {
 
     private static final String OPERATION = "select descendants from xml";
 
-    public static XMLValue selectDescendants(Strand strand, XMLValue xml, ArrayValue qnames) {
+    public static BXML selectDescendants(BXML xml, BString[] qnames) {
         try {
             List<String> qnameList = new ArrayList<>();
-            int size = qnames.size();
+            int size = qnames.length;
             for (int i = 0; i < size; i++) {
-                String strQname = qnames.getString(i);
+                String strQname = qnames[i].getValue();
                 // remove empty namespace in expanded form i.e `{}local => local`
                 if (strQname.lastIndexOf('}') == 1) {
                     strQname = strQname.substring(2);
                 }
                 qnameList.add(strQname);
             }
-            return (XMLValue) xml.descendants(qnameList);
+            return (BXML) xml.descendants(qnameList);
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }

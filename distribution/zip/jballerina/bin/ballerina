@@ -32,7 +32,7 @@
 # OS specific support.  $var _must_ be set to either true or false.
 
 # Set JAVA_HOME for installers
-JAVA_PATH=$BALLERINA_HOME/../../dependencies/jdk8u202-b08-jre
+JAVA_PATH=$BALLERINA_HOME/../../dependencies/jdk-11.0.8+10-jre
 if test -d "$JAVA_PATH"; then
   JAVA_HOME=$JAVA_PATH
 fi
@@ -159,11 +159,6 @@ if [ -n "${BAL_JAVA_DEBUG+set}" ]; then
     fi
 fi
 
-JDK_18=`$JAVA_HOME/bin/java -version 2>&1 | grep "1.8."`
-if [ "$JDK_18" = "" ]; then
-    echo "Error: Ballerina is supported only on JDK 1.8"
-    exit 1
-fi
 
 BALLERINA_XBOOTCLASSPATH=""
 for f in "$BALLERINA_HOME"/bre/lib/bootstrap/xboot/*.jar

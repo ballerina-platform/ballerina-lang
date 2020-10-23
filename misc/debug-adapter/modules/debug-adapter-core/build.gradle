@@ -12,7 +12,6 @@ dependencies {
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-runtime')
     implementation 'org.apache.commons:commons-compress:1.18'
-    implementation files(org.gradle.internal.jvm.Jvm.current().toolsJar)
 }
 
 shadowJar {
@@ -40,3 +39,6 @@ createJavadoc {
 }
 
 description = 'Ballerina - Debug Adapter - Debug Adaptor Core'
+
+ext.moduleName = 'ballerina.debug.adapter.core'
+

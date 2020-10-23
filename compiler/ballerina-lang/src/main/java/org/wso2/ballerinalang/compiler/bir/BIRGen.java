@@ -310,8 +310,9 @@ public class BIRGen extends BLangNodeVisitor {
             String builtinFuncName = funcName.substring(funcName.indexOf("<") + 1, funcName.indexOf(">"));
             String modifiedFuncName = funcName.replace(builtinFuncName, "test" + builtinFuncName);
             function.name.setValue(modifiedFuncName);
-            function.originalFuncSymbol.name.value = modifiedFuncName;
-            function.symbol.name.value = modifiedFuncName;
+            Name functionName = names.fromString(modifiedFuncName);
+            function.originalFuncSymbol.name = functionName;
+            function.symbol.name = functionName;
         }
     }
 
@@ -2460,7 +2461,7 @@ public class BIRGen extends BLangNodeVisitor {
         long size = -1L;
         List<BLangExpression> exprs = listConstructorExpr.exprs;
         if (listConstructorExpr.type.tag == TypeTags.ARRAY &&
-                ((BArrayType) listConstructorExpr.type).state != BArrayState.UNSEALED) {
+                ((BArrayType) listConstructorExpr.type).state != BArrayState.OPEN) {
             size = ((BArrayType) listConstructorExpr.type).size;
         } else if (listConstructorExpr.type.tag == TypeTags.TUPLE) {
             size = exprs.size();

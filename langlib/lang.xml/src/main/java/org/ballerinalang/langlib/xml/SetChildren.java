@@ -18,24 +18,18 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.types.TypeFlags;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.TypeFlags;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 
 import java.util.Arrays;
-
-import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
  * Set the children of an XML if its a singleton. Error otherwise.
@@ -43,34 +37,36 @@ import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
  * 
  * @since 0.88
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
-        functionName = "setChildren",
-        args = {@Argument(name = "children", type = TypeKind.UNION)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "setChildren",
+//        args = {@Argument(name = "children", type = TypeKind.UNION)},
+//        isPublic = true
+//)
 public class SetChildren {
 
     private static final String OPERATION = "set children to xml element";
 
-    public static void setChildren(Strand strand, XMLValue xml, Object children) {
-        if (!IsElement.isElement(strand, xml)) {
+    public static void setChildren(BXML xml, Object children) {
+        if (!IsElement.isElement(xml)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "setChildren", "element");
         }
 
-        BType childrenType = TypeChecker.getType(children);
+        Type childrenType = TypeChecker.getType(children);
         if (childrenType.getTag() == TypeTags.STRING_TAG) {
-            XMLValue xmlText = XMLFactory.createXMLText((String) children);
+            BXML xmlText = XMLFactory.createXMLText((String) children);
             children = xmlText;
         } else if (TypeTags.isXMLTypeTag(childrenType.getTag())) {
             BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
-                    new BUnionType(Arrays.asList(BTypes.typeXML, BTypes.typeString),
-                                   TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE)),
+                                                     TypeCreator.createUnionType(
+                                                             Arrays.asList(PredefinedTypes.TYPE_XML,
+                                                                           PredefinedTypes.TYPE_STRING),
+                                                             TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE)),
                                                      childrenType);
         }
 
         try {
-            xml.setChildren((XMLValue) children);
+            xml.setChildren((BXML) children);
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }

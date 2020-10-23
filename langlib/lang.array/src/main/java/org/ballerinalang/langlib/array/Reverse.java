@@ -18,32 +18,25 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.values.BArray;
 
 /**
  * Native implementation of lang.array:reverse((any|error)[]).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "reverse",
-        args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "reverse",
+//        args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
+//        returnType = {@ReturnType(type = TypeKind.ARRAY)},
+//        isPublic = true
+//)
 public class Reverse {
 
-    public static ArrayValue reverse(Strand strand, ArrayValue arr) {
-        ArrayValue reversedArr = new ArrayValueImpl((BArrayType) arr.getType());
+    public static BArray reverse(BArray arr) {
+        BArray reversedArr = ValueCreator.createArrayValue((ArrayType) arr.getType());
         int elemTypeTag = reversedArr.getElementType().getTag();
         int size = arr.size();
 

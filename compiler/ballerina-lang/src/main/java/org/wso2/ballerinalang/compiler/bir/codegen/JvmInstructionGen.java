@@ -17,8 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import io.ballerina.runtime.IdentifierUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.jvm.IdentifierUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -129,12 +129,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BINITIAL_VALUE_ENTRY;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BXML_QNAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_UTILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_INITIAL_VALUE_ENTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAPPING_INITIAL_VALUE_ENTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_XML_QNAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
@@ -148,23 +149,23 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST_INIT
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_STREAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAPPING_INITIAL_KEY_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAPPING_INITIAL_SPREAD_FIELD_ENTRY;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAPPING_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MATH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SHORT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_VALUE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHECKER;
@@ -1236,7 +1237,7 @@ public class JvmInstructionGen {
         List<BIRNode.BIRMappingConstructorEntry> initialValues = mapNewIns.initialValues;
         mv.visitLdcInsn((long) initialValues.size());
         mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, MAPPING_INITIAL_VALUE_ENTRY);
+        mv.visitTypeInsn(ANEWARRAY, B_MAPPING_INITIAL_VALUE_ENTRY);
 
         int i = 0;
         for (BIRNode.BIRMappingConstructorEntry initialValue : initialValues) {
@@ -1255,7 +1256,7 @@ public class JvmInstructionGen {
         }
 
         this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, "instantiate",
-                                String.format("(L%s;[L%s;)L%s;", STRAND_CLASS, BINITIAL_VALUE_ENTRY, OBJECT), true);
+                                String.format("(L%s;[L%s;)L%s;", STRAND_CLASS, B_INITIAL_VALUE_ENTRY, OBJECT), true);
         this.storeToVar(mapNewIns.lhsOp.variableDcl);
     }
 
@@ -1286,7 +1287,7 @@ public class JvmInstructionGen {
         this.loadVar(variableDcl);
 
         mv.visitMethodInsn(INVOKESPECIAL, MAPPING_INITIAL_SPREAD_FIELD_ENTRY, JVM_INIT_METHOD,
-                           String.format("(L%s;)V", OBJECT), false);
+                           String.format("(L%s;)V", B_MAP), false);
     }
 
     void generateMapStoreIns(BIRNonTerminator.FieldAccess mapStoreIns) {
@@ -1304,14 +1305,14 @@ public class JvmInstructionGen {
 
         if (varRefType.tag == TypeTags.JSON) {
             this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "setElement",
-                                        String.format("(L%s;L%s;L%s;)V", OBJECT, JvmConstants.B_STRING_VALUE), false);
+                                    String.format("(L%s;L%s;L%s;)V", OBJECT, JvmConstants.B_STRING_VALUE), false);
         } else if (mapStoreIns.onInitialization) {
             // We only reach here for stores in a record init function.
             this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "populateInitialValue",
                                     String.format("(L%s;L%s;)V", OBJECT, OBJECT), true);
         } else {
             String signature = String.format("(L%s;L%s;L%s;)V",
-                    MAP_VALUE, JvmConstants.B_STRING_VALUE, OBJECT);
+                                             MAP_VALUE, JvmConstants.B_STRING_VALUE, OBJECT);
             this.mv.visitMethodInsn(INVOKESTATIC, MAP_UTILS, "handleMapStore", signature, false);
         }
     }
@@ -1361,8 +1362,8 @@ public class JvmInstructionGen {
         this.loadVar(objectLoadIns.keyOp.variableDcl);
 
         // invoke get() method, and unbox if needed
-        this.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "get",
-                                    String.format("(L%s;)L%s;", JvmConstants.B_STRING_VALUE, OBJECT), true);
+        this.mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "get",
+                                String.format("(L%s;)L%s;", JvmConstants.B_STRING_VALUE, OBJECT), true);
         BType targetType = objectLoadIns.lhsOp.variableDcl.type;
         JvmCastGen.addUnboxInsn(this.mv, targetType);
 
@@ -1388,12 +1389,12 @@ public class JvmInstructionGen {
             this.mv.visitMethodInsn(INVOKESPECIAL,
                                     getTypeValueClassName(objectType.tsymbol.pkgID, toNameString(objectType)),
                                     "setOnInitialization",
-                                    String.format("(L%s;L%s;)V", JvmConstants.B_STRING_VALUE, OBJECT), true);
+                                    String.format("(L%s;L%s;)V", JvmConstants.B_STRING_VALUE, OBJECT), false);
             return;
         }
 
-        this.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "set",
-                                    String.format("(L%s;L%s;)V", JvmConstants.B_STRING_VALUE, OBJECT), true);
+        this.mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "set",
+                                String.format("(L%s;L%s;)V", JvmConstants.B_STRING_VALUE, OBJECT), true);
     }
 
     void generateStringLoadIns(BIRNonTerminator.FieldAccess stringLoadIns) {
@@ -1404,7 +1405,7 @@ public class JvmInstructionGen {
         this.loadVar(stringLoadIns.keyOp.variableDcl);
 
         // invoke the `getStringAt()` method
-        this.mv.visitMethodInsn(INVOKESTATIC, B_STRING_UTILS, "getStringAt",
+        this.mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "getStringAt",
                                 String.format("(L%s;J)L%s;", JvmConstants.B_STRING_VALUE, JvmConstants.B_STRING_VALUE),
                                 false);
 
@@ -1517,7 +1518,7 @@ public class JvmInstructionGen {
         this.loadVar(inst.dataOp.variableDcl);
         this.loadVar(inst.keyColOp.variableDcl);
         this.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE_IMPL, JVM_INIT_METHOD,
-                String.format("(L%s;L%s;L%s;)V", TABLE_TYPE, ARRAY_VALUE, ARRAY_VALUE), false);
+                                String.format("(L%s;L%s;L%s;)V", TABLE_TYPE_IMPL, ARRAY_VALUE, ARRAY_VALUE), false);
 
         this.storeToVar(inst.lhsOp.variableDcl);
     }
@@ -1566,9 +1567,9 @@ public class JvmInstructionGen {
         this.loadVar(newErrorIns.causeOp.variableDcl);
         this.loadVar(newErrorIns.detailOp.variableDcl);
         this.mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, JVM_INIT_METHOD, String.format(
-                "(L%s;L%s;L%s;L%s;)V", BTYPE, JvmConstants.B_STRING_VALUE,
-                        B_ERROR,
-                        OBJECT),
+                "(L%s;L%s;L%s;L%s;)V", TYPE, JvmConstants.B_STRING_VALUE,
+                BERROR,
+                OBJECT),
                 false);
         this.storeToVar(newErrorIns.lhsOp.variableDcl);
     }
@@ -1592,7 +1593,7 @@ public class JvmInstructionGen {
         loadType(this.mv, typeTestIns.type);
 
         this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsType",
-                String.format("(L%s;L%s;)Z", OBJECT, BTYPE), false);
+                                String.format("(L%s;L%s;)Z", OBJECT, TYPE), false);
         this.storeToVar(typeTestIns.lhsOp.variableDcl);
     }
 
@@ -1604,7 +1605,7 @@ public class JvmInstructionGen {
         loadType(this.mv, isLike.type);
 
         this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsLikeType",
-                String.format("(L%s;L%s;)Z", OBJECT, BTYPE), false);
+                                String.format("(L%s;L%s;)Z", OBJECT, TYPE), false);
         this.storeToVar(isLike.lhsOp.variableDcl);
     }
 
@@ -1630,8 +1631,8 @@ public class JvmInstructionGen {
         } else {
             loadType(mv, type);
         }
-        this.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
-        this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, String.format("(L%s;)V", OBJECT_TYPE),
+        this.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
+        this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, String.format("(L%s;)V", OBJECT_TYPE_IMPL),
                 false);
         this.storeToVar(objectNewIns.lhsOp.variableDcl);
     }
@@ -1672,7 +1673,7 @@ public class JvmInstructionGen {
             mv.visitInsn(ICONST_0);
         }
         this.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, JVM_INIT_METHOD,
-                                String.format("(L%s;L%s;L%s;Z)V", FUNCTION, BTYPE, STRING_VALUE), false);
+                                String.format("(L%s;L%s;L%s;Z)V", FUNCTION, TYPE, STRING_VALUE), false);
 
         // Set annotations if available.
         this.mv.visitInsn(DUP);
@@ -1699,7 +1700,7 @@ public class JvmInstructionGen {
         }
 
         this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLElement",
-                                String.format("(L%s;L%s;Z)L%s;", XML_QNAME, JvmConstants.B_STRING_VALUE, XML_VALUE),
+                                String.format("(L%s;L%s;Z)L%s;", B_XML_QNAME, JvmConstants.B_STRING_VALUE, XML_VALUE),
                                 false);
         this.storeToVar(newXMLElement.lhsOp.variableDcl);
     }
@@ -1795,7 +1796,7 @@ public class JvmInstructionGen {
 
         // invoke getAttribute() method
         this.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "getAttribute",
-                String.format("(L%s;)L%s;", BXML_QNAME, STRING_VALUE), false);
+                                String.format("(L%s;)L%s;", B_XML_QNAME, STRING_VALUE), false);
 
         // store in the target reg
         BType targetType = xmlAttrStoreIns.lhsOp.variableDcl.type;
@@ -1814,7 +1815,7 @@ public class JvmInstructionGen {
         this.loadVar(xmlAttrStoreIns.rhsOp.variableDcl);
 
         // invoke setAttribute() method
-        String signature = String.format("(L%s;L%s;)V", BXML_QNAME, JvmConstants.B_STRING_VALUE);
+        String signature = String.format("(L%s;L%s;)V", B_XML_QNAME, JvmConstants.B_STRING_VALUE);
         this.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "setAttribute", signature, false);
     }
 
@@ -1911,7 +1912,7 @@ public class JvmInstructionGen {
             mv.visitInsn(AASTORE);
         }
 
-        String descriptor = String.format("(L%s;[L%s;)V", BTYPE, MAP_VALUE);
+        String descriptor = String.format("(L%s;[L%s;)V", TYPE, MAP_VALUE);
         this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, descriptor, false);
         this.storeToVar(newTypeDesc.lhsOp.variableDcl);
     }

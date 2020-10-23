@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BalEnv;
-import org.ballerinalang.jvm.api.runtime.Module;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.BmpStringValue;
-import org.ballerinalang.jvm.values.HandleValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.values.BmpStringValue;
+import io.ballerina.runtime.values.HandleValue;
+import io.ballerina.runtime.values.ObjectValue;
 
 /**
  * This class contains a set of utility instance methods required for interoperability testing.
@@ -177,9 +177,9 @@ public class InstanceMethods {
         return 123;
     }
 
-    public BString getModuleInfo(BalEnv env, long b) {
+    public BString getModuleInfo(Environment env, long b) {
         Module callerModule = env.getFunctionCallerModule();
-        return BStringUtils.fromString(callerModule.getModuleOrg() + "#" + callerModule.getModuleName() + "#" +
-                                               callerModule.getModuleVersion() + "#" + b);
+        return StringUtils.fromString(callerModule.getOrg() + "#" + callerModule.getName() + "#" +
+                                               callerModule.getVersion() + "#" + b);
     }
 }

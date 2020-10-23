@@ -554,6 +554,85 @@ function testRecordArrays() returns [boolean, boolean, boolean, boolean] {
     return [c is X[], d is X[][], c is Y[], d is Y[][]];
 }
 
+public function testUnionType() {
+    [int, ()] x = [1, ()];
+    any y = x;
+    assertEquality(y is (string|int?)[2], true);
+    assertEquality(y is (string|int?)[], true);
+    assertEquality(y is (int|string?)[], true);
+    assertEquality(y is (int|string?)[3], false);
+    assertEquality(y is (int|string)[], false);
+    assertEquality(y is int?[], true);
+    assertEquality(y is int?[2], true);
+
+    [int, string?] a = [1, "union"];
+    any b = a;
+    assertEquality(b is (int|string?)[], true);
+    assertEquality(b is (int|string?)[2], true);
+    assertEquality(b is (int?|string)[2], true);
+    assertEquality(b is (int|string?)[1], false);
+    assertEquality(b is int?[2], false);
+
+    (int|string)[] c = [1, 2];
+    any d = c;
+    assertEquality(d is (int|string?)[], true);
+    assertEquality(d is (int|string)[2], false);
+    assertEquality(d is [int, string], false);
+    assertEquality(d is [int, int], false);
+    assertEquality(d is [string, string], false);
+    assertEquality(d is [int, ()], false);
+    assertEquality(d is [int...], false);
+    assertEquality(d is [string...], false);
+    assertEquality(d is [string, int...], false);
+}
+
+public function testClosedArrayType(){
+      int[2] b = [1, 2];
+      any y = b;
+      assertEquality(y is [int, int], true);
+      assertEquality(y is [int...], true);
+      assertEquality(y is [int, int, int...], true);
+      assertEquality(y is [string, string, int...], false);
+      assertEquality(y is [int, int, int], false);
+      assertEquality(y is [int, int, int, int...], false);
+      assertEquality(y is [int, int, string...], true);
+}
+
+public function testInferredArrayType() {
+    int[*] b = [1, 2];
+    any y = b;
+    assertEquality(y is [int, int], true);
+    assertEquality(y is [int...], true);
+    assertEquality(y is [int, int, int...], true);
+    assertEquality(y is [string, string, int...], false);
+    assertEquality(y is [int, int, int], false);
+    assertEquality(y is [int, int, int, int...], false);
+    assertEquality(y is [int, int, string...], true);
+}
+
+public function testEmptyArrayType() {
+    var x = [];
+    any a = x;
+    assertEquality(a is int[2], false);
+    assertEquality(a is int[], true);
+    assertEquality(a is [int...], true);
+
+    string[] sa = [];
+    any arr = sa;
+    assertEquality(arr is string[], true);
+    assertEquality(arr is int[], false);
+
+    int[0] ia = [];
+    any iarr = ia;
+    assertEquality(iarr is int[0], true);
+    assertEquality(iarr is int[], true);
+
+    int[] b = [1, 2];
+    any c = b;
+    assertEquality(c is [int...], true);
+    assertEquality(c is int[], true);
+}
+
 // ========================== Tuples ==========================
 
 function testSimpleTuples() returns [boolean, boolean, boolean, boolean, boolean] {
@@ -584,6 +663,23 @@ function testTupleWithAssignableTypes_2() returns boolean {
     [X, Y] q = p;
     boolean b1 = q is [Y, Y];
     return q is [Y, Y];
+}
+
+public function testRestType() {
+    [int...] x = [1, 2];
+    any y = x;
+    assertEquality(y is string[], false);
+    assertEquality(y is [int...], true);
+    assertEquality(y is int[0], false);
+    assertEquality(y is int[], true);
+    assertEquality(y is [int], false);
+    assertEquality(y is int[2], false);
+
+    [int, int, int...] a = [1, 2];
+    any b = a;
+    assertEquality(b is int[2], false);
+    assertEquality(b is [int, int...], true);
+    assertEquality(b is [int...], true);
 }
 
 // ========================== Map ==========================
@@ -876,6 +972,84 @@ function testFutureFalse() returns boolean {
 
 function name() returns string {
     return "em";
+}
+
+type MarksWithOptionalPhysics record {|
+    int physics?;
+    int...;
+|};
+
+type MarksWithOptionalPhysicsAndFloatRestField record {|
+    int physics?;
+    float...;
+|};
+
+type MarksWithRequiredPhysics record {|
+    int physics;
+    int|float...;
+|};
+
+type OpenMarks record {|
+    int|float...;
+|};
+
+type NoRestFieldMarks record {|
+    int physics?;
+|};
+
+public function testMapAsRecord() {
+    map<int> mp1 = {
+        physics: 65,
+        chemistry: 75
+    };
+
+    map<int> mp2 = {
+        chemistry: 75,
+        biology: 80
+    };
+
+    map<anydata> mp3 = {
+        chemistry: 75,
+        biology: 80
+    };
+
+    map<int|float> mp4 = {
+        physics: 75,
+        biology: 80.5
+    };
+
+    assertTrue(<any> mp1 is MarksWithOptionalPhysics);
+    assertTrue(<any> mp1 is OpenMarks);
+    assertFalse(<any> mp1 is MarksWithRequiredPhysics);
+    assertFalse(<any> mp1 is NoRestFieldMarks);
+    assertFalse(<any> mp1 is MarksWithOptionalPhysicsAndFloatRestField);
+
+    assertTrue(<any> mp2 is MarksWithOptionalPhysics);
+    assertTrue(<any> mp2 is OpenMarks);
+    assertFalse(<any> mp2 is MarksWithRequiredPhysics);
+    assertFalse(<any> mp2 is NoRestFieldMarks);
+    assertFalse(<any> mp2 is MarksWithOptionalPhysicsAndFloatRestField);
+
+    assertFalse(<any> mp3 is MarksWithOptionalPhysics);
+    assertFalse(<any> mp3 is OpenMarks);
+    assertFalse(<any> mp3 is MarksWithRequiredPhysics);
+    assertFalse(<any> mp3 is NoRestFieldMarks);
+    assertFalse(<any> mp3 is MarksWithOptionalPhysicsAndFloatRestField);
+
+    assertFalse(<any> mp4 is MarksWithOptionalPhysics);
+    assertTrue(<any> mp4 is OpenMarks);
+    assertFalse(<any> mp4 is MarksWithRequiredPhysics);
+    assertFalse(<any> mp4 is NoRestFieldMarks);
+    assertFalse(<any> mp4 is MarksWithOptionalPhysicsAndFloatRestField);
+
+    int|error x = 'int:fromString("foo");
+    any det = ();
+    if x is error {
+        det = x.detail();
+    }
+    assertTrue(det is map<anydata|readonly>);
+    assertTrue(det is 'error:Detail);
+    assertFalse(det is record {| string message; |});
 }
 
 function assertTrue(anydata actual) {

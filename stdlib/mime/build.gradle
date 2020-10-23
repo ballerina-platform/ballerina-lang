@@ -33,15 +33,15 @@ configurations {
 
 dependencies {
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+
     baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
 
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-java')
+
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-io')
     implementation project(':ballerina-log-api')
@@ -51,8 +51,11 @@ dependencies {
 
     interopImports project(':ballerina-io')
 
-    implementation 'org.apache.ws.commons.axiom:axiom-dom'
+    implementation ('org.apache.ws.commons.axiom:axiom-dom') {
+        exclude group: 'org.apache.ws.commons.axiom', module: 'axiom-api'
+    }
     implementation 'org.jvnet.mimepull:mimepull'
+    implementation 'jakarta.activation:jakarta.activation-api'
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
@@ -83,3 +86,15 @@ description = 'Ballerina - MIME Implementation'
 configurations.all {
     resolutionStrategy.preferProjectModules()
 }
+
+//ext.moduleName = 'mime'
+//
+//compileJava {
+//    inputs.property("moduleName", moduleName)
+//    doFirst {
+//        options.compilerArgs = [
+//                '--module-path', classpath.asPath,
+//        ]
+//        classpath = files()
+//    }
+//}

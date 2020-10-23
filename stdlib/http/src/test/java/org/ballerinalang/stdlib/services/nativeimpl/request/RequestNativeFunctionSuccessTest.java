@@ -17,16 +17,15 @@
  */
 package org.ballerinalang.stdlib.services.nativeimpl.request;
 
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.core.model.util.StringUtils;
 import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.JsonParser;
@@ -502,7 +501,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entity =
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD.getValue());
-        MapValueImpl<BString, Object> bJson = (MapValueImpl<BString, Object>) TestEntityUtils.getMessageDataSource(
+        BMap<BString, Object> bJson = (BMap<BString, Object>) TestEntityUtils.getMessageDataSource(
                 entity);
         Assert.assertEquals(bJson.get(BStringUtils.fromString("name")).toString(), "wso2",
                             "Payload is not set properly");
@@ -551,7 +550,7 @@ public class RequestNativeFunctionSuccessTest {
 
     @Test
     public void testSetXmlPayload() {
-        XMLValue value = XMLFactory.parse("<name>Ballerina</name>");
+        BXML value = XMLFactory.parse("<name>Ballerina</name>");
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testSetXmlPayload", new Object[]{ value });
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -559,7 +558,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entity =
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD.getValue());
-        XMLValue xmlValue = (XMLValue) TestEntityUtils.getMessageDataSource(entity);
+        BXML xmlValue = (xmlValue) TestEntityUtils.getMessageDataSource(entity);
         Assert.assertEquals(xmlValue.getTextValue(), "Ballerina", "Payload is not set properly");
     }
 
@@ -613,7 +612,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entity =
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD.getValue());
-        ArrayValue messageDataSource = (ArrayValue) TestEntityUtils.getMessageDataSource(entity);
+        BArray messageDataSource = (BArray) TestEntityUtils.getMessageDataSource(entity);
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         messageDataSource.serialize(outStream);
         Assert.assertEquals(new String(outStream.toByteArray(), StandardCharsets.UTF_8), "Ballerina",

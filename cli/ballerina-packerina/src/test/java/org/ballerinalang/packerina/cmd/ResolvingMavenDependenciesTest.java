@@ -57,7 +57,7 @@ public class ResolvingMavenDependenciesTest extends CommandTest {
         }
     }
 
-    @Test(description = "Test the project with Maven dependencies")
+    @Test(description = "Test the project with Maven dependencies", enabled = false)
     public void testBuildWithMavenDependencies() {
         // valid source root path
         Path validBalFilePath = this.testResources.resolve("project-with-maven-dependencies");
@@ -76,7 +76,8 @@ public class ResolvingMavenDependenciesTest extends CommandTest {
                 "wso2-cassandra", cassandraVersion)));
     }
 
-    @Test(description = "Test the project without listing the custom maven repos to [platform.repositories]")
+    @Test(description = "Test the project without listing the custom maven repos to [platform.repositories]",
+            enabled = false)
     public void testWithoutCustomMavenDependencies() throws IOException {
         // valid source root path
         Path validBalFilePath = this.testResources.resolve("project-without-custom-maven-dependencies");
@@ -88,7 +89,7 @@ public class ResolvingMavenDependenciesTest extends CommandTest {
     }
 
     @Test(description = "Test the project with adding invalid maven dependencies",
-            dependsOnMethods = {"testWithoutCustomMavenDependencies"})
+            dependsOnMethods = {"testWithoutCustomMavenDependencies"}, enabled = false)
     public void testWithInvalidMavenDependencies() throws IOException {
         // valid source root path
         Path validBalFilePath = this.testResources.resolve("project-without-custom-maven-dependencies");
@@ -110,7 +111,8 @@ public class ResolvingMavenDependenciesTest extends CommandTest {
                 "maven-artifact:jar:" + mavenArtifactVersion + " in central (https://repo.maven.apache.org/maven2/)");
     }
 
-    @Test(description = "Validate the maven dependencies", dependsOnMethods = {"testWithInvalidMavenDependencies"})
+    @Test(description = "Validate the maven dependencies", dependsOnMethods = {"testWithInvalidMavenDependencies"}
+    , enabled = false)
     public void validateMavenDependencies() throws IOException {
         // valid source root path
         Path validBalFilePath = this.testResources.resolve("project-without-custom-maven-dependencies");

@@ -17,31 +17,24 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+import io.ballerina.runtime.XMLNodeType;
+import io.ballerina.runtime.api.values.BXML;
 
 /**
  * Test xml to be single xml comment.
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
-        functionName = "isComment",
-        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "isComment",
+//        args = {@Argument(name = "bxml", type = TypeKind.XML)},
+//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+//        isPublic = true
+//)
 public class IsComment {
 
-    public static boolean isComment(Strand strand, XMLValue xmlValue) {
+    public static boolean isComment(BXML xmlValue) {
         return xmlValue.getNodeType() == XMLNodeType.COMMENT;
     }
 }

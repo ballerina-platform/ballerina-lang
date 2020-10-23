@@ -16,13 +16,13 @@
 package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.JsonObject;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
-import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -90,7 +90,8 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
             TextDocument textDocument = syntaxTree.textDocument();
             int txtPos = textDocument.textPositionFrom(LinePosition.from(line, 1));
             NonTerminalNode node = ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(txtPos, 0));
-            Optional<DocAttachmentInfo> docAttachmentInfo = getDocumentationEditForNode(getDocumentableNode(node));
+            Optional<DocAttachmentInfo> docAttachmentInfo = getDocumentationEditForNode(getDocumentableNode(node),
+                                                                                        false);
             if (docAttachmentInfo.isPresent()) {
                 DocAttachmentInfo docs = docAttachmentInfo.get();
                 Range range = new Range(docs.getDocStartPos(), docs.getDocStartPos());

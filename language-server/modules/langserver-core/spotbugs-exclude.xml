@@ -83,6 +83,12 @@
         </OR>
     </Match>
     <Match>
+        <Class name="org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder" />
+        <OR>
+            <Bug pattern="BC_UNCONFIRMED_CAST" />
+        </OR>
+    </Match>
+    <Match>
         <Class name="org.ballerinalang.langserver.command.executors.PullModuleExecutor" />
         <OR>
             <Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" />
@@ -126,5 +132,17 @@
     </Match>
     <Match>
         <Class name="org.ballerinalang.langserver.extensions.ballerina.document.BallerinaASTModifyRequest"/>
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.langserver.command.testgen.template"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.BallerinaLanguageServer"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.LSClientCapabilitiesImpl"/>
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.langserver"/>
     </Match>
 </FindBugsFilter>

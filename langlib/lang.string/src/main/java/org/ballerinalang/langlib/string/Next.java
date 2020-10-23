@@ -18,22 +18,14 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-
-import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
 
 
 /**
@@ -41,20 +33,13 @@ import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "next",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "StringIterator",
-                structPackage = "ballerina/lang.string"),
-        returnType = {@ReturnType(type = TypeKind.RECORD)},
-        isPublic = true
-)
 public class Next {
 
     //TODO: refactor hard coded values
-    public static Object next(Strand strand, ObjectValue m) {
+    public static Object next(BObject m) {
         StringCharacterIterator stringCharacterIterator = (StringCharacterIterator) m.getNativeData("&iterator&");
         if (stringCharacterIterator == null) {
-            String s = ((BString) m.get(BStringUtils.fromString("m"))).getValue();
+            String s = ((BString) m.get(StringUtils.fromString("m"))).getValue();
             stringCharacterIterator = new StringCharacterIterator(s);
             m.addNativeData("&iterator&", stringCharacterIterator);
         }
@@ -62,8 +47,10 @@ public class Next {
         if (stringCharacterIterator.current() != CharacterIterator.DONE) {
             char character = stringCharacterIterator.current();
             stringCharacterIterator.next();
-            Object charAsStr = BStringUtils.fromString(String.valueOf(character));
-            return BValueCreator.createRecordValue(new MapValueImpl<>(BTypes.stringItrNextReturnType), charAsStr);
+            Object charAsStr = StringUtils.fromString(String.valueOf(character));
+            return ValueCreator.createRecordValue(ValueCreator.createMapValue(
+                    PredefinedTypes.STRING_ITR_NEXT_RETURN_TYPE),
+                                                  charAsStr);
         }
 
         return null;

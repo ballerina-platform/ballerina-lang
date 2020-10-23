@@ -18,29 +18,22 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
+import io.ballerina.runtime.api.values.BTable;
 
 /**
  * Native implementation of lang.table:remove(table&lt;Type&gt;, KeyType).
  *
  * @since 1.3.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION, functionName = "remove",
-        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "key", type = TypeKind.ANYDATA)},
-        returnType = {@ReturnType(type = TypeKind.ANY)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.table", functionName = "remove",
+//        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "key", type = TypeKind.ANYDATA)},
+//        returnType = {@ReturnType(type = TypeKind.ANY)},
+//        isPublic = true
+//)
 public class Remove {
 
-    public static Object remove(Strand strand, TableValueImpl tbl, Object key) {
+    public static Object remove(BTable tbl, Object key) {
         return tbl.removeOrThrow(key);
     }
 }

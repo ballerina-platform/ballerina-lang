@@ -17,16 +17,16 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BHandleValue;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.values.MapValueImpl;
+import org.ballerinalang.core.model.values.BDecimal;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BHandleValue;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -141,8 +141,8 @@ public class StaticMethodTest {
     }
 
     public static Object returnObjectOrError() {
-        return BErrorCreator.createError(BStringUtils.fromString("some reason"),
-                                         new MapValueImpl<>(BTypes.typeErrorDetail));
+        return ErrorCreator.createError(StringUtils.fromString("some reason"),
+                                        new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
     @Test(description = "Test tuple return with null values")

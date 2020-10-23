@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -393,15 +394,24 @@ public class TypeParamAnalyzer {
 
     private void updateTypeParamAndBoundType(DiagnosticPos pos, SymbolEnv env, BType typeParamType, BType boundType) {
 
-        if (env.typeParamsEntries.stream()
-                .noneMatch(entry -> entry.typeParam.tsymbol.pkgID.equals(typeParamType.tsymbol.pkgID)
-                        && entry.typeParam.tsymbol.name.equals(typeParamType.tsymbol.name))) {
-            if (boundType == symTable.noType) {
-                dlog.error(pos, DiagnosticCode.CANNOT_INFER_TYPE);
+        for (SymbolEnv.TypeParamEntry entry : env.typeParamsEntries) {
+            if (isSameTypeSymbolNameAndPkg(entry.typeParam.tsymbol, typeParamType.tsymbol)) {
                 return;
             }
-            env.typeParamsEntries.add(new SymbolEnv.TypeParamEntry(typeParamType, boundType));
         }
+        if (boundType == symTable.noType) {
+            dlog.error(pos, DiagnosticCode.CANNOT_INFER_TYPE);
+            return;
+        }
+        env.typeParamsEntries.add(new SymbolEnv.TypeParamEntry(typeParamType, boundType));
+    }
+
+    private boolean isSameTypeSymbolNameAndPkg(BTypeSymbol source, BTypeSymbol target) {
+        if (source == null || target == null) {
+            return false;
+        }
+
+        return source.pkgID.equals(target.pkgID) && source.name.equals(target.name);
     }
 
     private void findTypeParamInTuple(DiagnosticPos pos, BTupleType expType, BTupleType actualType, SymbolEnv env,
@@ -704,7 +714,6 @@ public class TypeParamAnalyzer {
         BObjectType objectType = new BObjectType(actObjectSymbol);
         actObjectSymbol.type = objectType;
         actObjectSymbol.scope = new Scope(actObjectSymbol);
-        actObjectSymbol.methodScope = new Scope(actObjectSymbol);
 
         for (BField expField : expType.fields.values()) {
             BField field = new BField(expField.name, expField.pos,
@@ -728,7 +737,7 @@ public class TypeParamAnalyzer {
                     new BAttachedFunction(expFunc.funcName, invokableSymbol, matchType, expFunc.pos));
             String funcName = Symbols.getAttachedFuncSymbolName(actObjectSymbol.type.tsymbol.name.value,
                     expFunc.funcName.value);
-            actObjectSymbol.methodScope.define(names.fromString(funcName), invokableSymbol);
+            actObjectSymbol.scope.define(names.fromString(funcName), invokableSymbol);
         }
 
         return objectType;

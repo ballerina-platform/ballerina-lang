@@ -1,3 +1,3 @@
 public function main() {
-    {"Name":a}.foo(c,d);
+    {"Name": a}.foo(c, d);
 }
