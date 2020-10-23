@@ -2667,10 +2667,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             analyzeNode(restMatchPattern, env);
             mappingMatchPattern.declaredVars.put(restMatchPattern.variableName.value, restMatchPattern.symbol);
         }
-        if(mappingMatchPattern.restMatchPattern != null) {
-            mappingMatchPattern.restMatchPattern.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
-            mappingMatchPattern.restMatchPattern.accept(this);
-        }
 
         mappingMatchPattern.type = types.resolvePatternTypeFromMatchExpr(mappingMatchPattern,
                 recordVarType, env);
@@ -2791,7 +2787,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     restMatchPattern.pos, SOURCE);
             symbolEnter.defineSymbol(restMatchPattern.pos, symbol, env);
         }
-        restMatchPattern.symbol = (BVarSymbol) symbol;
     }
 
     @Override
@@ -3155,13 +3150,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangMatchStaticBindingPatternClause patternClause) {
         checkStaticMatchPatternLiteralType(patternClause.literal);
         analyzeStmt(patternClause.body, this.env);
-    }
-
-    @Override
-    public void visit(BLangCaptureBindingPattern captureBindingPattern) {
-        captureBindingPattern.symbol = new BVarSymbol(0, new Name(captureBindingPattern.getIdentifier().getValue()),
-                env.enclPkg.packageID, symTable.anyType, env.scope.owner, captureBindingPattern.pos, SOURCE);
-        symbolEnter.defineSymbol(captureBindingPattern.pos, captureBindingPattern.symbol, env);
     }
 
     private BType checkStaticMatchPatternLiteralType(BLangExpression expression) {
