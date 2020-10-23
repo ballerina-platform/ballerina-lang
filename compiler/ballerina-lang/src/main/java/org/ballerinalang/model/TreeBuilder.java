@@ -815,6 +815,10 @@ public class TreeBuilder {
         return new BLangMatchGuard();
     }
 
+    public static RestMatchPatternNode createRestMatchPattern() {
+        return new BLangRestMatchPattern();
+    }
+
     public static CaptureBindingPattern createCaptureBindingPattern() {
         return new BLangCaptureBindingPattern();
     }

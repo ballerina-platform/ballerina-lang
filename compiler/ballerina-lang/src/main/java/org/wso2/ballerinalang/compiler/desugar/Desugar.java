@@ -3779,10 +3779,10 @@ public class Desugar extends BLangNodeVisitor {
         BLangIf ifStmt = ASTBuilderUtil.createIfElseStmt(pos, typeCheckCondition, ifBlock, null);
         mainBlockStmt.addStatement(ifStmt);
 
-        BLangExpression condition = createConditionForErrorArgListMatchPattern(errorMatchPattern, ifBlock,
-                tempCastVarRef, pos);
-
         BLangBlockStmt tempBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
+        BLangExpression condition = createConditionForErrorArgListMatchPattern(errorMatchPattern, ifBlock,
+                tempBlockStmt, tempCastVarRef, pos);
+
         tempBlockStmt.addStatement(successResult);
         BLangIf ifStmtForMatchPatterns = ASTBuilderUtil.createIfElseStmt(pos, condition, tempBlockStmt, null);
         ifBlock.addStatement(ifStmtForMatchPatterns);
@@ -3795,6 +3795,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangExpression createConditionForErrorArgListMatchPattern(BLangErrorMatchPattern errorMatchPattern,
                                                                        BLangBlockStmt ifBlock,
+                                                                       BLangBlockStmt restPatternBlock,
                                                                        BLangSimpleVarRef varRef,
                                                                        Location pos) {
         BLangExpression condition = null;
@@ -3846,9 +3847,43 @@ public class Desugar extends BLangNodeVisitor {
             } else {
                 condition = errorDetailCondition;
             }
+
+            if (errorMatchPattern.errorFieldMatchPatterns.restMatchPattern != null) {
+                BLangRestMatchPattern restMatchPattern = errorMatchPattern.errorFieldMatchPatterns.restMatchPattern;
+                DiagnosticPos restPatternPos = restMatchPattern.pos;
+                List<String> keysToRemove = getKeysToRemove(errorMatchPattern.errorFieldMatchPatterns);
+                BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(symTable.stringType,
+                        symTable.anydataType)), null);
+                BLangInvocation entriesInvocation = generateMapEntriesInvocation(errorDetailVarRef, entriesType);
+                BLangSimpleVariableDef entriesVarDef = createVarDef("$entries$", entriesType, entriesInvocation,
+                        restPatternPos);
+                restPatternBlock.addStatement(entriesVarDef);
+                BLangLambdaFunction filteringFunction = createFuncToFilterOutRestParam(keysToRemove, restPatternPos);
+                BLangInvocation filterInvocation = generateMapFilterInvocation(pos, entriesVarDef.var,
+                        filteringFunction);
+                BLangSimpleVariableDef filtersVarDef = createVarDef("$filteredVarDef$", entriesType, filterInvocation,
+                        restPatternPos);
+                restPatternBlock.addStatement(filtersVarDef);
+                BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos);
+                BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
+                        backToMapLambda);
+                BLangSimpleVariable restVar =
+                        ASTBuilderUtil.createVariable(restPatternPos, restMatchPattern.getIdentifier().getValue(),
+                                restMatchPattern.symbol.type, mapInvocation, restMatchPattern.symbol);
+                BLangSimpleVariableDef restVarDef = ASTBuilderUtil.createVariableDef(restPatternPos, restVar);
+                restPatternBlock.addStatement(restVarDef);
+            }
         }
 
         return condition;
+    }
+
+    private List<String> getKeysToRemove(BLangErrorFieldMatchPatterns errorFieldMatchPattern) {
+        List<String> keysToRemove = new ArrayList<>();
+        for (BLangNamedArgMatchPattern namedArgMatchPattern : errorFieldMatchPattern.namedArgMatchPatterns) {
+            keysToRemove.add(namedArgMatchPattern.argName.value);
+        }
+        return keysToRemove;
     }
 
     private BLangExpression createConditionForErrorFieldMatchPatterns(

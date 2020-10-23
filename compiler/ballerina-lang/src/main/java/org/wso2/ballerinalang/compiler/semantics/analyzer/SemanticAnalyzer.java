@@ -2876,6 +2876,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (BLangNamedArgMatchPattern namedArgMatchPattern : errorFieldMatchPatterns.namedArgMatchPatterns) {
             analyzeNode(namedArgMatchPattern, env);
         }
+        if (errorFieldMatchPatterns.restMatchPattern != null) {
+            errorFieldMatchPatterns.restMatchPattern.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
+            analyzeNode(errorFieldMatchPatterns.restMatchPattern, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangRestMatchPattern restMatchPattern) {
+        Name name = new Name(restMatchPattern.variableName.value);
+        BSymbol symbol = symResolver.lookupSymbolInMainSpace(env, name);
+        if (symbol == symTable.notFoundSymbol) {
+            symbol = new BVarSymbol(0, name, env.enclPkg.packageID, restMatchPattern.type, env.scope.owner,
+                    restMatchPattern.pos, SOURCE);
+            symbolEnter.defineSymbol(restMatchPattern.pos, symbol, env);
+        }
+        restMatchPattern.symbol = (BVarSymbol) symbol;
     }
 
     @Override
