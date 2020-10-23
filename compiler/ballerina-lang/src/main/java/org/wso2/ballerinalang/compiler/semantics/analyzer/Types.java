@@ -76,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -103,6 +104,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
+import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
+import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -136,6 +139,8 @@ public class Types {
     private Names names;
     private int finiteTypeCount = 0;
     private BUnionType expandedXMLBuiltinSubtypes;
+    private int recordCount = 0;
+    private SymbolEnv env;
     private final BLangAnonymousModelHelper anonymousModelHelper;
 
     public static Types getInstance(CompilerContext context) {
@@ -379,24 +384,17 @@ public class Types {
         return symTable.noType;
     }
 
-    public BType resolvePatternTypeFromMatchExpr(BType matchExprType, BRecordType mappingMatchPatternType) {
-        if (isAssignable(mappingMatchPatternType, matchExprType)) {
-            return mappingMatchPatternType;
+    public BType resolvePatternTypeFromMatchExpr(BLangMappingMatchPattern mappingMatchPattern, BType patternType,
+                                                 SymbolEnv env) {
+        if (mappingMatchPattern.matchExpr == null) {
+            return patternType;
         }
-        if (isAssignable(matchExprType, mappingMatchPatternType)) {
-            return matchExprType;
+        this.env = env;
+        BType intersectionType = getTypeIntersection(mappingMatchPattern.matchExpr.type, patternType);
+        if (intersectionType == symTable.semanticError) {
+            return symTable.noType;
         }
-
-        if (matchExprType.tag == TypeTags.MAP) {
-            BType mapType = ((BMapType) matchExprType).constraint;
-            for (BField field : mappingMatchPatternType.fields.values()) {
-                if (!(isAssignable(field.type, mapType) || isAssignable(mapType, field.type))) {
-                    return symTable.noType;
-                }
-            }
-            return mappingMatchPatternType;
-        }
-        return symTable.noType;
+        return intersectionType;
     }
 
     private boolean containsAnyType(BType type) {
@@ -2852,18 +2850,9 @@ public class Types {
         // type FooBar "foo"|"bar";
         // unionType - boolean|FooOne, targetType - boolean|FooBar
         unionType.getMemberTypes().forEach(memType -> {
-            if (memType.tag == TypeTags.FINITE) {
-                // since "foo" of FooOne is assignable to FooBar, a new finite type of only "foo" would be returned
-                BType finiteTypeWithMatches = getTypeForFiniteTypeValuesAssignableToType((BFiniteType) memType,
-                                                                                         targetType);
-                if (finiteTypeWithMatches != symTable.semanticError) {
-                    intersection.add(finiteTypeWithMatches);
-                }
-            } else {
-                // boolean is assignable to boolean, thus boolean is added as a member type
-                if (isAssignable(memType, targetType)) {
-                    intersection.add(memType);
-                }
+            BType memberIntersectionType = getTypeIntersection(memType, targetType);
+            if (memberIntersectionType != symTable.semanticError) {
+                intersection.add(memberIntersectionType);
             }
         });
 
@@ -2876,6 +2865,58 @@ public class Types {
         } else {
             return BUnionType.create(null, new LinkedHashSet<>(intersection));
         }
+    }
+
+    BType getTypeForMapTypeMembersAssignableToType(BMapType mapType, BType targetType) {
+        if (targetType.tag != TypeTags.MAP && targetType.tag != TypeTags.RECORD) {
+            return symTable.semanticError;
+        }
+        if (targetType.tag == TypeTags.MAP) {
+            BType intersectionConstraintType = getTypeIntersection(mapType.constraint,
+                    ((BMapType) targetType).constraint);
+            if (intersectionConstraintType != symTable.semanticError) {
+                return symTable.semanticError;
+            }
+            mapType.constraint = intersectionConstraintType;
+            return mapType;
+        }
+        return getTypeForRecordTypeMembersAssignableToType((BRecordType) targetType, mapType);
+    }
+
+    BType getTypeForRecordTypeMembersAssignableToType(BRecordType recordType, BType targetType) {
+        if (targetType.tag != TypeTags.MAP && targetType.tag != TypeTags.RECORD) {
+            return symTable.semanticError;
+        }
+        if (targetType.tag == TypeTags.MAP) {
+            BRecordTypeSymbol recordSymbol =
+                    Symbols.createRecordSymbol(0, names.fromString("$anonRecordIntersectionType$" + recordCount++),
+                            env.enclPkg.symbol.pkgID, null, env.scope.owner, recordType.tsymbol.pos, VIRTUAL);
+            LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
+            for (String key : recordType.fields.keySet()) {
+                BType intersectionKeyType = getTypeIntersection(recordType.fields.get(key).type,
+                        ((BMapType) targetType).constraint);
+                if (intersectionKeyType == symTable.semanticError) {
+                    return symTable.semanticError;
+                }
+                BVarSymbol fieldSymbol = new BVarSymbol(0, names.fromString(key), env.enclPkg.symbol.pkgID,
+                        intersectionKeyType, recordSymbol, recordType.fields.get(key).pos, COMPILED_SOURCE);
+                BField field = new BField(names.fromString(key), recordType.fields.get(key).pos, fieldSymbol);
+                fields.put(key, field);
+            }
+            BRecordType intersectionRecordType = new BRecordType(recordSymbol);
+            intersectionRecordType.fields = fields;
+
+            if (recordType.restFieldType != null) {
+                BType intersectionRestType = getTypeIntersection(recordType.restFieldType,
+                        ((BMapType) targetType).constraint);
+                if (intersectionRestType == symTable.semanticError) {
+                    intersectionRecordType.sealed = true;
+                }
+                intersectionRecordType.restFieldType = intersectionRestType;
+            }
+            return intersectionRecordType;
+        }
+        return symTable.semanticError;
     }
 
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {

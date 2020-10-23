@@ -1,4 +1,4 @@
-string CONST1 = "str";
+const string CONST1 = "str";
 
 function testMappingMatchPatternNegative() returns string {
 

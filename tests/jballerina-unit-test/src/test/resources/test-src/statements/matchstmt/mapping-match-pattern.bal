@@ -267,9 +267,9 @@ function testMappingMatchPattern12() {
     assertEquals("No match", mappingMatchPattern12({ a : 5, b : 2}));
 }
 
-int CONST1 = 2;
-string CONST2 = "const";
-int|string CONST3 = 100;
+const int CONST1 = 2;
+const string CONST2 = "const";
+const int CONST3 = 100;
 
 function mappingMatchPattern13(any v) returns int|string {
     match v {
@@ -427,6 +427,92 @@ function testMappingMatchPattern19() {
     assertEquals("match2", mappingMatchPattern19({ x : 2, y : "3" }));
     assertEquals("match3", mappingMatchPattern19({ x : 2, y : 8 }));
     assertEquals("No match", mappingMatchPattern19({ x : 8, y : "3" }));
+}
+
+function mappingMatchPattern20(map<string> v) returns string {
+    match v {
+        { x : "s", y : var a } => {
+            return a;
+        }
+        { x : var a, y : var b } => {
+            return a + b;
+        }
+        _ => {
+            return "No match";
+        }
+    }
+}
+
+function testMappingMatchPattern20() {
+    assertEquals("str", mappingMatchPattern20({ x : "s", y : "str" }));
+    assertEquals("Hello world", mappingMatchPattern20({ x : "Hello ", y : "world" }));
+    assertEquals("Hello Hello", mappingMatchPattern20({ x : "Hello ", y : "Hello", z : "world" }));
+    assertEquals("Hello Hello", mappingMatchPattern20({ x : "Hello ", y : "Hello", z : "world" }));
+    assertEquals("No match", mappingMatchPattern20({ a : "No match" }));
+}
+
+function mappingMatchPattern21(map<string|int> v) returns string|int {
+    match v {
+        { x : "s", y : var a } if a is string => {
+            return a;
+        }
+        { x : 2, y : var a } if a is int => {
+            return a;
+        }
+        { x : var a, y : var b } if a is int && b is int => {
+            return a + b;
+        }
+        _ => {
+            return "No match";
+        }
+    }
+}
+
+function testMappingMatchPattern21() {
+    assertEquals("str", mappingMatchPattern21({ x : "s", y : "str" }));
+    assertEquals(3, mappingMatchPattern21({ x : 2, y : 3 }));
+    assertEquals(11, mappingMatchPattern21({ x : 5, y : 6, z : "world" }));
+    assertEquals("No match", mappingMatchPattern21({ x : 2, y : "Hello", z : "world" }));
+}
+
+function mappingMatchPattern22(map<string|int>|map<boolean|int> v) returns string|int {
+    match v {
+        { x : "s", y : var a } if a is string => {
+            return a;
+        }
+        { x : 2, y : var a, z : true } if a is int => {
+            return a;
+        }
+        { x : var a, y : var b } if a is int && b is int => {
+            return a + b;
+        }
+        _ => {
+            return "No match";
+        }
+    }
+}
+
+function testMappingMatchPattern22() {
+    assertEquals("str", mappingMatchPattern22({ x : "s", y : "str" }));
+    assertEquals(3, mappingMatchPattern22({ x : 2, y : 3, z : true }));
+    assertEquals(11, mappingMatchPattern21({ x : 5, y : 6, z : "world" }));
+    assertEquals("No match", mappingMatchPattern21({ x : 2, y : "Hello", z : "world" }));
+}
+
+function mappingMatchPattern23(record {int x; int y;} v) returns string|int {
+    match v {
+        { x : 2, y : var a } => {
+            return a;
+        }
+        _ => {
+            return "No match";
+        }
+    }
+}
+
+function testMappingMatchPattern23() {
+    assertEquals(3, mappingMatchPattern23({ x : 2, y : 3 }));
+    assertEquals("No match", mappingMatchPattern23({ x : 3, y : 3 }));
 }
 
 function assertEquals(anydata expected, anydata actual) {
