@@ -149,7 +149,7 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
         test("object-type-def/object_type_def_source_40.bal", "object-type-def/object_type_def_assert_40.json");
     }
 
-    @Test(enabled = false) // TODO: revisit
+    @Test
     public void testInvalidObjectMethodWithTransactional() {
         test("object-type-def/object_type_def_source_42.bal", "object-type-def/object_type_def_assert_42.json");
     }
@@ -162,10 +162,6 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
     @Test
     public void testObjectTypeWithAbstractQualifier() {
         test("object-type-def/object_type_def_source_15.bal", "object-type-def/object_type_def_assert_15.json");
-    }
-
-    @Test(enabled = false) // TODO: enable with isTopLeveLQual todo for readonly
-    public void testObjectTypeWithClientReadonlyAndAbstractQualifiers() {
         test("object-type-def/object_type_def_source_33.bal", "object-type-def/object_type_def_assert_33.json");
     }
 

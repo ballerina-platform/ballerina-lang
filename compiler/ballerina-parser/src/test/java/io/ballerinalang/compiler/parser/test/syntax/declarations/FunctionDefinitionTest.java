@@ -157,11 +157,6 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
         testFile("func-definition/func_def_source_24.bal", "func-definition/func_def_assert_24.json");
     }
 
-    @Test(enabled = false)
-    public void testMissingFunctionKeywordWithQualifiers() {
-        testFile("func-definition/func_def_source_25.bal", "func-definition/func_def_assert_25.json");
-    }
-
     @Test
     public void testMissingFunctionNameWithQualifiers() {
         testFile("func-definition/func_def_source_26.bal", "func-definition/func_def_assert_26.json");

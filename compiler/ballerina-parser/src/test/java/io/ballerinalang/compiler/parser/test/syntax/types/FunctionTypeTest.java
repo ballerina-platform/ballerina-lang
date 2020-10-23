@@ -72,14 +72,4 @@ public class FunctionTypeTest extends AbstractTypesTest {
     public void testRecoveryInFuncTypeUsagesInTypeDescContexts() {
         testFile("func-type/func_type_source_07.bal", "func-type/func_type_assert_07.json");
     }
-
-    @Test(enabled = false) // Temporary disabled
-    public void testFuncTypeWithIsolatedKeywordRecovery() {
-        testFile("func-type/func_type_source_10.bal", "func-type/func_type_assert_10.json");
-    }
-
-    @Test(enabled = false) // TODO: revisit
-    public void testFuncTypeWithTransactionalKeywordRecovery() {
-        testFile("func-type/func_type_source_12.bal", "func-type/func_type_assert_12.json");
-    }
 }
