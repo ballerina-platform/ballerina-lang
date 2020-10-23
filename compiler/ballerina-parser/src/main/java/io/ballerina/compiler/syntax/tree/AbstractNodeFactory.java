@@ -24,6 +24,7 @@ import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.compiler.internal.syntax.NodeListUtils;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -66,6 +67,23 @@ public abstract class AbstractNodeFactory {
 
     public static Token createToken(SyntaxKind kind) {
         return createToken(kind, createEmptyMinutiaeList(), createEmptyMinutiaeList());
+    }
+
+    public static Token createMissingToken(SyntaxKind kind, MinutiaeList leadingMinutiae,
+                                           MinutiaeList trailingMinutiae) {
+        STNode leadingMinutiaeSTNode = leadingMinutiae.internalNode();
+        if (!NodeListUtils.isSTNodeList(leadingMinutiaeSTNode)) {
+            leadingMinutiaeSTNode = STNodeFactory.createNodeList(leadingMinutiaeSTNode);
+        }
+
+        STNode trailingMinutiaeSTNode = trailingMinutiae.internalNode();
+        if (!NodeListUtils.isSTNodeList(trailingMinutiaeSTNode)) {
+            trailingMinutiaeSTNode = STNodeFactory.createNodeList(trailingMinutiaeSTNode);
+        }
+
+        STToken token = STNodeFactory
+                .createMissingToken(kind, leadingMinutiaeSTNode, trailingMinutiaeSTNode, Collections.EMPTY_LIST);
+        return token.createUnlinkedFacade();
     }
 
     public static Token createToken(SyntaxKind kind,
