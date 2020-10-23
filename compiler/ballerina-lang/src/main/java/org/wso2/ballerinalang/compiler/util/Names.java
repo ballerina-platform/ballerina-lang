@@ -90,6 +90,7 @@ public class Names {
     public static final Name ALIAS_SEPARATOR = VERSION_SEPARATOR;
     public static final Name ANNOTATION_TYPE_PARAM = new Name("typeParam");
     public static final Name ANNOTATION_BUILTIN_SUBTYPE = new Name("builtinSubtype");
+    public static final Name ANNOTATION_ISOLATED_PARAM = new Name("isolatedParam");
 
     public static final Name BIR_BASIC_BLOCK_PREFIX = new Name("bb");
     public static final Name BIR_LOCAL_VAR_PREFIX = new Name("%");

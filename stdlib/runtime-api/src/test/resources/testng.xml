@@ -20,7 +20,7 @@ under the License.
 
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.ballerinalang.stdlib.runtime.*"/>
+<!--            <package name="org.ballerinalang.stdlib.runtime.*"/>-->
         </packages>
     </test>
 </suite>

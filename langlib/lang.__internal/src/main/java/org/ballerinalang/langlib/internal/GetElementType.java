@@ -18,14 +18,14 @@
 
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BStreamType;
-import org.ballerinalang.jvm.types.BTableType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.TypedescValue;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.StreamType;
+import io.ballerina.runtime.api.types.TableType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BTypedesc;
 
 /**
  * Native implementation of lang.internal:getElementType(typedesc).
@@ -34,17 +34,17 @@ import org.ballerinalang.jvm.values.TypedescValue;
  */
 public class GetElementType {
 
-    public static TypedescValue getElementType(Object td) {
-        TypedescValue typedescValue = (TypedescValue) td;
-        BType type = typedescValue.getDescribingType();
+    public static BTypedesc getElementType(Object td) {
+        BTypedesc bTypedesc = (BTypedesc) td;
+        Type type = bTypedesc.getDescribingType();
         if (type.getTag() == TypeTags.ARRAY_TAG) {
-            return (TypedescValue) BValueCreator.createTypedescValue(((BArrayType) type).getElementType());
+            return ValueCreator.createTypedescValue(((ArrayType) type).getElementType());
         } else if (type.getTag() == TypeTags.STREAM_TAG) {
-            return (TypedescValue) BValueCreator.createTypedescValue(((BStreamType) type).getConstrainedType());
+            return ValueCreator.createTypedescValue(((StreamType) type).getConstrainedType());
         } else if (type.getTag() == TypeTags.TABLE_TAG) {
-            return (TypedescValue) BValueCreator.createTypedescValue(((BTableType) type).getConstrainedType());
+            return ValueCreator.createTypedescValue(((TableType) type).getConstrainedType());
         }
 
-        return (TypedescValue) BValueCreator.createTypedescValue(BTypes.typeNull);
+        return ValueCreator.createTypedescValue(PredefinedTypes.TYPE_NULL);
     }
 }

@@ -18,18 +18,18 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.runtime.AsyncUtils;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.TableValueImpl;
+import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.scheduling.AsyncUtils;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.TABLE_LANG_LIB;
 import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 
 /**
@@ -49,7 +49,7 @@ public class Reduce {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "reduce");
 
-    public static Object reduce(TableValueImpl tbl, FPValue<Object, Object> func, Object initial) {
+    public static Object reduce(BTable tbl, BFunctionPointer<Object, Object> func, Object initial) {
         int size = tbl.values().size();
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);
@@ -62,8 +62,8 @@ public class Reduce {
         return accum.get();
     }
 
-    public static Object reduce_bstring(Strand strand, TableValueImpl tbl,
-                                        FPValue<Object, Object> func, Object initial) {
+    public static Object reduce_bstring(Strand strand, BTable tbl,
+                                        BFunctionPointer<Object, Object> func, Object initial) {
         return reduce(tbl, func, initial);
     }
 }

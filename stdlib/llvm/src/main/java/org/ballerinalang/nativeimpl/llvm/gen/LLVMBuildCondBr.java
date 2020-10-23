@@ -16,9 +16,9 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.scheduling.Strand;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -50,17 +50,17 @@ import static org.bytedeco.llvm.global.LLVM.LLVMBuildCondBr;
 )
 public class LLVMBuildCondBr {
 
-    public static MapValue<String, Object> llvmBuildCondBr(Strand strand, MapValue<String, Object> arg0,
-                                                           MapValue<String, Object> ifValue,
-                                                           MapValue<String, Object> then,
-                                                           MapValue<String, Object> elseValue) {
+    public static BMap<String, Object> llvmBuildCondBr(Strand strand, BMap<String, Object> arg0,
+                                                           BMap<String, Object> ifValue,
+                                                           BMap<String, Object> then,
+                                                           BMap<String, Object> elseValue) {
 
         LLVMBuilderRef arg0Ref = (LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
         LLVMValueRef ifValueRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(ifValue);
         LLVMBasicBlockRef thenRef = (LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(then);
         LLVMBasicBlockRef elseValueRef = (LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(elseValue);
         LLVMValueRef returnValue = LLVMBuildCondBr(arg0Ref, ifValueRef, thenRef, elseValueRef);
-        MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",
+        BMap<String, Object> returnWrappedRecord = FFIUtil.newRecord(new Module("ballerina",
                 "llvm"), "LLVMValueRef");
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
         return returnWrappedRecord;

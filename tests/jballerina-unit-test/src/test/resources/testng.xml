@@ -81,6 +81,7 @@
             <package name="org.ballerinalang.test.statements.continuestatement.*"/>
             <package name="org.ballerinalang.test.statements.dostatement.*"/>
             <package name="org.ballerinalang.test.statements.fail.*"/>
+            <package name="org.ballerinalang.test.statements.onfail.*"/>
 
             <!-- No longer valid since new parser handles those -->
             <!-- <package name="org.ballerinalang.test.statements.expressionstmt.*"/> -->
@@ -142,6 +143,7 @@
             <package name="org.ballerinalang.test.types.readonly.*"/>
             <package name="org.ballerinalang.test.strand.*"/>
             <package name="org.ballerinalang.test.klass.*"/>
+            <package name="org.ballerinalang.test.services.*"/>
         </packages>
 
         <classes>
@@ -187,9 +189,9 @@
             <class name="org.ballerinalang.test.types.var.VarIgnoreTest"></class>
             <class name="org.ballerinalang.test.documentation.MultilineDocsTest"></class>
             <class name="org.ballerinalang.test.documentation.ObjectFieldDefaultValueTest"></class>
-<!--            <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtConstPatternTest"></class>-->
-<!--            <class name="org.ballerinalang.test.statements.matchstmt.MatchStatementSyntaxErrorsTest"></class>-->
-<!--            <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.CaptureBindingPatternTest"></class>-->
+            <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtConstPatternTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.MatchStatementSyntaxErrorsTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.CaptureBindingPatternTest"></class>
 <!--            <class name="org.ballerinalang.test.statements.matchstmt.MatchStatementOnFailTest"></class>-->
 <!--            <class name="org.ballerinalang.test.lock.LocksWithOnFailTest"></class>-->
             <!--<class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />-->

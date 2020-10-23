@@ -18,21 +18,23 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.runtime.AsyncUtils;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.types.BFunctionType;
-import org.ballerinalang.jvm.types.BTableType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.TableValue;
-import org.ballerinalang.jvm.values.TableValueImpl;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.types.TableType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.scheduling.AsyncUtils;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.TABLE_LANG_LIB;
 import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 
 /**
@@ -45,26 +47,25 @@ public class Map {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "map");
 
-    public static TableValueImpl map(TableValueImpl tbl, FPValue<Object, Object> func) {
-        BType newConstraintType = ((BFunctionType) func.getType()).retType;
-        BTableType tblType = (BTableType) tbl.getType();
-        BTableType newTableType = new BTableType(newConstraintType, tblType.getFieldNames(), tblType.isReadOnly());
+    public static BTable map(BTable tbl, BFunctionPointer<Object, Object> func) {
+        Type newConstraintType = ((FunctionType) func.getType()).getReturnType();
+        TableType tblType = (TableType) tbl.getType();
+        TableType newTableType =
+                TypeCreator.createTableType(newConstraintType, PredefinedTypes.TYPE_NEVER, tblType.isReadOnly());
 
-        TableValueImpl newTable = new TableValueImpl(newTableType);
+        BTable newTable = ValueCreator.createTableValue(newTableType);
         int size = tbl.size();
+        Object[] tableValues = tbl.values().toArray();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
-        AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                        () -> new Object[]{parentStrand,
-                                tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
-                        result -> newTable
-                                .put(tbl.getKeys()[index.get()], result),
-                                                       () -> newTable, Scheduler.getStrand().scheduler);
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                () -> new Object[]{parentStrand,
+                        tableValues[index.incrementAndGet()], true},
+                newTable::add, () -> newTable, Scheduler.getStrand().scheduler);
         return newTable;
     }
 
-    public static TableValue map_bstring(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func) {
+    public static BTable map_bstring(Strand strand, BTable tbl, BFunctionPointer<Object, Object> func) {
         return map(tbl, func);
     }
 }

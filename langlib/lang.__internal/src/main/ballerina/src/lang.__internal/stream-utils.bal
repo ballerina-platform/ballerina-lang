@@ -30,6 +30,12 @@ public type Type any|error;
 @typeParam
 public type Type1 any|error;
 
+# An `EmptyIterator` which returns nil on next() method invocation.
+class EmptyIterator {
+    public isolated function next() returns record {|Type value;|}|ErrorType? {
+        return ();
+    }
+};
 
 # Sets the narrowed type of the `value`.
 #
@@ -47,7 +53,8 @@ public function setNarrowType(typedesc<Type> td, record {|Type value;|} val) ret
 # + iteratorObj - An iterator object.
 # + return - New stream containing results of `iteratorObj` object's next function invocations.
 public function construct(typedesc<Type> td, object { public function next() returns
-        record {|Type value;|}|ErrorType?;} iteratorObj) returns stream<Type, ErrorType> = @java:Method {
+        record {|Type value;|}|ErrorType?;} iteratorObj = new EmptyIterator())
+        returns stream<Type, ErrorType> = @java:Method {
             'class: "org.ballerinalang.langlib.internal.Construct",
             name: "construct"
         } external;

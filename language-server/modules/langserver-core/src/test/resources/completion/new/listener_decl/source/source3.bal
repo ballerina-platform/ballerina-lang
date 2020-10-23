@@ -1,4 +1,4 @@
-import ballerina/module1 as mod;
+import ballerina/module1;
 import ballerina/lang.'object as lang;
 
 public listener module1:

@@ -51,7 +51,7 @@ public class SpiServicesTestCase extends BaseTest {
      *
      * @throws BallerinaTestException When creating the ballerina client.
      */
-    @BeforeClass(enabled = false)
+    @BeforeClass()
     public void setUp() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
     }
@@ -61,7 +61,7 @@ public class SpiServicesTestCase extends BaseTest {
      *
      * @throws BallerinaTestException When running commands.
      */
-    @Test(enabled = false, description = "Test spi service are merged")
+    @Test(description = "Test spi service are merged")
     public void testSpiServicesMerge() throws BallerinaTestException, IOException {
         testProjectPath = Paths.get("src", "test", "resources", "packaging", "spi", "TestProject")
                 .toAbsolutePath();
@@ -91,16 +91,16 @@ public class SpiServicesTestCase extends BaseTest {
         Assert.assertEquals(result.length(), 18);
         LogLeecher jarRunLeecher = new LogLeecher("org.hsqldb.jdbc.JDBCDriver");
         balClient.runMain("run", new String[]{jarPath.toString()}, new HashMap<>(), new String[0],
-                          new LogLeecher[]{jarRunLeecher}, testProjectPath.toString());
+                new LogLeecher[]{jarRunLeecher}, testProjectPath.toString());
         jarRunLeecher.waitForText(2000);
 
         LogLeecher balRunLeecher = new LogLeecher("org.hsqldb.jdbc.JDBCDriver");
         balClient.runMain("run", new String[]{"module"}, new HashMap<>(), new String[0],
-                          new LogLeecher[]{balRunLeecher}, testProjectPath.toString());
+                new LogLeecher[]{balRunLeecher}, testProjectPath.toString());
         balRunLeecher.waitForText(2000);
     }
 
-    @AfterClass(enabled = false)
+    @AfterClass()
     private void cleanup() throws Exception {
         deleteFiles(Paths.get(this.testProjectPath.toString(), "target").toAbsolutePath());
     }

@@ -18,22 +18,22 @@
 
 package org.ballerinalang.net.http.actions.httpclient;
 
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.observability.ObservabilityConstants;
+import io.ballerina.runtime.observability.ObserveUtils;
+import io.ballerina.runtime.observability.ObserverContext;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.transactions.TransactionLocalContext;
+import io.ballerina.runtime.util.exceptions.BallerinaConnectorException;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.observability.ObservabilityConstants;
-import org.ballerinalang.jvm.observability.ObserveUtils;
-import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.transactions.TransactionLocalContext;
-import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
@@ -61,8 +61,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
 
+import static io.ballerina.runtime.runtime.RuntimeConstants.BALLERINA_VERSION;
 import static io.netty.handler.codec.http.HttpHeaderNames.ACCEPT_ENCODING;
-import static org.ballerinalang.jvm.runtime.RuntimeConstants.BALLERINA_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 import static org.ballerinalang.net.http.HttpUtil.getCompressionState;
@@ -82,7 +82,7 @@ public abstract class AbstractHTTPAction {
         CACHE_BALLERINA_VERSION = System.getProperty(BALLERINA_VERSION);
     }
 
-    protected static HttpCarbonMessage createOutboundRequestMsg(Strand strand, String serviceUri, MapValue config,
+    protected static HttpCarbonMessage createOutboundRequestMsg(Strand strand, String serviceUri, BMap config,
                                                                 String path, BObject request) {
         if (request == null) {
             request = ValueCreatorUtils.createRequestObject();
@@ -96,7 +96,7 @@ public abstract class AbstractHTTPAction {
         return requestMsg;
     }
 
-    static String getCompressionConfigFromEndpointConfig(MapValue clientEndpointConfig) {
+    static String getCompressionConfigFromEndpointConfig(BMap clientEndpointConfig) {
         return clientEndpointConfig.get(ANN_CONFIG_ATTR_COMPRESSION).toString();
     }
 
@@ -385,7 +385,7 @@ public abstract class AbstractHTTPAction {
      */
     private static void serializeMultiparts(BObject entityObj, OutputStream messageOutputStream,
                                             String boundaryString) throws IOException {
-        ArrayValue bodyParts = EntityBodyHandler.getBodyPartArray(entityObj);
+        BArray bodyParts = EntityBodyHandler.getBodyPartArray(entityObj);
         if (bodyParts != null && bodyParts.size() > 0) {
             serializeMultipartDataSource(messageOutputStream, boundaryString, entityObj);
         } else { //If the content is in a byte channel

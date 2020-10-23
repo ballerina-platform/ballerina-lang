@@ -42,7 +42,7 @@ public class BJson extends BCompoundVariable {
 
     @Override
     public String computeValue() {
-        return "object";
+        return "map<json>";
     }
 
     @Override

@@ -18,8 +18,8 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
@@ -34,7 +34,7 @@ import java.security.PublicKey;
  */
 public class Encrypt {
 
-    public static Object encryptAesCbc(ArrayValue inputValue, ArrayValue keyValue, ArrayValue ivValue, Object padding) {
+    public static Object encryptAesCbc(BArray inputValue, BArray keyValue, BArray ivValue, Object padding) {
         byte[] input = inputValue.getBytes();
         byte[] key = keyValue.getBytes();
         byte[] iv = null;
@@ -45,15 +45,15 @@ public class Encrypt {
                 input, iv, -1);
     }
 
-    public static Object encryptAesEcb(ArrayValue inputValue, ArrayValue keyValue,  Object padding) {
+    public static Object encryptAesEcb(BArray inputValue, BArray keyValue,  Object padding) {
         byte[] input = inputValue.getBytes();
         byte[] key = keyValue.getBytes();
         return CryptoUtils.aesEncryptDecrypt(CryptoUtils.CipherMode.ENCRYPT, Constants.ECB, padding.toString(), key,
                 input, null, -1);
     }
 
-    public static Object encryptAesGcm(ArrayValue inputValue, ArrayValue keyValue,
-                                       ArrayValue ivValue, Object padding, long tagSize) {
+    public static Object encryptAesGcm(BArray inputValue, BArray keyValue,
+                                       BArray ivValue, Object padding, long tagSize) {
         byte[] input = inputValue.getBytes();
         byte[] key = keyValue.getBytes();
         byte[] iv = null;
@@ -64,11 +64,11 @@ public class Encrypt {
                 input, iv, tagSize);
     }
 
-    public static Object encryptRsaEcb(ArrayValue inputValue, Object keyUnion, Object padding) {
+    public static Object encryptRsaEcb(BArray inputValue, Object keyUnion, Object padding) {
         byte[] input = inputValue.getBytes();
         // this is a union, but both a record types, so we can safely cast
         // TODO: unify union types when same type is duplicated eg:record:record.
-        MapValue<?, ?> keyMap = (MapValue<?, ?>) keyUnion;
+        BMap<?, ?> keyMap = (BMap<?, ?>) keyUnion;
         Key key;
         if (keyMap.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY) != null) {
             key = (PrivateKey) keyMap.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY);
