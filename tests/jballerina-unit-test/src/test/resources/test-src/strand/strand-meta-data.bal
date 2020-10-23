@@ -106,9 +106,9 @@ function assertStrandMetadataResult(string assertString) {
         var strandName = getName(strand);
         var isStrandHasName = isPresent(strandName);
         var module = getModule(metadata);
-        string org = <string>java:toString(getModuleOrg(module));
+        string org = <string>java:toString(getOrg(module));
         string modName = <string>java:toString(getModuleName(module));
-        string modVersion = <string>java:toString(getModuleVersion(module));
+        string modVersion = <string>java:toString(getVersion(module));
         string parentFunc = <string>java:toString(getParentFunctionName(metadata));
         string typeName = "";
         var typeNameVal = java:toString(getTypeName(metadata));
@@ -155,33 +155,21 @@ function getMetadata(handle strand) returns handle = @java:Method {
     'class: "io.ballerina.runtime.scheduling.Strand"
 } external;
 
-<<<<<<< HEAD
 function getModule(handle strandMetadata) returns handle = @java:Method {
-    'class: "org.ballerinalang.jvm.scheduling.StrandMetadata"
+    'class: "io.ballerina.runtime.api.async.StrandMetadata"
 } external;
 
-function getModuleOrg(handle module) returns handle = @java:Method {
-    'class: "org.ballerinalang.jvm.api.runtime.Module"
+function getOrg(handle module) returns handle = @java:Method {
+    'class: "io.ballerina.runtime.api.Module"
 } external;
 
 function getModuleName(handle module) returns handle = @java:Method {
-    'class: "org.ballerinalang.jvm.api.runtime.Module"
+    name: "getName",
+    'class: "io.ballerina.runtime.api.Module"
 } external;
 
-function getModuleVersion(handle module) returns handle = @java:Method {
-    'class: "org.ballerinalang.jvm.api.runtime.Module"
-=======
-function getModuleOrg(handle strandMetadata) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.api.async.StrandMetadata"
-} external;
-
-function getModuleName(handle strandMetadata) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.api.async.StrandMetadata"
-} external;
-
-function getModuleVersion(handle strandMetadata) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.api.async.StrandMetadata"
->>>>>>> cd3eff872b26c58b30af38f3e70995dec38a6090
+function getVersion(handle module) returns handle = @java:Method {
+    'class: "io.ballerina.runtime.api.Module"
 } external;
 
 function getParentFunctionName(handle strandMetadata) returns handle = @java:Method {
