@@ -243,6 +243,7 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
     }
 
     private boolean isClient(BSymbol symbol) {
-        return (symbol.flags & Flags.CLIENT) == Flags.CLIENT;
+        return symbol.type != null && symbol.type.tsymbol != null
+                && (symbol.type.tsymbol.flags & Flags.CLIENT) == Flags.CLIENT;
     }
 }

@@ -3,7 +3,7 @@ type EmployeeTable table<Employee> key(id);
 type CustomerTable table<map<any>>;
 
 public function foo() {
-    EmployeeTable employeeTab = table [{ id: 1, name: "John" }];
+    EmployeeTable employeeTab = table [{id: 1, name: "John"}];
     table<Person> personTab = employeeTab.'map(function(Employee employee) returns Person {
                                                    return {
                                                        id: employee.id,
@@ -11,14 +11,14 @@ public function foo() {
                                                    };
                                                });
 
-    CustomerTable customerTab = table [{ id: 13, fname: "Dan" }];
+    CustomerTable customerTab = table [{id: 13, fname: "Dan"}];
 
     CustomerTable fruitTab = table [
-            { id: 1, name: "Apples" },
-            { id: 2, name: "Oranges" },
-            { id: 3, name: "Grapes" },
-            { id: 4, name: "Mangoes" }
+            {id: 1, name: "Apples"},
+            {id: 2, name: "Oranges"},
+            {id: 3, name: "Grapes"},
+            {id: 4, name: "Mangoes"}
         ];
 
-    var studentTab = table [{ id: 44, fname: "Meena" }];
+    var studentTab = table [{id: 44, fname: "Meena"}];
 }

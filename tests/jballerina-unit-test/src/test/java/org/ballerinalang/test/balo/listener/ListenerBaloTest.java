@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
 /**
  * Test cases for access listener from another project.
  */
-@Test(enabled = false)
 public class ListenerBaloTest {
 
     private CompileResult compileResult;
@@ -42,7 +41,7 @@ public class ListenerBaloTest {
         compileResult = BCompileUtil.compile("test-src/balo/test_balo/listener/external_listener_access.bal");
     }
 
-    @Test(enabled = false, description = "Test access listener in different module")
+    @Test(description = "Test access listener in different module")
     public void testBasicStructAsObject() {
         final BValue[] result = BRunUtil.invoke(compileResult, "getStartAndAttachCount");
         Assert.assertEquals(result.length, 1, "expected one return type");

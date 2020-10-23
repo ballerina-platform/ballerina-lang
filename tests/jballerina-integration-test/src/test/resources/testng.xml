@@ -17,7 +17,7 @@
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="jBallerina-Test-Suite" time-out="120000">
+<suite name="jBallerina-Test-Suite">
     <listeners>
         <listener class-name="org.ballerinalang.test.listener.TestExecutionListener"/>
         <listener class-name="org.ballerinalang.test.listener.TestNGListener"/>
@@ -243,14 +243,14 @@
         </classes>
     </test>
 
-    <test name="ballerina-run-tests" parallel="false">
+    <test name="ballerina-run-tests" preserve-order="true" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
         <packages>
             <package name="org.ballerinalang.test.run.*"/>
         </packages>
     </test>
 
-    <test name="ballerina-logging-tests" parallel="false">
+    <test name="ballerina-logging-tests" preserve-order="true" parallel="false">
         <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.test.logging.LogAPITestCase" />
@@ -261,13 +261,6 @@
         <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.test.listener.LaunchListenerTestCase"/>
-        </classes>
-    </test>
-
-    <test name="ballerina-service-listener-tests" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true" />
-        <classes>
-            <class name="org.ballerinalang.test.service.ServiceTest"/>
         </classes>
     </test>
 

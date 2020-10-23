@@ -4,6 +4,6 @@ public function foo() {
     stream<int, error> a;
     stream<string|float> a;
     stream<A[5]> a;
-    stream<object { }> a;
+    stream<object {}> a;
     stream<T> a;
 }

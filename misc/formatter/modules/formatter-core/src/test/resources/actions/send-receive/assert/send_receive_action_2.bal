@@ -1,6 +1,6 @@
 public function foo() {
 
-    @someAnnotate { }
+    @someAnnotate {}
     worker w1 {
         int i = 100;
         () send = i ->> w2;

@@ -2536,7 +2536,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return isInvalidCopyingOfMutableValueInIsolatedObject(varRefExpr, false);
         }
 
-        return isInvalidCopyIn(varRefExpr, name, symTag, env.enclEnv);
+        return isInvalidCopyIn(varRefExpr, name, symTag, currentEnv.enclEnv);
     }
 
     private static class UniqueInitAndReferenceInfo {
