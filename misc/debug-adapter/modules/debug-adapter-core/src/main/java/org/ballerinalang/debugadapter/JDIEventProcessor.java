@@ -166,7 +166,8 @@ public class JDIEventProcessor {
         for (ThreadReference threadReference : threadReferences) {
             if (threadReference.status() == ThreadReference.THREAD_STATUS_RUNNING
                     && (threadReference.name().startsWith(JBAL_STRAND_PREFIX)
-                    || threadReference.name().equals("Signal Dispatcher"))) {
+                    || threadReference.name().equals("Reference Handler"))
+            ) {
                 breakPointThreads.put(threadReference.uniqueID(), threadReference);
             }
         }
