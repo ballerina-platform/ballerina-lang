@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.utils;
 
+
 /**
  * Defines constants related to the project directory.
  *
@@ -69,4 +70,10 @@ public class ProjectConstants {
     public static final String ANON_ORG = "$anon";
     public static final String DOT = ".";
     public static final String DEFAULT_VERSION = "0.0.0";
+
+    // Constants related to file system repo
+    public static final String REPO_BALO_DIR_NAME = TARGET_BALO_DIR_NAME;
+    public static final String REPO_CACHE_DIR_NAME = "cache";
+    public static final String REPO_JAR_CACHE_NAME = "jar";
+    public static final String REPO_BIR_CACHE_NAME = "bir";
 }

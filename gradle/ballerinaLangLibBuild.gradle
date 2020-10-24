@@ -73,10 +73,16 @@ class BallerinaLangLibBuildTask extends JavaExec {
 
 }
 
-task createDistributionCache(type: Copy) {
+task createDistributionCache() {
     dependsOn configurations.distributionBalo
-    from configurations.distributionBalo
-    into "$buildDir/distribution-cache"
+    doLast {
+        configurations.distributionBalo.each { artifact ->
+            copy {
+                from zipTree( artifact.getPath() )
+                into "$buildDir/distribution-cache"
+            }
+        }
+    }
 }
 
 task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
@@ -85,16 +91,15 @@ task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
     classpath = project.configurations.baloCreat
     dependsOn moduleTopackage
     dependsOn createDistributionCache
-    outputs.files("$buildDir/new-project/" + project.projectDir.name + "/target/balo/")
-    outputs.files("$buildDir/new-project/" + project.projectDir.name + "/target/jar_cache/")
-
+    outputs.files("$buildDir/new-project/" + project.projectDir.name + "/target/" + project.projectDir.name + ".zip")
     classpath += files(jar.archivePath)
 }
 
 artifacts {
-    distributionBalo file("$buildDir/new-project/" + project.projectDir.name + "/target/balo/"),
-            { builtBy(ballerinaLangLibBuild) }
-    distributionBirJar file("$buildDir/new-project/" + project.projectDir.name + "/target/caches/jar_cache/" +
+    distributionBalo file("$buildDir/new-project/" + project.projectDir.name + "/target/" + project.projectDir.name + ".zip"), {
+        builtBy(ballerinaLangLibBuild)
+    }
+    distributionBirJar file("$buildDir/new-project/" + project.projectDir.name + "/target/" +
             project.projectDir.name + ".jar"), { builtBy(ballerinaLangLibBuild) }
 }
 
