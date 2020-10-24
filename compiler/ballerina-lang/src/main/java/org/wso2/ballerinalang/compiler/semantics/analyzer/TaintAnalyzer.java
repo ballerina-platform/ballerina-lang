@@ -1958,8 +1958,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
      */
     private boolean visitInvokable(BLangInvokableNode invNode, SymbolEnv symbolEnv) {
         if (analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS || invNode.symbol.taintTable == null) {
-            if (Symbols.isNative(invNode.symbol)
-                    || (invNode.getKind() == NodeKind.FUNCTION && ((BLangFunction) invNode).interfaceFunction)) {
+            if (Symbols.isNative(invNode.symbol) || isMethodDeclaration(invNode)) {
                 attachNativeFunctionTaintTable(invNode);
                 return false;
             }
@@ -2021,6 +2020,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             restCurrentTaintPropagationSet();
         }
         return false;
+    }
+
+    private boolean isMethodDeclaration(BLangInvokableNode invNode) {
+        return (invNode.getKind() == NodeKind.FUNCTION || invNode.getKind() == NodeKind.RESOURCE_FUNC) && ((BLangFunction) invNode).interfaceFunction;
     }
 
     private void visitAttachedInvokable(BLangFunction invNode) {
