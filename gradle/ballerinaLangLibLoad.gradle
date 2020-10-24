@@ -26,6 +26,29 @@ configurations {
 }
 
 dependencies {
+
+    testRuntime project(':ballerina-lang:annotations')
+    testRuntime project(':ballerina-lang:array')
+    testRuntime project(':ballerina-lang:decimal')
+    testRuntime project(':ballerina-lang:error')
+    testRuntime project(':ballerina-lang:floatingpoint')
+    testRuntime project(':ballerina-lang:future')
+    testRuntime project(':ballerina-lang:integer')
+    testRuntime project(':ballerina-lang:map')
+    testRuntime project(':ballerina-lang:object')
+    testRuntime project(':ballerina-lang:stream')
+    testRuntime project(':ballerina-lang:table')
+    testRuntime project(':ballerina-lang:string')
+    testRuntime project(':ballerina-lang:typedesc')
+    testRuntime project(':ballerina-lang:value')
+    testRuntime project(':ballerina-lang:xml')
+    testRuntime project(':ballerina-lang:bool')
+    testRuntime project(':ballerina-lang:query')
+    testRuntime project(':ballerina-lang:transaction')
+    testRuntime project(':ballerina-lang-test')
+    testRuntime project(':ballerina-runtime')
+    testRuntime project(':ballerina-lang:internal')
+    
     distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
     testRuntime project(path: ':ballerina-lang:annotations', configuration: 'distributionBirJar')
     distributionBalo project(path: ':ballerina-lang:array', configuration: 'distributionBalo')
