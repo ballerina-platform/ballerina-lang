@@ -19,6 +19,7 @@ package io.ballerina.projects.environment;
 
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.SemanticVersion;
 
 import java.util.Objects;
@@ -30,13 +31,16 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class ModuleLoadRequest {
-    private final String orgName;
+    private final PackageOrg orgName;
     private final PackageName packageName;
     private final ModuleName moduleName;
     private final SemanticVersion version;
 
-    public ModuleLoadRequest(String orgName, PackageName packageName, ModuleName moduleName, SemanticVersion version) {
-        if (orgName != null && orgName.isEmpty()) {
+    public ModuleLoadRequest(PackageOrg orgName,
+                             PackageName packageName,
+                             ModuleName moduleName,
+                             SemanticVersion version) {
+        if (orgName != null && orgName.value().isEmpty()) {
             throw new IllegalArgumentException("The orgName cannot be an empty string. " +
                     "It should be either null or a non-empty string value");
         }
@@ -46,7 +50,7 @@ public class ModuleLoadRequest {
         this.version = version;
     }
 
-    public Optional<String> orgName() {
+    public Optional<PackageOrg> orgName() {
         return Optional.of(orgName);
     }
 

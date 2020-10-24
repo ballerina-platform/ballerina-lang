@@ -19,7 +19,6 @@ package io.ballerina.projects;
 
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
-import io.ballerina.compiler.syntax.tree.ImportVersionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -130,33 +129,43 @@ class DocumentContext {
     }
 
     private ModuleLoadRequest getModuleLoadRequest(ImportDeclarationNode importDcl) {
+        // TODO We need to handle syntax errors in importDcl
         // Get organization name
-        String orgName = importDcl.orgName()
-                .map(orgNameNode -> orgNameNode.orgName().text())
+        PackageOrg orgName = importDcl.orgName()
+                .map(orgNameNode -> PackageOrg.from(orgNameNode.orgName().text()))
                 .orElse(null);
 
         // Compute package name
+        PackageName packageName;
+        // Index in identifierTokenList from which the moduleNamePart starts
+        int moduleNamePartStartIndex;
         SeparatedNodeList<IdentifierToken> identifierTokenList = importDcl.moduleName();
-        PackageName packageName = PackageName.from(identifierTokenList.get(0).text());
+        String firstModuleNamePart = identifierTokenList.get(0).text();
+
+        // Check for langLib packages
+        if (PackageOrg.BALLERINA_ORG.equals(orgName) &&
+                PackageName.LANG_LIB_PACKAGE_NAME_PREFIX.equals(firstModuleNamePart)) {
+            // This a request to load a lang lib package
+            // Lang lib package names take the form lang.{identifier}
+            //  e.g, lang.int, lang.boolean lang.stream
+            String secondModuleNamePart = identifierTokenList.get(1).text();
+            packageName = PackageName.from(firstModuleNamePart + "." + secondModuleNamePart);
+            moduleNamePartStartIndex = 2;
+        } else {
+            packageName = PackageName.from(firstModuleNamePart);
+            moduleNamePartStartIndex = 1;
+        }
 
         // Compute the module name
         StringJoiner stringJoiner = new StringJoiner(".");
-        for (int i = 1; i < identifierTokenList.size(); i++) {
+        for (int i = moduleNamePartStartIndex; i < identifierTokenList.size(); i++) {
             stringJoiner.add(identifierTokenList.get(i).text());
         }
         String moduleNamePart = stringJoiner.toString();
         ModuleName moduleName = ModuleName.from(packageName, moduleNamePart.isEmpty() ? null : moduleNamePart);
 
-        // Compute the version name
-        SemanticVersion version = importDcl.version()
-                .map(ImportVersionNode::versionNumber)
-                .map(versionNumbers -> new SemanticVersion(
-                        Integer.parseInt(versionNumbers.get(0).text()),
-                        Integer.parseInt(versionNumbers.get(1).text()),
-                        Integer.parseInt(versionNumbers.get(2).text())))
-                .orElse(null);
-        // TODO If the version is not there, check whether it is specified in the Ballerina.toml file
-        return new ModuleLoadRequest(orgName, packageName, moduleName, version);
+        // Create the module load request
+        return new ModuleLoadRequest(orgName, packageName, moduleName, null);
     }
 
     private void reportSyntaxDiagnostics(BDiagnosticSource diagnosticSource,

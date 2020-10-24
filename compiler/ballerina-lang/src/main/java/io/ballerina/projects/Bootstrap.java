@@ -176,7 +176,8 @@ public class Bootstrap {
         PackageName packageName = PackageName.from(packageID.name.getValue());
         ModuleName moduleName = ModuleName.from(packageName);
         SemanticVersion version = SemanticVersion.from(packageID.getPackageVersion().toString());
-        return new ModuleLoadRequest(packageID.orgName.getValue(), packageName, moduleName, version);
+        return new ModuleLoadRequest(PackageOrg.from(packageID.orgName.getValue()),
+                packageName, moduleName, version);
     }
 
     private BPackageSymbol getSymbolFromCache(CompilerContext context, PackageID packageID) {

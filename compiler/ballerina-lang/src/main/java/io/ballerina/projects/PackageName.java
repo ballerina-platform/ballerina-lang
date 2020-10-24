@@ -26,6 +26,7 @@ import java.util.Objects;
  */
 public class PackageName {
     private final String packageNameStr;
+    public static final String LANG_LIB_PACKAGE_NAME_PREFIX = "lang";
 
     private PackageName(String packageNameStr) {
         this.packageNameStr = packageNameStr;
