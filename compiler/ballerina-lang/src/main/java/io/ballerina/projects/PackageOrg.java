@@ -28,12 +28,18 @@ import java.util.Objects;
  */
 public class PackageOrg {
     private final String packageOrgStr;
+    private static final String BALLERINA_ORG_NAME = "ballerina";
+    public static final PackageOrg BALLERINA_ORG = new PackageOrg(BALLERINA_ORG_NAME);
 
     private PackageOrg(String packageOrgStr) {
         this.packageOrgStr = packageOrgStr;
     }
 
     public static PackageOrg from(String packageNameStr) {
+        if (BALLERINA_ORG_NAME.equals(packageNameStr)) {
+            return BALLERINA_ORG;
+        }
+
         // TODO Check whether the packageOrg is a valid Ballerina identifier
         return new PackageOrg(packageNameStr);
     }

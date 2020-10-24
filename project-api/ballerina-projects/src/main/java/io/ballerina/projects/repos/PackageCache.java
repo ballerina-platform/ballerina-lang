@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.repos;
 
+import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.utils.ProjectUtils;
@@ -49,8 +50,8 @@ public class PackageCache implements PackageRepo {
 
     @Override
     public Optional<Path> getPackageBalo(ModuleLoadRequest pkg) {
-        String baloName = ProjectUtils.getBaloName(pkg.orgName().orElse(""),
-                pkg.packageName().toString(),
+        String orgName = pkg.orgName().map(PackageOrg::value).orElse("");
+        String baloName = ProjectUtils.getBaloName(orgName, pkg.packageName().value(),
                 pkg.version().orElse(SemanticVersion.from("0.0.0")).toString(),
                 null);
         Path baloPath = baloDirectory.resolve(baloName);
@@ -62,7 +63,7 @@ public class PackageCache implements PackageRepo {
 
     @Override
     public Optional<Path> getLatestPackageBalo(ModuleLoadRequest pkg) {
-        String orgName = pkg.orgName().orElse("");
+        String orgName = pkg.orgName().map(PackageOrg::value).orElse("");
         String pkgName = pkg.packageName().value();
         String glob = "glob:**/" + orgName + "-" + pkgName + "-*.balo";
         PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(glob);
