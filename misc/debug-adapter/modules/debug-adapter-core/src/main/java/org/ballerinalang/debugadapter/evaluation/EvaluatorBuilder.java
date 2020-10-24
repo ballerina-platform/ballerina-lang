@@ -53,6 +53,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.OptionalFieldAccessExpre
 import org.ballerinalang.debugadapter.evaluation.engine.SimpleNameReferenceEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.StringTemplateEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.TypeOfExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.XMLTemplateEvaluator;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -315,6 +316,8 @@ public class EvaluatorBuilder extends NodeVisitor {
                 templateMemberEvaluators.add(result);
             }
             result = new StringTemplateEvaluator(context, templateExpressionNode, templateMemberEvaluators);
+        } else if (type == SyntaxKind.XML_KEYWORD) {
+            result = new XMLTemplateEvaluator(context, templateExpressionNode);
         }
     }
 
@@ -420,7 +423,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addXmlTemplateExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.XML_TEMPLATE_EXPRESSION);
     }
 
     private void addNewExpressionSyntax() {

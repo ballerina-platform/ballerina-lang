@@ -76,7 +76,19 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void xmlTemplateEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // XML element
+        assertExpression(context, "xml `<book>The Lost World</book>`", "<book>The Lost World</book>", "xml");
+        // Todo - enable after https://github.com/ballerina-platform/ballerina-lang/issues/26589 is fixed from the
+        //  runtime.
+        // XML text
+        // assertExpression(context, "xml `Hello, world!`", "Hello, world!", "xml");
+        // XML comment
+        // assertExpression(context, "xml `<!--I am a comment-->`", "<!--I am a comment", "xml");
+        // XML processing instruction
+        // assertExpression(context, "xml `<?target data?>`", "<?target data?>", "xml");
+        // concatenated XML
+        // assertExpression(context, "xml `<book>The Lost World</book>Hello, world!<!--I am a comment--><?target
+        // data?>`", "<?target data?>", "xml");
     }
 
     @Override
