@@ -3187,9 +3187,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
         if (expressionNode.content().size() == 0) {
             xmlTextLiteral.pos = getPosition(expressionNode);
-        } else {
-            xmlTextLiteral.pos = getPosition(expressionNode.content().get(0));
+            xmlTextLiteral.textFragments.add(createSimpleLiteral(expressionNode));
+            return xmlTextLiteral;
         }
+        xmlTextLiteral.pos = getPosition(expressionNode.content().get(0));
         for (Node node : expressionNode.content()) {
             xmlTextLiteral.textFragments.add(createExpression(node));
         }
@@ -4375,6 +4376,21 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLIdentifer.addWS(ws);
         }
         return bLIdentifer;
+    }
+
+    private BLangLiteral createSimpleLiteral(TemplateExpressionNode expressionNode) {
+        BLangLiteral bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+
+        int typeTag = TypeTags.STRING;
+        Object value = "";
+        String originalValue = "";
+
+        bLiteral.pos = getPosition(expressionNode);
+        bLiteral.type = symTable.getTypeFromTag(typeTag);
+        bLiteral.type.tag = typeTag;
+        bLiteral.value = value;
+        bLiteral.originalValue = originalValue;
+        return bLiteral;
     }
 
     private BLangLiteral createSimpleLiteral(Node literal) {
