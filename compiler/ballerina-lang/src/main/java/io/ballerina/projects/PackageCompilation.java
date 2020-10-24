@@ -105,7 +105,13 @@ public class PackageCompilation {
             List<ModuleId> sortedModuleIds = moduleDependencyGraph.toTopologicallySortedList();
             for (ModuleId moduleId : sortedModuleIds) {
                 ModuleContext moduleContext = pkg.module(moduleId).moduleContext();
+                // Load symbols from bir
+                packageContext.repository()
+                        .ifPresent(repo -> moduleContext.loadBirFromCache(repo, pkg.module(moduleId)));
                 moduleContext.compile(compilerContext, pkg.packageDescriptor());
+                // Cash the compiled bir
+                packageContext.repository()
+                        .ifPresent(repo -> moduleContext.cacheBir(repo, pkg.module(moduleId)));
                 diagnostics.addAll(moduleContext.diagnostics());
             }
         }
@@ -246,5 +252,9 @@ public class PackageCompilation {
     public SemanticModel getSemanticModel(ModuleId moduleId) {
         ModuleContext moduleContext = this.packageContext.moduleContext(moduleId);
         return new BallerinaSemanticModel(moduleContext.bLangPackage(), this.compilerContext);
+    }
+
+    public Package getPackage() {
+        return packageContext.project().currentPackage();
     }
 }

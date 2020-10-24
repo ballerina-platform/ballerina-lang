@@ -34,8 +34,6 @@ public class ModuleConfig {
     private final List<DocumentConfig> srcDocs;
     private final List<DocumentConfig> testSrcDocs;
 
-    public byte[] birBytes = new byte[0];
-
     private ModuleConfig(ModuleId moduleId,
                          ModuleName moduleName,
                          Path moduleDirPath,

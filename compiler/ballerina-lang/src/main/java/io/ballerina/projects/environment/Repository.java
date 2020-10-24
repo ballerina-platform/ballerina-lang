@@ -15,27 +15,32 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.repos;
+
+package io.ballerina.projects.environment;
 
 import io.ballerina.projects.Module;
-import io.ballerina.projects.utils.ProjectConstants;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.SemanticVersion;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
 
 /**
- * Distribution cache.
+ * This interface represent a repository of packages.
  *
  * @since 2.0.0
  */
-public class DistributionPackageCache extends FileSystemRepository {
+public interface Repository {
 
-    public DistributionPackageCache() {
-        super(Paths.get(System.getProperty(ProjectConstants.BALLERINA_INSTALL_DIR_PROP))
-                .resolve(ProjectConstants.DIST_CACHE_DIRECTORY));
-    }
+    public Optional<Package> getPackage(PackageLoadRequest packageLoadRequest);
 
-    @Override
-    public void cacheBir(Module module, byte[] bir) {
-        // this is a read only repository
-    }
+    public List<SemanticVersion> getPackageVersions(PackageLoadRequest packageLoadRequest);
+
+    public byte[] getCachedBir(Module module);
+
+    public void cacheBir(Module module, byte[] bir);
+
+    public Path getCachedJar(Module aPackage);
+
 }

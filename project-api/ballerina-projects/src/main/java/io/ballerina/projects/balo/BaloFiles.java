@@ -160,20 +160,11 @@ public class BaloFiles {
                     "and the maximum length is 256 characters");
         }
 
-        Path birPath = zipFileSystem.getPath(pkgName + ".bir");
-        byte[] birBytes;
-        try {
-            birBytes = Files.readAllBytes(birPath);
-        } catch (IOException e) {
-            // TODO handle error
-            throw new RuntimeException(e);
-        }
-
         List<DocumentData> srcDocs = loadDocuments(modulePath);
         List<DocumentData> testSrcDocs = Collections.emptyList();
 
         // TODO Read Module.md file. Do we need to? Balo creator may need to package Module.md
-        return ModuleData.from(modulePath, srcDocs, testSrcDocs, birBytes);
+        return ModuleData.from(modulePath, srcDocs, testSrcDocs);
     }
 
     private static List<ModuleData> loadOtherModules(Path modulesDirPath,

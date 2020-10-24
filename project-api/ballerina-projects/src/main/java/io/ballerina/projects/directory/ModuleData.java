@@ -18,7 +18,6 @@
 package io.ballerina.projects.directory;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -31,7 +30,7 @@ public class ModuleData {
     private final Path moduleDirPath;
     private final List<DocumentData> srcDocs;
     private final List<DocumentData> testSrcDocs;
-    private byte[] birBytes = new byte[0];
+
     // TODO do we need to maintain resources and test resources
 
     private ModuleData(Path moduleDirPath,
@@ -46,19 +45,6 @@ public class ModuleData {
                                   List<DocumentData> srcDocuments,
                                   List<DocumentData> testSrcDocuments) {
         return new ModuleData(path, srcDocuments, testSrcDocuments);
-    }
-
-    // Temp code
-    public static ModuleData from(Path path,
-                                  List<DocumentData> srcDocuments,
-                                  List<DocumentData> testSrcDocuments, byte[] birBytes) {
-        final ModuleData moduleData = new ModuleData(path, srcDocuments, testSrcDocuments);
-        moduleData.birBytes = birBytes;
-        return moduleData;
-    }
-
-    public byte[] birBytes() {
-        return Arrays.copyOf(birBytes, birBytes.length);
     }
 
     public Path moduleDirectoryPath() {
