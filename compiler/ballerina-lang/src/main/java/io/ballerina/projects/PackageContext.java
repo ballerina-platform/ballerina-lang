@@ -19,9 +19,14 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.environment.Repository;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
-import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Maintains the internal state of a {@code Package} instance.

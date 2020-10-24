@@ -320,7 +320,7 @@ class ModuleContext {
     }
 
     void loadBirFromCache(Repository repository, Module module) {
-        if ( this.birBytes.length == 0) {
+        if (this.birBytes.length == 0) {
             this.birBytes = repository.getCachedBir(module);
         }
     }

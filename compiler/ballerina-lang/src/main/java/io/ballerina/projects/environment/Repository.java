@@ -20,7 +20,6 @@ package io.ballerina.projects.environment;
 
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.SemanticVersion;
 
 import java.nio.file.Path;
