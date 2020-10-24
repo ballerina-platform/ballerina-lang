@@ -102,13 +102,12 @@ public class DefaultPackageResolver extends PackageResolver {
         }
 
         Optional<Package> packageOptional = distCache.getPackage(loadRequest);
-        if (packageOptional.isEmpty()) {
-            // we will return null if the package is not found
-            return null;
-        } else {
-            globalPackageCache.put(packageOptional.get());
-            return packageOptional.get().getDefaultModule();
-        }
+        return packageOptional.map(pkg -> {
+            pkg.resolveDependencies();
+            globalPackageCache.put(pkg);
+            // todo fetch the correct module and return
+            return pkg.getDefaultModule();
+        }).orElse(null);
     }
 
     private SemanticVersion findlatest(List<SemanticVersion> packageVersions) {
