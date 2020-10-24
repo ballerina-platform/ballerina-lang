@@ -2,18 +2,19 @@ package io.ballerina.projects.environment;
 
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.SemanticVersion;
 
 import java.util.Objects;
 import java.util.Optional;
 
 public class PackageLoadRequest {
-    private final String orgName;
+    private final PackageOrg orgName;
     private final PackageName packageName;
     private final SemanticVersion version;
 
-    public PackageLoadRequest(String orgName, PackageName packageName, SemanticVersion version) {
-        if (orgName != null && orgName.isEmpty()) {
+    public PackageLoadRequest(PackageOrg orgName, PackageName packageName, SemanticVersion version) {
+        if (orgName != null && orgName.value().isEmpty()) {
             throw new IllegalArgumentException("The orgName cannot be an empty string. " +
                     "It should be either null or a non-empty string value");
         }
@@ -28,7 +29,7 @@ public class PackageLoadRequest {
                 moduleLoadRequest.version().orElse(null));
     }
 
-    public Optional<String> orgName() {
+    public Optional<PackageOrg> orgName() {
         return Optional.of(orgName);
     }
 

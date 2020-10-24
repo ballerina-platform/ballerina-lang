@@ -17,11 +17,12 @@
  */
 package io.ballerina.projects.repos;
 
-import io.ballerina.projects.*;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.balo.BaloProject;
-import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageLoadRequest;
 import io.ballerina.projects.environment.Repository;
 import io.ballerina.projects.utils.ProjectConstants;
@@ -77,7 +78,7 @@ public class FileSystemRepository implements Repository {
     public Optional<Package> getPackage(PackageLoadRequest packageLoadRequest) {
         // if version and org name is empty we add empty string so we return empty package anyway
         String packageName = packageLoadRequest.packageName().value();
-        String orgName = packageLoadRequest.orgName().orElse("");
+        String orgName = packageLoadRequest.orgName().map(PackageOrg::value).orElse("");
         String version = packageLoadRequest.version().orElse(SemanticVersion.from("0.0.0")).toString();
         String baloName = ProjectUtils.getBaloName(orgName, packageName, version, null);
 
@@ -95,7 +96,7 @@ public class FileSystemRepository implements Repository {
     public List<SemanticVersion> getPackageVersions(PackageLoadRequest packageLoadRequest) {
         // if version and org name is empty we add empty string so we return empty package anyway
         String packageName = packageLoadRequest.packageName().value();
-        String orgName = packageLoadRequest.orgName().orElse("");
+        String orgName = packageLoadRequest.orgName().map(PackageOrg::value).orElse("");
 
         // Here we dont rely on directories we check for available balos
         String globFilePart = orgName + "-" + packageName + "-*.balo";

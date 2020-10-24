@@ -81,7 +81,8 @@ public class LangLibResolver extends PackageResolver {
                 return null;
             }
             SemanticVersion latest = findlatest(packageVersions);
-            loadRequest = new PackageLoadRequest(loadRequest.orgName().orElse(""), loadRequest.packageName(), latest);
+            loadRequest = new PackageLoadRequest(loadRequest.orgName()
+                    .orElse(null), loadRequest.packageName(), latest);
         }
 
         Optional<Package> packageOptional = distCache.getPackage(loadRequest);
