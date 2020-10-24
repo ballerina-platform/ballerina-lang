@@ -25,13 +25,16 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.model.Target;
+import io.ballerina.projects.utils.ProjectUtils;
 import org.ballerinalang.packerina.utils.FileUtils;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
+import static io.ballerina.projects.utils.ProjectConstants.DIST_CACHE_DIRECTORY;
 
 /**
  * Helper to drive test source compilation.
@@ -49,15 +52,35 @@ public class BCompileUtil {
         return compileResult;
     }
 
-    @Deprecated(since = "2.0.0")
-    public static CompileResult compile(String sourceFilePath, String moduleName, boolean runModuleInit) {
-        CompileResult compileResult = compileInternal(sourceFilePath);
+    public static CompileResult compileAndEmitBalo(String sourceFilePath) {
+        Path sourcePath = Paths.get(sourceFilePath);
+        String sourceFileName = sourcePath.getFileName().toString();
+        Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
 
-        if (runModuleInit) {
-            invokeModuleInit(compileResult);
+        Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
+        Project project = ProjectLoader.loadProject(projectPath);
+
+        Package currentPackage = project.currentPackage();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+
+        if (packageCompilation.diagnostics().size() > 0) {
+            return new CompileResult(currentPackage);
         }
 
+        Path jarFilePath = jarFilePath(project);
+        packageCompilation.emit(PackageCompilation.OutputType.JAR, jarFilePath);
+        CompileResult compileResult = new CompileResult(currentPackage, jarFilePath);
+
+
+        Path baloEmitPath = baloEmitPath(currentPackage);
+        packageCompilation.emit(PackageCompilation.OutputType.BALO, baloEmitPath);
+
         return compileResult;
+    }
+
+    @Deprecated(since = "2.0.0")
+    public static CompileResult compile(String sourceFilePath, String moduleName) {
+        return compile(sourceFilePath);
     }
 
     private static CompileResult compileInternal(String sourceFilePath) {
@@ -115,4 +138,15 @@ public class BCompileUtil {
         }
     }
 
+    private static Path baloEmitPath(Package pkg) {
+        try {
+            String baloName = ProjectUtils.getBaloName(pkg);
+            Path buildDistCachePath = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
+            Files.createDirectories(buildDistCachePath);
+            return buildDistCachePath.resolve(baloName);
+        } catch (IOException e) {
+            throw new RuntimeException("error while creating the balo distribution cache directory at " +
+                    testBuildDirectory, e);
+        }
+    }
 }

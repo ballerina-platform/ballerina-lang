@@ -18,15 +18,14 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaModuleID;
-import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,11 +51,10 @@ public class SymbolLookupTest {
 
     @Test(dataProvider = "PositionProvider1")
     public void testVarSymbolLookup(int line, int column, int expSymbols, List<String> expSymbolNames) {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/var_symbol_lookup_test.bal", context);
+        CompileResult result = BCompileUtil.compile("test-src/var_symbol_lookup_test.bal");
         BLangPackage pkg = (BLangPackage) result.getAST();
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
-        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
+        SemanticModel model = result.defaultModuleSemanticModel();
 
         Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, "var_symbol_lookup_test.bal", line, column,
                                                              moduleID);
@@ -84,11 +82,10 @@ public class SymbolLookupTest {
 
     @Test(dataProvider = "PositionProvider2")
     public void testVarSymbolLookupInWorkers(int line, int column, int expSymbols, List<String> expSymbolNames) {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/symbol_lookup_with_workers_test.bal", context);
+        CompileResult result = BCompileUtil.compile("test-src/symbol_lookup_with_workers_test.bal");
         BLangPackage pkg = (BLangPackage) result.getAST();
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
-        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
+        SemanticModel model = result.defaultModuleSemanticModel();
 
         Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, "symbol_lookup_with_workers_test.bal", line, column,
                                                              moduleID);
@@ -116,11 +113,10 @@ public class SymbolLookupTest {
 
     @Test(dataProvider = "PositionProvider3")
     public void testVarSymbolLookupInTypedefs(int line, int column, int expSymbols, List<String> expSymbolNames) {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/symbol_lookup_with_typedefs_test.bal", context);
+        CompileResult result = BCompileUtil.compile("test-src/symbol_lookup_with_typedefs_test.bal");
         BLangPackage pkg = (BLangPackage) result.getAST();
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
-        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
+        SemanticModel model = result.defaultModuleSemanticModel();
 
         Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, "symbol_lookup_with_typedefs_test.bal", line,
                                                              column, moduleID);
@@ -154,11 +150,10 @@ public class SymbolLookupTest {
 
     @Test(dataProvider = "PositionProvider4")
     public void testSymbolLookupForComplexExpressions(int line, int column, List<String> expSymbolNames) {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/symbol_lookup_with_exprs_test.bal", context);
+        CompileResult result = BCompileUtil.compile("test-src/symbol_lookup_with_exprs_test.bal");
         BLangPackage pkg = (BLangPackage) result.getAST();
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
-        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
+        SemanticModel model = result.defaultModuleSemanticModel();
 
         Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, "symbol_lookup_with_exprs_test.bal", line, column,
                                                              moduleID);
@@ -181,11 +176,10 @@ public class SymbolLookupTest {
 
     @Test
     public void testSymbolLookupInFollowingLine() {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/symbol_lookup_in_assignment.bal", context);
+        CompileResult result = BCompileUtil.compile("test-src/symbol_lookup_in_assignment.bal");
         BLangPackage pkg = (BLangPackage) result.getAST();
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
-        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
+        SemanticModel model = result.defaultModuleSemanticModel();
 
         Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, "symbol_lookup_in_assignment.bal", 18, 9,
                                                              moduleID);
@@ -194,21 +188,13 @@ public class SymbolLookupTest {
 
     @Test
     public void testMissingNodeFiltering() {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/missing_node_filtering_test.bal", context);
+        CompileResult result = BCompileUtil.compile("test-src/missing_node_filtering_test.bal");
         BLangPackage pkg = (BLangPackage) result.getAST();
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
-        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
+        SemanticModel model = result.defaultModuleSemanticModel();
 
         Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, "missing_node_filtering_test.bal", 19, 4,
                                                              moduleID);
         assertList(symbolsInFile, Arrays.asList("test", "x"));
-    }
-
-    private CompileResult compile(String path, CompilerContext context) {
-        Path sourcePath = Paths.get(path);
-        String packageName = sourcePath.getFileName().toString();
-        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
-        return BCompileUtil.compileOnJBallerina(context, sourceRoot.toString(), packageName, false, true, false);
     }
 }

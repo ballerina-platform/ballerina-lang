@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.test;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageDescriptor;
@@ -74,6 +77,15 @@ public class CompileResult {
 
     public PackageNode getAST() {
         return packageCompilation.defaultModuleBLangPackage();
+    }
+
+    public SemanticModel defaultModuleSemanticModel() {
+        return packageCompilation.getSemanticModel(pkg.getDefaultModule().moduleId());
+    }
+
+    public SemanticModel semanticModel(String moduleName) {
+        Module module = pkg.module(ModuleName.from(pkg.packageName(), moduleName));
+        return packageCompilation.getSemanticModel(module.moduleId());
     }
 
     public URLClassLoader getClassLoader() {

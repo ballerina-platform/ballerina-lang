@@ -14,20 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/testproject;
+function testTypeChecking() {
+    int x = "foo";
 
-function testImports() {
-    string s = testproject:TRUE;
-    int x = testproject:add(10, 20);
-
-    testproject:Person p = {name: "John Doe", age: 20};
-}
-
-function area(float radius) returns float {
-    return testproject:PI * radius * radius;
-}
-
-function testMethodUsage() {
-    testproject:PersonObj p = new("John", 20);
-    string s = p.getName();
+    string s = <string>10;
 }
