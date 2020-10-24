@@ -24,7 +24,6 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.projects.model.Target;
 import io.ballerina.projects.utils.ProjectUtils;
 import org.ballerinalang.packerina.utils.FileUtils;
 
@@ -47,7 +46,24 @@ public class BCompileUtil {
     private static Path testBuildDirectory = Paths.get("build").toAbsolutePath().normalize();
 
     public static CompileResult compile(String sourceFilePath) {
-        CompileResult compileResult = compileInternal(sourceFilePath);
+        Path sourcePath = Paths.get(sourceFilePath);
+        String sourceFileName = sourcePath.getFileName().toString();
+        Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
+
+        Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
+        Project project = ProjectLoader.loadProject(projectPath);
+
+        Package currentPackage = project.currentPackage();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+
+        if (packageCompilation.diagnostics().size() > 0) {
+            return new CompileResult(currentPackage);
+        }
+
+        Path jarFilePath = jarEmitPath(currentPackage);
+        packageCompilation.emit(PackageCompilation.OutputType.JAR, jarFilePath);
+
+        CompileResult compileResult = new CompileResult(currentPackage, jarFilePath);
         invokeModuleInit(compileResult);
         return compileResult;
     }
@@ -67,40 +83,18 @@ public class BCompileUtil {
             return new CompileResult(currentPackage);
         }
 
-        Path jarFilePath = jarFilePath(project);
+        Path jarFilePath = jarEmitPath(currentPackage);
         packageCompilation.emit(PackageCompilation.OutputType.JAR, jarFilePath);
-        CompileResult compileResult = new CompileResult(currentPackage, jarFilePath);
 
+        Path birEmitPath = birEmitPath(currentPackage);
+        packageCompilation.emit(PackageCompilation.OutputType.BIR, birEmitPath);
 
         Path baloEmitPath = baloEmitPath(currentPackage);
         packageCompilation.emit(PackageCompilation.OutputType.BALO, baloEmitPath);
 
+        CompileResult compileResult = new CompileResult(currentPackage, jarFilePath);
+        invokeModuleInit(compileResult);
         return compileResult;
-    }
-
-    @Deprecated(since = "2.0.0")
-    public static CompileResult compile(String sourceFilePath, String moduleName) {
-        return compile(sourceFilePath);
-    }
-
-    private static CompileResult compileInternal(String sourceFilePath) {
-        Path sourcePath = Paths.get(sourceFilePath);
-        String sourceFileName = sourcePath.getFileName().toString();
-        Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
-
-        Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
-        Project project = ProjectLoader.loadProject(projectPath);
-
-        Package currentPackage = project.currentPackage();
-        PackageCompilation packageCompilation = currentPackage.getCompilation();
-
-        if (packageCompilation.diagnostics().size() > 0) {
-            return new CompileResult(currentPackage);
-        }
-
-        Path jarFilePath = jarFilePath(project);
-        packageCompilation.emit(PackageCompilation.OutputType.JAR, jarFilePath);
-        return new CompileResult(currentPackage, jarFilePath);
     }
 
     private static void invokeModuleInit(CompileResult compileResult) {
@@ -115,35 +109,63 @@ public class BCompileUtil {
         }
     }
 
-    private static Path jarFilePath(Project project) {
+    private static Path jarEmitPath(Package pkg) {
         try {
-            Target testTarget = new Target(testBuildDirectory);
+            Path cache = cachePathForPackage(pkg);
+            Path jarCache = cache.resolve("jar");
+            Files.createDirectories(jarCache);
 
-            Path jarCachePath = testTarget.getJarCachePath();
-            if (!(project instanceof SingleFileProject)) {
-                return jarCachePath;
+            if (!(pkg.project() instanceof SingleFileProject)) {
+                return jarCache;
             }
 
-            Package currentPackage = project.currentPackage();
-            Module defaultModule = currentPackage.getDefaultModule();
+            Module defaultModule = pkg.getDefaultModule();
             DocumentId documentId = defaultModule.documentIds().iterator().next();
             String documentName = defaultModule.document(documentId).name();
             String executableName = FileUtils.geFileNameWithoutExtension(Paths.get(documentName));
             if (executableName == null) {
                 throw new RuntimeException("cannot identify executable name for : " + defaultModule.moduleName());
             }
-            return jarCachePath.resolve(executableName + BLANG_COMPILED_JAR_EXT).toAbsolutePath().normalize();
+            return jarCache.resolve(executableName + BLANG_COMPILED_JAR_EXT).toAbsolutePath().normalize();
         } catch (IOException e) {
-            throw new RuntimeException("error while creating the jar target directory at " + testBuildDirectory, e);
+            throw new RuntimeException("error while creating the jar cache directory at " + testBuildDirectory, e);
         }
+    }
+
+    private static Path birEmitPath(Package pkg) {
+        try {
+            Path cache = cachePathForPackage(pkg);
+            Path birCache = cache.resolve("bir");
+            Files.createDirectories(birCache);
+
+            return birCache;
+        } catch (IOException e) {
+            throw new RuntimeException("error while creating the bir cache directory at " + testBuildDirectory, e);
+        }
+    }
+
+    private static Path cachePathForPackage(Package pkg) throws IOException {
+        Path distributionCache = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
+        Path cache = distributionCache.resolve("cache")
+                .resolve(pkg.packageOrg().toString())
+                .resolve(pkg.packageName().value())
+                .resolve(pkg.packageVersion().version().toString());
+        Files.createDirectories(cache);
+
+        return cache;
     }
 
     private static Path baloEmitPath(Package pkg) {
         try {
+            Path distributionCache = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
+            Path balos = distributionCache.resolve("balo")
+                    .resolve(pkg.packageOrg().toString())
+                    .resolve(pkg.packageName().value())
+                    .resolve(pkg.packageVersion().version().toString());
+            Files.createDirectories(balos);
+
             String baloName = ProjectUtils.getBaloName(pkg);
-            Path buildDistCachePath = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
-            Files.createDirectories(buildDistCachePath);
-            return buildDistCachePath.resolve(baloName);
+            return balos.resolve(baloName);
         } catch (IOException e) {
             throw new RuntimeException("error while creating the balo distribution cache directory at " +
                     testBuildDirectory, e);

@@ -28,6 +28,8 @@ configurations {
 dependencies {
 
     testRuntime project(':ballerina-lang:annotations')
+    testRuntime project(':ballerina-lang:java')
+    testRuntime project(':ballerina-lang:internal')
     testRuntime project(':ballerina-lang:array')
     testRuntime project(':ballerina-lang:decimal')
     testRuntime project(':ballerina-lang:error')
@@ -47,10 +49,13 @@ dependencies {
     testRuntime project(':ballerina-lang:transaction')
     testRuntime project(':ballerina-lang-test')
     testRuntime project(':ballerina-runtime')
-    testRuntime project(':ballerina-lang:internal')
-    
+
     distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
     testRuntime project(path: ':ballerina-lang:annotations', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:java', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:internal', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:internal', configuration: 'distributionBirJar')
     distributionBalo project(path: ':ballerina-lang:array', configuration: 'distributionBalo')
     testRuntime project(path: ':ballerina-lang:array', configuration: 'distributionBirJar')
     distributionBalo project(path: ':ballerina-lang:decimal', configuration: 'distributionBalo')
@@ -83,14 +88,10 @@ dependencies {
     testRuntime project(path: ':ballerina-lang:bool', configuration: 'distributionBirJar')
     distributionBalo project(path: ':ballerina-lang-test', configuration: 'distributionBalo')
     testRuntime project(path: ':ballerina-lang-test', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:internal', configuration: 'distributionBalo')
-    testRuntime project(path: ':ballerina-lang:internal', configuration: 'distributionBirJar')
     distributionBalo project(path: ':ballerina-lang:query', configuration: 'distributionBalo')
     testRuntime project(path: ':ballerina-lang:query', configuration: 'distributionBirJar')
     distributionBalo project(path: ':ballerina-lang:transaction', configuration: 'distributionBalo')
     testRuntime project(path: ':ballerina-lang:transaction', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
-    testRuntime project(path: ':ballerina-lang:java', configuration: 'distributionBirJar')
 }
 
 task createDistributionCache() {

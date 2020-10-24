@@ -23,6 +23,9 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageId;
+import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.model.tree.PackageNode;
@@ -34,6 +37,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -143,6 +147,29 @@ public class CompileResult {
 
     private URLClassLoader jarCacheClassLoader() throws IOException {
         List<URL> jarFiles = new ArrayList<>();
+
+        Path distCachePath = Paths.get(System.getProperty(ProjectConstants.BALLERINA_INSTALL_DIR_PROP))
+                .resolve(ProjectConstants.DIST_CACHE_DIRECTORY);
+
+        List<PackageId> sortedPackageIds = packageCompilation.packageDependencyGraph().toTopologicallySortedList();
+        PackageResolver packageResolver = pkg.project().environmentContext().getService(PackageResolver.class);
+
+        // Add the thin jars of all the dependent packages to the classpath
+        for (PackageId packageId : sortedPackageIds) {
+            Package dependentPkg = packageResolver.getPackage(packageId);
+
+            if (dependentPkg.packageDescriptor().org().anonymous()) {
+                continue;
+            }
+
+            Path pkgJarPath = distCachePath.resolve("cache")
+                    .resolve(dependentPkg.packageOrg().toString())
+                    .resolve(dependentPkg.packageName().value())
+                    .resolve(dependentPkg.packageVersion().version().toString())
+                    .resolve("jar");
+            addClasspathEntries(pkgJarPath, jarFiles);
+        }
+
         addClasspathEntries(targetPath, jarFiles);
         URL[] urls = new URL[jarFiles.size()];
         urls = jarFiles.toArray(urls);

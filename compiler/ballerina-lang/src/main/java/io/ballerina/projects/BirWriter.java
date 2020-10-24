@@ -42,7 +42,7 @@ class BirWriter {
      * @param birFilePath The path to the bir file.
      */
     public static void write(BLangPackage bLangPackage, Path birFilePath) {
-        write(bLangPackage, birFilePath, false);
+        write(bLangPackage, birFilePath, true);
     }
 
     /**

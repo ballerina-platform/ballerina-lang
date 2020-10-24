@@ -111,19 +111,14 @@ public class SymbolBIRTest {
     public Object[][] getImportSymbolPos() {
         return new Object[][]{
                 {16, 6, null},
-                {16, 10, "foo"},
-                {16, 16, "foo"},
+                {16, 10, "testproject"},
+                {16, 16, "testproject"},
                 {16, 18, null},
 //                {19, 17, "foo"}, // TODO: issue #25841
-                {20, 13, "foo"},
-                {22, 5, "foo"},
+                {20, 13, "testproject"},
+                {22, 5, "testproject"},
 //                {26, 12, "foo"}, // TODO: issue #25841
                 {31, 20, "PersonObj.getName"},
         };
     }
-
-//    @AfterClass
-//    public void tearDown() {
-//        BaloCreator.clearPackageFromRepository("test-src/testproject", "testorg", "foo");
-//    }
 }
