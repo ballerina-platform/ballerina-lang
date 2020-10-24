@@ -2,14 +2,14 @@ package io.ballerina.projects.test;
 
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.PackageLoadRequest;
 import io.ballerina.projects.repos.FileSystemRepository;
-import junit.framework.TestCase;
+import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
-import org.apache.commons.io.FileUtils;
 
 
 import java.io.IOException;
@@ -19,16 +19,21 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
-public class TestFileSystemRepository extends TestCase {
+/**
+ * Test file system repository.
+ *
+ * @since 2.0.0
+ */
+public class TestFileSystemRepository {
     private static final Path MOCK_REPO = Paths.get("src/test/resources/mock-repo");
 
     Path mockRepo;
     FileSystemRepository repo;
 
-    PackageLoadRequest aPkg = new PackageLoadRequest("ballerina",
+    PackageLoadRequest aPkg = new PackageLoadRequest(PackageOrg.BALLERINA_ORG,
             PackageName.from("lang.annotations"),
             SemanticVersion.from("1.0.0"));
-    PackageLoadRequest bPkg = new PackageLoadRequest("wso2",
+    PackageLoadRequest bPkg = new PackageLoadRequest(PackageOrg.from("wso2"),
             PackageName.from("twitter"),
             SemanticVersion.from("1.0.0"));
 
@@ -45,7 +50,7 @@ public class TestFileSystemRepository extends TestCase {
         // Test if it returns an existing package
         Optional<Package> aOptionalPackage = repo.getPackage(aPkg);
         Assert.assertFalse(aOptionalPackage.isEmpty());
-        if ( !aOptionalPackage.isEmpty() ) {
+        if (!aOptionalPackage.isEmpty()) {
             Package aPackage = aOptionalPackage.get();
             Assert.assertEquals(aPackage.packageOrg().value(), "ballerina");
             Assert.assertEquals(aPackage.packageName().value(), "lang.annotations");
@@ -61,10 +66,10 @@ public class TestFileSystemRepository extends TestCase {
     public void testGetPackageVersions() {
         // Package that has versions
         List<SemanticVersion> aPackageVersions = repo.getPackageVersions(aPkg);
-        Assert.assertEquals(aPackageVersions.size(),1);
+        Assert.assertEquals(aPackageVersions.size(), 1);
         // Invalid package
         List<SemanticVersion> bPackageVersions = repo.getPackageVersions(bPkg);
-        Assert.assertEquals(bPackageVersions.size(),0);
+        Assert.assertEquals(bPackageVersions.size(), 0);
     }
 
 }

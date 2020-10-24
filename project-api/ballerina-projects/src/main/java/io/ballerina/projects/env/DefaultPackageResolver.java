@@ -18,14 +18,18 @@
 
 package io.ballerina.projects.env;
 
-import io.ballerina.projects.*;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.balo.BaloProject;
-import io.ballerina.projects.environment.*;
-import io.ballerina.projects.repos.PackageRepo;
+import io.ballerina.projects.PackageId;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.environment.GlobalPackageCache;
+import io.ballerina.projects.environment.ModuleLoadRequest;
+import io.ballerina.projects.environment.ModuleLoadResponse;
+import io.ballerina.projects.environment.PackageLoadRequest;
+import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.Repository;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -98,7 +102,7 @@ public class DefaultPackageResolver extends PackageResolver {
         }
 
         Optional<Package> packageOptional = distCache.getPackage(loadRequest);
-        if ( packageOptional.isEmpty()){
+        if (packageOptional.isEmpty()) {
             // we will return null if the package is not found
             return null;
         } else {

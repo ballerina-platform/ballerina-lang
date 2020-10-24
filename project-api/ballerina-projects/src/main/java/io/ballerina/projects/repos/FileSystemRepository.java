@@ -37,26 +37,28 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
  * Package Repository stored in file system.
  * The structure of the repository is as bellow
  * - balo
- * - org
- * - package-name
- * - version
- * - org-package-name-version-any.balo
+ *     - org
+ *         - package-name
+ *             - version
+ *                 - org-package-name-version-any.balo
  * - cache
- * - org
- * - package-name
- * - version
- * - bir
- * - mod1.bir
- * - mod2.bir
- * - jar
- * - org-package-name-version.jar
+ *     - org
+ *         - package-name
+ *             - version
+ *                 - bir
+ *                     - mod1.bir
+ *                     - mod2.bir
+ *                 - jar
+ *                     - org-package-name-version.jar
  *
  * @since 2.0.0
  */
@@ -117,7 +119,11 @@ public class FileSystemRepository implements Repository {
     private List<SemanticVersion> pathToVersions(List<Path> versions) {
         return versions.stream()
                 .map(path -> {
-                    return SemanticVersion.from(path.getParent().getFileName().toString());
+                    String version = Optional.ofNullable(path.getParent())
+                            .map(parent -> parent.getFileName())
+                            .map(file -> file.toString())
+                            .orElse("0.0.0");
+                    return SemanticVersion.from(version);
                 })
                 .collect(Collectors.toList());
     }

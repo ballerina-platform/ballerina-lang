@@ -23,7 +23,6 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.env.BuildEnvContext;
 import io.ballerina.projects.environment.EnvironmentContext;
 import io.ballerina.projects.environment.Repository;
-import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 
 import java.nio.file.Path;
 import java.util.Optional;
