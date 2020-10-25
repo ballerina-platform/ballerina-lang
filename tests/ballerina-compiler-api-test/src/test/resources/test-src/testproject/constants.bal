@@ -14,20 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/testproject;
+public const PI = 3.14;
 
-function testImports() {
-    string s = testproject:TRUE;
-    int x = testproject:add(10, 20);
+public const TRUE = "true";
+public const string FALSE = "false";
 
-    testproject:Person p = {name: "John Doe", age: 20};
-}
-
-function area(float radius) returns float {
-    return testproject:PI * radius * radius;
-}
-
-function testMethodUsage() {
-    testproject:PersonObj p = new("John", 20);
-    string s = p.getName();
-}
+const STATUS = "status";

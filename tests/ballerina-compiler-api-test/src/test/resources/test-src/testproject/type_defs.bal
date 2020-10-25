@@ -14,20 +14,36 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/testproject;
+public type Person record {|
+    string name;
+    int age;
+|};
 
-function testImports() {
-    string s = testproject:TRUE;
-    int x = testproject:add(10, 20);
+type Employee record {|
+    *Person;
+    string designation;
+|};
 
-    testproject:Person p = {name: "John Doe", age: 20};
+public type BasicType int|float|boolean|string|decimal;
+
+public class PersonObj {
+    string name;
+    int age;
+
+    public function init(string name, int age) {
+        self.name = name;
+        self.age = age;
+    }
+
+    public function getName() returns string => self.name;
+
+    public function getAge() returns int => self.age;
 }
 
-function area(float radius) returns float {
-    return testproject:PI * radius * radius;
-}
+public type Digit 0|1|2|3|4|5|6|7|8|9;
 
-function testMethodUsage() {
-    testproject:PersonObj p = new("John", 20);
-    string s = p.getName();
-}
+public type FileNotFoundError distinct error;
+
+public type EofError distinct error;
+
+public type Error FileNotFoundError|EofError;

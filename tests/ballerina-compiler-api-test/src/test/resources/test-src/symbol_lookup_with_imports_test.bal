@@ -14,13 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/foo;
+import testorg/testproject;
 
 string aString = "foo";
 int anInt = 10;
 
 function testAnonTypes() {
-    int sum = foo:add(10, 20);
+    int sum = testproject:add(10, 20);
 }
 
 const HELLO = "Hello";
