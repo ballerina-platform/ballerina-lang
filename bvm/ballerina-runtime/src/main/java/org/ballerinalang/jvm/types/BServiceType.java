@@ -18,7 +18,11 @@ package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.AnnotationUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.MapValue;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * {@code BServiceType} represents a service in Ballerina.
@@ -26,6 +30,10 @@ import org.ballerinalang.jvm.values.MapValue;
  * @since 0.995.0
  */
 public class BServiceType extends BObjectType {
+
+    private ResourceFunction[] resourceFunctions;
+    private volatile AttachedFunction[] remoteFunctions;
+    private volatile String[] storedResourceNames;
 
     public BServiceType(String typeName, BPackage pkg, int flags) {
         super(typeName, pkg, flags);
@@ -42,13 +50,61 @@ public class BServiceType extends BObjectType {
         AnnotationUtils.processServiceAnnotations(globalAnnotationMap, this, strand);
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.SERVICE_TAG;
+    public void setResourceFunctions(ResourceFunction[] resourceFunctions) {
+        this.resourceFunctions = resourceFunctions;
+    }
+
+    public AttachedFunction[] getRemoteFunctions() {
+        if (remoteFunctions == null) {
+            AttachedFunction[] funcs = getRemoteFunctions(getAttachedFunctions());
+            synchronized (this) {
+                if (remoteFunctions == null) {
+                    remoteFunctions = funcs;
+                }
+            }
+        }
+        return remoteFunctions;
+    }
+
+    private AttachedFunction[] getRemoteFunctions(AttachedFunction[] attachedFunctions) {
+        ArrayList<AttachedFunction> functions = new ArrayList<>();
+        for (AttachedFunction attachedFunction : attachedFunctions) {
+            if ((attachedFunction.flags & Flags.REMOTE) == Flags.REMOTE) {
+                functions.add(attachedFunction);
+            }
+        }
+        return functions.toArray(new AttachedFunction[]{});
+    }
+
+    public ResourceFunction[] getResourceFunctions() {
+        return resourceFunctions;
+    }
+
+    public String[] getStoredResourceNames() {
+        if (storedResourceNames == null) {
+            String[] list = getStoredResourceNamesInternal();
+            synchronized (this) {
+                if (storedResourceNames == null) {
+                    storedResourceNames = list;
+                }
+            }
+        }
+        return this.storedResourceNames;
+    }
+
+    private String[] getStoredResourceNamesInternal() {
+        ArrayList<String> names = new ArrayList<>();
+        for (Map.Entry<String, BField> entry : this.fields.entrySet()) {
+            BField field = entry.getValue();
+            if ((field.flags & Flags.RESOURCE) == Flags.RESOURCE) {
+                names.add(field.name);
+            }
+        }
+        return names.toArray(new String[0]);
     }
 
     @Override
-    public boolean isReadOnly() {
-        return true;
+    public int getTag() {
+        return TypeTags.SERVICE_TAG;
     }
 }

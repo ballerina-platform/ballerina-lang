@@ -17,10 +17,13 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.ballerinalang.model.tree.NodeKind;
+
 import java.util.List;
 
 /**
- * Represent resource method
+ * Represent resource method.
+ *
  * @since 2.0
  */
 public class BLangResourceFunction extends BLangFunction {
@@ -36,5 +39,10 @@ public class BLangResourceFunction extends BLangFunction {
     @Override
     public String toString() {
         return "BLangResourceFunction: " + super.toString();
+    }
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.RESOURCE_FUNC;
     }
 }

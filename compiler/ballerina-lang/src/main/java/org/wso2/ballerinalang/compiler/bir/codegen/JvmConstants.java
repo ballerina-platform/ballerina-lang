@@ -95,6 +95,7 @@ public class JvmConstants {
     public static final String TYPEDESC_TYPE = "org/ballerinalang/jvm/types/BTypedescType";
     public static final String BFIELD = "org/ballerinalang/jvm/types/BField";
     public static final String ATTACHED_FUNCTION = "org/ballerinalang/jvm/types/AttachedFunction";
+    public static final String RESOURCE_FUNCTION = "org/ballerinalang/jvm/types/ResourceFunction";
     public static final String FINITE_TYPE = "org/ballerinalang/jvm/types/BFiniteType";
     public static final String FUTURE_TYPE = "org/ballerinalang/jvm/types/BFutureType";
     public static final String PACKAGE_TYPE = "org/ballerinalang/jvm/types/BPackage";

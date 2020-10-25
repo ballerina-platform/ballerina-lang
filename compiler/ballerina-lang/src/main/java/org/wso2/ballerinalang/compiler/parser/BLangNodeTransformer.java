@@ -631,8 +631,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         StringBuilder sb = new StringBuilder();
         sb.append("$");
         sb.append(createIdentifier(accessorName).getValue());
+        sb.append("$");
         for (Token token : relativeResourcePath) {
-            sb.append("$");
             sb.append(createIdentifier(token).getValue());
         }
         String resourceFuncName = sb.toString();
@@ -927,6 +927,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 } else {
                     objectTypeNode.addFunction(bLangFunction);
                 }
+            } else if (bLangNode.getKind() == NodeKind.RESOURCE_FUNC) {
+                BLangFunction bLangFunction = (BLangFunction) bLangNode;
+                bLangFunction.attachedFunction = true;
+                bLangFunction.flagSet.add(Flag.ATTACHED);
+                objectTypeNode.addFunction(bLangFunction);
             } else if (bLangNode.getKind() == NodeKind.VARIABLE) {
                 objectTypeNode.addField((BLangSimpleVariable) bLangNode);
             } else if (bLangNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
@@ -1211,8 +1216,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(FunctionDefinitionNode funcDefNode) {
-        BLangFunction bLFunction = createFunctionNode(funcDefNode.functionName(), funcDefNode.qualifierList(),
-                funcDefNode.functionSignature(), funcDefNode.functionBody());
+        BLangFunction bLFunction;
+        if (funcDefNode.relativeResourcePath().isEmpty()) {
+            bLFunction = createFunctionNode(funcDefNode.functionName(), funcDefNode.qualifierList(),
+                    funcDefNode.functionSignature(), funcDefNode.functionBody());
+        } else {
+            bLFunction = createResourceFunctionNode(funcDefNode.functionName(),
+                    funcDefNode.qualifierList(), funcDefNode.relativeResourcePath(),
+                    funcDefNode.functionSignature(), funcDefNode.functionBody());
+        }
 
         bLFunction.annAttachments = applyAll(getAnnotations(funcDefNode.metadata()));
         bLFunction.pos = getPositionWithoutMetadata(funcDefNode);
@@ -3573,7 +3585,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (Node node : members) {
             // TODO: Check for fields other than SimpleVariableNode
             BLangNode bLangNode = node.apply(this);
-            if (bLangNode.getKind() == NodeKind.FUNCTION) {
+            if (bLangNode.getKind() == NodeKind.FUNCTION || bLangNode.getKind() == NodeKind.RESOURCE_FUNC) {
                 BLangFunction bLangFunction = (BLangFunction) bLangNode;
                 bLangFunction.attachedFunction = true;
                 bLangFunction.flagSet.add(Flag.ATTACHED);

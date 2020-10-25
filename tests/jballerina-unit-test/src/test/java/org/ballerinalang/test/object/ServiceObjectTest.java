@@ -36,28 +36,6 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
  */
 public class ServiceObjectTest {
 
-    @Test(description = "Test basic service object type")
-    public void testBasicServiceObjectType() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/service_object_type_test.bal");
-        // TODO: This is a negative negative test, hence does not do any assertions (used for developing this, can be deleted after )
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSerivceObjectAssignability");
-    }
-
-    @Test(description = "Test basic service object type with a remote method")
-    public void testBasicServiceTypeWithRemoteMethod() {
-        CompileResult compileResult = BCompileUtil.compile(
-                "test-src/object/service_object_type_with_remote_method_test.bal");
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSerivceObjectAssignability");
-    }
-
-
-    @Test(description = "Test basic service object type with a simple stored resource")
-    public void testBasicServiceTypeWithSimpleStoredResource() {
-        CompileResult compileResult = BCompileUtil.compile(
-                "test-src/object/service_object_type_with_simple_stored_resource_test.bal");
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSerivceObjectAssignability");
-    }
-
     @Test
     public void objectServiceObjectAssignmentNegativeTest() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_service_object_negative.bal");
@@ -66,6 +44,8 @@ public class ServiceObjectTest {
         validateError(result, 2, "incompatible types: expected 'ObjWithSingleMethod', found 'ServiceWithRemoteMethod'",
                 61, 29);
         validateError(result, 3, "resource fields are only allowed in service types", 66, 5);
-        Assert.assertEquals(result.getErrorCount(), 4);
+        validateError(result, 4, "incompatible types: expected 'DualAccessorService', found 'SingleAccessorService'",
+                83, 32);
+        Assert.assertEquals(result.getErrorCount(), 5);
     }
 }
