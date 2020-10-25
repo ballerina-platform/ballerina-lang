@@ -1280,8 +1280,8 @@ public class SymbolResolver extends BLangNodeVisitor {
                 BLangFunction func = (BLangFunction) env.node;
                 boolean errored = false;
 
-                if (func.returnTypeNode == null || !func.hasBody() ||
-                        func.body.getKind() != NodeKind.EXTERN_FUNCTION_BODY) {
+                if (func.returnTypeNode == null ||
+                        (func.hasBody() && func.body.getKind() != NodeKind.EXTERN_FUNCTION_BODY)) {
                     dlog.error(userDefinedTypeNode.pos, DiagnosticCode.INVALID_USE_OF_TYPEDESC_PARAM);
                     errored = true;
                 }
