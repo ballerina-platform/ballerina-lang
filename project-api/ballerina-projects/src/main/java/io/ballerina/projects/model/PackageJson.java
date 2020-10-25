@@ -18,6 +18,8 @@
 
 package io.ballerina.projects.model;
 
+import io.ballerina.projects.PackageDescriptor;
+
 import java.util.List;
 
 /**
@@ -43,7 +45,7 @@ public class PackageJson {
     private String spec;                     // 2020R1
 
     // Dependencies
-    private List<Dependency> dependencies; //?
+    private List<PackageDescriptor.Dependency> dependencies; //?
     private List<PlatformLibrary> platformLibraries; //?
 
     // Templating support
@@ -152,11 +154,11 @@ public class PackageJson {
         this.spec = spec;
     }
 
-    public List<Dependency> getDependencies() {
+    public List<PackageDescriptor.Dependency> getDependencies() {
         return dependencies;
     }
 
-    public void setDependencies(List<Dependency> dependencies) {
+    public void setDependencies(List<PackageDescriptor.Dependency> dependencies) {
         this.dependencies = dependencies;
     }
 

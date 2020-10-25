@@ -27,6 +27,9 @@ configurations {
 }
 
 dependencies {
+    implementation project(':ballerina-runtime')
+    implementation 'javax.ws.rs:javax.ws.rs-api'
+    implementation 'me.tongfei:progressbar:0.7.4'
     implementation 'com.google.code.gson:gson'
     implementation 'com.google.code.findbugs:jsr305'
 }

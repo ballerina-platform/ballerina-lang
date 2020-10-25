@@ -28,10 +28,6 @@ import io.ballerina.projects.directory.PackageLoader;
 import java.nio.file.Path;
 import java.util.Collections;
 
-import static io.ballerina.projects.utils.ProjectUtils.getOrgFromBaloName;
-import static io.ballerina.projects.utils.ProjectUtils.getPackageNameFromBaloName;
-import static io.ballerina.projects.utils.ProjectUtils.getVersionFromBaloName;
-
 /**
  * Contains a set of utility methods that creates the config hierarchy from balo file.
  *

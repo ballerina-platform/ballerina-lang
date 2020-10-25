@@ -66,8 +66,8 @@ public class Pull {
      * Execute pull command.
      *
      * @param url                   remote uri of the central
-     * @param modulePathInBaloCache module path in balo cache, user.home/.ballerina/balo_cache/org_name/module_name
-     * @param moduleNameWithOrg     module name with org, org_name/module_name
+     * @param pkgPathInBaloCache    package path in balo cache, user.home/.ballerina/balo_cache/org_name/module_name
+     * @param pkgNameWithOrg        package name with org, org_name/module_name
      * @param proxyHost             proxy host
      * @param proxyPort             proxy port
      * @param proxyUsername         proxy username
@@ -79,7 +79,7 @@ public class Pull {
      * @param platform              supported version
      * @param clientId              client version
      */
-    public static void execute(String url, String modulePathInBaloCache, String moduleNameWithOrg, String proxyHost,
+    public static void execute(String url, String pkgPathInBaloCache, String pkgNameWithOrg, String proxyHost,
             int proxyPort, String proxyUsername, String proxyPassword, String supportedVersionRange, boolean isBuild,
             boolean isNightlyBuild, String langSpecVersion, String platform, String clientId) {
         if (isBuild) {
@@ -102,12 +102,12 @@ public class Pull {
             conn.setRequestProperty(HttpHeaders.USER_AGENT, clientId);
 
             boolean redirect = false;
-            // 302 - Module is found
+            // 302   - Package is found
             // Other - Error occurred, json returned with the error message
             if (getStatusCode(conn) == HttpURLConnection.HTTP_MOVED_TEMP) {
                 redirect = true;
             } else {
-                handleErrorResponse(conn, url, moduleNameWithOrg);
+                handleErrorResponse(conn, url, pkgNameWithOrg);
             }
 
             if (redirect) {
@@ -119,7 +119,7 @@ public class Pull {
                         proxyPassword);
                 conn.setRequestProperty(HttpHeaders.CONTENT_DISPOSITION, contentDisposition);
 
-                createBaloInHomeRepo(conn, modulePathInBaloCache, moduleNameWithOrg, isNightlyBuild, newUrl,
+                createBaloInHomeRepo(conn, pkgPathInBaloCache, pkgNameWithOrg, isNightlyBuild, newUrl,
                         contentDisposition);
             }
         } catch (Exception e) {
@@ -135,15 +135,15 @@ public class Pull {
     /**
      * Create the balo in home repo.
      *
-     * @param conn                  http connection
-     * @param modulePathInBaloCache module path in balo cache, <user.home>.ballerina/balo_cache/<org-name>/<module-name>
-     * @param moduleNameWithOrg     module name with org, <org-name>/<module-name>
-     * @param isNightlyBuild        is nightly build
-     * @param newUrl                new redirect url
-     * @param contentDisposition    content disposition header
+     * @param conn               http connection
+     * @param pkgPathInBaloCache package path in balo cache, <user.home>.ballerina/balo_cache/<org-name>/<pkg-name>
+     * @param pkgNameWithOrg     package name with org, <org-name>/<pkg-name>
+     * @param isNightlyBuild     is nightly build
+     * @param newUrl             new redirect url
+     * @param contentDisposition content disposition header
      */
-    private static void createBaloInHomeRepo(HttpURLConnection conn, String modulePathInBaloCache,
-            String moduleNameWithOrg, boolean isNightlyBuild, String newUrl, String contentDisposition) {
+    private static void createBaloInHomeRepo(HttpURLConnection conn, String pkgPathInBaloCache,
+            String pkgNameWithOrg, boolean isNightlyBuild, String newUrl, String contentDisposition) {
         long responseContentLength = conn.getContentLengthLong();
         if (responseContentLength <= 0) {
             createError("invalid response from the server, please try again");
@@ -153,21 +153,21 @@ public class Pull {
             resolvedURI = newUrl;
         }
         String[] uriParts = resolvedURI.split("/");
-        String moduleVersion = uriParts[uriParts.length - 3];
+        String pkgVersion = uriParts[uriParts.length - 3];
 
-        validateModuleVersion(moduleVersion);
+        validatePackageVersion(pkgVersion);
         String baloFile = getBaloFileName(contentDisposition, uriParts[uriParts.length - 1]);
-        Path baloCacheWithModulePath = Paths.get(modulePathInBaloCache, moduleVersion);
-        //<user.home>.ballerina/balo_cache/<org-name>/<module-name>/<module-version>
+        Path baloCacheWithPkgPath = Paths.get(pkgPathInBaloCache, pkgVersion);
+        //<user.home>.ballerina/balo_cache/<org-name>/<pkg-name>/<pkg-version>
 
-        Path baloPath = Paths.get(baloCacheWithModulePath.toString(), baloFile);
+        Path baloPath = Paths.get(baloCacheWithPkgPath.toString(), baloFile);
         if (baloPath.toFile().exists()) {
-            createError("module already exists in the home repository: " + baloPath.toString());
+            createError("package already exists in the home repository: " + baloPath.toString());
         }
 
-        createBaloFileDirectory(baloCacheWithModulePath);
-        writeBaloFile(conn, baloPath, moduleNameWithOrg + ":" + moduleVersion, responseContentLength);
-        handleNightlyBuild(isNightlyBuild, baloCacheWithModulePath);
+        createBaloFileDirectory(baloCacheWithPkgPath);
+        writeBaloFile(conn, baloPath, pkgNameWithOrg + ":" + pkgVersion, responseContentLength);
+        handleNightlyBuild(isNightlyBuild, baloCacheWithPkgPath);
     }
 
     /**
@@ -175,14 +175,14 @@ public class Pull {
      *
      * @param conn             http connection
      * @param baloPath         path of the balo file
-     * @param fullModuleName   full module name, <org-name>/<module-name>:<module-version>
+     * @param fullPkgName      full package name, <org-name>/<pkg-name>:<pkg-version>
      * @param resContentLength response content length
      */
-    private static void writeBaloFile(HttpURLConnection conn, Path baloPath, String fullModuleName,
+    private static void writeBaloFile(HttpURLConnection conn, Path baloPath, String fullPkgName,
             long resContentLength) {
         try (InputStream inputStream = conn.getInputStream();
                 FileOutputStream outputStream = new FileOutputStream(baloPath.toString())) {
-            writeAndHandleProgress(inputStream, outputStream, resContentLength / 1024, fullModuleName);
+            writeAndHandleProgress(inputStream, outputStream, resContentLength / 1024, fullPkgName);
         } catch (IOException e) {
             createError("error occurred copying the balo file: " + e.getMessage());
         }
@@ -191,39 +191,39 @@ public class Pull {
     /**
      * Show progress of the writing the balo file.
      *
-     * @param inputStream    response input stream
-     * @param outputStream   home repo balo file output stream
-     * @param totalSizeInKB  response input stream size in kb
-     * @param fullModuleName full module name, <org-name>/<module-name>:<module-version>
+     * @param inputStream   response input stream
+     * @param outputStream  home repo balo file output stream
+     * @param totalSizeInKB response input stream size in kb
+     * @param fullPkgName   full package name, <org-name>/<pkg-name>:<pkg-version>
      */
     private static void writeAndHandleProgress(InputStream inputStream, FileOutputStream outputStream,
-            long totalSizeInKB, String fullModuleName) {
+            long totalSizeInKB, String fullPkgName) {
         int count;
         byte[] buffer = new byte[1024];
 
-        try (ProgressBar progressBar = new ProgressBar(fullModuleName + " [central.ballerina.io -> home repo] ",
+        try (ProgressBar progressBar = new ProgressBar(fullPkgName + " [central.ballerina.io -> home repo] ",
                 totalSizeInKB, 1000, outStream, ProgressBarStyle.ASCII, " KB", 1)) {
             while ((count = inputStream.read(buffer)) > 0) {
                 outputStream.write(buffer, 0, count);
                 progressBar.step();
             }
         } catch (IOException e) {
-            outStream.println(logFormatter.formatLog(fullModuleName + "pulling the module from central failed"));
+            outStream.println(logFormatter.formatLog(fullPkgName + "pulling the package from central failed"));
         } finally {
-            outStream.println(logFormatter.formatLog(fullModuleName + " pulled from central successfully"));
+            outStream.println(logFormatter.formatLog(fullPkgName + " pulled from central successfully"));
         }
     }
 
     /**
      * Handle nightly build.
      *
-     * @param isNightlyBuild          is nightly build
-     * @param baloCacheWithModulePath balo cache with module path
+     * @param isNightlyBuild       is nightly build
+     * @param baloCacheWithPkgPath balo cache with package path
      */
-    private static void handleNightlyBuild(boolean isNightlyBuild, Path baloCacheWithModulePath) {
+    private static void handleNightlyBuild(boolean isNightlyBuild, Path baloCacheWithPkgPath) {
         if (isNightlyBuild) {
             // If its a nightly build tag the file as a module from nightly
-            Path nightlyBuildMetaFile = Paths.get(baloCacheWithModulePath.toString(), "nightly.build");
+            Path nightlyBuildMetaFile = Paths.get(baloCacheWithPkgPath.toString(), "nightly.build");
             if (!nightlyBuildMetaFile.toFile().exists()) {
                 createNightlyBuildMetaFile(nightlyBuildMetaFile);
             }
@@ -231,13 +231,13 @@ public class Pull {
     }
 
     /**
-     * Validate module version with the regex.
+     * Validate package version with the regex.
      *
-     * @param moduleVersion module version
+     * @param pkgVersion package version
      */
-    private static void validateModuleVersion(String moduleVersion) {
-        if (!moduleVersion.matches(VERSION_REGEX)) {
-            createError("module version could not be detected");
+    private static void validatePackageVersion(String pkgVersion) {
+        if (!pkgVersion.matches(VERSION_REGEX)) {
+            createError("package version could not be detected");
         }
     }
 
@@ -258,7 +258,7 @@ public class Pull {
      * Create balo file directory.
      *
      * @param fullPathToStoreBalo full path to store the balo file
-     *                            <user.home>.ballerina/balo_cache/<org-name>/<module-name>/<module-version>
+     *                            <user.home>.ballerina/balo_cache/<org-name>/<pkg-name>/<pkg-version>
      */
     private static void createBaloFileDirectory(Path fullPathToStoreBalo) {
         try {
@@ -271,11 +271,11 @@ public class Pull {
     /**
      * Handle error response.
      *
-     * @param conn           http connection
-     * @param url            remote repository url
-     * @param moduleFullName module name with org and version
+     * @param conn        http connection
+     * @param url         remote repository url
+     * @param pkgFullName package name with org and version
      */
-    private static void handleErrorResponse(HttpURLConnection conn, String url, String moduleFullName) {
+    private static void handleErrorResponse(HttpURLConnection conn, String url, String pkgFullName) {
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(conn.getErrorStream(), Charset.defaultCharset()))) {
             StringBuilder result = new StringBuilder();
@@ -287,7 +287,7 @@ public class Pull {
             BMap payload = (BMap) JSONParser.parse(result.toString());
             createError("error: " + payload.getStringValue(StringUtils.fromString("message")));
         } catch (IOException e) {
-            createError("failed to pull the module '" + moduleFullName + "' from the remote repository '" + url + "'");
+            createError("failed to pull the package '" + pkgFullName + "' from the remote repository '" + url + "'");
         }
     }
 

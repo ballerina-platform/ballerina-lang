@@ -150,9 +150,9 @@ public class ApiClient {
     /**
      * Ctor.
      */
-    public ApiClient() {
+    public ApiClient(String baseUri) {
         builder = HttpClient.newBuilder();
-        URI baseURI = URI.create("https://api.dev-central.ballerina.io/2.0/registry");
+        URI baseURI = URI.create(baseUri);
         scheme = baseURI.getScheme();
         host = baseURI.getHost();
         port = baseURI.getPort();

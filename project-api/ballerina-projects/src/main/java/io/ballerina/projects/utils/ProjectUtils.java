@@ -20,6 +20,11 @@ package io.ballerina.projects.utils;
 import io.ballerina.projects.Package;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import io.ballerina.projects.model.BallerinaToml;
+import io.ballerina.projects.model.BallerinaTomlProcessor;
+import org.ballerinalang.toml.exceptions.TomlException;
+
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -199,18 +204,21 @@ public class ProjectUtils {
         return homeRepoPath;
     }
 
-    public static String getOrgFromBaloName(String baloName) {
-        return baloName.split("-")[0];
-    }
-
-    public static String getPackageNameFromBaloName(String baloName) {
-        return baloName.split("-")[1];
-    }
-
-    public static String getVersionFromBaloName(String baloName) {
-        // TODO validate this method of getting the version of the balo
-        String versionAndExtension = baloName.split("-")[3];
-        int extensionIndex = versionAndExtension.indexOf(ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT);
-        return versionAndExtension.substring(0, extensionIndex);
+    /**
+     * Get package name from Ballerina.toml file of the given source root.
+     *
+     * @param sourceRoot source root path
+     * @return package name
+     */
+    public static String getPackageNameFromBallerinaToml(Path sourceRoot) {
+        // load Ballerina.toml
+        Path ballerinaTomlPath = sourceRoot.resolve(ProjectConstants.BALLERINA_TOML);
+        BallerinaToml ballerinaToml;
+        try {
+            ballerinaToml = BallerinaTomlProcessor.parse(ballerinaTomlPath);
+        } catch (IOException | TomlException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+        return ballerinaToml.getPackage().getName();
     }
 }

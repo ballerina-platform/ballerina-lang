@@ -19,11 +19,13 @@
 package io.ballerina.projects.balo;
 
 import com.google.gson.Gson;
+import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.directory.DocumentData;
 import io.ballerina.projects.directory.ModuleData;
 import io.ballerina.projects.directory.PackageData;
-import io.ballerina.projects.model.BallerinaToml;
-import io.ballerina.projects.model.Package;
 import io.ballerina.projects.model.PackageJson;
 import io.ballerina.projects.utils.ProjectUtils;
 
@@ -56,25 +58,20 @@ public class BaloFiles {
     private BaloFiles() {
     }
 
-    static PackageData loadPackageData(String baloPath) {
+    static PackageData loadPackageData(String baloPath, PackageDescriptor packageDescriptor) {
         Path absBaloPath = validateBaloPath(baloPath);
 
         URI zipURI = URI.create("jar:" + absBaloPath.toUri().toString());
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
-
-            // Load BallerinaToml object
-            Path packageJsonPathInBalo = zipFileSystem.getPath("package.json");
-            BallerinaToml ballerinaToml = loadBallerinaToml(packageJsonPathInBalo);
-
             // Load default module
-            String pkgName = ballerinaToml.getPackage().getName();
+            String pkgName = packageDescriptor.name().toString();
             Path defaultModulePathInBalo = zipFileSystem.getPath(MODULES_ROOT, pkgName);
             ModuleData defaultModule = loadModule(defaultModulePathInBalo, zipFileSystem, pkgName);
 
             // load other modules
             Path modulesPathInBalo = zipFileSystem.getPath(MODULES_ROOT);
-            List<ModuleData> otherModules = loadOtherModules(modulesPathInBalo,
-                    defaultModulePathInBalo, zipFileSystem, pkgName);
+            List<ModuleData> otherModules = loadOtherModules(modulesPathInBalo,defaultModulePathInBalo, zipFileSystem,
+                    pkgName);
             return PackageData.from(absBaloPath, defaultModule, otherModules);
         } catch (IOException e) {
             // TODO add 'unable to load balo: balonamme' as root error message, after exception model
@@ -99,34 +96,6 @@ public class BaloFiles {
             throw new RuntimeException("Not a balo: " + baloPath);
         }
         return absBaloPath;
-    }
-
-    private static BallerinaToml loadBallerinaToml(Path packageJsonPath) {
-        BallerinaToml ballerinaToml = new BallerinaToml();
-
-        if (!Files.exists(packageJsonPath)) {
-            throw new RuntimeException("package.json does not exists:" + packageJsonPath);
-        }
-        // Load `package.json`
-        PackageJson packageJson;
-        try {
-            packageJson = gson.fromJson(Files.newBufferedReader(packageJsonPath), PackageJson.class);
-        } catch (IOException e) {
-            throw new RuntimeException("package.json does not exists:" + packageJsonPath);
-        }
-        validatePackageJson(packageJson);
-        // Create Package
-        Package tomlPackage = new Package();
-        tomlPackage.setOrg(packageJson.getOrganization());
-        tomlPackage.setName(packageJson.getName());
-        tomlPackage.setVersion(packageJson.getVersion());
-        tomlPackage.setLicense(packageJson.getLicenses());
-        tomlPackage.setAuthors(packageJson.getAuthors());
-        tomlPackage.setRepository(packageJson.getSourceRepository());
-        tomlPackage.setKeywords(packageJson.getKeywords());
-
-        ballerinaToml.setPkg(tomlPackage);
-        return ballerinaToml;
     }
 
     private static void validatePackageJson(PackageJson packageJson) {
@@ -192,5 +161,26 @@ public class BaloFiles {
                 pathStream.close();
             }
         }
+    }
+
+    static PackageDescriptor createPackageDescriptor(Path packageJsonPath) {
+        if (!Files.exists(packageJsonPath)) {
+            throw new RuntimeException("package.json does not exists:" + packageJsonPath);
+        }
+        // Load `package.json`
+        PackageJson packageJson;
+        try {
+            packageJson = gson.fromJson(Files.newBufferedReader(packageJsonPath), PackageJson.class);
+        } catch (IOException e) {
+            throw new RuntimeException("package.json does not exists:" + packageJsonPath);
+        }
+        validatePackageJson(packageJson);
+
+        PackageName packageName = PackageName.from(packageJson.getName());
+        PackageOrg packageOrg = PackageOrg.from(packageJson.getOrganization());
+        PackageVersion packageVersion = PackageVersion.from(packageJson.getVersion());
+        List<PackageDescriptor.Dependency> dependencies = packageJson.getDependencies();
+
+        return new PackageDescriptor(packageName, packageOrg, packageVersion, dependencies);
     }
 }

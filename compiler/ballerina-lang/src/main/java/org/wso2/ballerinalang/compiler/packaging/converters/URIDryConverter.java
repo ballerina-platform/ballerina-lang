@@ -188,7 +188,7 @@ public class URIDryConverter extends URIConverter {
     /**
      * Authenticator for the proxy server if provided.
      */
-    static class RemoteAuthenticator extends Authenticator {
+    public static class RemoteAuthenticator extends Authenticator {
         org.ballerinalang.toml.model.Proxy proxy;
         public RemoteAuthenticator() {
             proxy = TomlParserUtils.readSettings().getProxy();

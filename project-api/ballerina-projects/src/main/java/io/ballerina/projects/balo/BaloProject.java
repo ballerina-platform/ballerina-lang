@@ -19,12 +19,15 @@
 package io.ballerina.projects.balo;
 
 import io.ballerina.projects.PackageConfig;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.env.BuildEnvContext;
 import io.ballerina.projects.environment.EnvironmentContext;
 import io.ballerina.projects.environment.Repository;
+import io.ballerina.projects.utils.ProjectConstants;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 /**
