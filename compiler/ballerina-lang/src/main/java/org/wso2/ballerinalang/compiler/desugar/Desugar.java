@@ -7638,8 +7638,12 @@ public class Desugar extends BLangNodeVisitor {
                             ((BLangLiteral) origKey);
                 }
 
-                rewrittenFields.add(ASTBuilderUtil.createBLangRecordKeyValue(rewriteExpr(keyExpr),
-                                                                             rewriteExpr(keyValueField.valueExpr)));
+                BLangRecordLiteral.BLangRecordKeyValueField rewrittenField =
+                        ASTBuilderUtil.createBLangRecordKeyValue(rewriteExpr(keyExpr),
+                                                                 rewriteExpr(keyValueField.valueExpr));
+                rewrittenField.pos = keyValueField.pos;
+                rewrittenField.key.pos = key.pos;
+                rewrittenFields.add(rewrittenField);
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef varRefField = (BLangSimpleVarRef) field;
                 rewrittenFields.add(ASTBuilderUtil.createBLangRecordKeyValue(

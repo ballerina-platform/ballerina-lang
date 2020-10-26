@@ -1281,10 +1281,6 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral.BLangMapLiteral mapLiteral) {
-        if (setEnclosingNode(mapLiteral, mapLiteral.pos)) {
-            return;
-        }
-
         for (RecordLiteralNode.RecordField field : mapLiteral.fields) {
             lookupNode((BLangNode) field);
         }
@@ -1292,10 +1288,6 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
-        if (setEnclosingNode(structLiteral, structLiteral.pos)) {
-            return;
-        }
-
         for (RecordLiteralNode.RecordField field : structLiteral.fields) {
             lookupNode((BLangNode) field);
         }
@@ -1511,6 +1503,11 @@ class NodeFinder extends BLangNodeVisitor {
     public void visit(BLangRecordLiteral.BLangRecordKeyValueField recordKeyValue) {
         lookupNode(recordKeyValue.key);
         lookupNode(recordKeyValue.valueExpr);
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral.BLangRecordKey recordKey) {
+        lookupNode(recordKey.expr);
     }
 
     @Override
