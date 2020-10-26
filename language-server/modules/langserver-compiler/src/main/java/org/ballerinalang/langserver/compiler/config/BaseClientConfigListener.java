@@ -20,7 +20,7 @@ import com.google.gson.JsonElement;
 /**
  * Represents a ballerina client config change listener.
  */
-interface BaseClientConfigListener {
+public interface BaseClientConfigListener {
     /**
      * Callback method for configuration changes.
      *

@@ -27,13 +27,13 @@ import java.util.List;
  */
 public class LSClientConfigHolder {
     private static final LSClientConfigHolder INSTANCE = new LSClientConfigHolder();
-    private final Gson GSON = new Gson();
+    private final Gson gson = new Gson();
 
     private final List<BaseClientConfigListener> listeners = new ArrayList<>();
 
     // Init ballerina client configuration with defaults
     private LSClientConfig clientConfig = LSClientConfig.getDefault();
-    private JsonElement clientConfigJson = GSON.toJsonTree(this.clientConfig).getAsJsonObject();
+    private JsonElement clientConfigJson = gson.toJsonTree(this.clientConfig).getAsJsonObject();
 
     private LSClientConfigHolder() {
     }
@@ -57,7 +57,7 @@ public class LSClientConfigHolder {
      * @return {@link T}
      */
     public <T> T getConfigAs(Class<T> type) {
-        return GSON.fromJson(clientConfigJson, (Type) type);
+        return gson.fromJson(clientConfigJson, (Type) type);
     }
 
     /**
@@ -84,7 +84,7 @@ public class LSClientConfigHolder {
      * @param newClientConfigJson {@link JsonElement} new configuration
      */
     public void updateConfig(JsonElement newClientConfigJson) {
-        LSClientConfig newClientConfig = GSON.fromJson(newClientConfigJson, LSClientConfig.class);
+        LSClientConfig newClientConfig = gson.fromJson(newClientConfigJson, LSClientConfig.class);
         // Update config
         LSClientConfig oldClientConfig = this.clientConfig;
         JsonElement oldClientConfigJson = this.clientConfigJson;
