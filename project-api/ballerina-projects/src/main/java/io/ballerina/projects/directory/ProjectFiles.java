@@ -18,11 +18,6 @@
 package io.ballerina.projects.directory;
 
 import io.ballerina.projects.PackageDescriptor;
-import io.ballerina.projects.PackageName;
-import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.PackageVersion;
-import io.ballerina.projects.model.BallerinaToml;
-import io.ballerina.projects.model.BallerinaTomlProcessor;
 import io.ballerina.projects.utils.ProjectUtils;
 import org.ballerinalang.toml.exceptions.TomlException;
 
@@ -156,13 +151,8 @@ public class ProjectFiles {
     }
 
     public static PackageDescriptor createPackageDescriptor(Path ballerinaTomlFilePath) {
-        BallerinaToml ballerinaToml;
         try {
-            ballerinaToml = BallerinaTomlProcessor.parse(ballerinaTomlFilePath);
-            PackageName packageName = PackageName.from(ballerinaToml.getPackage().getName());
-            PackageOrg packageOrg = PackageOrg.from(ballerinaToml.getPackage().getOrg());
-            PackageVersion packageVersion = PackageVersion.from(ballerinaToml.getPackage().getVersion());
-            return new PackageDescriptor(packageName, packageOrg, packageVersion, Collections.emptyList());
+            return BallerinaTomlProcessor.parseAsPackageDescriptor(ballerinaTomlFilePath);
         } catch (IOException | TomlException e) {
             throw new RuntimeException(e.getMessage(), e);
         }

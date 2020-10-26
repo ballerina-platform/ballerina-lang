@@ -26,7 +26,6 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.env.BuildEnvContext;
 import io.ballerina.projects.environment.EnvironmentContext;
 import io.ballerina.projects.model.BallerinaToml;
-import io.ballerina.projects.model.BallerinaTomlProcessor;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
 import org.ballerinalang.toml.exceptions.TomlException;

@@ -81,7 +81,7 @@ public class SingleFileProject extends Project {
         PackageOrg packageOrg = PackageOrg.from(ProjectConstants.ANON_ORG);
         PackageVersion packageVersion = PackageVersion.from(ProjectConstants.DEFAULT_VERSION);
         PackageDescriptor packageDescriptor = new PackageDescriptor(packageName,
-                packageOrg, packageVersion, Collections.emptyList());
+                packageOrg, packageVersion, Collections.emptyList(), Collections.emptyMap());
         PackageConfig packageConfig = PackageLoader.loadPackage(projectPath, true, packageDescriptor);
         this.addPackage(packageConfig);
     }

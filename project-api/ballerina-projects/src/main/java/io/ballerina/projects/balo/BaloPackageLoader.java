@@ -47,7 +47,7 @@ public class BaloPackageLoader extends PackageLoader {
         PackageOrg packageOrg = PackageOrg.from(getOrgFromBaloName(String.valueOf(baloName)));
         PackageVersion packageVersion = PackageVersion.from(getVersionFromBaloName(String.valueOf(baloName)));
         PackageDescriptor packageDescriptor = new PackageDescriptor(packageName,
-                packageOrg, packageVersion, Collections.emptyList());
+                packageOrg, packageVersion, Collections.emptyList(), Collections.emptyMap());
         return createPackageConfig(packageData, packageDescriptor);
     }
 }
