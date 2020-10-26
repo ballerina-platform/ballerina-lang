@@ -139,16 +139,18 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodG
 class JvmValueGen {
 
     static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
-    private BIRNode.BIRPackage module;
-    private JvmPackageGen jvmPackageGen;
-    private JvmMethodGen jvmMethodGen;
-    private BType booleanType;
+    private final BIRNode.BIRPackage module;
+    private final JvmPackageGen jvmPackageGen;
+    private final JvmMethodGen jvmMethodGen;
+    private final JvmLambdaGen jvmLambdaGen;
+    private final BType booleanType;
 
-    JvmValueGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, JvmMethodGen jvmMethodGen) {
-
+    JvmValueGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, JvmMethodGen jvmMethodGen,
+                JvmLambdaGen jvmLambdaGen) {
         this.module = module;
         this.jvmPackageGen = jvmPackageGen;
         this.jvmMethodGen = jvmMethodGen;
+        this.jvmLambdaGen = jvmLambdaGen;
         this.booleanType = jvmPackageGen.symbolTable.booleanType;
     }
 
@@ -308,9 +310,8 @@ class JvmValueGen {
     }
 
     private void createLambdas(ClassWriter cw, AsyncDataCollector asyncDataCollector) {
-
         for (Map.Entry<String, BIRInstruction> entry : asyncDataCollector.getLambdas().entrySet()) {
-            jvmMethodGen.generateLambdaMethod(entry.getValue(), cw, entry.getKey());
+            jvmLambdaGen.generateLambdaMethod(entry.getValue(), cw, entry.getKey());
         }
     }
 

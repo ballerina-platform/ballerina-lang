@@ -18,7 +18,6 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.runtime.IdentifierUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -31,23 +30,18 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.FunctionParamComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
-import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
-import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FPLoad;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeTest;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
-import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.AsyncCall;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
@@ -57,10 +51,7 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
@@ -87,7 +78,6 @@ import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
-import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.BIPUSH;
@@ -110,7 +100,6 @@ import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.IFGT;
 import static org.objectweb.asm.Opcodes.IFNULL;
 import static org.objectweb.asm.Opcodes.ILOAD;
-import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
@@ -120,7 +109,6 @@ import static org.objectweb.asm.Opcodes.LCONST_0;
 import static org.objectweb.asm.Opcodes.LLOAD;
 import static org.objectweb.asm.Opcodes.LSTORE;
 import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
@@ -130,9 +118,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_ON_EXTERN_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
@@ -145,7 +130,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_STOP_PANIC_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.IS_BLOCKED_ON_EXTERN_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT;
@@ -189,7 +173,6 @@ public class JvmMethodGen {
     private final BUnionType errorOrNilType;
 
     JvmMethodGen(JvmPackageGen jvmPackageGen) {
-
         this.jvmPackageGen = jvmPackageGen;
         this.symbolTable = jvmPackageGen.symbolTable;
         this.errorOrNilType = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);
@@ -855,15 +838,6 @@ public class JvmMethodGen {
         return jvmType;
     }
 
-    private void generateObjectArgs(MethodVisitor mv, int paramIndex) {
-        mv.visitInsn(DUP);
-        mv.visitIntInsn(BIPUSH, paramIndex - 2);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitIntInsn(BIPUSH, paramIndex + 1);
-        mv.visitInsn(AALOAD);
-        mv.visitInsn(AASTORE);
-    }
-
     void loadLocalType(MethodVisitor mv, BIRTypeDefinition typeDefinition) {
         JvmTypeGen.loadType(mv, typeDefinition.type);
     }
@@ -997,14 +971,6 @@ public class JvmMethodGen {
                 attachedType.tag == TypeTags.RECORD);
     }
 
-    private String getMapValueDesc(int count) {
-        StringBuilder desc = new StringBuilder();
-        for (int i = 0; i < count; i++) {
-            desc.append("L").append(MAP_VALUE).append(";");
-        }
-        return desc.toString();
-    }
-
     private void checkStrandCancelled(MethodVisitor mv, int localVarOffset) {
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "cancel", "Z");
@@ -1095,379 +1061,6 @@ public class JvmMethodGen {
         // SIPUSH range is (-32768 to 32767) so if the state index goes beyond that, need to use visitLdcInsn
         mv.visitIntInsn(SIPUSH, caseIndex);
         mv.visitVarInsn(ISTORE, stateVarIndex);
-    }
-
-    void generateLambdaMethod(BIRInstruction ins, ClassWriter cw, String lambdaName) {
-        LambdaDetails lambdaDetails = getLambdaDetails(ins);
-        MethodVisitor mv = getMethodVisitorAndLoadFirst(cw, lambdaName, lambdaDetails);
-
-        List<BType> paramBTypes = new ArrayList<>();
-        if (ins.getKind() == InstructionKind.ASYNC_CALL) {
-            handleAsyncCallLambda((AsyncCall) ins, lambdaDetails, mv, paramBTypes);
-        } else {
-            handleFpLambda((FPLoad) ins, lambdaDetails, mv, paramBTypes);
-        }
-        JvmMethodGenUtils.visitReturn(mv);
-    }
-
-    private void genNonVirtual(LambdaDetails lambdaDetails, MethodVisitor mv, List<BType> paramBTypes) {
-        String jvmClass;
-        String methodDesc = getLambdaMethodDesc(paramBTypes, lambdaDetails.returnType, lambdaDetails.closureMapsCount);
-        if (lambdaDetails.functionWrapper != null) {
-            jvmClass = lambdaDetails.functionWrapper.fullQualifiedClassName;
-        } else {
-            String balFileName = lambdaDetails.funcSymbol.source;
-
-            if (balFileName == null || !balFileName.endsWith(BAL_EXTENSION)) {
-                balFileName = MODULE_INIT_CLASS_NAME;
-            }
-            jvmClass = JvmCodeGenUtil.getModuleLevelClassName(lambdaDetails.orgName, lambdaDetails.moduleName,
-                                                              lambdaDetails.version, JvmCodeGenUtil
-                                                                      .cleanupPathSeparators(balFileName));
-        }
-        mv.visitMethodInsn(INVOKESTATIC, jvmClass, lambdaDetails.encodedFuncName, methodDesc, false);
-        JvmCastGen.addBoxInsn(mv, lambdaDetails.returnType);
-    }
-
-    private void handleAsyncCallLambda(AsyncCall ins, LambdaDetails lambdaDetails, MethodVisitor mv,
-                                       List<BType> paramBTypes) {
-        if (ins.isVirtual) {
-            handleLambdaVirtual(ins, lambdaDetails, mv);
-        } else {
-            handleAsyncNonVirtual(lambdaDetails, mv, paramBTypes);
-        }
-    }
-
-    private void handleLambdaVirtual(AsyncCall ins, LambdaDetails lambdaDetails, MethodVisitor mv) {
-        boolean isBuiltinModule = JvmCodeGenUtil.isBallerinaBuiltinModule(lambdaDetails.orgName,
-                                                                          lambdaDetails.moduleName);
-        List<BIROperand> paramTypes = ins.args;
-        genLoadDataForObjectAttachedLambdas(ins, mv, lambdaDetails.closureMapsCount, paramTypes,
-                                            isBuiltinModule);
-        int paramIndex = 2;
-        for (int paramTypeIndex = 1; paramTypeIndex < paramTypes.size(); paramTypeIndex++) {
-            generateObjectArgs(mv, paramIndex);
-            paramIndex += 1;
-            if (!isBuiltinModule) {
-                generateObjectArgs(mv, paramIndex);
-                paramIndex += 1;
-            }
-        }
-        String methodDesc = String.format("(L%s;L%s;[L%s;)L%s;", STRAND_CLASS, STRING_VALUE, OBJECT, OBJECT);
-        mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "call", methodDesc, true);
-    }
-
-    private void handleAsyncNonVirtual(LambdaDetails lambdaDetails, MethodVisitor mv, List<BType> paramBTypes) {
-        boolean isBuiltinModule = JvmCodeGenUtil.isBallerinaBuiltinModule(lambdaDetails.orgName,
-                                                                          lambdaDetails.moduleName);
-        List<BType> paramTypes = getFpParamTypes(lambdaDetails);
-        // load and cast param values= asyncIns.args;
-        int argIndex = 1;
-        int paramIndex = 1;
-        for (BType paramType : paramTypes) {
-            mv.visitVarInsn(ALOAD, 0);
-            mv.visitIntInsn(BIPUSH, argIndex);
-            mv.visitInsn(AALOAD);
-            JvmCastGen.addUnboxInsn(mv, paramType);
-            paramBTypes.add(paramIndex - 1, paramType);
-            paramIndex += 1;
-            argIndex += 1;
-            if (!isBuiltinModule) {
-                addBooleanTypeToLambdaParamTypes(mv, 0, argIndex);
-                paramBTypes.add(paramIndex - 1, symbolTable.booleanType);
-                paramIndex += 1;
-            }
-            argIndex += 1;
-        }
-        genNonVirtual(lambdaDetails, mv, paramBTypes);
-    }
-
-    private List<BType> getFpParamTypes(LambdaDetails lambdaDetails) {
-        List<BType> paramTypes;
-        if (lambdaDetails.functionWrapper != null) {
-            paramTypes = getInitialParamTypes(lambdaDetails.functionWrapper.func.type.paramTypes,
-                                              lambdaDetails.functionWrapper.func.argsCount);
-        } else {
-            paramTypes = ((BInvokableType) lambdaDetails.funcSymbol.type).paramTypes;
-        }
-        return paramTypes;
-    }
-
-    private void handleFpLambda(FPLoad ins, LambdaDetails lambdaDetails, MethodVisitor mv, List<BType> paramBTypes) {
-        loadClosureMaps(lambdaDetails, mv);
-        // load and cast param values
-        loadAndCastParamValues(ins, lambdaDetails, mv, paramBTypes);
-        genNonVirtual(lambdaDetails, mv, paramBTypes);
-    }
-
-    private void loadAndCastParamValues(FPLoad ins, LambdaDetails lambdaDetails, MethodVisitor mv,
-                                        List<BType> paramBTypes) {
-        int paramIndex = 1;
-        int argIndex = 1;
-        for (BIRVariableDcl dcl : ins.params) {
-            mv.visitVarInsn(ALOAD, lambdaDetails.closureMapsCount);
-            mv.visitIntInsn(BIPUSH, argIndex);
-            mv.visitInsn(AALOAD);
-            JvmCastGen.addUnboxInsn(mv, dcl.type);
-            paramBTypes.add(paramIndex - 1, dcl.type);
-            paramIndex += 1;
-            argIndex += 1;
-
-            boolean isBuiltinModule = JvmCodeGenUtil.isBallerinaBuiltinModule(lambdaDetails.orgName,
-                                                                              lambdaDetails.moduleName);
-            if (!isBuiltinModule) {
-                addBooleanTypeToLambdaParamTypes(mv, lambdaDetails.closureMapsCount, argIndex);
-                paramBTypes.add(paramIndex - 1, symbolTable.booleanType);
-                paramIndex += 1;
-            }
-            argIndex += 1;
-        }
-    }
-
-    private void loadClosureMaps(LambdaDetails lambdaDetails, MethodVisitor mv) {
-        for (int i = 0; i < lambdaDetails.closureMapsCount; i++) {
-            mv.visitVarInsn(ALOAD, i);
-            mv.visitInsn(ICONST_1);
-        }
-    }
-
-    private MethodVisitor getMethodVisitorAndLoadFirst(ClassWriter cw, String lambdaName,
-                                                       LambdaDetails lambdaDetails) {
-        String closureMapsDesc = getMapValueDesc(lambdaDetails.closureMapsCount);
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC,
-                                          JvmCodeGenUtil.cleanupFunctionName(lambdaName),
-                                          String.format("(%s[L%s;)L%s;", closureMapsDesc, OBJECT, OBJECT), null, null);
-
-        mv.visitCode();
-
-        // generate diagnostic position when generating lambda method
-        JvmCodeGenUtil.generateDiagnosticPos(((BIRAbstractInstruction) ins).pos, mv);
-
-        // load strand as first arg
-        // strand and other args are in a object[] param. This param comes after closure maps.
-        // hence the closureMapsCount is equal to the array's param index.
-        mv.visitVarInsn(ALOAD, lambdaDetails.closureMapsCount);
-        mv.visitInsn(ICONST_0);
-        mv.visitInsn(AALOAD);
-        mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
-        if (lambdaDetails.isExternFunction) {
-            generateBlockedOnExtern(lambdaDetails.closureMapsCount, mv);
-        }
-        return mv;
-    }
-
-    private LambdaDetails getLambdaDetails(BIRInstruction ins) {
-        InstructionKind kind = ins.getKind();
-        LambdaDetails lambdaDetails;
-        if (kind == InstructionKind.ASYNC_CALL) {
-            lambdaDetails = populateAsyncLambdaDetails((AsyncCall) ins);
-        } else if (kind == InstructionKind.FP_LOAD) {
-            lambdaDetails = populateFpLambdaDetails((FPLoad) ins);
-        } else {
-            throw new BLangCompilerException("JVM lambda method generation is not supported for instruction " +
-                                                     String.format("%s", ins));
-        }
-        lambdaDetails.isExternFunction = isExternStaticFunctionCall(ins);
-        populateLambdaReturnType(ins, lambdaDetails);
-        return lambdaDetails;
-    }
-
-    private LambdaDetails populateAsyncLambdaDetails(AsyncCall asyncIns) {
-        LambdaDetails lambdaDetails = new LambdaDetails();
-        lambdaDetails.lhsType = asyncIns.lhsOp != null ? asyncIns.lhsOp.variableDcl.type : null;
-        lambdaDetails.orgName = asyncIns.calleePkg.orgName.value;
-        lambdaDetails.moduleName = asyncIns.calleePkg.name.value;
-        lambdaDetails.version = asyncIns.calleePkg.version.value;
-        lambdaDetails.funcName = asyncIns.name.getValue();
-        if (!asyncIns.isVirtual) {
-            populateLambdaFunctionDetails(lambdaDetails);
-        }
-        return lambdaDetails;
-    }
-
-    private LambdaDetails populateFpLambdaDetails(FPLoad fpIns) {
-        LambdaDetails lambdaDetails = new LambdaDetails();
-        lambdaDetails.lhsType = fpIns.lhsOp.variableDcl.type;
-        lambdaDetails.orgName = fpIns.pkgId.orgName.value;
-        lambdaDetails.moduleName = fpIns.pkgId.name.value;
-        lambdaDetails.version = fpIns.pkgId.version.value;
-        lambdaDetails.funcName = fpIns.funcName.getValue();
-        lambdaDetails.closureMapsCount = fpIns.closureMaps.size();
-        populateLambdaFunctionDetails(lambdaDetails);
-        return lambdaDetails;
-    }
-
-    private void populateLambdaFunctionDetails(LambdaDetails lambdaDetails) {
-        lambdaDetails.encodedFuncName = IdentifierUtils.encodeIdentifier(lambdaDetails.funcName);
-        lambdaDetails.lookupKey = JvmCodeGenUtil.getPackageName(
-                lambdaDetails.orgName, lambdaDetails.moduleName, lambdaDetails.version) + lambdaDetails.encodedFuncName;
-        lambdaDetails.functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lambdaDetails.lookupKey);
-        if (lambdaDetails.functionWrapper == null) {
-            BPackageSymbol symbol = jvmPackageGen.packageCache.getSymbol(
-                    lambdaDetails.orgName + "/" + lambdaDetails.moduleName);
-            lambdaDetails.funcSymbol = (BInvokableSymbol) symbol.scope.lookup(
-                    new Name(lambdaDetails.funcName)).symbol;
-        }
-    }
-
-    private void populateLambdaReturnType(BIRInstruction ins, LambdaDetails lambdaDetails) {
-        if (lambdaDetails.lhsType.tag == TypeTags.FUTURE) {
-            lambdaDetails.returnType = ((BFutureType) lambdaDetails.lhsType).constraint;
-        } else if (ins instanceof FPLoad) {
-            lambdaDetails.returnType = ((FPLoad) ins).retType;
-            if (lambdaDetails.returnType.tag == TypeTags.INVOKABLE) {
-                lambdaDetails.returnType = ((BInvokableType) lambdaDetails.returnType).retType;
-            }
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for async return type " +
-                                                     String.format("%s", lambdaDetails.lhsType));
-        }
-    }
-
-    private static class LambdaDetails {
-        BType lhsType;
-        String orgName;
-        String moduleName;
-        String version;
-        String funcName;
-        boolean isExternFunction;
-        String encodedFuncName = null;
-        String lookupKey;
-        BIRFunctionWrapper functionWrapper = null;
-        BInvokableSymbol funcSymbol = null;
-        BType returnType;
-        int closureMapsCount = 0;
-    }
-
-    private String getLambdaMethodDesc(List<BType> paramTypes, BType retType, int closureMapsCount) {
-        StringBuilder desc = new StringBuilder("(Lio/ballerina/runtime/scheduling/Strand;");
-        appendClosureMaps(closureMapsCount, desc);
-        appendParamTypes(paramTypes, desc);
-        desc.append(JvmCodeGenUtil.generateReturnType(retType));
-        return desc.toString();
-    }
-
-    private void appendParamTypes(List<BType> paramTypes, StringBuilder desc) {
-        for (BType paramType : paramTypes) {
-            desc.append(JvmCodeGenUtil.getArgTypeSignature(paramType));
-        }
-    }
-
-    private void appendClosureMaps(int closureMapsCount, StringBuilder desc) {
-        for (int j = 0; j < closureMapsCount; j++) {
-            desc.append("L").append(MAP_VALUE).append(";").append("Z");
-        }
-    }
-
-    private List<BType> getInitialParamTypes(List<BType> paramTypes, int argsCount) {
-        List<BType> initialParamTypes = new ArrayList<>();
-        for (int index = 0; index < argsCount; index++) {
-            initialParamTypes.add(paramTypes.get(index * 2));
-        }
-        return initialParamTypes;
-    }
-
-    private void generateBlockedOnExtern(int closureMapsCount, MethodVisitor mv) {
-
-        Label blockedOnExternLabel = new Label();
-
-        mv.visitInsn(DUP);
-
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, IS_BLOCKED_ON_EXTERN_FIELD, "()Z", false);
-        mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
-
-        mv.visitInsn(DUP);
-        mv.visitInsn(ICONST_0);
-        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, BLOCKED_ON_EXTERN_FIELD, "Z");
-
-        mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, PANIC_FIELD, String.format("L%s;", BERROR));
-        Label panicLabel = new Label();
-        mv.visitJumpInsn(IFNULL, panicLabel);
-        mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, PANIC_FIELD, String.format("L%s;", BERROR));
-        mv.visitVarInsn(ASTORE, closureMapsCount + 1);
-        mv.visitInsn(ACONST_NULL);
-        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, PANIC_FIELD, String.format("L%s;", BERROR));
-        mv.visitVarInsn(ALOAD, closureMapsCount + 1);
-        mv.visitInsn(ATHROW);
-        mv.visitLabel(panicLabel);
-
-        mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "returnValue", "Ljava/lang/Object;");
-        mv.visitInsn(ARETURN);
-
-        mv.visitLabel(blockedOnExternLabel);
-    }
-
-    private void genLoadDataForObjectAttachedLambdas(AsyncCall ins, MethodVisitor mv, int closureMapsCount,
-                                                     List<BIROperand> paramTypes,
-                                                     boolean isBuiltinModule) {
-
-        mv.visitInsn(POP);
-        mv.visitVarInsn(ALOAD, closureMapsCount);
-        mv.visitInsn(ICONST_1);
-        BIROperand ref = ins.args.get(0);
-        mv.visitInsn(AALOAD);
-        JvmCastGen.addUnboxInsn(mv, ref.variableDcl.type);
-        mv.visitVarInsn(ALOAD, closureMapsCount);
-        mv.visitInsn(ICONST_0);
-        mv.visitInsn(AALOAD);
-        mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
-
-        mv.visitLdcInsn(JvmCodeGenUtil.rewriteVirtualCallTypeName(ins.name.value));
-        int objectArrayLength = paramTypes.size() - 1;
-        if (!isBuiltinModule) {
-            mv.visitIntInsn(BIPUSH, objectArrayLength * 2);
-        } else {
-            mv.visitIntInsn(BIPUSH, objectArrayLength);
-        }
-        mv.visitTypeInsn(ANEWARRAY, OBJECT);
-    }
-
-    private boolean isExternStaticFunctionCall(BIRInstruction callIns) {
-
-        String methodName;
-        InstructionKind kind = callIns.getKind();
-
-        PackageID packageID;
-
-        switch (kind) {
-            case CALL:
-                Call call = (Call) callIns;
-                if (call.isVirtual) {
-                    return false;
-                }
-                methodName = call.name.value;
-                packageID = call.calleePkg;
-                break;
-            case ASYNC_CALL:
-                AsyncCall asyncCall = (AsyncCall) callIns;
-                methodName = asyncCall.name.value;
-                packageID = asyncCall.calleePkg;
-                break;
-            case FP_LOAD:
-                FPLoad fpLoad = (FPLoad) callIns;
-                methodName = fpLoad.funcName.value;
-                packageID = fpLoad.pkgId;
-                break;
-            default:
-                throw new BLangCompilerException("JVM static function call generation is not supported for " +
-                        "instruction " + String.format("%s", callIns));
-        }
-
-        String key = JvmCodeGenUtil.getPackageName(packageID) + methodName;
-
-        BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(key);
-        return functionWrapper != null && JvmCodeGenUtil.isExternFunc(functionWrapper.func);
-    }
-
-    private void addBooleanTypeToLambdaParamTypes(MethodVisitor mv, int arrayIndex, int paramIndex) {
-
-        mv.visitVarInsn(ALOAD, arrayIndex);
-        mv.visitIntInsn(BIPUSH, paramIndex);
-        mv.visitInsn(AALOAD);
-        JvmCastGen.addUnboxInsn(mv, symbolTable.booleanType);
     }
 
     /**
@@ -1893,5 +1486,4 @@ public class JvmMethodGen {
                                asyncDataCollector);
         }
     }
-
 }

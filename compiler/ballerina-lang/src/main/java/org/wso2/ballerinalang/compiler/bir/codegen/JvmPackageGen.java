@@ -123,23 +123,24 @@ public class JvmPackageGen {
     public final PackageCache packageCache;
     private final JvmMethodGen jvmMethodGen;
     private final JvmMainMethodGen jvmMainMethodGen;
-    private Map<String, BIRFunctionWrapper> birFunctionMap;
-    private Map<String, String> externClassMap;
-    private Map<String, String> globalVarClassMap;
-    private Map<String, PackageID> dependentModules;
-    private BLangDiagnosticLog dlog;
+    private final JvmLambdaGen jvmLambdaGen;
+    private final Map<String, BIRFunctionWrapper> birFunctionMap;
+    private final Map<String, String> externClassMap;
+    private final Map<String, String> globalVarClassMap;
+    private final Map<String, PackageID> dependentModules;
+    private final BLangDiagnosticLog dlog;
 
     JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLog dlog) {
-
         birFunctionMap = new HashMap<>();
         globalVarClassMap = new HashMap<>();
         externClassMap = new HashMap<>();
         dependentModules = new LinkedHashMap<>();
         this.symbolTable = symbolTable;
         this.packageCache = packageCache;
-        jvmMainMethodGen = new JvmMainMethodGen(symbolTable);
         this.dlog = dlog;
         jvmMethodGen = new JvmMethodGen(this);
+        jvmMainMethodGen = new JvmMainMethodGen(symbolTable);
+        jvmLambdaGen = new JvmLambdaGen(this);
         typeBuilder = new ResolvedTypeBuilder();
 
         JvmCastGen.symbolTable = symbolTable;
@@ -155,9 +156,6 @@ public class JvmPackageGen {
     }
 
     private static void addBuiltinImports(BIRPackage currentModule, Set<PackageID> dependentModuleArray) {
-        Name ballerinaOrgName = new Name("ballerina");
-        Name builtInVersion = new Name("");
-
         // Add the builtin and utils modules to the imported list of modules
         if (isSameModule(currentModule, PackageID.ANNOTATIONS)) {
             return;
@@ -437,7 +435,7 @@ public class JvmPackageGen {
         rewriteRecordInits(module.typeDefs);
 
         // generate object/record value classes
-        JvmValueGen valueGen = new JvmValueGen(module, this, jvmMethodGen);
+        JvmValueGen valueGen = new JvmValueGen(module, this, jvmMethodGen, jvmLambdaGen);
         valueGen.generateValueClasses(jarEntries);
 
         // generate frame classes
@@ -511,7 +509,7 @@ public class JvmPackageGen {
             for (Map.Entry<String, BIRInstruction> lambda : asyncDataCollector.getLambdas().entrySet()) {
                 String name = lambda.getKey();
                 BIRInstruction call = lambda.getValue();
-                jvmMethodGen.generateLambdaMethod(call, cw, name);
+                jvmLambdaGen.generateLambdaMethod(call, cw, name);
             }
             JvmCodeGenUtil.visitStrandMetadataField(cw, asyncDataCollector);
             generateStaticInitializer(cw, moduleClass, module, isInitClass, serviceEPAvailable,
@@ -648,7 +646,6 @@ public class JvmPackageGen {
     private void linkModuleFunctions(BIRPackage module, String pkgName, String initClass,
                                      InteropValidator interopValidator, boolean isEntry, String orgName,
                                      String moduleName, String version, Map<String, JavaClass> jvmClassMap) {
-
         // filter out functions.
         List<BIRFunction> functions = module.functions;
         if (functions.size() <= 0) {
@@ -779,7 +776,6 @@ public class JvmPackageGen {
     }
 
     public BIRFunctionWrapper lookupBIRFunctionWrapper(String lookupKey) {
-
         return this.birFunctionMap.get(lookupKey);
     }
 
