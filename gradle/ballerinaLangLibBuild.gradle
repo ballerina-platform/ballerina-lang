@@ -45,6 +45,7 @@ class BallerinaLangLibBuildTask extends JavaExec {
     def projectDir = ''
     def distCache = ''
     def moduleName = project.name
+    def skipBootstrap = 'false'
 
     BallerinaLangLibBuildTask() {
         setMain('org.ballerinalang.stdlib.utils.BuildLangLib')
@@ -56,6 +57,7 @@ class BallerinaLangLibBuildTask extends JavaExec {
         def args = []
         args << projectDir
         args << distCache
+        args << skipBootstrap
 
         super.setArgs(args)
         super.exec()
