@@ -1016,18 +1016,16 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         Token equalsToken = getToken(moduleVariableDeclarationNode.equalsToken());
         Token semicolonToken = getToken(moduleVariableDeclarationNode.semicolonToken());
-        Token finalKeyword = getToken(moduleVariableDeclarationNode.finalKeyword().orElse(null));
         MetadataNode metadata = this.modifyNode(moduleVariableDeclarationNode.metadata().orElse(null));
         ExpressionNode initializer = this.modifyNode(moduleVariableDeclarationNode.initializer());
         if (metadata != null) {
             moduleVariableDeclarationNode = moduleVariableDeclarationNode.modify()
                     .withMetadata(metadata).apply();
         }
-        if (finalKeyword != null) {
-            moduleVariableDeclarationNode = moduleVariableDeclarationNode.modify()
-                    .withFinalKeyword(formatToken(finalKeyword, 0, 1, 0, 0)).apply();
-        }
+
+        NodeList<Token> qualifiers = this.modifyNodeList(moduleVariableDeclarationNode.qualifiers());
         return moduleVariableDeclarationNode.modify()
+                .withQualifiers(qualifiers)
                 .withTypedBindingPattern(this.modifyNode(moduleVariableDeclarationNode.typedBindingPattern()))
                 .withEqualsToken(formatToken(equalsToken, 1, 1, 0, 0))
                 .withInitializer(initializer)
