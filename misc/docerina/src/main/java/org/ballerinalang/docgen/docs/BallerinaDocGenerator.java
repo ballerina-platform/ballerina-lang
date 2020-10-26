@@ -51,6 +51,7 @@ import org.ballerinalang.docgen.model.search.SearchJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.BufferedReader;
@@ -666,7 +667,7 @@ public class BallerinaDocGenerator {
         bLangPackage.getAnnotations().sort(Comparator.comparing(a -> a.getName().getValue()));
         bLangPackage.getTypeDefinitions()
                 .sort(Comparator.comparing(a -> a.getName() == null ? "" : a.getName().getValue()));
-        bLangPackage.getGlobalVariables().sort(Comparator.comparing(a -> a.getName().getValue()));
+        bLangPackage.getGlobalVariables().sort(Comparator.comparing(a -> ((BLangSimpleVariable) a).getName().getValue()));
     }
 
     private static List<Path> getResourcePaths(Path absolutePkgPath) throws IOException {

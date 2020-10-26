@@ -22,6 +22,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -115,11 +116,11 @@ public abstract class AbstractTestTemplate implements TestTemplate {
      */
     protected String getSafeName(String name) {
         List<String> names = builtTestFile.getGlobalVariables().stream()
-                .map(variable -> variable.name.value)
+                .map(variable -> ((BLangSimpleVariable) variable).name.value)
                 .collect(Collectors.toList());
         Optional<BLangTestablePackage> testablePkg = builtTestFile.testablePkgs.stream().findAny();
         testablePkg.ifPresent(pkg -> names.addAll(pkg.getGlobalVariables().stream()
-                                                          .map(variable -> variable.name.value)
+                                                          .map(variable -> ((BLangSimpleVariable) variable).name.value)
                                                           .collect(Collectors.toList()))
         );
         names.addAll(builtTestFile.getFunctions().stream()

@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -128,7 +129,7 @@ public class AnnotationAttachmentTest {
     public void testAnnotOnListener() {
         List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
                 compileResult.getAST().getGlobalVariables().stream()
-                        .filter(globalVar -> globalVar.getName().getValue().equals("lis"))
+                        .filter(globalVar -> ((BLangSimpleVariable) globalVar).getName().getValue().equals("lis"))
                         .findFirst()
                         .get().getAnnotationAttachments();
         Assert.assertEquals(attachments.size(), 1);
@@ -209,7 +210,7 @@ public class AnnotationAttachmentTest {
     public void testAnnotOnVar() {
         List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
                 compileResult.getAST().getGlobalVariables().stream()
-                        .filter(variableNode ->  variableNode.getName().toString().equals("i"))
+                        .filter(variableNode ->  ((BLangSimpleVariable) variableNode).getName().toString().equals("i"))
                         .findFirst()
                         .get().getAnnotationAttachments();
         Assert.assertEquals(attachments.size(), 1);

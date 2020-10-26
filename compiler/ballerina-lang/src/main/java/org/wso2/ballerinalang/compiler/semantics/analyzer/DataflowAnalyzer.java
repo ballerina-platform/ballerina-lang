@@ -339,10 +339,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.currDependentSymbol.pop();
     }
 
-    private void checkForUninitializedGlobalVars(List<BLangSimpleVariable> globalVars) {
-        for (BLangSimpleVariable globalVar : globalVars) {
+    private void checkForUninitializedGlobalVars(List<BLangVariable> globalVars) {
+        for (BLangVariable globalVar : globalVars) {
             if (this.uninitializedVars.containsKey(globalVar.symbol)) {
-                this.dlog.error(globalVar.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, globalVar.name);
+                this.dlog.error(globalVar.pos, DiagnosticCode.UNINITIALIZED_VARIABLE,
+                        ((BLangSimpleVariable) globalVar).name);
             }
         }
     }

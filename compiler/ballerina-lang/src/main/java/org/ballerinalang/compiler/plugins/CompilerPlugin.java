@@ -24,8 +24,8 @@ import org.ballerinalang.model.tree.ClassDefinition;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
+import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -113,7 +113,7 @@ public interface CompilerPlugin {
      * @param variableNode the variable node being annotated
      * @param annotations  a list of annotations attached to the variable node
      */
-    void process(SimpleVariableNode variableNode, List<AnnotationAttachmentNode> annotations);
+    void process(VariableNode variableNode, List<AnnotationAttachmentNode> annotations);
 
     /**
      * Processes a list of annotations attached to an annotation node.

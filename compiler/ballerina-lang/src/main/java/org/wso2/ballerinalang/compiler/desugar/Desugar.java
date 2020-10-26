@@ -353,6 +353,7 @@ public class Desugar extends BLangNodeVisitor {
     private int indexExprCount = 0;
     private int letCount = 0;
     private int varargCount = 0;
+    private int tupleVarCount = 0;
 
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
@@ -709,13 +710,25 @@ public class Desugar extends BLangNodeVisitor {
                 initFnBody.stmts.add(constInit);
             }
         }
+        List<BLangVariable> desugaredGlobalVarList = new ArrayList<>();
 
         pkgNode.globalVars.forEach(globalVar -> {
-            BLangAssignment assignment = createAssignmentStmt(globalVar);
-            if (assignment.expr != null) {
-                initFnBody.stmts.add(assignment);
+            // This will convert complex variables to simple variable
+            if (globalVar.getKind() == NodeKind.TUPLE_VARIABLE) {
+                //Tuple variable will be desugared into block statement node
+                BLangNode blockStatementNode = rewrite(globalVar, env);
+                // Add each desugared simple variable to global variables
+                ((BLangBlockStmt) blockStatementNode).stmts.forEach(bLangStatement -> {
+                    BLangSimpleVariableDef simpleVarDef1 = (BLangSimpleVariableDef) bLangStatement;
+                    addToInitFunction(simpleVarDef1.var, initFnBody);
+                    desugaredGlobalVarList.add(rewrite(simpleVarDef1.var, env));
+                });
+            } else {
+                addToInitFunction((BLangSimpleVariable) globalVar, initFnBody);
+                desugaredGlobalVarList.add(rewrite(globalVar, env));
             }
         });
+        pkgNode.globalVars = desugaredGlobalVarList;
 
         pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
 
@@ -730,7 +743,6 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.typeDefinitions = rewrite(pkgNode.typeDefinitions, env);
         pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
         pkgNode.constants = rewrite(pkgNode.constants, env);
-        pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
         desugarClassDefinitions(pkgNode.topLevelNodes);
 
         pkgNode.functions = rewrite(pkgNode.functions, env);
@@ -755,6 +767,14 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         initFuncIndex = 0;
         result = pkgNode;
+    }
+
+    // Add global variables with default values to init function
+    private void addToInitFunction(BLangSimpleVariable globalVar, BLangBlockFunctionBody initFnBody) {
+        if (globalVar.expr != null) {
+            BLangAssignment assignment = createAssignmentStmt(globalVar);
+            initFnBody.stmts.add(assignment);
+        }
     }
 
     private void desugarClassDefinitions(List<TopLevelNode> topLevelNodes) {
@@ -1160,7 +1180,8 @@ public class Desugar extends BLangNodeVisitor {
         final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varNode.pos);
 
         // Create a simple var for the array 'any[] x = (tuple)' based on the dimension for x
-        String name = "$tuple$";
+
+        String name = String.format("$tuple%d$", tupleVarCount++);
         final BLangSimpleVariable tuple =
                 ASTBuilderUtil.createVariable(varNode.pos, name, symTable.arrayAllType, null,
                                               new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID,
@@ -1175,7 +1196,12 @@ public class Desugar extends BLangNodeVisitor {
         createRestFieldVarDefStmts(varNode, blockStmt, tuple.symbol);
 
         // Finally rewrite the populated block statement
-        result = rewrite(blockStmt, env);
+        if (((this.env.scope.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE)) {
+            // If it is a global variable don't rewrite now, will be rewritten later
+            result = blockStmt;
+        } else {
+            result = rewrite(blockStmt, env);
+        }
     }
 
     @Override

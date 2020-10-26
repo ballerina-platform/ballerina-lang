@@ -99,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -349,7 +350,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         classDefinitions.forEach(classDefn -> typeAndClassDefs.add(classDefn));
         defineTypeNodes(typeAndClassDefs, pkgEnv);
 
-        for (BLangSimpleVariable variable : pkgNode.globalVars) {
+        for (BLangVariable variable : pkgNode.globalVars) {
             if (variable.expr != null && variable.expr.getKind() == NodeKind.LAMBDA && variable.isDeclaredWithVar) {
                 resolveAndSetFunctionTypeFromRHSLambda(variable, pkgEnv);
             }
@@ -393,9 +394,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
         // Update globalVar for endpoints.
-        pkgNode.globalVars.stream().filter(var -> var.symbol.type.tsymbol != null && Symbols
-                .isFlagOn(var.symbol.type.tsymbol.flags, Flags.CLIENT)).map(varNode -> varNode.symbol)
-                .forEach(varSymbol -> varSymbol.tag = SymTag.ENDPOINT);
+        pkgNode.globalVars.forEach(var -> {
+           if (var.getKind() == NodeKind.VARIABLE && var.symbol.type.tsymbol != null &&
+                   Symbols.isFlagOn(var.symbol.type.tsymbol.flags, Flags.CLIENT)) {
+               var.symbol.tag = SymTag.ENDPOINT;
+            }
+        });
     }
 
     private void defineDistinctClassAndObjectDefinitions(List<BLangNode> typDefs) {
@@ -1872,7 +1876,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 pkgNode.services.add((BLangService) node);
                 break;
             case VARIABLE:
-                pkgNode.globalVars.add((BLangSimpleVariable) node);
+            case TUPLE_VARIABLE:
+            case RECORD_VARIABLE:
+            case ERROR_VARIABLE:
+                pkgNode.globalVars.add((BLangVariable) node);
                 // TODO There are two kinds of package level variables, constant and regular variables.
                 break;
             case ANNOTATION:
@@ -2896,7 +2903,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return pkgName.value.equals(importSymbol.pkgID.name.value);
     }
 
-    private void resolveAndSetFunctionTypeFromRHSLambda(BLangSimpleVariable variable, SymbolEnv env) {
+    private void resolveAndSetFunctionTypeFromRHSLambda(BLangVariable variable, SymbolEnv env) {
         BLangFunction function = ((BLangLambdaFunction) variable.expr).function;
         BInvokableType invokableType = (BInvokableType) symResolver.createInvokableType(function.getParameters(),
                                                                                         function.restParam,

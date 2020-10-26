@@ -621,6 +621,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             analyzeVarNode(varNode, env, AttachPoint.Point.OBJECT_FIELD, AttachPoint.Point.FIELD);
         } else if ((ownerSymTag & SymTag.RECORD) == SymTag.RECORD) {
             analyzeVarNode(varNode, env, AttachPoint.Point.RECORD_FIELD, AttachPoint.Point.FIELD);
+        } else if (varNode.symbol == null && (ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE) {
+            // module variable declaration except capture binding pattern will analyzed here
+            analyzeVarNode(varNode, env, AttachPoint.Point.VAR);
         } else {
             varNode.annAttachments.forEach(annotationAttachment -> {
                 if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {

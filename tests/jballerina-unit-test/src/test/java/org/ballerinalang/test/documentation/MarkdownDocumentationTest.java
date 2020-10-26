@@ -23,8 +23,8 @@ import org.ballerinalang.model.tree.ClassDefinition;
 import org.ballerinalang.model.tree.DocumentationReferenceType;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
+import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -77,7 +77,7 @@ public class MarkdownDocumentationTest {
 
         PackageNode packageNode = compileResult.getAST();
 
-        SimpleVariableNode variableNode = packageNode.getGlobalVariables().get(1);
+        VariableNode variableNode = packageNode.getGlobalVariables().get(1);
         Assert.assertNotNull(variableNode);
         BLangMarkdownDocumentation documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
@@ -152,9 +152,9 @@ public class MarkdownDocumentationTest {
 
         // Todo - need to come up with a proper way to document finite types
 
-        List<? extends SimpleVariableNode> globalVariables = packageNode.getGlobalVariables();
+        List<? extends VariableNode> globalVariables = packageNode.getGlobalVariables();
 
-        SimpleVariableNode variableNode = globalVariables.get(1);
+        VariableNode variableNode = globalVariables.get(1);
         Assert.assertNotNull(variableNode);
         documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);

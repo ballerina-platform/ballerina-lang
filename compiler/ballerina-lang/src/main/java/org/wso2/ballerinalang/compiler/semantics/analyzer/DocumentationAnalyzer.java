@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -145,6 +146,17 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         validateReferences(varNode);
         validateDeprecationDocumentation(varNode.markdownDocumentationAttachment, false, varNode.pos);
         validateDeprecatedParametersDocumentation(varNode.markdownDocumentationAttachment, varNode.pos);
+    }
+
+    @Override
+    public void visit(BLangTupleVariable tupleVariableNode) {
+        validateNoParameters(tupleVariableNode);
+        validateReturnParameter(tupleVariableNode, null, false);
+        validateReferences(tupleVariableNode);
+        validateDeprecationDocumentation(tupleVariableNode.markdownDocumentationAttachment, false,
+                tupleVariableNode.pos);
+        validateDeprecatedParametersDocumentation(tupleVariableNode.markdownDocumentationAttachment,
+                tupleVariableNode.pos);
     }
 
     @Override

@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -87,19 +88,22 @@ public class ServiceDesugar {
         this.httpFiltersDesugar = HttpFiltersDesugar.getInstance(context);
     }
 
-    void rewriteListeners(List<BLangSimpleVariable> variables, SymbolEnv env, BLangFunction startFunction,
+    void rewriteListeners(List<BLangVariable> variables, SymbolEnv env, BLangFunction startFunction,
                           BLangFunction stopFunction) {
-        variables.stream().filter(varNode -> Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER))
-                .forEach(varNode -> rewriteListener(varNode, env, startFunction, stopFunction));
+        variables.forEach(varNode -> {
+            if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
+                rewriteListener(varNode, env, startFunction, stopFunction);
+            }
+        });
     }
 
-    private void rewriteListener(BLangSimpleVariable variable, SymbolEnv env, BLangFunction startFunction,
+    private void rewriteListener(BLangVariable variable, SymbolEnv env, BLangFunction startFunction,
                                  BLangFunction stopFunction) {
         rewriteListenerLifeCycleFunction(startFunction, variable, env, START_METHOD);
         rewriteListenerLifeCycleFunction(stopFunction, variable, env, GRACEFUL_STOP);
     }
 
-    private void rewriteListenerLifeCycleFunction(BLangFunction lifeCycleFunction, BLangSimpleVariable variable,
+    private void rewriteListenerLifeCycleFunction(BLangFunction lifeCycleFunction, BLangVariable variable,
             SymbolEnv env, String method) {
         // This method will generate and add following statement to give life cycle function.
         //
