@@ -1385,6 +1385,7 @@ class NodeFinder extends BLangNodeVisitor {
     @Override
     public void visit(BLangStatementExpression bLangStatementExpression) {
         lookupNode(bLangStatementExpression.expr);
+        lookupNode(bLangStatementExpression.stmt);
     }
 
     @Override

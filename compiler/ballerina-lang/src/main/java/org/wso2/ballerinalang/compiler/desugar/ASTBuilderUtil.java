@@ -677,12 +677,14 @@ public class ASTBuilderUtil {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.symbol = ((BObjectTypeSymbol) type.tsymbol).generatedInitializerFunc.symbol;
         invocationNode.type = type;
+        invocationNode.pos = pos;
 
         BLangIdentifier pkgNameNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         BLangIdentifier nameNode = (BLangIdentifier)  TreeBuilder.createIdentifierNode();
 
         nameNode.setLiteral(false);
         nameNode.setValue(Names.GENERATED_INIT_SUFFIX.getValue());
+        nameNode.pos = pos;
         invocationNode.name = nameNode;
         invocationNode.pkgAlias = pkgNameNode;
 

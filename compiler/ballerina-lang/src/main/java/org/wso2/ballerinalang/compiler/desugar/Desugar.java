@@ -4363,34 +4363,34 @@ public class Desugar extends BLangNodeVisitor {
 
         // Condition
         BLangSimpleVarRef initRetValVarRefInCondition =
-                ASTBuilderUtil.createVariableRef(typeInitExpr.pos, initInvRetValVarDef.var.symbol);
-        BLangBlockStmt thenStmt = ASTBuilderUtil.createBlockStmt(typeInitExpr.pos);
+                ASTBuilderUtil.createVariableRef(symTable.builtinPos, initInvRetValVarDef.var.symbol);
+        BLangBlockStmt thenStmt = ASTBuilderUtil.createBlockStmt(symTable.builtinPos);
         BLangTypeTestExpr isErrorTest =
-                ASTBuilderUtil.createTypeTestExpr(typeInitExpr.pos, initRetValVarRefInCondition, getErrorTypeNode());
+                ASTBuilderUtil.createTypeTestExpr(symTable.builtinPos, initRetValVarRefInCondition, getErrorTypeNode());
         isErrorTest.type = symTable.booleanType;
 
         // If body
         BLangSimpleVarRef thenInitRetValVarRef =
-                ASTBuilderUtil.createVariableRef(typeInitExpr.pos, initInvRetValVarDef.var.symbol);
+                ASTBuilderUtil.createVariableRef(symTable.builtinPos, initInvRetValVarDef.var.symbol);
         BLangSimpleVarRef thenResultVarRef =
-                ASTBuilderUtil.createVariableRef(typeInitExpr.pos, resultVarDef.var.symbol);
+                ASTBuilderUtil.createVariableRef(symTable.builtinPos, resultVarDef.var.symbol);
         BLangAssignment errAssignment =
-                ASTBuilderUtil.createAssignmentStmt(typeInitExpr.pos, thenResultVarRef, thenInitRetValVarRef);
+                ASTBuilderUtil.createAssignmentStmt(symTable.builtinPos, thenResultVarRef, thenInitRetValVarRef);
         thenStmt.addStatement(errAssignment);
 
         // Else body
         BLangSimpleVarRef elseResultVarRef =
-                ASTBuilderUtil.createVariableRef(typeInitExpr.pos, resultVarDef.var.symbol);
+                ASTBuilderUtil.createVariableRef(symTable.builtinPos, resultVarDef.var.symbol);
         BLangAssignment objAssignment =
-                ASTBuilderUtil.createAssignmentStmt(typeInitExpr.pos, elseResultVarRef, objVarRef);
-        BLangBlockStmt elseStmt = ASTBuilderUtil.createBlockStmt(typeInitExpr.pos);
+                ASTBuilderUtil.createAssignmentStmt(symTable.builtinPos, elseResultVarRef, objVarRef);
+        BLangBlockStmt elseStmt = ASTBuilderUtil.createBlockStmt(symTable.builtinPos);
         elseStmt.addStatement(objAssignment);
 
-        BLangIf ifelse = ASTBuilderUtil.createIfElseStmt(typeInitExpr.pos, isErrorTest, thenStmt, elseStmt);
+        BLangIf ifelse = ASTBuilderUtil.createIfElseStmt(symTable.builtinPos, isErrorTest, thenStmt, elseStmt);
         blockStmt.addStatement(ifelse);
 
         BLangSimpleVarRef resultVarRef =
-                ASTBuilderUtil.createVariableRef(typeInitExpr.pos, resultVarDef.var.symbol);
+                ASTBuilderUtil.createVariableRef(symTable.builtinPos, resultVarDef.var.symbol);
         BLangStatementExpression stmtExpr = createStatementExpression(blockStmt, resultVarRef);
         stmtExpr.type = resultVarRef.symbol.type;
         return stmtExpr;
@@ -4445,6 +4445,7 @@ public class Desugar extends BLangNodeVisitor {
     BLangErrorType getErrorTypeNode() {
         BLangErrorType errorTypeNode = (BLangErrorType) TreeBuilder.createErrorTypeNode();
         errorTypeNode.type = symTable.errorType;
+        errorTypeNode.pos = symTable.builtinPos;
         return errorTypeNode;
     }
 
