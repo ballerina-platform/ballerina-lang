@@ -60,7 +60,7 @@ public class TestBuildProject {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
     private final String dummyContent = "function foo() {\n}";
 
-    @Test (description = "tests loading a valid build project", enabled = false)
+    @Test (description = "tests loading a valid build project")
     public void testBuildProjectAPI() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
@@ -132,7 +132,7 @@ public class TestBuildProject {
         Assert.assertEquals(diagnostics.size(), 4);
     }
 
-    @Test(description = "tests package compilation with errors in test source files", enabled = false)
+    @Test(description = "tests package compilation with errors in test source files")
     public void testPackageCompilationWithTests() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("project_with_tests");
 

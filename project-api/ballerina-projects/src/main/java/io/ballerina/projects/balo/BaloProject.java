@@ -62,7 +62,7 @@ public class BaloProject extends Project {
      */
     private void addPackage(String baloPath, Repository repo) {
         PackageConfig packageConfig = BaloPackageLoader.loadPackage(baloPath);
-        packageConfig.setRepository(Optional.of(repo));
+        packageConfig.setRepository(Optional.ofNullable(repo));
         this.addPackage(packageConfig);
     }
 }
