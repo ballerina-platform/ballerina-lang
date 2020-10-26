@@ -158,7 +158,7 @@ public class InteropMethodGen {
 
         Label paramLoadLabel = labelGen.getLabel("param_load");
         mv.visitLabel(paramLoadLabel);
-        mv.visitLineNumber(birFunc.pos.sLine, paramLoadLabel);
+        mv.visitLineNumber(birFunc.pos.lineRange().startLine().line(), paramLoadLabel);
 
         // birFunc.localVars contains all the function parameters as well as added boolean parameters to indicate the
         //  availability of default values.
@@ -282,7 +282,7 @@ public class InteropMethodGen {
 
         Label retLabel = labelGen.getLabel("return_lable");
         mv.visitLabel(retLabel);
-        mv.visitLineNumber(birFunc.pos.sLine, retLabel);
+        mv.visitLineNumber(birFunc.pos.lineRange().startLine().line(), retLabel);
         termGen.genReturnTerm(returnVarRefIndex, birFunc);
         mv.visitMaxs(200, 400);
         mv.visitEnd();
