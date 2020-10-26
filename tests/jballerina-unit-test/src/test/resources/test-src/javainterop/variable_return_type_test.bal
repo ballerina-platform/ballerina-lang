@@ -354,7 +354,7 @@ var outParameterObject = object OutParameter {
 
     public isolated function get(typedesc<anydata> td) returns td|error = @java:Method {
         'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-        name: "outParameterObjectGet",
+        name: "getIntFieldOrDefault",
         paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
     } external;
 };
@@ -369,6 +369,73 @@ function testDependentlyTypedMethodsWithObjectTypeInclusion() {
     assert(321, <int> outParameterObject.get(int));
     decimal|error v2 = outParameterObject.get(decimal);
     assert(23.45d, <decimal> v2);
+}
+
+public class Bar {
+    int i = 1;
+
+    public function get(typedesc<anydata> td) returns td|error = @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getIntFieldOrDefault",
+        paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
+}
+
+public class Baz {
+    int i = 2;
+
+    public function get(typedesc<anydata> td) returns anydata|error = @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getIntFieldOrDefault",
+        paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
+}
+
+public class Qux {
+    int i = 3;
+
+    public function get(typedesc<anydata> td) returns td|error = @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getIntFieldOrDefault",
+        paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
+}
+
+public class Quux {
+    int i = 4;
+
+    public function get(typedesc<any> td) returns td|error = @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getIntFieldOrDefault",
+        paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
+}
+
+public function testSubtypingWithDependentlyTypedMethods() {
+    Bar bar = new;
+    Baz baz = new;
+    Qux qux = new;
+
+    assert(1, <int> bar.get(int));
+    assert(2, <int> baz.get(int));
+    assert(3, <int> qux.get(int));
+    decimal|error v2 = bar.get(decimal);
+    assert(23.45d, <decimal> v2);
+    anydata|error v3 = baz.get(decimal);
+    assert(23.45d, <decimal> v3);
+    v2 = qux.get(decimal);
+    assert(23.45d, <decimal> v2);
+
+    Baz baz1 = bar;
+    Bar bar1 = qux;
+    assert(1, <int> baz1.get(int));
+    assert(3, <int> bar1.get(int));
+
+    assert(true, <any> bar is Baz);
+    assert(true, <any> qux is Bar);
+    assert(true, <any> baz is Bar);
+    assert(false, <any> new Quux() is Qux);
+    assert(false, <any> qux is Quux);
 }
 
 // Util functions

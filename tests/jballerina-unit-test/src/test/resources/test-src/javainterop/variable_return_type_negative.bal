@@ -155,8 +155,21 @@ public class Qux {
     public function get(typedesc<anydata> td) returns td|error = external;
 }
 
+public class Quux {
+    public function get(typedesc<any> td) returns td|error = external;
+}
+
+public class Quuz {
+    public function get(typedesc<int|string> td) returns td|error = external;
+}
+
 public function testSubtypingAgainstConcreteReturnType() {
-    Bar bar = new Baz();
+    Bar bar = new Baz(); // OK
     Baz baz = new Bar(); // OK
     Bar bar2 = new Qux(); // OK
+
+    Quux quux = new Qux();
+    Qux qux = new Quux();
+    Baz baz2 = new Quux();
+    Quuz quuz = new Qux();
 }

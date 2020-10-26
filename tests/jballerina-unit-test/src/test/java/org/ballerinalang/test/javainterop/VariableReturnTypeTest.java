@@ -42,7 +42,7 @@ public class VariableReturnTypeTest {
         result = BCompileUtil.compile("test-src/javainterop/variable_return_type_test.bal");
     }
 
-    @Test (enabled = true)
+    @Test
     public void testNegatives() {
         CompileResult errors = BCompileUtil.compile("test-src/javainterop/variable_return_type_negative.bal");
         int indx = 0;
@@ -90,7 +90,10 @@ public class VariableReturnTypeTest {
                 " (other|error)'", 143, 5);
         validateError(errors, indx++, "a function with a non-'external' function body cannot be a dependently-typed " +
                 "function", 143, 64);
-        validateError(errors, indx++, "incompatible types: expected 'Bar', found 'Baz'", 159, 15);
+        validateError(errors, indx++, "incompatible types: expected 'Quux', found 'Qux'", 171, 17);
+        validateError(errors, indx++, "incompatible types: expected 'Qux', found 'Quux'", 172, 15);
+        validateError(errors, indx++, "incompatible types: expected 'Baz', found 'Quux'", 173, 16);
+        validateError(errors, indx++, "incompatible types: expected 'Quuz', found 'Qux'", 174, 17);
 
         Assert.assertEquals(errors.getErrorCount(), indx);
     }
@@ -138,7 +141,8 @@ public class VariableReturnTypeTest {
                 {"testFuture"},
                 {"testComplexTypes"},
                 {"testObjectExternFunctions"},
-                {"testDependentlyTypedMethodsWithObjectTypeInclusion"}
+                {"testDependentlyTypedMethodsWithObjectTypeInclusion"},
+                {"testSubtypingWithDependentlyTypedMethods"}
         };
     }
 }

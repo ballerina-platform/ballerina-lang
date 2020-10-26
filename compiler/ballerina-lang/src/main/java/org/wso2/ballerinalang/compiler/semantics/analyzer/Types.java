@@ -568,6 +568,20 @@ public class Types {
             return isAssignable(source, ((BIntersectionType) target).effectiveType, unresolvedTypes);
         }
 
+        if (sourceTag == TypeTags.PARAMETERIZED_TYPE) {
+            BType resolvedSourceType = typeBuilder.build(source);
+
+            if (targetTag == TypeTags.PARAMETERIZED_TYPE) {
+                return isAssignable(resolvedSourceType, typeBuilder.build(target), unresolvedTypes);
+            }
+
+            return isAssignable(resolvedSourceType, target, unresolvedTypes);
+        }
+
+        if (targetTag == TypeTags.PARAMETERIZED_TYPE) {
+            return isAssignable(source, typeBuilder.build(target), unresolvedTypes);
+        }
+
         if (sourceTag == TypeTags.BYTE && targetTag == TypeTags.INT) {
             return true;
         }
@@ -715,16 +729,6 @@ public class Types {
 
         if (sourceTag == TypeTags.INVOKABLE && targetTag == TypeTags.INVOKABLE) {
             return isFunctionTypeAssignable((BInvokableType) source, (BInvokableType) target, new HashSet<>());
-        }
-
-        if (sourceTag == TypeTags.PARAMETERIZED_TYPE) {
-            BType resolvedSourceType = typeBuilder.build(source);
-
-            if (targetTag == TypeTags.PARAMETERIZED_TYPE) {
-                return isAssignable(resolvedSourceType, typeBuilder.build(target), unresolvedTypes);
-            }
-
-            return isAssignable(resolvedSourceType, target, unresolvedTypes);
         }
 
         return sourceTag == TypeTags.ARRAY && targetTag == TypeTags.ARRAY &&
