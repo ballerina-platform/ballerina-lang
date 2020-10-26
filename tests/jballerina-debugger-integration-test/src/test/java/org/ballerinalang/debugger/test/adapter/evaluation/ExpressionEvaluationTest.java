@@ -66,7 +66,11 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void stringTemplateEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // without interpolations
+        assertExpression(context, "string `name: John, age: 20`", "name: John, age: 20", "string");
+        // with interpolations
+        assertExpression(context, "string `name: ${" + STRING_VAR + "}, age: ${" + INT_VAR + "}`",
+                "name: foo, age: 20", "string");
     }
 
     @Override
@@ -341,6 +345,10 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         assertExpression(context, String.format("%s + %s", FLOAT_VAR, FLOAT_VAR), "-20.0", "float");
         // string + string
         assertExpression(context, String.format("%s + %s", STRING_VAR, STRING_VAR), "foofoo", "string");
+        // xml + xml
+        assertExpression(context, String.format("%s + %s", XML_VAR, XML_VAR), "<person gender=\"male\">" +
+                "<firstname>Praveen</firstname><lastname>Nada</lastname></person><person gender=\"male\">" +
+                "<firstname>Praveen</firstname><lastname>Nada</lastname></person>", "xml");
         // Todo - Enable after adding support
         //        // decimal + decimal
         //        assertExpression(context, String.format("%s + %s", decimalVar, decimalVar), "7.0", "decimal");
@@ -352,8 +360,6 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         //        assertExpression(context, String.format("%s + %s", decimalVar, decimalVar), "-6.5", "decimal");
         //        // decimal + float
         //        assertExpression(context, String.format("%s + %s", decimalVar, decimalVar), "-6.5", "decimal");
-        //        // xml + xml
-        //        assertExpression(context, String.format("%s + %s", xmlVar, xmlVar), "", "xml");
 
         //////////////////////////////-------------subtraction------------------////////////////////////////////////////
         // int - int
@@ -401,17 +407,18 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         assertExpression(context, String.format("%s < %s", INT_VAR, FLOAT_VAR), "false", "boolean");
         // float - float
         assertExpression(context, String.format("%s < %s", FLOAT_VAR, FLOAT_VAR), "false", "boolean");
+        // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/26366
+        // decimal - decimal
+        // assertExpression(context, String.format("%s < %s", DECIMAL_VAR, DECIMAL_VAR), "false", "boolean");
         // Todo - Enable after adding support
-        //        // decimal - decimal
-        //        assertExpression(context, String.format("%s < %s", decimalVar, decimalVar), "false", "boolean");
-        //        // int - decimal
-        //        assertExpression(context, String.format("%s < %s", decimalVar, decimalVar), "false", "boolean");
-        //        // decimal - int
-        //        assertExpression(context, String.format("%s < %s", decimalVar, decimalVar), "false", "boolean");
-        //        // float - decimal
-        //        assertExpression(context, String.format("%s < %s", decimalVar, decimalVar), "false", "boolean");
-        //        // decimal - float
-        //        assertExpression(context, String.format("%s < %s", decimalVar, decimalVar), "false", "boolean");
+        // // int - decimal
+        // assertExpression(context, String.format("%s < %s", decimalVar, decimalVar), "false", "boolean");
+        // // decimal - int
+        // assertExpression(context, String.format("%s < %s", decimalVar, decimalVar), "false", "boolean");
+        // // float - decimal
+        // assertExpression(context, String.format("%s < %s", decimalVar, decimalVar), "false", "boolean");
+        // // decimal - float
+        // assertExpression(context, String.format("%s < %s", decimalVar, decimalVar), "false", "boolean");
 
         // expression > expression
         // int - int
@@ -422,17 +429,17 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         assertExpression(context, String.format("%s > %s", INT_VAR, FLOAT_VAR), "true", "boolean");
         // float - float
         assertExpression(context, String.format("%s > %s", FLOAT_VAR, FLOAT_VAR), "false", "boolean");
+        // decimal - decimal
+        assertExpression(context, String.format("%s > %s", DECIMAL_VAR, DECIMAL_VAR), "false", "boolean");
         // Todo - Enable after adding support
-        //        // decimal - decimal
-        //        assertExpression(context, String.format("%s > %s", decimalVar, decimalVar), "false", "boolean");
-        //        // int - decimal
-        //        assertExpression(context, String.format("%s > %s", decimalVar, decimalVar), "false", "boolean");
-        //        // decimal - int
-        //        assertExpression(context, String.format("%s > %s", decimalVar, decimalVar), "false", "boolean");
-        //        // float - decimal
-        //        assertExpression(context, String.format("%s > %s", decimalVar, decimalVar), "false", "boolean");
-        //        // decimal - float
-        //        assertExpression(context, String.format("%s > %s", decimalVar, decimalVar), "false", "boolean");
+        // // int - decimal
+        // assertExpression(context, String.format("%s > %s", decimalVar, decimalVar), "false", "boolean");
+        // // decimal - int
+        // assertExpression(context, String.format("%s > %s", decimalVar, decimalVar), "false", "boolean");
+        // // float - decimal
+        // assertExpression(context, String.format("%s > %s", decimalVar, decimalVar), "false", "boolean");
+        // // decimal - float
+        // assertExpression(context, String.format("%s > %s", decimalVar, decimalVar), "false", "boolean");
 
         // expression <= expression
         // int - int
@@ -443,17 +450,18 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         assertExpression(context, String.format("%s <= %s", INT_VAR, FLOAT_VAR), "false", "boolean");
         // float - float
         assertExpression(context, String.format("%s <= %s", FLOAT_VAR, FLOAT_VAR), "true", "boolean");
+        // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/26366
+        // decimal - decimal
+        // assertExpression(context, String.format("%s <= %s", DECIMAL_VAR, DECIMAL_VAR), "true", "boolean");
         // Todo - Enable after adding support
-        //        // decimal - decimal
-        //        assertExpression(context, String.format("%s <= %s", decimalVar, decimalVar), "false", "boolean");
-        //        // int - decimal
-        //        assertExpression(context, String.format("%s <= %s", decimalVar, decimalVar), "false", "boolean");
-        //        // decimal - int
-        //        assertExpression(context, String.format("%s <= %s", decimalVar, decimalVar), "false", "boolean");
-        //        // float - decimal
-        //        assertExpression(context, String.format("%s <= %s", decimalVar, decimalVar), "false", "boolean");
-        //        // decimal - float
-        //        assertExpression(context, String.format("%s <= %s", decimalVar, decimalVar), "false", "boolean");
+        // // int - decimal
+        // assertExpression(context, String.format("%s <= %s", decimalVar, decimalVar), "false", "boolean");
+        // // decimal - int
+        // assertExpression(context, String.format("%s <= %s", decimalVar, decimalVar), "false", "boolean");
+        // // float - decimal
+        // assertExpression(context, String.format("%s <= %s", decimalVar, decimalVar), "false", "boolean");
+        // // decimal - float
+        // assertExpression(context, String.format("%s <= %s", decimalVar, decimalVar), "false", "boolean");
 
         // expression >= expression
         // int - int
@@ -464,17 +472,17 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         assertExpression(context, String.format("%s >= %s", INT_VAR, FLOAT_VAR), "true", "boolean");
         // float - float
         assertExpression(context, String.format("%s >= %s", FLOAT_VAR, FLOAT_VAR), "true", "boolean");
+        // decimal - decimal
+        assertExpression(context, String.format("%s >= %s", DECIMAL_VAR, DECIMAL_VAR), "true", "boolean");
         // Todo - Enable after adding support
-        //        // decimal - decimal
-        //        assertExpression(context, String.format("%s >= %s", decimalVar, decimalVar), "false", "boolean");
-        //        // int - decimal
-        //        assertExpression(context, String.format("%s >= %s", decimalVar, decimalVar), "false", "boolean");
-        //        // decimal - int
-        //        assertExpression(context, String.format("%s >= %s", decimalVar, decimalVar), "false", "boolean");
-        //        // float - decimal
-        //        assertExpression(context, String.format("%s >= %s", decimalVar, decimalVar), "false", "boolean");
-        //        // decimal - float
-        //        assertExpression(context, String.format("%s >= %s", decimalVar, decimalVar), "false", "boolean");
+        // // int - decimal
+        // assertExpression(context, String.format("%s >= %s", decimalVar, decimalVar), "false", "boolean");
+        // // decimal - int
+        // assertExpression(context, String.format("%s >= %s", decimalVar, decimalVar), "false", "boolean");
+        // // float - decimal
+        // assertExpression(context, String.format("%s >= %s", decimalVar, decimalVar), "false", "boolean");
+        // // decimal - float
+        // assertExpression(context, String.format("%s >= %s", decimalVar, decimalVar), "false", "boolean");
     }
 
     @Override

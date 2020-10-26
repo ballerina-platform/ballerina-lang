@@ -4,5 +4,5 @@ public function foo() {
     future<string[]> a;
     future<T?> a;
     typedesc<()> a;
-    typedesc<object { }> a;
+    typedesc<object {}> a;
 }

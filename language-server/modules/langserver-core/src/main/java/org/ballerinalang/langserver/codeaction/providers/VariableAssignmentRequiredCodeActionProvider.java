@@ -151,7 +151,7 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
         }
         // Get Symbol of the position
         LinePosition position = positionFinder.getPosition().get();
-        LinePosition scopedNodePos = LinePosition.from(position.line() + 1, position.offset() + 2);
+        LinePosition scopedNodePos = LinePosition.from(position.line(), position.offset() + 1);
         Optional<Symbol> optScopedSymbol = semanticModel.symbol(relPath, scopedNodePos);
         if (optScopedSymbol.isEmpty()) {
             return Optional.empty();

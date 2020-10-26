@@ -104,7 +104,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
                     // Note - All the ballerina functions are represented as java static methods and all the generated
                     // jvm methods contain strand as its first argument.
                     if (method.isStatic()) {
-                        return Optional.of(new JvmStaticMethod(context, cls, method, argEvaluators, null));
+                        return Optional.of(new GeneratedStaticMethod(context, cls, method, argEvaluators, null));
                     }
                 }
             } catch (ClassNotPreparedException ignored) {
@@ -133,7 +133,8 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
                         syntaxNode.functionName().toSourceCode());
                 List<Method> methods = refType.methodsByName(syntaxNode.functionName().toSourceCode());
                 if (!methods.isEmpty()) {
-                    return Optional.of(new JvmStaticMethod(context, refType, methods.get(0), argEvaluators, null));
+                    return Optional.of(new GeneratedStaticMethod(context, refType, methods.get(0), argEvaluators,
+                            null));
                 }
             }
             return Optional.empty();

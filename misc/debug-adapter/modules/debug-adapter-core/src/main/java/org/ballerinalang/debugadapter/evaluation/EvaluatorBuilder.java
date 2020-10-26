@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.InterpolationNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.NilLiteralNode;
@@ -36,6 +37,7 @@ import io.ballerina.compiler.syntax.tree.RestArgumentNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
@@ -49,11 +51,13 @@ import org.ballerinalang.debugadapter.evaluation.engine.IndexedExpressionEvaluat
 import org.ballerinalang.debugadapter.evaluation.engine.MethodCallExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.OptionalFieldAccessExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.SimpleNameReferenceEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.StringTemplateEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.TypeOfExpressionEvaluator;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -294,6 +298,33 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     @Override
+    public void visit(TemplateExpressionNode templateExpressionNode) {
+        visitSyntaxNode(templateExpressionNode);
+        Optional<Token> typeOp = templateExpressionNode.type();
+        if (typeOp.isEmpty()) {
+            // Todo - throw an error instead?
+            return;
+        }
+        SyntaxKind type = typeOp.get().kind();
+        if (type == SyntaxKind.STRING_KEYWORD) {
+            List<Evaluator> templateMemberEvaluators = new ArrayList<>();
+            // Cannot use foreach or lambda, until the ClassCastException is fixed from the compiler side.
+            for (int i = 0; i < templateExpressionNode.content().size(); i++) {
+                Node templateMemberNode = templateExpressionNode.content().get(i);
+                templateMemberNode.accept(this);
+                templateMemberEvaluators.add(result);
+            }
+            result = new StringTemplateEvaluator(context, templateExpressionNode, templateMemberEvaluators);
+        }
+    }
+
+    @Override
+    public void visit(InterpolationNode interpolationNode) {
+        visitSyntaxNode(interpolationNode);
+        interpolationNode.expression().accept(this);
+    }
+
+    @Override
     public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
         visitSyntaxNode(simpleNameReferenceNode);
         result = new SimpleNameReferenceEvaluator(context, simpleNameReferenceNode);
@@ -321,6 +352,9 @@ public class EvaluatorBuilder extends NodeVisitor {
 
     @Override
     public void visit(Token token) {
+        if (token.kind() == SyntaxKind.TEMPLATE_STRING) {
+            result = new BasicLiteralEvaluator(context, token);
+        }
     }
 
     private boolean unsupportedSyntaxDetected() {
@@ -381,7 +415,8 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addStringTemplateExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.STRING_TEMPLATE_EXPRESSION);
+        supportedSyntax.add(SyntaxKind.INTERPOLATION);
     }
 
     private void addXmlTemplateExpressionSyntax() {

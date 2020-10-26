@@ -286,18 +286,13 @@ public class BIRGen extends BLangNodeVisitor {
 
     private void setEntryPoints(BLangPackage pkgNode) {
         BLangFunction mainFunc = getMainFunction(pkgNode);
-        if (mainFunc != null || listenerDeclarationFound(pkgNode.getGlobalVariables())) {
+        if (mainFunc != null) {
             pkgNode.symbol.entryPointExists = true;
         }
-    }
 
-    private boolean listenerDeclarationFound(List<BLangSimpleVariable> globalVars) {
-        for (BLangSimpleVariable globalVar : globalVars) {
-            if (Symbols.isFlagOn(globalVar.symbol.flags, Flags.LISTENER)) {
-                return true;
-            }
+        if (pkgNode.services.size() != 0) {
+            pkgNode.symbol.entryPointExists = true;
         }
-        return false;
     }
 
     private BLangFunction getMainFunction(BLangPackage pkgNode) {
@@ -435,8 +430,8 @@ public class BIRGen extends BLangNodeVisitor {
                                                   funcSymbol.origin.toBIROrigin());
 
             if (funcSymbol.receiverSymbol != null) {
-                birFunc.receiver = getSelf(funcSymbol.receiverSymbol
-                );
+                birFunc.receiver = getSelf(funcSymbol.receiverSymbol, funcSymbol.receiverSymbol.type,
+                        funcSymbol.receiverSymbol.name);
             }
 
             birFunc.setMarkdownDocAttachment(funcSymbol.markdownDocumentation);
@@ -493,8 +488,8 @@ public class BIRGen extends BLangNodeVisitor {
                     names.fromString(DEFAULT_WORKER_NAME), 0, new TaintTable(), funcSymbol.origin.toBIROrigin());
 
             if (funcSymbol.receiverSymbol != null) {
-                birFunc.receiver = getSelf(funcSymbol.receiverSymbol
-                );
+                birFunc.receiver = getSelf(funcSymbol.receiverSymbol, funcSymbol.receiverSymbol.type,
+                        funcSymbol.receiverSymbol.name);
             }
 
             birFunc.setMarkdownDocAttachment(funcSymbol.markdownDocumentation);
@@ -584,7 +579,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         if (astFunc.receiver != null) {
-            birFunc.receiver = getSelf(astFunc.receiver.symbol);
+            birFunc.receiver = getSelf(astFunc.receiver.symbol, astFunc.receiver.type, astFunc.receiver.symbol.name);
         }
 
         birFunc.setMarkdownDocAttachment(astFunc.symbol.markdownDocumentation);
@@ -667,7 +662,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.clear();
     }
 
-    private BIRVariableDcl getSelf(BSymbol receiver) {
+    private BIRVariableDcl getSelf(BSymbol receiver, BType type, Name name) {
         BIRVariableDcl self = this.env.symbolVarMap.get(receiver);
         if (self == null) {
              return new BIRVariableDcl(null, receiver.type, receiver.name,
@@ -907,8 +902,8 @@ public class BIRGen extends BLangNodeVisitor {
         if (taintRecord.taintError == null || taintRecord.taintError.isEmpty()) {
             List<Byte> storedTaintTableValue = new ArrayList<>();
             storedTaintTableValue.add(taintRecord.returnTaintedStatus.getByteValue());
-            storedTaintTableValue.addAll(taintRecord.parameterTaintedStatusList.stream().map(
-                    TaintRecord.TaintedStatus::getByteValue).collect(Collectors.toList()));
+            storedTaintTableValue.addAll(taintRecord.parameterTaintedStatusList.stream().map(taintedStatus ->
+                    taintedStatus.getByteValue()).collect(Collectors.toList()));
             taintTable.taintTable.put(index, storedTaintTableValue);
             return true;
         }
@@ -985,7 +980,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         int offset = symbol.receiverSymbol.type.tsymbol.name.value.length() + 1;
         String attachedFuncName = symbol.name.value;
-        return names.fromString(attachedFuncName.substring(offset));
+        return names.fromString(attachedFuncName.substring(offset, attachedFuncName.length()));
     }
 
     private void addParam(BIRFunction birFunc, BLangVariable functionParam) {
@@ -1096,7 +1091,8 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBasicBlocks.add(unlockBB);
             BIRTerminator.Unlock unlock = new BIRTerminator.Unlock(null, unlockBB);
             this.env.enclBB.terminator = unlock;
-            unlock.relatedLock = toUnlock.getLock(numLocks - 1);
+            BIRTerminator.Lock lock = toUnlock.getLock(numLocks - 1);
+            unlock.relatedLock = lock;
             this.env.enclBB = unlockBB;
             numLocks--;
         }
@@ -1183,6 +1179,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
+        //        this.acceptNode(exprStmtNode.expr);
         exprStmtNode.expr.accept(this);
     }
 
@@ -1217,12 +1214,10 @@ public class BIRGen extends BLangNodeVisitor {
         createCall(invocation, false);
     }
 
-    @Override
     public void visit(BLangForkJoin forkJoin) {
         forkJoin.workers.forEach(worker -> worker.accept(this));
     }
 
-    @Override
     public void visit(BLangWorkerReceive workerReceive) {
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(thenBB);
@@ -1243,7 +1238,6 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB = thenBB;
     }
 
-    @Override
     public void visit(BLangWorkerSend workerSend) {
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(thenBB);
@@ -1259,7 +1253,6 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB = thenBB;
     }
 
-    @Override
     public void visit(BLangWorkerSyncSendExpr syncSend) {
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(thenBB);
@@ -1282,7 +1275,6 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB = thenBB;
     }
 
-    @Override
     public void visit(BLangWorkerFlushExpr flushExpr) {
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(thenBB);
@@ -1447,7 +1439,8 @@ public class BIRGen extends BLangNodeVisitor {
                     this.env.enclBasicBlocks.add(unlockBB);
                     BIRTerminator.Unlock unlock = new BIRTerminator.Unlock(null,  unlockBB);
                     this.env.enclBB.terminator = unlock;
-                    unlock.relatedLock = s.getLock(i - 1);
+                    BIRTerminator.Lock lock = s.getLock(i - 1);
+                    unlock.relatedLock = lock;
                     this.env.enclBB = unlockBB;
                     i--;
                 }
@@ -1870,7 +1863,7 @@ public class BIRGen extends BLangNodeVisitor {
 
             BIRVariableDcl varDecl;
             if (isSelfVar(varSymbol)) {
-                varDecl = getSelf(varSymbol);
+                varDecl = getSelf(varSymbol, varSymbol.type, varSymbol.name);
             } else {
                 varDecl = this.env.symbolVarMap.get(varSymbol);
             }
@@ -2068,7 +2061,9 @@ public class BIRGen extends BLangNodeVisitor {
 
         // Visit in-line namespace declarations. These needs to be visited first before visiting the
         // attributes, start and end tag names of the element.
-        xmlElementLiteral.inlineNamespaces.forEach(xmlns -> xmlns.accept(this));
+        xmlElementLiteral.inlineNamespaces.forEach(xmlns -> {
+            xmlns.accept(this);
+        });
 
         // Create start tag name
         BLangExpression startTagName = (BLangExpression) xmlElementLiteral.getStartTagName();
@@ -2291,7 +2286,8 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBasicBlocks.add(unlockBB);
             BIRTerminator.Unlock unlock = new BIRTerminator.Unlock(null, unlockBB);
             this.env.enclBB.terminator = unlock;
-            unlock.relatedLock = toUnlock.getLock(numLocks - 1);
+            BIRTerminator.Lock lock = toUnlock.getLock(numLocks - 1);
+            unlock.relatedLock = lock;
             this.env.enclBB = unlockBB;
             numLocks--;
         }
@@ -2313,7 +2309,8 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBasicBlocks.add(unlockBB);
             BIRTerminator.Unlock unlock = new BIRTerminator.Unlock(null,  unlockBB);
             this.env.enclBB.terminator = unlock;
-            unlock.relatedLock = toUnlock.getLock(numLocks - 1);
+            BIRTerminator.Lock lock = toUnlock.getLock(numLocks - 1);
+            unlock.relatedLock = lock;
             this.env.enclBB = unlockBB;
             numLocks--;
         }
@@ -2371,7 +2368,8 @@ public class BIRGen extends BLangNodeVisitor {
         addToTrapStack(unLockedBB);
         this.env.enclBasicBlocks.add(unLockedBB);
         this.env.enclBB.terminator = new BIRTerminator.Unlock(null, unLockedBB);
-        ((BIRTerminator.Unlock) this.env.enclBB.terminator).relatedLock = lockStmtMap.get(unLockStmt.relatedLock);
+        BIRTerminator.Lock relatedLock = lockStmtMap.get(unLockStmt.relatedLock);
+        ((BIRTerminator.Unlock) this.env.enclBB.terminator).relatedLock = relatedLock;
         this.env.enclBB = unLockedBB;
 
         lockDetailsHolder.removeLastLock();
@@ -2588,6 +2586,16 @@ public class BIRGen extends BLangNodeVisitor {
         if (type.tag == TypeTags.UNION) {
             return ((BUnionType) type).getMemberTypes().stream()
                     .filter(t -> t.tag == TypeTags.OBJECT)
+                    .findFirst()
+                    .orElse(symTable.noType).tsymbol;
+        }
+        return type.tsymbol;
+    }
+
+    private BTypeSymbol getRecordTypeSymbol(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .filter(t -> t.tag == TypeTags.RECORD)
                     .findFirst()
                     .orElse(symTable.noType).tsymbol;
         }

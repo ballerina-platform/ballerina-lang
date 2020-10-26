@@ -30,21 +30,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Java JVM generated instance method representation.
+ * JVM generated instance method representation of a ballerina function.
  *
  * @since 2.0.0
  */
-public class JvmInstanceMethod extends JvmMethod {
+public class GeneratedInstanceMethod extends JvmMethod {
 
     private final Value objectValueRef;
 
-    JvmInstanceMethod(SuspendedContext context, Value objectRef, Method methodRef) {
+    GeneratedInstanceMethod(SuspendedContext context, Value objectRef, Method methodRef) {
         super(context, methodRef);
         this.objectValueRef = objectRef;
     }
 
-    JvmInstanceMethod(SuspendedContext context, Value objectRef, Method methodRef, List<Evaluator> argEvaluators,
-                      List<Value> argsList) {
+    GeneratedInstanceMethod(SuspendedContext context, Value objectRef, Method methodRef, List<Evaluator> argEvaluators,
+                            List<Value> argsList) {
         super(context, methodRef, argEvaluators, argsList);
         this.objectValueRef = objectRef;
     }
@@ -96,9 +96,9 @@ public class JvmInstanceMethod extends JvmMethod {
 
             // Todo - IMPORTANT: Add remaining steps to validate and match named, defaultable and rest args
             // Todo - verify
-            // Here we use the parent strand instance to execute the function invocation expression.
-            Value parentStrand = getParentStrand();
-            argValueList.add(0, parentStrand);
+            // Here we use the existing strand instance to execute the function invocation expression.
+            Value strand = getCurrentStrand();
+            argValueList.add(0, strand);
             return argValueList;
         } catch (ClassNotLoadedException e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString(),
