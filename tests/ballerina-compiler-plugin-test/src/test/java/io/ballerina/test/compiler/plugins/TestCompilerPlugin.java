@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
+import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 
 import java.nio.file.Path;
@@ -77,8 +78,9 @@ public class TestCompilerPlugin extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void process(SimpleVariableNode variableNode, List<AnnotationAttachmentNode> annotations) {
-        addEvent(TestEvent.Kind.VARIAVLE_ANN, variableNode.getName().getValue(), annotations.size());
+    public void process(VariableNode variableNode, List<AnnotationAttachmentNode> annotations) {
+        addEvent(TestEvent.Kind.VARIAVLE_ANN, ((SimpleVariableNode) variableNode).getName().getValue(),
+                annotations.size());
     }
 
     @Override
