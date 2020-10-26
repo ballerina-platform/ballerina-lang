@@ -5880,6 +5880,7 @@ public class Desugar extends BLangNodeVisitor {
         conversionExpr.expr = expr;
         conversionExpr.type = targetType;
         conversionExpr.targetType = targetType;
+        conversionExpr.internal = true;
         return conversionExpr;
     }
 
@@ -6449,6 +6450,7 @@ public class Desugar extends BLangNodeVisitor {
         conversionExpr.type = lhsType;
         conversionExpr.pos = expr.pos;
         conversionExpr.checkTypes = false;
+        conversionExpr.internal = true;
         return conversionExpr;
     }
 

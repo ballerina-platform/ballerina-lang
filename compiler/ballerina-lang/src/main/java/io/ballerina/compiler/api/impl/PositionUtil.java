@@ -19,6 +19,7 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 
 /**
@@ -41,5 +42,23 @@ class PositionUtil {
                 || (startLine == cursorLine && startColumn < cursorColumn && endLine > cursorLine)
                 || (startLine == endLine && startLine == cursorLine
                 && startColumn <= cursorColumn && endColumn > cursorColumn);
+    }
+
+    static boolean withinRange(LineRange specifiedRange, Diagnostic.DiagnosticPosition nodePosition) {
+        int startLine = nodePosition.getStartLine();
+        int startOffset = nodePosition.getStartColumn();
+        int endLine = nodePosition.getEndLine();
+        int endOffset = nodePosition.getEndColumn();
+
+        int specifiedStartLine = specifiedRange.startLine().line();
+        int specifiedEndLine = specifiedRange.endLine().line();
+        int specifiedStartOffset = specifiedRange.startLine().offset();
+        int specifiedEndOffset = specifiedRange.endLine().offset();
+
+        return (startLine < specifiedStartLine && endLine > specifiedEndLine)
+                || (startLine < specifiedStartLine && endLine == specifiedEndLine && endOffset > specifiedEndOffset)
+                || (startLine == specifiedStartLine && startOffset < specifiedStartOffset && endLine > specifiedEndLine)
+                || (startLine == endLine && startLine == specifiedStartLine && specifiedStartLine == specifiedEndLine
+                && startOffset <= specifiedStartOffset && endOffset >= specifiedEndOffset);
     }
 }
