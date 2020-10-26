@@ -42,20 +42,20 @@ dependencies {
     balRt project(':ballerina-rt')
 }
 
-task createDistributionCache(type: Copy) {
+task createTestDistributionCache(type: Copy) {
     dependsOn configurations.distributionBalo
     from configurations.distributionBalo
     into "$buildDir/distribution-cache"
 }
 
-task createBre(type: Copy) {
+task createTestBre(type: Copy) {
     from configurations.balRt
     into "$buildDir/bre/lib"
 }
 
 test {
-    dependsOn createDistributionCache
-    dependsOn createBre
+    dependsOn createTestDistributionCache
+    dependsOn createTestBre
 
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
     systemProperty "ballerina.home", "$buildDir"

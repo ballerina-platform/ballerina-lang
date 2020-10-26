@@ -2,7 +2,7 @@ package io.ballerina.cli.utils;
 
 import java.io.PrintStream;
 
-import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static io.ballerina.runtime.util.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
  * Utilities related to ballerina program debugging.

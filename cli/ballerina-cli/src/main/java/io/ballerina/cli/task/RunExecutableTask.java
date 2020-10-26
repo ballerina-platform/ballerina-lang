@@ -39,7 +39,7 @@ import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
 import static io.ballerina.projects.util.ProjectUtils.getBalHomePath;
 import static io.ballerina.projects.util.ProjectUtils.getBallerinaRTJarPath;
 import static io.ballerina.projects.utils.ProjectConstants.BLANG_COMPILED_JAR_EXT;
-import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
+import static io.ballerina.runtime.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
