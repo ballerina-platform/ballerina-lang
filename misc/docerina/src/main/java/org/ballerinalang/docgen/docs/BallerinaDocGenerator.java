@@ -667,7 +667,8 @@ public class BallerinaDocGenerator {
         bLangPackage.getAnnotations().sort(Comparator.comparing(a -> a.getName().getValue()));
         bLangPackage.getTypeDefinitions()
                 .sort(Comparator.comparing(a -> a.getName() == null ? "" : a.getName().getValue()));
-        bLangPackage.getGlobalVariables().sort(Comparator.comparing(a -> ((BLangSimpleVariable) a).getName().getValue()));
+        bLangPackage.getGlobalVariables().sort(Comparator.comparing(a ->
+                ((BLangSimpleVariable) a).getName().getValue()));
     }
 
     private static List<Path> getResourcePaths(Path absolutePkgPath) throws IOException {
