@@ -18,14 +18,16 @@
 package io.ballerina.projects.env;
 
 import io.ballerina.projects.Project;
-import io.ballerina.projects.environment.EnvironmentContext;
-import io.ballerina.projects.environment.GlobalPackageCache;
-import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.environment.ProjectEnvironmentContext;
+import io.ballerina.projects.environment.*;
 import io.ballerina.projects.repos.DistributionPackageCache;
+import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.compiler.JarResolver;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 
 /**
  * Represents the per build project environment context.
@@ -45,6 +47,9 @@ public class BuildProjectEnvContext extends ProjectEnvironmentContext {
         GlobalPackageCache globalPackageCache = buildEnvContext.getService(GlobalPackageCache.class);
         DistributionPackageCache distCache = buildEnvContext.getService(DistributionPackageCache.class);
         services.put(PackageResolver.class, new DefaultPackageResolver(project, distCache, globalPackageCache));
+        // services.put(ProjectJarResolver.class, new ProjectJarResolver(project, globalPackageCache));
+        buildEnvContext.compilerContext()
+            .put(JarResolver.JAR_RESOLVER_KEY, new ProjectJarResolver(project, globalPackageCache));
     }
 
     @SuppressWarnings("unchecked")

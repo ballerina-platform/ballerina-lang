@@ -45,18 +45,25 @@ public class BuildLangLib {
 
     static Path projectDir;
     static Path distCache;
+    static boolean skipBootstrap = false;
 
     public static void main(String[] args) throws IOException {
         PrintStream out = System.out;
         projectDir = Paths.get(args[0]);
         distCache = Paths.get(args[1]);
+        // Following is to compile stdlib Modules
+        if (args.length >= 3 && args[2].equals("true")) {
+            skipBootstrap = true;
+        }
         System.setProperty(ProjectConstants.BALLERINA_INSTALL_DIR_PROP, distCache.toString());
         out.println("Building langlib ...");
         out.println("Project Dir: " + projectDir);
 
         // TODO Temporary fix
         String pkgName = projectDir.getFileName().toString();
-        System.setProperty("BOOTSTRAP_LANG_LIB", pkgName);
+        if (!skipBootstrap) {
+            System.setProperty("BOOTSTRAP_LANG_LIB", pkgName);
+        }
         Project project = BuildProject.loadProject(projectDir);
         Target target = new Target(projectDir);
         Package pkg = project.currentPackage();
