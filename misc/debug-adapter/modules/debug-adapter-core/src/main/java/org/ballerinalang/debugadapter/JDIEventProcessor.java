@@ -167,7 +167,7 @@ public class JDIEventProcessor {
             if (threadReference.status() == ThreadReference.THREAD_STATUS_RUNNING
                     && !threadReference.name().equals("Reference Handler")
                     && !threadReference.name().equals("Signal Dispatcher")
-                    && threadReference.isSuspended() && threadReference.isAtBreakpoint()
+                    && threadReference.isSuspended()
             ) {
                 breakPointThreads.put(threadReference.uniqueID(), threadReference);
             }
@@ -217,7 +217,7 @@ public class JDIEventProcessor {
                 BreakpointRequest bpReq = context.getDebuggee().eventRequestManager().createBreakpointRequest(location);
                 bpReq.enable();
             }
-        } catch (AbsentInformationException e) {
+        } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
     }
