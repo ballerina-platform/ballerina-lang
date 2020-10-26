@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.ClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmInitsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
@@ -73,14 +74,14 @@ public class ExternalMethodGen {
 
         if (extFuncWrapper instanceof JFieldFunctionWrapper) {
             genJFieldForInteropField((JFieldFunctionWrapper) extFuncWrapper, cw, birModule, jvmPackageGen,
-                                     jvmMethodGen, moduleClassName, lambdaGenMetadata);
+                                     moduleClassName, lambdaGenMetadata);
         } else {
             jvmMethodGen.genJMethodForBFunc(birFunc, cw, birModule, moduleClassName,
                                             attachedType, lambdaGenMetadata);
         }
     }
 
-    public static void injectDefaultParamInits(BIRPackage module, JvmMethodGen jvmMethodGen,
+    public static void injectDefaultParamInits(BIRPackage module, JvmInitsGen jvmInitsGen,
                                                JvmPackageGen jvmPackageGen) {
 
         // filter out functions.
@@ -95,13 +96,13 @@ public class ExternalMethodGen {
                 count = count + 1;
                 BIRFunctionWrapper extFuncWrapper = lookupBIRFunctionWrapper(module, birFunc, null, jvmPackageGen);
                 if (extFuncWrapper instanceof OldStyleExternalFunctionWrapper) {
-                    desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, birFunc, jvmMethodGen);
-                    enrichWithDefaultableParamInits(birFunc, jvmMethodGen);
+                    desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, birFunc, jvmInitsGen);
+                    enrichWithDefaultableParamInits(birFunc, jvmInitsGen);
                 } else if (extFuncWrapper instanceof JMethodFunctionWrapper) {
-                    desugarInteropFuncs((JMethodFunctionWrapper) extFuncWrapper, birFunc, jvmMethodGen);
-                    enrichWithDefaultableParamInits(birFunc, jvmMethodGen);
+                    desugarInteropFuncs((JMethodFunctionWrapper) extFuncWrapper, birFunc, jvmInitsGen);
+                    enrichWithDefaultableParamInits(birFunc, jvmInitsGen);
                 } else if (!(extFuncWrapper instanceof JFieldFunctionWrapper)) {
-                    enrichWithDefaultableParamInits(birFunc, jvmMethodGen);
+                    enrichWithDefaultableParamInits(birFunc, jvmInitsGen);
                 }
             }
         }
@@ -109,8 +110,7 @@ public class ExternalMethodGen {
     }
 
     public static void desugarOldExternFuncs(OldStyleExternalFunctionWrapper extFuncWrapper, BIRFunction birFunc,
-                                             JvmMethodGen jvmMethodGen) {
-
+                                             JvmInitsGen jvmInitsGen) {
         BType retType = birFunc.type.retType;
 
         BIROperand retRef = null;
@@ -120,15 +120,15 @@ public class ExternalMethodGen {
             retRef = new BIROperand(variableDcl);
         }
 
-        jvmMethodGen.resetIds();
+        jvmInitsGen.resetIds();
 
-        BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, WRAPPER_GEN_BB_ID_NAME, jvmMethodGen);
-        BIRBasicBlock retBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, WRAPPER_GEN_BB_ID_NAME, jvmMethodGen);
+        BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, WRAPPER_GEN_BB_ID_NAME, jvmInitsGen);
+        BIRBasicBlock retBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, WRAPPER_GEN_BB_ID_NAME, jvmInitsGen);
 
         List<BIROperand> args = new ArrayList<>();
 
         BIRVariableDcl receiver = birFunc.receiver;
-        if (!(receiver == null)) {
+        if (receiver != null) {
 
             BIROperand argRef = new BIROperand(receiver);
             args.add(argRef);

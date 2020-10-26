@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
@@ -122,6 +123,7 @@ public class JvmPackageGen {
     public final SymbolTable symbolTable;
     public final PackageCache packageCache;
     private final JvmMethodGen jvmMethodGen;
+    private final JvmInitsGen jvmInitsGen;
     private final JvmMainMethodGen jvmMainMethodGen;
     private final JvmLambdaGen jvmLambdaGen;
     private final Map<String, BIRFunctionWrapper> birFunctionMap;
@@ -139,6 +141,7 @@ public class JvmPackageGen {
         this.packageCache = packageCache;
         this.dlog = dlog;
         jvmMethodGen = new JvmMethodGen(this);
+        jvmInitsGen = new JvmInitsGen(symbolTable);
         jvmMainMethodGen = new JvmMainMethodGen(symbolTable);
         jvmLambdaGen = new JvmLambdaGen(this);
         typeBuilder = new ResolvedTypeBuilder();
@@ -419,14 +422,14 @@ public class JvmPackageGen {
         final Map<String, byte[]> jarEntries = new ConcurrentHashMap<>();
 
         // desugar parameter initialization
-        injectDefaultParamInits(module, jvmMethodGen, this);
-        injectDefaultParamInitsToAttachedFuncs(module, jvmMethodGen, this);
+        injectDefaultParamInits(module, jvmInitsGen, this);
+        injectDefaultParamInitsToAttachedFuncs(module, jvmInitsGen, this);
 
         // create imported modules flat list
         List<PackageID> flattenedModuleImports = flattenModuleImports(moduleImports);
 
         // enrich current package with package initializers
-        jvmMethodGen.enrichPkgWithInitializers(jvmClassMapping, moduleInitClass, module, flattenedModuleImports);
+        jvmInitsGen.enrichPkgWithInitializers(jvmClassMapping, moduleInitClass, module, flattenedModuleImports);
 
         // generate the shutdown listener class.
         generateShutdownSignalListener(moduleInitClass, jarEntries);
@@ -488,11 +491,11 @@ public class JvmPackageGen {
                 if (mainFunc != null) {
                     jvmMainMethodGen.generateLambdaForMain(mainFunc, cw, mainClass);
                 }
-                jvmMethodGen.generateLambdaForPackageInits(cw, module, moduleClass, moduleImports);
+                jvmInitsGen.generateLambdaForPackageInits(cw, module, moduleClass, moduleImports);
 
                 generateLockForVariable(cw);
                 generateCreateTypesMethod(cw, module.typeDefs, moduleInitClass, symbolTable);
-                jvmMethodGen.generateModuleInitializer(cw, module, moduleInitClass);
+                jvmInitsGen.generateModuleInitializer(cw, module, moduleInitClass);
                 jvmMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports,
                                                          asyncDataCollector);
             } else {
@@ -660,7 +663,7 @@ public class JvmPackageGen {
         String functionName = initFunc.name.value;
         JavaClass klass = new JavaClass(initFunc.pos.src.cUnitName);
         klass.functions.add(0, initFunc);
-        jvmMethodGen.addInitAndTypeInitInstructions(module, initFunc);
+        jvmInitsGen.addInitAndTypeInitInstructions(module, initFunc);
         jvmClassMap.put(initClass, klass);
         birFunctionMap.put(pkgName + functionName, getFunctionWrapper(initFunc, orgName, moduleName,
                 version, initClass));

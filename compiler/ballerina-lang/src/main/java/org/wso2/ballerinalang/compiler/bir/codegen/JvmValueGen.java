@@ -163,23 +163,21 @@ class JvmValueGen {
         return func;
     }
 
-    static void injectDefaultParamInitsToAttachedFuncs(BIRNode.BIRPackage module, JvmMethodGen jvmMethodGen,
+    static void injectDefaultParamInitsToAttachedFuncs(BIRNode.BIRPackage module, JvmInitsGen jvmInitsGen,
                                                        JvmPackageGen jvmPackageGen) {
-
         List<BIRNode.BIRTypeDefinition> typeDefs = module.typeDefs;
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
             if (bType instanceof BServiceType || (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(
                     bType.tsymbol.flags, Flags.CLASS)) || bType.tag == TypeTags.RECORD) {
-                desugarObjectMethods(module, bType, optionalTypeDef.attachedFuncs, jvmMethodGen, jvmPackageGen);
+                desugarObjectMethods(module, bType, optionalTypeDef.attachedFuncs, jvmInitsGen, jvmPackageGen);
             }
         }
     }
 
     private static void desugarObjectMethods(BIRNode.BIRPackage module, BType bType,
-                                             List<BIRNode.BIRFunction> attachedFuncs, JvmMethodGen jvmMethodGen,
+                                             List<BIRNode.BIRFunction> attachedFuncs, JvmInitsGen jvmInitsGen,
                                              JvmPackageGen jvmPackageGen) {
-
         if (attachedFuncs == null) {
             return;
         }
@@ -190,17 +188,17 @@ class JvmValueGen {
             if (JvmCodeGenUtil.isExternFunc(birFunc)) {
                 BIRFunctionWrapper extFuncWrapper = lookupBIRFunctionWrapper(module, birFunc, bType, jvmPackageGen);
                 if (extFuncWrapper instanceof OldStyleExternalFunctionWrapper) {
-                    desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, birFunc, jvmMethodGen);
+                    desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, birFunc, jvmInitsGen);
                 } else if (extFuncWrapper instanceof JMethodFunctionWrapper) {
-                    desugarInteropFuncs((JMethodFunctionWrapper) extFuncWrapper, birFunc, jvmMethodGen);
-                    enrichWithDefaultableParamInits(birFunc, jvmMethodGen);
+                    desugarInteropFuncs((JMethodFunctionWrapper) extFuncWrapper, birFunc, jvmInitsGen);
+                    enrichWithDefaultableParamInits(birFunc, jvmInitsGen);
                 } else if (!(extFuncWrapper instanceof JFieldFunctionWrapper)) {
-                    enrichWithDefaultableParamInits(birFunc, jvmMethodGen);
+                    enrichWithDefaultableParamInits(birFunc, jvmInitsGen);
                 }
             } else {
                 addDefaultableBooleanVarsToSignature(birFunc, jvmPackageGen.symbolTable.booleanType);
             }
-            enrichWithDefaultableParamInits(birFunc, jvmMethodGen);
+            enrichWithDefaultableParamInits(birFunc, jvmInitsGen);
         }
     }
 

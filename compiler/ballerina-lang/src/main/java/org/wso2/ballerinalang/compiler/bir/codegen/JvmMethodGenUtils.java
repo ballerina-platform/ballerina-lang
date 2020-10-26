@@ -46,6 +46,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 public class JvmMethodGenUtils {
     static final String FRAMES = "frames";
     static final String INIT_FUNCTION_SUFFIX = "<init>";
+    static final String STOP_FUNCTION_SUFFIX = "<stop>";
+    static final String START_FUNCTION_SUFFIX = "<start>";
 
     static boolean hasInitFunction(BIRNode.BIRPackage pkg) {
         for (BIRNode.BIRFunction func : pkg.functions) {
@@ -61,7 +63,7 @@ public class JvmMethodGenUtils {
     }
 
     private static String calculateModuleInitFuncName(PackageID id) {
-        return JvmMethodGen.calculateModuleSpecialFuncName(id, INIT_FUNCTION_SUFFIX);
+        return calculateModuleSpecialFuncName(id, INIT_FUNCTION_SUFFIX);
     }
 
     static PackageID packageToModuleId(BIRNode.BIRPackage mod) {
@@ -89,6 +91,27 @@ public class JvmMethodGenUtils {
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    static String calculateModuleSpecialFuncName(PackageID id, String funcSuffix) {
+        String orgName = id.orgName.value;
+        String moduleName = id.name.value;
+        String version = id.version.value;
+
+        String funcName;
+        if (moduleName.equals(".")) {
+            funcName = ".." + funcSuffix;
+        } else if (version.equals("")) {
+            funcName = moduleName + "." + funcSuffix;
+        } else {
+            funcName = moduleName + ":" + version + "." + funcSuffix;
+        }
+
+        if (!orgName.equalsIgnoreCase("$anon")) {
+            funcName = orgName + "/" + funcName;
+        }
+
+        return funcName;
     }
 
     private JvmMethodGenUtils() {

@@ -26,8 +26,8 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmErrorGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmInitsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
@@ -128,7 +128,6 @@ public class InteropMethodGen {
                                          ClassWriter classWriter,
                                          BIRPackage birModule,
                                          JvmPackageGen jvmPackageGen,
-                                         JvmMethodGen jvmMethodGen,
                                          String moduleClassName,
                                          AsyncDataCollector asyncDataCollector) {
 
@@ -136,7 +135,7 @@ public class InteropMethodGen {
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
         BIRVariableDcl strandVarDcl = new BIRVariableDcl(jvmPackageGen.symbolTable.stringType, new Name("$_strand_$"),
                 null, VarKind.ARG);
-        int strandParamIndex = indexMap.addToMapIfNotFoundAndGetIndex(strandVarDcl);
+        indexMap.addToMapIfNotFoundAndGetIndex(strandVarDcl);
 
         // Generate method desc
         BIRFunction birFunc = jFieldFuncWrapper.func;
@@ -319,7 +318,7 @@ public class InteropMethodGen {
     }
 
     public static void desugarInteropFuncs(JMethodFunctionWrapper extFuncWrapper, BIRFunction birFunc,
-                                           JvmMethodGen jvmMethodGen) {
+                                           JvmInitsGen jvmInitsGen) {
         // resetting the variable generation index
         BType retType = birFunc.type.retType;
         if (Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
@@ -333,11 +332,11 @@ public class InteropMethodGen {
             jMethodRetType = JType.getPrimitiveJTypeForBType(birFunc.returnVariable.type);
         }
 
-        jvmMethodGen.resetIds();
+        jvmInitsGen.resetIds();
         String bbPrefix = WRAPPER_GEN_BB_ID_NAME;
 
-        BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, bbPrefix, jvmMethodGen);
-        BIRBasicBlock retBB = new BIRBasicBlock(getNextDesugarBBId(bbPrefix, jvmMethodGen));
+        BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, bbPrefix, jvmInitsGen);
+        BIRBasicBlock retBB = new BIRBasicBlock(getNextDesugarBBId(bbPrefix, jvmInitsGen));
 
         List<BIROperand> args = new ArrayList<>();
 
@@ -402,15 +401,13 @@ public class InteropMethodGen {
             } else {
                 invocationType = INVOKEVIRTUAL;
             }
-        } else if (jMethod.kind == JMethodKind.METHOD && jMethod.isStatic()) {
-            // nothing to do - remove later
-        } else {
+        } else if (!(jMethod.kind == JMethodKind.METHOD && jMethod.isStatic())) {
             invocationType = INVOKESPECIAL;
         }
 
         BIROperand jRetVarRef = null;
 
-        BIRBasicBlock thenBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, bbPrefix, jvmMethodGen);
+        BIRBasicBlock thenBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, bbPrefix, jvmInitsGen);
         thenBB.terminator = new BIRTerminator.GOTO(birFunc.pos, retBB);
 
         if (retType.tag != TypeTags.NIL) {
@@ -428,7 +425,7 @@ public class InteropMethodGen {
                 thenBB.instructions.add(jToBCast);
             }
 
-            BIRBasicBlock catchBB = new BIRBasicBlock(getNextDesugarBBId(bbPrefix, jvmMethodGen));
+            BIRBasicBlock catchBB = new BIRBasicBlock(getNextDesugarBBId(bbPrefix, jvmInitsGen));
             JErrorEntry ee = new JErrorEntry(beginBB, thenBB, retRef, catchBB);
             for (Class exception : extFuncWrapper.jMethod.getExceptionTypes()) {
                 BIRTerminator.Return exceptionRet = new BIRTerminator.Return(birFunc.pos);

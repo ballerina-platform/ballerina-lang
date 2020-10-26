@@ -90,8 +90,7 @@ public class JvmDesugarPhase {
         func.localVars = updatedVars;
     }
 
-    public static void enrichWithDefaultableParamInits(BIRFunction currentFunc, JvmMethodGen jvmMethodGen) {
-
+    public static void enrichWithDefaultableParamInits(BIRFunction currentFunc, JvmInitsGen jvmInitsGen) {
         int k = 1;
         List<BIRFunctionParameter> functionParams = new ArrayList<>();
         List<BIRVariableDcl> localVars = currentFunc.localVars;
@@ -103,11 +102,11 @@ public class JvmDesugarPhase {
             k += 1;
         }
 
-        jvmMethodGen.resetIds();
+        jvmInitsGen.resetIds();
 
         List<BIRBasicBlock> basicBlocks = new ArrayList<>();
 
-        BIRBasicBlock nextBB = insertAndGetNextBasicBlock(basicBlocks, DESUGARED_BB_ID_NAME, jvmMethodGen);
+        BIRBasicBlock nextBB = insertAndGetNextBasicBlock(basicBlocks, DESUGARED_BB_ID_NAME, jvmInitsGen);
 
         int paramCounter = 0;
         DiagnosticPos pos = currentFunc.pos;
@@ -122,7 +121,7 @@ public class JvmDesugarPhase {
                 List<BIRBasicBlock> bbArray = currentFunc.parameters.get(funcParam);
                 BIRBasicBlock trueBB = bbArray.get(0);
                 basicBlocks.addAll(bbArray);
-                BIRBasicBlock falseBB = insertAndGetNextBasicBlock(basicBlocks, DESUGARED_BB_ID_NAME, jvmMethodGen);
+                BIRBasicBlock falseBB = insertAndGetNextBasicBlock(basicBlocks, DESUGARED_BB_ID_NAME, jvmInitsGen);
                 nextBB.terminator = new Branch(pos, boolRef, trueBB, falseBB);
 
                 BIRBasicBlock lastBB = bbArray.get(bbArray.size() - 1);
@@ -151,16 +150,14 @@ public class JvmDesugarPhase {
     }
 
     public static BIRBasicBlock insertAndGetNextBasicBlock(List<BIRBasicBlock> basicBlocks,
-                                                           String prefix, JvmMethodGen jvmMethodGen) {
-
-        BIRBasicBlock nextbb = new BIRBasicBlock(getNextDesugarBBId(prefix, jvmMethodGen));
+                                                           String prefix, JvmInitsGen jvmInitsGen) {
+        BIRBasicBlock nextbb = new BIRBasicBlock(getNextDesugarBBId(prefix, jvmInitsGen));
         basicBlocks.add(nextbb);
         return nextbb;
     }
 
-    public static Name getNextDesugarBBId(String prefix, JvmMethodGen jvmMethodGen) {
-
-        int nextId = jvmMethodGen.incrementAndGetNextId();
+    public static Name getNextDesugarBBId(String prefix, JvmInitsGen jvmInitsGen) {
+        int nextId = jvmInitsGen.incrementAndGetNextId();
         return new Name(prefix + nextId);
     }
 
@@ -180,7 +177,7 @@ public class JvmDesugarPhase {
             index += 2;
             counter += 1;
         }
-        if (!(restType == null)) {
+        if (restType != null) {
             paramTypes.add(index, restType);
             paramTypes.add(index + 1, booleanType);
         }

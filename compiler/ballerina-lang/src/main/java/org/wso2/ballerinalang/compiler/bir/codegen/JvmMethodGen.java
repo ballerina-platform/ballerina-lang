@@ -28,7 +28,6 @@ import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.FunctionParamComparator;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen;
@@ -39,12 +38,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeTest;
-import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
-import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
-import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
-import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
@@ -52,24 +46,20 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.AALOAD;
 import static org.objectweb.asm.Opcodes.AASTORE;
@@ -117,12 +107,8 @@ import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_MAP_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
@@ -132,9 +118,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_ST
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP;
@@ -151,7 +135,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 
 /**
@@ -161,21 +144,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
  */
 public class JvmMethodGen {
 
-    private static final String START_FUNCTION_SUFFIX = "<start>";
-    private static final String STOP_FUNCTION_SUFFIX = "<stop>";
-
     public static final String STATE = "state";
     public static final String RESUME_INDEX = "resumeIndex";
-    private int nextId = -1;
-    private int nextVarId = -1;
     private final JvmPackageGen jvmPackageGen;
     private final SymbolTable symbolTable;
-    private final BUnionType errorOrNilType;
 
     JvmMethodGen(JvmPackageGen jvmPackageGen) {
         this.jvmPackageGen = jvmPackageGen;
         this.symbolTable = jvmPackageGen.symbolTable;
-        this.errorOrNilType = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);
     }
 
     public void genJMethodForBFunc(BIRFunction func, ClassWriter cw, BIRPackage module, String moduleClassName,
@@ -844,28 +820,8 @@ public class JvmMethodGen {
 
     private boolean isModuleTestInitFunction(BIRPackage module, BIRFunction func) {
         return func.name.value.equals(
-                calculateModuleSpecialFuncName(JvmMethodGenUtils.packageToModuleId(module), "<testinit>"));
-    }
-
-    static String calculateModuleSpecialFuncName(PackageID id, String funcSuffix) {
-        String orgName = id.orgName.value;
-        String moduleName = id.name.value;
-        String version = id.version.value;
-
-        String funcName;
-        if (moduleName.equals(".")) {
-            funcName = ".." + funcSuffix;
-        } else if (version.equals("")) {
-            funcName = moduleName + "." + funcSuffix;
-        } else {
-            funcName = moduleName + ":" + version + "." + funcSuffix;
-        }
-
-        if (!orgName.equalsIgnoreCase("$anon")) {
-            funcName = orgName + "/" + funcName;
-        }
-
-        return funcName;
+                JvmMethodGenUtils
+                        .calculateModuleSpecialFuncName(JvmMethodGenUtils.packageToModuleId(module), "<testinit>"));
     }
 
     private void genDefaultValue(MethodVisitor mv, BType bType, int index) {
@@ -993,7 +949,8 @@ public class JvmMethodGen {
 
     private boolean isModuleStartFunction(BIRPackage module, String functionName) {
         return functionName.equals(JvmCodeGenUtil.cleanupFunctionName(
-                calculateModuleSpecialFuncName(JvmMethodGenUtils.packageToModuleId(module), START_FUNCTION_SUFFIX)));
+                JvmMethodGenUtils.calculateModuleSpecialFuncName(JvmMethodGenUtils.packageToModuleId(module),
+                                                                 JvmMethodGenUtils.START_FUNCTION_SUFFIX)));
     }
 
     public void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen,
@@ -1061,201 +1018,6 @@ public class JvmMethodGen {
         // SIPUSH range is (-32768 to 32767) so if the state index goes beyond that, need to use visitLdcInsn
         mv.visitIntInsn(SIPUSH, caseIndex);
         mv.visitVarInsn(ISTORE, stateVarIndex);
-    }
-
-    /**
-     * Generate a lambda function to invoke ballerina main.
-     *
-     * @param cw        class visitor
-     * @param pkg       bir package
-     * @param initClass module init class
-     * @param depMods   dependent module list
-     */
-    void generateLambdaForPackageInits(ClassWriter cw, BIRPackage pkg, String initClass, List<PackageID> depMods) {
-        //need to generate lambda for package Init as well, if exist
-        if (!JvmMethodGenUtils.hasInitFunction(pkg)) {
-            return;
-        }
-        generateLambdaForModuleFunction(cw, MODULE_INIT, initClass);
-
-        // generate another lambda for start function as well
-        generateLambdaForModuleFunction(cw, MODULE_START, initClass);
-
-        PackageID currentModId = JvmMethodGenUtils.packageToModuleId(pkg);
-        String fullFuncName = calculateModuleSpecialFuncName(currentModId, STOP_FUNCTION_SUFFIX);
-
-        generateLambdaForDepModStopFunc(cw, JvmCodeGenUtil.cleanupFunctionName(fullFuncName), initClass);
-
-        for (PackageID id : depMods) {
-            fullFuncName = calculateModuleSpecialFuncName(id, STOP_FUNCTION_SUFFIX);
-            String jvmClass = JvmCodeGenUtil.getPackageName(id) + MODULE_INIT_CLASS_NAME;
-            generateLambdaForDepModStopFunc(cw, JvmCodeGenUtil.cleanupFunctionName(fullFuncName), jvmClass);
-        }
-    }
-
-    private void generateLambdaForDepModStopFunc(ClassWriter cw, String funcName, String initClass) {
-        MethodVisitor mv;
-        mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC,
-                            String.format("$lambda$%s", funcName),
-                            String.format("([L%s;)L%s;", OBJECT, OBJECT), null, null);
-        mv.visitCode();
-
-        //load strand as first arg
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_0);
-        mv.visitInsn(AALOAD);
-        mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
-
-        mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, String.format("(L%s;)L%s;", STRAND_CLASS, OBJECT), false);
-        JvmMethodGenUtils.visitReturn(mv);
-    }
-
-    private void generateLambdaForModuleFunction(ClassWriter cw, String funcName, String initClass) {
-
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC,
-                                          String.format("$lambda$%s$", funcName),
-                                          String.format("([L%s;)L%s;", OBJECT, OBJECT), null, null);
-        mv.visitCode();
-
-        //load strand as first arg
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_0);
-        mv.visitInsn(AALOAD);
-        mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
-
-        mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, String.format("(L%s;)L%s;", STRAND_CLASS, OBJECT), false);
-        JvmCastGen.addBoxInsn(mv, errorOrNilType);
-        JvmMethodGenUtils.visitReturn(mv);
-    }
-
-    void addInitAndTypeInitInstructions(BIRPackage pkg, BIRFunction func) {
-
-        List<BIRBasicBlock> basicBlocks = new ArrayList<>();
-        nextId = -1;
-        BIRBasicBlock nextBB = new BIRBasicBlock(getNextBBId());
-        basicBlocks.add(nextBB);
-
-        PackageID modID = JvmMethodGenUtils.packageToModuleId(pkg);
-
-        BIRBasicBlock typeOwnerCreateBB = new BIRBasicBlock(getNextBBId());
-        basicBlocks.add(typeOwnerCreateBB);
-
-        nextBB.terminator = new Call(null, InstructionKind.CALL, false, modID, new Name(CURRENT_MODULE_INIT),
-                new ArrayList<>(), null, typeOwnerCreateBB, Collections.emptyList(), Collections.emptySet());
-
-        if (func.basicBlocks.size() == 0) {
-            typeOwnerCreateBB.terminator = new Return(func.pos);
-            func.basicBlocks = basicBlocks;
-            return;
-        }
-
-        typeOwnerCreateBB.terminator = new GOTO(null, func.basicBlocks.get(0));
-
-        basicBlocks.addAll(func.basicBlocks);
-        func.basicBlocks = basicBlocks;
-    }
-
-    void enrichPkgWithInitializers(Map<String, JavaClass> jvmClassMap, String typeOwnerClass,
-                                   BIRPackage pkg, List<PackageID> moduleImports) {
-
-        JavaClass javaClass = jvmClassMap.get(typeOwnerClass);
-        BIRFunction initFunc = generateDepModInit(moduleImports, pkg, MODULE_INIT,
-                                                  JvmMethodGenUtils.INIT_FUNCTION_SUFFIX);
-        javaClass.functions.add(initFunc);
-        pkg.functions.add(initFunc);
-
-        BIRFunction startFunc = generateDepModInit(moduleImports, pkg, MODULE_START, START_FUNCTION_SUFFIX);
-        javaClass.functions.add(startFunc);
-        pkg.functions.add(startFunc);
-
-    }
-
-    private BIRFunction generateDepModInit(List<PackageID> imprtMods, BIRPackage pkg, String funcName,
-                                           String initName) {
-
-        nextId = -1;
-        nextVarId = -1;
-
-        BIRVariableDcl retVar = new BIRVariableDcl(null, errorOrNilType, new Name("%ret"),
-                                                   VarScope.FUNCTION, VarKind.RETURN, "");
-        BIROperand retVarRef = new BIROperand(retVar);
-
-        BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, errorOrNilType, null);
-        BIRFunction modInitFunc = new BIRFunction(null, new Name(funcName), 0, funcType, null, 0, null, VIRTUAL);
-        modInitFunc.localVars.add(retVar);
-        addAndGetNextBasicBlock(modInitFunc);
-
-        BIRVariableDcl boolVal = addAndGetNextVar(modInitFunc, symbolTable.booleanType);
-        BIROperand boolRef = new BIROperand(boolVal);
-
-        for (PackageID id : imprtMods) {
-            String initFuncName = calculateModuleSpecialFuncName(id, initName);
-            addCheckedInvocation(modInitFunc, id, initFuncName, retVarRef, boolRef);
-        }
-
-        PackageID currentModId = JvmMethodGenUtils.packageToModuleId(pkg);
-        String currentInitFuncName = calculateModuleSpecialFuncName(currentModId, initName);
-        BIRBasicBlock lastBB = addCheckedInvocation(modInitFunc, currentModId, currentInitFuncName, retVarRef, boolRef);
-
-        lastBB.terminator = new Return(null);
-
-        return modInitFunc;
-    }
-
-    private Name getNextBBId() {
-
-        String bbIdPrefix = "genBB";
-        nextId += 1;
-        return new Name(bbIdPrefix + nextId);
-    }
-
-    private Name getNextVarId() {
-
-        String varIdPrefix = "%";
-        nextVarId += 1;
-        return new Name(varIdPrefix + nextVarId);
-    }
-
-    private BIRBasicBlock addCheckedInvocation(BIRFunction func, PackageID modId, String initFuncName,
-                                               BIROperand retVar, BIROperand boolRef) {
-
-        BIRBasicBlock lastBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
-        BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
-        // TODO remove once lang.annotation is fixed
-        if (modId.orgName.value.equals(BALLERINA) && modId.name.value.equals(BUILT_IN_PACKAGE_NAME)) {
-            lastBB.terminator = new Call(null, InstructionKind.CALL, false, modId,
-                    new Name(initFuncName), Collections.emptyList(), null, nextBB, Collections.emptyList(),
-                    Collections.emptySet());
-            return nextBB;
-        }
-        lastBB.terminator = new Call(null, InstructionKind.CALL, false, modId, new Name(initFuncName),
-                Collections.emptyList(), retVar, nextBB, Collections.emptyList(), Collections.emptySet());
-
-        TypeTest typeTest = new TypeTest(null, symbolTable.errorType, boolRef, retVar);
-        nextBB.instructions.add(typeTest);
-
-        BIRBasicBlock trueBB = addAndGetNextBasicBlock(func);
-        BIRBasicBlock retBB = addAndGetNextBasicBlock(func);
-        retBB.terminator = new Return(null);
-        trueBB.terminator = new GOTO(null, retBB);
-
-        BIRBasicBlock falseBB = addAndGetNextBasicBlock(func);
-        nextBB.terminator = new Branch(null, boolRef, trueBB, falseBB);
-        return falseBB;
-    }
-
-    private BIRBasicBlock addAndGetNextBasicBlock(BIRFunction func) {
-
-        BIRBasicBlock nextbb = new BIRBasicBlock(getNextBBId());
-        func.basicBlocks.add(nextbb);
-        return nextbb;
-    }
-
-    private BIRVariableDcl addAndGetNextVar(BIRFunction func, BType typeVal) {
-
-        BIRVariableDcl nextLocalVar = new BIRVariableDcl(typeVal, getNextVarId(), VarScope.FUNCTION, VarKind.LOCAL);
-        func.localVars.add(nextLocalVar);
-        return nextLocalVar;
     }
 
     private void generateAnnotLoad(MethodVisitor mv, List<BIRTypeDefinition> typeDefs, String pkgName) {
@@ -1342,36 +1104,6 @@ public class JvmMethodGen {
         pkgEntries.put(frameClassName + ".class", cw.toByteArray());
     }
 
-    void generateModuleInitializer(ClassWriter cw, BIRPackage module, String typeOwnerClass) {
-
-        String orgName = module.org.value;
-        String moduleName = module.name.value;
-        String version = module.version.value;
-
-        // Using object return type since this is similar to a ballerina function without a return.
-        // A ballerina function with no returns is equivalent to a function with nil-return.
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_INIT,
-                                          String.format("(L%s;)L%s;", STRAND_CLASS, OBJECT), null, null);
-        mv.visitCode();
-
-        mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_TYPES_METHOD, "()V", false);
-        mv.visitTypeInsn(NEW, typeOwnerClass);
-        mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, JVM_INIT_METHOD, "()V", false);
-        mv.visitVarInsn(ASTORE, 1);
-        mv.visitLdcInsn(orgName);
-        mv.visitLdcInsn(moduleName);
-        mv.visitLdcInsn(version);
-        mv.visitVarInsn(ALOAD, 1);
-        mv.visitMethodInsn(INVOKESTATIC, String.format("%s", VALUE_CREATOR), "addValueCreator",
-                String.format("(L%s;L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE, VALUE_CREATOR),
-                false);
-
-        // Add a nil-return
-        mv.visitInsn(ACONST_NULL);
-        JvmMethodGenUtils.visitReturn(mv);
-    }
-
     void generateExecutionStopMethod(ClassWriter cw, String initClass, BIRPackage module, List<PackageID> imprtMods,
                                      AsyncDataCollector asyncDataCollector) {
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, MODULE_STOP, "()V", null, null);
@@ -1397,7 +1129,8 @@ public class JvmMethodGen {
 
         PackageID currentModId = JvmMethodGenUtils.packageToModuleId(module);
         String moduleInitClass = getModuleInitClassName(currentModId);
-        String fullFuncName = calculateModuleSpecialFuncName(currentModId, STOP_FUNCTION_SUFFIX);
+        String fullFuncName = JvmMethodGenUtils.calculateModuleSpecialFuncName(currentModId,
+                                                                               JvmMethodGenUtils.STOP_FUNCTION_SUFFIX);
 
         scheduleStopMethod(mv, initClass, JvmCodeGenUtil.cleanupFunctionName(fullFuncName), schedulerIndex,
                            futureIndex, moduleInitClass, asyncDataCollector);
@@ -1405,7 +1138,7 @@ public class JvmMethodGen {
         while (i >= 0) {
             PackageID id = imprtMods.get(i);
             i -= 1;
-            fullFuncName = calculateModuleSpecialFuncName(id, STOP_FUNCTION_SUFFIX);
+            fullFuncName = JvmMethodGenUtils.calculateModuleSpecialFuncName(id, JvmMethodGenUtils.STOP_FUNCTION_SUFFIX);
             moduleInitClass = getModuleInitClassName(id);
             scheduleStopMethod(mv, initClass, JvmCodeGenUtil.cleanupFunctionName(fullFuncName), schedulerIndex,
                                futureIndex, moduleInitClass, asyncDataCollector);
@@ -1465,15 +1198,6 @@ public class JvmMethodGen {
     private String getModuleInitClassName(PackageID id) {
         return JvmCodeGenUtil.getModuleLevelClassName(id.orgName.value, id.name.value, id.version.value,
                                                       MODULE_INIT_CLASS_NAME);
-    }
-
-    public void resetIds() {
-        nextId = -1;
-        nextVarId = -1;
-    }
-
-    int incrementAndGetNextId() {
-        return nextId++;
     }
 
     void generateMethod(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule, BType attachedType,
