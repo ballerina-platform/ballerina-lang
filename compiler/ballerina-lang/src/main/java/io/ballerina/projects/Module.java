@@ -19,6 +19,7 @@ package io.ballerina.projects;
 
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -122,6 +123,10 @@ public class Module {
 
     CompiledBinaryFile.BIRPackageFile bir() {
         return moduleContext.bir();
+    }
+
+    public HashSet<Path> getNativeDependancies() {
+        return new HashSet<>();
     }
 
     private static class DocumentIterable implements Iterable {

@@ -18,6 +18,8 @@
 
 package io.ballerina.projects.environment;
 
+import io.ballerina.projects.Module;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.model.elements.PackageID;
@@ -35,9 +37,11 @@ import java.util.HashSet;
 public class ProjectJarResolver implements JarResolver {
 
     Project project;
+    GlobalPackageCache globalPackageCache;
 
     public ProjectJarResolver(Project project, GlobalPackageCache globalPackageCache) {
         this.project = project;
+        this.globalPackageCache = globalPackageCache;
     }
 
     @Override
@@ -52,7 +56,32 @@ public class ProjectJarResolver implements JarResolver {
 
     @Override
     public HashSet<Path> nativeDependencies(PackageID packageID) {
-        return new HashSet<>();
+        Module module = findPackage(packageID);
+        return module.getNativeDependancies();
+    }
+
+    private Module findPackage(PackageID packageID) {
+        Module match = null;
+        Package currentPkg = project.currentPackage();
+        for (Module module : currentPkg.modules()) {
+            if (isMatch(module, packageID)) {
+                match = module;
+            }
+        }
+        // todo if not found search in global cache
+        for (Package pkg : globalPackageCache.values()) {
+            for (Module module : pkg.modules()) {
+                if (isMatch(module, packageID)) {
+                    match = module;
+                }
+            }
+        };
+        return match;
+    }
+
+    private boolean isMatch(Module module, PackageID packageID) {
+        return module.moduleName().toString().equals(packageID.getName().getValue()) &&
+                module.packageInstance().packageOrg().value().equals(packageID.getOrgName().getValue());
     }
 
     @Override
