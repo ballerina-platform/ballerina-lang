@@ -42,7 +42,7 @@ public class VariableReturnTypeTest {
         result = BCompileUtil.compile("test-src/javainterop/variable_return_type_test.bal");
     }
 
-    @Test (enabled = false)
+    @Test (enabled = true)
     public void testNegatives() {
         CompileResult errors = BCompileUtil.compile("test-src/javainterop/variable_return_type_negative.bal");
         int indx = 0;
@@ -61,23 +61,36 @@ public class VariableReturnTypeTest {
         validateError(errors, indx++, "incompatible types: expected 'float', found '(int|float)'", 61, 15);
         validateError(errors, indx++, "unknown type 'td'", 64, 73);
         validateError(errors, indx++, "unknown type 'td'", 72, 54);
-        validateError(errors, indx++, "unknown type 'td'", 74, 88);
         validateError(errors, indx++, "invalid error detail type 'detail', expected a subtype of " +
-                "'map<(anydata|readonly)>'", 86, 83);
-        validateError(errors, indx++, "unknown type 'detail'", 86, 83);
-        validateError(errors, indx++, "a dependently-typed function must have an 'external' function body", 93, 45);
-        validateError(errors, indx++, "a dependently-typed function must have an 'external' function body", 93, 67);
+                "'map<(anydata|readonly)>'", 81, 83);
+        validateError(errors, indx++, "unknown type 'detail'", 81, 83);
+        validateError(errors, indx++,
+                      "a function with a non-'external' function body cannot be a dependently-typed function", 88, 45);
+        validateError(errors, indx++,
+                      "a function with a non-'external' function body cannot be a dependently-typed function", 88, 67);
         validateError(errors, indx++, "default value for a 'typedesc' parameter used in the return type" +
-                " should be a reference to a type", 97, 29);
-        validateError(errors, indx++, "unknown type 'NonExistentParam'", 107, 77);
-        validateError(errors, indx++, "invalid parameter reference: expected 'typedesc', found 'string'", 113, 54);
-        validateError(errors, indx++, "invalid parameter reference: expected 'typedesc', found 'string'", 119, 45);
-        validateError(errors, indx++, "a dependently-typed function must have an 'external' function body", 119, 45);
+                " should be a reference to a type", 92, 29);
+        validateError(errors, indx++, "unknown type 'NonExistentParam'", 102, 77);
+        validateError(errors, indx++, "invalid parameter reference: expected 'typedesc', found 'string'", 108, 54);
+        validateError(errors, indx++,
+                      "a function with a non-'external' function body cannot be a dependently-typed function", 114, 45);
+        validateError(errors, indx++, "invalid parameter reference: expected 'typedesc', found 'string'", 114, 45);
         validateError(errors, indx++, "incompatible types: expected 'function (typedesc<(string|int)>) returns " +
-                "(string)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 130, 61);
-        validateError(errors, indx++, "unknown type 'td'", 131, 48);
+                "(string)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 125, 61);
+        validateError(errors, indx++, "unknown type 'td'", 126, 48);
         validateError(errors, indx++, "incompatible types: expected 'function (typedesc<(string|int)>) returns " +
-                "(other)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 131, 57);
+                "(other)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 126, 57);
+        validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
+                "(typedesc<anydata> td) returns (td|error)', found 'public function get(typedesc<anydata> td) returns" +
+                " (other|error)'", 139, 5);
+        validateError(errors, indx++, "a function with a non-'external' function body cannot be a dependently-typed " +
+                "function", 139, 64);
+        validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
+                "(typedesc<anydata> td) returns (td|error)', found 'public function get(typedesc<anydata> td) returns" +
+                " (other|error)'", 143, 5);
+        validateError(errors, indx++, "a function with a non-'external' function body cannot be a dependently-typed " +
+                "function", 143, 64);
+        validateError(errors, indx++, "incompatible types: expected 'Bar', found 'Baz'", 159, 15);
 
         Assert.assertEquals(errors.getErrorCount(), indx);
     }
@@ -124,7 +137,8 @@ public class VariableReturnTypeTest {
                 {"testTypedesc"},
                 {"testFuture"},
                 {"testComplexTypes"},
-                {"testObjectExternFunctions"}
+                {"testObjectExternFunctions"},
+                {"testDependentlyTypedMethodsWithObjectTypeInclusion"}
         };
     }
 }

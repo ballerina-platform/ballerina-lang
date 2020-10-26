@@ -718,8 +718,13 @@ public class Types {
         }
 
         if (sourceTag == TypeTags.PARAMETERIZED_TYPE) {
-            BType resolvedType = typeBuilder.build(source);
-            return isAssignable(resolvedType, target, unresolvedTypes);
+            BType resolvedSourceType = typeBuilder.build(source);
+
+            if (targetTag == TypeTags.PARAMETERIZED_TYPE) {
+                return isAssignable(resolvedSourceType, typeBuilder.build(target), unresolvedTypes);
+            }
+
+            return isAssignable(resolvedSourceType, target, unresolvedTypes);
         }
 
         return sourceTag == TypeTags.ARRAY && targetTag == TypeTags.ARRAY &&

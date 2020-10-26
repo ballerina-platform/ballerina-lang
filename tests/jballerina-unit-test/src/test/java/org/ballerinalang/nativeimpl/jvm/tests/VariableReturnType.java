@@ -18,6 +18,8 @@
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -235,5 +237,27 @@ public class VariableReturnType {
                 return person;
         }
         return null;
+    }
+
+    public static Object get(ObjectValue objectValue, BTypedesc td) {
+        Type describingType = td.getDescribingType();
+
+        switch (describingType.getTag()) {
+            case INT_TAG:
+                return objectValue.getIntValue(StringUtils.fromString("a"));
+            case STRING_TAG:
+                return objectValue.getStringValue(StringUtils.fromString("b"));
+        }
+        return objectValue.get(StringUtils.fromString("c"));
+    }
+
+    public static Object outParameterObjectGet(ObjectValue objectValue, BTypedesc td) {
+        Type describingType = td.getDescribingType();
+
+        if (describingType.getTag() == INT_TAG) {
+            return objectValue.getIntValue(StringUtils.fromString("i"));
+        }
+
+        return getValue(describingType);
     }
 }

@@ -325,6 +325,52 @@ function getValue2(typedesc<int|string> aTypeVar) returns aTypeVar = @java:Metho
     paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
+public type OutParameter object {
+    // This is OK, referencing classes/object constructors should have 'external' implementations.
+    public function get(typedesc<anydata> td) returns td|error;
+};
+
+public class OutParameterClass {
+    *OutParameter;
+
+    int a;
+    string b;
+    error c = error("not a nor b");
+
+    function init() {
+        self.a = 1234;
+        self.b = "hello world";
+    }
+
+    public function get(typedesc<anydata> td) returns td|error = @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
+}
+
+var outParameterObject = object OutParameter {
+
+    int i = 321;
+
+    public isolated function get(typedesc<anydata> td) returns td|error = @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "outParameterObjectGet",
+        paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
+};
+
+function testDependentlyTypedMethodsWithObjectTypeInclusion() {
+    OutParameterClass c1 = new;
+    int|error v1 = c1.get(int);
+    assert(1234, <int> v1);
+    assertSame(c1.c, c1.get(float));
+    assert("hello world", <string> c1.get(string));
+
+    assert(321, <int> outParameterObject.get(int));
+    decimal|error v2 = outParameterObject.get(decimal);
+    assert(23.45d, <decimal> v2);
+}
+
 // Util functions
 function assert(anydata expected, anydata actual) {
     if (expected != actual) {
@@ -336,10 +382,10 @@ function assert(anydata expected, anydata actual) {
     }
 }
 
-function assertSame(any expected, any actual) {
+function assertSame(any|error expected, any|error actual) {
     if (expected !== actual) {
-        typedesc<any> expT = typeof expected;
-        typedesc<any> actT = typeof actual;
+        typedesc<any|error> expT = typeof expected;
+        typedesc<any|error> actT = typeof actual;
         string detail = "expected value of type [" + expT.toString() + "] is not the same as actual value" +
                                 " of type [" + actT.toString() + "]";
         panic error("{AssertionError}", message = detail);

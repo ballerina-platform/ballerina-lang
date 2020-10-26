@@ -1282,7 +1282,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
                 if (func.returnTypeNode == null ||
                         (func.hasBody() && func.body.getKind() != NodeKind.EXTERN_FUNCTION_BODY)) {
-                    dlog.error(userDefinedTypeNode.pos, DiagnosticCode.INVALID_USE_OF_TYPEDESC_PARAM);
+                    dlog.error(userDefinedTypeNode.pos, DiagnosticCode.INVALID_NON_EXTERNAL_DEPENDENTLY_TYPED_FUNCTION);
                     errored = true;
                 }
 
@@ -1421,7 +1421,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             params.add(symbol);
         }
 
-        BType retType = resolveTypeNode(retTypeVar, this.env);
+        BType retType = resolveTypeNode(retTypeVar, env);
         if (retType == symTable.noType) {
             return symTable.noType;
         }
