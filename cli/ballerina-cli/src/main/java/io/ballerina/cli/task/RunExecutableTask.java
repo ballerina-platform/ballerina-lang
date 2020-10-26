@@ -22,6 +22,7 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.model.Target;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.tool.util.BFileUtil;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -50,7 +51,7 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 public class RunExecutableTask implements Task {
 
     private final List<String> args;
-    private Path executableJarPath;
+    private Path jarPath;
     private final transient PrintStream out;
     private final transient PrintStream err;
 
@@ -65,7 +66,7 @@ public class RunExecutableTask implements Task {
         this.args = Lists.of(args);
         this.out = out;
         this.err = err;
-        this.executableJarPath = null;
+        this.jarPath = null;
     }
 
     @Override
@@ -81,8 +82,8 @@ public class RunExecutableTask implements Task {
             try {
                 target = new Target(sourceRootPath);
                 //TODO: move this to a util
-                this.executableJarPath = target.getJarCachePath().
-                        resolve(project.currentPackage().packageName().toString() + BLANG_COMPILED_JAR_EXT);
+                this.jarPath = target.getJarCachePath().
+                        resolve(ProjectUtils.getJarName(project.currentPackage().getDefaultModule()));
             } catch (IOException e) {
                 throw new RuntimeException("error creating the target directory", e);
             }
@@ -91,16 +92,16 @@ public class RunExecutableTask implements Task {
         }
 
         // if the executable does not exist.
-        if (Files.notExists(this.executableJarPath)) {
+        if (Files.notExists(this.jarPath)) {
             throw createLauncherException(String.format("cannot run '%s' as it does not exist.",
-                    executableJarPath.toAbsolutePath().toString()));
+                    jarPath.toAbsolutePath().toString()));
         }
 
         // if the executable is not a file and not an extension with .jar.
-        if (!(Files.isRegularFile(this.executableJarPath) &&
-                this.executableJarPath.toString().endsWith(BLANG_COMPILED_JAR_EXT))) {
+        if (!(Files.isRegularFile(this.jarPath) &&
+                this.jarPath.toString().endsWith(BLANG_COMPILED_JAR_EXT))) {
             throw new RuntimeException(String.format("cannot run '%s' as it is not an executable with .jar " +
-                    "extension.", this.executableJarPath.toAbsolutePath().toString()));
+                    "extension.", this.jarPath.toAbsolutePath().toString()));
         }
         this.runGeneratedExecutable(project.currentPackage().getDefaultModule(), project);
     }
@@ -135,7 +136,7 @@ public class RunExecutableTask implements Task {
 
         StringJoiner cp = new StringJoiner(File.pathSeparator);
         // Adds executable thin jar path.
-        cp.add(this.executableJarPath.toString());
+        cp.add(this.jarPath.toString());
         // TODO: Adds all the dependency paths for modules once the JarResolves is implemented.
 
         // Adds bre/lib/* to the class-path since we need to have ballerina runtime related dependencies

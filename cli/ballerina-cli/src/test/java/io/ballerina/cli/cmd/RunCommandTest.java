@@ -124,7 +124,7 @@ public class RunCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Run a valid ballerina file")
+    @Test(description = "Run a valid ballerina file", enabled = false)
     public void testRunValidBalProject() throws IOException {
         Path projectPath = this.testResources.resolve("validRunProject");
 
