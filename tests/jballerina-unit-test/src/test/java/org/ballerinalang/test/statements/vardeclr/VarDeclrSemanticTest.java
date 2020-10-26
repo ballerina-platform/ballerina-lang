@@ -95,7 +95,7 @@ public class VarDeclrSemanticTest {
     @Test
     public void testModuleLevelVarDecl() {
         CompileResult compileResultesult =
-                BCompileUtil.compile("test-src/statements/vardeclr/module_var_decl.bal");
+                BCompileUtil.compile("test-src/statements/vardeclr/module_tuple_var_decl.bal");
 //        int indx = 0;
 //        validateError(result, indx++, "unknown type 'L'", 20, 26);
 //
