@@ -24,9 +24,10 @@ import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.jvm.values.FutureValue;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -83,10 +84,13 @@ public class BRuntime {
      * @param metadata   Meta data of new strand.
      * @param callback   Callback which will get notify once method execution done.
      * @param properties Set of properties for strand
+     * @param returnType Expected return type of this method
      * @param args       Ballerina function arguments.
+     * @return           {@link FutureValue} containing return value of executing this method.
      */
-    public void invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
-                                  CallableUnitCallback callback, Map<String, Object> properties, Object... args) {
+    public FutureValue invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
+                                         CallableUnitCallback callback, Map<String, Object> properties,
+                                         BType returnType, Object... args) {
         Function<Object[], Object> func = objects -> {
             Strand strand = (Strand) objects[0];
             if (ObserveUtils.isObservabilityEnabled() && properties != null &&
@@ -96,7 +100,8 @@ public class BRuntime {
             }
             return object.call(strand, methodName, args);
         };
-        scheduler.schedule(new Object[1], func, null, callback, properties, BTypes.typeNull, strandName, metadata);
+        return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
+                metadata);
     }
 
     /**
@@ -137,6 +142,5 @@ public class BRuntime {
         return (storedResource instanceof BObject)
                 && ((BObject) storedResource).getType().getTag() == TypeTags.SERVICE_TAG;
     }
-
 
 }

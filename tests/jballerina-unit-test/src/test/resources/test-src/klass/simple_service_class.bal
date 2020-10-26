@@ -14,25 +14,25 @@ service class SClass {
     }
 
     resource function get barPath() returns string {
-        return "Hello";
+        return self.message;
     }
 
     function init() {
-        self.message = "Hello";
+        self.message = "returned from `barPath`";
     }
 }
 
 function testServiceObjectValue() {
     SType s = new SClass();
-    assertEquality(s.message, "Hello");
-    var x = callFoo(s);
-    assertEquality(x, 101);
+    assertEquality(s.message, "returned from `barPath`");
+    var x = wait callMethod(s, "$get$barPath");
+    assertEquality(x, s.message);
 }
 
 
-public function callFoo(service object {} s) returns int  = @java:Method {
+public function callMethod(service object {} s, string name) returns future<any|error>  = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
-    name:"callFoo"
+    name:"callMethod"
 } external;
 
 function assertEquality(any|error expected, any|error actual) {
