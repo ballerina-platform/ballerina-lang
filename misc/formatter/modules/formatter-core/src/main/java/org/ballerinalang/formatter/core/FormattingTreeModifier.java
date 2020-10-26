@@ -854,6 +854,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
+    @Override
     public WhileStatementNode transform(WhileStatementNode whileStatementNode) {
         boolean hasOnFailClause = whileStatementNode.onFailClause().isPresent();
         Token whileKeyword = formatToken(whileStatementNode.whileKeyword(), 1, 0);
@@ -867,7 +868,6 @@ public class FormattingTreeModifier extends TreeModifier {
             whileStatementNode = whileStatementNode.modify().withOnFailClause(onFailClause).apply();
         } else {
             whileBody = formatNode(whileStatementNode.whileBody(), env.trailingWS, env.trailingNL);
-
         }
 
         return whileStatementNode.modify()
