@@ -71,7 +71,7 @@ createJavadoc {
     enabled false
 }
 
-ext.moduleName = 'io.ballerina.choreo.extension'
+ext.moduleName = 'io.ballerina.observe.trace.extension.choreo'
 
 compileJava {
     inputs.property("moduleName", moduleName)

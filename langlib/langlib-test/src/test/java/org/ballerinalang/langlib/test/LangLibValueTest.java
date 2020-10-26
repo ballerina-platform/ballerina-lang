@@ -253,6 +253,23 @@ public class LangLibValueTest {
         BRunUtil.invokeFunction(testFile, "testToBalStringOnCycles");
     }
 
+    @Test
+    public void testXmlFromBalString() {
+        CompileResult file = BCompileUtil.compile("test-src/valuelib_fromBalString_test.bal");
+        BRunUtil.invokeFunction(file, "testIntValueFromBalString");
+        BRunUtil.invokeFunction(file, "testStringValueFromBalString");
+        BRunUtil.invokeFunction(file, "testFloatingPointNumbersFromBalString");
+        BRunUtil.invokeFunction(file, "testAnydataNilFromBalString");
+        BRunUtil.invokeFunction(file, "testMapFromBalString");
+        BRunUtil.invokeFunction(file, "testTableFromBalString");
+        BRunUtil.invokeFunction(file, "testArrayFromBalString");
+        BRunUtil.invokeFunction(file, "testTupleFromBalString");
+        BRunUtil.invokeFunction(file, "testJsonFromBalString");
+        BRunUtil.invokeFunction(file, "testXmlFromBalString");
+        BRunUtil.invokeFunction(file, "testObjectFromString");
+        BRunUtil.invokeFunction(file, "testFromBalStringOnCycles");
+    }
+
     @DataProvider(name = "mergeJsonFunctions")
     public Object[][] mergeJsonFunctions() {
         return new Object[][] {
@@ -355,5 +372,15 @@ public class LangLibValueTest {
                 { "testToJsonWithIntArray" },
                 { "testToJsonWithTable" }
         };
+    }
+
+    @Test
+    public void testEnsureType() {
+        BRunUtil.invokeFunction(compileResult, "testEnsureType");
+    }
+
+    @Test
+    public void testEnsureTypeNegative() {
+        BRunUtil.invokeFunction(compileResult, "testEnsureTypeNegative");
     }
 }

@@ -1,4 +1,4 @@
 module io.ballerina.java {
-    requires io.ballerina.jvm;
+    requires io.ballerina.runtime;
     exports org.ballerinalang.langlib.java;
 }

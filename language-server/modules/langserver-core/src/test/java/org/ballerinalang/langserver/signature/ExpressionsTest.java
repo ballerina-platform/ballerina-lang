@@ -20,7 +20,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -43,11 +43,12 @@ public class ExpressionsTest extends AbstractSignatureHelpTest {
 
     @Override
     public List<String> skipList() {
-        ArrayList<String> skip = new ArrayList<>();
-        skip.add("exprTableConstructor.json");
-        skip.add("exprXMLAttributes.json");
-        skip.add("exprFunctionConstructorDirect.json");
-        return skip;
+        return Arrays.asList("exprTableConstructor.json",
+                "exprXMLAttributes.json",
+                "exprFunctionConstructorDirect.json",
+                "exprNewImplicit.json",
+                "exprFunctionConstructorIndirect.json",
+                "exprNewExplicit.json");
     }
 
     @Override

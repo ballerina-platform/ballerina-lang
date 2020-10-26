@@ -18,18 +18,27 @@
 
 package org.ballerinalang.langlib.map.util;
 
-import org.ballerinalang.jvm.types.BField;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.types.TypeTags;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Map;
 
-import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
+import static io.ballerina.runtime.MapUtils.createOpNotSupportedError;
+import static io.ballerina.runtime.util.BLangConstants.MAP_LANG_LIB;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Utility methods for map lib functions.
@@ -38,29 +47,63 @@ import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
  */
 public class MapLibUtils {
 
-    public static BType getFieldType(BType mapType, String funcName) {
+    public static Type getFieldType(Type mapType, String funcName) {
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
-                return ((BMapType) mapType).getConstrainedType();
+                return ((MapType) mapType).getConstrainedType();
             case TypeTags.RECORD_TYPE_TAG:
-                return getCommonTypeForRecordField((BRecordType) mapType);
+                return getCommonTypeForRecordField((RecordType) mapType);
             default:
                 throw createOpNotSupportedError(mapType, funcName);
         }
     }
 
-    public static BType getCommonTypeForRecordField(BRecordType recordType) {
-        LinkedHashSet<BType> typeSet = new LinkedHashSet<>();
-        Collection<BField> fields = (recordType.getFields().values());
+    public static Type getCommonTypeForRecordField(RecordType  recordType) {
+        LinkedHashSet<Type> typeSet = new LinkedHashSet<>();
+        Collection<Field> fields = (recordType.getFields().values());
 
-        for (BField f : fields) {
-            typeSet.add(f.type);
+        for (Field f : fields) {
+            typeSet.add(f.getFieldType());
         }
 
-        if (recordType.restFieldType != null) {
-            typeSet.add(recordType.restFieldType);
+        if (recordType.getRestFieldType() != null) {
+            typeSet.add(recordType.getRestFieldType());
         }
 
-        return typeSet.size() == 1 ? typeSet.iterator().next() : new BUnionType(new ArrayList<>(typeSet));
+        return typeSet.size() == 1 ? typeSet.iterator().next() : TypeCreator.createUnionType(new ArrayList<>(typeSet));
+    }
+
+    public static void validateRecord(BMap m) {
+        Type type = m.getType();
+        if (type.getTag() != TypeTags.RECORD_TYPE_TAG) {
+            return;
+        }
+        Map<String, Field> fields = ((RecordType) type).getFields();
+        for (String key : fields.keySet()) {
+            if (isRequiredField((RecordType) type, key)) {
+                throw createOpNotSupportedErrorForRecord(type, key);
+            }
+        }
+    }
+
+    private static boolean isRequiredField(RecordType  type, String k) {
+        Map<String, Field> fields = type.getFields();
+        Field field = fields.get(k);
+
+        return (field != null && Flags.isFlagOn(field.getFlags(), Flags.REQUIRED));
+    }
+
+    private static BError createOpNotSupportedErrorForRecord(Type type, String field) {
+        return ErrorCreator.createError(getModulePrefixedReason(
+                MAP_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER), StringUtils.fromString(
+                String.format("failed to remove field: '%s' is a required field in '%s'", field,
+                              type.getQualifiedName())));
+    }
+
+    public static void validateRequiredFieldForRecord(BMap m, String k) {
+        Type type = m.getType();
+        if (type.getTag() == TypeTags.RECORD_TYPE_TAG && isRequiredField((RecordType) type, k)) {
+            throw createOpNotSupportedErrorForRecord(type, k);
+        }
     }
 }

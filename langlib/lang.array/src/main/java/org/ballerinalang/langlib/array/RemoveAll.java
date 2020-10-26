@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.values.ArrayValue;
+import io.ballerina.runtime.api.values.BArray;
 
 /**
  * Native implementation of lang.array:removeAll((any|error)[]).
@@ -32,7 +32,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 //)
 public class RemoveAll {
 
-    public static void removeAll(ArrayValue arr) {
+    public static void removeAll(BArray arr) {
         SetLength.setLength(arr, 0);
     }
 }

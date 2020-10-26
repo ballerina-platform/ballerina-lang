@@ -18,11 +18,11 @@
 
 package org.ballerinalang.net.uri;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 

@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.testerina.natives.mock;
 
-import org.ballerinalang.jvm.types.BPackage;
+import io.ballerina.runtime.api.Module;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
 /**
  * Constants related to mocking.
@@ -32,7 +32,7 @@ public class MockConstants {
     public static final String MOCK_STRAND_NAME = "mock";
 
     // constants to represent error messages
-    public static final BPackage TEST_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "test", "0.0.0");
+    public static final Module TEST_PACKAGE_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "test", "0.0.0");
     public static final String FUNCTION_NOT_FOUND_ERROR = "FunctionNotFoundError";
     public static final String INVALID_MOCK_OBJECT_ERROR = "InvalidObjectError";
     public static final String FUNCTION_SIGNATURE_MISMATCH_ERROR = "FunctionSignatureMismatchError";

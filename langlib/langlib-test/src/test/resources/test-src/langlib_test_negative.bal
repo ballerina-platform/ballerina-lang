@@ -18,3 +18,34 @@ public function testDiagnostics() {
     map<string> words = { a: "ant", b: "bear"};
     var s = words.'map(s => s.toLowerAscii()).indexOf("bear");
 }
+
+json j = {
+    name: "apple", 
+    color: "red", 
+    price: [
+        1.22,
+        4, 
+        3.5
+    ], 
+    quality: true
+};
+
+function testEnsureTypeWithArray() returns error? {
+    float[] age = check j.price;
+}
+
+function testEnsureTypeWithUnion1() returns error? {
+    int|string|float[] name = check j.name;
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

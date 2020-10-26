@@ -145,4 +145,9 @@ public class GreaterLessThanOperationTest {
         BAssertUtil.validateError(resultNegative, 6, "operator '<' not defined for 'int' and 'string'", 53, 12);
         BAssertUtil.validateError(resultNegative, 7, "operator '<=' not defined for 'int' and 'string'", 59, 12);
     }
+
+    @Test(description = "Test decimal greater than, less than expression")
+    public void testDecimalComparison() {
+        BRunUtil.invoke(result, "testDecimalComparison");
+    }
 }

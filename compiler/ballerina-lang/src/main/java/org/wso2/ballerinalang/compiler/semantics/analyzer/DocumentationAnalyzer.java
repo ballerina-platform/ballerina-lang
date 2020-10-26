@@ -409,7 +409,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             // `pkgEnv` is `env` if no package was identified or else it's the package's environment
             String functionID = typeName + "." + identifierName;
             Name functionName = names.fromString(functionID);
-            return symResolver.lookupMemberSymbol(pos, objectTypeSymbol.methodScope, pkgEnv, functionName, tag);
+            return symResolver.lookupMemberSymbol(pos, objectTypeSymbol.scope, pkgEnv, functionName, tag);
         }
 
         return symTable.notFoundSymbol;

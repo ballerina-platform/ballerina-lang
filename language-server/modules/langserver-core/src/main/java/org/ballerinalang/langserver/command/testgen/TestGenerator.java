@@ -28,7 +28,6 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.TextEdit;
@@ -59,11 +58,6 @@ import java.util.StringJoiner;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static org.ballerinalang.langserver.command.testgen.ValueSpaceGenerator.createTemplateArray;
-import static org.ballerinalang.langserver.command.testgen.ValueSpaceGenerator.getValueSpaceByNode;
-import static org.ballerinalang.langserver.command.testgen.ValueSpaceGenerator.getValueSpaceByType;
-import static org.ballerinalang.langserver.common.utils.FunctionGenerator.generateTypeDefinition;
 
 /**
  * This class is responsible for generating tests for a given source file.
@@ -238,21 +232,21 @@ public class TestGenerator {
         private String[] typeSpace;
         private String[] namesSpace;
         private String functionName;
-        private String returnType;
+//        private String returnType;
         private int paramsCount;
 
-        public TestFunctionGenerator(ImportsAcceptor importsAcceptor, PackageID currentPkgId,
+        public TestFunctionGenerator(ImportsAcceptor importsAcceptor,
                                      BLangFunction function, LSContext context) {
             List<BLangSimpleVariable> params = function.requiredParams;
             List<BLangType> paramTypes = params.stream().map(variable -> variable.typeNode).collect(
                     Collectors.toList());
             List<String> paramNames = new ArrayList<>();
             params.forEach(variable -> paramNames.add(variable.name.value));
-            init(importsAcceptor, currentPkgId, function.name.value, paramNames, paramTypes, function.returnTypeNode,
+            init(importsAcceptor, function.name.value, paramNames, paramTypes, function.returnTypeNode,
                  context);
         }
 
-        public TestFunctionGenerator(ImportsAcceptor importsAcceptor, PackageID currentPkgId,
+        public TestFunctionGenerator(ImportsAcceptor importsAcceptor,
                                      BLangFunctionTypeNode type, LSContext context) {
             List<BLangVariable> params = type.params;
             this.paramsCount = type.params.size();
@@ -266,10 +260,10 @@ public class TestGenerator {
                     paramNames.add(null);
                 }
             });
-            init(importsAcceptor, currentPkgId, "", paramNames, paramTypes, type.returnTypeNode, context);
+            init(importsAcceptor, "", paramNames, paramTypes, type.returnTypeNode, context);
         }
 
-        public TestFunctionGenerator(ImportsAcceptor importsAcceptor, PackageID currentPkgId,
+        public TestFunctionGenerator(ImportsAcceptor importsAcceptor,
                                      BInvokableType invokableType, LSContext context) {
             boolean hasReturnType = true;
             if (invokableType.retType == null || invokableType.retType instanceof BNilType) {
@@ -279,7 +273,7 @@ public class TestGenerator {
             this.functionName = "";
             List<BType> params = invokableType.paramTypes;
             this.paramsCount = params.size();
-            BType returnBType = invokableType.retType;
+//            BType returnBType = invokableType.retType;
             this.valueSpace = new String[VALUE_SPACE_LENGTH][params.size() + 1];
             this.typeSpace = new String[params.size() + 1];
             this.namesSpace = new String[params.size() + 1];
@@ -287,16 +281,18 @@ public class TestGenerator {
             // Populate target function's parameters
             Set<String> lookupSet = new HashSet<>();
             for (int i = 0; i < params.size(); i++) {
-                String paramType = generateTypeDefinition(importsAcceptor, currentPkgId,
-                                                          params.get(i), context);
+//                String paramType = generateTypeDefinition(importsAcceptor,
+//                                                          params.get(i), context);
+                String paramType = "";
                 String paramName = CommonUtil.generateName(1, lookupSet);
                 lookupSet.add(paramName);
 
                 this.typeSpace[i] = paramType;
                 this.namesSpace[i] = paramName;
-
-                String[] pValueSpace = getValueSpaceByType(importsAcceptor, currentPkgId, params.get(i),
-                                                           createTemplateArray(VALUE_SPACE_LENGTH), context);
+                //TODO: Fix this
+                String[] pValueSpace = new String[0];
+//                String[] pValueSpace = getValueSpaceByType(importsAcceptor,  params.get(i),
+//                                                           createTemplateArray(VALUE_SPACE_LENGTH), context);
 
                 for (int j = 0; j < pValueSpace.length; j++) {
                     // Need to apply transpose of `pValueSpace`
@@ -306,21 +302,22 @@ public class TestGenerator {
             }
 
             // Populate target function's return type
-            if (hasReturnType) {
-                this.returnType = generateTypeDefinition(importsAcceptor, currentPkgId, returnBType, context);
-                String[] rtValSpace = getValueSpaceByType(importsAcceptor, currentPkgId, returnBType,
-                                                          createTemplateArray(VALUE_SPACE_LENGTH), context);
+            //TODO: Fix this
+//            if (hasReturnType) {
+//                this.returnType = generateTypeDefinition(importsAcceptor,  returnBType, context);
+//                String[] rtValSpace = getValueSpaceByType(importsAcceptor,  returnBType,
+//                                                          createTemplateArray(VALUE_SPACE_LENGTH), context);
 
-                this.typeSpace[params.size()] = returnType;
-                this.namesSpace[params.size()] = "expected";
+//                this.typeSpace[params.size()] = returnType;
+//                this.namesSpace[params.size()] = "expected";
 
-                IntStream.range(0, rtValSpace.length).forEach(index -> {
-                    valueSpace[index][params.size()] = rtValSpace[index];
-                });
-            }
+//                IntStream.range(0, rtValSpace.length).forEach(index -> {
+//                    valueSpace[index][params.size()] = rtValSpace[index];
+//                });
+//            }
         }
 
-        private void init(ImportsAcceptor importsAcceptor, PackageID currentPkgId,
+        private void init(ImportsAcceptor importsAcceptor,
                           String functionName,
                           List<String> paramNames, List<BLangType> paramTypes, BLangType returnTypeNode,
                           LSContext context) {
@@ -339,8 +336,9 @@ public class TestGenerator {
             // Populate target function's parameters
             Set<String> lookupSet = new HashSet<>();
             for (int i = 0; i < paramNames.size(); i++) {
-                String paramType = generateTypeDefinition(importsAcceptor, currentPkgId,
-                                                          paramTypes.get(i), context);
+                String paramType = "";
+//                String paramType = generateTypeDefinition(importsAcceptor,
+//                                                          paramTypes.get(i), context);
                 String paramName = paramNames.get(i);
                 if (paramName == null) {
                     // If null, generate a param name
@@ -348,9 +346,10 @@ public class TestGenerator {
                 }
                 this.typeSpace[i] = paramType;
                 this.namesSpace[i] = paramName;
-
-                String[] pValueSpace = getValueSpaceByNode(importsAcceptor, currentPkgId, paramTypes.get(i),
-                                                           createTemplateArray(VALUE_SPACE_LENGTH), context);
+                //TODO: Fix this
+                String[] pValueSpace = new String[0];
+//                String[] pValueSpace = getValueSpaceByNode(importsAcceptor,  paramTypes.get(i),
+//                                                           createTemplateArray(VALUE_SPACE_LENGTH), context);
                 for (int j = 0; j < pValueSpace.length; j++) {
                     // Need to apply transpose of `pValueSpace`
                     // i.e. valueSpace = (pValueSpace)^T
@@ -361,13 +360,16 @@ public class TestGenerator {
 
             // Populate target function's return type
             if (hasReturnType) {
-                this.returnType = generateTypeDefinition(importsAcceptor, currentPkgId,
-                                                         returnTypeNode, context);
-                String[] rtValSpace = getValueSpaceByNode(importsAcceptor, currentPkgId, returnTypeNode,
-                                                          createTemplateArray(VALUE_SPACE_LENGTH), context);
 
-                this.typeSpace[paramNames.size()] = returnType;
-                this.namesSpace[paramNames.size()] = "expected";
+                //TODO: Fix this
+//                this.returnType = generateTypeDefinition(importsAcceptor,
+//                                                         returnTypeNode, context);
+                String[] rtValSpace = new String[0];
+//                String[] rtValSpace = getValueSpaceByNode(importsAcceptor,  returnTypeNode,
+//                                                          createTemplateArray(VALUE_SPACE_LENGTH), context);
+
+//                this.typeSpace[paramNames.size()] = returnType;
+//                this.namesSpace[paramNames.size()] = "expected";
 
                 IntStream.range(0, rtValSpace.length).forEach(index -> {
                     valueSpace[index][paramNames.size()] = rtValSpace[index];
@@ -452,7 +454,9 @@ public class TestGenerator {
          * @return return type of the function
          */
         public String getTargetFuncReturnType() {
-            return this.returnType;
+            //TODO: Fix this
+            return "";
+//            return this.returnType;
         }
 
         /**
