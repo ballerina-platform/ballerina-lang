@@ -122,6 +122,7 @@ public class JvmPackageGen {
     public final SymbolTable symbolTable;
     public final PackageCache packageCache;
     private final JvmMethodGen jvmMethodGen;
+    private final JvmMainMethodGen jvmMainMethodGen;
     private Map<String, BIRFunctionWrapper> birFunctionMap;
     private Map<String, String> externClassMap;
     private Map<String, String> globalVarClassMap;
@@ -136,6 +137,7 @@ public class JvmPackageGen {
         dependentModules = new LinkedHashMap<>();
         this.symbolTable = symbolTable;
         this.packageCache = packageCache;
+        jvmMainMethodGen = new JvmMainMethodGen(symbolTable);
         this.dlog = dlog;
         jvmMethodGen = new JvmMethodGen(this);
         typeBuilder = new ResolvedTypeBuilder();
@@ -483,10 +485,10 @@ public class JvmPackageGen {
 
                 serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
 
-                jvmMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable,
-                                                asyncDataCollector);
+                jvmMainMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable,
+                                                    asyncDataCollector);
                 if (mainFunc != null) {
-                    jvmMethodGen.generateLambdaForMain(mainFunc, cw, mainClass);
+                    jvmMainMethodGen.generateLambdaForMain(mainFunc, cw, mainClass);
                 }
                 jvmMethodGen.generateLambdaForPackageInits(cw, module, moduleClass, moduleImports);
 
