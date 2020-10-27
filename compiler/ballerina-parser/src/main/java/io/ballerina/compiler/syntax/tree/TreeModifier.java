@@ -2124,7 +2124,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             QueryPipelineNode queryPipelineNode) {
         FromClauseNode fromClause =
                 modifyNode(queryPipelineNode.fromClause());
-        NodeList<ClauseNode> intermediateClauses =
+        NodeList<IntermediateClauseNode> intermediateClauses =
                 modifyNodeList(queryPipelineNode.intermediateClauses());
         return queryPipelineNode.modify(
                 fromClause,

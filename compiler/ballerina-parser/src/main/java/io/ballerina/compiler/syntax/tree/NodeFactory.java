@@ -2059,7 +2059,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static QueryPipelineNode createQueryPipelineNode(
             FromClauseNode fromClause,
-            NodeList<ClauseNode> intermediateClauses) {
+            NodeList<IntermediateClauseNode> intermediateClauses) {
         Objects.requireNonNull(fromClause, "fromClause must not be null");
         Objects.requireNonNull(intermediateClauses, "intermediateClauses must not be null");
 

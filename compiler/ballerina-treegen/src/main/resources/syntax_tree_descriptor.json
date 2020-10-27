@@ -2878,7 +2878,7 @@
                 },
                 {
                     "name": "intermediateClauses",
-                    "type": "ClauseNode",
+                    "type": "IntermediateClauseNode",
                     "occurrences": "MULTIPLE"
                 }
             ]
@@ -4129,7 +4129,7 @@
         },
         {
             "name": "OrderByClauseNode",
-            "base": "ClauseNode",
+            "base": "IntermediateClauseNode",
             "kind": "ORDER_BY_CLAUSE",
             "attributes": [
                 {
