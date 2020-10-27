@@ -22,26 +22,27 @@ import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.model.Target;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Contains cases to test the BirWriter.
+ * Contains cases to test the JarWriter.
  *
  * @since 2.0.0
  */
-public class TestBirWriter {
+public class TestJarWriter {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
+    Path tempDirectory;
 
-    @Test (description = "tests writing of the BIR", enabled = false)
-    public void testBirWriter() throws IOException {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+    @Test (description = "tests writing of the executable")
+    public void testJarWriter() throws IOException {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("balowriter").resolve("projectOne");
 
         // 1) Initialize the project instance
         BuildProject project = null;
@@ -52,29 +53,31 @@ public class TestBirWriter {
         }
         // 2) Load the package
         Package currentPackage = project.currentPackage();
-        Target target = new Target(project.sourceRoot());
 
-        Path defaultModuleBirPath = target.getBirCachePath().resolve("myproject.bir");
-        Path storageModuleBirPath = target.getBirCachePath().resolve("storage.bir");
-        Path servicesModuleBirPath = target.getBirCachePath().resolve("services.bir");
-        Assert.assertFalse(defaultModuleBirPath.toFile().exists());
-        Assert.assertFalse(storageModuleBirPath.toFile().exists());
-        Assert.assertFalse(servicesModuleBirPath.toFile().exists());
+        tempDirectory = Files.createTempDirectory("ballerina-test-" + System.nanoTime());
+        Path defaultJarPath = tempDirectory.resolve("winery.jar");
+        Path servicesJarPath = tempDirectory.resolve("services.jar");
+        Path storageJarPath = tempDirectory.resolve("storage.jar");
+        Assert.assertFalse(defaultJarPath.toFile().exists());
+        Assert.assertFalse(servicesJarPath.toFile().exists());
+        Assert.assertFalse(storageJarPath.toFile().exists());
 
         PackageCompilation pkgCompilation = currentPackage.getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JdkVersion.JAVA_11);
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BIR, target.getBirCachePath());
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR, tempDirectory);
 
-        Assert.assertTrue(defaultModuleBirPath.toFile().exists()
-                && defaultModuleBirPath.toFile().length() > 0);
-        Assert.assertTrue(storageModuleBirPath.toFile().exists()
-                && servicesModuleBirPath.toFile().length() > 0);
-        Assert.assertTrue(servicesModuleBirPath.toFile().exists()
-                && servicesModuleBirPath.toFile().length() > 0);
+        Assert.assertTrue(defaultJarPath.toFile().exists());
+        Assert.assertTrue(defaultJarPath.toFile().length() > 0);
+        Assert.assertTrue(servicesJarPath.toFile().exists());
+        Assert.assertTrue(servicesJarPath.toFile().length() > 0);
+        Assert.assertTrue(storageJarPath.toFile().exists());
+        Assert.assertTrue(storageJarPath.toFile().length() > 0);
     }
 
-    @AfterMethod
-    public void cleanUp() {
-        TestUtils.deleteDirectory(RESOURCE_DIRECTORY.resolve("myproject").resolve("target").toFile());
+    @AfterMethod(alwaysRun = true)
+    public void cleanup() {
+        if (tempDirectory.toFile().exists()) {
+            TestUtils.deleteDirectory(tempDirectory.toFile());
+        }
     }
 }

@@ -66,7 +66,7 @@ public class TestFileSystemRepository {
     public void testGetPackageVersions() {
         // Package that has versions
         List<SemanticVersion> aPackageVersions = repo.getPackageVersions(aPkg);
-        Assert.assertEquals(aPackageVersions.size(), 1);
+        Assert.assertEquals(aPackageVersions.size(), 2);
         // Invalid package
         List<SemanticVersion> bPackageVersions = repo.getPackageVersions(bPkg);
         Assert.assertEquals(bPackageVersions.size(), 0);
