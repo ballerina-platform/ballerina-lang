@@ -22,7 +22,7 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.util.diagnostic.Diagnostic.Kind;
+import org.ballerinalang.util.diagnostic.DiagnosticKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -79,7 +79,6 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         return dLogger;
     }
 
-    @Override
     public void setCurrentPackageId(PackageID packageID) {
         this.currentPackageId = packageID;
     }
@@ -161,7 +160,27 @@ public class BLangDiagnosticLog implements DiagnosticLog {
     }
 
     @Override
-    public void logDiagnostic(Kind kind, Location location, CharSequence message) {
+    @Deprecated
+    public void logDiagnostic(DiagnosticKind kind, Location location, CharSequence message) {
+        DiagnosticSeverity severity;
+        switch (kind) {
+            case ERROR:
+                severity = DiagnosticSeverity.ERROR;
+                break;
+            case WARNING:
+                severity = DiagnosticSeverity.WARNING;
+                break;
+            case NOTE:
+            default:
+                severity = DiagnosticSeverity.INFO;
+                break;
+        }
+
+        reportDiagnostic(null, location, message.toString(), severity);
+    }
+
+    @Override
+    public void logDiagnostic(DiagnosticKind kind, PackageID pkgId, Location location, CharSequence message) {
         DiagnosticSeverity severity;
         switch (kind) {
             case ERROR:
@@ -198,6 +217,23 @@ public class BLangDiagnosticLog implements DiagnosticLog {
     private String formatMessage(String prefix, DiagnosticCode code, Object[] args) {
         String msgKey = MESSAGES.getString(prefix + "." + code.getValue());
         return MessageFormat.format(msgKey, args);
+    }
+
+    private void reportDiagnostic(PackageID packageID, DiagnosticCode diagnosticCode, Location location, String msg,
+                                  DiagnosticSeverity severity) {
+        if (severity == DiagnosticSeverity.ERROR) {
+            this.errorCount++;
+        }
+
+        if (this.isMute) {
+            return;
+        }
+
+        // TODO: Add 'code' and 'messageTemplate' to the DiagnosticInfo
+        DiagnosticInfo diagInfo = new DiagnosticInfo(null, msg, severity);
+
+        BLangDiagnostic diagnostic = new BLangDiagnostic(location, msg, diagInfo, diagnosticCode);
+        storeDiagnosticInModule(packageID, diagnostic);
     }
 
     private void reportDiagnostic(DiagnosticCode diagnosticCode, Location location, String msg,

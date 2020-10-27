@@ -25,7 +25,7 @@ import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
 import org.ballerinalang.observability.anaylze.model.CUnitASTHolder;
 import org.ballerinalang.observability.anaylze.model.PkgASTHolder;
-import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.util.diagnostic.DiagnosticKind;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectoryManager;
@@ -91,7 +91,7 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
     @Override
     public void writeCollectedSymbols(BLangPackage module, Path destination)
             throws IOException, NoSuchAlgorithmException {
-        this.diagnosticLog.setCurrentPackageId(module.packageID);
+        ((BLangDiagnosticLog) this.diagnosticLog).setCurrentPackageId(module.packageID);
         Path targetDirPath = destination.resolve(AST);
         if (Files.notExists(targetDirPath)) {
             Files.createDirectory(targetDirPath);
@@ -178,7 +178,7 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
             JsonElement jsonAST = TextDocumentFormatUtil.generateJSON(cUnit, new HashMap<>(), visibleEPsByNode);
             cUnitASTHolder.setAst(jsonAST);
         } catch (JSONGenerationException e) {
-            diagnosticLog.logDiagnostic(Diagnostic.Kind.WARNING, cUnit.getPosition(),
+            diagnosticLog.logDiagnostic(DiagnosticKind.WARNING, cUnit.getPosition(),
                     "Error while generating json AST for " + cUnit.name + ". " + e.getMessage());
         }
         return cUnitASTHolder;

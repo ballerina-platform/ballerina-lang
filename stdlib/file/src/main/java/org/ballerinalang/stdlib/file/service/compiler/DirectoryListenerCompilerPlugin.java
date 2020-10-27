@@ -35,7 +35,7 @@ import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.F
 import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.RESOURCE_NAME_ON_CREATE;
 import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.RESOURCE_NAME_ON_DELETE;
 import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.RESOURCE_NAME_ON_MODIFY;
-import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
+import static org.ballerinalang.util.diagnostic.DiagnosticKind.ERROR;
 
 /**
  * Compiler plugin for validating Directory Listener.

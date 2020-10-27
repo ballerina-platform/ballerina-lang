@@ -29,17 +29,6 @@ import org.ballerinalang.model.elements.PackageID;
 public interface Diagnostic extends Comparable<Diagnostic> {
 
     /**
-     * Kind of the diagnostic.
-     *
-     * @since 0.94
-     */
-    enum Kind {
-        ERROR,
-        WARNING,
-        NOTE,
-    }
-
-    /**
      * The interface that represents the source position in a diagnostic.
      *
      * Source position is a combination of the source file, start and end line numbers,
@@ -61,7 +50,7 @@ public interface Diagnostic extends Comparable<Diagnostic> {
         int getEndColumn();
     }
 
-    Kind getKind();
+    DiagnosticKind getKind();
 
     Location getPosition();
 

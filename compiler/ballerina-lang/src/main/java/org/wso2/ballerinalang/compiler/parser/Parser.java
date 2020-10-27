@@ -102,7 +102,7 @@ public class Parser {
         String entryName = sourceEntry.getEntryName();
         BLangCompilationUnit compilationUnit;
         SyntaxTree tree = sourceEntry.getTree();
-        reportSyntaxDiagnostics(entryName, packageID, tree);
+        reportSyntaxDiagnostics(packageID, tree);
 
         //TODO: Get hash and length from tree
         byte[] code = sourceEntry.getCode();
@@ -130,7 +130,7 @@ public class Parser {
         return Arrays.hashCode(code);
     }
 
-    private void reportSyntaxDiagnostics(String cUnitName, PackageID pkgID, SyntaxTree tree) {
+    private void reportSyntaxDiagnostics(PackageID pkgID, SyntaxTree tree) {
         for (Diagnostic syntaxDiagnostic : tree.diagnostics()) {
             dlog.logDiagnostic(pkgID, syntaxDiagnostic);
         }
