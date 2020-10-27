@@ -558,7 +558,7 @@
     {
       "label": "testVar",
       "kind": "Variable",
-      "detail": "TYPEDESC<int>|",
+      "detail": "TYPEDESC<int>|error",
       "insertText": "testVar",
       "insertTextFormat": "Snippet"
     },
