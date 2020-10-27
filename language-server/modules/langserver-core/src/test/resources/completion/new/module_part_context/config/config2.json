@@ -70,6 +70,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "client",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "A",
+      "insertText": "client ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "var",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -99,6 +107,22 @@
       "detail": "Keyword",
       "sortText": "A",
       "insertText": "class ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "distinct",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "A",
+      "insertText": "distinct",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "A",
+      "insertText": "service",
       "insertTextFormat": "Snippet"
     },
     {
@@ -218,6 +242,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "type <RecordName> record",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "insertText": "type ${1:RecordName} record {\n\t${2}\n};",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "xmlns",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -234,11 +266,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "type <RecordName> record",
+      "label": "class",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
-      "insertText": "type ${1:RecordName} record {\n\t${2}\n};",
+      "insertText": "class ${1:className} {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "enum",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "insertText": "enum ${1:enumName} {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -255,14 +295,6 @@
       "detail": "Snippet",
       "sortText": "A",
       "insertText": "type ${1:ErrorName} error<${2:map<anydata>}>;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "class",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "A",
-      "insertText": "class ${1:className} {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     },
     {
