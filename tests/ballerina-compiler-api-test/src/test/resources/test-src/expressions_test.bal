@@ -69,6 +69,20 @@ function testObjectConstructor() {
     };
 }
 
+function testMiscExprs() {
+    int x = -20;
+    int y = 10 * 20 / 5;
+    int z = 10 + 20 - 5;
+    boolean b = y >= z;
+    anydata ad = "foo";
+
+    if (ad is string && y != 0) {
+        string s = ad;
+    }
+
+    string greeting = ad == "" ? "Hello" : "Hello " + ad.toString();
+}
+
 // utils
 
 class PersonObj {

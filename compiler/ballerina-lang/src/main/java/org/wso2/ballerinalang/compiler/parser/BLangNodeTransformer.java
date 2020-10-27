@@ -1902,8 +1902,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         bLFieldBasedAccess.pos = getPosition(fieldAccessExprNode);
-        bLFieldBasedAccess.field.pos = getPosition(fieldAccessExprNode);
-        trimLeft(bLFieldBasedAccess.field.pos, getPosition(fieldAccessExprNode.dotToken()));
+        bLFieldBasedAccess.field.pos = getPosition(fieldAccessExprNode.fieldName());
         bLFieldBasedAccess.optionalFieldAccess = false;
         return bLFieldBasedAccess;
     }
@@ -1929,7 +1928,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         bLFieldBasedAccess.pos = getPosition(optionalFieldAccessExpressionNode);
-        bLFieldBasedAccess.field.pos = getPosition(optionalFieldAccessExpressionNode);
+        bLFieldBasedAccess.field.pos = getPosition(optionalFieldAccessExpressionNode.fieldName());
         bLFieldBasedAccess.expr = createExpression(optionalFieldAccessExpressionNode.expression());
         bLFieldBasedAccess.optionalFieldAccess = true;
         return bLFieldBasedAccess;

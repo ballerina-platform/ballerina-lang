@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.List;
 
+import static io.ballerina.compiler.api.types.TypeDescKind.ANYDATA;
 import static io.ballerina.compiler.api.types.TypeDescKind.ARRAY;
 import static io.ballerina.compiler.api.types.TypeDescKind.BOOLEAN;
 import static io.ballerina.compiler.api.types.TypeDescKind.BYTE;
@@ -247,6 +248,26 @@ public class ExpressionTypeTest {
         assertType(67, 45, 67, 54, STRING);
         assertType(67, 45, 67, 49, OBJECT);
         assertType(67, 50, 67, 54, STRING);
+    }
+
+    @Test(dataProvider = "MiscExprPosProvider")
+    public void testMiscExprs(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
+        assertType(sLine, sCol, eLine, eCol, kind);
+    }
+
+    @DataProvider(name = "MiscExprPosProvider")
+    public Object[][] getExprPos() {
+        return new Object[][]{
+                {72, 12, 72, 15, INT},
+                {73, 12, 73, 23, INT},
+                {73, 17, 73, 23, INT},
+                {74, 12, 74, 23, INT},
+                {75, 16, 75, 22, BOOLEAN},
+                {76, 17, 76, 22, STRING},
+                {78, 8, 78, 20, BOOLEAN},
+                {78, 8, 78, 10, ANYDATA},
+                {78, 14, 78, 20, STRING},
+        };
     }
 
 
