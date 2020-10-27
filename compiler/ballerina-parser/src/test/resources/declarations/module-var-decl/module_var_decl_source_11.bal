@@ -10,16 +10,16 @@ isolated final string s3 = "http://hello3.com";
 
 // First isolated keyword is belong to the module variable declaration
 // where as second one is belong to the type descriptor
-isolated isolated object { } a = b;
+isolated isolated object {} a = b;
 
 isolated isolated function() a = b;
 
 // Isolated keyword is belong to the module variable declaration
-isolated object { } a = b;
+isolated object {} a = b;
 
 isolated function() a = b;
 
 // Since following are non initialized module variable declarations, isolated keyword is belong to the type descriptor
-isolated object { } a;
+isolated object {} a;
 
 isolated function() a;

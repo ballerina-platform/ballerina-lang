@@ -265,7 +265,23 @@
           "children": [
             {
               "kind": "LIST",
-              "children": []
+              "children": [
+                {
+                  "kind": "FINAL_KEYWORD",
+                  "leadingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "TYPED_BINDING_PATTERN",

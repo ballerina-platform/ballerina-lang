@@ -928,16 +928,29 @@ public class BallerinaParser extends AbstractParser {
                 return true;
             case READONLY_KEYWORD: // readonly-type-desc, class-def
                 nextNextToken = getNextNextToken();
-                // readonly-type-desc it is followed by a binding pattern.
-                // In such case do not treat readonly as a top level qualifier.
+                // Treat readonly as a top level qualifier only with class definition.
                 switch (nextNextToken.kind) {
-                    case OPEN_BRACKET_TOKEN: // List binding pattern
-                    case IDENTIFIER_TOKEN: // Capture binding pattern
-                    case OPEN_BRACE_TOKEN: // Mapping binding pattern
-                    case ERROR_KEYWORD: // Error binding pattern
-                        return false;
-                    default:
+                    case CLIENT_KEYWORD:
+                    case DISTINCT_KEYWORD:
+                    case ISOLATED_KEYWORD:
+                    case CLASS_KEYWORD:
                         return true;
+                    default:
+                        return false;
+                }
+            case DISTINCT_KEYWORD: // class-def, distinct-type-desc
+                nextNextToken = getNextNextToken();
+                // distinct-type-desc can occur recursively.
+                // e.g. `distinct distinct student` is a valid type descriptor
+                // Treat distinct as a top level qualifier only with class definition.
+                switch (nextNextToken.kind) {
+                    case CLIENT_KEYWORD:
+                    case READONLY_KEYWORD:
+                    case ISOLATED_KEYWORD:
+                    case CLASS_KEYWORD:
+                        return true;
+                    default:
+                        return false;
                 }
             default:
                 return isTypeDescQualifier(tokenKind);
@@ -949,9 +962,6 @@ public class BallerinaParser extends AbstractParser {
             case TRANSACTIONAL_KEYWORD: // func-type-dec, func-def
             case ISOLATED_KEYWORD: // func-type-dec, object-type-desc, func-def, class-def, isolated-final-qual
             case CLIENT_KEYWORD: // object-type-desc, class-def
-            case DISTINCT_KEYWORD: // distinct-type-desc, class-def
-                // In distinct-type-desc case, distinct keyword is followed by a type descriptor.
-                // Therefore, capturing it earlier will not affect the parsing logic.
             case ABSTRACT_KEYWORD: // object-type-desc(outdated)
                 return true;
             default:
@@ -1893,11 +1903,6 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseTypeDescriptorInternal(List<STNode> qualifiers, ParserRuleContext context,
                                                boolean isInConditionalExpr) {
         parseTypeDescQualifiers(qualifiers);
-        if (!qualifiers.isEmpty() && qualifiers.get(0).kind == SyntaxKind.DISTINCT_KEYWORD) {
-            STNode distinctKeyword = qualifiers.remove(0);
-            return parseDistinctTypeDesc(distinctKeyword, qualifiers, context);
-        }
-
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case IDENTIFIER_TOKEN:
@@ -1935,6 +1940,10 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
                 reportInvalidQualifierList(qualifiers);
                 return parseTupleTypeDesc();
+            case DISTINCT_KEYWORD:
+                reportInvalidQualifierList(qualifiers);
+                STNode distinctKeyword = consume();
+                return parseDistinctTypeDesc(distinctKeyword, context);
             default:
                 if (isSingletonTypeDescStart(nextToken.kind, true)) {
                     reportInvalidQualifierList(qualifiers);
@@ -1966,12 +1975,11 @@ public class BallerinaParser extends AbstractParser {
      * </code>
      *
      * @param distinctKeyword Distinct keyword that precedes the type descriptor
-     * @param qualifiers      Preceding type descriptor qualifiers
      * @param context         Context in which the type desc is used.
      * @return Distinct type descriptor
      */
-    private STNode parseDistinctTypeDesc(STNode distinctKeyword, List<STNode> qualifiers, ParserRuleContext context) {
-        STNode typeDesc = parseTypeDescriptor(qualifiers, context);
+    private STNode parseDistinctTypeDesc(STNode distinctKeyword, ParserRuleContext context) {
+        STNode typeDesc = parseTypeDescriptor(context);
         return STNodeFactory.createDistinctTypeDescriptorNode(distinctKeyword, typeDesc);
     }
 
@@ -3581,8 +3589,9 @@ public class BallerinaParser extends AbstractParser {
             // If type descriptor in the binding pattern is either object or function type
             // and qualifier list has isolated qualifier as the last token,
             // that isolated qualifier should be part of the type.
-            STNode lastQualifier = isolatedFinalQualifiers.remove(isolatedFinalQualifiers.size() - 1);
+            STNode lastQualifier = isolatedFinalQualifiers.get(isolatedFinalQualifiers.size() - 1);
             if (lastQualifier.kind == SyntaxKind.ISOLATED_KEYWORD) {
+                lastQualifier = isolatedFinalQualifiers.remove(isolatedFinalQualifiers.size() - 1);
                 typedBindingPattern =
                         modifyTypedBindingPatternWithMissingQualifier(typedBindingPattern, lastQualifier);
             }
