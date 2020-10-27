@@ -189,17 +189,17 @@ public abstract class AbstractNodeFactory {
                         .collect(Collectors.toList())).createUnlinkedFacade());
     }
 
-    public static <T extends Node> NodeList<T> createSeparatedNodeList(T... nodes) {
+    public static <T extends Node> SeparatedNodeList<T> createSeparatedNodeList(Node... nodes) {
         STNode[] internalNodes = new STNode[nodes.length];
         for (int index = 0; index < nodes.length; index++) {
-            T node = nodes[index];
+            Node node = nodes[index];
             Objects.requireNonNull(node, "node should not be null");
             internalNodes[index] = node.internalNode();
         }
         return new SeparatedNodeList<>(STNodeFactory.createNodeList(internalNodes).createUnlinkedFacade());
     }
 
-    public static <T extends Node> NodeList<T> createSeparatedNodeList(Collection<T> nodes) {
+    public static <T extends Node> SeparatedNodeList<T> createSeparatedNodeList(Collection<Node> nodes) {
         return new SeparatedNodeList<>(STNodeFactory.createNodeList(
                 nodes.stream()
                         .map(node -> Objects.requireNonNull(node, "node should not be null"))

@@ -188,7 +188,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
-import io.ballerina.compiler.syntax.tree.TemplateMemberNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TransactionStatementNode;
 import io.ballerina.compiler.syntax.tree.TransactionalExpressionNode;
@@ -1391,7 +1390,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public TypeCastParamNode transform(TypeCastParamNode typeCastParamNode) {
         NodeList<AnnotationNode> annotations = formatNodeList(typeCastParamNode.annotations(), 0, 1, 1, 0);
-        Node type = formatNode(typeCastParamNode.type(), env.trailingWS, env.trailingNL);
+        Node type = formatNode(typeCastParamNode.type().orElse(null), env.trailingWS, env.trailingNL);
 
         return typeCastParamNode.modify()
                 .withAnnotations(annotations)
@@ -2095,7 +2094,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
 
         Token startBacktick = formatToken(templateExpressionNode.startBacktick(), 0, 0);
-        NodeList<TemplateMemberNode> content = formatNodeList(templateExpressionNode.content(), 0, 0, 0, 0);
+        NodeList<Node> content = formatNodeList(templateExpressionNode.content(), 0, 0, 0, 0);
         Token endBacktick = formatToken(templateExpressionNode.endBacktick(), env.trailingWS, env.trailingNL);
 
         return templateExpressionNode.modify()
