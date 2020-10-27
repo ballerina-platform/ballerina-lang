@@ -36,6 +36,7 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.config.ClientConfigListener;
+import org.ballerinalang.langserver.compiler.config.LSClientConfig;
 import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Command;
@@ -57,9 +58,12 @@ import java.util.Optional;
 public class DocsCodeLensesProvider extends AbstractCodeLensesProvider {
     public DocsCodeLensesProvider() {
         super("docs.CodeLenses");
-        LSClientConfigHolder.getInstance().register((ClientConfigListener) (oldConfig, newConfig) ->
-                isEnabled = newConfig.getCodeLens().getDocs().isEnabled()
-        );
+        LSClientConfigHolder.getInstance().register(new ClientConfigListener() {
+            @Override
+            public void didChangeConfig(LSClientConfig oldConfig, LSClientConfig newConfig) {
+                isEnabled = newConfig.getCodeLens().getDocs().isEnabled();
+            }
+        });
     }
 
     /**

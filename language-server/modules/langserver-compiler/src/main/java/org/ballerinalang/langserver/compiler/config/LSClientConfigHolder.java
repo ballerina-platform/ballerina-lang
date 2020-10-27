@@ -29,7 +29,7 @@ public class LSClientConfigHolder {
     private static final LSClientConfigHolder INSTANCE = new LSClientConfigHolder();
     private final Gson gson = new Gson();
 
-    private final List<BaseClientConfigListener> listeners = new ArrayList<>();
+    private final List<ClientConfigListener> listeners = new ArrayList<>();
 
     // Init ballerina client configuration with defaults
     private LSClientConfig clientConfig = LSClientConfig.getDefault();
@@ -65,7 +65,7 @@ public class LSClientConfigHolder {
      *
      * @param listener Config change listener to register
      */
-    public void register(BaseClientConfigListener listener) {
+    public void register(ClientConfigListener listener) {
         listeners.add(listener);
     }
 
@@ -74,7 +74,7 @@ public class LSClientConfigHolder {
      *
      * @param listener Config change listener to unregister
      */
-    public void unregister(BaseClientConfigListener listener) {
+    public void unregister(ClientConfigListener listener) {
         listeners.remove(listener);
     }
 

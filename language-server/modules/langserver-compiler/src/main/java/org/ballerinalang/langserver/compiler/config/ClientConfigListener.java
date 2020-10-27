@@ -19,18 +19,17 @@ import com.google.gson.JsonElement;
 
 /**
  * Represents a ballerina client config change listener.
- *
- * @since 2.0.0
  */
-@FunctionalInterface
-public interface ClientConfigListener extends BaseClientConfigListener {
+public interface ClientConfigListener {
     /**
      * Callback method for configuration changes.
      *
      * @param oldConfig old configuration
      * @param newConfig new configuration
      */
-    void didChangeConfig(LSClientConfig oldConfig, LSClientConfig newConfig);
+    default void didChangeConfig(LSClientConfig oldConfig, LSClientConfig newConfig) {
+        // do nothing
+    }
 
     /**
      * Callback method for configuration changes.
