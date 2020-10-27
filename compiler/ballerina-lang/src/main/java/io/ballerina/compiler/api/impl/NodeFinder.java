@@ -196,6 +196,10 @@ class NodeFinder extends BLangNodeVisitor {
             }
 
             ((BLangNode) node).accept(this);
+
+            if (this.enclosingNode != null) {
+                break;
+            }
         }
 
         return this.enclosingNode;
@@ -1132,17 +1136,13 @@ class NodeFinder extends BLangNodeVisitor {
             return;
         }
 
-        if (setEnclosingNode(classDefinition, classDefinition.pos)
-                || setEnclosingNode(classDefinition, classDefinition.name.pos)) {
-            return;
-        }
-
         lookupNodes(classDefinition.annAttachments);
         lookupNodes(classDefinition.fields);
         lookupNodes(classDefinition.referencedFields);
         lookupNode(classDefinition.initFunction);
         lookupNodes(classDefinition.functions);
         lookupNodes(classDefinition.typeRefs);
+        setEnclosingNode(classDefinition, classDefinition.name.pos);
     }
 
     @Override
@@ -1372,8 +1372,8 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStatementExpression bLangStatementExpression) {
-        lookupNode(bLangStatementExpression.expr);
         lookupNode(bLangStatementExpression.stmt);
+        lookupNode(bLangStatementExpression.expr);
     }
 
     @Override

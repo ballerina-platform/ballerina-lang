@@ -224,6 +224,32 @@ public class ExpressionTypeTest {
         };
     }
 
+    @Test(dataProvider = "TypeInitPosProvider")
+    public void testObjecTypeInit(int sLine, int sCol, int eLine, int eCol) {
+        BallerinaTypeDescriptor type = getExprType(sLine, sCol, eLine, eCol);
+        assertEquals(type.kind(), TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeDescriptor) type).name(), "PersonObj");
+        assertEquals(((TypeReferenceTypeDescriptor) type).typeDescriptor().kind(), OBJECT);
+    }
+
+    @DataProvider(name = "TypeInitPosProvider")
+    public Object[][] getTypeInitPos() {
+        return new Object[][]{
+                {57, 19, 57, 33},
+                {58, 19, 58, 42}
+        };
+    }
+
+    @Test
+    public void testObjectConstructorExpr() {
+        assertType(64, 15, 68, 5, OBJECT);
+        assertType(65, 22, 65, 28, STRING);
+        assertType(67, 45, 67, 54, STRING);
+        assertType(67, 45, 67, 49, OBJECT);
+        assertType(67, 50, 67, 54, STRING);
+    }
+
+
     private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
         BallerinaTypeDescriptor type = getExprType(sLine, sCol, eLine, eCol);
         assertEquals(type.kind(), kind);

@@ -53,3 +53,30 @@ function testAccessExprs() {
     int? age = person?.age;
     string optName = person["name"];
 }
+
+function testObjectConstructor() {
+    PersonObj p1 = new ("Pubudu");
+    PersonObj p2 = new PersonObj("Pubudu");
+
+    object {
+        string name;
+
+        function getName() returns string;
+    } person = object {
+        string name = "Anon";
+
+        function getName() returns string => self.name;
+    };
+}
+
+// utils
+
+class PersonObj {
+    string name;
+
+    function init(string name) {
+        self.name = name;
+    }
+
+    function getName() returns string => self.name;
+}
