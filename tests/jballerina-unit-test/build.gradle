@@ -17,9 +17,11 @@
  *
  */
  
-apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
-apply from: "$rootDir/gradle/birTestableProject.gradle"
-apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+//apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
+//apply from: "$rootDir/gradle/birTestableProject.gradle"
+//apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 configurations {
     balRuntime
@@ -56,33 +58,33 @@ dependencies {
 
     balRuntime project(':ballerina-runtime')
 
-    baloTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-//    baloTestImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
-//    baloTestImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
-    baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+////    baloTestImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
+////    baloTestImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
 }
 
 description = 'JBallerina - Unit Test Module'
 
-task createBre(type: org.gradle.api.tasks.Copy) {
-    from configurations.balRuntime
-    into "$buildDir/bre/lib"
-}
+//task createBre(type: org.gradle.api.tasks.Copy) {
+//    from configurations.balRuntime
+//    into "$buildDir/bre/lib"
+//}
 
 test {
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
@@ -105,7 +107,7 @@ test {
         }
     }
 
-    dependsOn createBre
+//    dependsOn createBre
 }
 
 configurations {
