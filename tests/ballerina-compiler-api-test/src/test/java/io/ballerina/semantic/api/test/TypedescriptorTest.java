@@ -50,7 +50,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.List;
 
-import static io.ballerina.compiler.api.types.ParameterKind.DEFAULTABLE;
 import static io.ballerina.compiler.api.types.ParameterKind.REQUIRED;
 import static io.ballerina.compiler.api.types.ParameterKind.REST;
 import static io.ballerina.compiler.api.types.TypeDescKind.ANYDATA;
@@ -110,16 +109,12 @@ public class TypedescriptorTest {
     @Test
     public void testFunctionType() {
         Symbol symbol = getSymbol(43, 12);
-        FunctionTypeDescriptor type = (FunctionTypeDescriptor) ((FunctionSymbol) symbol).typeDescriptor();
+        FunctionTypeDescriptor type = ((FunctionSymbol) symbol).typeDescriptor();
         assertEquals(type.kind(), TypeDescKind.FUNCTION);
 
-        List<Parameter> reqParams = type.requiredParams();
-        assertEquals(reqParams.size(), 1);
-        validateParam(reqParams.get(0), "x", REQUIRED, INT);
-
-        List<Parameter> defParams = type.defaultableParams();
-        assertEquals(defParams.size(), 1);
-        validateParam(defParams.get(0), "y", DEFAULTABLE, FLOAT);
+        List<Parameter> parameters = type.parameters();
+        assertEquals(parameters.size(), 2);
+        validateParam(parameters.get(0), "x", REQUIRED, INT);
 
         Parameter restParam = type.restParam().get();
         validateParam(restParam, "rest", REST, ARRAY);

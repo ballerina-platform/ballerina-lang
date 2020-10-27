@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 import io.ballerina.compiler.api.types.Parameter;
+import io.ballerina.compiler.api.types.ParameterKind;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 
@@ -45,11 +46,9 @@ import static java.util.stream.Collectors.toList;
 public class BallerinaFunctionTypeDescriptor extends AbstractTypeDescriptor implements FunctionTypeDescriptor {
 
     private List<Parameter> requiredParams;
-    private List<Parameter> defaultableParams;
     private Parameter restParam;
     private BallerinaTypeDescriptor returnType;
     private final BInvokableTypeSymbol typeSymbol;
-    // TODO: Represent the return type's annotations
 
     public BallerinaFunctionTypeDescriptor(ModuleID moduleID, BInvokableTypeSymbol invokableSymbol) {
         super(TypeDescKind.FUNCTION, moduleID, invokableSymbol.type);
@@ -57,25 +56,16 @@ public class BallerinaFunctionTypeDescriptor extends AbstractTypeDescriptor impl
     }
 
     @Override
-    public List<Parameter> requiredParams() {
+    public List<Parameter> parameters() {
         if (this.requiredParams == null) {
             this.requiredParams = this.typeSymbol.params.stream()
-                    .filter(param -> !param.defaultableParam)
-                    .map(symbol -> SymbolFactory.createBallerinaParameter(symbol, REQUIRED))
+                    .map(symbol -> {
+                        ParameterKind parameterKind = symbol.defaultableParam ? DEFAULTABLE : REQUIRED;
+                        return SymbolFactory.createBallerinaParameter(symbol, parameterKind);
+                    })
                     .collect(Collectors.collectingAndThen(toList(), Collections::unmodifiableList));
         }
         return this.requiredParams;
-    }
-
-    @Override
-    public List<Parameter> defaultableParams() {
-        if (this.defaultableParams == null) {
-            this.defaultableParams = this.typeSymbol.params.stream()
-                    .filter(param -> param.defaultableParam)
-                    .map(symbol -> SymbolFactory.createBallerinaParameter(symbol, DEFAULTABLE))
-                    .collect(Collectors.collectingAndThen(toList(), Collections::unmodifiableList));
-        }
-        return this.defaultableParams;
     }
 
     @Override
@@ -98,7 +88,7 @@ public class BallerinaFunctionTypeDescriptor extends AbstractTypeDescriptor impl
     public String signature() {
         StringBuilder signature = new StringBuilder("function (");
         StringJoiner joiner = new StringJoiner(",");
-        for (Parameter requiredParam : this.requiredParams()) {
+        for (Parameter requiredParam : this.parameters()) {
             String ballerinaParameterSignature = requiredParam.signature();
             joiner.add(ballerinaParameterSignature);
         }
