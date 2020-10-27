@@ -17,6 +17,13 @@
  */
 package org.ballerinalang.nativeimpl.jvm.servicetests;
 
+import org.ballerinalang.jvm.api.BRuntime;
+import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BString;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.FutureValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 
 /**
@@ -25,7 +32,19 @@ import org.ballerinalang.jvm.values.ObjectValue;
  * @since 2.0
  */
 public class ServiceValue {
-    public static long callFoo(ObjectValue l) {
-        return 100;
+    public static FutureValue callMethod(ObjectValue l, BString name) {
+        CallableUnitCallback c = new CallableUnitCallback() {
+            @Override
+            public void notifySuccess() { }
+
+            @Override
+            public void notifyFailure(BError error) { }
+        };
+
+        BRuntime currentRuntime = BRuntime.getCurrentRuntime();
+        FutureValue k = currentRuntime.invokeMethodAsync(l, name.getValue(), null, null, null, new MapValueImpl<>(),
+                BTypes.typeAny);
+
+        return k;
     }
 }

@@ -54,6 +54,11 @@ public class BServiceType extends BObjectType {
         this.resourceFunctions = resourceFunctions;
     }
 
+    /**
+     * Gen an array of remote functions defined in the service object.
+     *
+     * @return array of remote functions
+     */
     public AttachedFunction[] getRemoteFunctions() {
         if (remoteFunctions == null) {
             AttachedFunction[] funcs = getRemoteFunctions(getAttachedFunctions());
@@ -76,10 +81,20 @@ public class BServiceType extends BObjectType {
         return functions.toArray(new AttachedFunction[]{});
     }
 
+    /**
+     * Get array containing resource functions defined in service object.
+     *
+     * @return resource functions
+     */
     public ResourceFunction[] getResourceFunctions() {
         return resourceFunctions;
     }
 
+    /**
+     * Get array containing names of stored resource stored in the service object.
+     *
+     * @return list of stored resource names
+     */
     public String[] getStoredResourceNames() {
         if (storedResourceNames == null) {
             String[] list = getStoredResourceNamesInternal();
