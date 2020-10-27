@@ -159,7 +159,7 @@ public class SignatureHelpUtil {
             documentation.get().parameterMap().forEach(paramToDesc::put);
         }
         // Add parameters and rest params
-        functionSymbol.typeDescriptor().requiredParams().forEach(
+        functionSymbol.typeDescriptor().parameters().forEach(
                 param -> parameters.add(new Parameter(param.name().get(), param.typeDescriptor(), false, false))
         );
         Optional<io.ballerina.compiler.api.types.Parameter> restParam = functionSymbol.typeDescriptor().restParam();

@@ -181,7 +181,7 @@ public class FunctionGenerator {
         boolean skipFirstParam = CommonUtil.skipFirstParam(ctx, symbol);
         FunctionTypeDescriptor functionTypeDesc = symbol.typeDescriptor();
         Optional<Parameter> restParam = functionTypeDesc.restParam();
-        List<Parameter> parameterDefs = new ArrayList<>(functionTypeDesc.requiredParams());
+        List<Parameter> parameterDefs = new ArrayList<>(functionTypeDesc.parameters());
         for (int i = 0; i < parameterDefs.size(); i++) {
             if (i == 0 && skipFirstParam) {
                 continue;
