@@ -19,6 +19,7 @@ package io.ballerina.projects;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a Ballerina.toml file.
@@ -31,15 +32,20 @@ public class PackageDescriptor {
     private final PackageVersion packageVersion;
 
     private final List<Dependency> dependencies;
+    // Other entries hold other key/value pairs available in the Ballerina.toml file.
+    // These keys are not part of the Ballerina package specification.
+    private final Map<String, Object> otherEntries;
 
     public PackageDescriptor(PackageName packageName,
                              PackageOrg packageOrg,
                              PackageVersion packageVersion,
-                             List<Dependency> dependencies) {
+                             List<Dependency> dependencies,
+                             Map<String, Object> otherEntries) {
         this.packageName = packageName;
         this.packageOrg = packageOrg;
         this.packageVersion = packageVersion;
         this.dependencies = Collections.unmodifiableList(dependencies);
+        this.otherEntries = Collections.unmodifiableMap(otherEntries);
     }
 
     public PackageName name() {
@@ -56,6 +62,11 @@ public class PackageDescriptor {
 
     public List<Dependency> dependencies() {
         return dependencies;
+    }
+
+    // TODO Do we need to custom key/value par mapping here
+    public Object getValue(String key) {
+        return otherEntries.get(key);
     }
 
     /**

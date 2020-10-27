@@ -18,9 +18,9 @@
 
 package io.ballerina.projects.test;
 
-import com.google.gson.internal.LinkedTreeMap;
+import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.directory.BallerinaTomlProcessor;
 import io.ballerina.projects.model.BallerinaToml;
-import io.ballerina.projects.model.BallerinaTomlProcessor;
 import io.ballerina.projects.model.Package;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.testng.Assert;
@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 /**
  * Contains cases to test the ballerina toml processor.
@@ -38,21 +39,24 @@ import java.nio.file.Paths;
 public class TestBallerinaTomlProcessor {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
 
-    @Test(description = "Test parse `ballerina.toml` file in to `BallerinaToml` object")
+    @Test(description = "Test parse `ballerina.toml` file in to `PackageDescriptor` object")
     public void testParse() throws IOException, TomlException {
         Path ballerinaTomlPath = RESOURCE_DIRECTORY.resolve("ballerinatoml").resolve("Ballerina.toml");
-        BallerinaToml ballerinaToml = BallerinaTomlProcessor.parse(ballerinaTomlPath);
+        PackageDescriptor packageDescriptor = BallerinaTomlProcessor.parseAsPackageDescriptor(ballerinaTomlPath);
 
-        Assert.assertEquals(ballerinaToml.getPackage().getOrg(), "foo");
-        Assert.assertEquals(ballerinaToml.getPackage().getName(), "winery");
-        Assert.assertEquals(ballerinaToml.getPackage().getVersion(), "0.1.0");
+        Assert.assertEquals(packageDescriptor.org().value(), "foo");
+        Assert.assertEquals(packageDescriptor.name().value(), "winery");
+        Assert.assertEquals(packageDescriptor.version().toString(), "0.1.0");
 
-        Assert.assertEquals(ballerinaToml.getDependencies().get("wso2/twitter"), "2.3.4");
-        Assert.assertEquals(((LinkedTreeMap) ballerinaToml.getDependencies().get("wso2/github")).get("path"),
-                "path/to/github.balo");
-        Assert.assertEquals(((LinkedTreeMap) ballerinaToml.getDependencies().get("wso2/github")).get("version"),
-                "1.2.3");
+        List<PackageDescriptor.Dependency> dependencyList = packageDescriptor.dependencies();
+        Assert.assertEquals(dependencyList.size(), 2);
+        Assert.assertEquals(dependencyList.get(0).org().value(), "wso2");
+        Assert.assertEquals(dependencyList.get(0).name().value(), "twitter");
+        Assert.assertEquals(dependencyList.get(0).version().toString(), "2.3.4");
 
+        Assert.assertEquals(dependencyList.get(1).org().value(), "wso2");
+        Assert.assertEquals(dependencyList.get(1).name().value(), "github");
+        Assert.assertEquals(dependencyList.get(1).version().toString(), "1.2.3");
     }
 
     @Test(description = "Test validate ballerina toml package section which contains build options")

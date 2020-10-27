@@ -1,18 +1,31 @@
 [package]
-org = "foo"
 name = "winery"
+org = "foo"
 version = "0.1.0"
 
-[dependencies]
-"wso2/twitter" = "2.3.4"
-"wso2/github" = { path = "path/to/github.balo", version = "1.2.3"}
+[[dependency]]
+org = "wso2"
+name = "twitter"
+version = "2.3.4"
 
-[platform]
-target = "java8"
+[[dependency]]
+org = "wso2"
+name = "github"
+version = "1.2.3"
 
-    [[platform.libraries]]
-    artifactId = "ldap"
-    version = "1.0.0"
-    path = "./lib/ballerina-ldap-1.0.0-java.jar"
-    groupId = "ballerina"
-    modules = ["ldap"]
+[[platform.java11.dependency]]
+path = "/user/sameera/libs/toml4j.jar"
+artafactId = "toml4j"
+version = "0.7.2"
+groupId = "com.moandjiezana.toml"
+
+[[platform.java11.dependency]]
+path = "path/to/swagger.jar"
+artafactId = "swagger"
+version = "0.7.2"
+groupId = "swagger.io"
+
+[build-options]
+observability-included = true
+
+
