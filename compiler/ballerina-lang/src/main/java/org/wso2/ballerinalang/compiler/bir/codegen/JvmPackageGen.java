@@ -123,6 +123,7 @@ public class JvmPackageGen {
     public final SymbolTable symbolTable;
     public final PackageCache packageCache;
     private final JvmMethodGen jvmMethodGen;
+    private final JvmStopMethodGen jvmStopMethodGen;
     private final JvmInitsGen jvmInitsGen;
     private final JvmMainMethodGen jvmMainMethodGen;
     private final JvmLambdaGen jvmLambdaGen;
@@ -144,6 +145,7 @@ public class JvmPackageGen {
         jvmInitsGen = new JvmInitsGen(symbolTable);
         jvmMainMethodGen = new JvmMainMethodGen(symbolTable);
         jvmLambdaGen = new JvmLambdaGen(this);
+        jvmStopMethodGen = new JvmStopMethodGen(symbolTable);
         typeBuilder = new ResolvedTypeBuilder();
 
         JvmCastGen.symbolTable = symbolTable;
@@ -496,8 +498,8 @@ public class JvmPackageGen {
                 generateLockForVariable(cw);
                 generateCreateTypesMethod(cw, module.typeDefs, moduleInitClass, symbolTable);
                 jvmInitsGen.generateModuleInitializer(cw, module, moduleInitClass);
-                jvmMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports,
-                                                         asyncDataCollector);
+                jvmStopMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports,
+                                                             asyncDataCollector);
             } else {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
                 JvmCodeGenUtil.generateDefaultConstructor(cw, OBJECT);
