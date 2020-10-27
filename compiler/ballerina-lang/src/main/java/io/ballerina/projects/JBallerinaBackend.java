@@ -31,6 +31,8 @@ import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
+import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
+
 /**
  * This class represents the Ballerina compiler backend that produces executables that runs on the JVM.
  *
@@ -99,32 +101,30 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private void emitJar(Path filePath) {
-        if (packageContext.packageDescriptor().org().anonymous()) { // this is a single file build project scenario
-            CompiledJarFile compiledJarFile = packageContext.defaultModuleContext().compiledJarEntries();
-            try {
-                JarWriter.write(compiledJarFile, filePath);
-            } catch (IOException e) {
-                throw new RuntimeException("error while creating the jar file for package: " +
-                        this.packageContext.packageName(), e);
-            }
-            return;
-        }
-
         for (ModuleId moduleId : packageContext.moduleIds()) {
             ModuleContext moduleContext = packageContext.moduleContext(moduleId);
             CompiledJarFile compiledJarFile = moduleContext.compiledJarEntries();
-            ModuleName moduleName = moduleContext.moduleName();
             String jarName;
-            if (moduleName.isDefaultModuleName()) {
-                jarName = moduleName.packageName().toString();
+            String packageName; // this is used to log the error message
+            if (packageContext.packageDescriptor().org().anonymous()) {
+                DocumentId documentId = moduleContext.srcDocumentIds().iterator().next();
+                String documentName = moduleContext.documentContext(documentId).name();
+                jarName = getFileNameWithoutExtension(documentName);
+                packageName = documentName;
             } else {
-                jarName = moduleName.moduleNamePart();
+                ModuleName moduleName = moduleContext.moduleName();
+                if (moduleName.isDefaultModuleName()) {
+                    jarName = moduleName.packageName().toString();
+                } else {
+                    jarName = moduleName.moduleNamePart();
+                }
+                packageName = this.packageContext.packageName().toString();
             }
             try {
                 JarWriter.write(compiledJarFile, filePath.resolve(jarName + ProjectConstants.BLANG_COMPILED_JAR_EXT));
             } catch (IOException e) {
-                throw new RuntimeException("error while creating the jar file for package: " +
-                        this.packageContext.packageName(), e);
+                throw new RuntimeException(
+                        "error while creating the jar file for module: " + jarName + " in package: " + packageName, e);
             }
         }
     }

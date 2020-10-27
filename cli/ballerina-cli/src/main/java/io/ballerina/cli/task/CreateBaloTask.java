@@ -18,6 +18,8 @@
 
 package io.ballerina.cli.task;
 
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.model.Target;
@@ -61,7 +63,9 @@ public class CreateBaloTask implements Task {
                 project.currentPackage().packageName().toString(),
                 project.currentPackage().packageVersion().toString(),
                 null);
-        packageCompilation.emit(PackageCompilation.OutputType.BALO, baloPath.resolve(baloName));
+
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath.resolve(baloName));
 
         // Print the path of the BALO file
         Path relativePathToExecutable = project.sourceRoot().relativize(baloPath.resolve(baloName));

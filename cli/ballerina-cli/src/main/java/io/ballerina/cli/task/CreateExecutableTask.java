@@ -20,6 +20,8 @@ package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
@@ -92,8 +94,9 @@ public class CreateExecutableTask implements Task {
         }
 
         Path executablePath = target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
-        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-        packageCompilation.emit(PackageCompilation.OutputType.EXEC, executablePath);
+        PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JdkVersion.JAVA_11);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
 
         // Print the path of the executable
         Path relativePathToExecutable = currentDir.relativize(executablePath);

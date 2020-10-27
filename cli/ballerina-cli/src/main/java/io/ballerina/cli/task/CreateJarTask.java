@@ -18,6 +18,8 @@
 
 package io.ballerina.cli.task;
 
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.model.Target;
@@ -38,7 +40,9 @@ public class CreateJarTask implements Task {
         Target target;
         try {
             target = new Target(project.sourceRoot());
-            project.currentPackage().getCompilation().emit(PackageCompilation.OutputType.JAR,
+            PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JdkVersion.JAVA_11);
+            jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR,
                     target.getJarCachePath());
         } catch (IOException e) {
             throw createLauncherException(
