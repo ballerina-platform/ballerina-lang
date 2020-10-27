@@ -27,7 +27,7 @@ public client class Caller {
     private FilterContext? filterContext = ();
 
     //TODO:Make these readonly
-    public Remote remoteAddress = {};
+    remote remoteAddress = {};
     public Local localAddress = {};
     public string protocol = "";
 
@@ -36,7 +36,7 @@ public client class Caller {
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel`, or `mime:Entity[]`
     # + return - An `http:ListenerError` if failed to respond or else `()`
-    public remote function respond(ResponseMessage message = ()) returns ListenerError? {
+    remote function respond(ResponseMessage message = ()) returns ListenerError? {
         Response response = buildResponse(message);
         FilterContext? filterContext = self.filterContext;
         (RequestFilter | ResponseFilter)[] filters = self.config.filters;
@@ -60,7 +60,7 @@ public client class Caller {
     #
     # + promise - Push promise message
     # + return - An `http:ListenerError` in case of failures
-    public remote function promise(PushPromise promise) returns ListenerError? {
+    remote function promise(PushPromise promise) returns ListenerError? {
         return externPromise(self, promise);
     }
 
@@ -69,7 +69,7 @@ public client class Caller {
     # + promise - Push promise message
     # + response - The outbound response
     # + return - An `http:ListenerError` in case of failures while responding with the promised response
-    public remote function pushPromisedResponse(PushPromise promise, Response response)
+    remote function pushPromisedResponse(PushPromise promise, Response response)
                                                                 returns ListenerError? {
         return externPushPromisedResponse(self, promise, response);
     }
@@ -78,7 +78,7 @@ public client class Caller {
     #
     # + headers - A `map` of custom headers for handshake
     # + return - An `http:WebSocketCaller` instance or else an `http:WebSocketError` on failure to upgrade
-    public remote function acceptWebSocketUpgrade(map<string> headers)
+    remote function acceptWebSocketUpgrade(map<string> headers)
                                                 returns WebSocketCaller | WebSocketError {
         return externAcceptWebSocketUpgrade(self, headers);
     }
@@ -89,14 +89,14 @@ public client class Caller {
     #            This error status code need to be 4xx or 5xx else the default status code would be 400.
     # + reason - Reason for cancelling the upgrade
     # + return - An `error` if an error occurs during cancelling the upgrade or nil
-    public remote function cancelWebSocketUpgrade(int status, string reason) returns WebSocketError? {
+    remote function cancelWebSocketUpgrade(int status, string reason) returns WebSocketError? {
         return externCancelWebSocketUpgrade(self, status, reason);
     }
 
     # Sends a `100-continue` response to the caller.
     #
     # + return - An `http:ListenerError` if failed to send the `100-continue` response or else `()`
-    public remote function 'continue() returns ListenerError? {
+    remote function 'continue() returns ListenerError? {
         Response res = new;
         res.statusCode = STATUS_CONTINUE;
         return self->respond(res);
@@ -108,7 +108,7 @@ public client class Caller {
     # + code - The redirect status code to be sent
     # + locations - An array of URLs to which the caller can redirect to
     # + return - An `http:ListenerError` if failed to send the redirect response or else `()`
-    public remote function redirect(Response response, RedirectCode code, string[] locations) returns ListenerError? {
+    remote function redirect(Response response, RedirectCode code, string[] locations) returns ListenerError? {
         if (code == REDIRECT_MULTIPLE_CHOICES_300) {
             response.statusCode = STATUS_MULTIPLE_CHOICES;
         } else if (code == REDIRECT_MOVED_PERMANENTLY_301) {
@@ -141,7 +141,7 @@ public client class Caller {
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - An `http:ListenerError` if failed to respond or else `()`
-    public remote function ok(ResponseMessage message = ()) returns ListenerError? {
+    remote function ok(ResponseMessage message = ()) returns ListenerError? {
         Response response = buildResponse(message);
         response.statusCode = STATUS_OK;
         return self->respond(response);
@@ -153,7 +153,7 @@ public client class Caller {
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`. This message is optional.
     # + return - An `http:ListenerError` if failed to respond or else `()`
-    public remote function created(string uri, ResponseMessage message = ()) returns ListenerError? {
+    remote function created(string uri, ResponseMessage message = ()) returns ListenerError? {
         Response response = buildResponse(message);
         response.statusCode = STATUS_CREATED;
         if (uri.length() > 0) {
@@ -167,7 +167,7 @@ public client class Caller {
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`. This message is optional.
     # + return - An `http:ListenerError` if failed to respond or else `()`
-    public remote function accepted(ResponseMessage message = ()) returns ListenerError? {
+    remote function accepted(ResponseMessage message = ()) returns ListenerError? {
         Response response = buildResponse(message);
         response.statusCode = STATUS_ACCEPTED;
         return self->respond(response);
@@ -181,7 +181,7 @@ public client class Caller {
 #
 # + message - The outbound response, which is optional
 # + return - An `http:ListenerError` if failed to respond or else `()`
-    public remote function noContent(Response? message = ()) returns ListenerError? {
+    remote function noContent(Response? message = ()) returns ListenerError? {
         Response newResponse = new;
         if message is Response {
             newResponse = message;
@@ -198,7 +198,7 @@ public client class Caller {
 # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`,
 #             or `mime:Entity[]`
 # + return - An `http:ListenerError` if failed to respond or else `()`
-    public remote function badRequest(ResponseMessage message = ()) returns ListenerError? {
+    remote function badRequest(ResponseMessage message = ()) returns ListenerError? {
         Response response = buildResponse(message);
         response.statusCode = STATUS_BAD_REQUEST;
         return self->respond(response);
@@ -212,7 +212,7 @@ public client class Caller {
 # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`,
 #             or `mime:Entity[]`
 # + return - An `http:ListenerError` if failed to respond or else `()`
-    public remote function notFound(ResponseMessage message = ()) returns ListenerError? {
+    remote function notFound(ResponseMessage message = ()) returns ListenerError? {
         Response response = buildResponse(message);
         response.statusCode = STATUS_NOT_FOUND;
         return self->respond(response);
@@ -226,7 +226,7 @@ public client class Caller {
 # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`,
 #             or `mime:Entity[]`
 # + return - An `http:ListenerError` if failed to respond or else `()`
-    public remote function internalServerError(ResponseMessage message = ()) returns ListenerError? {
+    remote function internalServerError(ResponseMessage message = ()) returns ListenerError? {
         Response response = buildResponse(message);
         response.statusCode = STATUS_INTERNAL_SERVER_ERROR;
         return self->respond(response);

@@ -38,7 +38,7 @@ service testServiceOne on new testobserve:Listener(10091) {
 }
 
 public client class MockClient {
-    public remote function callWithErrorReturn() returns error? {
+    remote function callWithErrorReturn() returns error? {
         var sum = 3 + 7;
         var expectedSum = 10;
         if (sum != expectedSum) {    // Check for validating if normal execution is intact from instrumentation
@@ -50,7 +50,7 @@ public client class MockClient {
         }
     }
 
-    public remote function callWithPanic() {
+    remote function callWithPanic() {
         var sum = 5 + 2;
         var expectedSum = 7;
         if (sum != expectedSum) {    // Check for validating if normal execution is intact from instrumentation

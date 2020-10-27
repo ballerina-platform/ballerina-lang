@@ -144,14 +144,14 @@ public client class '\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ_Connector {
 
     }
 
-    public remote function action1() returns string {
+    remote function action1() returns string {
         string 'sample_String_1 = "this ";
         string '\ \/\:\@\[\`\{\~\u{2324}_var = "is ";
         string 'üňĩćőđę_var = "action 1";
         return 'sample_String_1 + '\ \/\:\@\[\`\{\~\u{2324}_var + 'üňĩćőđę_var;
     }
 
-    public remote function '\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ_Action() returns string {
+    remote function '\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ_Action() returns string {
         string 'sample_String_2 = "this ";
         string '\ \/\:\@\[\`\{\~\u{2324}_var2 = "is ";
         string 'üňĩćőđę_var2 = "action 2";

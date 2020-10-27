@@ -15,7 +15,7 @@ public client class Client {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`
     # + return - The response for the request
-    public remote function post(@untainted string path, RequestMessage message) returns Response {
+    remote function post(@untainted string path, RequestMessage message) returns Response {
         Response response = new();
         return response;
     }

@@ -665,7 +665,7 @@ function testObjectAssignabilityBetweenNonClientAndClientObject() {
 }
 
 client class Email {
-    public remote function send(string message) returns error? {
+    remote function send(string message) returns error? {
     }
 }
 

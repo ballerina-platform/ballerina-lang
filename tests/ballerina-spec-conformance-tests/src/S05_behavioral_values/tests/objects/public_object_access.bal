@@ -42,7 +42,7 @@ function testPublicObjectAccessWithClientObjects() {
         msg = "expected client object public method to be accessible");
 
     int result = clientObject->publicRemoteMethodDefn("changed string");
-    test:assertEquals(result, 30, msg = "expected client object public remote method to be accessible");
+    test:assertEquals(result, 30, msg = "expected client object remote method to be accessible");
 
     test:assertEquals(clientObject.publicStringField, "changed string",
         msg = "expected client object public field to be updated");
@@ -86,7 +86,7 @@ function testPublicClientObjectAccessIncludingObjectReference() {
         msg = "expected client object public field to be accessible");
 
     int result = clientObject->publicRemoteMethodDecl("changed string");
-    test:assertEquals(result, 30, msg = "expected client object public remote method to be accessible");
+    test:assertEquals(result, 30, msg = "expected client object remote method to be accessible");
 
     test:assertEquals(clientObject.publicStringField, "changed string",
         msg = "expected client object public field to be updated");
@@ -111,7 +111,7 @@ client class ObjReferenceToPublicAbstractClientObject {
         return self.counter;
     }
 
-    public remote function publicRemoteMethodDecl(string argOne) returns int {
+    remote function publicRemoteMethodDecl(string argOne) returns int {
         self.publicStringField = argOne;
         self.counter += 10;
         return self.counter;
@@ -128,7 +128,7 @@ public function ObjReferenceToPublicAbstractClientObject.publicMethodDeclaredOut
     return self.counter;
 }
 
-public remote function ObjReferenceToPublicAbstractClientObject.publicRemoteMethodDeclaredOutside() returns int {
+remote function ObjReferenceToPublicAbstractClientObject.publicRemoteMethodDeclaredOutside() returns int {
     self.counter += 10;
     return self.counter;
 }
@@ -145,7 +145,7 @@ function testPublicObjectAccessIncludingPublicObjectReference() {
         msg = "expected client object public method to be accessible");
 
     int result = clientObject->publicRemoteMethodDecl("changed string");
-    test:assertEquals(result, 30, msg = "expected client object public remote method to be accessible");
+    test:assertEquals(result, 30, msg = "expected client object remote method to be accessible");
 
     test:assertEquals(clientObject.publicStringField, "changed string",
         msg = "expected client object public field to be updated");
