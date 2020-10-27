@@ -1,5 +1,8 @@
 package io.ballerina.projects.util;
 
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleName;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -25,6 +28,7 @@ import java.util.Properties;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
@@ -164,5 +168,28 @@ public class ProjectUtils {
     private static boolean isCopiedOrExcludedEntry(String entryName, HashSet<String> copiedEntries) {
         return copiedEntries.contains(entryName) ||
                 excludeExtensions.contains(entryName.substring(entryName.lastIndexOf(".") + 1));
+    }
+
+    /**
+     * Construct and return the thin jar name of the provided module.
+     *
+     * @param module Module instance
+     * @return the name of the thin jar
+     */
+    public static String getJarName(Module module) {
+        String jarName;
+        if (module.packageInstance().packageDescriptor().org().anonymous()) {
+            DocumentId documentId = module.documentIds().iterator().next();
+            String documentName = module.document(documentId).name();
+            jarName = getFileNameWithoutExtension(documentName);
+        } else {
+            ModuleName moduleName = module.moduleName();
+            if (moduleName.isDefaultModuleName()) {
+                jarName = moduleName.packageName().toString();
+            } else {
+                jarName = moduleName.moduleNamePart();
+            }
+        }
+        return jarName + ProjectConstants.BLANG_COMPILED_JAR_EXT;
     }
 }

@@ -27,6 +27,8 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import java.io.PrintStream;
 import java.util.List;
 
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+
 /**
  * Task for compiling a package.
  *
@@ -69,7 +71,7 @@ public class CompileTask implements Task {
             }
         }
         if (hasError) {
-            throw new RuntimeException("compilation contains errors");
+            throw createLauncherException("compilation contains errors");
         }
     }
 }

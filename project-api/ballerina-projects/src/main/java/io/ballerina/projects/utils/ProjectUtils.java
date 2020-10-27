@@ -79,6 +79,7 @@ public class ProjectUtils {
      */
     public static Path findProjectRoot(Path filePath) {
         if (filePath != null) {
+            filePath = filePath.toAbsolutePath().normalize();
             if (filePath.toFile().isDirectory()) {
                 if (Files.exists(filePath.resolve(ProjectConstants.BALLERINA_TOML))) {
                     return filePath;

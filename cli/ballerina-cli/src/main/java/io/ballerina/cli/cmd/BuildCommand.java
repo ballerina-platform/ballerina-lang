@@ -25,12 +25,13 @@ import io.ballerina.cli.task.CreateBirTask;
 import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.CreateJarTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
+import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.env.BuildEnvContext;
+import io.ballerina.runtime.launch.LaunchUtils;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.jvm.launch.LaunchUtils;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -74,23 +75,23 @@ public class BuildCommand implements BLauncherCmd {
         this.skipCopyLibsFromDist = false;
     }
 
-    public BuildCommand(Path userDir, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                         boolean skipCopyLibsFromDist) {
-        this.projectPath = userDir;
+        this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
     }
 
-    public BuildCommand(Path userDir, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                        boolean skipCopyLibsFromDist, Path executableOutputDir) {
-        this.projectPath = userDir;
+    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                        boolean skipCopyLibsFromDist, String output) {
+        this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
-        this.output = executableOutputDir.toString();
+        this.output = output;
     }
 
     @CommandLine.Option(names = {"--compile", "-c"}, description = "Compile the source without generating " +
@@ -164,24 +165,39 @@ public class BuildCommand implements BLauncherCmd {
             this.projectPath = Paths.get(argList.get(0));
         }
 
-        Project project = ProjectLoader.loadProject(this.projectPath);
-        boolean isSingleFileBuild = project instanceof SingleFileProject;
-
-        if (isSingleFileBuild) {
+        // load project
+        Project project;
+        boolean isSingleFileBuild = false;
+        if (FileUtils.hasExtension(this.projectPath)) {
             if (this.compile) {
                 CommandUtil.printError(this.errStream,
-                                       "'-c' or '--compile' can only be used with modules.", null, false);
+                        "'-c' or '--compile' can only be used with modules.", null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
+            try {
+                project = SingleFileProject.loadProject(this.projectPath);
+            } catch (RuntimeException e) {
+                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+            isSingleFileBuild = true;
         } else {
             // Check if the output flag is set when building all the modules.
             if (null != this.output) {
                 CommandUtil.printError(this.errStream,
-                                       "'-o' and '--output' are only supported when building a single Ballerina " +
-                                               "file.",
-                                       "ballerina build -o <output-file> <ballerina-file> ",
-                                       true);
+                        "'-o' and '--output' are only supported when building a single Ballerina " +
+                                "file.",
+                        "ballerina build -o <output-file> <ballerina-file> ",
+                        true);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+            try {
+                project = BuildProject.loadProject(this.projectPath);
+            } catch (RuntimeException e) {
+                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -203,7 +219,7 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateTargetDirTask()) // create target directory
 //                .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
-                .addTask(new CreateBirTask())   // create the bir
+                .addTask(new CreateBirTask(), isSingleFileBuild)   // create the bir
 //                .addTask(new CreateLockFileTask(), this.skipLock || isSingleFileBuild)  // create a lock file if
                                                             // the given skipLock flag does not exist(projects only)
                 .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO ( build projects only)

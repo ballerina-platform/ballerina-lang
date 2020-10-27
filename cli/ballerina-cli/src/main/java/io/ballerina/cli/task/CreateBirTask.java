@@ -18,11 +18,15 @@
 
 package io.ballerina.cli.task;
 
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.model.Target;
 
 import java.io.IOException;
+
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * Task for creating bir.
@@ -35,10 +39,11 @@ public class CreateBirTask implements Task {
         Target target;
         try {
             target = new Target(project.sourceRoot());
-            PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-            packageCompilation.emit(PackageCompilation.OutputType.BIR, target.getBirCachePath());
+            PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JdkVersion.JAVA_11);
+            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BIR, target.getBirCachePath());
         } catch (IOException e) {
-            throw new RuntimeException("error occurred while writing the module BIRs: " + e.getMessage());
+            throw createLauncherException("error occurred while writing the module BIRs: " + e.getMessage());
         }
     }
 }
