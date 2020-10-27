@@ -30,8 +30,6 @@ import io.ballerina.runtime.types.BServiceType;
 import io.ballerina.runtime.values.FPValue;
 import io.ballerina.runtime.values.MapValue;
 
-import java.util.Arrays;
-
 /**
  * Utility methods related to annotation loading.
  *
