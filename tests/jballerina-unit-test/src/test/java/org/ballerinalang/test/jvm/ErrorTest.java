@@ -21,9 +21,9 @@ import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -118,7 +118,7 @@ public class ErrorTest {
     public void testRuntimeOOMError() {
         try {
             CompileResult compileResult = BCompileUtil.compile("test-src/jvm/runtime-oom-error.bal");
-            BCompileUtil.runMain(compileResult, new String[]{});
+            BRunUtil.runMain(compileResult, new String[]{});
         } catch (Throwable e) {
             Assert.assertTrue(e.getMessage().contains("java.lang.OutOfMemoryError: Java heap space"));
             return;

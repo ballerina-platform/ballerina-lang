@@ -18,10 +18,10 @@
 package org.ballerinalang.test.object;
 
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -33,8 +33,10 @@ public class ObjectWithPrivateFieldsNegativeTest {
     @Test(description = "Test runtime object equivalence  field access")
     public void testRuntimeObjEqNegative() {
 
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject",
-                "object-private-fields-01-negative");
+//        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject",
+//                "object-private-fields-01-negative");
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject/object-private-fields-01" +
+                "-negative");
         BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeObjEqNegative");
 
         Assert.assertEquals(returns[0].stringValue(), "{ballerina}TypeCastError {\"message\":\"incompatible types:" +
@@ -44,8 +46,10 @@ public class ObjectWithPrivateFieldsNegativeTest {
     @Test(description = "Test private field access")
     public void testPrivateFieldAccess() {
 
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject",
-                "object-private-fields-02-negative");
+//        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject",
+//                "object-private-fields-02-negative");
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject/object-private-fields-02" +
+                "-negative");
 
         BAssertUtil.validateError(compileResult, 0, "attempt to refer to non-accessible symbol 'ssn'", 7, 18);
         BAssertUtil.validateError(compileResult, 1, "undefined field 'ssn' in object 'testorg/org.foo:1.0.0:person'",
@@ -54,7 +58,8 @@ public class ObjectWithPrivateFieldsNegativeTest {
 
     @Test(description = "Test private object access in public functions")
     public void testPrivateObjAccess1() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src/object/ObjectProject", "private-field1");
+//        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "private-field1");
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject/private-field1");
 
         Assert.assertEquals(compileResult.getErrorCount(), 6);
         String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
@@ -69,7 +74,8 @@ public class ObjectWithPrivateFieldsNegativeTest {
 
     @Test(description = "Test private object access in public functions")
     public void testPrivateObjAccess1SemanticsNegative() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src/object/ObjectProject", "private-field1.sn");
+//        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "private-field1.sn");
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject/private-field1.sn");
         Assert.assertEquals(compileResult.getErrorCount(), 8);
         String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
         String expectedErrMsg2 = "attempt to expose non-public symbol ";
@@ -87,7 +93,8 @@ public class ObjectWithPrivateFieldsNegativeTest {
 
     @Test(description = "Test private object access in public functions")
     public void testPrivateObjAccess2() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src/object/ObjectProject", "private-field2");
+//        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "private-field2");
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject/private-field2");
 
         Assert.assertEquals(compileResult.getErrorCount(), 2);
         String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
@@ -99,7 +106,8 @@ public class ObjectWithPrivateFieldsNegativeTest {
 
     @Test(description = "Test private object access in public functions")
     public void testPrivateObjAccess2SemanticsNegative() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src/object/ObjectProject", "private-field2.sn");
+//        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "private-field2.sn");
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject/private-field2.sn");
 
         Assert.assertEquals(compileResult.getErrorCount(), 8);
         String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";

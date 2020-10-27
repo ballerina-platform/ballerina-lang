@@ -19,12 +19,12 @@ package org.ballerinalang.test.main.function;
 import org.ballerinalang.core.model.types.BTypes;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -63,7 +63,7 @@ public class MainFunctionsTest {
     public void testErrorOrNilReturningMainReturningError() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                 + "test_main_with_error_or_nil_return.bal");
-        BCompileUtil.ExitDetails result = BCompileUtil.run(compileResult, new String[]{"error", "1"});
+        BRunUtil.ExitDetails result = BRunUtil.run(compileResult, new String[]{"error", "1"});
         assertTrue(result.consoleOutput.contains("error? returning main invoked"),
                             "expected the main function to be invoked");
         assertTrue(result.errorOutput.contains("generic error"), "invalid error reason");
@@ -83,7 +83,7 @@ public class MainFunctionsTest {
     public void testErrorOrNilReturningMainReturningCustomError() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                 + "test_main_with_error_or_nil_return.bal");
-        BCompileUtil.ExitDetails result = BCompileUtil.run(compileResult, new String[]{"user_def_error", "1"});
+        BRunUtil.ExitDetails result = BRunUtil.run(compileResult, new String[]{"user_def_error", "1"});
         assertTrue(result.consoleOutput.startsWith("error? returning main invoked"),
                             "expected the main function to be invoked");
         assertTrue(result.errorOutput.contains("const error reason"), "invalid error reason");
@@ -118,7 +118,7 @@ public class MainFunctionsTest {
     public void testMainWithStackOverflow() {
         CompileResult compileResult = BCompileUtil
                 .compile("test-src/main.function/test_main_with_stackoverflow.bal");
-        BCompileUtil.ExitDetails details = BCompileUtil.run(compileResult, new String[]{});
+        BRunUtil.ExitDetails details = BRunUtil.run(compileResult, new String[]{});
         assertTrue(details.errorOutput.contains("error: {ballerina}StackOverflow\n\tat $value$Foo:init" +
                 "(test_main_with_stackoverflow.bal:19)\n\t   $value$Foo:init(test_main_with_stackoverflow.bal:19)" +
                 "\n\t   $value$Foo:init(test_main_with_stackoverflow.bal:19)"));
@@ -127,7 +127,7 @@ public class MainFunctionsTest {
 
     private String runMain(CompileResult compileResult, String[] args) {
         try {
-            return BCompileUtil.runMain(compileResult, args);
+            return BRunUtil.runMain(compileResult, args);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }

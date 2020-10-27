@@ -23,10 +23,10 @@ package org.ballerinalang.test.balo.object;
 //import org.ballerinalang.core.model.values.BValue;
 //import org.ballerinalang.core.model.values.BValueArray;
 //import org.ballerinalang.test.balo.BaloCreator;
-//import org.ballerinalang.test.util.BAssertUtil;
-//import org.ballerinalang.test.util.BCompileUtil;
-//import org.ballerinalang.test.util.BRunUtil;
-//import org.ballerinalang.test.util.CompileResult;
+//import org.ballerinalang.test.BAssertUtil;
+//import org.ballerinalang.test.BCompileUtil;
+//import org.ballerinalang.test.BRunUtil;
+//import org.ballerinalang.test.CompileResult;
 //import org.ballerinalang.test.utils.ByteArrayUtils;
 //import org.testng.Assert;
 //import org.testng.annotations.AfterClass;
@@ -42,9 +42,8 @@ public class ObjectInBaloTest {
 //
 //    @BeforeClass
 //    public void setup() {
-//        BaloCreator.cleanCacheDirectories();
-//        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
-//        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "utils");
+//        //        BCompileUtil.compile("test-src/balo/test_projects/test_project", "testorg", "foo");
+//        BCompileUtil.compile("test-src/balo/test_projects/test_project", "testorg", "utils");
 //        result = BCompileUtil.compile("test-src/balo/test_balo/object/test_objects.bal");
 //    }
 //

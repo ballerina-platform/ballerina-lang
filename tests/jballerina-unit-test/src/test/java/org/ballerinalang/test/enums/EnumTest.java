@@ -17,14 +17,14 @@
  */
 package org.ballerinalang.test.enums;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -39,8 +39,8 @@ public class EnumTest {
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/enums/enums.bal");
         negativeTest = BCompileUtil.compile("test-src/enums/enums-negative.bal");
-        accessTest = BCompileUtil.compile(this, "test-src/enums/access", "main");
-        accessTestNegative = BCompileUtil.compile(this, "test-src/enums/access", "main2");
+//        accessTest = BCompileUtil.compile("test-src/enums/access", "main");
+//        accessTestNegative = BCompileUtil.compile("test-src/enums/access", "main2");
     }
 
     @Test(description = "Positive tests for enums", dataProvider = "FunctionList")
