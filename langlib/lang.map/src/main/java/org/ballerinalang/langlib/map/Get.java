@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * Native implementation of lang.map:get(map&lt;Type&gt;, string).
@@ -28,7 +28,7 @@ import org.ballerinalang.jvm.values.MapValue;
  */
 public class Get {
 
-    public static Object get(MapValue<?, ?> m, BString k) {
+    public static Object get(BMap<?, ?> m, BString k) {
         return m.getOrThrow(k);
     }
 }

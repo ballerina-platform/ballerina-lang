@@ -1,3 +1,3 @@
 function foo() {
-   a -> b(c, d="hello", ...e);
+    a->b(c, d = "hello", ...e);
 }

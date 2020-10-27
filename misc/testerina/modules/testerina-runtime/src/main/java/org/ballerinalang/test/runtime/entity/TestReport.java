@@ -111,7 +111,24 @@ public class TestReport {
                 missedLines += modCov.getMissedLines();
                 float coverageVal = (float) coveredLines / (coveredLines + missedLines) * 100;
                 coveragePercentage = (float) (Math.round(coverageVal * 100.0) / 100.0);
+            }
+        }
 
+        // For each module coverage, check if there is a module status as well
+        // If module status doesnt exist, it doesnt show up in the HTML report
+        for (ModuleCoverage modCov : moduleCoverage) {
+            boolean doesExist = false;
+
+            for (ModuleStatus modStatus : moduleStatus) {
+                if (modCov.getName().equals(modStatus.getName())) {
+                    doesExist = true;
+                }
+            }
+
+            if (!doesExist) {
+                ModuleStatus missingModuleStatus = new ModuleStatus();
+                missingModuleStatus.setName(modCov.getName());
+                moduleStatus.add(missingModuleStatus);
             }
         }
     }

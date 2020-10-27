@@ -336,7 +336,13 @@
                                           ]
                                         },
                                         {
-                                          "kind": "COMMA_TOKEN"
+                                          "kind": "COMMA_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "REQUIRED_PARAM",
@@ -1010,13 +1016,7 @@
                               ]
                             },
                             {
-                              "kind": "GT_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "GT_TOKEN"
                             },
                             {
                               "kind": "SIMPLE_NAME_REFERENCE",

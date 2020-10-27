@@ -16,9 +16,9 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.scheduling.Strand;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -54,10 +54,10 @@ import static org.bytedeco.llvm.global.LLVM.LLVMCreateTargetMachine;
 )
 public class LLVMCreateTargetMachine {
 
-    public static MapValue<String, Object> llvmCreateTargetMachine(Strand strand, MapValue<String, Object> arg0,
-                                                                   MapValue<String, Object> arg1,
-                                                                   MapValue<String, Object> arg2,
-                                                                   MapValue<String, Object> arg3,
+    public static BMap<String, Object> llvmCreateTargetMachine(Strand strand, BMap<String, Object> arg0,
+                                                                   BMap<String, Object> arg1,
+                                                                   BMap<String, Object> arg2,
+                                                                   BMap<String, Object> arg3,
                                                                    long arg4, long arg5, long arg6) {
 
         LLVMTargetRef t = (LLVMTargetRef) FFIUtil.getRecodeArgumentNative(arg0);
@@ -66,7 +66,7 @@ public class LLVMCreateTargetMachine {
         BytePointer features = (BytePointer) FFIUtil.getRecodeArgumentNative(arg3);
         LLVMTargetMachineRef returnValue = LLVMCreateTargetMachine(t, triple, cpu, features, (int) arg4,
                 (int) arg5, (int) arg6);
-        MapValue<String, Object> rerunWrapperRecode = FFIUtil.newRecord(new BPackage("ballerina",
+        BMap<String, Object> rerunWrapperRecode = FFIUtil.newRecord(new Module("ballerina",
                 "llvm"), "LLVMTargetMachineRef");
         FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
         return rerunWrapperRecode;

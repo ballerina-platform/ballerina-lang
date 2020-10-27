@@ -17,14 +17,15 @@
  */
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.XMLQName;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.XMLNodeType;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXMLQName;
 
-import static org.ballerinalang.jvm.api.BErrorCreator.createError;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
+import static io.ballerina.runtime.api.ErrorCreator.createError;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
 
 /**
  * Return attribute value matching attribute name `attrName`.
@@ -33,19 +34,19 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OP
  */
 public class GetAttribute {
 
-    public static Object getAttribute(XMLValue xmlVal, BString attrName, boolean optionalFiledAccess) {
+    public static Object getAttribute(BXML xmlVal, BString attrName, boolean optionalFiledAccess) {
         if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE && xmlVal.size() == 0) {
             return null;
         }
         if (!IsElement.isElement(xmlVal)) {
             return createError(XML_OPERATION_ERROR,
-                               BStringUtils.fromString("Invalid xml attribute access on xml " +
+                               StringUtils.fromString("Invalid xml attribute access on xml " +
                                                                xmlVal.getNodeType().value()));
         }
-        XMLQName qname = new XMLQName(attrName);
+        BXMLQName qname = ValueCreator.createXMLQName(attrName);
         BString attrVal = xmlVal.getAttribute(qname.getLocalName(), qname.getUri());
         if (attrVal == null && !optionalFiledAccess) {
-            return createError(XML_OPERATION_ERROR, BStringUtils.fromString("attribute '" + attrName + "' not found"));
+            return createError(XML_OPERATION_ERROR, StringUtils.fromString("attribute '" + attrName + "' not found"));
         }
         return attrVal;
     }

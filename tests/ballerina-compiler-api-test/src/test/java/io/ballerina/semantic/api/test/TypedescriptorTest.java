@@ -50,7 +50,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.List;
 
-import static io.ballerina.compiler.api.types.ParameterKind.DEFAULTABLE;
 import static io.ballerina.compiler.api.types.ParameterKind.REQUIRED;
 import static io.ballerina.compiler.api.types.ParameterKind.REST;
 import static io.ballerina.compiler.api.types.TypeDescKind.ANYDATA;
@@ -63,6 +62,7 @@ import static io.ballerina.compiler.api.types.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.types.TypeDescKind.NIL;
 import static io.ballerina.compiler.api.types.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.types.TypeDescKind.RECORD;
+import static io.ballerina.compiler.api.types.TypeDescKind.SINGLETON;
 import static io.ballerina.compiler.api.types.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.types.TypeDescKind.TUPLE;
 import static io.ballerina.compiler.api.types.TypeDescKind.TYPEDESC;
@@ -93,7 +93,7 @@ public class TypedescriptorTest {
 
     @Test
     public void testAnnotationType() {
-        Symbol symbol = getSymbol(23, 38);
+        Symbol symbol = getSymbol(22, 37);
         TypeReferenceTypeDescriptor type =
                 (TypeReferenceTypeDescriptor) ((AnnotationSymbol) symbol).typeDescriptor().get();
         assertEquals(type.typeDescriptor().kind(), TypeDescKind.RECORD);
@@ -101,24 +101,20 @@ public class TypedescriptorTest {
 
     @Test
     public void testConstantType() {
-        Symbol symbol = getSymbol(17, 8);
-        BallerinaTypeDescriptor type = ((ConstantSymbol) symbol).typeDescriptor().get();
+        Symbol symbol = getSymbol(16, 7);
+        BallerinaTypeDescriptor type = ((ConstantSymbol) symbol).typeDescriptor();
         assertEquals(type.kind(), FLOAT);
     }
 
     @Test
     public void testFunctionType() {
-        Symbol symbol = getSymbol(44, 13);
-        FunctionTypeDescriptor type = (FunctionTypeDescriptor) ((FunctionSymbol) symbol).typeDescriptor().get();
+        Symbol symbol = getSymbol(43, 12);
+        FunctionTypeDescriptor type = ((FunctionSymbol) symbol).typeDescriptor();
         assertEquals(type.kind(), TypeDescKind.FUNCTION);
 
-        List<Parameter> reqParams = type.requiredParams();
-        assertEquals(reqParams.size(), 1);
-        validateParam(reqParams.get(0), "x", REQUIRED, INT);
-
-        List<Parameter> defParams = type.defaultableParams();
-        assertEquals(defParams.size(), 1);
-        validateParam(defParams.get(0), "y", DEFAULTABLE, FLOAT);
+        List<Parameter> parameters = type.parameters();
+        assertEquals(parameters.size(), 2);
+        validateParam(parameters.get(0), "x", REQUIRED, INT);
 
         Parameter restParam = type.restParam().get();
         validateParam(restParam, "rest", REST, ARRAY);
@@ -129,40 +125,40 @@ public class TypedescriptorTest {
 
     @Test
     public void testFutureType() {
-        Symbol symbol = getSymbol(46, 17);
-        FutureTypeDescriptor type = (FutureTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor().get();
+        Symbol symbol = getSymbol(45, 16);
+        FutureTypeDescriptor type = (FutureTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.kind(), FUTURE);
         assertEquals(type.typeParameter().get().kind(), INT);
     }
 
     @Test
     public void testArrayType() {
-        Symbol symbol = getSymbol(48, 19);
-        ArrayTypeDescriptor type = (ArrayTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor().get();
+        Symbol symbol = getSymbol(47, 18);
+        ArrayTypeDescriptor type = (ArrayTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.kind(), ARRAY);
         assertEquals(((TypeReferenceTypeDescriptor) type.memberTypeDescriptor()).typeDescriptor().kind(), OBJECT);
     }
 
     @Test
     public void testMapType() {
-        Symbol symbol = getSymbol(50, 17);
-        MapTypeDescriptor type = (MapTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor().get();
+        Symbol symbol = getSymbol(49, 16);
+        MapTypeDescriptor type = (MapTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.kind(), MAP);
         assertEquals(type.typeParameter().get().kind(), STRING);
     }
 
     @Test
     public void testNilType() {
-        Symbol symbol = getSymbol(39, 10);
-        FunctionTypeDescriptor type = (FunctionTypeDescriptor) ((FunctionSymbol) symbol).typeDescriptor().get();
+        Symbol symbol = getSymbol(38, 9);
+        FunctionTypeDescriptor type = (FunctionTypeDescriptor) ((FunctionSymbol) symbol).typeDescriptor();
         assertEquals(type.returnTypeDescriptor().get().kind(), NIL);
     }
 
     @Test
     public void testObjectType() {
-        Symbol symbol = getSymbol(29, 7);
+        Symbol symbol = getSymbol(28, 6);
         TypeReferenceTypeDescriptor typeRef =
-                (TypeReferenceTypeDescriptor) ((TypeSymbol) symbol).typeDescriptor().get();
+                (TypeReferenceTypeDescriptor) ((TypeSymbol) symbol).typeDescriptor();
         ObjectTypeDescriptor type = (ObjectTypeDescriptor) typeRef.typeDescriptor();
         assertEquals(type.kind(), OBJECT);
 
@@ -182,9 +178,9 @@ public class TypedescriptorTest {
 
     @Test
     public void testRecordType() {
-        Symbol symbol = getSymbol(19, 6);
+        Symbol symbol = getSymbol(18, 5);
         TypeReferenceTypeDescriptor typeRef =
-                (TypeReferenceTypeDescriptor) ((TypeSymbol) symbol).typeDescriptor().get();
+                (TypeReferenceTypeDescriptor) ((TypeSymbol) symbol).typeDescriptor();
         RecordTypeDescriptor type = (RecordTypeDescriptor) typeRef.typeDescriptor();
         assertEquals(type.kind(), RECORD);
         assertFalse(type.inclusive());
@@ -199,8 +195,8 @@ public class TypedescriptorTest {
 
     @Test
     public void testTupleType() {
-        Symbol symbol = getSymbol(52, 29);
-        TupleTypeDescriptor type = (TupleTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor().get();
+        Symbol symbol = getSymbol(51, 28);
+        TupleTypeDescriptor type = (TupleTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.kind(), TUPLE);
 
         List<BallerinaTypeDescriptor> members = type.memberTypeDescriptors();
@@ -215,7 +211,7 @@ public class TypedescriptorTest {
     @Test(dataProvider = "TypedescDataProvider")
     public void testTypedescType(int line, int col, TypeDescKind kind) {
         Symbol symbol = getSymbol(line, col);
-        TypeDescTypeDescriptor type = (TypeDescTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor().get();
+        TypeDescTypeDescriptor type = (TypeDescTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.kind(), TYPEDESC);
         assertTrue(type.typeParameter().isPresent());
         assertEquals(type.typeParameter().get().kind(), kind);
@@ -224,15 +220,15 @@ public class TypedescriptorTest {
     @DataProvider(name = "TypedescDataProvider")
     public Object[][] getTypedescPositions() {
         return new Object[][]{
-                {54, 23, ANYDATA},
-                {55, 14, UNION}
+                {53, 22, ANYDATA},
+                {54, 13, UNION}
         };
     }
 
     @Test
     public void testUnionType() {
-        Symbol symbol = getSymbol(57, 22);
-        UnionTypeDescriptor type = (UnionTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor().get();
+        Symbol symbol = getSymbol(56, 21);
+        UnionTypeDescriptor type = (UnionTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.kind(), UNION);
 
         List<BallerinaTypeDescriptor> members = type.memberTypeDescriptors();
@@ -243,9 +239,9 @@ public class TypedescriptorTest {
 
     @Test(enabled = false)
     public void testNamedUnion() {
-        Symbol symbol = getSymbol(59, 12);
+        Symbol symbol = getSymbol(58, 11);
         TypeReferenceTypeDescriptor typeRef =
-                (TypeReferenceTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor().get();
+                (TypeReferenceTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(typeRef.kind(), TYPE_REFERENCE);
 
         UnionTypeDescriptor type = (UnionTypeDescriptor) typeRef.typeDescriptor();
@@ -256,13 +252,26 @@ public class TypedescriptorTest {
         assertEquals(members.get(2).kind(), DECIMAL);
     }
 
-    // TODO: issue #26276
-    @Test(enabled = false)
-    public void testFiniteType() {
-        Symbol symbol = getSymbol(61, 11);
-        TypeReferenceTypeDescriptor typeRef =
-                (TypeReferenceTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor().get();
-        assertEquals(typeRef.kind(), TYPE_REFERENCE);
+    @Test(dataProvider = "FiniteTypeDataProvider")
+    public void testFiniteType(int line, int column, List<String> expSignatures) {
+        Symbol symbol = getSymbol(line, column);
+        UnionTypeDescriptor union = (UnionTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(union.kind(), UNION);
+
+        List<BallerinaTypeDescriptor> members = union.memberTypeDescriptors();
+        for (int i = 0; i < members.size(); i++) {
+            BallerinaTypeDescriptor member = members.get(i);
+            assertEquals(member.kind(), SINGLETON);
+            assertEquals(member.signature(), expSignatures.get(i));
+        }
+    }
+
+    @DataProvider(name = "FiniteTypeDataProvider")
+    public Object[][] getFiniteTypePos() {
+        return new Object[][]{
+                {60, 10, List.of("0", "1", "2", "3")},
+                {62, 11, List.of("default", "csv", "tdf")}
+        };
     }
 
     private Symbol getSymbol(int line, int column) {

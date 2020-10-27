@@ -17,29 +17,26 @@
  */
 package io.ballerina.compiler.api.symbols;
 
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-
-import java.util.List;
-import java.util.Optional;
+import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 
 /**
  * Represent Function Symbol.
  *
  * @since 2.0.0
  */
-public interface FunctionSymbol extends Symbol {
+public interface FunctionSymbol extends Symbol, Qualifiable, Deprecatable {
 
     /**
-     * Get the list of qualifiers.
+     * Get the type descriptor of the function.
      *
-     * @return {@link List} of qualifiers
+     * @return {@link FunctionTypeDescriptor}
      */
-    List<Qualifier> qualifiers();
+    FunctionTypeDescriptor typeDescriptor();
 
     /**
-     * Get the Function Type Descriptor.
+     * Checks whether the function body is external or not.
      *
-     * @return {@link BallerinaTypeDescriptor}
+     * @return True if the function has an external body
      */
-    Optional<BallerinaTypeDescriptor> typeDescriptor();
+    boolean external();
 }

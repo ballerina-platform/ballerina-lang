@@ -40,7 +40,7 @@ type CustomerTable table<map<any>>;
 function testAssertStringAndInt() {
     error? err = trap test:assertEquals(1, "1");
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: <string> '1'\nactual\t: <int> '1'");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: <string> '1'\nactual\t: <int> '1'");
 }
 
 @test:Config {}
@@ -49,7 +49,7 @@ function testAssertDecimalAndFloat() {
     float f = 27.5;
     error? err = trap test:assertEquals(d, f);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: <float> '27.5'\nactual\t: <decimal> '27.5'");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: <float> '27.5'\nactual\t: <decimal> '27.5'");
 }
 
 @test:Config {}
@@ -59,7 +59,7 @@ function testAssertJsonAndString() {
     error? err = trap test:assertEquals(bioData, bioDataString);
     error result = <error>err;
     test:assertEquals(result.message().toString(), 
-    "Assertion Failed!\nexpected: <string> '{name:\"John Doe\", age:25, address:{city:\"Colombo\", country:\"Sri " + "Lanka\"}}'\nactual\t: <map> '{\"name\":\"John Doe\",\"age\":25,\"address\":{\"city\":\"Colombo\"," + "\"country\":\"Sri Lanka\"}}'");
+    "Assertion Failed!\n \nexpected: <string> '{name:\"John Doe\", age:25, address:{city:\"Colombo\", country:\"Sri " + "Lanka\"}}'\nactual\t: <map> '{\"name\":\"John Doe\",\"age\":25,\"address\":{\"city\":\"Colombo\"," + "\"country\":\"Sri Lanka\"}}'");
 }
 
 @test:Config {}
@@ -69,7 +69,7 @@ function testAssertXmlAndString() {
     error? err = trap test:assertEquals(xmlString, xmlValue);
     error result = <error>err;
     test:assertEquals(result.message().toString(), 
-    "Assertion Failed!\nexpected: <xml> '<book>The Lost World</book>Hello, world!<!--I am a comment--><?target data?" + ">'\nactual\t: <string> '<book>The Lost World</book>Hello, world!<!--I am a comment--><?target data?>'");
+    "Assertion Failed!\n \nexpected: <xml> '<book>The Lost World</book>Hello, world!<!--I am a comment--><?target data?" + ">'\nactual\t: <string> '<book>The Lost World</book>Hello, world!<!--I am a comment--><?target data?>'");
 }
 
 @test:Config {}
@@ -79,7 +79,7 @@ function testAssertDifferentTuples() {
     error? err = trap test:assertEquals(a, b);
     error result = <error>err;
     test:assertEquals(result.message().toString(), 
-    "Assertion Failed!\nexpected: <[string,string]> '10 John'\nactual\t: <[int,string]> '10 John'");
+    "Assertion Failed!\n \nexpected: <[string,string]> '10 John'\nactual\t: <[int,string]> '10 John'");
 }
 
 @test:Config {}
@@ -92,7 +92,7 @@ function testAssertTableAndString() {
     error? err = trap test:assertEquals(customerTab, customerTabString);
     error result = <error>err;
     test:assertEquals(result.message().toString(), 
-    "Assertion Failed!\nexpected: <string> 'table [{id: 1, name: \"John\", salary: 300.50},{id: 2, name: \"Bella\", " + "salary: 500....'\nactual\t: <table> '[{\"id\":1,\"name\":\"John\",\"salary\":300.5},{\"id\":2,\"name\":\"Bella\"," + "\"salary\":500.5}]'");
+    "Assertion Failed!\n \nexpected: <string> 'table [{id: 1, name: \"John\", salary: 300.50},{id: 2, name: \"Bella\", " + "salary: 500....'\nactual\t: <table> '[{\"id\":1,\"name\":\"John\",\"salary\":300.5},{\"id\":2,\"name\":\"Bella\"," + "\"salary\":500.5}]'");
 }
 
 @test:Config {}
@@ -101,7 +101,7 @@ function testAssertDifferentObjects() {
     Employee employee = new();
     error? err = trap test:assertExactEquals(person, employee);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: <Employee> 'object assertions-error-messages:Employee'\nactual\t: <Person> 'object assertions-error-messages:Person'");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: <Employee> 'object assertions-error-messages:Employee'\nactual\t: <Person> 'object assertions-error-messages:Person'");
 }
 
 @test:Config {}
@@ -118,7 +118,8 @@ function testAssertAnnonymousRecords() {
 
     error? err = trap test:assertEquals(address, address2);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: <$anonType$1> '{\"newCity\":" + "\"London\",\"newCountry\":\"UK\"}'\nactual\t: <$anonType$0> '{\"city\":\"London\",\"country\":\"UK\"}'");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: <$anonType$_1> '{\"newCity\":" +
+    "\"London\",\"newCountry\":\"UK\"}'\nactual\t: <$anonType$_0> '{\"city\":\"London\",\"country\":\"UK\"}'");
 }
 
 @test:Config {}
@@ -128,6 +129,6 @@ function testAssertLongValues() {
 
     error? err = trap test:assertEquals(value1, value2);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: <map> '{\"description\":\"Ballerina" + " is an open source programming language and platform fo...'\nactual\t: <string> 'Ballerina is an open source" + 
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: <map> '{\"description\":\"Ballerina" + " is an open source programming language and platform fo...'\nactual\t: <string> 'Ballerina is an open source" + 
     " programming language and platform for cloud-era appl...'");
 }

@@ -45,12 +45,12 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
         return childInBucket(2);
     }
 
-    public Token equalsToken() {
-        return childInBucket(3);
+    public Optional<Token> equalsToken() {
+        return optionalChildInBucket(3);
     }
 
-    public ExpressionNode initializer() {
-        return childInBucket(4);
+    public Optional<ExpressionNode> initializer() {
+        return optionalChildInBucket(4);
     }
 
     public Token semicolonToken() {
@@ -127,8 +127,8 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
             this.metadata = oldNode.metadata().orElse(null);
             this.qualifiers = oldNode.qualifiers();
             this.typedBindingPattern = oldNode.typedBindingPattern();
-            this.equalsToken = oldNode.equalsToken();
-            this.initializer = oldNode.initializer();
+            this.equalsToken = oldNode.equalsToken().orElse(null);
+            this.initializer = oldNode.initializer().orElse(null);
             this.semicolonToken = oldNode.semicolonToken();
         }
 

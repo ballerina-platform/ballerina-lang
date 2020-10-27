@@ -18,14 +18,12 @@
 
 package org.ballerinalang.net.http.nativeimpl;
 
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
@@ -45,7 +43,7 @@ import static org.ballerinalang.net.http.HttpUtil.checkRequestBodySizeHeadersAva
  */
 public class ExternRequest {
 
-    private static final BMapType mapType = new BMapType(new BArrayType(BTypes.typeString));
+    private static final MapType mapType = TypeCreator.createMapType(TypeCreator.createArrayType(Types.TYPE_STRING));
 
     public static BObject createNewEntity(BObject requestObj) {
         return HttpUtil.createNewEntity(requestObj);
@@ -64,7 +62,7 @@ public class ExternRequest {
         try {
             Object queryParams = requestObj.getNativeData(QUERY_PARAM_MAP);
             if (queryParams != null) {
-                return (MapValue<BString, Object>) queryParams;
+                return (BMap<BString, Object>) queryParams;
             }
             HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) requestObj
                     .getNativeData(HttpConstants.TRANSPORT_MESSAGE);

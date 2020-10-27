@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.ballerina.runtime.util.BLangConstants.UNDERSCORE;
+
 /**
  * {@link BLangAnonymousModelHelper} is a util for holding the number of anonymous constructs found so far in the
  * current package.
@@ -41,7 +43,7 @@ public class BLangAnonymousModelHelper {
     private Map<PackageID, Integer> rawTemplateTypeCount;
 
     private static final String ANON_TYPE = "$anonType$";
-    private static final String LAMBDA = "$lambda$";
+    public static final String LAMBDA = "$lambda$";
     private static final String SERVICE = "$$service$";
     private static final String ANON_SERVICE = "$anonService$";
     private static final String BUILTIN_ANON_TYPE = "$anonType$builtin$";
@@ -75,33 +77,33 @@ public class BLangAnonymousModelHelper {
         Integer nextValue = Optional.ofNullable(anonTypeCount.get(packageID)).orElse(0);
         anonTypeCount.put(packageID, nextValue + 1);
         if (PackageID.ANNOTATIONS.equals(packageID)) {
-            return BUILTIN_ANON_TYPE + nextValue;
+            return BUILTIN_ANON_TYPE + UNDERSCORE + nextValue;
         }
-        return ANON_TYPE + nextValue;
+        return ANON_TYPE + UNDERSCORE + nextValue;
     }
 
     String getNextAnonymousServiceTypeKey(PackageID packageID, String serviceName) {
         Integer nextValue = Optional.ofNullable(anonServiceCount.get(packageID)).orElse(0);
         anonServiceCount.put(packageID, nextValue + 1);
-        return serviceName + SERVICE + nextValue;
+        return serviceName + SERVICE + UNDERSCORE + nextValue;
     }
 
     String getNextAnonymousServiceVarKey(PackageID packageID) {
         Integer nextValue = Optional.ofNullable(anonServiceCount.get(packageID)).orElse(0);
         anonServiceCount.put(packageID, nextValue + 1);
-        return ANON_SERVICE + nextValue;
+        return ANON_SERVICE + UNDERSCORE + nextValue;
     }
 
     public String getNextAnonymousFunctionKey(PackageID packageID) {
         Integer nextValue = Optional.ofNullable(anonFunctionCount.get(packageID)).orElse(0);
         anonFunctionCount.put(packageID, nextValue + 1);
-        return LAMBDA + nextValue;
+        return LAMBDA + UNDERSCORE + nextValue;
     }
 
     public String getNextAnonymousForkKey(PackageID packageID) {
         Integer nextValue = Optional.ofNullable(anonFunctionCount.get(packageID)).orElse(0);
         anonFunctionCount.put(packageID, nextValue + 1);
-        return FORK + nextValue;
+        return FORK + UNDERSCORE + nextValue;
     }
 
     public String getNextDistinctErrorId(PackageID packageID) {
@@ -113,7 +115,7 @@ public class BLangAnonymousModelHelper {
     public String getNextRawTemplateTypeKey(PackageID packageID, Name rawTemplateTypeName) {
         Integer nextValue = rawTemplateTypeCount.getOrDefault(packageID, 0);
         rawTemplateTypeCount.put(packageID, nextValue + 1);
-        return RAW_TEMPLATE_TYPE + rawTemplateTypeName.value + "$" + nextValue;
+        return RAW_TEMPLATE_TYPE + rawTemplateTypeName.value + "$" + UNDERSCORE + nextValue;
     }
 
     public boolean isAnonymousType(BSymbol symbol) {

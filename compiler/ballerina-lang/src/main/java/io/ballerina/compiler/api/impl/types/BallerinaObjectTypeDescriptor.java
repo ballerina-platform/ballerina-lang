@@ -18,8 +18,7 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
-import io.ballerina.compiler.api.impl.symbols.SymbolFactory;
+import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
@@ -46,7 +45,7 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
     // private TypeDescriptor objectTypeReference;
     private List<FieldDescriptor> objectFields;
     private List<MethodSymbol> methods;
-    private BallerinaMethodSymbol initFunction;
+    private MethodSymbol initFunction;
 
     public BallerinaObjectTypeDescriptor(ModuleID moduleID, BObjectType objectType) {
         super(TypeDescKind.OBJECT, moduleID, objectType);
@@ -63,13 +62,11 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
         this.typeQualifiers = new ArrayList<>();
         BObjectType objectType = (BObjectType) getBType();
 
-        if ((objectType.flags & Flags.CLIENT) == Flags.CLIENT) {
+        if ((objectType.tsymbol.flags & Flags.CLIENT) == Flags.CLIENT) {
             this.typeQualifiers.add(TypeQualifier.CLIENT);
         }
 
-        if ((objectType.flags & Flags.LISTENER) == Flags.LISTENER) {
-            this.typeQualifiers.add(TypeQualifier.LISTENER);
-        }
+        // TODO: Check whether we can identify the listeners as well
 
         return this.typeQualifiers;
     }
@@ -132,11 +129,7 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
         // this.getObjectTypeReference()
         //         .ifPresent(typeDescriptor -> fieldJoiner.add("*" + typeDescriptor.getSignature()));
         this.fieldDescriptors().forEach(objectFieldDescriptor -> fieldJoiner.add(objectFieldDescriptor.signature()));
-        this.methods().forEach(method -> {
-            if (method.typeDescriptor().isPresent()) {
-                methodJoiner.add(method.typeDescriptor().get().signature());
-            }
-        });
+        this.methods().forEach(method -> methodJoiner.add(method.typeDescriptor().signature()));
 
         return signature.append(fieldJoiner.toString())
                 .append(methodJoiner.toString())

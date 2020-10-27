@@ -27,6 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static io.ballerina.compiler.internal.syntax.NodeListUtils.rangeCheck;
 import static io.ballerina.compiler.internal.syntax.NodeListUtils.rangeCheckForAdd;
@@ -143,6 +145,10 @@ public class NodeList<T extends Node> implements Iterable<T> {
     @Override
     public Iterator<T> iterator() {
         return new NodeListIterator();
+    }
+
+    public Stream<T> stream() {
+        return StreamSupport.stream(spliterator(), false);
     }
 
     NonTerminalNode underlyingListNode() {

@@ -20,6 +20,7 @@ package io.ballerina.compiler.syntax.tree;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -36,8 +37,8 @@ public class FlushActionNode extends ExpressionNode {
         return childInBucket(0);
     }
 
-    public NameReferenceNode peerWorker() {
-        return childInBucket(1);
+    public Optional<NameReferenceNode> peerWorker() {
+        return optionalChildInBucket(1);
     }
 
     @Override
@@ -88,7 +89,7 @@ public class FlushActionNode extends ExpressionNode {
         public FlushActionNodeModifier(FlushActionNode oldNode) {
             this.oldNode = oldNode;
             this.flushKeyword = oldNode.flushKeyword();
-            this.peerWorker = oldNode.peerWorker();
+            this.peerWorker = oldNode.peerWorker().orElse(null);
         }
 
         public FlushActionNodeModifier withFlushKeyword(

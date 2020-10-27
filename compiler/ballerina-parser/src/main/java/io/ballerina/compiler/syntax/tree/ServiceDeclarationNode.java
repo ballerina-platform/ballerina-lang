@@ -41,8 +41,8 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         return childInBucket(1);
     }
 
-    public IdentifierToken serviceName() {
-        return childInBucket(2);
+    public Optional<IdentifierToken> serviceName() {
+        return optionalChildInBucket(2);
     }
 
     public Token onKeyword() {
@@ -126,7 +126,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata().orElse(null);
             this.serviceKeyword = oldNode.serviceKeyword();
-            this.serviceName = oldNode.serviceName();
+            this.serviceName = oldNode.serviceName().orElse(null);
             this.onKeyword = oldNode.onKeyword();
             this.expressions = oldNode.expressions();
             this.serviceBody = oldNode.serviceBody();

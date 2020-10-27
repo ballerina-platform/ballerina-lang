@@ -201,3 +201,57 @@ client class ClientClass {
 
     remote function baz(int i, string... s) returns int => 1;
 }
+
+final int[] & readonly immutableIntArr = [0, 1];
+
+isolated function invalidIsolatedFunctionWithForkStatement(int i) {
+    int j = immutableIntArr[1] + i;
+
+    fork {
+        worker w1 {
+
+        }
+    }
+}
+
+listener Listener ln = new;
+
+isolated function testInvalidIsolatedFunctionAccessingNonIsolatedListener() {
+    Listener ln2 = ln;
+}
+
+final map<int> intMap = {a: 1, b: 2};
+
+isolated function testInvalidNonIsolatedFunctionWithNonIsolatedDefaults(int w = a, int[] x = getIntArray()) {
+}
+
+var testInvalidNonIsolatedAnonFunctionWithNonIsolatedDefaults =
+    isolated function (boolean b, int[] y = getIntArray(), map<int> z = intMap) {
+        if b {
+            foreach var val in z {
+                y.push(val);
+            }
+        }
+    };
+
+function getIntArray() returns int[] => d;
+
+class NonIsolatedClass {
+    final string a = "hello";
+    private int[] b = [1, 2];
+
+    isolated function getArray() returns int[] {
+        lock {
+            int[] x = self.b.clone();
+            x.push(self.a.length());
+            return x.clone();
+        }
+    }
+}
+
+final NonIsolatedClass nonIsolatedObject = new;
+
+isolated function testInvalidAccessOfFinalNonIsolatedObjectInIsolatedFunction() {
+    NonIsolatedClass cl = nonIsolatedObject;
+    int[] arr = nonIsolatedObject.getArray();
+}

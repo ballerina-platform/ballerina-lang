@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * Test cases for main function.
  */
 @Test(groups = "tracing-test")
-public class MainFunctionTestCase extends BaseTestCase {
+public class MainFunctionTestCase extends TracingBaseTestCase {
     private static final String FILE_NAME = "01_main_function.bal";
 
     @Test

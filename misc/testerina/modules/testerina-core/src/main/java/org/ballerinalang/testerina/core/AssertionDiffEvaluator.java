@@ -22,8 +22,8 @@ import com.github.difflib.DiffUtils;
 import com.github.difflib.UnifiedDiffUtils;
 import com.github.difflib.algorithm.DiffException;
 import com.github.difflib.patch.Patch;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,13 +78,14 @@ public class AssertionDiffEvaluator {
                         output = output.concat("\n" + line + "\n");
                     }
                 } else if (line.startsWith("@@ -")) {
-                    output = output.concat(line + "\n\n");
+                    output = output.concat("\n" + line + "\n\n");
                 } else {
                     output = output.concat(line + "\n");
                 }
             }
         }
-        return BStringUtils.fromString(output);
+        output = output.replaceAll("\n\n", " \n \n ");
+        return StringUtils.fromString(output);
     }
 
 }

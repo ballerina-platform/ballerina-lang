@@ -10,27 +10,38 @@
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "module1:parameterAnnotation1 {\n\tfoo: \"${1}\"\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "module1:parameterAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "module1:parameterAnnotation2",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "tainted",
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "tainted",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "untainted",
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "untainted",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "isolatedParam",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "isolatedParam",
       "insertTextFormat": "Snippet"
     },
     {
@@ -38,21 +49,24 @@
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "deprecated",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "parameterAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "parameterAnnotation1 {\n\tfoo: \"${1}\"\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "pa2",
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "pa2",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     }
   ]
 }

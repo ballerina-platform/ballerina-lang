@@ -37,7 +37,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.StringJoiner;
 
-import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
+import static io.ballerina.runtime.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.ballerinalang.packerina.utils.DebugUtils.getDebugArgs;
 import static org.ballerinalang.packerina.utils.DebugUtils.isInDebugMode;
@@ -121,7 +121,7 @@ public class RunExecutableTask implements Task {
                                                                MODULE_INIT_CLASS_NAME);
         try {
             List<String> commands = new ArrayList<>();
-            commands.add("java");
+            commands.add(System.getProperty("java.command"));
             // Sets classpath with executable thin jar and all dependency jar paths.
             commands.add("-cp");
             commands.add(getAllClassPaths(executableModule, buildContext));

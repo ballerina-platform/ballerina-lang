@@ -22,10 +22,14 @@ import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.UnionTypeDescriptor;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -42,14 +46,28 @@ public class BallerinaUnionTypeDescriptor extends AbstractTypeDescriptor impleme
         super(TypeDescKind.UNION, moduleID, unionType);
     }
 
+    public BallerinaUnionTypeDescriptor(ModuleID moduleID, BFiniteType finiteType) {
+        super(TypeDescKind.UNION, moduleID, finiteType);
+    }
+
     @Override
     public List<BallerinaTypeDescriptor> memberTypeDescriptors() {
         if (this.memberTypes == null) {
-            this.memberTypes = new ArrayList<>();
-            for (BType memberType : ((BUnionType) this.getBType()).getMemberTypes()) {
-                this.memberTypes.add(TypesFactory.getTypeDescriptor(memberType));
+            List<BallerinaTypeDescriptor> members = new ArrayList<>();
+
+            if (this.getBType().tag == TypeTags.UNION) {
+                for (BType memberType : ((BUnionType) this.getBType()).getMemberTypes()) {
+                    members.add(TypesFactory.getTypeDescriptor(memberType));
+                }
+            } else {
+                for (BLangExpression value : ((BFiniteType) this.getBType()).getValueSpace()) {
+                    members.add(new BallerinaSingletonTypeDescriptor(moduleID(), value, value.type));
+                }
             }
+
+            this.memberTypes = Collections.unmodifiableList(members);
         }
+
         return this.memberTypes;
     }
 

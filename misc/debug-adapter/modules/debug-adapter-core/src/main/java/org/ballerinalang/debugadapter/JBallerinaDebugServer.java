@@ -17,7 +17,9 @@
 package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.AbsentInformationException;
+import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Field;
+import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
@@ -26,6 +28,7 @@ import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
+import io.ballerina.runtime.IdentifierUtils;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
@@ -41,7 +44,6 @@ import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
-import org.ballerinalang.jvm.IdentifierUtils;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.Capabilities;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
@@ -99,13 +101,16 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.STRAND_VAR_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GENERATED_VAR_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.findProjectRoot;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getRectifiedSourcePath;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.removeRedundantQuotes;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDERR;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
+import static org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper.LAMBDA;
 
 /**
  * JBallerina debug server implementation.
@@ -129,12 +134,18 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private final Map<Long, StackFrameProxyImpl> stackFramesMap = new HashMap<>();
     private final Map<Long, BCompoundVariable> loadedVariables = new HashMap<>();
     private final Map<Long, Long> variableToStackFrameMap = new HashMap<>();
-    private Map<Long, Long> scopeIdToFrameIdMap = new HashMap<>();
+    private final Map<Long, Long> scopeIdToFrameIdMap = new HashMap<>();
     private static int systemExit = 1;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
     private static final String DEBUGGER_TERMINATED = "Debugger is terminated";
     private static final String DEBUGGER_FAILED_TO_ATTACH = "Debugger is failed to attach";
+    private static final String STRAND_FIELD_NAME = "name";
+    private static final String FRAME_TYPE_START = "start";
+    private static final String FRAME_TYPE_WORKER = "worker";
+    private static final String FRAME_TYPE_ANONYMOUS = "anonymous";
+    private static final String FRAME_SEPARATOR = ":";
+    private static final String WORKER_LAMBDA_REGEX = "(\\$lambda\\$)\\b(.*)\\b(\\$lambda)(.*)";
 
     public JBallerinaDebugServer() {
         context = new DebugContext();
@@ -284,7 +295,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         StackTraceResponse stackTraceResponse = new StackTraceResponse();
         try {
             StackFrame[] filteredFrames = activeThread.frames().stream().map(this::toDapStackFrame)
-                    .filter(Objects::nonNull).filter(frame -> frame.getSource().getName().endsWith(BAL_FILE_EXT))
+                    .filter(Objects::nonNull).filter(frame -> frame.getSource().getName().endsWith(BAL_FILE_EXT)
+                            && frame.getLine() > 0)
                     .toArray(StackFrame[]::new);
             stackTraceResponse.setStackFrames(filteredFrames);
             return CompletableFuture.completedFuture(stackTraceResponse);
@@ -526,10 +538,52 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             dapStackFrame.setSource(source);
             dapStackFrame.setLine((long) stackFrame.location().lineNumber());
             dapStackFrame.setColumn(0L);
-            dapStackFrame.setName(stackFrame.location().method().name());
+            dapStackFrame.setName(getStackFrameName(stackFrame));
             return dapStackFrame;
         } catch (AbsentInformationException | JdiProxyException e) {
             return null;
+        }
+    }
+
+    /**
+     * Can be used to get the stack frame name.
+     *
+     * @param stackFrame stackFrame.
+     * @return Stack frame name.
+     */
+    private String getStackFrameName(StackFrameProxyImpl stackFrame) {
+        ObjectReference strand;
+        String stackFrameName;
+        try {
+            if (stackFrame.location().method().name().matches(WORKER_LAMBDA_REGEX)
+                    && stackFrame.visibleVariableByName(STRAND_VAR_NAME) == null) {
+                strand = (ObjectReference) ((ArrayReference) stackFrame.getStackFrame().getArgumentValues().get(0))
+                        .getValue(0);
+                stackFrameName = String.valueOf(strand.getValue(strand.referenceType().fieldByName(STRAND_FIELD_NAME)));
+                stackFrameName = removeRedundantQuotes(stackFrameName);
+                return FRAME_TYPE_WORKER + FRAME_SEPARATOR + stackFrameName;
+            } else if (stackFrame.location().method().name().contains(LAMBDA)
+                    && stackFrame.visibleVariableByName(STRAND_VAR_NAME) == null) {
+                strand = (ObjectReference) ((ArrayReference) stackFrame.getStackFrame().getArgumentValues().get(0))
+                        .getValue(0);
+                Value stackFrameValue = strand.getValue(strand.referenceType().fieldByName(STRAND_FIELD_NAME));
+                if (stackFrameValue == null) {
+                    stackFrameName = FRAME_TYPE_ANONYMOUS;
+                } else {
+                    stackFrameName = removeRedundantQuotes(stackFrameValue.toString());
+                }
+                return FRAME_TYPE_START + FRAME_SEPARATOR + stackFrameName;
+            } else if (stackFrame.location().method().name().contains(LAMBDA)
+                    && stackFrame.visibleVariableByName(STRAND_VAR_NAME) != null) {
+                strand = (ObjectReference) stackFrame.getValue(stackFrame.visibleVariableByName(STRAND_VAR_NAME));
+                stackFrameName = String.valueOf(strand.getValue(strand.referenceType().fieldByName(STRAND_FIELD_NAME)));
+                stackFrameName = removeRedundantQuotes(stackFrameName);
+                return stackFrameName;
+            } else {
+                return stackFrame.location().method().name();
+            }
+        } catch (Exception e) {
+            return FRAME_TYPE_ANONYMOUS;
         }
     }
 

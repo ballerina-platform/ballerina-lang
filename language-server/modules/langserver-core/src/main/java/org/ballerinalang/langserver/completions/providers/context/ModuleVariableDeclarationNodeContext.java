@@ -74,16 +74,16 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
     }
 
     private boolean withinInitializerContext(LSContext context, ModuleVariableDeclarationNode node) {
-        if (node.equalsToken() == null || node.equalsToken().isMissing()) {
+        if (node.equalsToken() == null || node.equalsToken().isEmpty()) {
             return false;
         }
         Integer textPosition = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
-        TextRange equalTokenRange = node.equalsToken().textRange();
+        TextRange equalTokenRange = node.equalsToken().get().textRange();
         return equalTokenRange.endOffset() <= textPosition;
     }
 
     @Override
     public boolean onPreValidation(LSContext context, ModuleVariableDeclarationNode node) {
-        return node.equalsToken() != null && !node.equalsToken().isMissing();
+        return node.equalsToken() != null && node.equalsToken().isPresent();
     }
 }

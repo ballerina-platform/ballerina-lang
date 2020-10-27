@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.utils.GetFunction;
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import org.ballerinalang.langlib.array.utils.GetFunction;
 
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.getElementAccessFunction;
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.getElementAccessFunction;
 
 /**
  * Native implementation of lang.array:lastIndexOf((anydata|error)[], anydata|error, int).
@@ -39,8 +39,8 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.getElementAccessFunc
 //)
 public class LastIndexOf {
 
-    public static Object lastIndexOf(ArrayValue arr, Object val, long startIndex) {
-        BType arrType = arr.getType();
+    public static Object lastIndexOf(BArray arr, Object val, long startIndex) {
+        Type arrType = arr.getType();
         int size = arr.size();
         GetFunction getFn = getElementAccessFunction(arrType, "lastIndexOf()");
 
