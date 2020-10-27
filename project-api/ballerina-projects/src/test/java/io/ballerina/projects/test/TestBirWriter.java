@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.test;
 
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.directory.BuildProject;
@@ -59,7 +61,9 @@ public class TestBirWriter {
         Assert.assertFalse(storageModuleBirPath.toFile().exists());
         Assert.assertFalse(servicesModuleBirPath.toFile().exists());
 
-        currentPackage.getCompilation().emit(PackageCompilation.OutputType.BIR, target.getBirCachePath());
+        PackageCompilation pkgCompilation = currentPackage.getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JdkVersion.JAVA_11);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BIR, target.getBirCachePath());
 
         Assert.assertTrue(defaultModuleBirPath.toFile().exists()
                 && defaultModuleBirPath.toFile().length() > 0);

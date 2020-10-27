@@ -18,6 +18,8 @@
 
 package org.ballerinalang.stdlib.utils;
 
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
@@ -73,10 +75,10 @@ public class BuildLangLib {
             packageCompilation.diagnostics().forEach(d -> out.println(d.toString()));
             System.exit(1);
         }
-        packageCompilation.emit(PackageCompilation.OutputType.JAR, target.path());
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR, target.path());
         LangLibArchive langLibArchive = new LangLibArchive(target.path(), pkg);
     }
-
 }
 
 
@@ -127,9 +129,10 @@ class LangLibArchive {
     private void createArtafacts() {
         String baloName = ProjectUtils.getBaloName(aPackage);
         PackageCompilation packageCompilation = aPackage.getCompilation();
-        packageCompilation.emit(PackageCompilation.OutputType.BALO, balos.resolve(baloName));
-        packageCompilation.emit(PackageCompilation.OutputType.BIR, bir);
-        packageCompilation.emit(PackageCompilation.OutputType.JAR, jar);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, balos.resolve(baloName));
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BIR, bir);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR, jar);
     }
 
     void createDirectoryStructure() throws IOException {

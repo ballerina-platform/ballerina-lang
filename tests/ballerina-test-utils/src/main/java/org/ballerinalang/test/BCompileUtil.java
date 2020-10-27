@@ -18,6 +18,8 @@
 package org.ballerinalang.test;
 
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
@@ -61,7 +63,8 @@ public class BCompileUtil {
         }
 
         Path jarFilePath = jarEmitPath(currentPackage);
-        packageCompilation.emit(PackageCompilation.OutputType.JAR, jarFilePath);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR, jarFilePath);
 
         CompileResult compileResult = new CompileResult(currentPackage, jarFilePath);
         invokeModuleInit(compileResult);
@@ -83,14 +86,16 @@ public class BCompileUtil {
             return new CompileResult(currentPackage);
         }
 
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+
         Path jarFilePath = jarEmitPath(currentPackage);
-        packageCompilation.emit(PackageCompilation.OutputType.JAR, jarFilePath);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR, jarFilePath);
 
         Path birEmitPath = birEmitPath(currentPackage);
-        packageCompilation.emit(PackageCompilation.OutputType.BIR, birEmitPath);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BIR, birEmitPath);
 
         Path baloEmitPath = baloEmitPath(currentPackage);
-        packageCompilation.emit(PackageCompilation.OutputType.BALO, baloEmitPath);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloEmitPath);
 
         CompileResult compileResult = new CompileResult(currentPackage, jarFilePath);
         invokeModuleInit(compileResult);
