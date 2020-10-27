@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -61,12 +62,20 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
         }
         List<LSCompletionItem> completionItems = this.getTypeItems(context);
         completionItems.addAll(this.getModuleCompletionItems(context));
+        completionItems.addAll(this.getObjectTypeQualifierItems(context));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_ERROR_TYPE_DESC.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD_TYPE_DESC.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()));
 
         return completionItems;
+    }
+    
+    private List<LSCompletionItem> getObjectTypeQualifierItems(LSContext context) {
+        return Arrays.asList(
+                new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()),
+                new SnippetCompletionItem(context, Snippet.KW_SERVICE.get()),
+                new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
     }
 
     private boolean onTypeNameContext(LSContext context, TypeDefinitionNode node) {
