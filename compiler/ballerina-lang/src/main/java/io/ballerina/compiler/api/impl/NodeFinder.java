@@ -174,8 +174,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 
-import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
-
 /**
  * Finds the enclosing AST node for the given position.
  *
@@ -213,7 +211,8 @@ class NodeFinder extends BLangNodeVisitor {
 
             node.accept(this);
 
-            if (this.enclosingNode == null && !node.internal && setEnclosingNode(node, node.pos)) {
+            if (this.enclosingNode == null && !node.internal) {
+                this.enclosingNode = node;
                 return;
             }
         }
@@ -224,12 +223,14 @@ class NodeFinder extends BLangNodeVisitor {
             return;
         }
 
-        if (PositionUtil.withinRange(this.range, node.pos)) {
-            node.accept(this);
+        if (!PositionUtil.withinRange(this.range, node.pos)) {
+            return;
         }
 
+        node.accept(this);
+
         if (this.enclosingNode == null && !node.internal) {
-            setEnclosingNode(node, node.pos);
+            this.enclosingNode = node;
         }
     }
 
@@ -280,12 +281,9 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-        if (setEnclosingNode(constant, constant.name.pos)) {
-            return;
-        }
-
         lookupNode(constant.typeNode);
         lookupNode(constant.expr);
+        setEnclosingNode(constant, constant.name.pos);
     }
 
     @Override
@@ -302,20 +300,14 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAnnotation annotationNode) {
-        if (setEnclosingNode(annotationNode, annotationNode.name.pos)) {
-            return;
-        }
-
         lookupNode(annotationNode.typeNode);
+        setEnclosingNode(annotationNode, annotationNode.name.pos);
     }
 
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        if (setEnclosingNode(annAttachmentNode, annAttachmentNode.annotationName.pos)) {
-            return;
-        }
-
         lookupNode(annAttachmentNode.expr);
+        setEnclosingNode(annAttachmentNode, annAttachmentNode.annotationName.pos);
     }
 
     @Override
@@ -586,10 +578,6 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVarRef varRefExpr) {
-        if (setEnclosingNode(varRefExpr, varRefExpr.pos)) {
-            return;
-        }
-
         lookupNodes(varRefExpr.expressions);
         lookupNode((BLangNode) varRefExpr.restParam);
     }
@@ -601,10 +589,6 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
-        if (setEnclosingNode(varRefExpr, varRefExpr.pos)) {
-            return;
-        }
-
         lookupNode(varRefExpr.message);
         lookupNodes(varRefExpr.detail);
         lookupNode(varRefExpr.cause);
@@ -665,10 +649,6 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
-        if (setEnclosingNode(ternaryExpr, ternaryExpr.pos)) {
-            return;
-        }
-
         lookupNode(ternaryExpr.expr);
         lookupNode(ternaryExpr.thenExpr);
         lookupNode(ternaryExpr.elseExpr);
@@ -676,19 +656,11 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWaitExpr awaitExpr) {
-        if (setEnclosingNode(awaitExpr, awaitExpr.pos)) {
-            return;
-        }
-
         lookupNodes(awaitExpr.exprList);
     }
 
     @Override
     public void visit(BLangTrapExpr trapExpr) {
-        if (setEnclosingNode(trapExpr, trapExpr.pos)) {
-            return;
-        }
-
         lookupNode(trapExpr.expr);
     }
 
@@ -787,10 +759,6 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-        if (setEnclosingNode(xmlCommentLiteral, xmlCommentLiteral.pos)) {
-            return;
-        }
-
         lookupNode(xmlCommentLiteral.concatExpr);
         lookupNodes(xmlCommentLiteral.textFragments);
     }
@@ -821,94 +789,54 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        if (setEnclosingNode(bLangLambdaFunction, bLangLambdaFunction.pos)) {
-            return;
-        }
-
         lookupNode(bLangLambdaFunction.function);
     }
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
-        if (setEnclosingNode(bLangArrowFunction, bLangArrowFunction.pos)) {
-            return;
-        }
-
         lookupNodes(bLangArrowFunction.params);
         lookupNode(bLangArrowFunction.body);
     }
 
     @Override
     public void visit(BLangIntRangeExpression intRangeExpression) {
-        if (setEnclosingNode(intRangeExpression, intRangeExpression.pos)) {
-            return;
-        }
-
         lookupNode(intRangeExpression.startExpr);
         lookupNode(intRangeExpression.endExpr);
     }
 
     @Override
     public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
-        if (setEnclosingNode(bLangVarArgsExpression, bLangVarArgsExpression.pos)) {
-            return;
-        }
-
         lookupNode(bLangVarArgsExpression.expr);
     }
 
     @Override
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
-        if (setEnclosingNode(bLangNamedArgsExpression, bLangNamedArgsExpression.pos)) {
-            return;
-        }
-
         lookupNode(bLangNamedArgsExpression.expr);
     }
 
     @Override
     public void visit(BLangIsAssignableExpr assignableExpr) {
-        if (setEnclosingNode(assignableExpr, assignableExpr.pos)) {
-            return;
-        }
-
         lookupNode(assignableExpr.lhsExpr);
         lookupNode(assignableExpr.typeNode);
     }
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
-        if (setEnclosingNode(checkedExpr, checkedExpr.pos)) {
-            return;
-        }
-
         lookupNode(checkedExpr.expr);
     }
 
     @Override
     public void visit(BLangFail failExpr) {
-        if (setEnclosingNode(failExpr, failExpr.pos)) {
-            return;
-        }
-
         lookupNode(failExpr.expr);
     }
 
     @Override
     public void visit(BLangCheckPanickedExpr checkPanickedExpr) {
-        if (setEnclosingNode(checkPanickedExpr, checkPanickedExpr.pos)) {
-            return;
-        }
-
         lookupNode(checkPanickedExpr.expr);
     }
 
     @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
-        if (setEnclosingNode(serviceConstructorExpr, serviceConstructorExpr.pos)) {
-            return;
-        }
-
         lookupNode(serviceConstructorExpr.serviceNode);
     }
 
@@ -931,15 +859,11 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAnnotAccessExpr annotAccessExpr) {
-        setEnclosingNode(annotAccessExpr, annotAccessExpr.pos);
+        // Do nothing
     }
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        if (setEnclosingNode(queryExpr, queryExpr.pos)) {
-            return;
-        }
-
         lookupNodes(queryExpr.queryClauseList);
     }
 
@@ -955,7 +879,7 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCommitExpr commitExpr) {
-        setEnclosingNode(commitExpr, commitExpr.pos);
+        // Do nothing
     }
 
     @Override
@@ -965,10 +889,6 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayType arrayType) {
-        if (setEnclosingNode(arrayType, arrayType.pos)) {
-            return;
-        }
-
         lookupNode(arrayType.elemtype);
     }
 
@@ -984,20 +904,12 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStreamType streamType) {
-        if (setEnclosingNode(streamType, streamType.pos)) {
-            return;
-        }
-
         lookupNode(streamType.constraint);
         lookupNode(streamType.error);
     }
 
     @Override
     public void visit(BLangTableTypeNode tableType) {
-        if (setEnclosingNode(tableType, tableType.pos)) {
-            return;
-        }
-
         lookupNode(tableType.constraint);
         lookupNode(tableType.tableKeySpecifier);
         lookupNode(tableType.tableKeyTypeConstraint);
@@ -1005,20 +917,11 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
-        if (userDefinedType.type.tsymbol.origin == VIRTUAL
-                || setEnclosingNode(userDefinedType, userDefinedType.pos)) {
-            return;
-        }
-
         setEnclosingNode(userDefinedType, userDefinedType.typeName.pos);
     }
 
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
-        if (setEnclosingNode(functionTypeNode, functionTypeNode.pos)) {
-            return;
-        }
-
         lookupNodes(functionTypeNode.params);
         lookupNode(functionTypeNode.restParam);
         lookupNode(functionTypeNode.returnTypeNode);
@@ -1026,19 +929,11 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangUnionTypeNode unionTypeNode) {
-        if (setEnclosingNode(unionTypeNode, unionTypeNode.pos)) {
-            return;
-        }
-
         lookupNodes(unionTypeNode.memberTypeNodes);
     }
 
     @Override
     public void visit(BLangIntersectionTypeNode intersectionTypeNode) {
-        if (setEnclosingNode(intersectionTypeNode, intersectionTypeNode.pos)) {
-            return;
-        }
-
         lookupNodes(intersectionTypeNode.constituentTypeNodes);
     }
 
@@ -1060,10 +955,6 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
-        if (setEnclosingNode(objectTypeNode, objectTypeNode.pos)) {
-            return;
-        }
-
         lookupNodes(objectTypeNode.fields);
         lookupNodes(objectTypeNode.functions);
         lookupNodes(objectTypeNode.typeRefs);
@@ -1071,39 +962,23 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        if (setEnclosingNode(recordTypeNode, recordTypeNode.pos)) {
-            return;
-        }
-
         lookupNodes(recordTypeNode.fields);
         lookupNodes(recordTypeNode.typeRefs);
     }
 
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
-        if (setEnclosingNode(finiteTypeNode, finiteTypeNode.pos)) {
-            return;
-        }
-
         lookupNodes(finiteTypeNode.valueSpace);
     }
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        if (setEnclosingNode(tupleTypeNode, tupleTypeNode.pos)) {
-            return;
-        }
-
         lookupNodes(tupleTypeNode.memberTypeNodes);
         lookupNode(tupleTypeNode.restParamType);
     }
 
     @Override
     public void visit(BLangErrorType errorType) {
-        if (setEnclosingNode(errorType, errorType.pos)) {
-            return;
-        }
-
         lookupNode(errorType.detailType);
     }
 
@@ -1140,8 +1015,7 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef functionVarRef) {
-        if (setEnclosingNode(functionVarRef, functionVarRef.pos)
-                || setEnclosingNode(functionVarRef, functionVarRef.field.pos)) {
+        if (setEnclosingNode(functionVarRef, functionVarRef.field.pos)) {
             return;
         }
 
@@ -1150,40 +1024,24 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangMapAccessExpr mapKeyAccessExpr) {
-        if (setEnclosingNode(mapKeyAccessExpr, mapKeyAccessExpr.pos)) {
-            return;
-        }
-
         lookupNode(mapKeyAccessExpr.expr);
         lookupNode(mapKeyAccessExpr.indexExpr);
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr arrayIndexAccessExpr) {
-        if (setEnclosingNode(arrayIndexAccessExpr, arrayIndexAccessExpr.pos)) {
-            return;
-        }
-
         lookupNode(arrayIndexAccessExpr.expr);
         lookupNode(arrayIndexAccessExpr.indexExpr);
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangTableAccessExpr tableKeyAccessExpr) {
-        if (setEnclosingNode(tableKeyAccessExpr, tableKeyAccessExpr.pos)) {
-            return;
-        }
-
         lookupNode(tableKeyAccessExpr.expr);
         lookupNode(tableKeyAccessExpr.indexExpr);
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr xmlAccessExpr) {
-        if (setEnclosingNode(xmlAccessExpr, xmlAccessExpr.pos)) {
-            return;
-        }
-
         lookupNode(xmlAccessExpr.expr);
         lookupNode(xmlAccessExpr.indexExpr);
     }
@@ -1204,19 +1062,14 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation.BFunctionPointerInvocation bFunctionPointerInvocation) {
-        if (setEnclosingNode(bFunctionPointerInvocation, bFunctionPointerInvocation.pos)
-                || setEnclosingNode(bFunctionPointerInvocation, bFunctionPointerInvocation.name.pos)) {
-            return;
-        }
-
         lookupNodes(bFunctionPointerInvocation.requiredArgs);
         lookupNodes(bFunctionPointerInvocation.restArgs);
+        setEnclosingNode(bFunctionPointerInvocation, bFunctionPointerInvocation.name.pos);
     }
 
     @Override
     public void visit(BLangInvocation.BLangAttachedFunctionInvocation iExpr) {
-        if (setEnclosingNode(iExpr, iExpr.pos)
-                || setEnclosingNode(iExpr, iExpr.name.pos)) {
+        if (setEnclosingNode(iExpr, iExpr.name.pos)) {
             return;
         }
 
@@ -1227,37 +1080,24 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangListConstructorExpr.BLangJSONArrayLiteral jsonArrayLiteral) {
-        if (setEnclosingNode(jsonArrayLiteral, jsonArrayLiteral.pos)) {
-            return;
-        }
-
         lookupNodes(jsonArrayLiteral.exprs);
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangJSONAccessExpr jsonAccessExpr) {
-        if (setEnclosingNode(jsonAccessExpr, jsonAccessExpr.pos)) {
-            return;
-        }
-
         lookupNode(jsonAccessExpr.expr);
         lookupNode(jsonAccessExpr.indexExpr);
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangStringAccessExpr stringAccessExpr) {
-        if (setEnclosingNode(stringAccessExpr, stringAccessExpr.pos)) {
-            return;
-        }
-
         lookupNode(stringAccessExpr.expr);
         lookupNode(stringAccessExpr.indexExpr);
     }
 
     @Override
     public void visit(BLangXMLNS.BLangLocalXMLNS xmlnsNode) {
-        if (setEnclosingNode(xmlnsNode, xmlnsNode.pos)
-                || setEnclosingNode(xmlnsNode, xmlnsNode.prefix.pos)) {
+        if (setEnclosingNode(xmlnsNode, xmlnsNode.prefix.pos)) {
             return;
         }
 
@@ -1266,8 +1106,7 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNS.BLangPackageXMLNS xmlnsNode) {
-        if (setEnclosingNode(xmlnsNode, xmlnsNode.pos)
-                || setEnclosingNode(xmlnsNode, xmlnsNode.prefix.pos)) {
+        if (setEnclosingNode(xmlnsNode, xmlnsNode.prefix.pos)) {
             return;
         }
 
@@ -1276,10 +1115,6 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
-        if (setEnclosingNode(bLangXMLSequenceLiteral, bLangXMLSequenceLiteral.pos)) {
-            return;
-        }
-
         lookupNodes(bLangXMLSequenceLiteral.xmlItems);
     }
 
@@ -1381,20 +1216,12 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
-        if (setEnclosingNode(workerFlushExpr, workerFlushExpr.pos)) {
-            return;
-        }
-
         setEnclosingNode(workerFlushExpr, workerFlushExpr.workerIdentifier.pos);
     }
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
-        if (setEnclosingNode(syncSendExpr, syncSendExpr.pos)
-                || setEnclosingNode(syncSendExpr.expr, syncSendExpr.expr.pos)) {
-            return;
-        }
-
+        lookupNode(syncSendExpr.expr);
         setEnclosingNode(syncSendExpr, syncSendExpr.workerIdentifier.pos);
     }
 
@@ -1421,10 +1248,6 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField) {
-        if (setEnclosingNode(spreadOperatorField, spreadOperatorField.pos)) {
-            return;
-        }
-
         lookupNode(spreadOperatorField.expr);
     }
 
@@ -1445,20 +1268,12 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLElementAccess xmlElementAccess) {
-        if (setEnclosingNode(xmlElementAccess, xmlElementAccess.pos)) {
-            return;
-        }
-
         lookupNode(xmlElementAccess.expr);
         lookupNodes(xmlElementAccess.filters);
     }
 
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
-        if (setEnclosingNode(xmlNavigation, xmlNavigation.pos)) {
-            return;
-        }
-
         lookupNode(xmlNavigation.expr);
         lookupNode(xmlNavigation.childIndex);
         lookupNodes(xmlNavigation.filters);
