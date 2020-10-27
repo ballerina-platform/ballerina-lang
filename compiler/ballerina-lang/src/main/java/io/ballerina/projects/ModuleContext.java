@@ -229,7 +229,7 @@ class ModuleContext {
             parseTestSources(pkgNode, pkgId, compilerContext);
         }
 
-        pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgId, this.moduleName.toString()), 1, 1, 1, 1);
+        pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgId, this.moduleName.toString()), 0, 0, 0, 0);
         symbolEnter.definePackage(pkgNode);
         packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
 
