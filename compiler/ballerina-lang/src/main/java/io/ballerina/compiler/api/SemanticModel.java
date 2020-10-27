@@ -59,7 +59,8 @@ public interface SemanticModel {
     List<Symbol> moduleLevelSymbols();
 
     /**
-     * Retrieves the type of the expression in the specified text range. If it's not a valid expression, returns null.
+     * Retrieves the type of the expression in the specified text range. If it's not a valid expression, returns an
+     * empty {@link Optional} value!.
      *
      * @param fileName path for the file with the expression
      * @param range    the text range of the expression
