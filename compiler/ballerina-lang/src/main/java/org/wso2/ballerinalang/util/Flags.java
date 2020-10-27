@@ -57,6 +57,7 @@ public class Flags {
     public static final int CLASS = DISTINCT << 1;
     public static final int ISOLATED = CLASS << 1;
     public static final int ISOLATED_PARAM = ISOLATED << 1;
+    public static final int CONFIGURABLE = ISOLATED_PARAM << 1;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -146,6 +147,9 @@ public class Flags {
                 case ISOLATED:
                     mask |= ISOLATED;
                     break;
+                case CONFIGURABLE:
+                    mask |= CONFIGURABLE;
+                    break;
             }
         }
         return mask;
@@ -233,6 +237,9 @@ public class Flags {
                     break;
                 case ISOLATED:
                     flagVal = ISOLATED;
+                    break;
+                case CONFIGURABLE:
+                    flagVal = CONFIGURABLE;
                     break;
                 default:
                     continue;
