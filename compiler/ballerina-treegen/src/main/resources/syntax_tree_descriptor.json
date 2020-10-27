@@ -2184,13 +2184,8 @@
             ]
         },
         {
-            "name": "TemplateMemberNode",
-            "base": "Node",
-            "isAbstract": true
-        },
-        {
             "name": "XMLItemNode",
-            "base": "TemplateMemberNode",
+            "base": "Node",
             "isAbstract": true
         },
         {
