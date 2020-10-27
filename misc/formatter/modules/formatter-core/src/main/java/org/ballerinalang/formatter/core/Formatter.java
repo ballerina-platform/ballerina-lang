@@ -109,7 +109,7 @@ public class Formatter {
         try {
             return syntaxTree.modifyWith(treeModifier.transform(modulePartNode));
         } catch (Exception e) {
-            throw new FormatterException("Error while formatting the source: " + e.getMessage(), e.getCause());
+            throw new FormatterException("Error while formatting: " + e.getMessage(), e.getCause());
         }
     }
 }
