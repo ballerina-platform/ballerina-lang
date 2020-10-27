@@ -19,12 +19,12 @@ class FilterSupport {
     public stream<Type, ErrorType> strm;
     public any func;
 
-    public function init(stream<Type, ErrorType> strm, function(Type val) returns boolean func) {
+    public isolated function init(stream<Type, ErrorType> strm, function(Type val) returns boolean func) {
       self.strm = strm;
       self.func = func;
     }
 
-    public isolated function next() returns record {|Type value;|}|ErrorType? {
+    public function next() returns record {|Type value;|}|ErrorType? {
         // while loop is required to continue filtering until we find a value which matches the filter or ().
         while(true) {
             var nextVal = next(self.strm);
@@ -48,12 +48,12 @@ class MapSupport {
     public stream<Type, ErrorType> strm;
     public any func;
 
-    public function init(stream<Type, ErrorType> strm, function(Type val) returns Type1 func) {
+    public isolated function init(stream<Type, ErrorType> strm, function(Type val) returns Type1 func) {
         self.strm = strm;
         self.func = func;
     }
 
-    public isolated function next() returns record {|Type value;|}|ErrorType? {
+    public function next() returns record {|Type value;|}|ErrorType? {
         var nextVal = next(self.strm);
         if (nextVal is ()) {
             return ();
