@@ -420,6 +420,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "byte",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "B",
+      "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "map",
       "kind": "Unit",
       "detail": "type ",

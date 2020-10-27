@@ -544,6 +544,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "byte",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "map",
       "kind": "Unit",
       "detail": "type ",
