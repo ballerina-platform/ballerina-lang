@@ -297,7 +297,7 @@ class JvmTypeGen {
                 continue;
             }
 
-            if (!((bType.tag == TypeTags.UNION) && Symbols.isFlagOn(bType.flags, Flags.CYCLIC))) {
+            if ((bType.tag == TypeTags.UNION) && !Symbols.isFlagOn(bType.flags, Flags.CYCLIC)) {
                 continue;
             }
 
