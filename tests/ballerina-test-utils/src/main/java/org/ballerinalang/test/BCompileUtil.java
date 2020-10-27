@@ -34,7 +34,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.utils.ProjectConstants.DIST_CACHE_DIRECTORY;
 
 /**
@@ -95,20 +94,20 @@ public class BCompileUtil {
         try {
             Path cache = cachePathForPackage(pkg);
             Path jarCache = cache.resolve("jar");
+
+            if (isSingleFileProject(pkg.project())) {
+                Module defaultModule = pkg.getDefaultModule();
+                DocumentId documentId = defaultModule.documentIds().iterator().next();
+                String documentName = defaultModule.document(documentId).name();
+                String executableName = FileUtils.geFileNameWithoutExtension(Paths.get(documentName));
+                if (executableName == null) {
+                    throw new RuntimeException("cannot identify executable name for : " + defaultModule.moduleName());
+                }
+                jarCache = jarCache.resolve(executableName).toAbsolutePath().normalize();
+            }
+
             Files.createDirectories(jarCache);
-
-            if (!isSingleFileProject(pkg.project())) {
-                return jarCache;
-            }
-
-            Module defaultModule = pkg.getDefaultModule();
-            DocumentId documentId = defaultModule.documentIds().iterator().next();
-            String documentName = defaultModule.document(documentId).name();
-            String executableName = FileUtils.geFileNameWithoutExtension(Paths.get(documentName));
-            if (executableName == null) {
-                throw new RuntimeException("cannot identify executable name for : " + defaultModule.moduleName());
-            }
-            return jarCache.resolve(executableName + BLANG_COMPILED_JAR_EXT).toAbsolutePath().normalize();
+            return jarCache;
         } catch (IOException e) {
             throw new RuntimeException("error while creating the jar cache directory at " + testBuildDirectory, e);
         }
