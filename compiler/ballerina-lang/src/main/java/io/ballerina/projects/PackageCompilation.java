@@ -22,15 +22,10 @@ import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.projects.environment.EnvironmentContext;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironmentContext;
-import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,12 +34,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 /**
  * Compilation at package level by resolving all the dependencies.
+ * <p>
+ * This class compiles a module up to the codegen phase at the moment.
  *
  * @since 2.0.0
  */
@@ -118,6 +113,10 @@ public class PackageCompilation {
         diagnostics = Collections.unmodifiableList(diagnostics);
     }
 
+    PackageContext packageContext() {
+        return packageContext;
+    }
+
     public DependencyGraph<PackageId> packageDependencyGraph() {
         return this.dependencyGraph;
     }
@@ -126,127 +125,8 @@ public class PackageCompilation {
         return diagnostics;
     }
 
-    public void emit(OutputType outputType, Path filePath) {
-        switch (outputType) {
-            case EXEC:
-                emitExecutable(filePath);
-                break;
-            case JAR:
-                emitJar(filePath);
-                break;
-            case BIR:
-                emitBirs(filePath);
-                break;
-            case BALO:
-                emitBalo(filePath);
-                break;
-            default:
-                throw new RuntimeException("Unexpected output type: " + outputType);
-        }
-    }
-
-    private void emitBalo(Path filePath) {
-        BaloWriter.write(packageResolver.getPackage(packageContext.packageId()), filePath);
-    }
-
-    private void emitBirs(Path filePath) {
-        for (ModuleId moduleId : packageContext.moduleIds()) {
-            BLangPackage bLangPackage = packageContext.moduleContext(moduleId).bLangPackage();
-            String birName;
-            if (packageContext.moduleContext(moduleId).moduleName().isDefaultModuleName()) {
-                birName = packageContext.moduleContext(moduleId).moduleName().packageName().toString();
-            } else {
-                birName = packageContext.moduleContext(moduleId).moduleName().moduleNamePart();
-            }
-            BirWriter.write(bLangPackage, filePath.resolve(birName + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT));
-        }
-    }
-
-    private void emitJar(Path filePath) {
-        if (packageContext.packageDescriptor().org().anonymous()) { // this is a single file build project scenario
-            CompiledJarFile compiledJarFile = packageContext.defaultModuleContext().compiledJarEntries();
-            try {
-                JarWriter.write(compiledJarFile, filePath);
-            } catch (IOException e) {
-                throw new RuntimeException("error while creating the jar file for package: " +
-                        this.packageContext.packageName(), e);
-            }
-            return;
-        }
-
-        for (ModuleId moduleId : packageContext.moduleIds()) {
-            ModuleContext moduleContext = packageContext.moduleContext(moduleId);
-            CompiledJarFile compiledJarFile = moduleContext.compiledJarEntries();
-            ModuleName moduleName = moduleContext.moduleName();
-            String jarName;
-            if (moduleName.isDefaultModuleName()) {
-                jarName = moduleName.packageName().toString();
-            } else {
-                jarName = moduleName.moduleNamePart();
-            }
-            try {
-                JarWriter.write(compiledJarFile, filePath.resolve(jarName + ProjectConstants.BLANG_COMPILED_JAR_EXT));
-            } catch (IOException e) {
-                throw new RuntimeException("error while creating the jar file for package: " +
-                        this.packageContext.packageName(), e);
-            }
-        }
-    }
-
-    private void emitExecutable(Path executableFilePath) {
-        if (!this.packageContext.defaultModuleContext().entryPointExists()) {
-            // TODO Improve error handling
-            throw new RuntimeException("no entrypoint found in package: " + this.packageContext.packageName());
-        }
-
-        // TODO We need to generate a root package
-        CompiledJarFile entryModuleJarEntries = this.packageContext.compiledJarEntries();
-        Manifest manifest = getManifest(entryModuleJarEntries);
-
-        List<PackageId> sortedPackageIds = dependencyGraph.toTopologicallySortedList();
-        List<CompiledJarFile> compiledPackageJarList = sortedPackageIds
-                .stream()
-                .map(packageResolver::getPackage)
-                .map(pkg -> pkg.packageContext().compiledJarEntries())
-                .collect(Collectors.toList());
-
-        try {
-            ProjectUtils.assembleExecutableJar(manifest, compiledPackageJarList, executableFilePath);
-        } catch (IOException e) {
-            throw new RuntimeException("error while creating the executable jar file for package: " +
-                    this.packageContext.packageName(), e);
-        }
-    }
-
-    private Manifest getManifest(CompiledJarFile entryModuleJarEntries) {
-        Manifest manifest = new Manifest();
-        Attributes mainAttributes = manifest.getMainAttributes();
-        mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
-        String mainClass = entryModuleJarEntries.getMainClassName().orElseThrow(
-                () -> new RuntimeException("main class not found in:" + this.packageContext.packageName()));
-        mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClass);
-        return manifest;
-    }
-
-    public BLangPackage defaultModuleBLangPackage() {
-        return this.packageContext.defaultModuleContext().bLangPackage();
-    }
-
-    /**
-     * Enum to represent output types.
-     */
-    public enum OutputType {
-
-        BIR("bir"),
-        EXEC("exec"),
-        BALO("balo"),
-        JAR("jar");
-
-        private String value;
-
-        OutputType(String value) {
-            this.value = value;
-        }
+    public boolean hasDiagnostics() {
+        return diagnostics.size() > 0;
     }
 
     public SemanticModel getSemanticModel(ModuleId moduleId) {
@@ -254,7 +134,7 @@ public class PackageCompilation {
         return new BallerinaSemanticModel(moduleContext.bLangPackage(), this.compilerContext);
     }
 
-    public Package getPackage() {
-        return packageContext.project().currentPackage();
+    public BLangPackage defaultModuleBLangPackage() {
+        return this.packageContext.defaultModuleContext().bLangPackage();
     }
 }

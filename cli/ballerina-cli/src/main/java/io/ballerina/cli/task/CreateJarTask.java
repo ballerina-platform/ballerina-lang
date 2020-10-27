@@ -18,11 +18,15 @@
 
 package io.ballerina.cli.task;
 
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.model.Target;
 
 import java.io.IOException;
+
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * Task for creating jar file.
@@ -36,11 +40,13 @@ public class CreateJarTask implements Task {
         Target target;
         try {
             target = new Target(project.sourceRoot());
-            project.currentPackage().getCompilation().emit(PackageCompilation.OutputType.JAR,
+            PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JdkVersion.JAVA_11);
+            jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR,
                     target.getJarCachePath());
         } catch (IOException e) {
-            throw new RuntimeException(
-                    "error occurred while creating the target directory at " + project.sourceRoot(), e);
+            throw createLauncherException(
+                    "error occurred while creating the JAR files for package " + e.getMessage());
         }
     }
 }

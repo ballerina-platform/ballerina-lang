@@ -57,6 +57,10 @@ public class ProjectJarResolver implements JarResolver {
     @Override
     public HashSet<Path> nativeDependencies(PackageID packageID) {
         Module module = findPackage(packageID);
+        if (module == null) {
+            // TODO Temporary workaround
+            return new HashSet<>();
+        }
         return module.getNativeDependancies();
     }
 

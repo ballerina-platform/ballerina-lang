@@ -18,16 +18,16 @@
 package io.ballerina.projects.env;
 
 import io.ballerina.projects.Project;
-import io.ballerina.projects.environment.*;
+import io.ballerina.projects.environment.EnvironmentContext;
+import io.ballerina.projects.environment.GlobalPackageCache;
+import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.ProjectEnvironmentContext;
+import io.ballerina.projects.environment.ProjectJarResolver;
 import io.ballerina.projects.repos.DistributionPackageCache;
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.JarResolver;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 
 /**
  * Represents the per build project environment context.

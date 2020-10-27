@@ -18,6 +18,8 @@
 
 package io.ballerina.cli.task;
 
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.model.Target;
@@ -27,6 +29,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
+
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * Task for creating balo file. Balo file writer is meant for modules only and not for single files.
@@ -51,7 +55,7 @@ public class CreateBaloTask implements Task {
             target = new Target(project.sourceRoot());
             baloPath = target.getBaloPath();
         } catch (IOException e) {
-            throw new RuntimeException("error occurred while writing the BALO:" + e.getMessage());
+            throw createLauncherException("error occurred while writing the BALO: " + e.getMessage());
         }
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         String baloName = ProjectUtils.getBaloName(
@@ -59,7 +63,9 @@ public class CreateBaloTask implements Task {
                 project.currentPackage().packageName().toString(),
                 project.currentPackage().packageVersion().toString(),
                 null);
-        packageCompilation.emit(PackageCompilation.OutputType.BALO, baloPath.resolve(baloName));
+
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath.resolve(baloName));
 
         // Print the path of the BALO file
         Path relativePathToExecutable = project.sourceRoot().relativize(baloPath.resolve(baloName));

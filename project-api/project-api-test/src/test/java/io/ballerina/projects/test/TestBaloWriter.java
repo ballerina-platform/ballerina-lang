@@ -19,6 +19,8 @@
 package io.ballerina.projects.test;
 
 import com.google.gson.Gson;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.model.BaloJson;
@@ -57,7 +59,7 @@ public class TestBaloWriter {
         Files.createDirectory(Paths.get(String.valueOf(BALO_PATH)));
     }
 
-    @Test (enabled = false)
+    @Test
     public void testBaloWriter() throws IOException {
         Gson gson = new Gson();
         Path projectPath = RESOURCE_DIRECTORY.resolve("balowriter").resolve("projectOne");
@@ -74,7 +76,8 @@ public class TestBaloWriter {
         // balo name
         Assert.assertEquals(baloName, "foo-winery-any-0.1.0.balo");
         // invoke write balo method
-        packageCompilation.emit(PackageCompilation.OutputType.BALO, baloPath);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath);
 
         // unzip balo
         TestUtils.unzip(String.valueOf(baloPath), String.valueOf(BALO_PATH));
@@ -159,7 +162,7 @@ public class TestBaloWriter {
 //        Assert.assertTrue(libPath.resolve("ballerina-io-1.0.0-java.txt").toFile().exists());
     }
 
-    @Test (enabled = false)
+    @Test
     public void testBaloWriterWithMinimalBalProject() throws IOException {
         Gson gson = new Gson();
         Path projectPath = RESOURCE_DIRECTORY.resolve("balowriter").resolve("projectTwo");
@@ -174,12 +177,13 @@ public class TestBaloWriter {
                 project.currentPackage().packageVersion().toString(),
                 null);
         Path baloPath = target.getBaloPath().resolve(baloName);
-        packageCompilation.emit(PackageCompilation.OutputType.BALO, baloPath);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath);
 
         // balo name
         Assert.assertEquals(baloName, "bar-winery-any-0.1.0.balo");
         // invoke write balo method
-        packageCompilation.emit(PackageCompilation.OutputType.BALO, baloPath);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath);
 
         // unzip balo
         TestUtils.unzip(String.valueOf(baloPath), String.valueOf(BALO_PATH));
@@ -229,7 +233,8 @@ public class TestBaloWriter {
         Project project = loadProject(projectPath);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-        packageCompilation.emit(PackageCompilation.OutputType.BALO, baloPath);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath);
 
 //        // invoke write balo method
 //        BaloWriter.write(project.currentPackage(), baloPath);

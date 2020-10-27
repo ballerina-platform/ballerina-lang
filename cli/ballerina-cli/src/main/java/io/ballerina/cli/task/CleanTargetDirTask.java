@@ -23,6 +23,8 @@ import io.ballerina.projects.model.Target;
 
 import java.io.IOException;
 
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+
 /**
  * Cleans up the target directory.
  *
@@ -35,7 +37,7 @@ public class CleanTargetDirTask implements Task {
             Target target = new Target(project.sourceRoot());
             target.clean();
         } catch (IOException e) {
-            throw new RuntimeException("Unable to clean target directory: ", e);
+            throw createLauncherException("Unable to clean the target directory: " + e.getMessage());
         }
     }
 }

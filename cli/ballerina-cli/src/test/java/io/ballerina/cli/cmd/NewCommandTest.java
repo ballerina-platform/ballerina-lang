@@ -33,7 +33,7 @@ import java.nio.file.Path;
  *
  * @since 2.0.0
  */
-public class NewCommandTest extends CommandTest {
+public class NewCommandTest extends BaseCommandTest {
 
     @Test(description = "Initialize a new empty project")
     public void testNewCommand() throws IOException {

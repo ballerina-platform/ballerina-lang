@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.test;
 
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.directory.BuildProject;
@@ -38,9 +40,9 @@ public class TestJarWriter {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
     Path tempDirectory;
 
-    @Test (description = "tests writing of the executable", enabled = false)
+    @Test (description = "tests writing of the executable")
     public void testJarWriter() throws IOException {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+        Path projectPath = RESOURCE_DIRECTORY.resolve("balowriter").resolve("projectOne");
 
         // 1) Initialize the project instance
         BuildProject project = null;
@@ -53,12 +55,23 @@ public class TestJarWriter {
         Package currentPackage = project.currentPackage();
 
         tempDirectory = Files.createTempDirectory("ballerina-test-" + System.nanoTime());
-        Path tempFile = tempDirectory.resolve("test.jar");
-        Assert.assertFalse(tempFile.toFile().exists());
+        Path defaultJarPath = tempDirectory.resolve("winery.jar");
+        Path servicesJarPath = tempDirectory.resolve("services.jar");
+        Path storageJarPath = tempDirectory.resolve("storage.jar");
+        Assert.assertFalse(defaultJarPath.toFile().exists());
+        Assert.assertFalse(servicesJarPath.toFile().exists());
+        Assert.assertFalse(storageJarPath.toFile().exists());
 
-        currentPackage.getCompilation().emit(PackageCompilation.OutputType.JAR, tempFile);
-        Assert.assertTrue(tempFile.toFile().exists());
-        Assert.assertTrue(tempFile.toFile().length() > 0);
+        PackageCompilation pkgCompilation = currentPackage.getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JdkVersion.JAVA_11);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR, tempDirectory);
+
+        Assert.assertTrue(defaultJarPath.toFile().exists());
+        Assert.assertTrue(defaultJarPath.toFile().length() > 0);
+        Assert.assertTrue(servicesJarPath.toFile().exists());
+        Assert.assertTrue(servicesJarPath.toFile().length() > 0);
+        Assert.assertTrue(storageJarPath.toFile().exists());
+        Assert.assertTrue(storageJarPath.toFile().length() > 0);
     }
 
     @AfterMethod(alwaysRun = true)

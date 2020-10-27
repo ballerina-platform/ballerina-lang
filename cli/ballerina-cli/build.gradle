@@ -15,15 +15,14 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 configurations {
-    birJar
-    bir
-    birJarCompile { transitive false }
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    distributionBalo
+    balRt
 }
 
 dependencies {
@@ -37,35 +36,29 @@ dependencies {
     implementation 'org.apache.commons:commons-compress:1.18'
 
     testCompile 'org.testng:testng'
+
+    distributionBalo project(path: ':ballerina-langlib:test', configuration: 'distributionBalo')
+    testRuntime project(":ballerina-lang-test")
+    balRt project(':ballerina-rt')
 }
 
-task createBirCache {
-    dependsOn configurations.bir
-
-    doLast {
-        configurations.bir.each { artifact ->
-            copy {
-                from artifact
-                into "$buildDir/bir-cache/"
-            }
-        }
-    }
-
-    inputs.files configurations.bir
-    outputs.dir "$buildDir/bir-cache"
-    outputs.cacheIf { false }
+task createTestDistributionCache(type: Copy) {
+    dependsOn configurations.distributionBalo
+    from configurations.distributionBalo
+    into "$buildDir/distribution-cache"
 }
 
-checkstyleMain {
-    exclude 'org/ballerinalang/packerina/model/BaloToml.java'
+task createTestBre(type: Copy) {
+    from configurations.balRt
+    into "$buildDir/bre/lib"
 }
 
 test {
-    dependsOn createBirCache
-    dependsOn configurations.birJar
-    dependsOn configurations.birJarCompile
+    dependsOn createTestDistributionCache
+    dependsOn createTestBre
 
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+    systemProperty "ballerina.home", "$buildDir"
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
