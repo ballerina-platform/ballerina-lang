@@ -141,7 +141,7 @@ public class ClassDefinitionTest extends AbstractDeclarationTest {
         testFile("class-def/class_def_source_13.bal", "class-def/class_def_assert_13.json");
     }
 
-    @Test(enabled = false) // Disabled Temporary
+    @Test
     public void testDuplicateClientQualifiers() {
         testFile("class-def/class_def_source_18.bal", "class-def/class_def_assert_18.json");
         testFile("class-def/class_def_source_35.bal", "class-def/class_def_assert_35.json");
