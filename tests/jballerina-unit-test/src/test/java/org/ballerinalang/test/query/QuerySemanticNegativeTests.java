@@ -18,12 +18,12 @@
 
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * Sementic Negative test cases for query expressions.

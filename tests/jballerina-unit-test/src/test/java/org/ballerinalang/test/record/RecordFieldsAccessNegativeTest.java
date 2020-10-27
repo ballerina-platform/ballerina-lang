@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.record;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -30,7 +30,7 @@ public class RecordFieldsAccessNegativeTest {
 
     @Test(description = "Test private fields access in record 01")
     public void testRecordPrivateFieldsAccess1() {
-        CompileResult result = BCompileUtil.compile("test-src/record/record-project", "access-neg-1");
+        CompileResult result = BCompileUtil.compile("test-src/record/record-project");
 
         Assert.assertEquals(result.getErrorCount(), 8);
         int i = 0;
@@ -46,7 +46,7 @@ public class RecordFieldsAccessNegativeTest {
 
     @Test(description = "Test private fields access in record 02")
     public void testRecordPrivateFieldsAccess2() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/record/record-project", "access-neg-2");
+        CompileResult compileResult = BCompileUtil.compile("test-src/record/record-project");
 
         Assert.assertEquals(compileResult.getErrorCount(), 8);
         int i = 0;

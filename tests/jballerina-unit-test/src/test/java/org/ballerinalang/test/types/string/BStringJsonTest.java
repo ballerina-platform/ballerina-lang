@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.types.string;
 
-import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 

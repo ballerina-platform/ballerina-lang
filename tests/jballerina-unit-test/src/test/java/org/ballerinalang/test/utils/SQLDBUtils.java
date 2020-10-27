@@ -19,7 +19,7 @@ package org.ballerinalang.test.utils;
 
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.core.model.values.BError;
-import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.BCompileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;

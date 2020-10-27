@@ -25,9 +25,9 @@ import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -653,8 +653,7 @@ public class MarkdownDocumentationTest {
     // Stopping on arbitrary compiler phase is not supported.
     @Test(description = "Test doc native function")
     public void testDocNativeFunction() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_native_function.bal",
-                CompilerPhase.TYPE_CHECK);
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_native_function.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
         Assert.assertEquals(compileResult.getWarnCount(), 0);
 

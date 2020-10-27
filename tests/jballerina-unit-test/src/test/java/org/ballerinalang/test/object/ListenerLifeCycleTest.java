@@ -16,8 +16,9 @@
  */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -29,7 +30,7 @@ public class ListenerLifeCycleTest {
     @Test
     public void testListnerGracefulStop() {
         CompileResult result = BCompileUtil.compile("test-src/object/listner-lifecycle-functions.bal");
-        String consoleOutput = BCompileUtil.runMain(result, new String[] {});
+        String consoleOutput = BRunUtil.runMain(result, new String[] {});
         Assert.assertEquals(consoleOutput, "running main\nrunning __start\nrunning __gracefulStop",
                             "found: " + consoleOutput);
     }

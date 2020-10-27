@@ -20,8 +20,8 @@ package org.ballerinalang.test.balo.documentation;
 
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.test.balo.BaloCreator;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,8 +43,7 @@ public class DocumentationTest {
 
     @BeforeClass
     public void setup() {
-        BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_documentation", "testDocOrg", "test");
+//        BCompileUtil.compile("test-src/balo/test_projects/test_documentation", "testDocOrg", "test");
         CompileResult result = BCompileUtil.compile("test-src/balo/test_balo/documentation/test_documentation.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
         symbol = ((BLangPackage) result.getAST()).symbol;
@@ -112,10 +111,5 @@ public class DocumentationTest {
 
         Assert.assertNotNull(annotationSymbol.markdownDocumentation);
         Assert.assertEquals(markdownDocumentation.description, "Documentation for Test annotation");
-    }
-
-    @AfterClass
-    public void tearDown() {
-        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_documentation", "testorg", "foo");
     }
 }

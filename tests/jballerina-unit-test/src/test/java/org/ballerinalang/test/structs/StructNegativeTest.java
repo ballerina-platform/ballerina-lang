@@ -18,10 +18,10 @@
 package org.ballerinalang.test.structs;
 
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -98,7 +98,8 @@ public class StructNegativeTest {
 
     @Test(description = "Test defining a struct constant")
     public void testStructConstant() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src/structs/proj", "constants");
+//        CompileResult compileResult = BCompileUtil.compile("test-src/structs/proj", "constants");
+        CompileResult compileResult = BCompileUtil.compile("test-src/structs/proj/constants");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics()[0].message(),
