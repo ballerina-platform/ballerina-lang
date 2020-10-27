@@ -162,7 +162,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         TypeDescriptorNode typeDescriptor =
                 modifyNode(serviceDeclarationNode.typeDescriptor().orElse(null));
         NodeList<Token> absoluteResourcePath =
-                modifyNodeList(serviceDeclarationNode.absoluteResourcePath().orElse(null));
+                modifyNodeList(serviceDeclarationNode.absoluteResourcePath());
         Token onKeyword =
                 modifyToken(serviceDeclarationNode.onKeyword());
         SeparatedNodeList<ExpressionNode> expressions =
@@ -1227,7 +1227,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token sourceKeyword =
                 modifyToken(annotationAttachPointNode.sourceKeyword().orElse(null));
         NodeList<Token> identifiers =
-                modifyNodeList(annotationAttachPointNode.identifiers().orElse(null));
+                modifyNodeList(annotationAttachPointNode.identifiers());
         return annotationAttachPointNode.modify(
                 sourceKeyword,
                 identifiers);

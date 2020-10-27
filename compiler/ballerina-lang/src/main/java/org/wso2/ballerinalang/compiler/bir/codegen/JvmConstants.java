@@ -101,7 +101,7 @@ public class JvmConstants {
     public static final String TYPEDESC_TYPE = "io/ballerina/runtime/api/types/TypedescType";
     public static final String FIELD = "io/ballerina/runtime/api/types/Field";
     public static final String ATTACHED_FUNCTION = "io/ballerina/runtime/api/types/AttachedFunctionType";
-    public static final String RESOURCE_FUNCTION = "io/ballerina/runtime/api/types/ResourceFunction";
+    public static final String RESOURCE_FUNCTION = "io/ballerina/runtime/api/types/ResourceFunctionType";
     public static final String FINITE_TYPE = "io/ballerina/runtime/api/types/FiniteType";
     public static final String FUTURE_TYPE = "io/ballerina/runtime/api/types/FutureType";
     public static final String INTEGER_TYPE = "io/ballerina/runtime/api/types/IntegerType";
@@ -135,6 +135,7 @@ public class JvmConstants {
     public static final String TYPEDESC_TYPE_IMPL = "io/ballerina/runtime/types/BTypedescType";
     public static final String FIELD_IMPL = "io/ballerina/runtime/types/BField";
     public static final String ATTACHED_FUNCTION_IMPL = "io/ballerina/runtime/types/AttachedFunction";
+    public static final String RESOURCE_FUNCTION_IMPL = "io/ballerina/runtime/types/ResourceFunction";
     public static final String FINITE_TYPE_IMPL = "io/ballerina/runtime/types/BFiniteType";
     public static final String FUTURE_TYPE_IMPL = "io/ballerina/runtime/types/BFutureType";
     public static final String MODULE = "io/ballerina/runtime/api/Module";

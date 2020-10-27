@@ -15,27 +15,12 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm.types;
+package io.ballerina.runtime.api.types;
 
-/**d
- * {@code ResourceFunction} represents a resource function in Ballerina.
+/**
+ * {@code ResourceFunctionType} represents a resource function in Ballerina.
  *
  * @since 2.0
  */
-public class ResourceFunction {
-
-    public final AttachedFunction attachedFunction;
-    public final String accessor;
-    public final String resourcePath;
-
-    public ResourceFunction(AttachedFunction attachedFunction, String accessor, String resourcePath) {
-        this.attachedFunction = attachedFunction;
-        this.accessor = accessor;
-        this.resourcePath = resourcePath;
-    }
-
-    @Override
-    public String toString() {
-        return "resource " + accessor + " " + attachedFunction.toString();
-    }
+public interface ResourceFunctionType {
 }

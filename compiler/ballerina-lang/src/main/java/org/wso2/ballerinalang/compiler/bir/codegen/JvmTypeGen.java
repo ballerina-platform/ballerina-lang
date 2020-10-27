@@ -160,6 +160,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PREDEFINE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.READONLY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_FUNCTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_FUNCTION_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE_IMPL;
@@ -920,7 +921,7 @@ class JvmTypeGen {
             return;
         }
         mv.visitInsn(DUP);
-        mv.visitTypeInsn(CHECKCAST, SERVICE_TYPE);
+        mv.visitTypeInsn(CHECKCAST, SERVICE_TYPE_IMPL);
         // Create the resource function array
         mv.visitLdcInsn(resourceFunctionCount(attachedFunctions));
         mv.visitInsn(L2I);
@@ -959,7 +960,7 @@ class JvmTypeGen {
         }
 
         // Set the fields of the object
-        mv.visitMethodInsn(INVOKEVIRTUAL, SERVICE_TYPE, "setResourceFunctions",
+        mv.visitMethodInsn(INVOKEVIRTUAL, SERVICE_TYPE_IMPL, "setResourceFunctions",
                 String.format("([L%s;)V", RESOURCE_FUNCTION), false);
     }
 
@@ -1008,7 +1009,7 @@ class JvmTypeGen {
     private static void createResourceFunction(MethodVisitor mv, BResourceFunction resourceFunction,
                                                int attachedFunctionVarIndex) {
 
-        mv.visitTypeInsn(NEW, RESOURCE_FUNCTION);
+        mv.visitTypeInsn(NEW, RESOURCE_FUNCTION_IMPL);
         mv.visitInsn(DUP);
 
         mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
@@ -1019,7 +1020,7 @@ class JvmTypeGen {
         // Load resource path
         mv.visitLdcInsn(decodeIdentifier(resourceFunction.resourcePath.get(0).value));
 
-        mv.visitMethodInsn(INVOKESPECIAL, RESOURCE_FUNCTION, JVM_INIT_METHOD,
+        mv.visitMethodInsn(INVOKESPECIAL, RESOURCE_FUNCTION_IMPL, JVM_INIT_METHOD,
                 String.format("(L%s;L%s;L%s;)V", ATTACHED_FUNCTION, STRING_VALUE, STRING_VALUE), false);
     }
 
@@ -1251,7 +1252,7 @@ class JvmTypeGen {
                 case TypeTags.XML_TEXT:
                     return XML_TYPE;
                 case TypeTags.OBJECT:
-                    return (bType instanceof BServiceType) ? SERVICE_TYPE : OBJECT_TYPE;
+                    return Symbols.isService(bType.tsymbol) ? SERVICE_TYPE : OBJECT_TYPE;
                 case TypeTags.HANDLE:
                     return HANDLE_TYPE;
                 case TypeTags.READONLY:

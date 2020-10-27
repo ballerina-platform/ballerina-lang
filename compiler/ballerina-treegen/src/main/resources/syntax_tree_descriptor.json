@@ -206,8 +206,7 @@
                 {
                     "name": "absoluteResourcePath",
                     "type": "Token",
-                    "occurrences": "MULTIPLE",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "onKeyword",
@@ -1651,8 +1650,7 @@
                 {
                     "name": "identifiers",
                     "type": "Token",
-                    "occurrences": "MULTIPLE",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 }
             ]
         },

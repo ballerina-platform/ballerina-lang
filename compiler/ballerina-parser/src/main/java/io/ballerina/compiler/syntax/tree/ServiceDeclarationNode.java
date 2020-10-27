@@ -154,7 +154,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
             this.metadata = oldNode.metadata().orElse(null);
             this.serviceKeyword = oldNode.serviceKeyword();
             this.typeDescriptor = oldNode.typeDescriptor().orElse(null);
-            this.absoluteResourcePath = oldNode.absoluteResourcePath().orElse(null);
+            this.absoluteResourcePath = oldNode.absoluteResourcePath();
             this.onKeyword = oldNode.onKeyword();
             this.expressions = oldNode.expressions();
             this.openBraceToken = oldNode.openBraceToken();

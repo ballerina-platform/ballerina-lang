@@ -1611,7 +1611,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
             switch (firstIndent.kind()) {
                 case OBJECT_KEYWORD:
-                    Token secondIndent = idents.get(1).get();
+                    Token secondIndent = idents.get(1);
                     switch (secondIndent.kind()) {
                         case FUNCTION_KEYWORD:
                             bLAttachPoint =

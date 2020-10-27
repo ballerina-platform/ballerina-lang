@@ -373,11 +373,7 @@ public class BIRPackageSymbolEnter {
             invokableSymbol.name =
                     names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
             if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
-                if (attachedType.tag == TypeTags.OBJECT) {
-                    scopeToDefine = ((BObjectTypeSymbol) attachedType.tsymbol).methodScope;
-                } else {
-                    scopeToDefine = attachedType.tsymbol.scope;
-                }
+                scopeToDefine = attachedType.tsymbol.scope;
                 // todo: Define resource function from BIR
                 BAttachedFunction attachedFunc =
                         new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType,

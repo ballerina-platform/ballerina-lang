@@ -1183,11 +1183,10 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static AnnotationAttachPointNode createAnnotationAttachPointNode(
             Token sourceKeyword,
             NodeList<Token> identifiers) {
-        Objects.requireNonNull(sourceKeyword, "sourceKeyword must not be null");
         Objects.requireNonNull(identifiers, "identifiers must not be null");
 
         STNode stAnnotationAttachPointNode = STNodeFactory.createAnnotationAttachPointNode(
-                sourceKeyword.internalNode(),
+                getOptionalSTNode(sourceKeyword),
                 identifiers.underlyingListNode().internalNode());
         return stAnnotationAttachPointNode.createUnlinkedFacade();
     }

@@ -19,8 +19,12 @@ package io.ballerina.runtime.types;
 import io.ballerina.runtime.AnnotationUtils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.ResourceFunctionType;
 import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.util.Flags;
 import io.ballerina.runtime.values.MapValue;
 
 import java.util.ArrayList;
@@ -33,8 +37,8 @@ import java.util.Map;
  */
 public class BServiceType extends BObjectType implements ServiceType {
 
-    private ResourceFunction[] resourceFunctions;
-    private volatile AttachedFunction[] remoteFunctions;
+    private ResourceFunctionType[] resourceFunctions;
+    private volatile AttachedFunctionType[] remoteFunctions;
     private volatile String[] storedResourceNames;
 
     public BServiceType(String typeName, Module pkg, int flags) {
@@ -52,7 +56,7 @@ public class BServiceType extends BObjectType implements ServiceType {
         AnnotationUtils.processServiceAnnotations(globalAnnotationMap, this, strand);
     }
 
-    public void setResourceFunctions(ResourceFunction[] resourceFunctions) {
+    public void setResourceFunctions(ResourceFunctionType[] resourceFunctions) {
         this.resourceFunctions = resourceFunctions;
     }
 
@@ -61,9 +65,10 @@ public class BServiceType extends BObjectType implements ServiceType {
      *
      * @return array of remote functions
      */
-    public AttachedFunction[] getRemoteFunctions() {
+    @Override
+    public AttachedFunctionType[] getRemoteFunctions() {
         if (remoteFunctions == null) {
-            AttachedFunction[] funcs = getRemoteFunctions(getAttachedFunctions());
+            AttachedFunctionType[] funcs = getRemoteFunctions(getAttachedFunctions());
             synchronized (this) {
                 if (remoteFunctions == null) {
                     remoteFunctions = funcs;
@@ -73,14 +78,14 @@ public class BServiceType extends BObjectType implements ServiceType {
         return remoteFunctions;
     }
 
-    private AttachedFunction[] getRemoteFunctions(AttachedFunction[] attachedFunctions) {
-        ArrayList<AttachedFunction> functions = new ArrayList<>();
-        for (AttachedFunction attachedFunction : attachedFunctions) {
-            if ((attachedFunction.flags & Flags.REMOTE) == Flags.REMOTE) {
-                functions.add(attachedFunction);
+    private AttachedFunctionType[] getRemoteFunctions(AttachedFunctionType[] attachedFunctions) {
+        ArrayList<AttachedFunctionType> functions = new ArrayList<>();
+        for (AttachedFunctionType funcType : attachedFunctions) {
+            if ((((AttachedFunction) funcType).flags & Flags.REMOTE) == Flags.REMOTE) {
+                functions.add(funcType);
             }
         }
-        return functions.toArray(new AttachedFunction[]{});
+        return functions.toArray(new AttachedFunctionType[]{});
     }
 
     /**
@@ -88,7 +93,8 @@ public class BServiceType extends BObjectType implements ServiceType {
      *
      * @return resource functions
      */
-    public ResourceFunction[] getResourceFunctions() {
+    @Override
+    public ResourceFunctionType[] getResourceFunctions() {
         return resourceFunctions;
     }
 
@@ -97,6 +103,7 @@ public class BServiceType extends BObjectType implements ServiceType {
      *
      * @return list of stored resource names
      */
+    @Override
     public String[] getStoredResourceNames() {
         if (storedResourceNames == null) {
             String[] list = getStoredResourceNamesInternal();
@@ -111,8 +118,8 @@ public class BServiceType extends BObjectType implements ServiceType {
 
     private String[] getStoredResourceNamesInternal() {
         ArrayList<String> names = new ArrayList<>();
-        for (Map.Entry<String, BField> entry : this.fields.entrySet()) {
-            BField field = entry.getValue();
+        for (Map.Entry<String, Field> entry : this.fields.entrySet()) {
+            BField field = (BField) entry.getValue();
             if ((field.flags & Flags.RESOURCE) == Flags.RESOURCE) {
                 names.add(field.name);
             }

@@ -18,12 +18,15 @@ package io.ballerina.runtime.api;
 
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.observability.ObservabilityConstants;
 import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.ObserverContext;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.values.FutureValue;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -88,7 +91,7 @@ public class Runtime {
      */
     public FutureValue invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
                                          Callback callback, Map<String, Object> properties,
-                                         BType returnType, Object... args) {
+                                         Type returnType, Object... args) {
         Function<Object[], Object> func = objects -> {
             Strand strand = (Strand) objects[0];
             if (ObserveUtils.isObservabilityEnabled() && properties != null &&
@@ -110,7 +113,7 @@ public class Runtime {
      * @return             Value stored in the field.
      */
     public Object getStoredResource(BObject object, String resourceName) {
-        return object.get(BStringUtils.fromString(resourceName));
+        return object.get(StringUtils.fromString(resourceName));
     }
 
     /**

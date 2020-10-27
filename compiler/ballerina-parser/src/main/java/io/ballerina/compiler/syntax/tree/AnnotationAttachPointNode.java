@@ -37,12 +37,8 @@ public class AnnotationAttachPointNode extends NonTerminalNode {
         return optionalChildInBucket(0);
     }
 
-    public Token firstIdent() {
-        return childInBucket(1);
-    }
-
-    public Optional<Token> secondIdent() {
-        return optionalChildInBucket(2);
+    public NodeList<Token> identifiers() {
+        return new NodeList<>(childInBucket(1));
     }
 
     @Override
@@ -93,7 +89,7 @@ public class AnnotationAttachPointNode extends NonTerminalNode {
         public AnnotationAttachPointNodeModifier(AnnotationAttachPointNode oldNode) {
             this.oldNode = oldNode;
             this.sourceKeyword = oldNode.sourceKeyword().orElse(null);
-            this.identifiers = oldNode.identifiers().orElse(null);
+            this.identifiers = oldNode.identifiers();
         }
 
         public AnnotationAttachPointNodeModifier withSourceKeyword(
