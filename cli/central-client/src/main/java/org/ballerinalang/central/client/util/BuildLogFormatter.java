@@ -15,23 +15,15 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.balo;
 
-import io.ballerina.projects.PackageConfig;
-import io.ballerina.projects.PackageDescriptor;
-import io.ballerina.projects.directory.PackageData;
-import io.ballerina.projects.directory.PackageLoader;
+package org.ballerinalang.central.client.util;
 
 /**
- * Contains a set of utility methods that creates the config hierarchy from balo file.
- *
- * @since 2.0.0
+ * Build log formatter class which used to log the message for build command.
  */
-public class BaloPackageLoader extends PackageLoader {
-
-    public static PackageConfig loadPackage(String packageDir, PackageDescriptor packageDescriptor) {
-        // TODO Refactor this code
-        PackageData packageData = BaloFiles.loadPackageData(packageDir, packageDescriptor);
-        return createPackageConfig(packageData, packageDescriptor);
+public class BuildLogFormatter extends LogFormatter {
+    @Override
+    public String formatLog(String msg) {
+        return "\t" + msg;
     }
 }

@@ -18,13 +18,13 @@
 package org.ballerinalang.central.client.util;
 
 /**
- * Defines constants related to the Ballerina CLI Module.
+ * Defines constants related to the central client.
  *
  * @since 1.2.0
  */
-public class CliModuleConstants {
+public class CentralClientConstants {
 
-    private CliModuleConstants() {
+    private CentralClientConstants() {
     }
 
     public static final String BALLERINA_PLATFORM = "Ballerina-Platform";
@@ -34,4 +34,12 @@ public class CliModuleConstants {
     public static final String PUSH_ORGANIZATION = "Push-Organization";
     public static final String SETTINGS_TOML_FILE = "Settings.toml";
     public static final String SSL = "SSL";
+    public static final String AUTHORIZATION = "Authorization";
+    public static final String CONTENT_TYPE = "Content-Type";
+    public static final String ACCEPT_ENCODING = "Accept-Encoding";
+    public static final String USER_AGENT = "User-Agent";
+    public static final String LOCATION = "Location";
+    public static final String CONTENT_DISPOSITION = "Content-Disposition";
+    public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
+    public static final String VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
 }

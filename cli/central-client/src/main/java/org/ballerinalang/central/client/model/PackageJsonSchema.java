@@ -79,8 +79,10 @@ public class PackageJsonSchema {
     public static final String JSON_PROPERTY_MODULES = "modules";
     @SerializedName(JSON_PROPERTY_MODULES) private List<ModuleJsonSchema> modules = new ArrayList<>();
 
-    public PackageJsonSchema organization(String organization) {
+    public static final String JSON_PROPERTY_SUMMARY = "summary";
+    @SerializedName(JSON_PROPERTY_SUMMARY) private String summary;
 
+    public PackageJsonSchema organization(String organization) {
         this.organization = organization;
         return this;
     }
@@ -189,6 +191,20 @@ public class PackageJsonSchema {
 
     public void setBaloURL(String baloURL) {
         this.baloURL = baloURL;
+    }
+
+    public PackageJsonSchema summary(String summary) {
+
+        this.summary = summary;
+        return this;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
     }
 
     public PackageJsonSchema readme(String readme) {

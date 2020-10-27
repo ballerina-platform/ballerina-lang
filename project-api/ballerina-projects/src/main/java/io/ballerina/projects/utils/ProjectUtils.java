@@ -18,10 +18,10 @@
 package io.ballerina.projects.utils;
 
 import io.ballerina.projects.Package;
+import io.ballerina.projects.directory.BallerinaTomlProcessor;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import io.ballerina.projects.model.BallerinaToml;
-import io.ballerina.projects.model.BallerinaTomlProcessor;
 import org.ballerinalang.toml.exceptions.TomlException;
 
 import java.io.IOException;

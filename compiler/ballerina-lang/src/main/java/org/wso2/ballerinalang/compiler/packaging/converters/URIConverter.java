@@ -139,7 +139,7 @@ public class URIConverter implements Converter<URI> {
                 }
 
                 // if module already exists in home repository
-                if (errorMessage.contains("package already exists in the home repository") && this.isBuild) {
+                if (errorMessage.contains("module already exists in the home repository") && this.isBuild) {
                     // Need to update the version of moduleID that was resolved by remote. But since the version
                     // cannot be returned by the call done to module_pull.bal file we need to set the version from
                     // the downloaded balo file.

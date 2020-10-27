@@ -34,14 +34,7 @@ public class Constants {
     static final String LIST_COMMAND = "list";
     static final String PULL_COMMAND = "pullNew";
     static final String PUSH_COMMAND = "pushNew";
-    static final String SEARCH_COMMAND = "search";
+    static final String SEARCH_COMMAND = "searchNew";
     static final String CLEAN_COMMAND = "clean";
     static final String UNINSTALL_COMMAND = "uninstall";
-
-    //module name format : <org-name>/<package-name> | <org-name>/<package-name>:<version>
-    //version format : 1, 1.*, 1.*.*
-    static final String PKG_NAME_REGEX = "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+|" +
-            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+|" +
-            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+\\.[*\\d]+|" +
-            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+\\.[*\\d]+\\.[*\\d]+";
 }

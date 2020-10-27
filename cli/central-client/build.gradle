@@ -27,11 +27,14 @@ configurations {
 }
 
 dependencies {
+    implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
+    implementation project(':ballerina-tool')
     implementation 'javax.ws.rs:javax.ws.rs-api'
     implementation 'me.tongfei:progressbar:0.7.4'
     implementation 'com.google.code.gson:gson'
     implementation 'com.google.code.findbugs:jsr305'
+    testCompile 'org.testng:testng'
 }
 
 task createBirCache {
@@ -51,10 +54,6 @@ task createBirCache {
     outputs.cacheIf { false }
 }
 
-checkstyleMain {
-    exclude 'org/ballerinalang/packerina/model/BaloToml.java'
-}
-
 test {
     dependsOn createBirCache
     dependsOn configurations.birJar
@@ -64,15 +63,12 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
-    doFirst {
-//        systemProperty "ballerina.bootstrap.home", files(configurations.birJarCompile).singleFile
-    }
 }
 
-description = 'Ballerina - CLI Module'
+description = 'Ballerina - Central Client'
 
 
-ext.moduleName = 'ballerina.cli.module'
+ext.moduleName = 'ballerina.central.client'
 
 compileJava {
     inputs.property("moduleName", moduleName)

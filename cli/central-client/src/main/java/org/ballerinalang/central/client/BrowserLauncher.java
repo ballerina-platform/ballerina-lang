@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.central.client;
 
+import org.ballerinalang.central.client.util.OsUtils;
+
 import java.io.IOException;
 
 /**
@@ -22,9 +24,12 @@ import java.io.IOException;
  *
  * @since 2.0.0
  */
-public class BrowserLauncher {
+class BrowserLauncher {
 
-    public static void startInDefaultBrowser(String url) throws IOException {
+    private BrowserLauncher() {
+    }
+
+    static void startInDefaultBrowser(String url) throws IOException {
 
         Runtime rt = Runtime.getRuntime();
         if (OsUtils.isWindows()) {
@@ -34,10 +39,6 @@ public class BrowserLauncher {
             rt.exec("open " + url);
         } else if (OsUtils.isUnix()) {
             rt.exec("xdg-open " + url);
-
-        } else {
-            return;
         }
     }
-
 }

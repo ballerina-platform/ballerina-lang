@@ -1,18 +1,20 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-//
-// WSO2 Inc. licenses this file to you under the Apache License,
-// Version 2.0 (the "License"); you may not use this file except
-// in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
+/*
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 
 package org.ballerinalang.central.client;
 
@@ -21,7 +23,6 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.ballerinalang.central.client.util.ErrorUtil;
 
-import javax.ws.rs.core.HttpHeaders;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -33,7 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.Collections;
 
-import static org.ballerinalang.central.client.util.CliModuleConstants.SETTINGS_TOML_FILE;
+import static org.ballerinalang.central.client.util.CentralClientConstants.SETTINGS_TOML_FILE;
 
 /**
  * This class has a service which updates the access token in the `Settings.toml` file.
@@ -103,8 +104,7 @@ public class TokenUpdater {
             OutputStream os = null;
             try {
                 String response = "<svg xmlns=\"http://www.w3.org/2000/svg\"/>";
-                httpExchange.getResponseHeaders()
-                        .put(HttpHeaders.CONTENT_TYPE, Collections.singletonList("image/svg+xml"));
+                httpExchange.getResponseHeaders().put("Content-Type", Collections.singletonList("image/svg+xml"));
                 httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK,
                         response.getBytes(StandardCharsets.UTF_8).length);
                 os = httpExchange.getResponseBody();

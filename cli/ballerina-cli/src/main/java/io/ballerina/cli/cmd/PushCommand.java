@@ -17,11 +17,13 @@
 */
 package io.ballerina.cli.cmd;
 
-import io.ballerina.cli.utils.PushUtils;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.balo.BaloProject;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
+import org.ballerinalang.central.client.CentralAPIClient;
+import org.ballerinalang.central.client.util.CommandException;
+import org.ballerinalang.central.client.util.NoPackageException;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -32,17 +34,21 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
-import static io.ballerina.cli.utils.PushUtils.isDependencyAvailableInRemote;
-import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static io.ballerina.runtime.util.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTATION_VERSION;
+import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 import static org.wso2.ballerinalang.util.RepoUtils.getRemoteRepoURL;
 
 /**
@@ -143,14 +149,16 @@ public class PushCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
+        throw new UnsupportedOperationException();
     }
 
     private void pushPackage(String packageName, Path sourceRootPath) {
         try {
             BaloProject baloProject = validateBaloPathAndGetBaloProject(packageName, sourceRootPath);
-            Map<Path, List<PackageDescriptor.Dependency>> balosWithDependencies = new HashMap();
+
+            Map<Path, List<PackageDescriptor.Dependency>> balosWithDependencies = new HashMap<>();
             balosWithDependencies.put(baloProject.sourceRoot(), baloProject.currentPackage().packageDescriptor().dependencies());
-            PushUtils.recursivelyPushBalos(balosWithDependencies);
+            recursivelyPushBalos(balosWithDependencies);
         } catch (IOException e) {
             throw createLauncherException(
                     "unexpected error occurred when trying to push to remote repository: " + getRemoteRepoURL());
@@ -181,7 +189,7 @@ public class PushCommand implements BLauncherCmd {
 
         // get the manifest from balo file
         Path baloFilePath = packageBaloFile.get();
-        final BaloProject baloProject = BaloProject.loadProject(baloFilePath);
+        final BaloProject baloProject = BaloProject.loadProject(baloFilePath, null);
         final String orgName = baloProject.currentPackage().packageOrg().toString();
 
         // Validate the org-name
@@ -226,5 +234,111 @@ public class PushCommand implements BLauncherCmd {
         }
 
         return baloProject;
+    }
+
+    /**
+     * Push balos to remote repository in the order of there dependencies are resolved.
+     *
+     * @param balos The remaining balos to be pushed.
+     * @throws IOException When trying to access remote repository
+     */
+    private static void recursivelyPushBalos(Map<Path, List<PackageDescriptor.Dependency>> balos) throws IOException {
+        // if there are no more balos to push.
+        if (balos.size() == 0) {
+            return;
+        }
+
+        // go through the dependencies of balos and see if they are available in remote repository. if they are
+        // available remove them from the list.
+        for (List<PackageDescriptor.Dependency> deps : balos.values()) {
+            Iterator<PackageDescriptor.Dependency> depsIterator = deps.iterator();
+            while (depsIterator.hasNext()) {
+                PackageDescriptor.Dependency dep = depsIterator.next();
+                if (isDependencyAvailableInRemote(dep)) {
+                    depsIterator.remove();
+                }
+
+                if ("ballerina".equals(dep.org().toString()) || "ballerinax".equals(dep.org().toString())) {
+                    depsIterator.remove();
+                }
+            }
+        }
+
+        // check if there are balos where their dependencies are already available in remote repository
+        Optional<List<PackageDescriptor.Dependency>> baloWithAllDependenciesAvailableInCentral = balos.values().stream()
+                .filter(List::isEmpty)
+                .findAny();
+
+        // if there isn't any balos where dependencies are resolved, then throw an error.
+        if (!baloWithAllDependenciesAvailableInCentral.isPresent()) {
+            Set<String> unresolvedDependencies = balos.values().stream()
+                    .flatMap(List::stream)
+                    .map(PackageDescriptor.Dependency::toString)
+                    .collect(Collectors.toSet());
+            throw createLauncherException("unable to find dependencies in remote repository: [" +
+                    String.join(", ", unresolvedDependencies) + "]");
+        }
+
+        // push all the modules where dependencies are available in remote repository and remove them from the map.
+        Iterator<Map.Entry<Path, List<PackageDescriptor.Dependency>>> iterator = balos.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Path, List<PackageDescriptor.Dependency>> baloDeps = iterator.next();
+            if (baloDeps.getValue().isEmpty()) {
+                pushBaloToRemote(baloDeps.getKey());
+                iterator.remove();
+            }
+        }
+        recursivelyPushBalos(balos);
+    }
+
+    /**
+     * Push a balo file to remote repository.
+     *
+     * @param baloPath Path to the balo file.
+     */
+    private static void pushBaloToRemote(Path baloPath) {
+        Path baloFileName = baloPath.getFileName();
+        if (null != baloFileName) {
+            // Load BaloProject from balo path
+            BaloProject baloProject = BaloProject.loadProject(baloPath, null);
+            String name = baloProject.currentPackage().packageName().toString();
+
+            try {
+                CentralAPIClient client = new CentralAPIClient();
+                client.pushPackage(baloPath, baloProject);
+            } catch (CommandException e) {
+                String errorMessage = e.getMessage();
+                if (null != errorMessage && !"".equals(errorMessage.trim())) {
+                    // removing the error stack
+                    if (errorMessage.contains("\n\tat")) {
+                        errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));
+                    }
+
+                    errorMessage = errorMessage.replaceAll("error: ", "");
+
+                    throw createLauncherException(
+                            "unexpected error occurred while pushing package '" + name + "' to remote repository("
+                                    + getRemoteRepoURL() + "): " + errorMessage);
+                }
+            }
+        }
+    }
+
+    private static boolean isDependencyAvailableInRemote(PackageDescriptor.Dependency dep) {
+        List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
+        supportedPlatforms.add("any");
+
+        for (String supportedPlatform : supportedPlatforms) {
+            CentralAPIClient client = new CentralAPIClient();
+            try {
+                client.getPackage(dep.org().toString(), dep.name().toString(), dep.version().toString(),
+                                supportedPlatform);
+                return true;
+            } catch (NoPackageException e) {
+                return false;
+            }
+        }
+
+        return false;
     }
 }

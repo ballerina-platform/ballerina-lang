@@ -181,6 +181,6 @@ public class BaloFiles {
         PackageVersion packageVersion = PackageVersion.from(packageJson.getVersion());
         List<PackageDescriptor.Dependency> dependencies = packageJson.getDependencies();
 
-        return new PackageDescriptor(packageName, packageOrg, packageVersion, dependencies);
+        return new PackageDescriptor(packageName, packageOrg, packageVersion, dependencies, Collections.emptyMap());
     }
 }

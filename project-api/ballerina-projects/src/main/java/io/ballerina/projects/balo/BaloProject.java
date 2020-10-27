@@ -24,11 +24,12 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.env.BuildEnvContext;
 import io.ballerina.projects.environment.EnvironmentContext;
 import io.ballerina.projects.environment.Repository;
-import io.ballerina.projects.utils.ProjectConstants;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+
+import static io.ballerina.projects.utils.ProjectConstants.PACKAGE_JSON;
 
 /**
  * {@code BaloProject} represents Ballerina project instance created from a balo.
@@ -64,7 +65,8 @@ public class BaloProject extends Project {
      * @param baloPath balo path
      */
     private void addPackage(String baloPath, Repository repo) {
-        PackageConfig packageConfig = BaloPackageLoader.loadPackage(baloPath);
+        PackageDescriptor packageDescriptor = BaloFiles.createPackageDescriptor(Paths.get(baloPath, PACKAGE_JSON));
+        PackageConfig packageConfig = BaloPackageLoader.loadPackage(baloPath, packageDescriptor);
         packageConfig.setRepository(Optional.ofNullable(repo));
         this.addPackage(packageConfig);
     }

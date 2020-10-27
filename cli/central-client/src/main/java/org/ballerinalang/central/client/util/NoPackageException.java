@@ -15,23 +15,17 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.balo;
 
-import io.ballerina.projects.PackageConfig;
-import io.ballerina.projects.PackageDescriptor;
-import io.ballerina.projects.directory.PackageData;
-import io.ballerina.projects.directory.PackageLoader;
+package org.ballerinalang.central.client.util;
 
 /**
- * Contains a set of utility methods that creates the config hierarchy from balo file.
+ * Thrown to indicate that package not found in the central for a given package id.
  *
  * @since 2.0.0
  */
-public class BaloPackageLoader extends PackageLoader {
+public class NoPackageException extends RuntimeException {
 
-    public static PackageConfig loadPackage(String packageDir, PackageDescriptor packageDescriptor) {
-        // TODO Refactor this code
-        PackageData packageData = BaloFiles.loadPackageData(packageDir, packageDescriptor);
-        return createPackageConfig(packageData, packageDescriptor);
+    public NoPackageException(String message) {
+        super(message);
     }
 }

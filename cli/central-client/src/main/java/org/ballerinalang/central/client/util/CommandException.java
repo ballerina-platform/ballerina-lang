@@ -24,7 +24,7 @@ package org.ballerinalang.central.client.util;
 public class CommandException extends RuntimeException {
     private final StringBuilder detailedMessage = new StringBuilder();
 
-    public void addMessage(String message) {
+    void addMessage(String message) {
         if (detailedMessage.toString().isEmpty()) {
             detailedMessage.append(message);
         } else {

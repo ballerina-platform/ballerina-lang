@@ -1,66 +1,64 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+
 package io.ballerina.cli.cmd;
 
-import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.CompilerInput;
+import io.ballerina.projects.utils.ProjectConstants;
+import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
-import org.wso2.ballerinalang.compiler.packaging.Patten;
-import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
-import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
-import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URI;
-import java.nio.file.Paths;
-import java.util.HashMap;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-import static io.ballerina.cli.cmd.Constants.PKG_NAME_REGEX;
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
-import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static io.ballerina.runtime.util.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static java.nio.file.Files.createDirectory;
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
 /**
  * This class represents the "ballerina pull" command.
  *
- * @since 0.964
+ * @since 2.0.0
  */
 @CommandLine.Command(name = PULL_COMMAND,
-                description = "download the module source and binaries from a remote repository")
+        description = "download the module source and binaries from a remote repository")
 public class PullCommand implements BLauncherCmd {
+    //module name format : <org-name>/<package-name> | <org-name>/<package-name>:<version>
+    //version format : 1, 1.*, 1.*.*
+    private static final String PKG_NAME_REGEX = "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+|" +
+            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+|" +
+            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+\\.[*\\d]+|" +
+            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+\\.[*\\d]+\\.[*\\d]+";
     private static PrintStream outStream = System.err;
 
-    @CommandLine.Parameters
-    private List<String> argList;
+    @CommandLine.Parameters private List<String> argList;
 
-    @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
-    private boolean helpFlag;
+    @CommandLine.Option(names = { "--help", "-h" }, hidden = true) private boolean helpFlag;
 
-    @CommandLine.Option(names = "--debug", hidden = true)
-    private String debugPort;
+    @CommandLine.Option(names = "--debug", hidden = true) private String debugPort;
 
     @Override
     public void execute() {
@@ -89,10 +87,8 @@ public class PullCommand implements BLauncherCmd {
         String version;
 
         if (!validPackageName(resourceName)) {
-            CommandUtil.printError(outStream,
-                    "invalid package name. Provide the package name with the org name ",
-                    "ballerina pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}",
-                    false);
+            CommandUtil.printError(outStream, "invalid package name. Provide the package name with the org name ",
+                    "ballerina pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}", false);
             Runtime.getRuntime().exit(1);
             return;
         }
@@ -112,28 +108,20 @@ public class PullCommand implements BLauncherCmd {
             version = Names.EMPTY.getValue();
         }
 
-        URI baseURI = URI.create(RepoUtils.getRemoteRepoURL());
-        String ballerinaHome = System.getProperty(ProjectDirConstants.BALLERINA_HOME);
-        Repo remoteRepo = new RemoteRepo(baseURI, new HashMap<>(), false, Paths.get(ballerinaHome));
-
-        PackageID moduleID = new PackageID(new Name(orgName), new Name(packageName), new Name(version));
-
-        Patten patten = remoteRepo.calculate(moduleID);
-        if (patten != Patten.NULL) {
-            Converter converter = remoteRepo.getConverterInstance();
-            List<CompilerInput> compilerInputs = patten.convertToSources(converter, moduleID)
-                                                       .collect(Collectors.toList());
-            if (compilerInputs.isEmpty()) {
-                // Exit status, zero for OK, non-zero for error
-                Runtime.getRuntime().exit(1);
-            }
-        } else {
-            outStream.println("couldn't find module " + patten);
-            // Exit status, zero for OK, non-zero for error
-            Runtime.getRuntime().exit(1);
+        Path packagePathInBaloCache = RepoUtils.createAndGetHomeReposPath()
+                .resolve(ProjectConstants.BALO_CACHE_DIR_NAME).resolve(orgName).resolve(packageName);
+        // create directory path in balo cache
+        try {
+            createDirectory(packagePathInBaloCache);
+        } catch (IOException e) {
+            throw createLauncherException(
+                    "unexpected error occurred while creating package repository in balo cache: " + e.getMessage());
         }
-        // Exit status, zero for OK, non-zero for error
-        Runtime.getRuntime().exit(0);
+
+        for (String supportedPlatform : SUPPORTED_PLATFORMS) {
+            CentralAPIClient client = new CentralAPIClient();
+            client.pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform, false);
+        }
     }
 
     @Override
@@ -153,6 +141,7 @@ public class PullCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
+        throw new UnsupportedOperationException();
     }
 
     private String getPullCommandRegex() {
