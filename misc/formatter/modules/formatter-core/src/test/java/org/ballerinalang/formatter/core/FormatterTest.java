@@ -81,7 +81,7 @@ public abstract class FormatterTest {
         if (!syntaxTree.hasDiagnostics()) {
             try {
                 SyntaxTree newSyntaxTree = Formatter.format(syntaxTree);
-                Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(filePath));
+                Assert.assertEquals(newSyntaxTree.toSourceCode(), content);
             } catch (FormatterException e) {
                 // TODO: handle the test cases causing formatting exceptions
 //                Assert.fail(e.getMessage(), e);
