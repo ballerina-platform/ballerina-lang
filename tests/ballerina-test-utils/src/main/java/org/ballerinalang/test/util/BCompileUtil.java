@@ -80,7 +80,9 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.JAR_CACHE
  * Utility methods for compile Ballerina files.
  *
  * @since 0.94
+ * @deprecated use {@link org.ballerinalang.test.BCompileUtil} instead.
  */
+@Deprecated
 public class BCompileUtil {
 
     //TODO find a way to remove below line.
