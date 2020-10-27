@@ -141,6 +141,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "byte",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "map",
       "kind": "Unit",
       "detail": "type ",
@@ -591,6 +598,27 @@
           "newText": "import ballerina/lang.'int;\n"
         }
       ]
+    },
+    {
+      "label": "isolated",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "isolated ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "service",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "client",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "client ",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "type <ErrorName> error<?>",

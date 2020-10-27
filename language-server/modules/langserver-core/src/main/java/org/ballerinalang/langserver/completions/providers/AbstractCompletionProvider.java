@@ -501,7 +501,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     
     private List<LSCompletionItem> getBasicAndOtherTypeCompletions(LSContext context) {
         List<String> types = Arrays.asList("float", "xml", "readonly", "handle", "never", "decimal", "string", "stream",
-                "json", "table", "anydata", "any", "int", "boolean", "future", "service", "typedesc");
+                "json", "table", "anydata", "any", "int", "boolean", "future", "service", "typedesc", "byte");
         List<LSCompletionItem> completionItems = new ArrayList<>();
         types.forEach(type -> {
 
