@@ -63,34 +63,13 @@ public class BCompileUtil {
         Path jarFilePath = jarEmitPath(currentPackage);
         packageCompilation.emit(PackageCompilation.OutputType.JAR, jarFilePath);
 
-        CompileResult compileResult = new CompileResult(currentPackage, jarFilePath);
-        invokeModuleInit(compileResult);
-        return compileResult;
-    }
+        if (!(isSingleFileProject(project))) {
+            Path birEmitPath = birEmitPath(currentPackage);
+            packageCompilation.emit(PackageCompilation.OutputType.BIR, birEmitPath);
 
-    public static CompileResult compileAndEmitBalo(String sourceFilePath) {
-        Path sourcePath = Paths.get(sourceFilePath);
-        String sourceFileName = sourcePath.getFileName().toString();
-        Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
-
-        Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
-        Project project = ProjectLoader.loadProject(projectPath);
-
-        Package currentPackage = project.currentPackage();
-        PackageCompilation packageCompilation = currentPackage.getCompilation();
-
-        if (packageCompilation.diagnostics().size() > 0) {
-            return new CompileResult(currentPackage);
+            Path baloEmitPath = baloEmitPath(currentPackage);
+            packageCompilation.emit(PackageCompilation.OutputType.BALO, baloEmitPath);
         }
-
-        Path jarFilePath = jarEmitPath(currentPackage);
-        packageCompilation.emit(PackageCompilation.OutputType.JAR, jarFilePath);
-
-        Path birEmitPath = birEmitPath(currentPackage);
-        packageCompilation.emit(PackageCompilation.OutputType.BIR, birEmitPath);
-
-        Path baloEmitPath = baloEmitPath(currentPackage);
-        packageCompilation.emit(PackageCompilation.OutputType.BALO, baloEmitPath);
 
         CompileResult compileResult = new CompileResult(currentPackage, jarFilePath);
         invokeModuleInit(compileResult);
@@ -115,7 +94,7 @@ public class BCompileUtil {
             Path jarCache = cache.resolve("jar");
             Files.createDirectories(jarCache);
 
-            if (!(pkg.project() instanceof SingleFileProject)) {
+            if (!isSingleFileProject(pkg.project())) {
                 return jarCache;
             }
 
@@ -130,6 +109,10 @@ public class BCompileUtil {
         } catch (IOException e) {
             throw new RuntimeException("error while creating the jar cache directory at " + testBuildDirectory, e);
         }
+    }
+
+    private static boolean isSingleFileProject(Project project) {
+        return project instanceof SingleFileProject;
     }
 
     private static Path birEmitPath(Package pkg) {
