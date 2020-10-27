@@ -32,16 +32,6 @@ public class FunctionBodyTest extends CompletionTestNew {
     }
 
     @Override
-    public Object[][] testSubset() {
-         // Enable the following in order to test a subset of test cases
-//          return new Object[][] {
-//                  {"config1.json", this.getTestResourceDir()},
-//                  {"config2.json", this.getTestResourceDir()},
-//          };
-        return new Object[0][];
-    }
-
-    @Override
     public String getTestResourceDir() {
         return "function_body";
     }

@@ -500,13 +500,7 @@
                           "kind": "INTERPOLATION",
                           "children": [
                             {
-                              "kind": "INTERPOLATION_START_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "INTERPOLATION_START_TOKEN"
                             },
                             {
                               "kind": "STRING_TEMPLATE_EXPRESSION",
@@ -534,13 +528,7 @@
                                       "kind": "INTERPOLATION",
                                       "children": [
                                         {
-                                          "kind": "INTERPOLATION_START_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
+                                          "kind": "INTERPOLATION_START_TOKEN"
                                         },
                                         {
                                           "kind": "STRING_TEMPLATE_EXPRESSION",
@@ -603,13 +591,7 @@
                                               ]
                                             },
                                             {
-                                              "kind": "BACKTICK_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
+                                              "kind": "BACKTICK_TOKEN"
                                             }
                                           ]
                                         },
@@ -625,13 +607,7 @@
                                   ]
                                 },
                                 {
-                                  "kind": "BACKTICK_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "kind": "BACKTICK_TOKEN"
                                 }
                               ]
                             },

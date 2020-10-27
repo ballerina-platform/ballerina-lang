@@ -707,7 +707,6 @@ public class TypeParamAnalyzer {
         BObjectType objectType = new BObjectType(actObjectSymbol);
         actObjectSymbol.type = objectType;
         actObjectSymbol.scope = new Scope(actObjectSymbol);
-        actObjectSymbol.methodScope = new Scope(actObjectSymbol);
 
         for (BField expField : expType.fields.values()) {
             BField field = new BField(expField.name, expField.pos,
@@ -730,7 +729,7 @@ public class TypeParamAnalyzer {
             actObjectSymbol.attachedFuncs.add(duplicateAttachFunc(expFunc, matchType, invokableSymbol));
             String funcName = Symbols.getAttachedFuncSymbolName(actObjectSymbol.type.tsymbol.name.value,
                     expFunc.funcName.value);
-            actObjectSymbol.methodScope.define(names.fromString(funcName), invokableSymbol);
+            actObjectSymbol.scope.define(names.fromString(funcName), invokableSymbol);
         }
 
         return objectType;

@@ -49,6 +49,8 @@ public enum TypeDescKind {
     JSON("json"),
     XML("xml"),
     HANDLE("handle"),
+    TABLE("table"),
+    SINGLETON("singleton"),
     NEVER("never");
     
     

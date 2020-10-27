@@ -411,7 +411,13 @@
                                   "kind": "MAPPING_CONSTRUCTOR",
                                   "children": [
                                     {
-                                      "kind": "OPEN_BRACE_TOKEN"
+                                      "kind": "OPEN_BRACE_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "LIST",
@@ -421,7 +427,13 @@
                                           "children": [
                                             {
                                               "kind": "IDENTIFIER_TOKEN",
-                                              "value": "firstName"
+                                              "value": "firstName",
+                                              "leadingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": "                    "
+                                                }
+                                              ]
                                             },
                                             {
                                               "kind": "COLON_TOKEN",
@@ -464,8 +476,8 @@
                                           "kind": "COMMA_TOKEN",
                                           "trailingMinutiae": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "END_OF_LINE_MINUTIAE",
+                                              "value": "\n"
                                             }
                                           ]
                                         },
@@ -474,7 +486,13 @@
                                           "children": [
                                             {
                                               "kind": "IDENTIFIER_TOKEN",
-                                              "value": "lastName"
+                                              "value": "lastName",
+                                              "leadingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": "                    "
+                                                }
+                                              ]
                                             },
                                             {
                                               "kind": "COLON_TOKEN",
@@ -505,7 +523,13 @@
                                                   "children": [
                                                     {
                                                       "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "lastName"
+                                                      "value": "lastName",
+                                                      "trailingMinutiae": [
+                                                        {
+                                                          "kind": "END_OF_LINE_MINUTIAE",
+                                                          "value": "\n"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -516,7 +540,13 @@
                                       ]
                                     },
                                     {
-                                      "kind": "CLOSE_BRACE_TOKEN"
+                                      "kind": "CLOSE_BRACE_TOKEN",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": "                "
+                                        }
+                                      ]
                                     }
                                   ]
                                 },

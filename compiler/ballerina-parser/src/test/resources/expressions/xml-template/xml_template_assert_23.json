@@ -1651,13 +1651,7 @@
                                                   "kind": "INTERPOLATION",
                                                   "children": [
                                                     {
-                                                      "kind": "INTERPOLATION_START_TOKEN",
-                                                      "trailingMinutiae": [
-                                                        {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": " "
-                                                        }
-                                                      ]
+                                                      "kind": "INTERPOLATION_START_TOKEN"
                                                     },
                                                     {
                                                       "kind": "BINARY_EXPRESSION",
@@ -1734,13 +1728,7 @@
                                               ]
                                             },
                                             {
-                                              "kind": "DOUBLE_QUOTE_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
+                                              "kind": "DOUBLE_QUOTE_TOKEN"
                                             }
                                           ]
                                         }
@@ -1943,13 +1931,7 @@
                                                   "kind": "INTERPOLATION",
                                                   "children": [
                                                     {
-                                                      "kind": "INTERPOLATION_START_TOKEN",
-                                                      "trailingMinutiae": [
-                                                        {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": " "
-                                                        }
-                                                      ]
+                                                      "kind": "INTERPOLATION_START_TOKEN"
                                                     },
                                                     {
                                                       "kind": "BINARY_EXPRESSION",
@@ -2026,13 +2008,7 @@
                                               ]
                                             },
                                             {
-                                              "kind": "DOUBLE_QUOTE_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
+                                              "kind": "DOUBLE_QUOTE_TOKEN"
                                             }
                                           ]
                                         }

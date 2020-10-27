@@ -1280,7 +1280,6 @@ public class BIRPackageSymbolEnter {
                                                                                 env.pkgSymbol, symTable.builtinPos,
                                                                                 COMPILED_SOURCE);
                     objectSymbol.scope = new Scope(objectSymbol);
-                    objectSymbol.methodScope = new Scope(objectSymbol);
                     BObjectType objectType;
                     // Below is a temporary fix, need to fix this properly by using the type tag
                     objectType = new BObjectType(objectSymbol);

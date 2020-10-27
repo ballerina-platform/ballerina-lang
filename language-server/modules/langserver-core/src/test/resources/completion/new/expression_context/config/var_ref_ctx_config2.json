@@ -6,30 +6,36 @@
   "source": "expression_context/source/var_ref_ctx_source2.bal",
   "items": [
     {
+      "label": "TEST_INT_CONST1",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "insertText": "TEST_INT_CONST1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TEST_STRING_CONST1",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "insertText": "TEST_STRING_CONST1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "AnnotationType",
       "kind": "Struct",
       "detail": "Record",
       "insertText": "AnnotationType",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Client",
-      "kind": "Interface",
-      "detail": "Object",
-      "documentation": {
-        "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
-      },
-      "insertText": "Client",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Response",
-      "kind": "Interface",
-      "detail": "Object",
-      "documentation": {
-        "left": "Represents a response.\n"
-      },
-      "insertText": "Response",
       "insertTextFormat": "Snippet"
     },
     {
@@ -50,13 +56,6 @@
         "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
       },
       "insertText": "RequestMessage",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Listener",
-      "kind": "Interface",
-      "detail": "Object",
-      "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
     {
@@ -88,6 +87,33 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Client",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
+      },
+      "insertText": "Client",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Response",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a response.\n"
+      },
+      "insertText": "Response",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Listener",
+      "kind": "Interface",
+      "detail": "Object",
+      "insertText": "Listener",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TestObject1",
       "kind": "Interface",
       "detail": "Object",
@@ -101,7 +127,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
       "insertText": "function1();",
@@ -114,7 +140,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
       "insertText": "function2();",
@@ -127,7 +153,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n  \n**Returns** `()`   \n  \n"
         }
       },
       "insertText": "function3(${1});",
@@ -144,7 +170,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n  \n**Returns** `()`   \n  \n"
         }
       },
       "insertText": "function4(${1});",

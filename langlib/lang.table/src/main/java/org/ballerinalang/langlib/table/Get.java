@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.values.TableValueImpl;
+import io.ballerina.runtime.api.values.BTable;
 
 /**
  * Native implementation of lang.table:get(table&lt;Type&gt;, KeyType).
@@ -33,7 +33,7 @@ import org.ballerinalang.jvm.values.TableValueImpl;
 //)
 public class Get {
 
-    public static Object get(TableValueImpl tbl, Object key) {
+    public static Object get(BTable tbl, Object key) {
         return tbl.getOrThrow(key);
     }
 }

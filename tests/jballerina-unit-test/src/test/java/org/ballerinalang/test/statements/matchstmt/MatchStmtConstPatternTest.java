@@ -100,6 +100,11 @@ public class MatchStmtConstPatternTest {
         BRunUtil.invoke(result, "testConstPattern12");
     }
 
+    @Test
+    public void testConstPattern13() {
+        BRunUtil.invoke(result, "testConstPattern13");
+    }
+
     @Test(description = "Test pattern will not be matched")
     public void testConstPatternNegative() {
         Assert.assertEquals(resultNegative.getErrorCount(), 28);

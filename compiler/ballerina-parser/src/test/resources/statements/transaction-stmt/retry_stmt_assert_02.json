@@ -80,7 +80,13 @@
                   "kind": "TRANSACTION_STATEMENT",
                   "children": [
                     {
-                      "kind": "TRANSACTION_KEYWORD"
+                      "kind": "TRANSACTION_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     },
                     {
                       "kind": "BLOCK_STATEMENT",
@@ -125,10 +131,6 @@
                 {
                   "kind": "RETRY_KEYWORD",
                   "leadingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    },
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
                       "value": "\n"
@@ -169,7 +171,13 @@
                   "kind": "TRANSACTION_STATEMENT",
                   "children": [
                     {
-                      "kind": "TRANSACTION_KEYWORD"
+                      "kind": "TRANSACTION_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     },
                     {
                       "kind": "BLOCK_STATEMENT",
@@ -214,10 +222,6 @@
                 {
                   "kind": "RETRY_KEYWORD",
                   "leadingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    },
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
                       "value": "\n"
@@ -291,7 +295,13 @@
                   "kind": "TRANSACTION_STATEMENT",
                   "children": [
                     {
-                      "kind": "TRANSACTION_KEYWORD"
+                      "kind": "TRANSACTION_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     },
                     {
                       "kind": "BLOCK_STATEMENT",
@@ -336,10 +346,6 @@
                 {
                   "kind": "RETRY_KEYWORD",
                   "leadingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    },
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
                       "value": "\n"
@@ -439,7 +445,13 @@
                   "kind": "TRANSACTION_STATEMENT",
                   "children": [
                     {
-                      "kind": "TRANSACTION_KEYWORD"
+                      "kind": "TRANSACTION_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     },
                     {
                       "kind": "BLOCK_STATEMENT",

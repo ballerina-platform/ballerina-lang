@@ -10,5 +10,4 @@ class Foo {
 
     remote function get() {
     }
-
 }

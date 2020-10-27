@@ -102,7 +102,13 @@
                                   ]
                                 },
                                 {
-                                  "kind": "COLON_TOKEN"
+                                  "kind": "COLON_TOKEN",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -155,7 +161,13 @@
                           ]
                         },
                         {
-                          "kind": "COMMA_TOKEN"
+                          "kind": "COMMA_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         },
                         {
                           "kind": "POSITIONAL_ARG",

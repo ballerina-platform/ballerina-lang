@@ -50,7 +50,7 @@ public class NodeTransformerTest extends AbstractSyntaxTreeAPITest {
         TokenWrapper deepestToken = syntaxTree.rootNode().apply(deepestTokenFinder);
 
         Assert.assertEquals(deepestToken.depth, 11);
-        Assert.assertEquals(deepestToken.token.toString(), "a");
+        Assert.assertEquals(deepestToken.token.toString(), "a ");
     }
 
     /**
