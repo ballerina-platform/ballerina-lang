@@ -48,8 +48,8 @@ public class BuildProjectEnvContext extends ProjectEnvironmentContext {
         DistributionPackageCache distCache = buildEnvContext.getService(DistributionPackageCache.class);
         services.put(PackageResolver.class, new DefaultPackageResolver(project, distCache, globalPackageCache));
         // services.put(ProjectJarResolver.class, new ProjectJarResolver(project, globalPackageCache));
-        buildEnvContext.compilerContext()
-            .put(JarResolver.JAR_RESOLVER_KEY, new ProjectJarResolver(project, globalPackageCache));
+//        buildEnvContext.compilerContext()
+//            .put(JarResolver.JAR_RESOLVER_KEY, new ProjectJarResolver(project, globalPackageCache));
     }
 
     @SuppressWarnings("unchecked")
