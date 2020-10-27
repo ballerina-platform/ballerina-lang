@@ -30,6 +30,8 @@ import io.ballerina.runtime.types.BServiceType;
 import io.ballerina.runtime.values.FPValue;
 import io.ballerina.runtime.values.MapValue;
 
+import java.util.Arrays;
+
 /**
  * Utility methods related to annotation loading.
  *
@@ -58,13 +60,31 @@ public class AnnotationUtils {
             return;
         }
         BObjectType objectType = (BObjectType) type;
-        for (AttachedFunctionType attachedFunction : objectType.getAttachedFunctions()) {
+        if (objectType == null) {
+            return;
+        }
+        var attachedFunctions = objectType.getAttachedFunctions();
+        if (attachedFunctions == null) {
+            return;
+        }
+        for (int i = 0; i < attachedFunctions.length; i++) {
+            var attachedFunction = attachedFunctions[i];
+            if (attachedFunction == null) {
+                continue;
+            }
             annotationKey = StringUtils.fromString(attachedFunction.getAnnotationKey());
             if (globalAnnotMap.containsKey(annotationKey)) {
                 ((AttachedFunction) attachedFunction).setAnnotations((MapValue<BString, Object>)
-                                                                             globalAnnotMap.get(annotationKey));
+                        globalAnnotMap.get(annotationKey));
             }
         }
+//        for (AttachedFunctionType attachedFunction : objectType.getAttachedFunctions()) {
+//            annotationKey = StringUtils.fromString(attachedFunction.getAnnotationKey());
+//            if (globalAnnotMap.containsKey(annotationKey)) {
+//                ((AttachedFunction) attachedFunction).setAnnotations((MapValue<BString, Object>)
+//                                                                             globalAnnotMap.get(annotationKey));
+//            }
+//        }
     }
 
     public static void processServiceAnnotations(MapValue globalAnnotMap, BServiceType bType, Strand strand) {

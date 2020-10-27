@@ -4213,7 +4213,7 @@ public class Desugar extends BLangNodeVisitor {
                 break;
         }
 
-//        fixTypeCastInTypeParamInvocation(invocation, invRef);
+        fixTypeCastInTypeParamInvocation(invocation, invRef);
     }
 
     private void fixNonRestArgTypeCastInTypeParamInvocation(BLangInvocation iExpr) {
@@ -4232,10 +4232,17 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void fixTypeCastInTypeParamInvocation(BLangInvocation iExpr, BLangInvocation genIExpr) {
-
-        if (iExpr.langLibInvocation || TypeParamAnalyzer.containsTypeParam(((BInvokableSymbol) iExpr.symbol).retType)) {
+        var returnTypeOfInvokable = ((BInvokableSymbol) iExpr.symbol).retType;
+        if (iExpr.langLibInvocation || TypeParamAnalyzer.containsTypeParam(returnTypeOfInvokable)) { // false in master
+//            if (genIExpr.type != null && genIExpr.expectedType != null && types.isSameType(genIExpr.type,
+//                    genIExpr.expectedType)) {
+//                return;
+//            }
+            // why we dont consider whole action invocation
             BType originalInvType = genIExpr.type;
-            genIExpr.type = ((BInvokableSymbol) genIExpr.symbol).retType;
+            if (!genIExpr.async) {
+                genIExpr.type = returnTypeOfInvokable;
+            }
             BLangExpression expr = addConversionExprIfRequired(genIExpr, originalInvType);
 
             // Prevent adding another type conversion
