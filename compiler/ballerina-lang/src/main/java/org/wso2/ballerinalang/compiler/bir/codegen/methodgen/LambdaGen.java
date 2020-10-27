@@ -1,4 +1,22 @@
-package org.wso2.ballerinalang.compiler.bir.codegen;
+/*
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+
+package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
 import io.ballerina.runtime.IdentifierUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
@@ -7,7 +25,12 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
+import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
@@ -54,19 +77,19 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
  *
  * @since 2.0.0
  */
-public class JvmLambdaGen {
+public class LambdaGen {
 
     private final SymbolTable symbolTable;
     private final JvmPackageGen jvmPackageGen;
 
-    public JvmLambdaGen(JvmPackageGen jvmPackageGen) {
+    public LambdaGen(JvmPackageGen jvmPackageGen) {
         this.jvmPackageGen = jvmPackageGen;
         this.symbolTable = jvmPackageGen.symbolTable;
     }
 
-    void generateLambdaMethod(BIRInstruction ins, ClassWriter cw, String lambdaName) {
+    public void generateLambdaMethod(BIRInstruction ins, ClassWriter cw, String lambdaName) {
         LambdaDetails lambdaDetails = getLambdaDetails(ins);
-        MethodVisitor mv = getMethodVisitorAndLoadFirst(cw, lambdaName, lambdaDetails);
+        MethodVisitor mv = getMethodVisitorAndLoadFirst(cw, lambdaName, lambdaDetails, ins);
 
         List<BType> paramBTypes = new ArrayList<>();
         if (ins.getKind() == InstructionKind.ASYNC_CALL) {
@@ -74,7 +97,7 @@ public class JvmLambdaGen {
         } else {
             handleFpLambda((BIRNonTerminator.FPLoad) ins, lambdaDetails, mv, paramBTypes);
         }
-        JvmMethodGenUtils.visitReturn(mv);
+        MethodGenUtils.visitReturn(mv);
     }
 
     private void genNonVirtual(LambdaDetails lambdaDetails, MethodVisitor mv, List<BType> paramBTypes) {
@@ -242,7 +265,7 @@ public class JvmLambdaGen {
     }
 
     private MethodVisitor getMethodVisitorAndLoadFirst(ClassWriter cw, String lambdaName,
-                                                       LambdaDetails lambdaDetails) {
+                                                       LambdaDetails lambdaDetails, BIRInstruction ins) {
         String closureMapsDesc = getMapValueDesc(lambdaDetails.closureMapsCount);
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC,
                                           JvmCodeGenUtil.cleanupFunctionName(lambdaName),
@@ -250,6 +273,8 @@ public class JvmLambdaGen {
                                                         JvmConstants.OBJECT), null, null);
 
         mv.visitCode();
+         // generate diagnostic position when generating lambda method
+        JvmCodeGenUtil.generateDiagnosticPos(((BIRAbstractInstruction) ins).pos, mv);
         // load strand as first arg
         // strand and other args are in a object[] param. This param comes after closure maps.
         // hence the closureMapsCount is equal to the array's param index.

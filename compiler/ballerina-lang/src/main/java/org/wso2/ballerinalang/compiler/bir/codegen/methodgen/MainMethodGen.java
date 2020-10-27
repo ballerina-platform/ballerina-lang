@@ -16,12 +16,16 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen;
+package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -63,15 +67,15 @@ import static org.objectweb.asm.Opcodes.RETURN;
  *
  * @since 2.0.0
  */
-public class JvmMainMethodGen {
+public class MainMethodGen {
 
     private final SymbolTable symbolTable;
 
-    public JvmMainMethodGen(SymbolTable symbolTable) {
+    public MainMethodGen(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
     }
 
-    void generateMainMethod(BIRNode.BIRFunction userMainFunc, ClassWriter cw, BIRNode.BIRPackage pkg,
+    public void generateMainMethod(BIRNode.BIRFunction userMainFunc, ClassWriter cw, BIRNode.BIRPackage pkg,
                             String initClass, boolean serviceEPAvailable, AsyncDataCollector asyncDataCollector) {
 
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null,
@@ -103,16 +107,16 @@ public class JvmMainMethodGen {
 
         int schedulerVarIndex = getSchedulerVarIndex(mv, indexMap);
 
-        if (JvmMethodGenUtils.hasInitFunction(pkg)) {
+        if (MethodGenUtils.hasInitFunction(pkg)) {
             generateMethodCall(initClass, asyncDataCollector, mv, indexMap, schedulerVarIndex, JvmConstants.MODULE_INIT,
-                               JvmMethodGenUtils.INIT_FUNCTION_SUFFIX, "initdummy");
+                               MethodGenUtils.INIT_FUNCTION_SUFFIX, "initdummy");
         }
 
         if (userMainFunc != null) {
             generateUserMainFunctionCall(userMainFunc, initClass, asyncDataCollector, mv, indexMap, schedulerVarIndex);
         }
 
-        if (JvmMethodGenUtils.hasInitFunction(pkg)) {
+        if (MethodGenUtils.hasInitFunction(pkg)) {
             scheduleStartMethod(mv, initClass, serviceEPAvailable, indexMap, schedulerVarIndex,
                                 asyncDataCollector);
         }
@@ -206,7 +210,7 @@ public class JvmMainMethodGen {
     private void generateMethodCall(String initClass, AsyncDataCollector asyncDataCollector, MethodVisitor mv,
                                     BIRVarToJVMIndexMap indexMap, int schedulerVarIndex, String moduleInit,
                                     String funcName, String dummy) {
-        JvmMethodGenUtils.genArgs(mv, schedulerVarIndex);
+        MethodGenUtils.genArgs(mv, schedulerVarIndex);
         genSubmitToScheduler(initClass, asyncDataCollector, mv, String.format("$lambda$%s$", moduleInit),
                              funcName);
         genReturn(mv, indexMap, dummy);
@@ -326,7 +330,7 @@ public class JvmMainMethodGen {
         //submit to the scheduler
         BType anyType = symbolTable.anyType;
         JvmTypeGen.loadType(mv, anyType);
-        JvmMethodGenUtils.submitToScheduler(mv, initClass, funcName, asyncDataCollector);
+        MethodGenUtils.submitToScheduler(mv, initClass, funcName, asyncDataCollector);
         mv.visitInsn(DUP);
 
         mv.visitInsn(DUP);
@@ -334,7 +338,7 @@ public class JvmMainMethodGen {
                           String.format("L%s;", JvmConstants.STRAND_CLASS));
         mv.visitIntInsn(BIPUSH, 100);
         mv.visitTypeInsn(ANEWARRAY, JvmConstants.OBJECT);
-        mv.visitFieldInsn(PUTFIELD, JvmConstants.STRAND_CLASS, JvmMethodGenUtils.FRAMES,
+        mv.visitFieldInsn(PUTFIELD, JvmConstants.STRAND_CLASS, MethodGenUtils.FRAMES,
                           String.format("[L%s;", JvmConstants.OBJECT));
         handleErrorFromFutureValue(mv);
     }
@@ -373,7 +377,7 @@ public class JvmMainMethodGen {
      * @param cw           class visitor
      * @param mainClass    main class that contains the user main
      */
-    void generateLambdaForMain(BIRNode.BIRFunction userMainFunc, ClassWriter cw, String mainClass) {
+    public void generateLambdaForMain(BIRNode.BIRFunction userMainFunc, ClassWriter cw, String mainClass) {
 
         BType returnType = userMainFunc.type.retType;
 
@@ -403,6 +407,6 @@ public class JvmMainMethodGen {
         mv.visitMethodInsn(INVOKESTATIC, mainClass, userMainFunc.name.value,
                            JvmCodeGenUtil.getMethodDesc(paramTypes, returnType), false);
         JvmCastGen.addBoxInsn(mv, returnType);
-        JvmMethodGenUtils.visitReturn(mv);
+        MethodGenUtils.visitReturn(mv);
     }
 }

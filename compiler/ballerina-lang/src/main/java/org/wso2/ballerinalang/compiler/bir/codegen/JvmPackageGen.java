@@ -33,6 +33,12 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInteropException;
+import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.FrameClassGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.LambdaGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MainMethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.ModuleStopMethodGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -122,11 +128,12 @@ public class JvmPackageGen {
 
     public final SymbolTable symbolTable;
     public final PackageCache packageCache;
-    private final JvmMethodGen jvmMethodGen;
-    private final JvmStopMethodGen jvmStopMethodGen;
-    private final JvmInitsGen jvmInitsGen;
-    private final JvmMainMethodGen jvmMainMethodGen;
-    private final JvmLambdaGen jvmLambdaGen;
+    private final MethodGen methodGen;
+    private final ModuleStopMethodGen moduleStopMethodGen;
+    private final FrameClassGen frameClassGen;
+    private final InitMethodGen initMethodGen;
+    private final MainMethodGen mainMethodGen;
+    private final LambdaGen lambdaGen;
     private final Map<String, BIRFunctionWrapper> birFunctionMap;
     private final Map<String, String> externClassMap;
     private final Map<String, String> globalVarClassMap;
@@ -141,11 +148,12 @@ public class JvmPackageGen {
         this.symbolTable = symbolTable;
         this.packageCache = packageCache;
         this.dlog = dlog;
-        jvmMethodGen = new JvmMethodGen(this);
-        jvmInitsGen = new JvmInitsGen(symbolTable);
-        jvmMainMethodGen = new JvmMainMethodGen(symbolTable);
-        jvmLambdaGen = new JvmLambdaGen(this);
-        jvmStopMethodGen = new JvmStopMethodGen(symbolTable);
+        methodGen = new MethodGen(this);
+        initMethodGen = new InitMethodGen(symbolTable);
+        mainMethodGen = new MainMethodGen(symbolTable);
+        lambdaGen = new LambdaGen(this);
+        moduleStopMethodGen = new ModuleStopMethodGen(symbolTable);
+        frameClassGen = new FrameClassGen();
         typeBuilder = new ResolvedTypeBuilder();
 
         JvmCastGen.symbolTable = symbolTable;
@@ -424,14 +432,14 @@ public class JvmPackageGen {
         final Map<String, byte[]> jarEntries = new ConcurrentHashMap<>();
 
         // desugar parameter initialization
-        injectDefaultParamInits(module, jvmInitsGen, this);
-        injectDefaultParamInitsToAttachedFuncs(module, jvmInitsGen, this);
+        injectDefaultParamInits(module, initMethodGen, this);
+        injectDefaultParamInitsToAttachedFuncs(module, initMethodGen, this);
 
         // create imported modules flat list
         List<PackageID> flattenedModuleImports = flattenModuleImports(moduleImports);
 
         // enrich current package with package initializers
-        jvmInitsGen.enrichPkgWithInitializers(jvmClassMapping, moduleInitClass, module, flattenedModuleImports);
+        initMethodGen.enrichPkgWithInitializers(jvmClassMapping, moduleInitClass, module, flattenedModuleImports);
 
         // generate the shutdown listener class.
         generateShutdownSignalListener(moduleInitClass, jarEntries);
@@ -440,11 +448,11 @@ public class JvmPackageGen {
         rewriteRecordInits(module.typeDefs);
 
         // generate object/record value classes
-        JvmValueGen valueGen = new JvmValueGen(module, this, jvmMethodGen, jvmLambdaGen);
+        JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, lambdaGen);
         valueGen.generateValueClasses(jarEntries);
 
         // generate frame classes
-        jvmMethodGen.generateFrameClasses(module, jarEntries);
+        frameClassGen.generateFrameClasses(module, jarEntries);
 
         // generate module classes
         generateModuleClasses(module, jarEntries, moduleInitClass, jvmClassMapping, flattenedModuleImports);
@@ -458,7 +466,6 @@ public class JvmPackageGen {
 
     private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries, String moduleInitClass,
                                        Map<String, JavaClass> jvmClassMapping, List<PackageID> moduleImports) {
-
         jvmClassMapping.entrySet().parallelStream().forEach(entry -> {
             String moduleClass = entry.getKey();
             JavaClass javaClass = entry.getValue();
@@ -488,18 +495,18 @@ public class JvmPackageGen {
 
                 serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
 
-                jvmMainMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable,
-                                                    asyncDataCollector);
+                mainMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable,
+                                                 asyncDataCollector);
                 if (mainFunc != null) {
-                    jvmMainMethodGen.generateLambdaForMain(mainFunc, cw, mainClass);
+                    mainMethodGen.generateLambdaForMain(mainFunc, cw, mainClass);
                 }
-                jvmInitsGen.generateLambdaForPackageInits(cw, module, moduleClass, moduleImports);
+                initMethodGen.generateLambdaForPackageInits(cw, module, moduleClass, moduleImports);
 
                 generateLockForVariable(cw);
                 generateCreateTypesMethod(cw, module.typeDefs, moduleInitClass, symbolTable);
-                jvmInitsGen.generateModuleInitializer(cw, module, moduleInitClass);
-                jvmStopMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports,
-                                                             asyncDataCollector);
+                initMethodGen.generateModuleInitializer(cw, module, moduleInitClass);
+                moduleStopMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports,
+                                                                asyncDataCollector);
             } else {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
                 JvmCodeGenUtil.generateDefaultConstructor(cw, OBJECT);
@@ -507,14 +514,14 @@ public class JvmPackageGen {
             cw.visitSource(javaClass.sourceFileName, null);
             // generate methods
             for (BIRFunction func : javaClass.functions) {
-                jvmMethodGen.generateMethod(func, cw, module, null, moduleClass,
-                                            asyncDataCollector);
+                methodGen.generateMethod(func, cw, module, null, moduleClass,
+                                         asyncDataCollector);
             }
             // generate lambdas created during generating methods
             for (Map.Entry<String, BIRInstruction> lambda : asyncDataCollector.getLambdas().entrySet()) {
                 String name = lambda.getKey();
                 BIRInstruction call = lambda.getValue();
-                jvmLambdaGen.generateLambdaMethod(call, cw, name);
+                lambdaGen.generateLambdaMethod(call, cw, name);
             }
             JvmCodeGenUtil.visitStrandMetadataField(cw, asyncDataCollector);
             generateStaticInitializer(cw, moduleClass, module, isInitClass, serviceEPAvailable,
@@ -665,7 +672,7 @@ public class JvmPackageGen {
         String functionName = initFunc.name.value;
         JavaClass klass = new JavaClass(initFunc.pos.src.cUnitName);
         klass.functions.add(0, initFunc);
-        jvmInitsGen.addInitAndTypeInitInstructions(module, initFunc);
+        initMethodGen.addInitAndTypeInitInstructions(module, initFunc);
         jvmClassMap.put(initClass, klass);
         birFunctionMap.put(pkgName + functionName, getFunctionWrapper(initFunc, orgName, moduleName,
                 version, initClass));
@@ -810,8 +817,7 @@ public class JvmPackageGen {
         }
     }
 
-    String lookupGlobalVarClassName(String pkgName, String varName) {
-
+    public String lookupGlobalVarClassName(String pkgName, String varName) {
         String key = pkgName + varName;
         if (!globalVarClassMap.containsKey(key)) {
             return pkgName + MODULE_INIT_CLASS_NAME;

@@ -16,13 +16,15 @@
  *  under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen;
+package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -74,14 +76,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE
  *
  * @since 2.0.0
  */
-public class JvmStopMethodGen {
+public class ModuleStopMethodGen {
     private final SymbolTable symbolTable;
 
-    public JvmStopMethodGen(SymbolTable symbolTable) {
+    public ModuleStopMethodGen(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
     }
 
-    void generateExecutionStopMethod(ClassWriter cw, String initClass, BIRNode.BIRPackage module,
+    public void generateExecutionStopMethod(ClassWriter cw, String initClass, BIRNode.BIRPackage module,
                                      List<PackageID> imprtMods, AsyncDataCollector asyncDataCollector) {
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, MODULE_STOP, "()V", null, null);
         mv.visitCode();
@@ -104,10 +106,10 @@ public class JvmStopMethodGen {
         mv.visitVarInsn(ASTORE, schedulerIndex);
 
 
-        PackageID currentModId = JvmMethodGenUtils.packageToModuleId(module);
+        PackageID currentModId = MethodGenUtils.packageToModuleId(module);
         String moduleInitClass = getModuleInitClassName(currentModId);
-        String fullFuncName = JvmMethodGenUtils.calculateModuleSpecialFuncName(currentModId,
-                                                                               JvmMethodGenUtils.STOP_FUNCTION_SUFFIX);
+        String fullFuncName = MethodGenUtils.calculateModuleSpecialFuncName(currentModId,
+                                                                            MethodGenUtils.STOP_FUNCTION_SUFFIX);
 
         scheduleStopMethod(mv, initClass, JvmCodeGenUtil.cleanupFunctionName(fullFuncName), schedulerIndex,
                            futureIndex, moduleInitClass, asyncDataCollector);
@@ -115,7 +117,7 @@ public class JvmStopMethodGen {
         while (i >= 0) {
             PackageID id = imprtMods.get(i);
             i -= 1;
-            fullFuncName = JvmMethodGenUtils.calculateModuleSpecialFuncName(id, JvmMethodGenUtils.STOP_FUNCTION_SUFFIX);
+            fullFuncName = MethodGenUtils.calculateModuleSpecialFuncName(id, MethodGenUtils.STOP_FUNCTION_SUFFIX);
             moduleInitClass = getModuleInitClassName(id);
             scheduleStopMethod(mv, initClass, JvmCodeGenUtil.cleanupFunctionName(fullFuncName), schedulerIndex,
                                futureIndex, moduleInitClass, asyncDataCollector);
@@ -133,7 +135,7 @@ public class JvmStopMethodGen {
         mv.visitFieldInsn(GETSTATIC, moduleClass, MODULE_START_ATTEMPTED, "Z");
         Label labelIf = new Label();
         mv.visitJumpInsn(IFEQ, labelIf);
-        JvmMethodGenUtils.genArgs(mv, schedulerIndex);
+        MethodGenUtils.genArgs(mv, schedulerIndex);
 
         // create FP value
         String lambdaFuncName = "$lambda$" + stopFuncName;
@@ -142,7 +144,7 @@ public class JvmStopMethodGen {
         // no parent strand
         mv.visitInsn(ACONST_NULL);
         JvmTypeGen.loadType(mv, new BNilType());
-        JvmMethodGenUtils.submitToScheduler(mv, initClass, "stop", asyncDataCollector);
+        MethodGenUtils.submitToScheduler(mv, initClass, "stop", asyncDataCollector);
         mv.visitVarInsn(ASTORE, futureIndex);
 
         mv.visitVarInsn(ALOAD, futureIndex);
@@ -150,7 +152,7 @@ public class JvmStopMethodGen {
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, STRAND, String.format("L%s;", STRAND_CLASS));
         mv.visitIntInsn(BIPUSH, 100);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
-        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, JvmMethodGenUtils.FRAMES, String.format("[L%s;", OBJECT));
+        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, String.format("[L%s;", OBJECT));
 
         mv.visitVarInsn(ALOAD, futureIndex);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, STRAND, String.format("L%s;", STRAND_CLASS));

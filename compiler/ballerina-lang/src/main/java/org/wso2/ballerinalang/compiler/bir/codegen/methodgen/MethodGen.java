@@ -16,14 +16,20 @@
  *  under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen;
+package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmErrorGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.FunctionParamComparator;
@@ -55,14 +61,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.AALOAD;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
-import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ASTORE;
@@ -97,7 +100,6 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.SIPUSH;
-import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_MAP_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
@@ -129,20 +131,20 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
  *
  * @since 1.2.0
  */
-public class JvmMethodGen {
+public class MethodGen {
 
-    public static final String STATE = "state";
-    public static final String RESUME_INDEX = "resumeIndex";
+    private static final String STATE = "state";
+    private static final String RESUME_INDEX = "resumeIndex";
     private final JvmPackageGen jvmPackageGen;
     private final SymbolTable symbolTable;
 
-    JvmMethodGen(JvmPackageGen jvmPackageGen) {
+    public MethodGen(JvmPackageGen jvmPackageGen) {
         this.jvmPackageGen = jvmPackageGen;
         this.symbolTable = jvmPackageGen.symbolTable;
     }
 
-    void generateMethod(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule, BType attachedType,
-                        String moduleClassName, AsyncDataCollector asyncDataCollector) {
+    public void generateMethod(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule, BType attachedType,
+                               String moduleClassName, AsyncDataCollector asyncDataCollector) {
         if (JvmCodeGenUtil.isExternFunc(birFunc)) {
             ExternalMethodGen.genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, this, jvmPackageGen,
                                                          moduleClassName, asyncDataCollector);
@@ -225,7 +227,8 @@ public class JvmMethodGen {
                             stateVarIndex, localVarOffset, module, attachedType,
                             moduleClassName, asyncDataCollector);
         mv.visitLabel(resumeLabel);
-        String frameName = getFrameClassName(JvmCodeGenUtil.getPackageName(module), funcName, attachedType);
+        String frameName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(module), funcName,
+                                                            attachedType);
         genGetFrameOnResumeIndex(localVarOffset, mv, frameName);
 
         generateFrameClassFieldLoad(func.localVars, mv, indexMap, frameName);
@@ -439,7 +442,7 @@ public class JvmMethodGen {
         return ints;
     }
 
-    public void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen,
+    void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen,
                                     JvmInstructionGen instGen, JvmTerminatorGen termGen, BIRFunction func,
                                     int returnVarRefIndex, int stateVarIndex, int localVarOffset, BIRPackage module,
                                     BType attachedType, String moduleClassName, AsyncDataCollector asyncDataCollector) {
@@ -493,7 +496,7 @@ public class JvmMethodGen {
     private void processTerminator(MethodVisitor mv, BIRFunction func, BIRPackage module, String funcName,
                                    BIRTerminator terminator) {
         JvmCodeGenUtil.generateDiagnosticPos(terminator.pos, mv);
-        if ((JvmMethodGenUtils.isModuleInitFunction(module, func) || isModuleTestInitFunction(module, func)) &&
+        if ((MethodGenUtils.isModuleInitFunction(module, func) || isModuleTestInitFunction(module, func)) &&
                 terminator instanceof Return) {
             generateAnnotLoad(mv, module.typeDefs, JvmCodeGenUtil.getPackageName(module));
         }
@@ -508,8 +511,8 @@ public class JvmMethodGen {
 
     private boolean isModuleTestInitFunction(BIRPackage module, BIRFunction func) {
         return func.name.value.equals(
-                JvmMethodGenUtils
-                        .calculateModuleSpecialFuncName(JvmMethodGenUtils.packageToModuleId(module), "<testinit>"));
+                MethodGenUtils
+                        .calculateModuleSpecialFuncName(MethodGenUtils.packageToModuleId(module), "<testinit>"));
     }
 
     private void generateAnnotLoad(MethodVisitor mv, List<BIRTypeDefinition> typeDefs, String pkgName) {
@@ -545,13 +548,13 @@ public class JvmMethodGen {
 
     private boolean isModuleStartFunction(BIRPackage module, String functionName) {
         return functionName.equals(JvmCodeGenUtil.cleanupFunctionName(
-                JvmMethodGenUtils.calculateModuleSpecialFuncName(JvmMethodGenUtils.packageToModuleId(module),
-                                                                 JvmMethodGenUtils.START_FUNCTION_SUFFIX)));
+                MethodGenUtils.calculateModuleSpecialFuncName(MethodGenUtils.packageToModuleId(module),
+                                                              MethodGenUtils.START_FUNCTION_SUFFIX)));
     }
 
     private void genGetFrameOnResumeIndex(int localVarOffset, MethodVisitor mv, String frameName) {
         mv.visitVarInsn(ALOAD, localVarOffset);
-        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, JvmMethodGenUtils.FRAMES, "[Ljava/lang/Object;");
+        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, "[Ljava/lang/Object;");
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitInsn(DUP);
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, RESUME_INDEX, "I");
@@ -895,7 +898,7 @@ public class JvmMethodGen {
         int frameVarIndex = indexMap.addToMapIfNotFoundAndGetIndex(frameVar);
         mv.visitVarInsn(ASTORE, frameVarIndex);
         mv.visitVarInsn(ALOAD, localVarOffset);
-        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, JvmMethodGenUtils.FRAMES, "[Ljava/lang/Object;");
+        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, "[Ljava/lang/Object;");
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitInsn(DUP);
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, RESUME_INDEX, "I");
@@ -1027,75 +1030,5 @@ public class JvmMethodGen {
         }
 
         return jvmType;
-    }
-
-    void generateFrameClasses(BIRPackage pkg, Map<String, byte[]> pkgEntries) {
-
-        pkg.functions.parallelStream().forEach(func -> generateFrameClassForFunction(pkg, func, pkgEntries, null));
-
-        for (BIRTypeDefinition typeDef : pkg.typeDefs) {
-            List<BIRFunction> attachedFuncs = typeDef.attachedFuncs;
-            if (attachedFuncs == null || attachedFuncs.size() == 0) {
-                continue;
-            }
-
-            BType attachedType;
-            if (typeDef.type.tag == TypeTags.RECORD) {
-                // Only attach function of records is the record init. That should be
-                // generated as a static function.
-                attachedType = null;
-            } else {
-                attachedType = typeDef.type;
-            }
-            attachedFuncs.parallelStream().forEach(func ->
-                                                           generateFrameClassForFunction(pkg, func, pkgEntries,
-                                                                                         attachedType));
-        }
-    }
-
-    private void generateFrameClassForFunction(BIRPackage pkg, BIRFunction func, Map<String, byte[]> pkgEntries,
-                                               BType attachedType) {
-        String frameClassName = getFrameClassName(JvmCodeGenUtil.getPackageName(pkg), func.name.value,
-                                                  attachedType);
-        ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        if (func.pos != null && func.pos.src != null) {
-            cw.visitSource(func.pos.src.cUnitName, null);
-        }
-        cw.visit(V1_8, Opcodes.ACC_PUBLIC + ACC_SUPER, frameClassName, null, OBJECT, null);
-        JvmCodeGenUtil.generateDefaultConstructor(cw, OBJECT);
-
-        int k = 0;
-        List<BIRVariableDcl> localVars = func.localVars;
-        while (k < localVars.size()) {
-            BIRVariableDcl localVar = localVars.get(k);
-            BType bType = localVar.type;
-            String fieldName = localVar.name.value.replace("%", "_");
-            String typeSig = JvmCodeGenUtil.getFieldTypeSignature(bType);
-            cw.visitField(Opcodes.ACC_PUBLIC, fieldName, typeSig, null, null).visitEnd();
-            k = k + 1;
-        }
-
-        FieldVisitor fv = cw.visitField(Opcodes.ACC_PUBLIC, STATE, "I", null, null);
-        fv.visitEnd();
-
-        cw.visitEnd();
-
-        // panic if there are errors in the frame class. These cannot be logged, since
-        // frame classes are internal implementation details.
-        pkgEntries.put(frameClassName + ".class", cw.toByteArray());
-    }
-
-    private String getFrameClassName(String pkgName, String funcName, BType attachedType) {
-        String frameClassName = pkgName;
-        if (isValidType(attachedType)) {
-            frameClassName += JvmCodeGenUtil.cleanupReadOnlyTypeName(JvmCodeGenUtil.toNameString(attachedType)) + "_";
-        }
-
-        return frameClassName + JvmCodeGenUtil.cleanupFunctionName(funcName) + "Frame";
-    }
-
-    private boolean isValidType(BType attachedType) {
-        return attachedType != null && (attachedType.tag == TypeTags.OBJECT || attachedType instanceof BServiceType ||
-                attachedType.tag == TypeTags.RECORD);
     }
 }

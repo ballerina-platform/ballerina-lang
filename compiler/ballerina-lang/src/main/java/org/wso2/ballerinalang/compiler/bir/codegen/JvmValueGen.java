@@ -29,6 +29,9 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JFieldFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.OldStyleExternalFunctionWrapper;
+import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.LambdaGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -141,16 +144,16 @@ class JvmValueGen {
     static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
     private final BIRNode.BIRPackage module;
     private final JvmPackageGen jvmPackageGen;
-    private final JvmMethodGen jvmMethodGen;
-    private final JvmLambdaGen jvmLambdaGen;
+    private final MethodGen methodGen;
+    private final LambdaGen lambdaGen;
     private final BType booleanType;
 
-    JvmValueGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, JvmMethodGen jvmMethodGen,
-                JvmLambdaGen jvmLambdaGen) {
+    JvmValueGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, MethodGen methodGen,
+                LambdaGen lambdaGen) {
         this.module = module;
         this.jvmPackageGen = jvmPackageGen;
-        this.jvmMethodGen = jvmMethodGen;
-        this.jvmLambdaGen = jvmLambdaGen;
+        this.methodGen = methodGen;
+        this.lambdaGen = lambdaGen;
         this.booleanType = jvmPackageGen.symbolTable.booleanType;
     }
 
@@ -163,20 +166,20 @@ class JvmValueGen {
         return func;
     }
 
-    static void injectDefaultParamInitsToAttachedFuncs(BIRNode.BIRPackage module, JvmInitsGen jvmInitsGen,
+    static void injectDefaultParamInitsToAttachedFuncs(BIRNode.BIRPackage module, InitMethodGen initMethodGen,
                                                        JvmPackageGen jvmPackageGen) {
         List<BIRNode.BIRTypeDefinition> typeDefs = module.typeDefs;
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
             if (bType instanceof BServiceType || (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(
                     bType.tsymbol.flags, Flags.CLASS)) || bType.tag == TypeTags.RECORD) {
-                desugarObjectMethods(module, bType, optionalTypeDef.attachedFuncs, jvmInitsGen, jvmPackageGen);
+                desugarObjectMethods(module, bType, optionalTypeDef.attachedFuncs, initMethodGen, jvmPackageGen);
             }
         }
     }
 
     private static void desugarObjectMethods(BIRNode.BIRPackage module, BType bType,
-                                             List<BIRNode.BIRFunction> attachedFuncs, JvmInitsGen jvmInitsGen,
+                                             List<BIRNode.BIRFunction> attachedFuncs, InitMethodGen initMethodGen,
                                              JvmPackageGen jvmPackageGen) {
         if (attachedFuncs == null) {
             return;
@@ -188,17 +191,17 @@ class JvmValueGen {
             if (JvmCodeGenUtil.isExternFunc(birFunc)) {
                 BIRFunctionWrapper extFuncWrapper = lookupBIRFunctionWrapper(module, birFunc, bType, jvmPackageGen);
                 if (extFuncWrapper instanceof OldStyleExternalFunctionWrapper) {
-                    desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, birFunc, jvmInitsGen);
+                    desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, birFunc, initMethodGen);
                 } else if (extFuncWrapper instanceof JMethodFunctionWrapper) {
-                    desugarInteropFuncs((JMethodFunctionWrapper) extFuncWrapper, birFunc, jvmInitsGen);
-                    enrichWithDefaultableParamInits(birFunc, jvmInitsGen);
+                    desugarInteropFuncs((JMethodFunctionWrapper) extFuncWrapper, birFunc, initMethodGen);
+                    enrichWithDefaultableParamInits(birFunc, initMethodGen);
                 } else if (!(extFuncWrapper instanceof JFieldFunctionWrapper)) {
-                    enrichWithDefaultableParamInits(birFunc, jvmInitsGen);
+                    enrichWithDefaultableParamInits(birFunc, initMethodGen);
                 }
             } else {
                 addDefaultableBooleanVarsToSignature(birFunc, jvmPackageGen.symbolTable.booleanType);
             }
-            enrichWithDefaultableParamInits(birFunc, jvmInitsGen);
+            enrichWithDefaultableParamInits(birFunc, initMethodGen);
         }
     }
 
@@ -309,7 +312,7 @@ class JvmValueGen {
 
     private void createLambdas(ClassWriter cw, AsyncDataCollector asyncDataCollector) {
         for (Map.Entry<String, BIRInstruction> entry : asyncDataCollector.getLambdas().entrySet()) {
-            jvmLambdaGen.generateLambdaMethod(entry.getValue(), cw, entry.getKey());
+            lambdaGen.generateLambdaMethod(entry.getValue(), cw, entry.getKey());
         }
     }
 
@@ -336,8 +339,8 @@ class JvmValueGen {
             if (func == null) {
                 continue;
             }
-            jvmMethodGen.generateMethod(func, cw, module, currentObjectType, moduleClassName,
-                                        asyncDataCollector);
+            methodGen.generateMethod(func, cw, module, currentObjectType, moduleClassName,
+                                     asyncDataCollector);
         }
     }
 
@@ -706,7 +709,7 @@ class JvmValueGen {
             if (func == null) {
                 continue;
             }
-            jvmMethodGen.generateMethod(func, cw, this.module, null, moduleClassName, asyncDataCollector);
+            methodGen.generateMethod(func, cw, this.module, null, moduleClassName, asyncDataCollector);
         }
     }
 

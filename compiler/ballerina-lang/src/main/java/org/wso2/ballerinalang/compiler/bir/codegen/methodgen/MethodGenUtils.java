@@ -16,13 +16,17 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen;
+package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
@@ -42,8 +46,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 
 /**
  * Util methods for the method gen classes.
+ *
+ * @since 2.0.0
  */
-public class JvmMethodGenUtils {
+public class MethodGenUtils {
     static final String FRAMES = "frames";
     static final String INIT_FUNCTION_SUFFIX = "<init>";
     static final String STOP_FUNCTION_SUFFIX = "<stop>";
@@ -114,6 +120,20 @@ public class JvmMethodGenUtils {
         return funcName;
     }
 
-    private JvmMethodGenUtils() {
+    private MethodGenUtils() {
+    }
+
+    static String getFrameClassName(String pkgName, String funcName, BType attachedType) {
+        String frameClassName = pkgName;
+        if (isValidType(attachedType)) {
+            frameClassName += JvmCodeGenUtil.cleanupReadOnlyTypeName(JvmCodeGenUtil.toNameString(attachedType)) + "_";
+        }
+
+        return frameClassName + JvmCodeGenUtil.cleanupFunctionName(funcName) + "Frame";
+    }
+
+    private static boolean isValidType(BType attachedType) {
+        return attachedType != null && (attachedType.tag == TypeTags.OBJECT || attachedType instanceof BServiceType ||
+                attachedType.tag == TypeTags.RECORD);
     }
 }

@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -90,7 +91,7 @@ public class JvmDesugarPhase {
         func.localVars = updatedVars;
     }
 
-    public static void enrichWithDefaultableParamInits(BIRFunction currentFunc, JvmInitsGen jvmInitsGen) {
+    public static void enrichWithDefaultableParamInits(BIRFunction currentFunc, InitMethodGen initMethodGen) {
         int k = 1;
         List<BIRFunctionParameter> functionParams = new ArrayList<>();
         List<BIRVariableDcl> localVars = currentFunc.localVars;
@@ -102,11 +103,11 @@ public class JvmDesugarPhase {
             k += 1;
         }
 
-        jvmInitsGen.resetIds();
+        initMethodGen.resetIds();
 
         List<BIRBasicBlock> basicBlocks = new ArrayList<>();
 
-        BIRBasicBlock nextBB = insertAndGetNextBasicBlock(basicBlocks, DESUGARED_BB_ID_NAME, jvmInitsGen);
+        BIRBasicBlock nextBB = insertAndGetNextBasicBlock(basicBlocks, DESUGARED_BB_ID_NAME, initMethodGen);
 
         int paramCounter = 0;
         DiagnosticPos pos = currentFunc.pos;
@@ -121,7 +122,7 @@ public class JvmDesugarPhase {
                 List<BIRBasicBlock> bbArray = currentFunc.parameters.get(funcParam);
                 BIRBasicBlock trueBB = bbArray.get(0);
                 basicBlocks.addAll(bbArray);
-                BIRBasicBlock falseBB = insertAndGetNextBasicBlock(basicBlocks, DESUGARED_BB_ID_NAME, jvmInitsGen);
+                BIRBasicBlock falseBB = insertAndGetNextBasicBlock(basicBlocks, DESUGARED_BB_ID_NAME, initMethodGen);
                 nextBB.terminator = new Branch(pos, boolRef, trueBB, falseBB);
 
                 BIRBasicBlock lastBB = bbArray.get(bbArray.size() - 1);
@@ -150,14 +151,14 @@ public class JvmDesugarPhase {
     }
 
     public static BIRBasicBlock insertAndGetNextBasicBlock(List<BIRBasicBlock> basicBlocks,
-                                                           String prefix, JvmInitsGen jvmInitsGen) {
-        BIRBasicBlock nextbb = new BIRBasicBlock(getNextDesugarBBId(prefix, jvmInitsGen));
+                                                           String prefix, InitMethodGen initMethodGen) {
+        BIRBasicBlock nextbb = new BIRBasicBlock(getNextDesugarBBId(prefix, initMethodGen));
         basicBlocks.add(nextbb);
         return nextbb;
     }
 
-    public static Name getNextDesugarBBId(String prefix, JvmInitsGen jvmInitsGen) {
-        int nextId = jvmInitsGen.incrementAndGetNextId();
+    public static Name getNextDesugarBBId(String prefix, InitMethodGen initMethodGen) {
+        int nextId = initMethodGen.incrementAndGetNextId();
         return new Name(prefix + nextId);
     }
 
