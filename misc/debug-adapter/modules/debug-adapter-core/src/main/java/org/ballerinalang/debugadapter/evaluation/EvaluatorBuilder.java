@@ -84,12 +84,13 @@ import java.util.StringJoiner;
  * <li> Conditional expression
  * <li> Typeof expression
  * <li> Equality expression
+ * <li> String template expression
+ * <li> XML template expression
+ * <li> Shift expression
  * </ul>
  * <br>
  * To be Implemented.
  * <ul>
- * <li> String template expression
- * <li> XML template expression
  * <li> New expression
  * <li> XML attribute access expression
  * <li> Annotation access expression
@@ -98,7 +99,6 @@ import java.util.StringJoiner;
  * <li> Let expression
  * <li> Type cast expression
  * <li> Unary expression
- * <li> Shift expression
  * <li> Range expression
  * <li> Type test expression
  * <li> Checking expression
