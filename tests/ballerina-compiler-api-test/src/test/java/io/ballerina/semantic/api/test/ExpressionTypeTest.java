@@ -50,6 +50,7 @@ import static io.ballerina.compiler.api.types.TypeDescKind.RECORD;
 import static io.ballerina.compiler.api.types.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.types.TypeDescKind.TUPLE;
 import static io.ballerina.compiler.api.types.TypeDescKind.TYPE_REFERENCE;
+import static io.ballerina.compiler.api.types.TypeDescKind.UNION;
 import static io.ballerina.compiler.api.types.TypeDescKind.XML;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.compile;
 import static org.testng.Assert.assertEquals;
@@ -202,6 +203,26 @@ public class ExpressionTypeTest {
         assertType(42, 37, 42, 39, INT);
     }
 
+    @Test(dataProvider = "FieldAccessPosProvider")
+    public void testFieldAccessExpr(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
+        assertType(sLine, sCol, eLine, eCol, kind);
+    }
+
+    @DataProvider(name = "FieldAccessPosProvider")
+    public Object[][] getFieldAccessPos() {
+        return new Object[][]{
+                // Field access
+                {51, 18, 51, 29, STRING},
+                {51, 18, 51, 24, RECORD},
+                // Optional Field access
+                {52, 15, 52, 26, UNION},
+                {52, 15, 52, 21, RECORD},
+                // Member access
+                {53, 21, 53, 35, STRING},
+                {53, 21, 53, 27, RECORD},
+                {53, 28, 53, 34, STRING},
+        };
+    }
 
     private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
         BallerinaTypeDescriptor type = getExprType(sLine, sCol, eLine, eCol);

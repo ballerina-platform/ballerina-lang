@@ -1221,10 +1221,6 @@ class NodeFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr fieldAccessExpr) {
-        if (setEnclosingNode(fieldAccessExpr, fieldAccessExpr.pos)) {
-            return;
-        }
-
         lookupNode(fieldAccessExpr.expr);
         setEnclosingNode(fieldAccessExpr, fieldAccessExpr.indexExpr.pos);
     }

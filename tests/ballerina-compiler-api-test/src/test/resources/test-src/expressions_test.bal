@@ -42,3 +42,14 @@ function testStructuralConstructors() {
 
     json j = {name: "Jane Doe", age: 25};
 }
+
+function testAccessExprs() {
+    record {|
+        string name;
+        int age?;
+    |} person = {name: "John", age: 20};
+
+    string name = person.name;
+    int? age = person?.age;
+    string optName = person["name"];
+}
