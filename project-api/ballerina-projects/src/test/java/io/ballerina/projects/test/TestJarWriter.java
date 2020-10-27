@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.test;
 
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.directory.BuildProject;
@@ -56,7 +58,10 @@ public class TestJarWriter {
         Path tempFile = tempDirectory.resolve("test.jar");
         Assert.assertFalse(tempFile.toFile().exists());
 
-        currentPackage.getCompilation().emit(PackageCompilation.OutputType.JAR, tempFile);
+        PackageCompilation pkgCompilation = currentPackage.getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JdkVersion.JAVA_11);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR, tempFile);
+
         Assert.assertTrue(tempFile.toFile().exists());
         Assert.assertTrue(tempFile.toFile().length() > 0);
     }
