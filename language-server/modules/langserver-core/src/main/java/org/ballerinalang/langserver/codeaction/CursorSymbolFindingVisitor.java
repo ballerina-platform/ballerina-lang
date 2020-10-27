@@ -83,13 +83,18 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
         this.pkgName = pkgName;
         this.isWithinNode = pos -> (
                 // if node is single-line
-                ((pos.lineRange().startLine().line() == pos.lineRange().endLine().line() && cursorLine == pos.lineRange().startLine().line()) &&
-                        (cursorCol >= pos.lineRange().startLine().offset() && cursorCol <= pos.lineRange().endLine().offset())) ||
+                ((pos.lineRange().startLine().line() == pos.lineRange().endLine().line()
+                        && cursorLine == pos.lineRange().startLine().line()) &&
+                        (cursorCol >= pos.lineRange().startLine().offset()
+                                && cursorCol <= pos.lineRange().endLine().offset())) ||
                         // if node is multi-line
                         ((pos.lineRange().startLine().line() != pos.lineRange().endLine().line()) && (
-                                cursorLine > pos.lineRange().startLine().line() && cursorLine < pos.lineRange().endLine().line() ||
-                                        cursorLine == pos.lineRange().endLine().line() && cursorCol <= pos.lineRange().endLine().offset() ||
-                                        cursorLine == pos.lineRange().startLine().line() && cursorCol >= pos.lineRange().startLine().offset()
+                                cursorLine > pos.lineRange().startLine().line()
+                                        && cursorLine < pos.lineRange().endLine().line() ||
+                                        cursorLine == pos.lineRange().endLine().line()
+                                                && cursorCol <= pos.lineRange().endLine().offset() ||
+                                        cursorLine == pos.lineRange().startLine().line()
+                                                && cursorCol >= pos.lineRange().startLine().offset()
                         ))
         );
     }

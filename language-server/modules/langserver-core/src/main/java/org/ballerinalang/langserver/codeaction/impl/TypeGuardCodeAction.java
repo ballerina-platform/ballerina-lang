@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.codeaction.impl;
 
-import io.ballerina.tools.text.LineRange;
 import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;

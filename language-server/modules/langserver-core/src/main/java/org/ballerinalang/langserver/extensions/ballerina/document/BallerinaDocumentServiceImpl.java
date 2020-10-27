@@ -501,7 +501,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode = visibleEndpointVisitor.getVisibleEPsByNode();
             String relativeFilePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
             BLangCompilationUnit compilationUnit = bLangPackage.getCompilationUnits().stream()
-                    .filter(cUnit -> cUnit.getPosition().getSource().cUnitName.replace("/", CommonUtil.FILE_SEPARATOR)
+                    .filter(cUnit -> cUnit.getPosition().lineRange().filePath().replace("/", CommonUtil.FILE_SEPARATOR)
                             .equals(relativeFilePath))
                     .findFirst()
                     .orElse(null);
