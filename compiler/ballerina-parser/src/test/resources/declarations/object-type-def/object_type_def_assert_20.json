@@ -33,7 +33,7 @@
               "kind": "CLIENT_KEYWORD",
               "hasDiagnostics": true,
               "diagnostics": [
-                "ERROR_QUALIFIER_NOT_ALLOWED",
+                "ERROR_DUPLICATE_QUALIFIER",
                 "ERROR_QUALIFIER_NOT_ALLOWED"
               ],
               "leadingMinutiae": [
