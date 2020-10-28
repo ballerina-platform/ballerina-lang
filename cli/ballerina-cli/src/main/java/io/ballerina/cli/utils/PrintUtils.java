@@ -18,7 +18,7 @@
 
 package io.ballerina.cli.utils;
 
-import org.ballerinalang.central.client.model.PackageJsonSchema;
+import org.ballerinalang.central.client.model.Package;
 
 import java.io.PrintStream;
 import java.text.DateFormat;
@@ -44,7 +44,7 @@ public class PrintUtils {
      * @param packages       packages array
      * @param terminalWidth terminal width of the CLI
      */
-    public static void printPackages(List<PackageJsonSchema> packages, String terminalWidth) {
+    public static void printPackages(List<Package> packages, String terminalWidth) {
         int rightMargin = 3;
         int width = Integer.parseInt(terminalWidth) - rightMargin;
         int dateColWidth = 15;
@@ -61,7 +61,7 @@ public class PrintUtils {
         printTitle();
         printTableHeader(dateColWidth, versionColWidth, nameColWidth, descColWidth, minDescColWidth, authorsColWidth);
 
-        for (PackageJsonSchema packageJsonSchema : packages) {
+        for (Package packageJsonSchema : packages) {
             printModule(packageJsonSchema, dateColWidth, versionColWidth, authorsColWidth, nameColWidth, descColWidth,
                     minDescColWidth);
             outStream.println();
@@ -81,7 +81,7 @@ public class PrintUtils {
      * @param minDescColWidth   minimum description column width
      * @param authorsColWidth   authors column width
      */
-    private static void printModule(PackageJsonSchema packageJsonSchema, int dateColWidth, int versionColWidth,
+    private static void printModule(Package packageJsonSchema, int dateColWidth, int versionColWidth,
             int authorsColWidth, int nameColWidth, int descColWidth, int minDescColWidth) {
         printInCLI("|" + packageJsonSchema.getOrganization() + "/" + packageJsonSchema.getName(), nameColWidth);
 

@@ -25,9 +25,9 @@ import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
- * {@code ModuleJsonSchema} represents module json.
+ * {@code Module} represents module json from central.
  */
-public class ModuleJsonSchema {
+public class Module {
     public static final String SERIALIZED_NAME_NAME = "name";
     @SerializedName(SERIALIZED_NAME_NAME) private String name;
 
@@ -46,7 +46,7 @@ public class ModuleJsonSchema {
     public static final String SERIALIZED_NAME_PACKAGE_URL = "packageUrl";
     @SerializedName(SERIALIZED_NAME_PACKAGE_URL) private String packageUrl;
 
-    public ModuleJsonSchema name(String name) {
+    public Module name(String name) {
 
         this.name = name;
         return this;
@@ -60,7 +60,7 @@ public class ModuleJsonSchema {
         this.name = name;
     }
 
-    public ModuleJsonSchema summary(String summary) {
+    public Module summary(String summary) {
 
         this.summary = summary;
         return this;
@@ -74,7 +74,7 @@ public class ModuleJsonSchema {
         this.summary = summary;
     }
 
-    public ModuleJsonSchema readme(String readme) {
+    public Module readme(String readme) {
 
         this.readme = readme;
         return this;
@@ -88,7 +88,7 @@ public class ModuleJsonSchema {
         this.readme = readme;
     }
 
-    public ModuleJsonSchema apiDocURL(String apiDocURL) {
+    public Module apiDocURL(String apiDocURL) {
 
         this.apiDocURL = apiDocURL;
         return this;
@@ -102,7 +102,7 @@ public class ModuleJsonSchema {
         this.apiDocURL = apiDocURL;
     }
 
-    public ModuleJsonSchema executable(Boolean executable) {
+    public Module executable(Boolean executable) {
 
         this.executable = executable;
         return this;
@@ -117,7 +117,7 @@ public class ModuleJsonSchema {
         this.executable = executable;
     }
 
-    public ModuleJsonSchema packageUrl(String packageUrl) {
+    public Module packageUrl(String packageUrl) {
 
         this.packageUrl = packageUrl;
         return this;
@@ -139,7 +139,7 @@ public class ModuleJsonSchema {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ModuleJsonSchema moduleJsonSchema = (ModuleJsonSchema) o;
+        Module moduleJsonSchema = (Module) o;
         return Objects.equals(this.name, moduleJsonSchema.name) && Objects
                 .equals(this.summary, moduleJsonSchema.summary) && Objects.equals(this.readme, moduleJsonSchema.readme)
                 && Objects.equals(this.apiDocURL, moduleJsonSchema.apiDocURL) && Objects

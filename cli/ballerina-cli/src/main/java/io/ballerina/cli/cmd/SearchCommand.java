@@ -19,7 +19,7 @@
 package io.ballerina.cli.cmd;
 
 import org.ballerinalang.central.client.CentralAPIClient;
-import org.ballerinalang.central.client.model.PackageSearchJsonSchema;
+import org.ballerinalang.central.client.model.PackageSearchResult;
 import org.ballerinalang.cli.module.exeptions.CommandException;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -104,7 +104,7 @@ public class SearchCommand implements BLauncherCmd {
     private static void searchInCentral(String query) {
         try {
             CentralAPIClient client = new CentralAPIClient();
-            PackageSearchJsonSchema packageSearchJsonSchema = client.searchPackage(query);
+            PackageSearchResult packageSearchJsonSchema = client.searchPackage(query);
 
             if (packageSearchJsonSchema.getCount() > 0) {
                 printPackages(packageSearchJsonSchema.getPackages(), RepoUtils.getTerminalWidth());

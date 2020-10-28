@@ -23,13 +23,13 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Objects;
 
 /**
- * ErrorJsonSchema represents error response.
+ * {@code Error} represents error response from central.
  */
-public class ErrorJsonSchema {
+public class Error {
     public static final String SERIALIZED_NAME_MESSAGE = "message";
     @SerializedName(SERIALIZED_NAME_MESSAGE) private String message;
 
-    public ErrorJsonSchema message(String message) {
+    public Error message(String message) {
 
         this.message = message;
         return this;
@@ -56,7 +56,7 @@ public class ErrorJsonSchema {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ErrorJsonSchema errorJsonSchema = (ErrorJsonSchema) o;
+        Error errorJsonSchema = (Error) o;
         return Objects.equals(this.message, errorJsonSchema.message);
     }
 

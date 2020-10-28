@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
+import static io.ballerina.projects.utils.ProjectConstants.PKG_NAME_REGEX;
 import static io.ballerina.runtime.util.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static java.nio.file.Files.createDirectory;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
@@ -46,12 +47,6 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
 @CommandLine.Command(name = PULL_COMMAND,
         description = "download the module source and binaries from a remote repository")
 public class PullCommand implements BLauncherCmd {
-    //module name format : <org-name>/<package-name> | <org-name>/<package-name>:<version>
-    //version format : 1, 1.*, 1.*.*
-    private static final String PKG_NAME_REGEX = "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+|" +
-            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+|" +
-            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+\\.[*\\d]+|" +
-            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+\\.[*\\d]+\\.[*\\d]+";
     private static PrintStream outStream = System.err;
 
     @CommandLine.Parameters private List<String> argList;

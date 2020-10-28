@@ -78,4 +78,11 @@ public class ProjectConstants {
     public static final String REPO_CACHE_DIR_NAME = "cache";
     public static final String REPO_JAR_CACHE_NAME = "jar";
     public static final String REPO_BIR_CACHE_NAME = "bir";
+
+    // Package name format : <org-name>/<package-name> | <org-name>/<package-name>:<version>
+    // Version format : 1, 1.*, 1.*.*
+    public static final String PKG_NAME_REGEX = "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+|" +
+            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+|" +
+            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+\\.[*\\d]+|" +
+            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+\\.[*\\d]+\\.[*\\d]+";
 }

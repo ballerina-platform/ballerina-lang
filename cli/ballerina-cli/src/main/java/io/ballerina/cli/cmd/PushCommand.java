@@ -35,12 +35,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -155,10 +151,7 @@ public class PushCommand implements BLauncherCmd {
     private void pushPackage(String packageName, Path sourceRootPath) {
         try {
             BaloProject baloProject = validateBaloPathAndGetBaloProject(packageName, sourceRootPath);
-
-            Map<Path, List<PackageDescriptor.Dependency>> balosWithDependencies = new HashMap<>();
-            balosWithDependencies.put(baloProject.sourceRoot(), baloProject.currentPackage().packageDescriptor().dependencies());
-            recursivelyPushBalos(balosWithDependencies);
+            pushBaloToRemote(baloProject.sourceRoot(), packageName);
         } catch (IOException e) {
             throw createLauncherException(
                     "unexpected error occurred when trying to push to remote repository: " + getRemoteRepoURL());
@@ -226,7 +219,7 @@ public class PushCommand implements BLauncherCmd {
                 baloProject.currentPackage().packageOrg(),
                 baloProject.currentPackage().packageVersion());
 
-        if (isDependencyAvailableInRemote(pkgAsDependency)) {
+        if (isPackageAvailableInRemote(pkgAsDependency)) {
             throw createLauncherException(
                     "package '" + pkgAsDependency.toString() + "' already exists in " + "remote repository("
                             + getRemoteRepoURL() + "). build and push after "
@@ -237,75 +230,16 @@ public class PushCommand implements BLauncherCmd {
     }
 
     /**
-     * Push balos to remote repository in the order of there dependencies are resolved.
-     *
-     * @param balos The remaining balos to be pushed.
-     * @throws IOException When trying to access remote repository
-     */
-    private static void recursivelyPushBalos(Map<Path, List<PackageDescriptor.Dependency>> balos) throws IOException {
-        // if there are no more balos to push.
-        if (balos.size() == 0) {
-            return;
-        }
-
-        // go through the dependencies of balos and see if they are available in remote repository. if they are
-        // available remove them from the list.
-        for (List<PackageDescriptor.Dependency> deps : balos.values()) {
-            Iterator<PackageDescriptor.Dependency> depsIterator = deps.iterator();
-            while (depsIterator.hasNext()) {
-                PackageDescriptor.Dependency dep = depsIterator.next();
-                if (isDependencyAvailableInRemote(dep)) {
-                    depsIterator.remove();
-                }
-
-                if ("ballerina".equals(dep.org().toString()) || "ballerinax".equals(dep.org().toString())) {
-                    depsIterator.remove();
-                }
-            }
-        }
-
-        // check if there are balos where their dependencies are already available in remote repository
-        Optional<List<PackageDescriptor.Dependency>> baloWithAllDependenciesAvailableInCentral = balos.values().stream()
-                .filter(List::isEmpty)
-                .findAny();
-
-        // if there isn't any balos where dependencies are resolved, then throw an error.
-        if (!baloWithAllDependenciesAvailableInCentral.isPresent()) {
-            Set<String> unresolvedDependencies = balos.values().stream()
-                    .flatMap(List::stream)
-                    .map(PackageDescriptor.Dependency::toString)
-                    .collect(Collectors.toSet());
-            throw createLauncherException("unable to find dependencies in remote repository: [" +
-                    String.join(", ", unresolvedDependencies) + "]");
-        }
-
-        // push all the modules where dependencies are available in remote repository and remove them from the map.
-        Iterator<Map.Entry<Path, List<PackageDescriptor.Dependency>>> iterator = balos.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<Path, List<PackageDescriptor.Dependency>> baloDeps = iterator.next();
-            if (baloDeps.getValue().isEmpty()) {
-                pushBaloToRemote(baloDeps.getKey());
-                iterator.remove();
-            }
-        }
-        recursivelyPushBalos(balos);
-    }
-
-    /**
      * Push a balo file to remote repository.
      *
      * @param baloPath Path to the balo file.
      */
-    private static void pushBaloToRemote(Path baloPath) {
+    private static void pushBaloToRemote(Path baloPath, String pkgName) {
         Path baloFileName = baloPath.getFileName();
         if (null != baloFileName) {
-            // Load BaloProject from balo path
-            BaloProject baloProject = BaloProject.loadProject(baloPath, null);
-            String name = baloProject.currentPackage().packageName().toString();
-
             try {
                 CentralAPIClient client = new CentralAPIClient();
-                client.pushPackage(baloPath, baloProject);
+                client.pushPackage(baloPath);
             } catch (CommandException e) {
                 String errorMessage = e.getMessage();
                 if (null != errorMessage && !"".equals(errorMessage.trim())) {
@@ -317,14 +251,14 @@ public class PushCommand implements BLauncherCmd {
                     errorMessage = errorMessage.replaceAll("error: ", "");
 
                     throw createLauncherException(
-                            "unexpected error occurred while pushing package '" + name + "' to remote repository("
+                            "unexpected error occurred while pushing package '" + pkgName + "' to remote repository("
                                     + getRemoteRepoURL() + "): " + errorMessage);
                 }
             }
         }
     }
 
-    private static boolean isDependencyAvailableInRemote(PackageDescriptor.Dependency dep) {
+    private static boolean isPackageAvailableInRemote(PackageDescriptor.Dependency dep) {
         List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
         supportedPlatforms.add("any");
 

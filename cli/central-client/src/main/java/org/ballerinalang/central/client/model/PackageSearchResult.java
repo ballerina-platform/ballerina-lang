@@ -2,16 +2,19 @@ package org.ballerinalang.central.client.model;
 
 import java.util.List;
 
-public class PackageSearchJsonSchema {
+/**
+ * {@code PackageJsonSchema} represents package search result from central.
+ */
+public class PackageSearchResult {
 
-    private List<PackageJsonSchema> packages;
+    private List<Package> packages;
     private int count;
 
-    public List<PackageJsonSchema> getPackages() {
+    public List<Package> getPackages() {
         return packages;
     }
 
-    public void setPackages(List<PackageJsonSchema> packages) {
+    public void setPackages(List<Package> packages) {
         this.packages = packages;
     }
 

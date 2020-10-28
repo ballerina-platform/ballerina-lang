@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * {@code PackageJsonSchema} represents package json.
+ * {@code Package} represents package json from central.
  */
-public class PackageJsonSchema {
+public class Package {
     public static final String JSON_PROPERTY_ORGANIZATION = "organization";
     @SerializedName(JSON_PROPERTY_ORGANIZATION) private String organization;
 
@@ -77,12 +77,12 @@ public class PackageJsonSchema {
     @SerializedName(JSON_PROPERTY_CREATED_DATE) private Integer createdDate;
 
     public static final String JSON_PROPERTY_MODULES = "modules";
-    @SerializedName(JSON_PROPERTY_MODULES) private List<ModuleJsonSchema> modules = new ArrayList<>();
+    @SerializedName(JSON_PROPERTY_MODULES) private List<Module> modules = new ArrayList<>();
 
     public static final String JSON_PROPERTY_SUMMARY = "summary";
     @SerializedName(JSON_PROPERTY_SUMMARY) private String summary;
 
-    public PackageJsonSchema organization(String organization) {
+    public Package organization(String organization) {
         this.organization = organization;
         return this;
     }
@@ -95,7 +95,7 @@ public class PackageJsonSchema {
         this.organization = organization;
     }
 
-    public PackageJsonSchema name(String name) {
+    public Package name(String name) {
 
         this.name = name;
         return this;
@@ -109,7 +109,7 @@ public class PackageJsonSchema {
         this.name = name;
     }
 
-    public PackageJsonSchema version(String version) {
+    public Package version(String version) {
 
         this.version = version;
         return this;
@@ -123,7 +123,7 @@ public class PackageJsonSchema {
         this.version = version;
     }
 
-    public PackageJsonSchema platform(String platform) {
+    public Package platform(String platform) {
 
         this.platform = platform;
         return this;
@@ -137,7 +137,7 @@ public class PackageJsonSchema {
         this.platform = platform;
     }
 
-    public PackageJsonSchema languageSpecificationVersion(String languageSpecificationVersion) {
+    public Package languageSpecificationVersion(String languageSpecificationVersion) {
 
         this.languageSpecificationVersion = languageSpecificationVersion;
         return this;
@@ -151,7 +151,7 @@ public class PackageJsonSchema {
         this.languageSpecificationVersion = languageSpecificationVersion;
     }
 
-    public PackageJsonSchema URL(String URL) {
+    public Package URL(String URL) {
 
         this.URL = URL;
         return this;
@@ -165,7 +165,7 @@ public class PackageJsonSchema {
         this.URL = URL;
     }
 
-    public PackageJsonSchema baloVersion(String baloVersion) {
+    public Package baloVersion(String baloVersion) {
 
         this.baloVersion = baloVersion;
         return this;
@@ -179,7 +179,7 @@ public class PackageJsonSchema {
         this.baloVersion = baloVersion;
     }
 
-    public PackageJsonSchema baloURL(String baloURL) {
+    public Package baloURL(String baloURL) {
 
         this.baloURL = baloURL;
         return this;
@@ -193,7 +193,7 @@ public class PackageJsonSchema {
         this.baloURL = baloURL;
     }
 
-    public PackageJsonSchema summary(String summary) {
+    public Package summary(String summary) {
 
         this.summary = summary;
         return this;
@@ -207,7 +207,7 @@ public class PackageJsonSchema {
         this.summary = summary;
     }
 
-    public PackageJsonSchema readme(String readme) {
+    public Package readme(String readme) {
 
         this.readme = readme;
         return this;
@@ -221,7 +221,7 @@ public class PackageJsonSchema {
         this.readme = readme;
     }
 
-    public PackageJsonSchema template(Boolean template) {
+    public Package template(Boolean template) {
 
         this.template = template;
         return this;
@@ -235,13 +235,13 @@ public class PackageJsonSchema {
         this.template = template;
     }
 
-    public PackageJsonSchema licenses(List<String> licenses) {
+    public Package licenses(List<String> licenses) {
 
         this.licenses = licenses;
         return this;
     }
 
-    public PackageJsonSchema addLicensesItem(String licensesItem) {
+    public Package addLicensesItem(String licensesItem) {
         this.licenses.add(licensesItem);
         return this;
     }
@@ -254,13 +254,13 @@ public class PackageJsonSchema {
         this.licenses = licenses;
     }
 
-    public PackageJsonSchema authors(List<String> authors) {
+    public Package authors(List<String> authors) {
 
         this.authors = authors;
         return this;
     }
 
-    public PackageJsonSchema addAuthorsItem(String authorsItem) {
+    public Package addAuthorsItem(String authorsItem) {
         this.authors.add(authorsItem);
         return this;
     }
@@ -273,7 +273,7 @@ public class PackageJsonSchema {
         this.authors = authors;
     }
 
-    public PackageJsonSchema sourceCodeLocation(String sourceCodeLocation) {
+    public Package sourceCodeLocation(String sourceCodeLocation) {
 
         this.sourceCodeLocation = sourceCodeLocation;
         return this;
@@ -287,13 +287,13 @@ public class PackageJsonSchema {
         this.sourceCodeLocation = sourceCodeLocation;
     }
 
-    public PackageJsonSchema keywords(List<String> keywords) {
+    public Package keywords(List<String> keywords) {
 
         this.keywords = keywords;
         return this;
     }
 
-    public PackageJsonSchema addKeywordsItem(String keywordsItem) {
+    public Package addKeywordsItem(String keywordsItem) {
         this.keywords.add(keywordsItem);
         return this;
     }
@@ -306,7 +306,7 @@ public class PackageJsonSchema {
         this.keywords = keywords;
     }
 
-    public PackageJsonSchema ballerinaVersion(String ballerinaVersion) {
+    public Package ballerinaVersion(String ballerinaVersion) {
 
         this.ballerinaVersion = ballerinaVersion;
         return this;
@@ -320,7 +320,7 @@ public class PackageJsonSchema {
         this.ballerinaVersion = ballerinaVersion;
     }
 
-    public PackageJsonSchema createdDate(Integer createdDate) {
+    public Package createdDate(Integer createdDate) {
 
         this.createdDate = createdDate;
         return this;
@@ -334,22 +334,22 @@ public class PackageJsonSchema {
         this.createdDate = createdDate;
     }
 
-    public PackageJsonSchema modules(List<ModuleJsonSchema> modules) {
+    public Package modules(List<Module> modules) {
 
         this.modules = modules;
         return this;
     }
 
-    public PackageJsonSchema addModulesItem(ModuleJsonSchema modulesItem) {
+    public Package addModulesItem(Module modulesItem) {
         this.modules.add(modulesItem);
         return this;
     }
 
-    public List<ModuleJsonSchema> getModules() {
+    public List<Module> getModules() {
         return modules;
     }
 
-    public void setModules(List<ModuleJsonSchema> modules) {
+    public void setModules(List<Module> modules) {
         this.modules = modules;
     }
 
@@ -361,7 +361,7 @@ public class PackageJsonSchema {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        PackageJsonSchema packageJsonSchema = (PackageJsonSchema) o;
+        Package packageJsonSchema = (Package) o;
         return Objects.equals(this.organization, packageJsonSchema.organization) && Objects
                 .equals(this.name, packageJsonSchema.name) && Objects.equals(this.version, packageJsonSchema.version)
                 && Objects.equals(this.platform, packageJsonSchema.platform) && Objects

@@ -22,9 +22,9 @@ import com.google.gson.Gson;
 import io.ballerina.projects.balo.BaloProject;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
-import org.ballerinalang.central.client.model.ErrorJsonSchema;
-import org.ballerinalang.central.client.model.PackageJsonSchema;
-import org.ballerinalang.central.client.model.PackageSearchJsonSchema;
+import org.ballerinalang.central.client.model.Error;
+import org.ballerinalang.central.client.model.Package;
+import org.ballerinalang.central.client.model.PackageSearchResult;
 import org.ballerinalang.central.client.util.BuildLogFormatter;
 import org.ballerinalang.central.client.util.ErrorUtil;
 import org.ballerinalang.central.client.util.LogFormatter;
@@ -44,7 +44,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
 
-import static io.ballerina.projects.utils.ProjectConstants.SETTINGS_FILE_NAME;
 import static org.ballerinalang.central.client.Utils.authenticate;
 import static org.ballerinalang.central.client.Utils.convertToUrl;
 import static org.ballerinalang.central.client.Utils.createBaloInHomeRepo;
@@ -67,6 +66,7 @@ import static org.ballerinalang.central.client.util.CentralClientConstants.LOCAT
 import static org.ballerinalang.central.client.util.CentralClientConstants.PUSH_ORGANIZATION;
 import static org.ballerinalang.central.client.util.CentralClientConstants.USER_AGENT;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.SETTINGS_FILE_NAME;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTATION_VERSION;
 import static org.wso2.ballerinalang.util.RepoUtils.getRemoteRepoURL;
 
@@ -104,7 +104,7 @@ public class CentralAPIClient {
      * @param version         The version or version range of the module. (required)
      * @return PackageJsonSchema
      */
-    public PackageJsonSchema getPackage(String orgNamePath, String packageNamePath, String version,
+    public Package getPackage(String orgNamePath, String packageNamePath, String version,
             String supportedPlatform) {
         initializeSsl();
         String url = this.baseUrl + "/" + PACKAGES + "/" + orgNamePath + "/" + packageNamePath;
@@ -132,7 +132,7 @@ public class CentralAPIClient {
             if (statusCode == 302) {
                 try (BufferedReader reader = new BufferedReader(
                         new InputStreamReader(conn.getInputStream(), Charset.defaultCharset()))) {
-                    return new Gson().fromJson(reader, PackageJsonSchema.class);
+                    return new Gson().fromJson(reader, Package.class);
                 } catch (IOException e) {
                     throw ErrorUtil.createCommandException(e.getMessage());
                 }
@@ -168,7 +168,7 @@ public class CentralAPIClient {
     /**
      * Pushing a package to registry.
      */
-    public void pushPackage(Path baloPath, BaloProject baloProject) {
+    public void pushPackage(Path baloPath) {
         final int NO_OF_BYTES = 64;
         final int BUFFER_SIZE = 1024 * NO_OF_BYTES;
 
@@ -178,6 +178,8 @@ public class CentralAPIClient {
         conn.setInstanceFollowRedirects(false);
         setRequestMethod(conn, Utils.RequestMethod.POST);
 
+        // Load balo project
+        BaloProject baloProject = BaloProject.loadProject(baloPath, null);
         String org = baloProject.currentPackage().packageDescriptor().org().toString();
         String name = baloProject.currentPackage().packageDescriptor().name().toString();
         String version = baloProject.currentPackage().packageDescriptor().version().toString();
@@ -219,7 +221,7 @@ public class CentralAPIClient {
             } else if (statusCode == HttpURLConnection.HTTP_BAD_REQUEST) {
                 try (BufferedReader reader = new BufferedReader(
                         new InputStreamReader(conn.getErrorStream(), Charset.defaultCharset()))) {
-                    ErrorJsonSchema errorJsonSchema = new Gson().fromJson(reader, ErrorJsonSchema.class);
+                    Error errorJsonSchema = new Gson().fromJson(reader, Error.class);
                     if (errorJsonSchema.getMessage().contains("module md file cannot be empty")) {
                         errStream.println(errorJsonSchema.getMessage());
                     } else {
@@ -281,7 +283,7 @@ public class CentralAPIClient {
             } else {
                 try (BufferedReader reader = new BufferedReader(
                         new InputStreamReader(conn.getErrorStream(), Charset.defaultCharset()))) {
-                    ErrorJsonSchema errorJsonSchema = new Gson().fromJson(reader, ErrorJsonSchema.class);
+                    Error errorJsonSchema = new Gson().fromJson(reader, Error.class);
                     throw ErrorUtil
                             .createCommandException(logFormatter.formatLog("error: " + errorJsonSchema.getMessage()));
                 } catch (IOException e) {
@@ -301,7 +303,7 @@ public class CentralAPIClient {
     /**
      * Search packages in registry
      */
-    public PackageSearchJsonSchema searchPackage(String query) {
+    public PackageSearchResult searchPackage(String query) {
         String url = this.baseUrl + "/" + PACKAGES + "/" + "?q=" + query;
 
         initializeSsl();
@@ -318,14 +320,14 @@ public class CentralAPIClient {
 
                 try (BufferedReader reader = new BufferedReader(
                         new InputStreamReader(conn.getInputStream(), Charset.defaultCharset()))) {
-                    return new Gson().fromJson(reader, PackageSearchJsonSchema.class);
+                    return new Gson().fromJson(reader, PackageSearchResult.class);
                 } catch (IOException e) {
                     throw ErrorUtil.createCommandException(e.getMessage());
                 }
             } else {
                 try (BufferedReader reader = new BufferedReader(
                         new InputStreamReader(conn.getErrorStream(), Charset.defaultCharset()))) {
-                    ErrorJsonSchema errorJsonSchema = new Gson().fromJson(reader, ErrorJsonSchema.class);
+                    Error errorJsonSchema = new Gson().fromJson(reader, Error.class);
                     throw ErrorUtil.createCommandException(errorJsonSchema.getMessage());
                 } catch (IOException e) {
                     throw ErrorUtil.createCommandException(e.getMessage());
