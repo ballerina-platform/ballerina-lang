@@ -82,6 +82,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -285,7 +286,7 @@ public class Types {
         return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfList);
     }
 
-    public BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BType listMatchPatternType) {
+    public BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BTupleType listMatchPatternType) {
         if (matchExpr == null) {
             return listMatchPatternType;
         }
@@ -293,6 +294,13 @@ public class Types {
         BType intersectionType = getTypeIntersection(matchExprType, listMatchPatternType);
         if (intersectionType != symTable.semanticError) {
             return intersectionType;
+        }
+        if (matchExprType.tag == TypeTags.ANYDATA) {
+            Collections.fill(listMatchPatternType.tupleTypes, symTable.anydataType);
+            if (listMatchPatternType.restType != null) {
+                listMatchPatternType.restType = symTable.anydataType;
+            }
+            return listMatchPatternType;
         }
         return symTable.noType;
     }

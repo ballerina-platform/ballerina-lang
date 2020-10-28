@@ -3130,14 +3130,13 @@ public class Desugar extends BLangNodeVisitor {
         BLangIf ifStmt = ASTBuilderUtil.createIfElseStmt(pos, typeCheckCondition, ifBlock, null);
         mainBlockStmt.addStatement(ifStmt);
 
-        List<BType> memberTupleTypes = ((BTupleType) tempCastVarRef.type).getTupleTypes();
         List<BLangMatchPattern> matchPatterns = listMatchPattern.matchPatterns;
         BLangExpression condition = createConditionForListMemberPattern(0, matchPatterns.get(0),
-                tempCastVarDef, ifBlock, memberTupleTypes.get(0), pos);
+                tempCastVarDef, ifBlock, matchPatterns.get(0).type, pos);
 
         for (int i = 1; i < matchPatterns.size(); i++) {
             BLangExpression memberPatternCondition = createConditionForListMemberPattern(i, matchPatterns.get(i),
-                    tempCastVarDef, ifBlock, memberTupleTypes.get(i), pos);
+                    tempCastVarDef, ifBlock, matchPatterns.get(i).type, pos);
             if (memberPatternCondition.getKind() == NodeKind.LITERAL) {
                 if ((Boolean) ((BLangLiteral) memberPatternCondition).value) {
                     continue;

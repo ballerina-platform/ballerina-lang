@@ -1030,18 +1030,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWildCardMatchPattern wildCardMatchPattern) {
         this.hasLastPatternInClause = wildCardMatchPattern.matchesAll =
-                types.isAssignable(wildCardMatchPattern.matchExpr.type, symTable.anyType);
+                wildCardMatchPattern.matchExpr != null && types.isAssignable(wildCardMatchPattern.matchExpr.type,
+                        symTable.anyType);
     }
 
     @Override
     public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
         BLangBindingPattern bindingPattern = varBindingPattern.getBindingPattern();
         analyzeNode(bindingPattern, env);
-        this.hasLastPatternInClause = this.hasLastPatternInClause && !varBindingPattern.matchGuardIsAvailable;
+        this.hasLastPatternInClause = varBindingPattern.matchExpr != null
+                && this.hasLastPatternInClause && !varBindingPattern.matchGuardIsAvailable;
     }
 
     @Override
-    public void visit(BLangListMatchPattern listMatchPattern) {}
+    public void visit(BLangListMatchPattern listMatchPattern) {
+    }
 
     @Override
     public void visit(BLangCaptureBindingPattern captureBindingPattern) {

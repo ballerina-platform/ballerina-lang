@@ -353,6 +353,213 @@ function testListMatchPattern13() {
     assertEquals(false, listMatchPattern13([1, 1, 1]));
 }
 
+function listMatchPattern14() returns string {
+    anydata v = [1, 3];
+    match v {
+        [var a, var b] => {
+            return a.toString();
+        }
+        _ => {
+            return "No match";
+        }
+    }
+}
+
+function testListMatchPattern14() {
+    assertEquals("1", listMatchPattern14());
+}
+
+function listMatchPattern15([string, int] | [float, boolean] | [float, string, boolean] | float a) returns string {
+    match a {
+        [var s, var i] => {
+            return "Matched with two vars : " + s.toString() + ", " + i.toString();
+        }
+        [var s, var i, var b] => {
+            return "Matched with three vars : " + s.toString() + ", " + i.toString() + ", " + b.toString();
+        }
+        var s => {
+            return "Matched with single var : " + s.toString();
+        }
+    }
+}
+
+function testListMatchPattern15() {
+    [string, int] | [float, boolean] | [float, string, boolean] | float a1 = 66.6;
+    [string, int] | [float, boolean] | [float, string, boolean] | float a2 = ["Hello", 12];
+    [string, int] | [float, boolean] | [float, string, boolean] | float a3 = [4.5, true];
+    [string, int] | [float, boolean] | [float, string, boolean] | float a4 = [6.7, "Test", false];
+
+    assertEquals("Matched with single var : 66.6" ,listMatchPattern15(a1));
+    assertEquals("Matched with two vars : Hello, 12" ,listMatchPattern15(a2));
+    assertEquals("Matched with two vars : 4.5, true" ,listMatchPattern15(a3));
+    assertEquals("Matched with three vars : 6.7, Test, false" ,listMatchPattern15(a4));
+}
+
+function listMatchPattern16([string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float a)
+                                                                                                        returns string {
+    match a {
+        [var f, [var s, [var b, var i]]] => {
+            return "Matched with four vars : " + f.toString() + ", " + s.toString() + ", " + i.toString() + ", "
+             + b.toString();
+        }
+        [var s, [var i, var b]] => {
+            return "Matched with three vars : " + s.toString() + ", " + i.toString() + ", " + b.toString();
+        }
+        [var s, var i] => {
+            return "Matched with two vars : " + s.toString() + ", " + i.toString();
+        }
+        var s => {
+            return "Matched with single var : " + s.toString();
+        }
+    }
+}
+
+function testListMatchPattern16() {
+    float a1 = 66.6;
+    [string, int] a2 = ["Hello", 34];
+    [float, [string, [boolean, int]]] a3 = [66.6, ["Test", [true, 456]]];
+    [float, [string, boolean]] a4 = [5.6, ["Ballerina", false]];
+
+    assertEquals("Matched with single var : 66.6" ,listMatchPattern16(a1));
+    assertEquals("Matched with two vars : Hello, 34" ,listMatchPattern16(a2));
+    assertEquals("Matched with four vars : 66.6, Test, 456, true" ,listMatchPattern16(a3));
+    assertEquals("Matched with three vars : 5.6, Ballerina, false" ,listMatchPattern16(a4));
+}
+
+function listMatchPattern17(any x) returns string {
+    match x {
+        [var s, var i] if s is string => {
+            return "Matched with string : " + s + " added text with " + i.toString();
+        }
+        [var s, var i] if s is float => {
+            return "Matched with float : " + (s + 4.5).toString() + " with " + i.toString();
+        }
+        [var s, var i] if i is int => {
+            return "Matched with int : " + s.toString() + " with " + (i + 3456).toString();
+        }
+        [var s, var i] if i is boolean => {
+            return "Matched with boolean : " + s.toString() + ", " + i.toString();
+        }
+        var y => {
+            return "Matched with default type - float : " + y.toString();
+        }
+    }
+}
+
+function testListMatchPattern17() {
+    [string, int] | [float, boolean] | [boolean, int] | [int, boolean] | int | float a1 = ["Hello", 45];
+    [string, int] | [float, boolean] | [boolean, int] | [int, boolean] | int | float a2 = [4.5, true];
+    [string, int] | [float, boolean] | [boolean, int] | [int, boolean] | int | float a3 = [false, 4];
+    [int, boolean] ib = [455, true];
+    [string, int] | [float, boolean] | [boolean, int] | [int, boolean] | int | float a4 = ib;
+    [string, int] | [float, boolean] | [boolean, int] | [int, boolean] | float a5 = 5.6;
+
+    assertEquals("Matched with string : Hello added text with 45", listMatchPattern17(a1));
+    assertEquals("Matched with float : 9.0 with true", listMatchPattern17(a2));
+    assertEquals("Matched with int : false with 3460", listMatchPattern17(a3));
+    assertEquals("Matched with boolean : 455, true", listMatchPattern17(a4));
+    assertEquals("Matched with default type - float : 5.6", listMatchPattern17(a5));
+}
+
+function listMatchPattern18(any x) returns string {
+    match x {
+        [var s, var i, var f] if s is string => {
+            return "Matched with string : " + s + " added text with " + i.toString();
+        }
+        [var s, [var i, var f]] if s is float => {
+            return "Matched with float : " + (s + 4.5).toString() + " with " + i.toString() + " and " + f.toString();
+        }
+        [[var s, var i], var f] if i is int => {
+            return "Matched with int : " + s.toString() + " with " + (i + 3456).toString() + " and " + f.toString();
+        }
+        [var s, var i] if i is boolean => {
+            return "Matched with boolean : " + s.toString() + ", " + i.toString();
+        }
+    }
+    return "Default";
+}
+
+function testListMatchPattern18() {
+        [string, int, float] | [float, [boolean, int]] | [[boolean, int], float] | [int, boolean] | float
+                                                                                        a1 = ["Hello", 45, 5.6];
+        [string, int, float] | [float, [boolean, int]] | [[boolean, int], float] | [int, boolean] | float
+                                                                                        a2 = [5.7, [true, 67]];
+        [string, int, float] | [float, [boolean, int]] | [[boolean, int], float] | [int, boolean] | float
+                                                                                        a3 = [[true, 67], 7.8];
+        [string, int, float] | [float, [boolean, int]] | [[boolean, int], float] | [int, boolean] | float
+                                                                                        a4 = [678, false];
+        [string, int, float] | [float, [boolean, int]] | [[boolean, int], float] | [int, boolean] | float a5 = 67.89;
+
+        assertEquals("Matched with string : Hello added text with 45" ,listMatchPattern18(a1));
+        assertEquals("Matched with float : 10.2 with true and 67" ,listMatchPattern18(a2));
+        assertEquals("Matched with int : true with 3523 and 7.8" ,listMatchPattern18(a3));
+        assertEquals("Matched with boolean : 678, false" ,listMatchPattern18(a4));
+        assertEquals("Default" ,listMatchPattern18(a5));
+}
+
+type FooRec record {
+    string s;
+    int i;
+    float f;
+};
+
+type BarRec record {
+    byte b;
+    FooRec f;
+};
+
+function listMatchPattern19(any a) returns string {
+    match a {
+        [var i, var s] if i is FooRec && s is BarRec => {
+            return "Matched with FooRec and BarRec : " + i.toString() + " , " + s.toString();
+        }
+        [var i, var s] if i is FooRec && s is float => {
+            return "Matched with FooRec and float : " + i.toString() + " , " + s.toString();
+        }
+        [var i, var s] if i is BarRec && s is FooRec => {
+            return "Matched with BarRec and FooRec : " + i.toString() + " , " + s.toString();
+        }
+        [var i, var s] if i is BarRec && s is int => {
+            return "Matched with BarRec and int : " + i.toString() + " , " + s.toString();
+        }
+        [var i, var s] if i is float && s is FooRec => {
+            return "Matched with float and FooRec : " + i.toString() + " , " + s.toString();
+        }
+        [var i, var s] if i is int && s is BarRec => {
+            return "Matched with int and BarRec : " + i.toString() + " , " + s.toString();
+        }
+    }
+
+    return "Default";
+}
+
+function testListMatchPattern19() {
+    FooRec fooRec1 = {s: "S", i: 23, f: 5.6};
+    BarRec barRec1 = {b: 12, f: fooRec1};
+
+    [int|FooRec, float|BarRec] | [float|BarRec, int|FooRec] a1 = [fooRec1, barRec1];
+    [int|FooRec, float|BarRec] | [float|BarRec, int|FooRec] a2 = [fooRec1, 4.5];
+    [int|FooRec, float|BarRec] | [float|BarRec, int|FooRec] a3 = [barRec1, fooRec1];
+    [int|FooRec, float|BarRec] | [float|BarRec, int|FooRec] a4 = [barRec1, 543];
+    [int|FooRec, float|BarRec] | [float|BarRec, int|FooRec] a5 = [5.2, fooRec1];
+    [int|FooRec, float|BarRec] | [float|BarRec, int|FooRec] a6 = [15, barRec1];
+    [int|FooRec, float|BarRec] | [float|BarRec, int|FooRec] a7 = [65, 7.4];
+    [int|FooRec, float|BarRec] | [float|BarRec, int|FooRec] a8 = [3.6, 42];
+
+    assertEquals("Matched with FooRec and BarRec : {\"s\":\"S\",\"i\":23,\"f\":5.6} , " +
+                                "{\"b\":12,\"f\":{\"s\":\"S\",\"i\":23,\"f\":5.6}}", listMatchPattern19(a1));
+    assertEquals("Matched with FooRec and float : {\"s\":\"S\",\"i\":23,\"f\":5.6} , 4.5" ,listMatchPattern19(a2));
+    assertEquals("Matched with BarRec and FooRec : {\"b\":12,\"f\":{\"s\":\"S\",\"i\":23,\"f\":5.6}} , " +
+                                "{\"s\":\"S\",\"i\":23,\"f\":5.6}" ,listMatchPattern19(a3));
+    assertEquals("Matched with BarRec and int : {\"b\":12,\"f\":{\"s\":\"S\",\"i\":23,\"f\":5.6}} , 543" ,
+                                listMatchPattern19(a4));
+    assertEquals("Matched with float and FooRec : 5.2 , {\"s\":\"S\",\"i\":23,\"f\":5.6}" ,listMatchPattern19(a5));
+    assertEquals("Matched with int and BarRec : 15 , {\"b\":12,\"f\":{\"s\":\"S\",\"i\":23,\"f\":5.6}}" ,
+                                listMatchPattern19(a6));
+    assertEquals("Default" ,listMatchPattern19(a7));
+    assertEquals("Default" ,listMatchPattern19(a8));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

@@ -3877,6 +3877,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 default:
                     // TODO : Remove this after all binding patterns are implemented
                     dlog.error(matchPatternPos, DiagnosticCode.MATCH_PATTERN_NOT_SUPPORTED);
+                    return null;
             }
             return bLangVarBindingPattern;
         } else if (matchPattern.kind() == SyntaxKind.LIST_MATCH_PATTERN) {
