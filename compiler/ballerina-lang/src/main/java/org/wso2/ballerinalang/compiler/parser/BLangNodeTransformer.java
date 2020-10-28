@@ -454,7 +454,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     public BLangNodeTransformer(CompilerContext context,
                                 PackageID packageID, String entryName) {
-        this.dlog = BLangDiagnosticLog.getInstance(context, packageID);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog.setCurrentPackageId(packageID);
         this.symTable = SymbolTable.getInstance(context);
         this.packageID = packageID;
         this.currentCompUnitName = entryName;

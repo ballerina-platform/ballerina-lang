@@ -56,24 +56,10 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         this.packageCache = PackageCache.getInstance(context);
     }
 
-    @Deprecated
     public static BLangDiagnosticLog getInstance(CompilerContext context) {
         BLangDiagnosticLog dLogger = context.get(DIAGNOSTIC_LOG_KEY);
         if (dLogger == null) {
             dLogger = new BLangDiagnosticLog(context);
-        }
-
-        return dLogger;
-    }
-
-    public static BLangDiagnosticLog getInstance(CompilerContext context, PackageID packageID) {
-        BLangDiagnosticLog dLogger = context.get(DIAGNOSTIC_LOG_KEY);
-        if (dLogger == null) {
-            dLogger = new BLangDiagnosticLog(context);
-        }
-
-        if (packageID != null) {
-            dLogger.setCurrentPackageId(packageID);
         }
 
         return dLogger;
