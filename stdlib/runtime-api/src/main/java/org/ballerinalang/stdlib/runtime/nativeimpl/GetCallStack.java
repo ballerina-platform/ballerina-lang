@@ -20,7 +20,17 @@ package org.ballerinalang.stdlib.runtime.nativeimpl;
 
 import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.types.BArrayType;
+import io.ballerina.runtime.util.BLangConstants;
+import io.ballerina.runtime.values.ArrayValue;
+import io.ballerina.runtime.values.ArrayValueImpl;
+import io.ballerina.runtime.values.ErrorValue;
+
+import java.util.List;
 
 /**
  * Native implementation for get error's call stack.
@@ -30,6 +40,14 @@ import io.ballerina.runtime.api.values.BArray;
 public class GetCallStack {
 
     public static BArray getCallStack() {
-        return ErrorCreator.createError(StringUtils.fromString("")).getCallStack();
+        BError error = ErrorCreator.createError(StringUtils.fromString(""));
+        List<StackTraceElement> filteredStack =  error.getCallStack();
+        Type recordType = ValueCreator.createRecordValue(BLangConstants.BALLERINA_RUNTIME_PKG_ID,
+                "CallStackElement").getType();
+        ArrayValue callStack = new ArrayValueImpl(new BArrayType(recordType));
+        for (int i = 0; i < filteredStack.size(); i++) {
+            callStack.add(i, ErrorValue.getStackFrame(filteredStack.get(i)));
+        }
+        return callStack;
     }
 }

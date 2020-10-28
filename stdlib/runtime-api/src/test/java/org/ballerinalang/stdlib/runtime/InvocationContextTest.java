@@ -40,13 +40,13 @@ public class InvocationContextTest {
         compileResult = BCompileUtil.compile("test-src/invocation-context.bal");
     }
 
-    @Test(enabled = false, description = "Test case for accessing invocationId from invocation context")
+    @Test(description = "Test case for accessing invocationId from invocation context")
     public void testInvocationContextId() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testInvocationContextId");
         Assert.assertTrue(returns[0] instanceof BString);
     }
 
-    @Test(enabled = false, description = "Test case for accessing attributes from invocation context")
+    @Test(description = "Test case for accessing attributes from invocation context")
     public void testInvocationContextAttributes() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testInvocationContextAttributes");
         Assert.assertTrue(returns[0] instanceof BMap);
