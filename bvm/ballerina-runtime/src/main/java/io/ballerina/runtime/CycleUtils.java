@@ -33,12 +33,11 @@ public class CycleUtils {
     public static class Node implements BLink {
         Object obj;
         BLink parent;
-        int index;
+        int index = 0;
 
         public Node(Object obj, BLink parent) {
             this.obj = obj;
             this.parent = parent;
-            this.index = 0;
         }
 
         public boolean hasCyclesSoFar() {
