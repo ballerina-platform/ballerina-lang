@@ -142,6 +142,9 @@ public class XMLText extends XMLNonElementItem {
 
     @Override
     public Type getType() {
+        if (this.data.isEmpty()) {
+            return PredefinedTypes.TYPE_TEXT_NEVER;
+        }
         return PredefinedTypes.TYPE_TEXT;
     }
 }
