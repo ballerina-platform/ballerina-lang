@@ -23,7 +23,6 @@ import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.types.BArrayType;
 import io.ballerina.runtime.util.BLangConstants;
 import io.ballerina.runtime.values.ArrayValue;
