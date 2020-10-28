@@ -1607,6 +1607,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             copyInLockInfoStack.peek().invocations.add(invocationExpr);
         }
 
+        if (Symbols.isFlagOn(symbol.flags, Flags.ISOLATED_PARAM)) {
+            return;
+        }
+
         inferredIsolated = false;
 
         if (inIsolatedFunction) {
