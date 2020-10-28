@@ -45,40 +45,8 @@ import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BLetSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.*;
+import org.wso2.ballerinalang.compiler.semantics.model.types.*;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -3930,7 +3898,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
         checkStringTemplateExprs(bLangXMLTextLiteral.textFragments, false);
-        resultType = types.checkType(bLangXMLTextLiteral, symTable.xmlTextType, expType);
+        if (((String) ((BLangLiteral) bLangXMLTextLiteral.textFragments.get(0)).value).isEmpty()) {
+            resultType = types.checkType(bLangXMLTextLiteral, createXMLNeverType(null, bLangXMLTextLiteral), expType);
+            return;
+        }
+        BXMLSubType actualType = symTable.xmlTextType;
+        resultType = types.checkType(bLangXMLTextLiteral, actualType, expType);
     }
 
     public void visit(BLangXMLCommentLiteral bLangXMLCommentLiteral) {
@@ -5160,8 +5133,32 @@ public class TypeChecker extends BLangNodeVisitor {
         return funcSymbol;
     }
 
+    private BType createXMLNeverType(BLangInvocation iExpr, BLangXMLTextLiteral bLangXMLTextLiteral) {
+        Scope.ScopeEntry entry = symTable.rootScope.lookup(names.fromTypeKind(TypeKind.NEVER));
+        BType constraintType = (entry.symbol).type;
+        BType constrainedType = new BXMLType(constraintType, null);
+        BType type = (symTable.rootScope.lookup(names.fromTypeKind(TypeKind.XML))).symbol.type;
+        BTypeSymbol typeSymbol = type.tsymbol;
+        if (iExpr != null) {
+            constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
+                    typeSymbol.pkgID, constrainedType, typeSymbol.owner,
+                    iExpr.pos, SOURCE);
+            return constrainedType;
+        }
+        constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
+                typeSymbol.pkgID, constrainedType, typeSymbol.owner,
+                bLangXMLTextLiteral.pos, SOURCE);
+        return constrainedType;
+    }
+
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
         BType actualType = checkInvocationParam(iExpr);
+        if (actualType.tag == symTable.xmlTextType.tag) {
+            if (((String) ((BLangLiteral) iExpr.argExprs.get(0)).value).isEmpty()) {
+                resultType = types.checkType(iExpr, createXMLNeverType(iExpr, null), this.expType);
+                return;
+            }
+        }
         resultType = types.checkType(iExpr, actualType, this.expType);
     }
 
