@@ -106,6 +106,64 @@ public class BUnionType extends BType implements UnionType {
         return isNilable();
     }
 
+    public void setMemberTypes(Type[] memberTypes) {
+        this.memberTypes = Arrays.asList(memberTypes);
+        setFlagsBasedOnMembers();
+    }
+
+    public boolean isNilable() {
+        if (memberTypes == null) {
+            return true;
+        }
+
+        if (this.resolving) {
+            return false;
+        }
+
+        // TODO: use the flag
+        if (nullable == null) {
+            nullable = checkNillable(memberTypes);
+        }
+        return nullable;
+    }
+
+    private boolean checkNillable(List<Type> memberTypes) {
+        this.resolving = true;
+        for (Type t : memberTypes) {
+            if (t.isNilable()) {
+                this.resolving = false;
+                return true;
+            }
+        }
+        this.resolving = false;
+        return false;
+    }
+
+
+    private void setFlagsBasedOnMembers() {
+        if (this.resolving) {
+            return;
+        }
+        this.resolving = true;
+        boolean nilable = false, isAnydata = true, isPureType = true;
+        for (Type memberType : memberTypes) {
+            nilable |= memberType.isNilable();
+            isAnydata &= memberType.isAnydata();
+            isPureType &= memberType.isPureType();
+        }
+        this.resolving = false;
+        if (nilable) {
+            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.NILABLE);
+        }
+        if (isAnydata) {
+            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.ANYDATA);
+        }
+        if (isPureType) {
+            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.PURETYPE);
+        }
+
+    }
+
     @Override
     public <V extends Object> V getZeroValue() {
         if (isNilable() || memberTypes.stream().anyMatch(Type::isNilable)) {
@@ -189,39 +247,6 @@ public class BUnionType extends BType implements UnionType {
         return Objects.hash(super.hashCode(), memberTypes);
     }
 
-    public void setMemberTypes(BType[] memberTypes) {
-        this.memberTypes = Arrays.asList(memberTypes);
-        setFlagsBasedOnMembers();
-    }
-
-    public boolean isNilable() {
-        if (memberTypes == null) {
-            return true;
-        }
-
-        if (this.resolving) {
-            return false;
-        }
-
-        // TODO: use the flag
-        if (nullable == null) {
-            nullable = checkNillable(memberTypes);
-        }
-        return nullable;
-    }
-
-    private boolean checkNillable(List<Type> memberTypes) {
-        this.resolving = true;
-        for (Type t : memberTypes) {
-            if (t.isNilable()) {
-                this.resolving = false;
-                return true;
-            }
-        }
-        this.resolving = false;
-        return false;
-    }
-
     @Override
     public boolean isAnydata() {
         return TypeFlags.isFlagOn(this.typeFlags, TypeFlags.ANYDATA);
@@ -249,29 +274,5 @@ public class BUnionType extends BType implements UnionType {
     @Override
     public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
-    }
-
-    private void setFlagsBasedOnMembers() {
-        if (this.resolving) {
-            return;
-        }
-        this.resolving = true;
-        boolean nilable = false, isAnydata = true, isPureType = true;
-        for (Type memberType : memberTypes) {
-            nilable |= memberType.isNilable();
-            isAnydata &= memberType.isAnydata();
-            isPureType &= memberType.isPureType();
-        }
-        this.resolving = false;
-        if (nilable) {
-            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.NILABLE);
-        }
-        if (isAnydata) {
-            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.ANYDATA);
-        }
-        if (isPureType) {
-            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.PURETYPE);
-        }
-
     }
 }
