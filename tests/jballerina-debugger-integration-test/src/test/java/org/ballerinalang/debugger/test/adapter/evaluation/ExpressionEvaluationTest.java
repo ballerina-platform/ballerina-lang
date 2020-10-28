@@ -412,7 +412,8 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         assertExpression(context, String.format("%s >>> %s", INT_VAR, INT_VAR), "0", "int");
         assertExpression(context, String.format("%s >>> %s", SIGNED32INT_VAR, SIGNED8INT_VAR), "1", "int");
-        assertExpression(context, String.format("%s >>> %s", SIGNED32INT_VAR, UNSIGNED8INT_VAR), "9223372036854775308", "int");
+        assertExpression(context, String.format("%s >>> %s", SIGNED32INT_VAR, UNSIGNED8INT_VAR), "9223372036854775308",
+                "int");
         assertExpression(context, String.format("%s >>> %s", UNSIGNED32INT_VAR, SIGNED8INT_VAR), "0", "int");
         assertExpression(context, String.format("%s >>> %s", UNSIGNED32INT_VAR, UNSIGNED8INT_VAR), "500", "int");
     }
