@@ -47,12 +47,6 @@ configurations {
     debugAdapterDistribution {
         transitive false
     }
-    composerDistribution {
-        transitive false
-    }
-    composerFonts {
-        transitive false
-    }
     docerina
     bin
     bir
@@ -96,10 +90,16 @@ dependencies {
     dist 'org.jetbrains.kotlin:kotlin-stdlib-common:1.3.31'
     dist 'org.ow2.asm:asm:7.1'
     dist 'org.ow2.asm:asm-analysis:7.1'
-    dist 'org.ow2.asm:asm-tree:7.1'
+    dist 'org.ow2.asm:asm-tree:7.2'
     dist 'org.ow2.asm:asm-util:7.1'
     dist 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.5'
-    
+
+    // Following dependencies are required for transactions
+    dist 'com.atomikos:transactions-jta:5.0.8'
+    dist 'com.atomikos:transactions-api:5.0.8'
+    dist 'com.atomikos:atomikos-util:5.0.8'
+    dist 'com.atomikos:transactions:5.0.8'
+
     dist project(':ballerina-tools-api')
     dist project(':ballerina-parser')
     dist project(':ballerina-cli-utils')
@@ -128,8 +128,8 @@ dependencies {
     langserverLib project(':language-server:language-server-stdio-launcher')
     langserverLib project(':language-server:language-server-cli')
     langserverLib project(':language-server:language-server-core')
-//    debugAdapterDistribution project(':debug-adapter:debug-adapter-core')
-//    debugAdapterDistribution project(':debug-adapter:debug-adapter-cli')
+    debugAdapterDistribution project(':debug-adapter:debug-adapter-core')
+    debugAdapterDistribution project(':debug-adapter:debug-adapter-cli')
 
     balSource project(path: ':jballerina', configuration: 'source')
 
@@ -139,16 +139,12 @@ dependencies {
     bin project(path: ':jballerina', configuration: 'bin')
     staticFiles project(path: ':jballerina', configuration: 'staticFiles')
     resourceFiles project(path: ':jballerina', configuration: 'resourceFiles')
-    composerDistribution project(path: ':composer-library', configuration: 'composer')
-    composerFonts project(path: ':composer-library', configuration: 'fonts')
 
     distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
     balSource project(path: ':testerina:testerina-core', configuration: 'balSource')
 
-    birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
-
     // ballerinax module cache
-    balxBir project(path: ':ballerina-java', configuration: 'bir')
+    balxBir project(path: ':ballerina-lang:java', configuration: 'bir')
 
     balDoc project(path: ':ballerina-observability', configuration: 'balDoc')
 //    balDoc project(path: ':ballerina-transactions', configuration: 'balDoc')
@@ -156,7 +152,7 @@ dependencies {
     // Lang Libs
     balDoc project(path: ':ballerina-lang:internal', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:annotations', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-java', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-lang:java', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:array', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:decimal', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:error', configuration: 'balDoc')
@@ -176,7 +172,7 @@ dependencies {
     balDoc project(path: ':ballerina-lang:transaction', configuration: 'balDoc')
 
     // ballerinax modules
-    balDoc project(path: ':ballerina-java', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-lang:java', configuration: 'balDoc')
 
     // testerina modules
     balDoc project(path: ':testerina:testerina-core', configuration: 'balDoc')
@@ -330,24 +326,6 @@ def copyDataMapperLibsSpec = {
     }
 }
 
-def copyComposerDistributionSpec = {
-    path -> copySpec {
-        from(configurations.composerDistribution)
-        into(path + 'lib/tools/composer-library')
-        exclude('**/*.d.ts')
-        exclude('**/*.map')
-    }
-}
-
-def copyComposerFontsSpec = {
-    path -> copySpec {
-        from configurations.composerFonts
-        into(path + 'lib/tools/composer-library')
-        exclude('**/*.d.ts')
-        exclude('**/*.map')
-    }
-}
-
 def apiDocsSpec = {
     path -> copySpec {
         from generateDocs.outputs.files
@@ -376,7 +354,7 @@ task pathingJar(type: Jar) {
 task copyApiDocs(type: Copy) {
     dependsOn configurations.balDoc
     from configurations.balDoc.files
-    into "$buildDir/api-docs";
+    into "$buildDir/api-docs"
     exclude "index.html"
     exclude "html-template-resources"
     exclude "syntax-highlighter"
@@ -385,13 +363,13 @@ task copyApiDocs(type: Copy) {
 task copyHighlighter(type: Copy) {
     dependsOn configurations.syntaxHighlighter
     from configurations.syntaxHighlighter
-    into "$buildDir/api-docs/syntax-highlighter";
+    into "$buildDir/api-docs/syntax-highlighter"
 }
 
 task copyHtmlTemplateResources(type: Copy) {
     dependsOn configurations.htmlTemplateResources
     from configurations.htmlTemplateResources
-    into "$buildDir/api-docs/html-template-resources";
+    into "$buildDir/api-docs/html-template-resources"
 }
 
 task generateDocs(type: JavaExec) {
@@ -424,8 +402,6 @@ task createZip(type: Zip) {
     with copyLangServerLibsSpec(basePath)
     with copyDataMapperLibsSpec(basePath)
     with copyLangServerBinSpec(basePath)
-    with copyComposerDistributionSpec(basePath)
-    with copyComposerFontsSpec(basePath)
     with copyBallerinaZipSpec(basePath)
     with copydebugAdapterDistributionSpec(basePath)
     with copyDebugAdapterLauncher(basePath)
@@ -449,8 +425,6 @@ task updateBalHome(type: Copy) {
     with copyLangServerLibsSpec(installDir)
     with copyDataMapperLibsSpec(installDir)
     with copyLangServerBinSpec(installDir)
-    with copyComposerDistributionSpec(installDir)
-    with copyComposerFontsSpec(installDir)
     with copyBallerinaZipSpec(installDir)
     with copydebugAdapterDistributionSpec(installDir)
     with copyDebugAdapterLauncher(installDir)
@@ -477,8 +451,6 @@ task createDistribution(type: Copy) {
     with copyLangServerLibsSpec("")
     with copyDataMapperLibsSpec("")
     with copyLangServerBinSpec("")
-    with copyComposerDistributionSpec("")
-    with copyComposerFontsSpec("")
     with copyBallerinaZipSpec("")
     with copydebugAdapterDistributionSpec("")
     with copyDebugAdapterLauncher("")

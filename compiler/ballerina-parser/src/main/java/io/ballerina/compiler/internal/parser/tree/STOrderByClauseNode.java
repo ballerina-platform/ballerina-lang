@@ -30,7 +30,7 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STOrderByClauseNode extends STClauseNode {
+public class STOrderByClauseNode extends STIntermediateClauseNode {
     public final STNode orderKeyword;
     public final STNode byKeyword;
     public final STNode orderKey;

@@ -24,16 +24,19 @@ public class FormattingOptions {
     private int tabSize;
 
     // Prefer spaces over tabs.
-    private boolean insertSpaces;
+    private String wsCharacter;
+
+    private int columnLimit;
 
     FormattingOptions() {
         this.tabSize = 4;
-        this.insertSpaces = true;
+        this.wsCharacter = " ";
+        this.columnLimit = 120;
     }
 
-    FormattingOptions(int tabSize, boolean insertSpaces) {
+    FormattingOptions(int tabSize, String wsCharacter) {
         this.tabSize = tabSize;
-        this.insertSpaces = insertSpaces;
+        this.wsCharacter = wsCharacter;
     }
 
     public int getTabSize() {
@@ -44,11 +47,19 @@ public class FormattingOptions {
         this.tabSize = tabSize;
     }
 
-    public boolean isInsertSpaces() {
-        return insertSpaces;
+    public String getWSCharacter() {
+        return wsCharacter;
     }
 
-    public void setInsertSpaces(boolean insertSpaces) {
-        this.insertSpaces = insertSpaces;
+    public void setWSCharacter(String wsCharacter) {
+        this.wsCharacter = wsCharacter;
+    }
+
+    public void setColumnLimit(int columnLimit) {
+        this.columnLimit = columnLimit;
+    }
+
+    public int getColumnLimit() {
+        return this.columnLimit;
     }
 }

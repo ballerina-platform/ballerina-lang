@@ -16,13 +16,13 @@
 
 package org.ballerinalang.observe.trace.extension.choreo;
 
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.jaegertracing.internal.JaegerSpan;
 import io.jaegertracing.internal.JaegerSpanContext;
 import io.jaegertracing.internal.Reference;
 import io.jaegertracing.spi.Reporter;
 import io.opentracing.References;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClient;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClientHolder;
 import org.ballerinalang.observe.trace.extension.choreo.client.error.ChoreoClientException;
@@ -51,23 +51,21 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
 
     private final ScheduledExecutorService executorService;
     private final Task task;
-    private final int maxQueueSize;
 
-    public ChoreoJaegerReporter(int maxQueueSize) {
+    public ChoreoJaegerReporter() {
         ChoreoClient choreoClient;
         try {
             choreoClient = ChoreoClientHolder.getChoreoClient(this);
         } catch (ChoreoClientException e) {
-            throw BErrorCreator.createError(
-                    BStringUtils
+            throw ErrorCreator.createError(
+                    StringUtils
                             .fromString("Choreo client is not initialized. Please check Ballerina configurations."),
-                    BStringUtils.fromString(e.getMessage()));
+                    StringUtils.fromString(e.getMessage()));
         }
         if (Objects.isNull(choreoClient)) {
             throw new IllegalStateException("Choreo client is not initialized");
         }
 
-        this.maxQueueSize = maxQueueSize;
         executorService = new ScheduledThreadPoolExecutor(1);
         task = new Task(choreoClient);
         executorService.scheduleAtFixedRate(task, PUBLISH_INTERVAL_SECS, PUBLISH_INTERVAL_SECS, TimeUnit.SECONDS);
@@ -77,9 +75,6 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
     @Override
     public void report(JaegerSpan jaegerSpan) {
         task.append(jaegerSpan);
-        if (task.getSpanCount() >= maxQueueSize) {
-            executorService.execute(task);
-        }
     }
 
     @Override

@@ -133,23 +133,28 @@ public isolated function assertFail(string msg = "Test Failed!") {
 # + msg - Assertion error message
 #
 # + return - Error message constructed based on the compared values
-isolated function getInequalityErrorMsg(any|error actual, any|error expected, string msg = "Assertion Failed!") returns string {
-        string expectedStr = sprintf("%s", expected);
+isolated function getInequalityErrorMsg(any|error actual, any|error expected, string msg = "\nAssertion Failed!") returns string {
         string expectedType = getBallerinaType(expected);
-        string actualStr = sprintf("%s", actual);
         string actualType = getBallerinaType(actual);
         string errorMsg = "";
+        string expectedStr = sprintf("%s", expected);
+        string actualStr = sprintf("%s", actual);
+        if (expectedStr.length() > maxArgLength) {
+            expectedStr = expectedStr.substring(0, maxArgLength) + "...";
+        }
+        if (actualStr.length() > maxArgLength) {
+            actualStr = actualStr.substring(0, maxArgLength) + "...";
+        }
         if (expectedType != actualType) {
-            if (expectedStr.length() > maxArgLength) {
-                expectedStr = expectedStr.substring(0, maxArgLength);
-            }
-            if (actualStr.length() > maxArgLength) {
-                actualStr = actualStr.substring(0, maxArgLength);
-            }
-            errorMsg = string `${msg}` + "\nexpected: " + string `<${expectedType}> '${expectedStr}'` + "\nactual\t: " + string `<${actualType}> '${actualStr}'`;
+            errorMsg = string `${msg}` + "\n \nexpected: " + string `<${expectedType}> '${expectedStr}'` + "\nactual\t: "
+                + string `<${actualType}> '${actualStr}'`;
+        } else if (actual is string && expected is string) {
+            string diff = getStringDiff(<string>actual, <string>expected);
+            errorMsg = string `${msg}` + "\n \nexpected: " + string `'${expectedStr}'` + "\nactual\t: "
+                                     + string `'${actualStr}'` + "\n \nDiff\t:\n \n" + string `${diff}` + " \n";
         } else {
-            errorMsg = string `${msg}` + "\nexpected: " + string `'${expectedStr}'` + "\nactual\t: "
-            + string `'${actualStr}'`;
+            errorMsg = string `${msg}` + "\n \nexpected: " + string `'${expectedStr}'` + "\nactual\t: "
+                                                 + string `'${actualStr}'`;
         }
         return errorMsg;
 }
@@ -163,3 +168,8 @@ isolated function getBallerinaType((any|error) value) returns string = @java:Met
     name : "getBallerinaType",
     'class : "org.ballerinalang.testerina.core.BallerinaTypeCheck"
 } external;
+
+isolated function getStringDiff(string actual, string expected) returns string = @java:Method {
+     name : "getStringDiff",
+     'class : "org.ballerinalang.testerina.core.AssertionDiffEvaluator"
+ } external;

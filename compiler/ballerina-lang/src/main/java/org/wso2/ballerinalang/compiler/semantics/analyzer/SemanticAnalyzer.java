@@ -325,6 +325,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             validateAnnotationAttachmentCount(funcNode.returnTypeAnnAttachments);
         }
 
+        boolean inIsolatedFunction = funcNode.flagSet.contains(Flag.ISOLATED);
+
         for (BLangSimpleVariable param : funcNode.requiredParams) {
             symbolEnter.defineExistingVarSymbolInEnv(param.symbol, funcNode.clonedEnv);
             this.analyzeDef(param, funcNode.clonedEnv);
@@ -334,10 +336,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 ((BInvokableTypeSymbol) funcNode.type.tsymbol).paramDefaultValTypes.put(param.symbol.name.value,
                                                                                         param.expr.type);
             }
+
+            validateIsolatedParamUsage(inIsolatedFunction, param, false);
         }
-        if (funcNode.restParam != null) {
-            symbolEnter.defineExistingVarSymbolInEnv(funcNode.restParam.symbol, funcNode.clonedEnv);
-            this.analyzeDef(funcNode.restParam, funcNode.clonedEnv);
+
+        BLangSimpleVariable restParam = funcNode.restParam;
+        if (restParam != null) {
+            symbolEnter.defineExistingVarSymbolInEnv(restParam.symbol, funcNode.clonedEnv);
+            this.analyzeDef(restParam, funcNode.clonedEnv);
+            validateIsolatedParamUsage(inIsolatedFunction, restParam, true);
         }
 
         validateObjectAttachedFunction(funcNode);
@@ -852,7 +859,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         switch (variable.getKind()) {
             case VARIABLE:
             case LET_VARIABLE:
-                if (!validateVariableDefinition(varRefExpr)) {
+                if (!validateObjectTypeInitInvocation(varRefExpr)) {
                     rhsType = symTable.semanticError;
                 }
 
@@ -1997,7 +2004,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BArrayType arraySource = (BArrayType) source;
 
         // For unsealed
-        if (arraySource.size < target.expressions.size() && arraySource.state != BArrayState.UNSEALED) {
+        if (arraySource.size < target.expressions.size() && arraySource.state != BArrayState.OPEN) {
             dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, target.type, arraySource);
         }
 
@@ -2957,7 +2964,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return binaryExpressionNode;
     }
 
-    private boolean validateVariableDefinition(BLangExpression expr) {
+    private boolean validateObjectTypeInitInvocation(BLangExpression expr) {
         // Following is invalid:
         // var a = new ;
         if (expr != null && expr.getKind() == NodeKind.TYPE_INIT_EXPR &&
@@ -3235,5 +3242,37 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv prevEnv = prevEnvs.pop();
         defineOriginalSymbol(lhsExpr, varSymbol, prevEnv);
         prevEnvs.push(env);
+    }
+
+    private void validateIsolatedParamUsage(boolean inIsolatedFunction, BLangSimpleVariable variable,
+                                            boolean isRestParam) {
+        if (!hasAnnotation(variable.annAttachments, Names.ANNOTATION_ISOLATED_PARAM.value)) {
+            return;
+        }
+
+        variable.symbol.flags |= Flags.ISOLATED_PARAM;
+
+        if (!PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
+            dlog.error(variable.pos, DiagnosticCode.ISOLATED_PARAM_OUTSIDE_LANG_MODULE);
+        }
+
+        BType type = isRestParam ? ((BArrayType) variable.type).eType : variable.type;
+
+        if (!types.isSubTypeOfBaseType(type, TypeTags.INVOKABLE)) {
+            dlog.error(variable.pos, DiagnosticCode.ISOLATED_PARAM_USED_WITH_INVALID_TYPE);
+        }
+
+        if (!inIsolatedFunction) {
+            dlog.error(variable.pos, DiagnosticCode.ISOLATED_PARAM_USED_IN_A_NON_ISOLATED_FUNCTION);
+        }
+    }
+
+    private boolean hasAnnotation(List<BLangAnnotationAttachment> attachments, String name) {
+        for (BLangAnnotationAttachment attachment : attachments) {
+            if (attachment.annotationName.value.equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

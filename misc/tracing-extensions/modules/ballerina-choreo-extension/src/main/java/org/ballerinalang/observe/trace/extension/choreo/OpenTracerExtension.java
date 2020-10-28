@@ -15,13 +15,13 @@
  */
 package org.ballerinalang.observe.trace.extension.choreo;
 
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.observability.tracer.OpenTracer;
 import io.jaegertracing.internal.JaegerTracer;
 import io.jaegertracing.internal.samplers.RateLimitingSampler;
 import io.jaegertracing.spi.Reporter;
 import io.opentracing.Tracer;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.observability.tracer.OpenTracer;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClient;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClientHolder;
 import org.ballerinalang.observe.trace.extension.choreo.client.error.ChoreoClientException;
@@ -44,14 +44,14 @@ public class OpenTracerExtension implements OpenTracer {
         try {
             choreoClient = ChoreoClientHolder.getChoreoClient();
         } catch (ChoreoClientException e) {
-            throw BErrorCreator.createError(
-                    BStringUtils
+            throw ErrorCreator.createError(
+                    StringUtils
                             .fromString("Choreo client is not initialized. Please check Ballerina configurations."),
-                    BStringUtils.fromString(e.getMessage()));
+                    StringUtils.fromString(e.getMessage()));
         }
 
         if (Objects.isNull(choreoClient)) {
-            throw BErrorCreator.createError(BStringUtils.fromString(
+            throw ErrorCreator.createError(StringUtils.fromString(
                     "Choreo client is not initialized. Please check Ballerina configurations."));
         }
     }
@@ -59,15 +59,15 @@ public class OpenTracerExtension implements OpenTracer {
     @Override
     public Tracer getTracer(String serviceName) {
         if (Objects.isNull(choreoClient)) {
-            throw BErrorCreator.createError(
-                    BStringUtils
+            throw ErrorCreator.createError(
+                    StringUtils
                             .fromString("Choreo client is not initialized. Please check Ballerina configurations."));
         }
 
         if (reporterInstance == null) { // Singleton instance is used since getTracer can get called multiple times
             synchronized (this) {
                 if (reporterInstance == null) {
-                    reporterInstance = new ChoreoJaegerReporter(2000);
+                    reporterInstance = new ChoreoJaegerReporter();
                 }
             }
         }

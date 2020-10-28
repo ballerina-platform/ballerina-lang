@@ -16,9 +16,9 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.builder.NodeBasedCodeAction;
-import org.ballerinalang.langserver.codeaction.builder.impl.AddAllDocumentationCodeAction;
-import org.ballerinalang.langserver.codeaction.builder.impl.AddDocumentationCodeAction;
+import org.ballerinalang.langserver.codeaction.impl.AddAllDocumentationCodeAction;
+import org.ballerinalang.langserver.codeaction.impl.AddDocumentationCodeAction;
+import org.ballerinalang.langserver.codeaction.impl.NodeBasedCodeAction;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;

@@ -32,7 +32,6 @@ import org.ballerinalang.debugadapter.utils.PackageUtils;
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
-import java.util.StringJoiner;
 
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 
@@ -105,7 +104,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
                     // Note - All the ballerina functions are represented as java static methods and all the generated
                     // jvm methods contain strand as its first argument.
                     if (method.isStatic()) {
-                        return Optional.of(new JvmStaticMethod(context, cls, method, argEvaluators, null));
+                        return Optional.of(new GeneratedStaticMethod(context, cls, method, argEvaluators, null));
                     }
                 }
             } catch (ClassNotPreparedException ignored) {
@@ -129,15 +128,12 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
             for (String fileName : moduleFileNames) {
                 String className = fileName.replace(BAL_FILE_EXT, "").replace(File.separator, ".");
                 className = className.startsWith(".") ? className.substring(1) : className;
-                StringJoiner classNameJoiner = new StringJoiner(".");
-                classNameJoiner.add(context.getOrgName().get()).add(context.getModuleName().get())
-                        .add(context.getVersion().get().replace(".", "_")).add(className);
-
-                ReferenceType referenceType = EvaluationUtils.loadClass(context, classNameJoiner.toString(),
+                String qualifiedClassName = PackageUtils.getQualifiedClassName(context, className);
+                ReferenceType refType = EvaluationUtils.loadClass(context, qualifiedClassName,
                         syntaxNode.functionName().toSourceCode());
-                List<Method> methods = referenceType.methodsByName(syntaxNode.functionName().toSourceCode());
+                List<Method> methods = refType.methodsByName(syntaxNode.functionName().toSourceCode());
                 if (!methods.isEmpty()) {
-                    return Optional.of(new JvmStaticMethod(context, referenceType, methods.get(0), argEvaluators,
+                    return Optional.of(new GeneratedStaticMethod(context, refType, methods.get(0), argEvaluators,
                             null));
                 }
             }

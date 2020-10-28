@@ -104,6 +104,8 @@ public enum Snippet {
 
     DEF_CLASS(SnippetGenerator.getClassDefSnippet()),
 
+    DEF_ENUM(SnippetGenerator.getEnumDefSnippet()),
+
     DEF_WORKER(SnippetGenerator.getWorkerDeclarationSnippet()),
 
     DEF_REMOTE_FUNCTION(SnippetGenerator.getRemoteFunctionSnippet()),
@@ -288,7 +290,9 @@ public enum Snippet {
     
     CLAUSE_JOIN(SnippetGenerator.getJoinClauseSnippet()),
     
-    CLAUSE_ON_FAIL(SnippetGenerator.getOnFailClauseSnippet());
+    CLAUSE_ON_FAIL(SnippetGenerator.getOnFailClauseSnippet()),
+    
+    TYPE_MAP(SnippetGenerator.getMapTypeSnippet());
 
     private final String snippetName;
     private final SnippetBlock snippetBlock;
