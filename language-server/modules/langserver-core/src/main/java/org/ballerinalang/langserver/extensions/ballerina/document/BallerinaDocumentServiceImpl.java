@@ -87,42 +87,6 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     }
 
     @Override
-    public CompletableFuture<BallerinaOASResponse> openApiDefinition(BallerinaOASRequest request) {
-        return null;
-//        BallerinaOASResponse reply = new BallerinaOASResponse();
-//        String fileUri = request.getBallerinaDocument().getUri();
-//        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
-//        if (!filePath.isPresent()) {
-//            return CompletableFuture.supplyAsync(() -> reply);
-//        }
-//        Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
-//        Optional<Lock> lock = documentManager.lockFile(compilationPath);
-//
-//        try {
-//            String fileContent = documentManager.getFileContent(compilationPath);
-//            String openApiDefinition = OpenApiConverterUtils
-//                    .generateOAS3Definitions(fileContent, request.getBallerinaService());
-//            reply.setBallerinaOASJson(convertToJson(openApiDefinition));
-//        } catch (Throwable e) {
-//            reply.isIsError(true);
-//            String msg = "Operation 'ballerinaDocument/openApiDefinition' failed!";
-//            logError(msg, e, request.getBallerinaDocument(), (Position) null);
-//        } finally {
-//            lock.ifPresent(Lock::unlock);
-//        }
-//
-//        return CompletableFuture.supplyAsync(() -> reply);
-//    }
-//
-//    private static String convertToJson(String yamlString) throws IOException {
-//        ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
-//        Object obj = yamlReader.readValue(yamlString, Object.class);
-//
-//        ObjectMapper jsonWriter = new ObjectMapper();
-//        return jsonWriter.writeValueAsString(obj);
-    }
-
-    @Override
     public void apiDesignDidChange(ApiDesignDidChangeParams params) {
 //        String fileUri = params.getDocumentIdentifier().getUri();
 //        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
