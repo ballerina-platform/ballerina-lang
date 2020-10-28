@@ -346,22 +346,6 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     }
 
     /**
-     * A Util method to create a temporary openapi JSON file to be used to convert into ballerina definition.
-     *
-     * @param oasDefinition OpenApi JSON string for file creation
-     * @return Temporary file created with provided string
-     * @throws IOException will throw IO Exception if file error
-     */
-    private File getOpenApiFile(String oasDefinition) throws IOException {
-        File oasTempFile = File.createTempFile("oasTempFile", ".json");
-        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(oasTempFile),
-                StandardCharsets.UTF_8))) {
-            bw.write(oasDefinition);
-        }
-        return oasTempFile;
-    }
-
-    /**
      * Util method to merge updated compilation unit to the current compilation unit.
      *
      * @param targetCompUnit    target compilation unit
