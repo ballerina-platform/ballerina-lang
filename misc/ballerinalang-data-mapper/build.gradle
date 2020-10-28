@@ -52,13 +52,23 @@ dependencies {
 
     compile 'com.fasterxml.jackson.core:jackson-databind:2.1.2'
 
+//    compile "org.codehaus.groovy:groovy-all:2.5.8"
+//    testCompile "org.spockframework:spock-core:1.1-groovy-2.4"
+
     testCompile 'org.testng:testng'
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-all:1.10.19'
+    testCompile 'org.powermock:powermock-module-junit4:1.6.6'
+    testCompile 'org.powermock:powermock-api-mockito:1.6.6'
+    testCompile group: 'org.powermock', name: 'powermock-module-testng', version: '1.6.6'
+//    implementation 'org.powermock:powermock-module-testng-common:2.0.0'
 }
 
 test {
     systemProperty "ballerina.home", "$buildDir/ballerina-home/test/"
     systemProperty "experimental", "true"
     systemProperty "ballerina.version", project.version
+//    useJUnitPlatform()
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
