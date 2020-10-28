@@ -131,7 +131,6 @@ public class ErrorBindingPatternNode extends BindingPatternNode {
 
         public ErrorBindingPatternNodeModifier withTypeReference(
                 Node typeReference) {
-            Objects.requireNonNull(typeReference, "typeReference must not be null");
             this.typeReference = typeReference;
             return this;
         }

@@ -94,7 +94,6 @@ public class MetadataNode extends NonTerminalNode {
 
         public MetadataNodeModifier withDocumentationString(
                 Node documentationString) {
-            Objects.requireNonNull(documentationString, "documentationString must not be null");
             this.documentationString = documentationString;
             return this;
         }
