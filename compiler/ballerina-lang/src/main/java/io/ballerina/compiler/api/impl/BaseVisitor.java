@@ -188,7 +188,8 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
  *
  * @since 2.0.0
  */
-class BaseVisitor extends BLangNodeVisitor {
+abstract class BaseVisitor extends BLangNodeVisitor {
+
     @Override
     public void visit(BLangPackage pkgNode) {
     }

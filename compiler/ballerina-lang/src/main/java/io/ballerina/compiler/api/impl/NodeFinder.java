@@ -496,10 +496,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        if (setEnclosingNode(workerSendNode.expr, workerSendNode.expr.pos)) {
-            return;
-        }
-
+        lookupNode(workerSendNode.expr);
         setEnclosingNode(workerSendNode, workerSendNode.workerIdentifier.pos);
     }
 
@@ -900,7 +897,7 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr fieldAccessExpr) {
         lookupNode(fieldAccessExpr.expr);
-        setEnclosingNode(fieldAccessExpr, fieldAccessExpr.indexExpr.pos);
+        lookupNode(fieldAccessExpr.indexExpr);
     }
 
     @Override

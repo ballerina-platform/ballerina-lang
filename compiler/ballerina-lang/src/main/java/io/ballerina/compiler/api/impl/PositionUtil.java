@@ -45,20 +45,32 @@ class PositionUtil {
     }
 
     static boolean withinRange(LineRange specifiedRange, Diagnostic.DiagnosticPosition nodePosition) {
-        int startLine = nodePosition.getStartLine();
-        int startOffset = nodePosition.getStartColumn();
-        int endLine = nodePosition.getEndLine();
-        int endOffset = nodePosition.getEndColumn();
+        int nodeStartLine = nodePosition.getStartLine();
+        int nodeStartColumn = nodePosition.getStartColumn();
+        int nodeEndLine = nodePosition.getEndLine();
+        int nodeEndColumn = nodePosition.getEndColumn();
 
         int specifiedStartLine = specifiedRange.startLine().line();
+        int specifiedStartColumn = specifiedRange.startLine().offset();
         int specifiedEndLine = specifiedRange.endLine().line();
-        int specifiedStartOffset = specifiedRange.startLine().offset();
-        int specifiedEndOffset = specifiedRange.endLine().offset();
+        int specifiedEndColumn = specifiedRange.endLine().offset();
 
-        return (startLine < specifiedStartLine && endLine > specifiedEndLine)
-                || (startLine < specifiedStartLine && endLine == specifiedEndLine && endOffset > specifiedEndOffset)
-                || (startLine == specifiedStartLine && startOffset < specifiedStartOffset && endLine > specifiedEndLine)
-                || (startLine == endLine && startLine == specifiedStartLine && specifiedStartLine == specifiedEndLine
-                && startOffset <= specifiedStartOffset && endOffset >= specifiedEndOffset);
+        if (specifiedStartLine < nodeStartLine || specifiedEndLine > nodeEndLine) {
+            return false;
+        }
+
+        if (specifiedStartLine > nodeStartLine && specifiedEndLine < nodeEndLine) {
+            return true;
+        }
+
+        if (specifiedStartLine == nodeStartLine && specifiedEndLine == nodeEndLine) {
+            return specifiedStartColumn >= nodeStartColumn && specifiedEndColumn <= nodeEndColumn;
+        }
+
+        if (specifiedStartLine == nodeStartLine) {
+            return specifiedStartColumn >= nodeStartColumn;
+        }
+
+        return specifiedEndColumn <= nodeEndColumn;
     }
 }
