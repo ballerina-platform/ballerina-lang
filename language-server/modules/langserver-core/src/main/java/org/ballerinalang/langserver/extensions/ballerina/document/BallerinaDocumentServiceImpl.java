@@ -87,52 +87,6 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     }
 
     @Override
-    public CompletableFuture<BallerinaServiceListResponse> serviceList(BallerinaServiceListRequest request) {
-        return null;
-//        BallerinaServiceListResponse reply = new BallerinaServiceListResponse();
-//        String fileUri = request.getDocumentIdentifier().getUri();
-//        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
-//        if (!filePath.isPresent()) {
-//            return CompletableFuture.supplyAsync(() -> reply);
-//        }
-//        Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
-//        Optional<Lock> lock = documentManager.lockFile(compilationPath);
-//
-//        try {
-//            String fileContent = documentManager.getFileContent(compilationPath);
-//            BallerinaFile ballerinaFile = ExtendedLSCompiler.compileContent(fileContent, CompilerPhase.CODE_ANALYZE);
-//            Optional<BLangPackage> bLangPackage = ballerinaFile.getBLangPackage();
-//            ArrayList<String> services = new ArrayList<>();
-//
-//            if (bLangPackage.isPresent() && bLangPackage.get().symbol != null) {
-//                BLangCompilationUnit compilationUnit = bLangPackage.get().getCompilationUnits().stream()
-//                        .findFirst()
-//                        .orElse(null);
-//
-//                List<TopLevelNode> servicePkgs = new ArrayList<>();
-//                servicePkgs.addAll(compilationUnit.getTopLevelNodes().stream()
-//                        .filter(topLevelNode -> topLevelNode instanceof ServiceNode)
-//                        .collect(Collectors.toList()));
-//
-//                servicePkgs.forEach(servicepkg -> {
-//                    if (servicepkg instanceof ServiceNode) {
-//                        ServiceNode pkg = ((ServiceNode) servicepkg);
-//                        services.add(pkg.getName().getValue());
-//                    }
-//                });
-//            }
-//            reply.setServices(services.toArray(new String[0]));
-//        } catch (Throwable e) {
-//            String msg = "Operation 'ballerinaDocument/serviceList' failed!";
-//            logError(msg, e, request.getDocumentIdentifier(), (Position) null);
-//        } finally {
-//            lock.ifPresent(Lock::unlock);
-//        }
-//
-//        return CompletableFuture.supplyAsync(() -> reply);
-    }
-
-    @Override
     public CompletableFuture<BallerinaASTResponse> ast(BallerinaASTRequest request) {
         BallerinaASTResponse reply = new BallerinaASTResponse();
         String fileUri = request.getDocumentIdentifier().getUri();
