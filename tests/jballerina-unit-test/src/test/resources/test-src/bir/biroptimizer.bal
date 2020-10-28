@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
+import ballerina/lang.test;
 import ballerina/io;
 import ballerina/cache;
 
@@ -55,10 +55,9 @@ public function globalVarsAndAnonFunctions() {
     };
 }
 
-service hello on new http:Listener(9090) {
-    resource function sayHello(http:Caller caller,
-        http:Request req) returns error? {
-        check caller->respond("Hello, World!");
+service hello on new test:MockListener(9090) {
+    resource function sayHello() returns error? {
+
     }
 }
 
