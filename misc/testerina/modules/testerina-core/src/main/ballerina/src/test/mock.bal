@@ -393,3 +393,21 @@ public function mockHandler(MockFunction mockFunction, (any|error)... args) retu
     name: "mockHandler",
     class: "org.ballerinalang.testerina.natives.test.FunctionMock"
 } external;
+
+# Inter-op to handle function mocking which return string
+#
+# + mockFunction - mockFunction object
+# + args - function arguments
+# + return - handle value returned specifically for strings
+public function mockStringHandler(MockFunction mockFunction, (any|error)... args) returns handle = @java:Method {
+    name : "mockHandler",
+    class : "org.ballerinalang.testerina.natives.test.FunctionMock"
+} external;
+
+# Java implementation of toString
+#
+# + value - handle value to convert to string
+# + return - extracted string value
+public function toString(handle value) returns string? {
+    return java:toString(value);
+}

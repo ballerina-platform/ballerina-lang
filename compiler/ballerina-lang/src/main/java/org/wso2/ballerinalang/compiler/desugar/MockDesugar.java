@@ -18,6 +18,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -324,10 +325,18 @@ public class MockDesugar {
                 generateFieldBasedAccess("packageVersion"),
                 generateRHSExpr(packageVersion));
 
-        // The following synthesizes the equivalent of :
-        // `BLangReturn Statement <retType> test:MockHandler(<MockFunctionObj>, [<args?>])`
-        BLangReturn blangReturn =
-                ASTBuilderUtil.createReturnStmt(bLangPackage.pos, generateTypeConversionExpression());
+        BLangReturn blangReturn;
+
+        // If the return type is string, we need to generate a different kind of expression
+        if (generateType().getKind().equals(TypeKind.STRING)) {
+            blangReturn =
+                    ASTBuilderUtil.createReturnStmt(bLangPackage.pos, generateTypeConversionExpressionForString());
+        } else {
+            // The following synthesizes the equivalent of :
+            // `BLangReturn Statement <retType> test:MockHandler(<MockFunctionObj>, [<args?>])`
+            blangReturn =
+                    ASTBuilderUtil.createReturnStmt(bLangPackage.pos, generateTypeConversionExpression());
+        }
 
         List<BLangStatement> statements = new ArrayList<>();
         statements.add(bLangAssignment1);
@@ -381,6 +390,70 @@ public class MockDesugar {
         return typeConversionExpr;
     }
 
+    // This function synthesizes the Ballerina equivalent of
+    // `Return: <type> test:toString(MockStringHandler<mockFnObj>, args)`
+    private BLangTypeConversionExpr generateTypeConversionExpressionForString() {
+        BLangInvocation bLangInvocationToString = generateToStringBLangInvocation();
+        BType target = generateType();
+
+        BLangTypeConversionExpr typeConversionExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
+        typeConversionExpr.pos = bLangInvocationToString.pos;
+        typeConversionExpr.expr = bLangInvocationToString;
+        typeConversionExpr.type = target;
+        typeConversionExpr.targetType = target;
+
+        return typeConversionExpr;
+    }
+
+    // This function synthesizes the Ballerina equivalent of : `test:toString(test:MockStringHandler)`
+    private BLangInvocation generateToStringBLangInvocation() {
+        BInvokableSymbol invokableSymbol = getToStringInvokableSymbol();
+        List<BLangExpression> argsExprs = generateToStringInvocationArgsExprs();
+        List<BLangExpression> requiredArgs = generateToStringInvocationArgsExprs();
+
+        BLangInvocation bLangInvocation = ASTBuilderUtil.createInvocationExprForMethod(bLangPackage.pos,
+                invokableSymbol, requiredArgs, symResolver);
+
+        bLangInvocation.pkgAlias = (BLangIdentifier) createIdentifier("test");
+        bLangInvocation.argExprs = argsExprs;
+        bLangInvocation.expectedType = bLangInvocation.type;
+
+        return bLangInvocation;
+    }
+
+    // This function synthesizes the Ballerina equivalent of : `toString()`
+    private BInvokableSymbol getToStringInvokableSymbol() {
+        BSymbol testPkg = bLangPackage.getTestablePkg().symbol.scope.lookup(new Name("test")).symbol;
+
+        BInvokableSymbol toStringSymbol =
+                (BInvokableSymbol) testPkg.scope.lookup(new Name("toString")).symbol;
+
+        return toStringSymbol;
+    }
+
+    private List<BLangExpression> generateToStringInvocationArgsExprs() {
+        List<BLangExpression> argExprs = new ArrayList<>();
+        argExprs.add(generateMockStringHandlerBLangInvocation());
+        return argExprs;
+    }
+
+    // This function synthesizes the Ballerina equivalent of : `test:MockStringHandler(<mockFnObj>, args)`
+    private BLangInvocation generateMockStringHandlerBLangInvocation() {
+       BInvokableSymbol invokableSymbol = getMockStringHandlerInvokableSymbol();
+       List<BLangExpression> argsExprs = generateInvocationArgsExprs();
+       List<BLangExpression> requiredArgs = generateInvocationRequiredArgs();
+       List<BLangExpression> restArgs = generateInvocationRestArgs();
+
+        BLangInvocation bLangInvocation = ASTBuilderUtil.createInvocationExprForMethod(
+                bLangPackage.pos, invokableSymbol, requiredArgs, symResolver);
+        bLangInvocation.pkgAlias = (BLangIdentifier) createIdentifier("test");
+        bLangInvocation.argExprs = argsExprs;
+        bLangInvocation.expectedType = bLangInvocation.type;
+        bLangInvocation.restArgs = restArgs;
+
+        return bLangInvocation;
+    }
+
     // This function synthesizes the Ballerina equivalent of : `test:MockHandler(<mockFnObj>, args)`
     private BLangInvocation generateBLangInvocation() {
         BInvokableSymbol invokableSymbol = getMockHandlerInvokableSymbol();
@@ -404,6 +477,16 @@ public class MockDesugar {
 
         BInvokableSymbol mockHandlerSymbol =
                 (BInvokableSymbol) testPkg.scope.lookup(new Name("mockHandler")).symbol;
+
+        return mockHandlerSymbol;
+    }
+
+    // This function synthesizes the Ballerina equivalent of : `MockStringHandler()`
+    private BInvokableSymbol getMockStringHandlerInvokableSymbol() {
+        BSymbol testPkg = bLangPackage.getTestablePkg().symbol.scope.lookup(new Name("test")).symbol;
+
+        BInvokableSymbol mockHandlerSymbol =
+                (BInvokableSymbol) testPkg.scope.lookup(new Name("mockStringHandler")).symbol;
 
         return mockHandlerSymbol;
     }
