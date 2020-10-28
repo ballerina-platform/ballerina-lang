@@ -37,6 +37,7 @@ public class BLangObjectConstructorExpression extends BLangExpression {
     public BLangTypeInit typeInit;
     public BLangType referenceType;
     public boolean isClient;
+    public boolean isService;
 
     public BLangObjectConstructorExpression() {
         super();
@@ -64,6 +65,11 @@ public class BLangObjectConstructorExpression extends BLangExpression {
         if (isClient) {
             sb.append("client ");
         }
+
+        if (isService) {
+            sb.append("service ");
+        }
+
         sb.append("object ");
         if (referenceType != null && referenceType.type.name != null) {
             sb.append(referenceType.type.name.getValue());

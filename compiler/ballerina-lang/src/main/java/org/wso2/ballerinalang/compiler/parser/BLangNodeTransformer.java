@@ -977,7 +977,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (Node node : members) {
             BLangNode bLangNode = node.apply(this);
             NodeKind nodeKind =  bLangNode.getKind();
-            if (nodeKind == NodeKind.FUNCTION) {
+            if (nodeKind == NodeKind.FUNCTION || bLangNode.getKind() == NodeKind.RESOURCE_FUNC) {
                 BLangFunction bLangFunction = (BLangFunction) bLangNode;
                 bLangFunction.attachedFunction = true;
                 bLangFunction.flagSet.add(Flag.ATTACHED);
@@ -1047,6 +1047,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             if (qualifier.kind() == SyntaxKind.CLIENT_KEYWORD) {
                 annonClassDef.flagSet.add(Flag.CLIENT);
                 objectCtorExpression.isClient = true;
+            } else if (qualifier.kind() == SyntaxKind.SERVICE_KEYWORD) {
+                annonClassDef.flagSet.add(SERVICE);
+                objectCtorExpression.isService = true;
             } else {
                 throw new RuntimeException("Syntax kind is not supported: " + qualifier.kind());
             }
