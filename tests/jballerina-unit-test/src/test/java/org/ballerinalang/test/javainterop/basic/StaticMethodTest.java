@@ -17,10 +17,6 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
-import io.ballerina.runtime.api.ErrorCreator;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.values.MapValueImpl;
 import org.ballerinalang.core.model.values.BDecimal;
 import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BHandleValue;
@@ -32,6 +28,7 @@ import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.Date;
@@ -52,9 +49,6 @@ public class StaticMethodTest {
     @Test(description = "Test invoking a java static function that accepts and return nothing")
     public void testAcceptNothingAndReturnNothing() {
         BValue[] returns = BRunUtil.invoke(result, "testAcceptNothingAndReturnNothing");
-
-
-
         Assert.assertEquals(returns.length, 1);
         Assert.assertNull(returns[0]);
     }
@@ -62,9 +56,6 @@ public class StaticMethodTest {
     @Test(description = "Test invoking a java static function that accepts and return nothing")
     public void testInteropFunctionWithDifferentName() {
         BValue[] returns = BRunUtil.invoke(result, "testInteropFunctionWithDifferentName");
-
-
-
         Assert.assertEquals(returns.length, 1);
         Assert.assertNull(returns[0]);
     }
@@ -137,12 +128,6 @@ public class StaticMethodTest {
         BValue[] returns = BRunUtil.invoke(result, "testUnionReturn");
         Assert.assertEquals(returns[0].stringValue(),
                 "{\"resources\":[{\"path\":\"basePath\",\"method\":\"Method string\"}]}");
-
-    }
-
-    public static Object returnObjectOrError() {
-        return ErrorCreator.createError(StringUtils.fromString("some reason"),
-                                        new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
     @Test(description = "Test tuple return with null values")
@@ -175,39 +160,14 @@ public class StaticMethodTest {
         Assert.assertEquals(returns[0].stringValue(), "199.7");
     }
 
-    @Test
-    public void testBalEnvSlowAsyncVoidSig() {
-        BRunUtil.invoke(result, "testBalEnvSlowAsyncVoidSig");
+    @Test(dataProvider = "functionNamesProvider")
+    public void testBalEnvSlowAsync(String funcName) {
+        BRunUtil.invoke(result, funcName);
     }
 
-    @Test
-    public void testBalEnvFastAsyncVoidSig() {
-        BRunUtil.invoke(result, "testBalEnvFastAsyncVoidSig");
-    }
-
-    @Test
-    public void testBalEnvSlowAsync() {
-        BRunUtil.invoke(result, "testBalEnvSlowAsync");
-    }
-
-    @Test
-    public void testBalEnvFastAsync() {
-        BRunUtil.invoke(result, "testBalEnvFastAsync");
-    }
-
-    @Test
-    public void testReturnNullString() {
-        BRunUtil.invoke(result, "testReturnNullString");
-    }
-
-    @Test
-    public void testReturnNotNullString() {
-        BRunUtil.invoke(result, "testReturnNotNullString");
-    }
-
-    @Test(description = "When instance and static methods have the same name resolve static method based on the " +
-            "parameter type")
-    public void testStaticResolve() {
-        BRunUtil.invoke(result, "testStaticResolve");
+    @DataProvider(name = "functionNamesProvider")
+    public Object[] getFunctionNames() {
+        return new String[]{"testBalEnvSlowAsyncVoidSig", "testBalEnvFastAsyncVoidSig", "testBalEnvSlowAsync",
+                "testBalEnvFastAsync", "testReturnNullString", "testReturnNotNullString", "testStaticResolve"};
     }
 }

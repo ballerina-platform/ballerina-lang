@@ -19,6 +19,22 @@ import ballerina/java;
 import ballerina/lang.'value;
 import ballerina/test;
 
+public class Person {
+    int age = 9;
+    public function init(int age) {
+        self.age = age;
+    }
+}
+
+public type ResourceDefinition record {|
+    string path;
+    string method;
+|};
+
+public type ApiDefinition record {|
+    ResourceDefinition[] resources;
+|};
+
 function testAcceptNothingAndReturnNothing() {
     acceptNothingAndReturnNothing();
 }
@@ -73,10 +89,47 @@ function testUsingParamValues() returns int {
 function testDecimalParamAndReturn(decimal a1) returns decimal {
     return decimalParamAndReturn(a1);
 }
-
 function testStaticResolve() {
+    // When instance and static methods have the same name resolve static method based on the parameter type
     int val = hashCode(2);
     test:assertEquals(val, 2);
+}
+
+public function testBalEnvSlowAsyncVoidSig() {
+    int added = addTwoNumbersSlowAsyncVoidSig(1, 2);
+    test:assertEquals(3, added);
+}
+
+public function testUnionReturn() returns string {
+    ResourceDefinition resourceDef = {path:"path", method:"method"};
+    ResourceDefinition[] resources = [resourceDef];
+    ApiDefinition apiDef = {resources:resources};
+    return value:toString(getMapOrError("swagger", apiDef));
+}
+
+public function testBalEnvFastAsyncVoidSig() {
+    int added = addTwoNumbersFastAsyncVoidSig(1, 2);
+    test:assertEquals(3, added);
+}
+
+public function testBalEnvSlowAsync() {
+    int added = addTwoNumbersSlowAsync(1, 2);
+    test:assertEquals(3, added);
+}
+
+public function testBalEnvFastAsync() {
+    int added = addTwoNumbersFastAsync(1, 2);
+    test:assertEquals(3, added);
+}
+
+public function testReturnNullString() {
+    string concat = "some" + (returnNullString(true) ?: "");
+    test:assertEquals("some", concat);
+}
+
+public function testReturnNotNullString() {
+    string concat = "some" + (returnNullString(false) ?: "");
+    test:assertEquals("someNotNull", concat);
 }
 
 // Interop functions
@@ -161,36 +214,13 @@ public function acceptSomethingReturnSomethingAndThrowsUncheckedException(handle
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
-public class Person {
-    int age = 9;
-    public function init(int age) {
-        self.age = age;
-    }
-}
-
-public type ResourceDefinition record {|
-    string path;
-    string method;
-|};
-
-public type ApiDefinition record {|
-    ResourceDefinition[] resources;
-|};
-
-public function testUnionReturn() returns string {
-    ResourceDefinition resourceDef = {path:"path", method:"method"};
-    ResourceDefinition[] resources = [resourceDef];
-    ApiDefinition apiDef = {resources:resources};
-    return value:toString(getMapOrError("swagger", apiDef));
-}
-
 function getMapOrError(string swaggerFilePath, ApiDefinition apiDef) returns ApiDefinition | error  = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function getObjectOrError() returns Person|error = @java:Method {
     name: "returnObjectOrError",
-    'class: "org.ballerinalang.test.javainterop.basic.StaticMethodTest"
+    'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function getArrayValue() returns [string, string] | error = @java:Method {
@@ -230,51 +260,8 @@ function decimalParamAndReturn(decimal a1) returns decimal = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
-public function testBalEnvSlowAsyncVoidSig() {
-    int added = addTwoNumbersSlowAsyncVoidSig(1, 2);
-    assertEquality(3, added);
-}
-
-public function testBalEnvFastAsyncVoidSig() {
-    int added = addTwoNumbersFastAsyncVoidSig(1, 2);
-    assertEquality(3, added);
-}
-
-public function testBalEnvSlowAsync() {
-    int added = addTwoNumbersSlowAsync(1, 2);
-    assertEquality(3, added);
-}
-
-public function testBalEnvFastAsync() {
-    int added = addTwoNumbersFastAsync(1, 2);
-    assertEquality(3, added);
-}
-
-public function testReturnNullString() {
-    string concat = "some" + (returnNullString(true) ?: "");
-    test:assertEquals("some", concat);
-}
-
-public function testReturnNotNullString() {
-    string concat = "some" + (returnNullString(false) ?: "");
-    test:assertEquals("someNotNull", concat);
-}
-
 function hashCode(int receiver) returns int = @java:Method {
     name: "hashCode",
     'class: "java.lang.Byte",
     paramTypes: ["byte"]
 } external;
-
-const ASSERTION_ERROR_REASON = "AssertionError";
-
-function assertEquality(any|error expected, any|error actual) {
-    if expected is anydata && actual is anydata && expected == actual {
-        return;
-    }
-    if expected === actual {
-        return;
-    }
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
-}

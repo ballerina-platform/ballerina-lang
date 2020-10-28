@@ -301,6 +301,11 @@ public class StaticMethods {
         return apiDefinitions;
     }
 
+    public static Object returnObjectOrError() {
+        return ErrorCreator.createError(StringUtils.fromString("some reason"),
+                                        new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+    }
+
     public static TupleValueImpl getArrayValue() throws BallerinaException {
         String name = null;
         String type = null;
