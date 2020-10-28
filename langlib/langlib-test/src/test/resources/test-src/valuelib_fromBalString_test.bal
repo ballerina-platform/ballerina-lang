@@ -257,7 +257,6 @@ function testXmlFromBalString() {
     string s2 = x2.toBalString();
     string s3 = x3.toBalString();
     string s4 = x4.toBalString();
-
     string s5 = x5.toBalString();
 
     anydata|error result1 = s1.fromBalString();
