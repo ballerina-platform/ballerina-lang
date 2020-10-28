@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.impl;
+package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LineRange;
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
@@ -36,6 +34,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.StringJoiner;
@@ -43,35 +42,34 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider.createQuickFixCodeAction;
-
 /**
  * Code Action for optimizing all imports.
  *
  * @since 1.2.0
  */
-public class OptimizeImportsCodeAction implements NodeBasedCodeAction {
+@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
+public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
     private static final String UNUSED_IMPORT_MODULE = "unused import module";
     private static final String IMPORT_KW = "import";
     private static final String VERSION_KW = "version";
     private static final String ORG_SEPARATOR = "/";
     private static final String ALIAS_SEPARATOR = "as";
 
+
+    public OptimizeImportsCodeAction() {
+        super(Collections.singletonList(CodeActionNodeType.IMPORTS));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public List<CodeAction> get(CodeActionNodeType nodeType, List<Diagnostic> allDiagnostics, LSContext context)
-            throws LSCodeActionProviderException {
+    public List<CodeAction> getNodeBasedCodeActions(NonTerminalNode matchedNode, CodeActionNodeType matchedNodeType,
+                                                    List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
+                                                    LSContext context) {
         List<CodeAction> actions = new ArrayList<>();
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-
-        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        SyntaxTree tree = null;
-        try {
-            tree = documentManager.getTree(CommonUtil.getPathFromURI(uri).get());
-        } catch (WorkspaceDocumentException e) {
-            return actions;
-        }
-        ModulePartNode modulePartNode = tree.rootNode();
-        NodeList<ImportDeclarationNode> fileImports = modulePartNode.imports();
+        NodeList<ImportDeclarationNode> fileImports = ((ModulePartNode) syntaxTree.rootNode()).imports();
 
         BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         if (bLangPackage == null || fileImports == null || fileImports.isEmpty()) {
@@ -181,31 +179,5 @@ public class OptimizeImportsCodeAction implements NodeBasedCodeAction {
         edits.add(new TextEdit(new Range(position, position), editText.toString()));
         actions.add(createQuickFixCodeAction(CommandConstants.OPTIMIZE_IMPORTS_TITLE, edits, uri));
         return actions;
-    }
-
-    private static class ImportModel {
-        private String orgName = "";
-        private String moduleName = "";
-        private String alias = "";
-        private String version = "";
-
-        public static ImportModel from(ImportDeclarationNode importPkg) {
-            String orgName = importPkg.orgName().isPresent() ? importPkg.orgName().get().orgName() + ORG_SEPARATOR : "";
-            StringBuilder pkgNameBuilder = new StringBuilder();
-            importPkg.moduleName().forEach(pkgNameBuilder::append);
-            String pkgName = pkgNameBuilder.toString();
-            String alias = importPkg.prefix().isEmpty() ? "" : importPkg.prefix().get().prefix().text();
-            StringBuilder versionBuilder = new StringBuilder();
-            importPkg.version().ifPresent(v -> v.versionNumber().forEach(versionBuilder::append));
-            String version = versionBuilder.toString();
-            return new ImportModel(orgName, pkgName, alias, version);
-        }
-
-        public ImportModel(String orgName, String moduleName, String alias, String version) {
-            this.orgName = orgName;
-            this.moduleName = moduleName;
-            this.alias = alias;
-            this.version = version;
-        }
     }
 }

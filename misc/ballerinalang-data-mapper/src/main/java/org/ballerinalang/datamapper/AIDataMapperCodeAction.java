@@ -15,13 +15,14 @@
  */
 package org.ballerinalang.datamapper;
 
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.datamapper.config.LSClientExtendedConfig;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
@@ -59,41 +60,33 @@ import static org.ballerinalang.langserver.util.references.ReferencesUtil.getRef
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
-
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> diagnosticsOfRange,
-                                                    List<Diagnostic> allDiagnostics) {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    PositionDetails positionDetails,
+                                                    List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
+                                                    LSContext context) {
         List<CodeAction> actions = new ArrayList<>();
-        WorkspaceDocumentManager documentManager = lsContext.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(DocumentServiceKeys.FILE_URI_KEY));
+        Diagnostic diagnostic = positionDetails.diagnostic();
+        if (diagnostic.getMessage().toLowerCase(Locale.ROOT).contains(CommandConstants.INCOMPATIBLE_TYPES)) {
+            return actions;
+        }
+        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+        Optional<Path> filePath = CommonUtil.getPathFromURI(context.get(DocumentServiceKeys.FILE_URI_KEY));
         try {
             if (!filePath.isPresent()) {
                 return actions;
             }
             LSDocumentIdentifier document = documentManager.getLSDocument(filePath.get());
-            for (Diagnostic diagnostic : diagnosticsOfRange) {
-                if (diagnostic.getMessage().toLowerCase(Locale.ROOT).contains(CommandConstants.INCOMPATIBLE_TYPES)) {
-                    getAIDataMapperCommand(document, diagnostic, lsContext).map(actions::add);
-                }
-            }
+            getAIDataMapperCommand(document, diagnostic, context).map(actions::add);
         } catch (WorkspaceDocumentException e) {
             // ignore
         }
         return actions;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> allDiagnostics) {
-        throw new UnsupportedOperationException("Not supported");
-    }
 
     /**
      * {@inheritDoc}

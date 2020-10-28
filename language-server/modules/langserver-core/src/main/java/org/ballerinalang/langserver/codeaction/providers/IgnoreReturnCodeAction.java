@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.impl;
+package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.api.types.UnionTypeSymbol;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
@@ -30,39 +33,50 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider.createQuickFixCodeAction;
+import java.util.Locale;
 
 /**
  * Code Action for ignore variable assignment.
  *
  * @since 2.0.0
  */
-public class IgnoreReturnCodeAction implements DiagBasedCodeAction {
-    private final TypeSymbol typeDescriptor;
+@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
+public class IgnoreReturnCodeAction extends AbstractCodeActionProvider {
 
-    public IgnoreReturnCodeAction(TypeSymbol typeDescriptor) {
-        this.typeDescriptor = typeDescriptor;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context) {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    PositionDetails positionDetails,
+                                                    List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
+                                                    LSContext context) {
+        String diagnosticMsg = diagnostic.getMessage().toLowerCase(Locale.ROOT);
+        if (!(diagnosticMsg.contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
+            return Collections.emptyList();
+        }
+
+        TypeSymbol typeDescriptor = positionDetails.matchedSymbolTypeDesc();
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         Position pos = diagnostic.getRange().getStart();
-        boolean hasError = false;
-        if (typeDescriptor.typeKind() == TypeDescKind.ERROR) {
-            hasError = true;
-        } else if (typeDescriptor.typeKind() == TypeDescKind.UNION) {
-            UnionTypeSymbol unionType = (UnionTypeSymbol) typeDescriptor;
-            hasError = unionType.memberTypeDescriptors().stream().anyMatch(s -> s.typeKind() == TypeDescKind.ERROR);
-        }
         // Add ignore return value code action
-        if (!hasError) {
+        if (!hasErrorType(typeDescriptor)) {
             String commandTitle = CommandConstants.IGNORE_RETURN_TITLE;
             return Collections.singletonList(
-                    createQuickFixCodeAction(commandTitle, getIgnoreCodeActionEdits(pos), uri));
+                    createQuickFixCodeAction(commandTitle, getIgnoreCodeActionEdits(pos), uri)
+            );
         }
         return Collections.emptyList();
+    }
+
+    private boolean hasErrorType(TypeSymbol typeSymbol) {
+        if (typeSymbol.typeKind() == TypeDescKind.ERROR) {
+            return true;
+        } else if (typeSymbol.typeKind() == TypeDescKind.UNION) {
+            UnionTypeSymbol unionType = (UnionTypeSymbol) typeSymbol;
+            return unionType.memberTypeDescriptors().stream().anyMatch(s -> s.typeKind() == TypeDescKind.ERROR);
+        }
+        return false;
     }
 
     private static List<TextEdit> getIgnoreCodeActionEdits(Position position) {

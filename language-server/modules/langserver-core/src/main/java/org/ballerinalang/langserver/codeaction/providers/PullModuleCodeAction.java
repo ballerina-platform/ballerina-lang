@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.impl;
+package org.ballerinalang.langserver.codeaction.providers;
 
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
+import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.toml.model.Dependency;
@@ -41,10 +43,18 @@ import java.util.regex.Matcher;
  *
  * @since 1.1.1
  */
-public class PullModuleCodeAction implements DiagBasedCodeAction {
+@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
+public class PullModuleCodeAction extends AbstractCodeActionProvider {
+    private static final String UNRESOLVED_MODULE = "cannot resolve module";
+
     @Override
-    public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
-            throws LSCodeActionProviderException {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    PositionDetails positionDetails, List<Diagnostic> allDiagnostics,
+                                                    SyntaxTree syntaxTree, LSContext context) {
+        if (!(diagnostic.getMessage().startsWith(UNRESOLVED_MODULE))) {
+            return Collections.emptyList();
+        }
+
         String diagnosticMessage = diagnostic.getMessage();
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
@@ -67,7 +77,7 @@ public class PullModuleCodeAction implements DiagBasedCodeAction {
             action.setDiagnostics(diagnostics);
             return Collections.singletonList(action);
         }
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     private static String getVersion(LSContext context, String pkgName, Matcher matcher) {

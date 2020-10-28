@@ -35,8 +35,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -112,6 +110,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.langserver.codeaction.CodeActionRouter.getAvailableCodeActions;
 import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
 import static org.ballerinalang.langserver.compiler.LSClientLogger.notifyUser;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
@@ -442,12 +441,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .build();
             try {
                 // Compile and get Top level node
-                CodeActionNodeType nodeType = CodeActionUtil.topLevelNodeInLine(context, identifier, line, docManager);
-                List<Diagnostic> rangeDiagnostics = params.getContext().getDiagnostics();
-                List<Diagnostic> allDiagnostics = context.get(CodeActionKeys.DIAGNOSTICS_KEY);
+                List<Diagnostic> cursorDiagnostics = params.getContext().getDiagnostics();
+                BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager, false, false);
+                List<Diagnostic> allDiagnostics = CodeActionUtil.toDiagnostics(bLangPackage.getDiagnostics());
 
                 // Add code actions
-                actions = CodeActionRouter.getBallerinaCodeActions(nodeType, context, rangeDiagnostics, allDiagnostics);
+                SyntaxTree syntaxTree = docManager.getTree(filePath.get());
+                actions = getAvailableCodeActions(syntaxTree, cursorDiagnostics, allDiagnostics, context);
             } catch (UserErrorException e) {
                 notifyUser("Code Action", e);
             } catch (Throwable e) {

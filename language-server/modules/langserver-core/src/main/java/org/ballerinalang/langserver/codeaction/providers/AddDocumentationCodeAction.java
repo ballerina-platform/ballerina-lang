@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.impl;
+package org.ballerinalang.langserver.codeaction.providers;
 
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -36,17 +39,32 @@ import java.util.List;
  *
  * @since 1.1.1
  */
+@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
+public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
+    public AddDocumentationCodeAction() {
+        super(Arrays.asList(CodeActionNodeType.FUNCTION,
+                            CodeActionNodeType.OBJECT,
+                            CodeActionNodeType.CLASS,
+                            CodeActionNodeType.SERVICE,
+                            CodeActionNodeType.RESOURCE,
+                            CodeActionNodeType.RECORD,
+                            CodeActionNodeType.OBJECT_FUNCTION,
+                            CodeActionNodeType.CLASS_FUNCTION));
+    }
 
-public class AddDocumentationCodeAction implements NodeBasedCodeAction {
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public List<CodeAction> get(CodeActionNodeType nodeType, List<Diagnostic> allDiagnostics, LSContext context) {
+    public List<CodeAction> getNodeBasedCodeActions(NonTerminalNode matchedNode, CodeActionNodeType matchedNodeType,
+                                                    List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
+                                                    LSContext context) {
         String docUri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         int line = context.get(CodeActionKeys.POSITION_START_KEY).getLine();
 
-        CommandArgument nodeTypeArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_TYPE, nodeType.name());
         CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
         CommandArgument lineStart = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, String.valueOf(line));
-        List<Object> args = new ArrayList<>(Arrays.asList(nodeTypeArg, docUriArg, lineStart));
+        List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, lineStart));
 
         CodeAction action = new CodeAction(CommandConstants.ADD_DOCUMENTATION_TITLE);
         Command command = new Command(CommandConstants.ADD_DOCUMENTATION_TITLE, AddDocumentationExecutor.COMMAND, args);

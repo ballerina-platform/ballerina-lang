@@ -13,17 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.impl;
+package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.apache.commons.lang3.StringUtils;
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
+import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.ClassDefinition;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
@@ -31,8 +35,6 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -43,56 +45,47 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-
-import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider.createQuickFixCodeAction;
 
 /**
  * Code Action for implementing functions of an object.
  *
  * @since 1.2.0
  */
+@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
+public class ImplementFunctionsCodeAction extends AbstractCodeActionProvider {
+    private static final String NO_IMPL_FOUND_FOR_FUNCTION = "no implementation found for the function";
 
-public class ImplementFunctionsCodeAction implements DiagBasedCodeAction {
     @Override
-    public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
-            throws LSCodeActionProviderException {
+    public boolean isEnabled() {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    PositionDetails positionDetails, List<Diagnostic> allDiagnostics,
+                                                    SyntaxTree syntaxTree, LSContext context) {
+        if (!(diagnostic.getMessage().startsWith(NO_IMPL_FOUND_FOR_FUNCTION))) {
+            new ArrayList<>();
+        }
         BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         Position position = diagnostic.getRange().getStart();
-        int line = position.getLine();
-        int column = position.getCharacter();
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-        Optional<BLangTypeDefinition> objType = bLangPackage.topLevelNodes.stream()
-                .filter(topLevelNode -> {
-                    if (topLevelNode instanceof BLangTypeDefinition) {
-                        Location pos = topLevelNode.getPosition();
-                        return ((pos.lineRange().startLine().line() == line || pos.lineRange().endLine().line() == line
-                                || (pos.lineRange().startLine().line() < line
-                                && pos.lineRange().endLine().line() > line))
-                                && (pos.lineRange().startLine().offset() <= column
-                                && pos.lineRange().endLine().offset() <= column));
-                    }
-                    return false;
-                }).findAny().map(t -> (BLangTypeDefinition) t);
+        NonTerminalNode classType = positionDetails.matchedNode();
 
         List<TextEdit> edits = new ArrayList<>();
-        if (objType.isPresent()) {
-            BLangTypeDefinition typeDefinition = objType.get();
-            //TODO: Fix this
-//            if (addedObjPosition.contains(typeDefinition.pos)) {
-//                 Skip, CodeAction for typeDefinition is already added
-//                return null;
+        if (classType.kind() == SyntaxKind.CLASS_DEFINITION) {
+            ClassDefinition classDefinition = (ClassDefinition) classType;
+            int one = 1;
+//            if (symbol instanceof BObjectTypeSymbol) {
+//                BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) symbol;
+//                typeSymbol.referencedFunctions.stream()
+//                        .filter(func -> !func.symbol.bodyExist)
+//                        .forEach(func -> edits
+//                                .addAll(getNewFunctionEditText(func, classType.get(), bLangPackage, context)));
 //            }
-//            addedObjPosition.add(typeDefinition.pos);
-
-            BSymbol symbol = typeDefinition.symbol;
-            if (symbol instanceof BObjectTypeSymbol) {
-                BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) symbol;
-                typeSymbol.referencedFunctions.stream()
-                        .filter(func -> !func.symbol.bodyExist)
-                        .forEach(func -> edits
-                                .addAll(getNewFunctionEditText(func, objType.get(), bLangPackage, context)));
-            }
         }
 
         if (!edits.isEmpty()) {

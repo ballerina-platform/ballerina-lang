@@ -16,22 +16,25 @@
 package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.JsonObject;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
-import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
@@ -55,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -109,22 +113,19 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Invalid parameters received for the create function command!");
         }
 
+        Path path = CommonUtil.getPathFromURI(uri).get();
         WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+        SyntaxTree syntaxTree = null;
+        try {
+            syntaxTree = docManager.getTree(path);
+        } catch (WorkspaceDocumentException e) {
+            throw new LSCommandExecutorException("Error while retrieving syntax tree for path: " + path.toString());
+        }
 
         BLangInvocation functionNode = null;
-        try {
-            LSDocumentIdentifier lsDocument = docManager.getLSDocument(CommonUtil.getPathFromURI(uri).get());
-            Position pos = new Position(line, column + 1);
-            context.put(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST, true);
-            context.put(ReferencesKeys.DO_NOT_SKIP_NULL_SYMBOLS, true);
-            SymbolReferencesModel.Reference refAtCursor = ReferencesUtil.getReferenceAtCursor(context, lsDocument, pos);
-            BLangNode bLangNode = refAtCursor.getbLangNode();
-            if (bLangNode instanceof BLangInvocation) {
-                functionNode = (BLangInvocation) bLangNode;
-            }
-        } catch (WorkspaceDocumentException | CompilationFailedException | TokenOrSymbolNotFoundException e) {
-            throw new LSCommandExecutorException("Error while compiling the source!");
-        }
+        Position pos = new Position(line, column + 1);
+        PositionDetails cursorDetails = CodeActionUtil.findCursorDetails(new Range(pos, pos), syntaxTree, context);
+
         if (functionNode == null) {
             throw new LSCommandExecutorException("Couldn't find the function node!");
         }

@@ -1015,6 +1015,12 @@ public class CommonUtil {
         return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(txtPos, 0));
     }
 
+    public static NonTerminalNode findNode(Position position, SyntaxTree syntaxTree) {
+        TextDocument textDocument = syntaxTree.textDocument();
+        int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
+        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(txtPos, 0));
+    }
+
     public static boolean isWithinLineRange(Position pos, LineRange lineRange) {
         int sLine = lineRange.startLine().line();
         int sCol = lineRange.startLine().offset();

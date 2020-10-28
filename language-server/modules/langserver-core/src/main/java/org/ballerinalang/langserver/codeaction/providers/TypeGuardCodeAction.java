@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.impl;
+package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
@@ -22,31 +22,31 @@ import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.api.types.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.tools.text.LinePosition;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.langserver.command.CommandUtil;
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
+import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider.createQuickFixCodeAction;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 
 /**
@@ -54,32 +54,31 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATO
  *
  * @since 2.0.0
  */
-public class TypeGuardCodeAction implements DiagBasedCodeAction {
-    private final NonTerminalNode scopedNode;
-    private final Symbol scopedSymbol;
-    private final TypeSymbol typeDescriptor;
-
-    public TypeGuardCodeAction(TypeSymbol typeDescriptor, NonTerminalNode scopedNode,
-                               Symbol scopedSymbol) {
-        this.typeDescriptor = typeDescriptor;
-        this.scopedNode = scopedNode;
-        this.scopedSymbol = scopedSymbol;
-    }
-
+@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
+public class TypeGuardCodeAction extends AbstractCodeActionProvider {
     @Override
-    public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
-            throws LSCodeActionProviderException {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    PositionDetails positionDetails, List<Diagnostic> allDiagnostics,
+                                                    SyntaxTree syntaxTree, LSContext context) {
+        String diagnosticMsg = diagnostic.getMessage().toLowerCase(Locale.ROOT);
+        if (!(diagnosticMsg.contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
+            return Collections.emptyList();
+        }
+
+        NonTerminalNode matchedNode = positionDetails.matchedNode();
+        Symbol matchedSymbol = positionDetails.matchedSymbol();
+        TypeSymbol typeDescriptor = positionDetails.matchedSymbolTypeDesc();
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         try {
             if (typeDescriptor.typeKind() == TypeDescKind.UNION) {
                 UnionTypeSymbol unionType = (UnionTypeSymbol) typeDescriptor;
-                boolean isRemoteInvocation = scopedSymbol instanceof Qualifiable &&
-                        ((Qualifiable) scopedSymbol).qualifiers().contains(Qualifier.REMOTE);
+                boolean isRemoteInvocation = matchedSymbol instanceof Qualifiable &&
+                        ((Qualifiable) matchedSymbol).qualifiers().contains(Qualifier.REMOTE);
                 if (!isRemoteInvocation) {
                     // Add type guard code action
-                    String commandTitle = String.format(CommandConstants.TYPE_GUARD_TITLE, scopedSymbol.name());
-                    List<TextEdit> tEdits = getTypeGuardCodeActionEdits(context, uri, scopedNode,
-                                                                        scopedSymbol, unionType);
+                    String commandTitle = String.format(CommandConstants.TYPE_GUARD_TITLE, matchedSymbol.name());
+                    List<TextEdit> tEdits = getTypeGuardCodeActionEdits(context, uri, matchedNode,
+                                                                        matchedSymbol, unionType);
                     if (!tEdits.isEmpty()) {
                         return Collections.singletonList(createQuickFixCodeAction(commandTitle, tEdits, uri));
                     }
@@ -92,15 +91,16 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
     }
 
     private static List<TextEdit> getTypeGuardCodeActionEdits(LSContext context, String uri,
-                                                              NonTerminalNode scopedNode,
-                                                              Symbol scopedSymbol,
+                                                              NonTerminalNode matchedNode,
+                                                              Symbol matchedSymbol,
                                                               UnionTypeSymbol unionType)
             throws WorkspaceDocumentException, IOException {
-        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        int sLine = scopedNode.lineRange().startLine().line();
-        int sCol = scopedNode.lineRange().startLine().offset();
-        int eLine = scopedNode.lineRange().endLine().line();
-        int eCol = scopedNode.lineRange().endLine().offset();
+        LinePosition startLine = matchedNode.lineRange().startLine();
+        LinePosition endLine = matchedNode.lineRange().endLine();
+        int sLine = startLine.line();
+        int sCol = startLine.offset();
+        int eLine = endLine.line();
+        int eCol = endLine.offset();
         Position startPos = new Position(sLine, sCol);
         Position endPosWithSemiColon = new Position(eLine, eCol + 1);
         Position endPos = new Position(eLine, eCol);
@@ -109,11 +109,6 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
         List<TextEdit> edits = new ArrayList<>();
         String spaces = StringUtils.repeat(' ', sCol);
         String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
-        String content = CommandUtil.getContentOfRange(docManager, uri, new Range(startPos, endPos));
-        // Remove last line feed
-        while (content.endsWith(LINE_SEPARATOR)) {
-            content = content.substring(0, content.length() - 1);
-        }
 
         boolean hasError = unionType.memberTypeDescriptors().stream().anyMatch(s -> s.typeKind() == TypeDescKind.ERROR);
 
@@ -131,23 +126,22 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
         }
         // Check is binary union type with error type
         if ((unionType.memberTypeDescriptors().size() == 2 || transitiveBinaryUnion) && hasError) {
-            String finalContent = content;
             members.forEach(bType -> {
                 if (bType.typeKind() == TypeDescKind.NIL) {
                     // if (foo() is error) {...}
-                    String newText = String.format("if (%s is error) {%s}", finalContent, padding);
+                    String newText = String.format("if (%s is error) {%s}", matchedNode.toSourceCode(), padding);
                     edits.add(new TextEdit(newTextRange, newText));
                 } else {
                     // if (foo() is int) {...} else {...}
                     String type = bType.signature();
-                    String newText = String.format("if (%s is %s) {%s} else {%s}", finalContent, type, padding,
-                                                   padding);
+                    String newText = String.format("if (%s is %s) {%s} else {%s}", matchedNode.toSourceCode(), type,
+                                                   padding, padding);
                     edits.add(new TextEdit(newTextRange, newText));
                 }
             });
         } else {
             CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-            String name = scopedSymbol != null ? scopedSymbol.name() : unionType.signature();
+            String name = matchedSymbol != null ? matchedSymbol.name() : unionType.signature();
             String varName = CommonUtil.generateVariableName(name, CommonUtil.getAllNameEntries(compilerContext));
             String typeDef = unionType.signature();
             boolean addErrorTypeAtEnd;
@@ -162,21 +156,15 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
             List<String> memberTypes = new ArrayList<>();
             IntStream.range(0, tMembers.size())
                     .forEachOrdered(value -> {
-                        TypeSymbol bType = tMembers.get(value);
-                        String bTypeName = bType.signature();
-                        boolean isErrorType = bType instanceof BErrorType;
-                        if (isErrorType && !addErrorTypeAtEnd) {
-                            memberTypes.add(bTypeName);
-                        } else if (!isErrorType) {
-                            memberTypes.add(bTypeName);
-                        }
+                        memberTypes.add(tMembers.get(value).signature());
                     });
 
             if (addErrorTypeAtEnd) {
                 memberTypes.add("error");
             }
 
-            String newText = String.format("%s %s = %s;%s", typeDef, varName, content, LINE_SEPARATOR);
+            String newText = String.format("%s %s = %s;%s", typeDef, varName, matchedNode.toSourceCode(),
+                                           LINE_SEPARATOR);
             newText += spaces + IntStream.range(0, memberTypes.size() - 1)
                     .mapToObj(value -> {
                         return String.format("if (%s is %s) {%s}", varName, memberTypes.get(value), padding);

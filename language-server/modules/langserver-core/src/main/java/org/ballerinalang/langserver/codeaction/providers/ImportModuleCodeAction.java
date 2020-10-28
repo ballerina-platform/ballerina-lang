@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.impl;
+package org.ballerinalang.langserver.codeaction.providers;
 
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
+import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
@@ -51,11 +53,20 @@ import java.util.List;
  *
  * @since 1.2.0
  */
-public class ImportModuleCodeAction implements DiagBasedCodeAction {
+
+@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
+public class ImportModuleCodeAction extends AbstractCodeActionProvider {
+    private static final String UNDEFINED_MODULE = "undefined module";
+
     @Override
-    public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
-            throws LSCodeActionProviderException {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    PositionDetails positionDetails,
+                                                    List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
+                                                    LSContext context) {
         List<CodeAction> actions = new ArrayList<>();
+        if (!(diagnostic.getMessage().startsWith(UNDEFINED_MODULE))) {
+            return actions;
+        }
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         List<Diagnostic> diagnostics = new ArrayList<>();
         String diagnosticMessage = diagnostic.getMessage();

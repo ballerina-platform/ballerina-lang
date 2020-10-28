@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.codeaction.providers;
+package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
@@ -43,78 +43,68 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * This class visits each node bottom-up manner until it finds a scoped node such as functionCall, methodCall etc.
+ * This class visits each node in bottom-up manner finding best possible scoped node such as functionCall, methodCall
+ * etc. covered by the given range.
  *
  * @since 2.0.0
  */
-public class InvocationPositionFinder extends NodeVisitor {
+public class ScopedSymbolFinder extends NodeVisitor {
     private final Range range;
-    private LinePosition position;
-    private NonTerminalNode node;
+    private LinePosition currentPosition;
+    private NonTerminalNode currentNode;
     private static final Map<Class<?>, Method> SCOPED_NODE_TO_VISIT_METHOD = Arrays.stream(
-            InvocationPositionFinder.class.getDeclaredMethods())
+            ScopedSymbolFinder.class.getDeclaredMethods())
             .filter(s -> "visit".equals(s.getName()) && s.getParameterTypes().length > 0)
             .collect(Collectors.toMap(k -> k.getParameterTypes()[0], v -> v));
 
-    public InvocationPositionFinder(Range range) {
+    public ScopedSymbolFinder(Range range) {
         // Mark range without semi-colon
         Position end = new Position(range.getEnd().getLine(), range.getEnd().getCharacter() - 1);
         this.range = new Range(range.getStart(), end);
     }
 
-    public Optional<NonTerminalNode> getNode() {
-        return Optional.ofNullable(node);
+    public Optional<NonTerminalNode> node() {
+        return Optional.ofNullable(currentNode);
     }
 
-    public Optional<LinePosition> getPosition() {
-        return Optional.ofNullable(position);
+    public Optional<LinePosition> nodeIdentifierPos() {
+        return Optional.ofNullable(currentPosition);
     }
 
     @Override
     public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
-        this.node = functionCallExpressionNode;
-        this.position = getNameRefPosition(functionCallExpressionNode.functionName());
+        this.currentNode = functionCallExpressionNode;
+        this.currentPosition = nameRefPosition(functionCallExpressionNode.functionName());
     }
 
     @Override
     public void visit(MethodCallExpressionNode methodCallExpressionNode) {
-        this.node = methodCallExpressionNode;
-        this.position = getNameRefPosition(methodCallExpressionNode.methodName());
+        this.currentNode = methodCallExpressionNode;
+        this.currentPosition = nameRefPosition(methodCallExpressionNode.methodName());
     }
 
     @Override
     public void visit(RemoteMethodCallActionNode remoteMethodCallActionNode) {
-        this.node = remoteMethodCallActionNode;
-        this.position = getNameRefPosition(remoteMethodCallActionNode.methodName());
+        this.currentNode = remoteMethodCallActionNode;
+        this.currentPosition = nameRefPosition(remoteMethodCallActionNode.methodName());
     }
 
     @Override
     public void visit(FieldAccessExpressionNode fieldAccessExpressionNode) {
-        this.node = fieldAccessExpressionNode;
-        this.position = getNameRefPosition(fieldAccessExpressionNode.fieldName());
-    }
-
-    private LinePosition getNameRefPosition(NameReferenceNode nameRef) {
-        if (nameRef.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            QualifiedNameReferenceNode qualifiedNameRef = (QualifiedNameReferenceNode) nameRef;
-            return qualifiedNameRef.colon().lineRange().endLine();
-        } else if (nameRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            SimpleNameReferenceNode simpleNameRef = (SimpleNameReferenceNode) nameRef;
-            return simpleNameRef.name().lineRange().startLine();
-        }
-        return null;
+        this.currentNode = fieldAccessExpressionNode;
+        this.currentPosition = nameRefPosition(fieldAccessExpressionNode.fieldName());
     }
 
     @Override
     public void visit(ImplicitNewExpressionNode implicitNewExpressionNode) {
-        this.node = implicitNewExpressionNode;
-        this.position = implicitNewExpressionNode.newKeyword().lineRange().startLine();
+        this.currentNode = implicitNewExpressionNode;
+        this.currentPosition = implicitNewExpressionNode.newKeyword().lineRange().startLine();
     }
 
     @Override
     public void visit(ExplicitNewExpressionNode explicitNewExpressionNode) {
-        this.node = explicitNewExpressionNode;
-        this.position = explicitNewExpressionNode.typeDescriptor().lineRange().startLine();
+        this.currentNode = explicitNewExpressionNode;
+        this.currentPosition = explicitNewExpressionNode.typeDescriptor().lineRange().startLine();
     }
 
     public void visit(Node node) {
@@ -122,7 +112,18 @@ public class InvocationPositionFinder extends NodeVisitor {
             return;
         }
 
-        // If it is a supported node, visit it
+        // If it is a supported scope node, visit it
+        visitScopedNodeMethod(node);
+
+        // Visit from bottom-up in tree until we find a supported node or loose the range
+        boolean isRangeWithinNode = CommonUtil.isWithinLineRange(this.range.getStart(), node.lineRange()) &&
+                CommonUtil.isWithinLineRange(this.range.getEnd(), node.lineRange());
+        if (!isRangeWithinNode) {
+            visit(node.parent());
+        }
+    }
+
+    private void visitScopedNodeMethod(Node node) {
         Method visitMethod = SCOPED_NODE_TO_VISIT_METHOD.get(node.getClass());
         if (visitMethod != null) {
             try {
@@ -131,12 +132,16 @@ public class InvocationPositionFinder extends NodeVisitor {
                 // ignore;
             }
         }
+    }
 
-        // Visit from bottom-up in tree until we find a supported node or loose the range
-        boolean isRangeWithinNode = CommonUtil.isWithinLineRange(this.range.getStart(), node.lineRange()) &&
-                CommonUtil.isWithinLineRange(this.range.getEnd(), node.lineRange());
-        if (!isRangeWithinNode) {
-            visit(node.parent());
+    private LinePosition nameRefPosition(NameReferenceNode nameRef) {
+        if (nameRef.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            QualifiedNameReferenceNode qualifiedNameRef = (QualifiedNameReferenceNode) nameRef;
+            return qualifiedNameRef.colon().lineRange().endLine();
+        } else if (nameRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            SimpleNameReferenceNode simpleNameRef = (SimpleNameReferenceNode) nameRef;
+            return simpleNameRef.name().lineRange().startLine();
         }
+        return null;
     }
 }
