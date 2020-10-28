@@ -27,8 +27,6 @@ import io.ballerina.runtime.scheduling.Strand;
 
 import java.util.UUID;
 
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_RUNTIME_PKG_ID;
-
 /**
  * Extern function to get invocation context record.
  *
@@ -57,7 +55,7 @@ public class GetInvocationContext {
 
     private static BMap<BString, Object> initInvocationContext() {
         BMap<BString, Object> invocationContextInfo =
-                ValueCreator.createRecordValue(BALLERINA_RUNTIME_PKG_ID, STRUCT_TYPE_INVOCATION_CONTEXT);
+                ValueCreator.createRecordValue(Constant.BALLERINA_RUNTIME_PKG_ID, STRUCT_TYPE_INVOCATION_CONTEXT);
         UUID invocationId = UUID.randomUUID();
         invocationContextInfo.put(StringUtils.fromString(INVOCATION_ID_KEY),
                                   StringUtils.fromString(invocationId.toString()));

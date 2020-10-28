@@ -189,14 +189,6 @@ public class ErrorTest {
         Assert.assertEquals(returns[0].stringValue(), "test");
     }
 
-    @Test(groups = { "disableOnOldParser" })
-    public void testGetCallStack() {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "getCallStackTest");
-        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", " +
-                                                      "moduleName:\"ballerina.runtime.0_5_0.errors\"," +
-                                                      " fileName:\"errors.bal\", lineNumber:38}");
-    }
-
     @Test
     public void testConsecutiveTraps() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "testConsecutiveTraps");
