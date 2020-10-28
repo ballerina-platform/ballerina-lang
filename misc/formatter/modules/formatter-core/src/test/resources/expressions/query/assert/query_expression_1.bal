@@ -11,8 +11,8 @@ type Report record {
 type ReportTable table<Report> key(id);
 
 public function foo() {
-    Student[] list1 = [{ name: "Michelle" }];
-    Student[] list2 = [{ name: "John" }];
+    Student[] list1 = [{name: "Michelle"}];
+    Student[] list2 = [{name: "John"}];
 
     Report[] list3 = from var student in list1
                      where student.name == "Michelle"

@@ -278,13 +278,7 @@
                           "kind": "MAPPING_CONSTRUCTOR",
                           "children": [
                             {
-                              "kind": "OPEN_BRACE_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "OPEN_BRACE_TOKEN"
                             },
                             {
                               "kind": "LIST",

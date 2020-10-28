@@ -28,10 +28,12 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -55,6 +57,9 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
     public List<LSCompletionItem> getCompletions(LSContext context, AssignmentStatementNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
+        if (this.cursorWithinLHS(context, node)) {
+            return CompletionUtil.route(context, node.parent());
+        }
         if (this.onQualifiedNameIdentifier(context, node.expression())) {
             /*
             Captures the following cases
@@ -103,5 +108,12 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
                 completionItems.add(this.getImplicitNewCompletionItem(typeSymbol, context)));
 
         return completionItems;
+    }
+
+    private boolean cursorWithinLHS(LSContext context, AssignmentStatementNode node) {
+        int equalToken = node.equalsToken().textRange().endOffset();
+        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+
+        return cursor < equalToken;
     }
 }

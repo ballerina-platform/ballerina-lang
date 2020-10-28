@@ -80,12 +80,6 @@
                               "kind": "WHITESPACE_MINUTIAE",
                               "value": "    "
                             }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
                           ]
                         },
                         {
@@ -117,13 +111,7 @@
                                   "children": [
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "a",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "value": "a"
                                     }
                                   ]
                                 }

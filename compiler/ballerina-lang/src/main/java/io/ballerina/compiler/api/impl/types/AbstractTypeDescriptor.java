@@ -32,9 +32,9 @@ import java.util.List;
  * @since 2.0.0
  */
 public abstract class AbstractTypeDescriptor implements BallerinaTypeDescriptor {
-    private TypeDescKind typeDescKind;
-    private ModuleID moduleID;
-    private BType bType;
+    private final TypeDescKind typeDescKind;
+    private final ModuleID moduleID;
+    private final BType bType;
 
     public AbstractTypeDescriptor(TypeDescKind typeDescKind, ModuleID moduleID, BType bType) {
         this.typeDescKind = typeDescKind;

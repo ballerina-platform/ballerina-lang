@@ -153,7 +153,7 @@ public final class FunctionCompletionItemBuilder {
         Map<String, String> docParamsMap = new HashMap<>();
         docAttachment.ifPresent(documentation -> documentation.parameterMap().forEach(docParamsMap::put));
 
-        List<Parameter> defaultParams = functionTypeDesc.requiredParams().stream()
+        List<Parameter> defaultParams = functionTypeDesc.parameters().stream()
                 .filter(parameter -> parameter.kind() == ParameterKind.DEFAULTABLE)
                 .collect(Collectors.toList());
 
@@ -162,7 +162,7 @@ public final class FunctionCompletionItemBuilder {
         String documentation = "**Package:** " + "_" + pkgID + "_" + CommonUtil.MD_LINE_SEPARATOR
                 + CommonUtil.MD_LINE_SEPARATOR + description + CommonUtil.MD_LINE_SEPARATOR;
         StringJoiner joiner = new StringJoiner(CommonUtil.MD_LINE_SEPARATOR);
-        List<Parameter> functionParameters = new ArrayList<>(functionTypeDesc.requiredParams());
+        List<Parameter> functionParameters = new ArrayList<>(functionTypeDesc.parameters());
         if (functionTypeDesc.restParam().isPresent()) {
             functionParameters.add(functionTypeDesc.restParam().get());
         }

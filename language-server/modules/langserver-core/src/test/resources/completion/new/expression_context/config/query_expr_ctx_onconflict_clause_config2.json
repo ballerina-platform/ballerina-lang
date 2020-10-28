@@ -523,7 +523,7 @@
     {
       "label": "onConflictError",
       "kind": "Variable",
-      "detail": "none",
+      "detail": "error",
       "insertText": "onConflictError",
       "insertTextFormat": "Snippet"
     },
