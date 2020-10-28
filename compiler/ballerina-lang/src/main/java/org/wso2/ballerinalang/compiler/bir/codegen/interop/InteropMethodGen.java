@@ -292,7 +292,7 @@ public class InteropMethodGen {
                                             JvmErrorGen errorGen, JvmInstructionGen instGen, JvmTerminatorGen termGen,
                                             BIRFunction func, String moduleClassName,
                                             AsyncDataCollector asyncDataCollector) {
-        String funcName = JvmCodeGenUtil.cleanupFunctionName(func.name.value);
+        String funcName = func.name.value;
         BirScope lastScope = null;
         Set<BirScope> visitedScopesSet = new HashSet<>();
         for (BIRBasicBlock basicBlock : basicBlocks) {

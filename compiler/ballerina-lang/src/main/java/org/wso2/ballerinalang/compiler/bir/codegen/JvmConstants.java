@@ -234,7 +234,7 @@ public class JvmConstants {
     public static final String VALUE_CLASS_PREFIX = "$value$";
     public static final String TYPEDESC_CLASS_PREFIX = "$typedesc$";
     public static final String BALLERINA = "ballerina";
-    public static final String BUILT_IN_PACKAGE_NAME = "lang.annotations";
+    public static final String BUILT_IN_PACKAGE_NAME = "lang$0046annotations";
     public static final String MODULE_START_ATTEMPTED = "$moduleStartAttempted";
     public static final String MODULE_STARTED = "$moduleStarted";
     public static final String DESUGARED_BB_ID_NAME = "desugaredBB";

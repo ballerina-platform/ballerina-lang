@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -86,7 +87,6 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SWAP;
 import static org.objectweb.asm.Opcodes.V1_8;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.cleanupReadOnlyTypeName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ABSTRACT_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
@@ -139,6 +139,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodG
 class JvmValueGen {
 
     static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
+    static final String ENCODED_RECORD_INIT = JvmCodeGenUtil.encodeGeneratedFuncName(Names.INIT_FUNCTION_SUFFIX.value);
     private BIRNode.BIRPackage module;
     private JvmPackageGen jvmPackageGen;
     private JvmMethodGen jvmMethodGen;
@@ -248,13 +249,13 @@ class JvmValueGen {
     static String getTypeDescClassName(Object module, String typeName) {
 
         String packageName = calculateJavaPkgName(module);
-        return packageName + TYPEDESC_CLASS_PREFIX + cleanupReadOnlyTypeName(typeName);
+        return packageName + TYPEDESC_CLASS_PREFIX + typeName;
     }
 
     static String getTypeValueClassName(Object module, String typeName) {
 
         String packageName = calculateJavaPkgName(module);
-        return packageName + VALUE_CLASS_PREFIX + cleanupReadOnlyTypeName(typeName);
+        return packageName + VALUE_CLASS_PREFIX + typeName;
     }
 
     private static String calculateJavaPkgName(Object module) {
@@ -427,7 +428,7 @@ class JvmValueGen {
                 j += 1;
             }
 
-            mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, JvmCodeGenUtil.cleanupFunctionName(func.name.value),
+            mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, func.name.value,
                                methodSig, false);
             if (retType == null || retType.tag == TypeTags.NIL || retType.tag == TypeTags.NEVER) {
                 mv.visitInsn(ACONST_NULL);
@@ -626,7 +627,7 @@ class JvmValueGen {
         } else {
             // record type is the original record-type of this type-label
             valueClassName = getTypeValueClassName(recordType.tsymbol.pkgID, toNameString(recordType));
-            initFuncName = JvmCodeGenUtil.cleanupFunctionName(recordType.name + "__init_");
+            initFuncName = recordType.name + ENCODED_RECORD_INIT;
         }
 
         mv.visitMethodInsn(INVOKESTATIC, valueClassName, initFuncName,
@@ -780,8 +781,7 @@ class JvmValueGen {
                 continue;
             }
 
-            String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID,
-                                                            toNameString(typeRef));
+            String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID, toNameString(typeRef));
             mv.visitInsn(DUP2);
             mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, JvmConstants.RECORD_INIT_WRAPPER_NAME,
                                String.format("(L%s;L%s;)V", STRAND_CLASS, MAP_VALUE), false);
@@ -800,7 +800,7 @@ class JvmValueGen {
             // record type is the original record-type of this type-label
             BRecordType recordType = (BRecordType) typeDef.type;
             valueClassName = getTypeValueClassName(recordType.tsymbol.pkgID, toNameString(recordType));
-            initFuncName = JvmCodeGenUtil.cleanupFunctionName(recordType.name + "__init_");
+            initFuncName = recordType.name + ENCODED_RECORD_INIT;
         }
 
         mv.visitMethodInsn(INVOKESTATIC, valueClassName, initFuncName,

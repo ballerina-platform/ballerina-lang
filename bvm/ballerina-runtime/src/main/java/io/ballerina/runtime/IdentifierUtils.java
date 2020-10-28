@@ -35,9 +35,11 @@ public class IdentifierUtils {
 
     private static final String CHAR_PREFIX = "$";
     private static final String ESCAPE_PREFIX = "\\";
-    private static final String ENCODABLE_CHAR_SET = "\\.:;[]/<>$";
+    private static final String JVM_RESERVED_CHAR_SET = "\\.:;[]/<>";
+    private static final String ENCODABLE_CHAR_SET = JVM_RESERVED_CHAR_SET + CHAR_PREFIX;
     private static final Pattern UNESCAPED_SPECIAL_CHAR_SET =
             Pattern.compile("(?<!\\\\)(?:\\\\\\\\)*([$&+,:;=\\?@#|/' \\[\\}\\]<\\>.\"^*{}~`()%!-])");
+    public static final String GENERATED_METHOD_PREFIX = "$gen$";
 
     private IdentifierUtils() {
     }
@@ -46,8 +48,7 @@ public class IdentifierUtils {
         StringBuilder sb = new StringBuilder();
         int index = 0;
         while (index < identifier.length()) {
-            if (identifier.charAt(index) == '\\' && (index + 1 < identifier.length()) &&
-                    ENCODABLE_CHAR_SET.contains(Character.toString(identifier.charAt(index + 1)))) {
+            if (isQuotedIdentifier(identifier, index)) {
                 String unicodePoint = CHAR_PREFIX + String.format("%04d", (int) identifier.charAt(index + 1));
                 sb.append(unicodePoint);
                 index += 2;
@@ -57,6 +58,15 @@ public class IdentifierUtils {
             }
         }
         return sb.toString();
+    }
+
+    private static boolean isEncodableGeneratedIdentifer(String identifier, int index) {
+        return JVM_RESERVED_CHAR_SET.contains(Character.toString(identifier.charAt(index)));
+    }
+
+    private static boolean isQuotedIdentifier(String identifier, int index) {
+        return identifier.charAt(index) == '\\' && (index + 1 < identifier.length()) &&
+                ENCODABLE_CHAR_SET.contains(Character.toString(identifier.charAt(index + 1)));
     }
 
     public static String escapeSpecialCharacters(String identifier) {
@@ -77,6 +87,23 @@ public class IdentifierUtils {
             identifier = encodeSpecialCharacters(identifier);
         }
         return StringEscapeUtils.unescapeJava(identifier);
+    }
+
+    public static String encodeGeneratedName(String identifier, boolean isFunc) {
+        StringBuilder sb = new StringBuilder();
+        boolean isEncoded = false;
+        int index = 0;
+        while (index < identifier.length()) {
+            if (isEncodableGeneratedIdentifer(identifier, index)) {
+                String unicodePoint = CHAR_PREFIX + String.format("%04d", (int) identifier.charAt(index));
+                sb.append(unicodePoint);
+                isEncoded = true;
+            } else {
+                sb.append(identifier.charAt(index));
+            }
+            index++;
+        }
+        return (isEncoded && isFunc) ? GENERATED_METHOD_PREFIX + sb.toString() : sb.toString();
     }
 
     /**
@@ -105,7 +132,12 @@ public class IdentifierUtils {
                 index++;
             }
         }
-        return sb.toString();
+        return decodeGeneratedMethodName(sb.toString());
+    }
+
+    private static String decodeGeneratedMethodName(String decodedName) {
+        return decodedName.startsWith(GENERATED_METHOD_PREFIX) ?
+                decodedName.substring(GENERATED_METHOD_PREFIX.length()) : decodedName;
     }
 
     public static String unescapeUnicodeCodepoints(String identifier) {

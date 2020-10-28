@@ -133,15 +133,14 @@ import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SIPUSH;
 import static org.objectweb.asm.Opcodes.V1_8;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isBuiltInPackage;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_MAP_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARGUMENT_PARSER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_ON_EXTERN_FIELD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
@@ -238,7 +237,7 @@ public class JvmMethodGen {
             access += ACC_STATIC;
         }
 
-        String funcName = JvmCodeGenUtil.cleanupFunctionName(func.name.value);
+        String funcName = func.name.value;
         BType retType = getReturnType(func);
         String desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType);
         MethodVisitor mv = cw.visitMethod(access, funcName, desc, null, null);
@@ -341,7 +340,7 @@ public class JvmMethodGen {
     private void createLocalVariableTable(BIRFunction func, BIRVarToJVMIndexMap indexMap, int localVarOffset,
                                           MethodVisitor mv, Label methodStartLabel, LabelGenerator labelGen,
                                           Label methodEndLabel) {
-        String funcName = JvmCodeGenUtil.cleanupFunctionName(func.name.value);
+        String funcName = func.name.value;
         // Add strand variable to LVT
         mv.visitLocalVariable("__strand", String.format("L%s;", STRAND_CLASS), null, methodStartLabel, methodEndLabel,
                               localVarOffset);
@@ -1013,7 +1012,7 @@ public class JvmMethodGen {
         String version = id.version.value;
 
         String funcName;
-        if (moduleName.equals(".")) {
+        if (moduleName.equals("$0046")) {
             funcName = ".." + funcSuffix;
         } else if (version.equals("")) {
             funcName = moduleName + "." + funcSuffix;
@@ -1025,7 +1024,7 @@ public class JvmMethodGen {
             funcName = orgName + "/" + funcName;
         }
 
-        return funcName;
+        return JvmCodeGenUtil.encodeGeneratedFuncName(funcName);
     }
 
     private void scheduleStopMethod(MethodVisitor mv, String initClass, String stopFuncName,
@@ -1199,10 +1198,10 @@ public class JvmMethodGen {
         String frameClassName = pkgName;
         if (attachedType != null && (attachedType.tag == TypeTags.OBJECT || attachedType instanceof BServiceType ||
                 attachedType.tag == TypeTags.RECORD)) {
-            frameClassName += JvmCodeGenUtil.cleanupReadOnlyTypeName(JvmCodeGenUtil.toNameString(attachedType)) + "_";
+            frameClassName += JvmCodeGenUtil.toNameString(attachedType) + "_";
         }
 
-        return frameClassName + JvmCodeGenUtil.cleanupFunctionName(funcName) + "Frame";
+        return frameClassName + funcName + "Frame";
     }
 
     private PackageID packageToModuleId(BIRPackage mod) {
@@ -1242,9 +1241,7 @@ public class JvmMethodGen {
     }
 
     private boolean isModuleStartFunction(BIRPackage module, String functionName) {
-        return functionName.equals(
-                JvmCodeGenUtil.cleanupFunctionName(calculateModuleSpecialFuncName(packageToModuleId(module),
-                                                                                  START_FUNCTION_SUFFIX)));
+        return functionName.equals(calculateModuleSpecialFuncName(packageToModuleId(module), START_FUNCTION_SUFFIX));
     }
 
     public void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen,
@@ -1252,7 +1249,7 @@ public class JvmMethodGen {
                                     int returnVarRefIndex, int stateVarIndex, int localVarOffset, BIRPackage module,
                                     BType attachedType, String moduleClassName, AsyncDataCollector asyncDataCollector) {
 
-        String funcName = JvmCodeGenUtil.cleanupFunctionName(func.name.value);
+        String funcName = func.name.value;
         BirScope lastScope = null;
         Set<BirScope> visitedScopesSet = new HashSet<>();
 
@@ -1353,7 +1350,7 @@ public class JvmMethodGen {
         BInvokableSymbol funcSymbol = null;
 
         if (!isVirtual) {
-            encodedFuncName = IdentifierUtils.encodeIdentifier(funcName);
+            encodedFuncName = JvmCodeGenUtil.encodeGeneratedFuncName(funcName);
             lookupKey = JvmCodeGenUtil.getPackageName(orgName, moduleName, version) + encodedFuncName;
             functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lookupKey);
             if (functionWrapper == null) {
@@ -1382,7 +1379,7 @@ public class JvmMethodGen {
         String closureMapsDesc = getMapValueDesc(closureMapsCount);
 
         MethodVisitor mv;
-        mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, JvmCodeGenUtil.cleanupFunctionName(lambdaName),
+        mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, lambdaName,
                             String.format("(%s[L%s;)L%s;", closureMapsDesc, OBJECT, OBJECT), null, null);
 
         mv.visitCode();
@@ -1869,12 +1866,12 @@ public class JvmMethodGen {
         PackageID currentModId = packageToModuleId(pkg);
         String fullFuncName = calculateModuleSpecialFuncName(currentModId, STOP_FUNCTION_SUFFIX);
 
-        generateLambdaForDepModStopFunc(cw, JvmCodeGenUtil.cleanupFunctionName(fullFuncName), initClass);
+        generateLambdaForDepModStopFunc(cw, fullFuncName, initClass);
 
         for (PackageID id : depMods) {
             fullFuncName = calculateModuleSpecialFuncName(id, STOP_FUNCTION_SUFFIX);
             String jvmClass = JvmCodeGenUtil.getPackageName(id) + MODULE_INIT_CLASS_NAME;
-            generateLambdaForDepModStopFunc(cw, JvmCodeGenUtil.cleanupFunctionName(fullFuncName), jvmClass);
+            generateLambdaForDepModStopFunc(cw, fullFuncName, jvmClass);
         }
     }
 
@@ -1991,7 +1988,7 @@ public class JvmMethodGen {
         BIRBasicBlock lastBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
         BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
         // TODO remove once lang.annotation is fixed
-        if (modId.orgName.value.equals(BALLERINA) && modId.name.value.equals(BUILT_IN_PACKAGE_NAME)) {
+        if (isBuiltInPackage(modId)) {
             lastBB.terminator = new Call(null, InstructionKind.CALL, false, modId,
                     new Name(initFuncName), Collections.emptyList(), null, nextBB, Collections.emptyList(),
                     Collections.emptySet());
@@ -2113,8 +2110,8 @@ public class JvmMethodGen {
 
     void generateModuleInitializer(ClassWriter cw, BIRPackage module, String typeOwnerClass) {
 
-        String orgName = module.org.value;
-        String moduleName = module.name.value;
+        String orgName = IdentifierUtils.decodeIdentifier(module.org.value);
+        String moduleName = IdentifierUtils.decodeIdentifier(module.name.value);
         String version = module.version.value;
 
         // Using object return type since this is similar to a ballerina function without a return.
@@ -2170,7 +2167,7 @@ public class JvmMethodGen {
         String moduleInitClass = getModuleInitClassName(currentModId);
         String fullFuncName = calculateModuleSpecialFuncName(currentModId, STOP_FUNCTION_SUFFIX);
 
-        scheduleStopMethod(mv, initClass, JvmCodeGenUtil.cleanupFunctionName(fullFuncName), schedulerIndex,
+        scheduleStopMethod(mv, initClass, fullFuncName, schedulerIndex,
                            futureIndex, moduleInitClass, asyncDataCollector);
         int i = imprtMods.size() - 1;
         while (i >= 0) {
@@ -2178,7 +2175,7 @@ public class JvmMethodGen {
             i -= 1;
             fullFuncName = calculateModuleSpecialFuncName(id, STOP_FUNCTION_SUFFIX);
             moduleInitClass = getModuleInitClassName(id);
-            scheduleStopMethod(mv, initClass, JvmCodeGenUtil.cleanupFunctionName(fullFuncName), schedulerIndex,
+            scheduleStopMethod(mv, initClass, fullFuncName, schedulerIndex,
                                futureIndex, moduleInitClass, asyncDataCollector);
         }
         mv.visitInsn(RETURN);

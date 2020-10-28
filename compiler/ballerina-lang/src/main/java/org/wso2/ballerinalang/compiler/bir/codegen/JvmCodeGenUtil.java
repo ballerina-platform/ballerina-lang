@@ -18,8 +18,9 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+
+import io.ballerina.runtime.IdentifierUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -48,7 +49,6 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -63,7 +63,9 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
@@ -94,9 +96,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
  */
 public class JvmCodeGenUtil {
     public static final ResolvedTypeBuilder TYPE_BUILDER = new ResolvedTypeBuilder();
-    public static final String INITIAL_MEHOD_DESC = "(Lio/ballerina/runtime/scheduling/Strand;";
-    private static final Pattern IMMUTABLE_TYPE_CHAR_PATTERN = Pattern.compile("[/.]");
-    private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[\\.:/<>]");
+    public static final String INITIAL_METHOD_DESC = "(Lio/ballerina/runtime/scheduling/Strand;";
 
     public static final String SCOPE_PREFIX = "_SCOPE_";
 
@@ -125,7 +125,7 @@ public class JvmCodeGenUtil {
     static void createFunctionPointer(MethodVisitor mv, String className, String lambdaName) {
         mv.visitTypeInsn(Opcodes.NEW, FUNCTION_POINTER);
         mv.visitInsn(Opcodes.DUP);
-        visitInvokeDynamic(mv, className, cleanupFunctionName(lambdaName), 0);
+        visitInvokeDynamic(mv, className, lambdaName, 0);
 
         // load null here for type, since these are fps created for internal usage.
         mv.visitInsn(Opcodes.ACONST_NULL);
@@ -133,16 +133,6 @@ public class JvmCodeGenUtil {
         mv.visitInsn(Opcodes.ICONST_0); // mark as not-concurrent ie: 'parent'
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, FUNCTION_POINTER, JVM_INIT_METHOD,
                            String.format("(L%s;L%s;L%s;Z)V", FUNCTION, TYPE, STRING_VALUE), false);
-    }
-
-    /**
-     * Cleanup type name for readonly types by replacing '. /' with '_'.
-     *
-     * @param name type name to be replaced and cleaned
-     * @return cleaned name
-     */
-    static String cleanupReadOnlyTypeName(String name) {
-        return IMMUTABLE_TYPE_CHAR_PATTERN.matcher(name).replaceAll("_");
     }
 
     static String cleanupPathSeparators(String name) {
@@ -236,8 +226,8 @@ public class JvmCodeGenUtil {
 
         mv.visitTypeInsn(Opcodes.NEW, STRAND_METADATA);
         mv.visitInsn(Opcodes.DUP);
-        mv.visitLdcInsn(module.org.value);
-        mv.visitLdcInsn(module.name.value);
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.org.value));
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.name.value));
         mv.visitLdcInsn(module.version.value);
         if (metaData.typeName == null) {
             mv.visitInsn(Opcodes.ACONST_NULL);
@@ -265,12 +255,6 @@ public class JvmCodeGenUtil {
         return STRAND_METADATA_VAR_PREFIX + parentFunction + "$";
     }
 
-    //TODO:Remove this method after fixing issue #25745
-    public static String cleanupFunctionName(String functionName) {
-        return StringUtils.containsAny(functionName, "\\.:/<>") ?
-                "$" + JVM_RESERVED_CHAR_SET.matcher(functionName).replaceAll("_") : functionName;
-    }
-
     static boolean isExternFunc(BIRNode.BIRFunction func) {
         return (func.flags & Flags.NATIVE) == Flags.NATIVE;
     }
@@ -288,22 +272,28 @@ public class JvmCodeGenUtil {
     }
 
     public static String getPackageName(String orgName, String moduleName, String version) {
+        return getPackageNameWithSeparator(orgName, moduleName, version, "/");
+    }
+
+    private static String getPackageNameWithSeparator(String orgName, String moduleName, String version,
+                                                      String separator) {
         String packageName = "";
-        if (!moduleName.equals(".")) {
+        orgName = encodePackageName(orgName);
+        moduleName = encodePackageName(moduleName);
+        if (!moduleName.equals("$0046")) {
             if (!version.equals("")) {
-                packageName = cleanupName(version) + "/";
+                packageName = getVersionDirectoryName(version) + separator;
             }
-            packageName = cleanupName(moduleName) + "/" + packageName;
+            packageName = moduleName + separator + packageName;
         }
 
         if (!orgName.equalsIgnoreCase("$anon")) {
-            packageName = cleanupName(orgName) + "/" + packageName;
+            packageName = orgName + separator + packageName;
         }
-
         return packageName;
     }
 
-    static String cleanupName(String name) {
+    static String getVersionDirectoryName(String name) {
         return name.replace(".", "_");
     }
 
@@ -322,19 +312,7 @@ public class JvmCodeGenUtil {
         if (className.startsWith(JAVA_PACKAGE_SEPERATOR)) {
             className = className.substring(1);
         }
-
-        if (!moduleName.equals(".")) {
-            if (!version.equals("")) {
-                className = cleanupName(version) + separator + className;
-            }
-            className = cleanupName(moduleName) + separator + className;
-        }
-
-        if (!orgName.equalsIgnoreCase("$anon")) {
-            className = cleanupName(orgName) + separator + className;
-        }
-
-        return className;
+        return getPackageNameWithSeparator(orgName, moduleName, version, separator) + className;
     }
 
     private static String cleanupSourceFileName(String name) {
@@ -342,11 +320,11 @@ public class JvmCodeGenUtil {
     }
 
     public static String getMethodDesc(List<BType> paramTypes, BType retType) {
-        return INITIAL_MEHOD_DESC + populateMethodDesc(paramTypes) + generateReturnType(retType);
+        return INITIAL_METHOD_DESC + populateMethodDesc(paramTypes) + generateReturnType(retType);
     }
 
     public static String getMethodDesc(List<BType> paramTypes, BType retType, BType attachedType) {
-        return INITIAL_MEHOD_DESC + getArgTypeSignature(attachedType) + populateMethodDesc(paramTypes) +
+        return INITIAL_METHOD_DESC + getArgTypeSignature(attachedType) + populateMethodDesc(paramTypes) +
                 generateReturnType(retType);
     }
 
@@ -593,5 +571,24 @@ public class JvmCodeGenUtil {
         // goto thenBB
         Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
         mv.visitJumpInsn(GOTO, gotoLabel);
+    }
+
+    public static PackageID cleanupPackageID(PackageID pkgID) {
+        Name org = new Name(encodePackageName(pkgID.orgName.value));
+        Name module = new Name(encodePackageName(pkgID.name.value));
+        return new PackageID(org, module, pkgID.version);
+    }
+
+    public static boolean isBuiltInPackage(PackageID packageID) {
+        packageID = cleanupPackageID(packageID);
+        return BALLERINA.equals(packageID.orgName.value) && BUILT_IN_PACKAGE_NAME.equals(packageID.name.value);
+    }
+
+    public static String encodeGeneratedFuncName(String functionName) {
+        return IdentifierUtils.encodeGeneratedName(IdentifierUtils.encodeIdentifier(functionName), true);
+    }
+
+    public static String encodePackageName(String pkgName) {
+        return IdentifierUtils.encodeGeneratedName(IdentifierUtils.encodeIdentifier(pkgName), false);
     }
 }

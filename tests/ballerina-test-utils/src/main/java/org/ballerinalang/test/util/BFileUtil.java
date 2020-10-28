@@ -18,6 +18,7 @@
 package org.ballerinalang.test.util;
 
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.IOException;
@@ -125,12 +126,12 @@ public class BFileUtil {
      * @return Qualified class name
      */
     public static String getQualifiedClassName(String orgName, String packageName, String version, String className) {
-        if (!Names.DEFAULT_PACKAGE.value.equals(packageName)) {
-            className = packageName.replace('.', '_') + "." + version.replace('.', '_') + "." + className;
+        if (!JvmCodeGenUtil.encodePackageName(Names.DEFAULT_PACKAGE.value).equals(packageName)) {
+            className = packageName + "." + version.replace('.', '_') + "." + className;
         }
 
         if (!Names.ANON_ORG.value.equals(orgName)) {
-            className = orgName.replace('.', '_') + "." +  className;
+            className = orgName + "." +  className;
         }
 
         return className;

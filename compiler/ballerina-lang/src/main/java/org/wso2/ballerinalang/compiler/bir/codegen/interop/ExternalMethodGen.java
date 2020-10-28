@@ -225,12 +225,12 @@ public class ExternalMethodGen {
     }
 
     public static String getExternMethodDesc(List<BType> paramTypes, BType retType) {
-        return JvmCodeGenUtil.INITIAL_MEHOD_DESC + JvmCodeGenUtil.populateMethodDesc(paramTypes) +
+        return JvmCodeGenUtil.INITIAL_METHOD_DESC + JvmCodeGenUtil.populateMethodDesc(paramTypes) +
                 generateExternReturnType(retType);
     }
 
     public static String getExternMethodDesc(List<BType> paramTypes, BType retType, BType attachedType) {
-        return JvmCodeGenUtil.INITIAL_MEHOD_DESC + JvmCodeGenUtil.getArgTypeSignature(attachedType) +
+        return JvmCodeGenUtil.INITIAL_METHOD_DESC + JvmCodeGenUtil.getArgTypeSignature(attachedType) +
                 JvmCodeGenUtil.populateMethodDesc(paramTypes) + generateExternReturnType(retType);
     }
 

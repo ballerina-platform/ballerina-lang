@@ -207,7 +207,7 @@ public class JvmDesugarPhase {
 
         // Rename the function name by appending the record name to it.
         // This done to avoid frame class name overlapping.
-        func.name = new Name(JvmCodeGenUtil.cleanupFunctionName(toNameString(recordType) + func.name.value));
+        func.name = new Name(toNameString(recordType) + func.name.value);
 
         // change the kind of receiver to 'ARG'
         receiver.kind = VarKind.ARG;
@@ -249,16 +249,22 @@ public class JvmDesugarPhase {
     }
 
     static void encodeModuleIdentifiers(BIRNode.BIRPackage module, Names names) {
+        encodePackageIdentifiers(module, names);
         encodeGlobalVariableIdentifiers(module.globalVars, names);
         encodeFunctionIdentifiers(module.functions, names);
         encodeTypeDefIdentifiers(module.typeDefs, names);
     }
 
+    private static void encodePackageIdentifiers(BIRNode.BIRPackage module, Names names) {
+        module.org = names.fromString(JvmCodeGenUtil.encodePackageName(module.org.value));
+        module.name = names.fromString(JvmCodeGenUtil.encodePackageName(module.name.value));
+    }
+
     private static void encodeTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs, Names names) {
         for (BIRTypeDefinition typeDefinition : typeDefs) {
             typeDefinition.type.tsymbol.name =
-                    names.fromString(encodeIdentifier(typeDefinition.type.tsymbol.name.value));
-            typeDefinition.name = names.fromString(encodeIdentifier(typeDefinition.name.value));
+                    names.fromString(JvmCodeGenUtil.encodePackageName(typeDefinition.type.tsymbol.name.value));
+            typeDefinition.name = names.fromString(JvmCodeGenUtil.encodePackageName(typeDefinition.name.value));
 
             encodeFunctionIdentifiers(typeDefinition.attachedFuncs, names);
             BType bType = typeDefinition.type;
@@ -283,7 +289,7 @@ public class JvmDesugarPhase {
 
     private static void encodeFunctionIdentifiers(List<BIRFunction> functions, Names names) {
         for (BIRFunction function : functions) {
-            function.name = names.fromString(encodeIdentifier(function.name.value));
+            function.name = names.fromString(JvmCodeGenUtil.encodeGeneratedFuncName(function.name.value));
             for (BIRNode.BIRVariableDcl localVar : function.localVars) {
                 if (localVar.metaVarName == null) {
                     continue;
@@ -304,19 +310,11 @@ public class JvmDesugarPhase {
         if (function.workerName != null) {
             function.workerName = names.fromString(encodeIdentifier(function.workerName.value));
         }
-        for (BIRNode.ChannelDetails channel : function.workerChannels) {
-            channel.name = encodeIdentifier(channel.name);
-        }
     }
 
     private static void encodeAttachedFunctionIdentifiers(List<BAttachedFunction> functions, Names names) {
         for (BAttachedFunction function : functions) {
-            function.funcName = names.fromString(encodeIdentifier(function.funcName.value));
-            function.symbol.name = names.fromString(encodeIdentifier(function.symbol.name.value));
-            if (function.symbol.receiverSymbol != null) {
-                function.symbol.receiverSymbol.name =
-                        names.fromString(encodeIdentifier(function.symbol.receiverSymbol.name.value));
-            }
+            function.funcName = names.fromString(JvmCodeGenUtil.encodeGeneratedFuncName(function.funcName.value));
         }
     }
 

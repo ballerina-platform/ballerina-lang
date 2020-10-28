@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import io.ballerina.runtime.IdentifierUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -197,13 +198,13 @@ public class JvmPackageGen {
     }
 
     private static boolean isSameModule(BIRPackage moduleId, PackageID importModule) {
-
-        if (!moduleId.org.value.equals(importModule.orgName.value)) {
+        PackageID cleanedPkg = JvmCodeGenUtil.cleanupPackageID(importModule);
+        if (!moduleId.org.value.equals(cleanedPkg.orgName.value)) {
             return false;
-        } else if (!moduleId.name.value.equals(importModule.name.value)) {
+        } else if (!moduleId.name.value.equals(cleanedPkg.name.value)) {
             return false;
         } else {
-            return moduleId.version.value.equals(importModule.version.value);
+            return moduleId.version.value.equals(cleanedPkg.version.value);
         }
     }
 
@@ -212,7 +213,7 @@ public class JvmPackageGen {
         if (!BALLERINA.equals(moduleId.org.value)) {
             return false;
         }
-        return moduleId.name.value.indexOf("lang.") == 0 || moduleId.name.equals(Names.JAVA);
+        return moduleId.name.value.indexOf("lang$0046") == 0 || moduleId.name.equals(Names.JAVA);
     }
 
     private static void generatePackageVariable(BIRGlobalVariableDcl globalVar, ClassWriter cw) {
@@ -367,7 +368,7 @@ public class JvmPackageGen {
     private static BIRFunction findFunction(List<BIRFunction> functions, String funcName) {
 
         for (BIRFunction func : functions) {
-            if (JvmCodeGenUtil.cleanupFunctionName(func.name.value).equals(funcName)) {
+            if (func.name.value.equals(funcName)) {
                 return func;
             }
         }
@@ -407,9 +408,10 @@ public class JvmPackageGen {
         JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(this);
         jvmObservabilityGen.rewriteObservableFunctions(module);
 
-        String moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(module, MODULE_INIT_CLASS_NAME);
-        String pkgName = JvmCodeGenUtil.getPackageName(module);
-        Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, pkgName, moduleInitClass,
+        String moduleInitClass = JvmCodeGenUtil
+                .getModuleLevelClassName(module.org.value, module.name.value, module.version.value,
+                        MODULE_INIT_CLASS_NAME);
+        Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, moduleInitClass,
                                                                           interopValidator, isEntry);
         if (!isEntry || dlog.errorCount() > 0) {
             return new CompiledJarFile(Collections.emptyMap());
@@ -536,13 +538,12 @@ public class JvmPackageGen {
      * functions based on their source file name and then returns map of associated java class contents.
      *
      * @param module           bir module
-     * @param pkgName          module name
      * @param initClass        module init class name
      * @param interopValidator interop validator instance
      * @param isEntry          is entry module flag
      * @return The map of javaClass records on given source file name
      */
-    private Map<String, JavaClass> generateClassNameLinking(BIRPackage module, String pkgName, String initClass,
+    private Map<String, JavaClass> generateClassNameLinking(BIRPackage module, String initClass,
                                                             InteropValidator interopValidator,
                                                             boolean isEntry) {
 
@@ -550,6 +551,7 @@ public class JvmPackageGen {
         String moduleName = module.name.value;
         String version = module.version.value;
         Map<String, JavaClass> jvmClassMap = new HashMap<>();
+        String pkgName = JvmCodeGenUtil.getPackageName(module);
 
         // link global variables with class names
         linkGlobalVars(module, pkgName, initClass, isEntry);
@@ -745,7 +747,7 @@ public class JvmPackageGen {
 
     public String lookupExternClassName(String pkgName, String functionName) {
 
-        return externClassMap.get(JvmCodeGenUtil.cleanupName(pkgName) + "/" + functionName);
+        return externClassMap.get(pkgName + "/" + functionName);
     }
 
     public byte[] getBytes(ClassWriter cw, BIRNode node) {
@@ -756,10 +758,10 @@ public class JvmPackageGen {
         } catch (MethodTooLargeException e) {
             String funcName = e.getMethodName();
             BIRFunction func = findFunction(node, funcName);
-            dlog.error(func.pos, DiagnosticCode.METHOD_TOO_LARGE, func.name.value);
+            dlog.error(func.pos, DiagnosticCode.METHOD_TOO_LARGE, IdentifierUtils.decodeIdentifier(func.name.value));
             result = new byte[0];
         } catch (ClassTooLargeException e) {
-            dlog.error(node.pos, DiagnosticCode.FILE_TOO_LARGE, e.getClassName());
+            dlog.error(node.pos, DiagnosticCode.FILE_TOO_LARGE, IdentifierUtils.decodeIdentifier(e.getClassName()));
             result = new byte[0];
         } catch (Exception e) {
             throw new BLangCompilerException(e.getMessage(), e);
@@ -795,8 +797,8 @@ public class JvmPackageGen {
             assert id != null;
             BPackageSymbol symbol = packageCache.getSymbol(id.orgName + "/" + id.name);
             if (symbol != null) {
-                BObjectTypeSymbol objectTypeSymbol =
-                        (BObjectTypeSymbol) symbol.scope.lookup(new Name(objectNewIns.objectName)).symbol;
+                Name lookupKey = new Name(IdentifierUtils.decodeIdentifier(objectNewIns.objectName));
+                BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) symbol.scope.lookup(lookupKey).symbol;
                 if (objectTypeSymbol != null) {
                     return objectTypeSymbol.type;
                 }

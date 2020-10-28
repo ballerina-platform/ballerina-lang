@@ -110,11 +110,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ATTACHED_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ATTACHED_FUNCTION_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
@@ -1437,7 +1435,7 @@ class JvmTypeGen {
 
         PackageID packageID = errorType.tsymbol.pkgID;
         // TODO: Builtin error type will be loaded from BTypes java class. Need to handle this properly.
-        if (packageID.orgName.value.equals(BALLERINA) && packageID.name.value.equals(BUILT_IN_PACKAGE_NAME)) {
+        if (JvmCodeGenUtil.isBuiltInPackage(packageID)) {
             mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, TYPES_ERROR, String.format("L%s;", ERROR_TYPE));
             return;
         }
@@ -1603,7 +1601,7 @@ class JvmTypeGen {
      */
     private static String getTypeFieldName(String typeName) {
 
-        return String.format("$type$%s", JvmCodeGenUtil.cleanupReadOnlyTypeName(typeName));
+        return String.format("$type$%s", JvmCodeGenUtil.encodePackageName(typeName));
     }
 
     private static void loadFutureType(MethodVisitor mv, BFutureType bType) {
