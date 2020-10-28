@@ -107,16 +107,17 @@ public class CompletionUtil {
             provider = providers.get(reference.getClass());
             // Resolver chain check has been added to cover the use-case in the documentation of the method
             if (provider != null && provider.onPreValidation(ctx, reference)
-                    && !ctx.get(CompletionKeys.RESOLVER_CHAIN).contains(provider.getClass())) {
+                    && !ctx.get(CompletionKeys.RESOLVER_CHAIN).contains(reference)) {
+                ctx.get(CompletionKeys.RESOLVER_CHAIN).add(reference);
                 break;
             }
+            ctx.get(CompletionKeys.RESOLVER_CHAIN).add(reference);
             reference = reference.parent();
         }
 
         if (provider == null) {
             return completionItems;
         }
-        ctx.get(CompletionKeys.RESOLVER_CHAIN).add(provider.getClass());
 
         return provider.getCompletions(ctx, reference);
     }

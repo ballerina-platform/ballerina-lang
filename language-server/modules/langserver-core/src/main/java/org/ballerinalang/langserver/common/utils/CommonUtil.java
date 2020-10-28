@@ -141,6 +141,10 @@ public class CommonUtil {
     public static final Path LS_STDLIB_CACHE_DIR = TEMP_DIR.resolve("ls_stdlib_cache").resolve(SDK_VERSION);
 
     public static final Path LS_CONNECTOR_CACHE_DIR = TEMP_DIR.resolve("ls_connector_cache").resolve(SDK_VERSION);
+    
+    public static final List<String> PRE_DECLARED_LANG_LIBS = Arrays.asList("lang.boolean", "lang.decimal",
+            "lang.error", "lang.float", "lang.future", "lang.int", "lang.map", "lang.object", "lang.stream",
+            "lang.string", "lang.table", "lang.typedesc", "lang.xml", "lang.annotations");
 
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
@@ -810,11 +814,11 @@ public class CommonUtil {
     /**
      * Returns module prefix and process imports required.
      *
-     * @param importsAcceptor   import acceptor
-     * @param currentModuleId   current module id
-     * @param moduleID      module id
-     * @param context   {@link LSContext}
-     * @return  module prefix
+     * @param importsAcceptor import acceptor
+     * @param currentModuleId current module id
+     * @param moduleID        module id
+     * @param context         {@link LSContext}
+     * @return module prefix
      */
     public static String getModulePrefix(ImportsAcceptor importsAcceptor, ModuleID currentModuleId,
                                          ModuleID moduleID, LSContext context) {
