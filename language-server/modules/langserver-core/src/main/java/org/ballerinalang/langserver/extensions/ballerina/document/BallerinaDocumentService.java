@@ -46,9 +46,6 @@ public interface BallerinaDocumentService {
     @JsonRequest
     CompletableFuture<BallerinaASTDidChangeResponse> astDidChange(BallerinaASTDidChange notification);
 
-    @JsonNotification
-    void apiDesignDidChange(ApiDesignDidChangeParams params);
-
     @JsonRequest
     CompletableFuture<BallerinaServiceListResponse> serviceList(BallerinaServiceListRequest request);
 
