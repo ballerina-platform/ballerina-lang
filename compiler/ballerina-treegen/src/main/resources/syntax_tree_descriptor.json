@@ -1922,7 +1922,8 @@
                 },
                 {
                     "name": "type",
-                    "type": "Node"
+                    "type": "Node",
+                    "isOptional": true
                 }
             ]
         },
@@ -2173,7 +2174,7 @@
                 },
                 {
                     "name": "content",
-                    "type": "TemplateMemberNode",
+                    "type": "Node",
                     "occurrences": "MULTIPLE"
                 },
                 {
@@ -2183,13 +2184,8 @@
             ]
         },
         {
-            "name": "TemplateMemberNode",
-            "base": "Node",
-            "isAbstract": true
-        },
-        {
             "name": "XMLItemNode",
-            "base": "TemplateMemberNode",
+            "base": "Node",
             "isAbstract": true
         },
         {
@@ -4128,7 +4124,7 @@
         },
         {
             "name": "OrderByClauseNode",
-            "base": "ClauseNode",
+            "base": "IntermediateClauseNode",
             "kind": "ORDER_BY_CLAUSE",
             "attributes": [
                 {

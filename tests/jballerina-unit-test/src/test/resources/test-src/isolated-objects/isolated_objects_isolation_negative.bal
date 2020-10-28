@@ -362,3 +362,15 @@ isolated class IsolatedClass {
 function nonIsolatedFunc() returns int[] {
     return [1, 2, 3];
 }
+
+isolated class InvalidIsolatedClassWithCopyInInsideBlock {
+    private string[] uniqueGreetings = [];
+
+    isolated function add(string[] greetings) {
+        lock {
+            if self.uniqueGreetings.length() == 0 {
+                self.uniqueGreetings = greetings;
+            }
+        }
+    }
+}

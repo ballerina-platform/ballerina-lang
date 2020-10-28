@@ -617,8 +617,7 @@
     },
     {
       "label": "Thread",
-      "kind": "Unit",
-      "detail": "type",
+      "detail": "Union",
       "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
@@ -739,6 +738,13 @@
       "kind": "Unit",
       "detail": "type",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "byte",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "byte",
       "insertTextFormat": "Snippet"
     },
     {

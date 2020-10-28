@@ -63,6 +63,7 @@ import static io.ballerina.compiler.api.types.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.types.TypeDescKind.NIL;
 import static io.ballerina.compiler.api.types.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.types.TypeDescKind.RECORD;
+import static io.ballerina.compiler.api.types.TypeDescKind.SINGLETON;
 import static io.ballerina.compiler.api.types.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.types.TypeDescKind.TUPLE;
 import static io.ballerina.compiler.api.types.TypeDescKind.TYPEDESC;
@@ -109,16 +110,14 @@ public class TypedescriptorTest {
     @Test
     public void testFunctionType() {
         Symbol symbol = getSymbol(43, 12);
-        FunctionTypeDescriptor type = (FunctionTypeDescriptor) ((FunctionSymbol) symbol).typeDescriptor();
+        FunctionTypeDescriptor type = ((FunctionSymbol) symbol).typeDescriptor();
         assertEquals(type.kind(), TypeDescKind.FUNCTION);
 
-        List<Parameter> reqParams = type.requiredParams();
-        assertEquals(reqParams.size(), 1);
-        validateParam(reqParams.get(0), "x", REQUIRED, INT);
+        List<Parameter> parameters = type.parameters();
+        assertEquals(parameters.size(), 2);
+        validateParam(parameters.get(0), "x", REQUIRED, INT);
 
-        List<Parameter> defParams = type.defaultableParams();
-        assertEquals(defParams.size(), 1);
-        validateParam(defParams.get(0), "y", DEFAULTABLE, FLOAT);
+        validateParam(parameters.get(1), "y", DEFAULTABLE, FLOAT);
 
         Parameter restParam = type.restParam().get();
         validateParam(restParam, "rest", REST, ARRAY);
@@ -256,13 +255,26 @@ public class TypedescriptorTest {
         assertEquals(members.get(2).kind(), DECIMAL);
     }
 
-    // TODO: issue #26276
-    @Test(enabled = false)
-    public void testFiniteType() {
-        Symbol symbol = getSymbol(60, 10);
-        TypeReferenceTypeDescriptor typeRef =
-                (TypeReferenceTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
-        assertEquals(typeRef.kind(), TYPE_REFERENCE);
+    @Test(dataProvider = "FiniteTypeDataProvider")
+    public void testFiniteType(int line, int column, List<String> expSignatures) {
+        Symbol symbol = getSymbol(line, column);
+        UnionTypeDescriptor union = (UnionTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(union.kind(), UNION);
+
+        List<BallerinaTypeDescriptor> members = union.memberTypeDescriptors();
+        for (int i = 0; i < members.size(); i++) {
+            BallerinaTypeDescriptor member = members.get(i);
+            assertEquals(member.kind(), SINGLETON);
+            assertEquals(member.signature(), expSignatures.get(i));
+        }
+    }
+
+    @DataProvider(name = "FiniteTypeDataProvider")
+    public Object[][] getFiniteTypePos() {
+        return new Object[][]{
+                {60, 10, List.of("0", "1", "2", "3")},
+                {62, 11, List.of("default", "csv", "tdf")}
+        };
     }
 
     private Symbol getSymbol(int line, int column) {

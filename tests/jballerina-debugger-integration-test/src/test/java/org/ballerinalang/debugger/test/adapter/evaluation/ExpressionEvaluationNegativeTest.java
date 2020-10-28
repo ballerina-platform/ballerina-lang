@@ -54,7 +54,10 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void stringTemplateEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // incompatible result types from expressions.
+        assertEvaluationError(context, "string `json: ${" + JSON_VAR + "}`",
+                String.format(EvaluationExceptionKind.TYPE_MISMATCH.getString(), "(int|float|decimal|string|boolean)",
+                        "json", "${jsonVar}"));
     }
 
     @Override

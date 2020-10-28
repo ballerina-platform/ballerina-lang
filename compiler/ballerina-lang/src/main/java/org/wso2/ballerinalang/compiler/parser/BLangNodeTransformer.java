@@ -173,7 +173,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
-import io.ballerina.compiler.syntax.tree.TemplateMemberNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TransactionStatementNode;
 import io.ballerina.compiler.syntax.tree.TransactionalExpressionNode;
@@ -2072,8 +2071,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         // TODO : Attach annotations if available
         typeConversionNode.pos = getPosition(typeCastExpressionNode);
         TypeCastParamNode typeCastParamNode = typeCastExpressionNode.typeCastParam();
-        if (typeCastParamNode != null && typeCastParamNode.type() != null) {
-            typeConversionNode.typeNode = createTypeNode(typeCastParamNode.type());
+        if (typeCastParamNode != null && typeCastParamNode.type().isPresent()) {
+            typeConversionNode.typeNode = createTypeNode(typeCastParamNode.type().get());
         }
         typeConversionNode.expr = createExpression(typeCastExpressionNode.expression());
         typeConversionNode.annAttachments = applyAll(typeCastParamNode.annotations());
@@ -4231,7 +4230,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
     }
 
-    private BLangNode createStringTemplateLiteral(NodeList<TemplateMemberNode> memberNodes, DiagnosticPos pos) {
+    private BLangNode createStringTemplateLiteral(NodeList<Node> memberNodes, DiagnosticPos pos) {
         BLangStringTemplateLiteral stringTemplateLiteral =
                 (BLangStringTemplateLiteral) TreeBuilder.createStringTemplateLiteralNode();
         for (Node memberNode : memberNodes) {
@@ -4248,7 +4247,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return stringTemplateLiteral;
     }
 
-    private BLangRawTemplateLiteral createRawTemplateLiteral(NodeList<TemplateMemberNode> members, DiagnosticPos pos) {
+    private BLangRawTemplateLiteral createRawTemplateLiteral(NodeList<Node> members, DiagnosticPos pos) {
         BLangRawTemplateLiteral literal = (BLangRawTemplateLiteral) TreeBuilder.createRawTemplateLiteralNode();
         literal.pos = pos;
 

@@ -78,12 +78,13 @@ public class AssertionDiffEvaluator {
                         output = output.concat("\n" + line + "\n");
                     }
                 } else if (line.startsWith("@@ -")) {
-                    output = output.concat(line + "\n\n");
+                    output = output.concat("\n" + line + "\n\n");
                 } else {
                     output = output.concat(line + "\n");
                 }
             }
         }
+        output = output.replaceAll("\n\n", " \n \n ");
         return StringUtils.fromString(output);
     }
 

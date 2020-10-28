@@ -112,6 +112,13 @@ dependencies {
     // Temporary adding . Need to Remove once fix #17878
     dist 'com.google.code.gson:gson:2.7'
 
+    // Transaction related third party jars
+    dist 'com.atomikos:transactions-jta:5.0.8'
+    dist 'com.atomikos:atomikos-util:5.0.8'
+    dist 'com.atomikos:transactions-api:5.0.8'
+    dist 'com.atomikos:transactions:5.0.8'
+    dist 'javax.transaction:javax.transaction-api:1.3'
+
     // Other Runtime Libs
     dist project(':ballerina-runtime')
     dist project(':ballerina-core')
