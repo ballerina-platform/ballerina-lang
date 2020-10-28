@@ -86,6 +86,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
@@ -170,6 +173,7 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangNamedArgMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangSimpleMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
@@ -1193,14 +1197,54 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         switch (firstBindingPatternKind) {
-            case CAPTURE_BINDING_PATTERN:
+            case WILDCARD_BINDING_PATTERN:
                 return true;
+            case CAPTURE_BINDING_PATTERN:
+                return ((BLangCaptureBindingPattern) firstBidingPattern).getIdentifier().
+                        equals(((BLangCaptureBindingPattern) secondBindingPattern).getIdentifier());
+            case LIST_BINDING_PATTERN:
+                return checkSimilarListBindingPatterns((BLangListBindingPattern) firstBidingPattern,
+                        (BLangListBindingPattern) secondBindingPattern);
+            case REST_BINDING_PATTERN:
+                return ((BLangRestBindingPattern) firstBidingPattern).variableName
+                        .equals(((BLangRestBindingPattern) secondBindingPattern).variableName);
             default:
                 return false;
         }
     }
 
-    // a is int && b is int, b is int && a is int -> create an issue
+    private boolean checkSimilarListBindingPatterns(BLangListBindingPattern firstBindingPattern,
+                                                    BLangListBindingPattern secondBindingPattern) {
+        if (firstBindingPattern.bindingPatterns.size() != secondBindingPattern.bindingPatterns.size()) {
+            return false;
+        }
+        if (firstBindingPattern.restBindingPattern != null && secondBindingPattern.restBindingPattern == null) {
+            return false;
+        }
+        if (firstBindingPattern.restBindingPattern == null && secondBindingPattern.restBindingPattern != null) {
+            return false;
+        }
+
+        for (BLangBindingPattern firstListMemberBindingPattern : firstBindingPattern.bindingPatterns) {
+            boolean isPatternDuplicated = false;
+            for (BLangBindingPattern secondListMemberBindingPattern : secondBindingPattern.bindingPatterns) {
+                if (checkSimilarBindingPatterns(firstListMemberBindingPattern, secondListMemberBindingPattern)) {
+                    isPatternDuplicated = true;
+                    break;
+                }
+            }
+            if (!isPatternDuplicated) {
+                return false;
+            }
+        }
+
+        if (firstBindingPattern.restBindingPattern == null && secondBindingPattern.restBindingPattern == null) {
+            return true;
+        }
+        return checkSimilarBindingPatterns(firstBindingPattern.restBindingPattern,
+                secondBindingPattern.restBindingPattern);
+    }
+
     private boolean checkSimilarMatchGuard(BLangMatchGuard firstMatchGuard, BLangMatchGuard secondMatchGuard) {
         if (firstMatchGuard == null && secondMatchGuard == null) {
             return true;
@@ -1240,16 +1284,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangConstPattern constMatchPattern) {
-        analyzeNode(constMatchPattern.expr, env);
-    }
-
-    @Override
     public void visit(BLangWildCardMatchPattern wildCardMatchPattern) {
         wildCardMatchPattern.isLastPattern =
                 wildCardMatchPattern.matchExpr != null && types.isAssignable(wildCardMatchPattern.matchExpr.type,
                         symTable.anyType);
     }
+
+    @Override
+    public void visit(BLangConstPattern constMatchPattern) {
+        analyzeNode(constMatchPattern.expr, env);
+    }
+
+    @Override
+    public void visit(BLangListMatchPattern listMatchPattern) {}
 
     @Override
     public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {

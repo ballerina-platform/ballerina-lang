@@ -71,6 +71,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -382,8 +383,7 @@ public class Types {
         if (matchExpr == null) {
             return listMatchPatternType;
         }
-        BType matchExprType = matchExpr.type;
-        BType intersectionType = getTypeIntersection(matchExprType, listMatchPatternType, env);
+        BType intersectionType = getTypeIntersection(matchExpr.type, listMatchPatternType);
         if (intersectionType != symTable.semanticError) {
             return intersectionType;
         }
