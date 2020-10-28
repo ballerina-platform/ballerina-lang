@@ -226,6 +226,10 @@ function decimalParamAndReturn(decimal a1) returns decimal = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
+ public function returnNullString(boolean nullVal) returns string? = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
 public function testBalEnvSlowAsyncVoidSig() {
     int added = addTwoNumbersSlowAsyncVoidSig(1, 2);
     assertEquality(3, added);
@@ -244,6 +248,16 @@ public function testBalEnvSlowAsync() {
 public function testBalEnvFastAsync() {
     int added = addTwoNumbersFastAsync(1, 2);
     assertEquality(3, added);
+}
+
+public function testReturnNullString() {
+    string concat = "some" + (returnNullString(true) ?: "");
+    test:assertEquals("some", concat);
+}
+
+public function testReturnNotNullString() {
+    string concat = "some" + (returnNullString(false) ?: "");
+    test:assertEquals("someNotNull", concat);
 }
 
 function hashCode(int receiver) returns int = @java:Method {

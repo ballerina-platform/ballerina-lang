@@ -475,6 +475,10 @@ public class StaticMethods {
         return -282619;
     }
 
+    public static Object returnNullString(boolean nullVal) {
+        return nullVal ? null : StringUtils.fromString("NotNull");
+    }
+
     public static void addTwoNumbersBuggy(Environment env, long a, long b) {
         // Buggy because env.markAsync() is not called
         // TODO: see if we can verify this
