@@ -257,6 +257,7 @@ function testXmlFromBalString() {
     string s2 = x2.toBalString();
     string s3 = x3.toBalString();
     string s4 = x4.toBalString();
+
     string s5 = x5.toBalString();
 
     anydata|error result1 = s1.fromBalString();
@@ -289,15 +290,13 @@ function testObjectFromString() {
 }
 
 function testFromBalStringOnCycles() {
-     string s1 = "{\"ee\":3,\"1\":{\"mm\":5,\"1\":...[1],\"2\":{\"qq\":5,\"1\":[2,3,5,...[1]]," +
-        "\"2\":...[1],\"3\":...[1],\"4\":...[1]}},\"2\":{\"qq\":5,\"1\":[2,3,5,...[1]],\"2\":...[1],\"3\":...[1]," +
-        "\"4\":{\"mm\":5,\"1\":...[1],\"2\":...[1]}},\"3\":...[1]}";
+     string s1 = "{\"ee\":3,\"1\":{\"mm\":5,\"1\":...[2],\"2\":{\"qq\":5,\"1\":[2,3,5,...[5]]," +
+         "\"2\":...[4],\"3\":...[0],\"4\":...[2]}},\"2\":{\"qq\":5,\"1\":[2,3,5,...[3]],\"2\":...[2],\"3\":...[0]," +
+         "\"4\":{\"mm\":5,\"1\":...[4],\"2\":...[2]}},\"3\":...[0]}";
 
      anydata|error result = s1.fromBalString();
 
-     if (result is map<anydata|error>) {
-         assert(result.get("3") is error, true);
-     }
+     assert(result.toBalString(), s1);
 }
 
 function assert(anydata|error actual, anydata|error expected) {
