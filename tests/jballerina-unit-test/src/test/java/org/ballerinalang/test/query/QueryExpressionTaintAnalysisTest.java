@@ -20,9 +20,9 @@ package org.ballerinalang.test.query;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.utils.SQLDBUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.sql.SQLException;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * This contains negative tests for taint checking in query expression.
@@ -50,9 +50,8 @@ public class QueryExpressionTaintAnalysisTest {
     @BeforeClass
     public void setup() throws SQLException {
         try {
-            result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("query",
-                    "query-taint-analysis.bal"));
-            negativeResult = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("query",
+            result = BCompileUtil.compile(SQLDBUtils.getBalFilesDir("query", "query-taint-analysis.bal"));
+            negativeResult = BCompileUtil.compile(SQLDBUtils.getBalFilesDir("query",
                     "query-taint-analysis-negative.bal"));
         } catch (BLangRuntimeException bLangRuntimeException) {
             throw bLangRuntimeException;

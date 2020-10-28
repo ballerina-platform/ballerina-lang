@@ -118,7 +118,9 @@ import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
  * Utility methods for run Ballerina functions.
  *
  * @since 0.94
+ * @deprecated use {@link org.ballerinalang.test.BRunUtil} instead.
  */
+@Deprecated
 public class BRunUtil {
 
     /**

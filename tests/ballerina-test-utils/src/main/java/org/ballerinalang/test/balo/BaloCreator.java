@@ -45,7 +45,9 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
  * Class containing utility methods for creating BALO.
  * 
  * @since 0.975.0
+ * @deprecated use {@link org.ballerinalang.test.BCompileUtil} instead.
  */
+@Deprecated
 public class BaloCreator {
 
     private static final Path TEST_RESOURCES_SOURCE_PATH = Paths.get("src", "test", "resources");

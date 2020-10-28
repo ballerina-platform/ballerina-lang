@@ -18,10 +18,10 @@
 package org.ballerinalang.test.statements.packageimport;
 
 import org.ballerinalang.test.balo.BaloCreator;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -74,7 +74,7 @@ public class PackageImportTest {
 
     @Test (enabled = false)
     public void testImportsPerfile() {
-        CompileResult result = BCompileUtil.compile("test-src/statements/package/sample-project-1", "invalid-imports");
+        CompileResult result = BCompileUtil.compile("test-src/statements/package/sample-project-1");
         Assert.assertEquals(result.getErrorCount(), 6);
         int i = 0;
         BAssertUtil.validateError(result, i++, "redeclared import module 'ballerina/io'", "src/file-negative1.bal", 3,
@@ -101,8 +101,7 @@ public class PackageImportTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        BaloCreator.cleanCacheDirectories();
-        CompileResult result = BCompileUtil.compile("test-src/statements/package/sample-project-2", "foo");
+        CompileResult result = BCompileUtil.compile("test-src/statements/package/sample-project-2");
         BRunUtil.invoke(result, "runFoo");
 
         System.setOut(out);

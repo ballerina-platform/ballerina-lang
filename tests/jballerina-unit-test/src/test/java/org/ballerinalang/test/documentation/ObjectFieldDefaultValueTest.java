@@ -24,8 +24,8 @@ import org.ballerinalang.docgen.generator.model.DefaultableVariable;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.Project;
 import org.ballerinalang.docgen.model.ModuleDoc;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -51,7 +51,7 @@ public class ObjectFieldDefaultValueTest {
     public void setup() throws IOException {
         String sourceRoot =
                 "test-src" + File.separator + "documentation" + File.separator + "default_value_initialization";
-        CompileResult result = BCompileUtil.compile(sourceRoot, "test_module");
+        CompileResult result = BCompileUtil.compile(sourceRoot);
 
         List<BLangPackage> modules = new LinkedList<>();
         modules.add((BLangPackage) result.getAST());

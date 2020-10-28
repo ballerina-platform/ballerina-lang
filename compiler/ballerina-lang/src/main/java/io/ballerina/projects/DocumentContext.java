@@ -24,21 +24,15 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -172,31 +166,7 @@ class DocumentContext {
                                          SyntaxTree tree,
                                          BLangDiagnosticLog dlog) {
         for (Diagnostic syntaxDiagnostic : tree.diagnostics()) {
-            DiagnosticPos pos = getPosition(syntaxDiagnostic.location(), diagnosticSource);
-
-            // TODO This is the temporary mechanism
-            // We need to merge the diagnostic reporting mechanisms of the new parser and the semantic analyzer
-            DiagnosticCode code;
-
-            DiagnosticSeverity severity = syntaxDiagnostic.diagnosticInfo().severity();
-            if (severity == DiagnosticSeverity.WARNING) {
-                code = DiagnosticCode.SYNTAX_WARNING;
-                dlog.warning(pos, code, syntaxDiagnostic.message());
-            } else {
-                code = DiagnosticCode.SYNTAX_ERROR;
-                dlog.error(pos, code, syntaxDiagnostic.message());
-            }
+            dlog.logDiagnostic(diagnosticSource.pkgID, syntaxDiagnostic);
         }
-    }
-
-    private DiagnosticPos getPosition(Location location, BDiagnosticSource diagnosticSource) {
-        if (location == null) {
-            return null;
-        }
-        LineRange lineRange = location.lineRange();
-        LinePosition startPos = lineRange.startLine();
-        LinePosition endPos = lineRange.endLine();
-        return new DiagnosticPos(diagnosticSource, startPos.line() + 1, endPos.line() + 1,
-                startPos.offset() + 1, endPos.offset() + 1);
     }
 }

@@ -1244,6 +1244,14 @@ public class BRunUtil {
         return invoke(compileResult, function, functionName, new BValue[0], new Class<?>[0]);
     }
 
+    public static String runMain(CompileResult compileResult, String[] args) {
+        ExitDetails exitDetails = run(compileResult, args);
+        if (exitDetails.exitCode != 0) {
+            throw new RuntimeException(exitDetails.errorOutput);
+        }
+        return exitDetails.consoleOutput;
+    }
+
     public static ExitDetails run(CompileResult compileResult, String[] args) {
 
         BLangPackage compiledPkg = ((BLangPackage) compileResult.getAST());

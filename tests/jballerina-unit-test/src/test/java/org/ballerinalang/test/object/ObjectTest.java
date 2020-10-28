@@ -22,10 +22,10 @@ import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -517,7 +517,8 @@ public class ObjectTest {
 
     @Test(description = "Negative test to test object visibility modifiers")
     public void testObjectVisibilityModifiers() {
-        CompileResult result = BCompileUtil.compile(this, "test-src/object/ObjectProject", "mod");
+//        CompileResult result = BCompileUtil.compile("test-src/object/ObjectProject", "mod");
+        CompileResult result = BCompileUtil.compile("test-src/object/ObjectProject/mod");
         Assert.assertEquals(result.getErrorCount(), 12);
         int index = 0;
 
@@ -698,7 +699,8 @@ public class ObjectTest {
 
     @Test(description = "Test invoking object inits with union params in another object's function")
     public void testObjectInitFunctionWithDefaultableParams() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "pkg2");
+//        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "pkg2");
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject/pkg2");
         BValue[] result = BRunUtil.invoke(compileResult, "testObjectInitFunctionWithDefaultableParams");
         Assert.assertEquals(((BInteger) result[0]).intValue(), 900000);
         Assert.assertEquals(((BInteger) result[1]).intValue(), 10000);
@@ -709,7 +711,8 @@ public class ObjectTest {
 
     @Test(description = "Test invoking object inits with union params in another object's function")
     public void testObjectInitFunctionWithDefaultableParams2() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "pkg2");
+//        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "pkg2");
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject/pkg2");
         BValue[] result = BRunUtil.invoke(compileResult, "testObjectInitFunctionWithDefaultableParams2");
         Assert.assertEquals(((BFloat) result[0]).floatValue(), 1.1);
         Assert.assertEquals(((BInteger) result[1]).intValue(), 1);

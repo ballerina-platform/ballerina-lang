@@ -26,9 +26,9 @@ import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.balo.BaloCreator;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -48,8 +48,7 @@ public class GlobalVarFunctionInBaloTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
+//        BCompileUtil.compile("test-src/balo/test_projects/test_project", "testorg", "foo");
         result = BCompileUtil.compile("test-src/balo/test_balo/globalvar/test_global_var_function.bal");
     }
 
@@ -172,10 +171,5 @@ public class GlobalVarFunctionInBaloTest {
         Assert.assertEquals(((BInteger) returns[4]).intValue(), 3);
         Assert.assertEquals(((BInteger) returns[5]).intValue(), 3);
         Assert.assertEquals(((BInteger) returns[6]).intValue(), 2);
-    }
-
-    @AfterClass
-    public void tearDown() {
-        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "foo");
     }
 }
