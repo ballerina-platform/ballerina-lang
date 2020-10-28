@@ -210,7 +210,9 @@ public enum NodeKind {
 
     /* Binding patterns*/
     CAPTURE_BINDING_PATTERN,
+    WILDCARD_BINDING_PATTERN,
     LIST_BINDING_PATTERN,
+    REST_BINDING_PATTERN,
 
     /* Types */
     ARRAY_TYPE,

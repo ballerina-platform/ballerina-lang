@@ -17,17 +17,22 @@
  */
 package org.ballerinalang.model.tree.bindingpattern;
 
-import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.matchpatterns.RestMatchPattern;
+
+import java.util.List;
 
 /**
- * The interface with the APIs to implement the capture-binding-pattern.
+ * The interface with the APIs to implement the list-binding-pattern.
  *
  * @since 2.0.0
  */
-public interface CaptureBindingPattern extends Node {
+public interface ListBindingPatternNode extends Node {
+    List<? extends BindingPatternNode> getBindingPatterns();
 
-    IdentifierNode getIdentifier();
+    void addBindingPattern(BindingPatternNode bindingPattern);
 
-    void setIdentifier(IdentifierNode variableName);
+    RestBindingPatternNode getRestBindingPattern();
+
+    void setRestBindingPattern(RestBindingPatternNode restBindingPattern);
 }
