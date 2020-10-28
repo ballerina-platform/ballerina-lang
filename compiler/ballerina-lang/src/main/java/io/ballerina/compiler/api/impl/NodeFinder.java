@@ -18,7 +18,6 @@
 
 package io.ballerina.compiler.api.impl;
 
-import io.ballerina.compiler.api.impl.exceptions.UnsupportedNodeException;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
@@ -86,7 +85,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -805,12 +803,8 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        throw new UnsupportedNodeException(tableMultiKeyExpr.getKind());
-    }
-
-    @Override
-    public void visit(BLangTransactionalExpr transactionalExpr) {
-        throw new UnsupportedNodeException(transactionalExpr.getKind());
+        lookupNode(tableMultiKeyExpr.expr);
+        lookupNodes(tableMultiKeyExpr.multiKeyIndexExprs);
     }
 
     @Override
@@ -1093,12 +1087,12 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
-        throw new UnsupportedNodeException(waitForAllExpr.getKind());
+        lookupNodes(waitForAllExpr.keyValuePairs);
     }
 
     @Override
     public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
-        throw new UnsupportedNodeException(waitLiteral.getKind());
+        lookupNodes(waitLiteral.keyValuePairs);
     }
 
     @Override
@@ -1119,7 +1113,8 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangWaitForAllExpr.BLangWaitKeyValue waitKeyValue) {
-        throw new UnsupportedNodeException(waitKeyValue.getKind());
+        lookupNode(waitKeyValue.keyExpr);
+        lookupNode(waitKeyValue.valueExpr);
     }
 
     @Override
