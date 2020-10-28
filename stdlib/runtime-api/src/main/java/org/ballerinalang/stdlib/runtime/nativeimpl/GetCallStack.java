@@ -40,8 +40,7 @@ import java.util.List;
 public class GetCallStack {
 
     public static BArray getCallStack() {
-        BError error = ErrorCreator.createError(StringUtils.fromString(""));
-        List<StackTraceElement> filteredStack =  error.getCallStack();
+        List<StackTraceElement> filteredStack = ErrorCreator.createError(StringUtils.fromString("")).getCallStack();
         Type recordType = ValueCreator.createRecordValue(BLangConstants.BALLERINA_RUNTIME_PKG_ID,
                 "CallStackElement").getType();
         ArrayValue callStack = new ArrayValueImpl(new BArrayType(recordType));
