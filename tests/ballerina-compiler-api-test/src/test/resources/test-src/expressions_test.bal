@@ -83,6 +83,17 @@ function testMiscExprs() {
     string greeting = ad == "" ? "Hello" : "Hello " + ad.toString();
 }
 
+function testCheckingExprs() returns error? {
+    string s1 = check foo();
+    string s2 = checkpanic foo();
+}
+
+function testCastingExprs() {
+    anydata ad = 10;
+    string s = <string>ad;
+    int x = <@untainted int>ad;
+}
+
 // utils
 
 class PersonObj {
@@ -94,3 +105,5 @@ class PersonObj {
 
     function getName() returns string => self.name;
 }
+
+function foo() returns string|error => "foo";
