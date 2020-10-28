@@ -154,12 +154,16 @@ public class Mock {
                 // validate if each argument is compatible with the type given in the function signature
                 int i = 0;
                 for (IteratorValue it = argsList.getIterator(); it.hasNext(); i++) {
+                    Object arg = it.next();
+                    if (MockConstants.ANY_TYPE_PLACEHOLDER.equals(arg)) {
+                        continue;
+                    }
                     if (attachedFunction.type.getParameterType()[i] instanceof BUnionType) {
-                        Object arg = it.next();
                         boolean isTypeAvailable = false;
                         List<BType> memberTypes =
                                 ((BUnionType) attachedFunction.type.getParameterType()[i]).getMemberTypes();
                         for (BType memberType : memberTypes) {
+
                             if (TypeChecker.checkIsType(arg, memberType)) {
                                 isTypeAvailable = true;
                                 break;
@@ -172,7 +176,7 @@ public class Mock {
                             return BallerinaErrors.createError(
                                     MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR, detail);
                         }
-                    } else if (!TypeChecker.checkIsType(it.next(), attachedFunction.type.getParameterType()[i])) {
+                    } else if (!TypeChecker.checkIsType(arg, attachedFunction.type.getParameterType()[i])) {
                         String detail =
                                 "incorrect type of argument provided at position '" + (i + 1)
                                         + "' to mock the function " + functionName + "()";
