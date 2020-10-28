@@ -22,7 +22,6 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
 
 /**
  * {code DiagnosticPos} represents a specific position in a source file.
@@ -33,7 +32,7 @@ import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
  * @since 0.94
  */
 @Deprecated
-public class DiagnosticPos implements DiagnosticPosition, Location {
+public class DiagnosticPos implements Location {
 
     private LineRange lineRange;
     private TextRange textRange;
@@ -61,22 +60,18 @@ public class DiagnosticPos implements DiagnosticPosition, Location {
         return packageID;
     }
 
-    @Override
     public int getStartLine() {
         return lineRange.startLine().line();
     }
 
-    @Override
     public int getEndLine() {
         return lineRange.endLine().line();
     }
 
-    @Override
     public int getStartColumn() {
         return lineRange.startLine().offset();
     }
 
-    @Override
     public int getEndColumn() {
         return lineRange.endLine().offset();
     }
@@ -101,15 +96,14 @@ public class DiagnosticPos implements DiagnosticPosition, Location {
         return  packageID.hashCode() + lineRange().filePath().hashCode() +
                 getStartLine() + getEndLine() + getStartColumn() + getEndColumn();
     }
-
-    @Override
-    public int compareTo(DiagnosticPosition diagnosticPosition) {
+    
+    public int compareTo(DiagnosticPos diagnosticPosition) {
 
         // Compare the source first.
         String thisDiagnosticString = packageID.name.value + packageID.version.value + lineRange().filePath();
         String otherDiagnosticString = diagnosticPosition.getPackageID().name.value +
                 diagnosticPosition.getPackageID().version.value +
-                ((DiagnosticPos) diagnosticPosition).lineRange().filePath();
+                diagnosticPosition.lineRange().filePath();
         int value = thisDiagnosticString.compareTo(otherDiagnosticString);
 
         if (value != 0) {

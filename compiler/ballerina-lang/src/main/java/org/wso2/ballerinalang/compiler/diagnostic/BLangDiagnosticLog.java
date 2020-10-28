@@ -22,8 +22,8 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.util.diagnostic.DiagnosticKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticKind;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -195,7 +195,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
                 break;
         }
 
-        reportDiagnostic(null, location, message.toString(), severity);
+        reportDiagnostic(pkgId, null, location, message.toString(), severity);
     }
 
     /**
