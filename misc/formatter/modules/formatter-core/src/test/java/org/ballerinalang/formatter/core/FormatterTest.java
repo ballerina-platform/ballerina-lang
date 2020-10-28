@@ -63,8 +63,7 @@ public abstract class FormatterTest {
             SyntaxTree newSyntaxTree = Formatter.format(syntaxTree);
             Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
         } catch (FormatterException e) {
-            // TODO: handle the test cases causing formatting exceptions
-//            Assert.fail(e.getMessage(), e);
+            Assert.fail(e.getMessage(), e);
         }
     }
 
@@ -83,8 +82,7 @@ public abstract class FormatterTest {
                 SyntaxTree newSyntaxTree = Formatter.format(syntaxTree);
                 Assert.assertEquals(newSyntaxTree.toSourceCode(), content);
             } catch (FormatterException e) {
-                // TODO: handle the test cases causing formatting exceptions
-//                Assert.fail(e.getMessage(), e);
+                Assert.fail(e.getMessage(), e);
             }
         }
     }
