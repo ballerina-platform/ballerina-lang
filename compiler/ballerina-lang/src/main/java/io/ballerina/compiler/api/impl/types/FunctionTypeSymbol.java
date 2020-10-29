@@ -21,7 +21,7 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.types.TypeSymbol;
-import io.ballerina.compiler.api.types.Parameter;
+import io.ballerina.compiler.api.types.ParameterSymbol;
 import io.ballerina.compiler.api.types.ParameterKind;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -45,8 +45,8 @@ import static java.util.stream.Collectors.toList;
 public class FunctionTypeSymbol extends AbstractTypeSymbol
         implements io.ballerina.compiler.api.types.FunctionTypeSymbol {
 
-    private List<Parameter> requiredParams;
-    private Parameter restParam;
+    private List<ParameterSymbol> requiredParams;
+    private ParameterSymbol restParam;
     private TypeSymbol returnType;
     private final BInvokableTypeSymbol typeSymbol;
 
@@ -56,7 +56,7 @@ public class FunctionTypeSymbol extends AbstractTypeSymbol
     }
 
     @Override
-    public List<Parameter> parameters() {
+    public List<ParameterSymbol> parameters() {
         if (this.requiredParams == null) {
             this.requiredParams = this.typeSymbol.params.stream()
                     .map(symbol -> {
@@ -69,7 +69,7 @@ public class FunctionTypeSymbol extends AbstractTypeSymbol
     }
 
     @Override
-    public Optional<Parameter> restParam() {
+    public Optional<ParameterSymbol> restParam() {
         if (restParam == null) {
             this.restParam = SymbolFactory.createBallerinaParameter(typeSymbol.restParam, REST);
         }
@@ -88,7 +88,7 @@ public class FunctionTypeSymbol extends AbstractTypeSymbol
     public String signature() {
         StringBuilder signature = new StringBuilder("function (");
         StringJoiner joiner = new StringJoiner(",");
-        for (Parameter requiredParam : this.parameters()) {
+        for (ParameterSymbol requiredParam : this.parameters()) {
             String ballerinaParameterSignature = requiredParam.signature();
             joiner.add(ballerinaParameterSignature);
         }

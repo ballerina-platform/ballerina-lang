@@ -19,7 +19,7 @@ package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.types.TypeSymbol;
-import io.ballerina.compiler.api.types.Parameter;
+import io.ballerina.compiler.api.types.ParameterSymbol;
 import io.ballerina.compiler.api.types.ParameterKind;
 
 import java.util.Collections;
@@ -32,7 +32,7 @@ import java.util.StringJoiner;
  *
  * @since 2.0.0
  */
-public class BallerinaParameter implements Parameter {
+public class BallerinaParameterSymbol implements ParameterSymbol {
 
     // add the metadata field
     private List<Qualifier> qualifiers;
@@ -40,8 +40,8 @@ public class BallerinaParameter implements Parameter {
     private TypeSymbol typeDescriptor;
     private ParameterKind kind;
 
-    public BallerinaParameter(String parameterName, TypeSymbol typeDescriptor, List<Qualifier> qualifiers,
-                              ParameterKind kind) {
+    public BallerinaParameterSymbol(String parameterName, TypeSymbol typeDescriptor, List<Qualifier> qualifiers,
+                                    ParameterKind kind) {
         // TODO: Add the metadata
         this.parameterName = parameterName;
         this.typeDescriptor = typeDescriptor;

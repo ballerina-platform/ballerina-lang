@@ -32,14 +32,14 @@ public interface FunctionTypeSymbol extends TypeSymbol {
      *
      * @return {@link List} of required parameters
      */
-    List<Parameter> parameters();
+    List<ParameterSymbol> parameters();
 
     /**
      * Get the rest parameter.
      *
      * @return {@link Optional} rest parameter
      */
-    Optional<Parameter> restParam();
+    Optional<ParameterSymbol> restParam();
 
     /**
      * Get the return type.

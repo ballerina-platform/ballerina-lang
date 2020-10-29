@@ -19,7 +19,7 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.api.types.FunctionTypeSymbol;
-import io.ballerina.compiler.api.types.Parameter;
+import io.ballerina.compiler.api.types.ParameterSymbol;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -180,13 +180,13 @@ public class FunctionGenerator {
         List<String> args = new ArrayList<>();
         boolean skipFirstParam = CommonUtil.skipFirstParam(ctx, symbol);
         FunctionTypeSymbol functionTypeDesc = symbol.typeDescriptor();
-        Optional<Parameter> restParam = functionTypeDesc.restParam();
-        List<Parameter> parameterDefs = new ArrayList<>(functionTypeDesc.parameters());
+        Optional<ParameterSymbol> restParam = functionTypeDesc.restParam();
+        List<ParameterSymbol> parameterDefs = new ArrayList<>(functionTypeDesc.parameters());
         for (int i = 0; i < parameterDefs.size(); i++) {
             if (i == 0 && skipFirstParam) {
                 continue;
             }
-            Parameter param = parameterDefs.get(i);
+            ParameterSymbol param = parameterDefs.get(i);
             args.add(param.typeDescriptor().signature() + (param.name().isEmpty() ? "" : " " + param.name().get()));
         }
         restParam.ifPresent(param ->

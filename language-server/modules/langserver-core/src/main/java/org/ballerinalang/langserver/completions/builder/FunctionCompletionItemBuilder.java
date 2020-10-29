@@ -22,7 +22,7 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.types.FunctionTypeSymbol;
 import io.ballerina.compiler.api.types.ObjectTypeSymbol;
-import io.ballerina.compiler.api.types.Parameter;
+import io.ballerina.compiler.api.types.ParameterSymbol;
 import io.ballerina.compiler.api.types.ParameterKind;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeReferenceTypeSymbol;
@@ -153,7 +153,7 @@ public final class FunctionCompletionItemBuilder {
         Map<String, String> docParamsMap = new HashMap<>();
         docAttachment.ifPresent(documentation -> documentation.parameterMap().forEach(docParamsMap::put));
 
-        List<Parameter> defaultParams = functionTypeDesc.parameters().stream()
+        List<ParameterSymbol> defaultParams = functionTypeDesc.parameters().stream()
                 .filter(parameter -> parameter.kind() == ParameterKind.DEFAULTABLE)
                 .collect(Collectors.toList());
 
@@ -162,18 +162,18 @@ public final class FunctionCompletionItemBuilder {
         String documentation = "**Package:** " + "_" + pkgID + "_" + CommonUtil.MD_LINE_SEPARATOR
                 + CommonUtil.MD_LINE_SEPARATOR + description + CommonUtil.MD_LINE_SEPARATOR;
         StringJoiner joiner = new StringJoiner(CommonUtil.MD_LINE_SEPARATOR);
-        List<Parameter> functionParameters = new ArrayList<>(functionTypeDesc.parameters());
+        List<ParameterSymbol> functionParameters = new ArrayList<>(functionTypeDesc.parameters());
         if (functionTypeDesc.restParam().isPresent()) {
             functionParameters.add(functionTypeDesc.restParam().get());
         }
         for (int i = 0; i < functionParameters.size(); i++) {
-            Parameter param = functionParameters.get(i);
+            ParameterSymbol param = functionParameters.get(i);
             String paramType = param.typeDescriptor().signature();
             if (i == 0 && skipFirstParam) {
                 continue;
             }
 
-            Optional<Parameter> defaultVal = defaultParams.stream()
+            Optional<ParameterSymbol> defaultVal = defaultParams.stream()
                     .filter(parameter -> parameter.name().get().equals(param.name().get()))
                     .findFirst();
             String paramDescription = "- " + "`" + paramType + "` " + param.name().get();

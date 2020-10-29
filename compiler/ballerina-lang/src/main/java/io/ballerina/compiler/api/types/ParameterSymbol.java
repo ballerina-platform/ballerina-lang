@@ -27,7 +27,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public interface Parameter {
+public interface ParameterSymbol {
 
     /**
      * Get the parameter name.

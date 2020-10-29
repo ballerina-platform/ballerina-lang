@@ -28,12 +28,12 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaWorkerSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaXMLNSSymbol;
-import io.ballerina.compiler.api.impl.types.BallerinaParameter;
+import io.ballerina.compiler.api.impl.types.BallerinaParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.api.types.FunctionTypeSymbol;
-import io.ballerina.compiler.api.types.Parameter;
+import io.ballerina.compiler.api.types.ParameterSymbol;
 import io.ballerina.compiler.api.types.ParameterKind;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import org.ballerinalang.model.elements.PackageID;
@@ -207,9 +207,9 @@ public class SymbolFactory {
      *
      * @param symbol Variable symbol for the parameter
      * @param kind   The kind of the parameter
-     * @return {@link Parameter} generated parameter
+     * @return {@link ParameterSymbol} generated parameter
      */
-    public static Parameter createBallerinaParameter(BVarSymbol symbol, ParameterKind kind) {
+    public static ParameterSymbol createBallerinaParameter(BVarSymbol symbol, ParameterKind kind) {
         if (symbol == null) {
             return null;
         }
@@ -219,7 +219,7 @@ public class SymbolFactory {
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             qualifiers.add(Qualifier.PUBLIC);
         }
-        return new BallerinaParameter(name, typeDescriptor, qualifiers, kind);
+        return new BallerinaParameterSymbol(name, typeDescriptor, qualifiers, kind);
     }
 
     /**

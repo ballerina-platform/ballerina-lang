@@ -32,7 +32,7 @@ import io.ballerina.compiler.api.types.FunctionTypeSymbol;
 import io.ballerina.compiler.api.types.FutureTypeSymbol;
 import io.ballerina.compiler.api.types.MapTypeSymbol;
 import io.ballerina.compiler.api.types.ObjectTypeSymbol;
-import io.ballerina.compiler.api.types.Parameter;
+import io.ballerina.compiler.api.types.ParameterSymbol;
 import io.ballerina.compiler.api.types.ParameterKind;
 import io.ballerina.compiler.api.types.RecordTypeSymbol;
 import io.ballerina.compiler.api.types.TupleTypeSymbol;
@@ -112,13 +112,13 @@ public class TypedescriptorTest {
         FunctionTypeSymbol type = ((FunctionSymbol) symbol).typeDescriptor();
         assertEquals(type.kind(), TypeDescKind.FUNCTION);
 
-        List<Parameter> parameters = type.parameters();
+        List<ParameterSymbol> parameters = type.parameters();
         assertEquals(parameters.size(), 2);
         validateParam(parameters.get(0), "x", REQUIRED, INT);
 
         validateParam(parameters.get(1), "y", DEFAULTABLE, FLOAT);
 
-        Parameter restParam = type.restParam().get();
+        ParameterSymbol restParam = type.restParam().get();
         validateParam(restParam, "rest", REST, ARRAY);
 
         TypeSymbol returnType = type.returnTypeDescriptor().get();
@@ -280,7 +280,7 @@ public class TypedescriptorTest {
         return model.symbol("typedesc_test.bal", from(line, column)).get();
     }
 
-    private void validateParam(Parameter param, String name, ParameterKind kind, TypeDescKind typeKind) {
+    private void validateParam(ParameterSymbol param, String name, ParameterKind kind, TypeDescKind typeKind) {
         assertEquals(param.name().get(), name);
         assertEquals(param.kind(), kind);
         assertEquals(param.typeDescriptor().kind(), typeKind);

@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.types.FieldSymbol;
+import io.ballerina.compiler.api.types.ParameterSymbol;
 import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.api.types.ObjectTypeSymbol;
 import io.ballerina.compiler.api.types.RecordTypeSymbol;
@@ -162,7 +163,7 @@ public class SignatureHelpUtil {
         functionSymbol.typeDescriptor().parameters().forEach(
                 param -> parameters.add(new Parameter(param.name().get(), param.typeDescriptor(), false, false))
         );
-        Optional<io.ballerina.compiler.api.types.Parameter> restParam = functionSymbol.typeDescriptor().restParam();
+        Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();
         restParam.ifPresent(parameter
                 -> parameters.add(new Parameter(parameter.name().get(), parameter.typeDescriptor(), false, true)));
         boolean skipFirstParam = functionSymbol.kind() == METHOD && CommonUtil.isLangLib(functionSymbol.moduleID());
