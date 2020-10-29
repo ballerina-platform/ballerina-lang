@@ -74,6 +74,16 @@ public class MockListener {
     }
 }
 
+public client class Caller {
+    public remote function respond(string message) returns string {
+        return message;
+    }
+     public remote function badRequest(string message) returns string {
+        string response = message;
+        return self->respond(response);
+    }
+}
+
 function externMockInitEndpoint() = @java:Method {
     'class: "org.ballerinalang.langlib.test.InitEndPoint",
     name: "initEndPoint"

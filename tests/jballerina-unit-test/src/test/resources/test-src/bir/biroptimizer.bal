@@ -56,8 +56,9 @@ public function globalVarsAndAnonFunctions() {
 }
 
 service hello on new test:MockListener(9090) {
-    resource function sayHello() returns error? {
-
+    resource function sayHello(string s) returns error? {
+        test:Caller caller = new test:Caller();
+        string res = caller -> respond(s);
     }
 }
 

@@ -1,15 +1,29 @@
-sayHello function() -> error{map<anydata | readonly>} | () {
+sayHello function(string) -> error{map<anydata | readonly>} | () {
     %1(RETURN) error | ();
+    %2(ARG) string;
     %1(RETURN) error | ();
+    %2(ARG) string;
+    %3(LOCAL) ballerina/lang.test:1.0.0:Caller;
+    %4(SYNTHETIC) ballerina/lang.test:1.0.0:Caller;
+    %7(TEMP) ();
+    %9(LOCAL) string;
 
     bb0 {
-        %1 = ConstLoad 0;
-        GOTO bb2;
+        %4 = new ballerina/lang.test:1.0.0:Caller;
+        %7 = Caller.$init$(%4) -> bb1;
     }
     bb1 {
-        GOTO bb2;
+        %3 = %4;
+        %9 = Caller.respond(%3, %2) -> bb2;
     }
     bb2 {
+        %1 = ConstLoad 0;
+        GOTO bb4;
+    }
+    bb3 {
+        GOTO bb4;
+    }
+    bb4 {
         return;
     }
 
