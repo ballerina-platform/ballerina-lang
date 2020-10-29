@@ -78,7 +78,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token importKeyword,
             ImportOrgNameNode orgName,
             SeparatedNodeList<IdentifierToken> moduleName,
-            ImportVersionNode version,
             ImportPrefixNode prefix,
             Token semicolon) {
         Objects.requireNonNull(importKeyword, "importKeyword must not be null");
@@ -89,7 +88,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 importKeyword.internalNode(),
                 getOptionalSTNode(orgName),
                 moduleName.underlyingListNode().internalNode(),
-                getOptionalSTNode(version),
                 getOptionalSTNode(prefix),
                 semicolon.internalNode());
         return stImportDeclarationNode.createUnlinkedFacade();
@@ -747,18 +745,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 asKeyword.internalNode(),
                 prefix.internalNode());
         return stImportPrefixNode.createUnlinkedFacade();
-    }
-
-    public static ImportVersionNode createImportVersionNode(
-            Token versionKeyword,
-            SeparatedNodeList<Token> versionNumber) {
-        Objects.requireNonNull(versionKeyword, "versionKeyword must not be null");
-        Objects.requireNonNull(versionNumber, "versionNumber must not be null");
-
-        STNode stImportVersionNode = STNodeFactory.createImportVersionNode(
-                versionKeyword.internalNode(),
-                versionNumber.underlyingListNode().internalNode());
-        return stImportVersionNode.createUnlinkedFacade();
     }
 
     public static SpecificFieldNode createSpecificFieldNode(

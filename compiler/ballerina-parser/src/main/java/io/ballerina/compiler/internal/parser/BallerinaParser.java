@@ -361,7 +361,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse import declaration.
      * <p>
-     * <code>import-decl :=  import [org-name /] module-name [version sem-ver] [as import-prefix] ;</code>
+     * <code>import-decl :=  import [org-name /] module-name [as import-prefix] ;</code>
      *
      * @return Parsed node
      */
@@ -422,7 +422,6 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         STNode orgName;
         STNode moduleName;
-        STNode version;
         STNode alias;
 
         switch (nextToken.kind) {
@@ -430,26 +429,24 @@ public class BallerinaParser extends AbstractParser {
                 STNode slash = parseSlashToken();
                 orgName = STNodeFactory.createImportOrgNameNode(identifier, slash);
                 moduleName = parseModuleName();
-                version = parseVersion();
+                parseVersion(); // Parse version and log an error
                 alias = parseImportPrefixDecl();
                 break;
             case DOT_TOKEN:
             case VERSION_KEYWORD:
                 orgName = STNodeFactory.createEmptyNode();
                 moduleName = parseModuleName(identifier);
-                version = parseVersion();
+                parseVersion(); // Parse version and log an error
                 alias = parseImportPrefixDecl();
                 break;
             case AS_KEYWORD:
                 orgName = STNodeFactory.createEmptyNode();
                 moduleName = parseModuleName(identifier);
-                version = STNodeFactory.createEmptyNode();
                 alias = parseImportPrefixDecl();
                 break;
             case SEMICOLON_TOKEN:
                 orgName = STNodeFactory.createEmptyNode();
                 moduleName = parseModuleName(identifier);
-                version = STNodeFactory.createEmptyNode();
                 alias = STNodeFactory.createEmptyNode();
                 break;
             default:
@@ -458,7 +455,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode semicolon = parseSemicolon();
-        return STNodeFactory.createImportDeclarationNode(importKeyword, orgName, moduleName, version, alias, semicolon);
+        return STNodeFactory.createImportDeclarationNode(importKeyword, orgName, moduleName, alias, semicolon);
     }
 
     /**
@@ -546,30 +543,37 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse version component of a import declaration.
+     * @deprecated
+     * Version is no longer supported. Hence, parse it and log an error.
      * <p>
      * <code>version-decl := version sem-ver</code>
      *
      * @return Parsed node
      */
+    @Deprecated
     private STNode parseVersion() {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case VERSION_KEYWORD:
                 STNode versionKeyword = parseVersionKeyword();
                 STNode versionNumber = parseVersionNumber();
-                return STNodeFactory.createImportVersionNode(versionKeyword, versionNumber);
+                addInvalidNodeToNextToken(versionKeyword,
+                        DiagnosticErrorCode.ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED);
+                addInvalidNodeToNextToken(versionNumber, null);
+                break;
             case AS_KEYWORD:
             case SEMICOLON_TOKEN:
-                return STNodeFactory.createEmptyNode();
+                break;
             default:
                 if (isEndOfImportDecl(nextToken)) {
-                    return STNodeFactory.createEmptyNode();
+                    break;
                 }
 
                 recover(peek(), ParserRuleContext.IMPORT_VERSION_DECL);
                 return parseVersion();
         }
 
+        return STNodeFactory.createEmptyNode();
     }
 
     /**
