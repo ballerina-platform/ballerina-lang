@@ -96,48 +96,19 @@ public type InboundOAuth2Provider object {
             json payload = <json>result;
             boolean active = <boolean>payload.active;
             if (active) {
-                map<json> claims = {};
-                if (payload.scope is string) {
-                    claims["scopes"] = <@untainted> <string>payload.scope;
-                }
-                if (payload.client_id is string) {
-                    claims["clientId"] = <@untainted> <string>payload.client_id;
-                }
-                if (payload.username is string) {
-                    claims["username"] = <@untainted> <string>payload.username;
-                }
-                if (payload.token_type is string) {
-                    claims["tokenType"] = <@untainted> <string>payload.token_type;
-                }
-                if (payload.exp is int) {
-                    claims["exp"] = <@untainted> <int>payload.exp;
-                }
-                if (payload.iat is int) {
-                    claims["iat"] = <@untainted> <int>payload.iat;
-                }
-                if (payload.nbf is int) {
-                    claims["nbf"] = <@untainted> <int>payload.nbf;
-                }
-                if (payload.sub is string) {
-                    claims["sub"] = <@untainted> <string>payload.sub;
-                }
-                if (payload.aud is string) {
-                    claims["aud"] = <@untainted> <string>payload.aud;
-                }
-                if (payload.iss is string) {
-                    claims["iss"] = <@untainted> <string>payload.iss;
-                }
-                if (payload.jti is string) {
-                    claims["jti"] = <@untainted> <string>payload.jti;
+                map<json>|error payloadMap = map<json>.constructFrom(payload);
+                if (payloadMap is error) {
+                    return <@untainted> prepareAuthError(payloadMap.reason(), payloadMap);
                 }
 
+                map<json> claims = <map<json>>payloadMap;
                 if (oauth2Cache is cache:Cache) {
                     addToAuthenticationCache(oauth2Cache, credential, claims, self.defaultTokenExpTimeInSeconds);
                 }
                 auth:setAuthenticationContext("oauth2", credential);
                 auth:setPrincipal(claims["username"] is string ? <string>claims["username"] : (),
                                   claims["username"] is string ? <string>claims["username"] : (),
-                                  getScopes(claims["scopes"] is string ? <string>claims["scopes"] : ""), claims);
+                                  getScopes(claims["scope"] is string ? <string>claims["scope"] : ""), claims);
                 return true;
             }
             return false;

@@ -18,6 +18,7 @@ import ballerina/auth;
 import ballerina/config;
 import ballerina/oauth2;
 import ballerina/http;
+import ballerina/runtime;
 
 auth:OutboundBasicAuthProvider basicAuthProvider = new({
     username: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
@@ -63,6 +64,13 @@ service echo21 on listener21 {
         methods: ["GET"]
     }
     resource function test(http:Caller caller, http:Request req) {
+        map<any>? claims = runtime:getInvocationContext()?.principal?.claims;
+        if (claims is map<any>) {
+            any customField = claims["extension_field"];
+            if (customField is string) {
+                checkpanic caller->respond(customField);
+            }
+        }
         checkpanic caller->respond();
     }
 }

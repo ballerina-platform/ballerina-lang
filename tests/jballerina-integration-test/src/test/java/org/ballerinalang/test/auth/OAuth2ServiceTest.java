@@ -50,4 +50,13 @@ public class OAuth2ServiceTest extends AuthBaseTest {
                 headers, serverInstance.getServerHome());
         assertUnauthorized(response);
     }
+
+    @Test(description = "Test inbound OAuth2 success with valid token and custom field in the introspection response")
+    public void testOAuth2SuccessWithCustomResponseFieldTest() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Bearer 2YotnFZFEjr1zCsicMWpAA");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
+                                                         headers, serverInstance.getServerHome());
+        assertContains(response, "twenty-seven");
+    }
 }
