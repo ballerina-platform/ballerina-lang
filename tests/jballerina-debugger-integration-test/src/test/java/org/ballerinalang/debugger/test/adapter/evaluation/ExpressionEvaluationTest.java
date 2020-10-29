@@ -76,7 +76,19 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void xmlTemplateEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // XML element
+        assertExpression(context, "xml `<book>The Lost World</book>`", "<book>The Lost World</book>", "xml");
+        // Todo - enable after https://github.com/ballerina-platform/ballerina-lang/issues/26589 is fixed from the
+        //  runtime.
+        // XML text
+        // assertExpression(context, "xml `Hello, world!`", "Hello, world!", "xml");
+        // XML comment
+        // assertExpression(context, "xml `<!--I am a comment-->`", "<!--I am a comment", "xml");
+        // XML processing instruction
+        // assertExpression(context, "xml `<?target data?>`", "<?target data?>", "xml");
+        // concatenated XML
+        // assertExpression(context, "xml `<book>The Lost World</book>Hello, world!<!--I am a comment--><?target
+        // data?>`", "<?target data?>", "xml");
     }
 
     @Override
@@ -169,7 +181,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // record fields
         assertExpression(context, RECORD_VAR + ".'Ȧɢέ_\\ \\/\\:\\@\\[\\`\\{\\~⌤", "20", "int");
         // json fields
-        assertExpression(context, JSON_VAR + ".name", "apple", "string");
+        assertExpression(context, JSON_VAR + ".name", "John", "string");
         // nested field access (chain access)
         assertExpression(context, RECORD_VAR + ".grades.maths", "80", "int");
         // optional field access
@@ -386,7 +398,24 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void shiftExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        assertExpression(context, String.format("%s << %s", INT_VAR, INT_VAR), "20971520", "int");
+        assertExpression(context, String.format("%s << %s", SIGNED32INT_VAR, SIGNED8INT_VAR), "0", "int");
+        assertExpression(context, String.format("%s << %s", SIGNED32INT_VAR, UNSIGNED8INT_VAR), "-2000", "int");
+        assertExpression(context, String.format("%s << %s", UNSIGNED32INT_VAR, SIGNED8INT_VAR), "0", "int");
+        assertExpression(context, String.format("%s << %s", UNSIGNED32INT_VAR, UNSIGNED8INT_VAR), "2000", "int");
+
+        assertExpression(context, String.format("%s >> %s", INT_VAR, INT_VAR), "0", "int");
+        assertExpression(context, String.format("%s >> %s", SIGNED32INT_VAR, SIGNED8INT_VAR), "-1", "int");
+        assertExpression(context, String.format("%s >> %s", SIGNED32INT_VAR, UNSIGNED8INT_VAR), "-500", "int");
+        assertExpression(context, String.format("%s >> %s", UNSIGNED32INT_VAR, SIGNED8INT_VAR), "0", "int");
+        assertExpression(context, String.format("%s >> %s", UNSIGNED32INT_VAR, UNSIGNED8INT_VAR), "500", "int");
+
+        assertExpression(context, String.format("%s >>> %s", INT_VAR, INT_VAR), "0", "int");
+        assertExpression(context, String.format("%s >>> %s", SIGNED32INT_VAR, SIGNED8INT_VAR), "1", "int");
+        assertExpression(context, String.format("%s >>> %s", SIGNED32INT_VAR, UNSIGNED8INT_VAR), "9223372036854775308",
+                "int");
+        assertExpression(context, String.format("%s >>> %s", UNSIGNED32INT_VAR, SIGNED8INT_VAR), "0", "int");
+        assertExpression(context, String.format("%s >>> %s", UNSIGNED32INT_VAR, UNSIGNED8INT_VAR), "500", "int");
     }
 
     @Override

@@ -2048,6 +2048,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
         BLangRecordKey newKey = new BLangRecordKey(clone(source.key.expr));
         newKey.computedKey = source.key.computedKey;
+        newKey.pos = source.key.pos;
         clone.key = newKey;
 
         clone.valueExpr = clone(source.valueExpr);
