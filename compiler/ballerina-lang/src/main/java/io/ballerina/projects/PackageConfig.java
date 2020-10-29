@@ -36,25 +36,28 @@ public class PackageConfig {
     private final PackageId packageId;
     private final PackageDescriptor packageDescriptor;
     private final Path packagePath;
-    private Optional<Repository> repository = Optional.empty();
+    private final Repository repository;
     // Ballerina toml file config
     private final Collection<ModuleConfig> otherModules;
 
     private PackageConfig(PackageId packageId,
                           Path packagePath,
                           PackageDescriptor packageDescriptor,
-                          Collection<ModuleConfig> moduleConfigs) {
+                          Collection<ModuleConfig> moduleConfigs,
+                          Repository repository) {
         this.packageId = packageId;
         this.packagePath = packagePath;
         this.packageDescriptor = packageDescriptor;
         this.otherModules = moduleConfigs;
+        this.repository = repository;
     }
 
     public static PackageConfig from(PackageId packageId,
                                      Path packagePath,
                                      PackageDescriptor packageDescriptor,
-                                     Collection<ModuleConfig> moduleConfigs) {
-        return new PackageConfig(packageId, packagePath, packageDescriptor, moduleConfigs);
+                                     Collection<ModuleConfig> moduleConfigs,
+                                     Repository repository) {
+        return new PackageConfig(packageId, packagePath, packageDescriptor, moduleConfigs, repository);
     }
 
     public PackageId packageId() {
@@ -92,10 +95,6 @@ public class PackageConfig {
     }
 
     public Optional<Repository> repository() {
-        return repository;
-    }
-
-    public void setRepository(Optional<Repository> repository) {
-        this.repository = repository;
+        return Optional.ofNullable(repository);
     }
 }

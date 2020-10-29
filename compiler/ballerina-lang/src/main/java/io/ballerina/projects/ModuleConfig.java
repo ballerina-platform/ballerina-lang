@@ -29,41 +29,41 @@ import java.util.Optional;
 public class ModuleConfig {
     // This class should contain project-agnostic information
     private final ModuleId moduleId;
-    private final ModuleName moduleName;
+    private final ModuleDescriptor moduleDescriptor;
     private final Path moduleDirPath;
     private final List<DocumentConfig> srcDocs;
     private final List<DocumentConfig> testSrcDocs;
 
     private ModuleConfig(ModuleId moduleId,
-                         ModuleName moduleName,
+                         ModuleDescriptor moduleDescriptor,
                          Path moduleDirPath,
                          List<DocumentConfig> srcDocs,
                          List<DocumentConfig> testSrcDocs) {
         this.moduleId = moduleId;
-        this.moduleName = moduleName;
+        this.moduleDescriptor = moduleDescriptor;
         this.moduleDirPath = moduleDirPath;
         this.srcDocs = srcDocs;
         this.testSrcDocs = testSrcDocs;
     }
 
     public static ModuleConfig from(ModuleId moduleId,
-                                    ModuleName moduleName,
+                                    ModuleDescriptor moduleDescriptor,
                                     Path moduleDirPath,
                                     List<DocumentConfig> srcDocs,
                                     List<DocumentConfig> testSrcDocs) {
-        return new ModuleConfig(moduleId, moduleName, moduleDirPath, srcDocs, testSrcDocs);
+        return new ModuleConfig(moduleId, moduleDescriptor, moduleDirPath, srcDocs, testSrcDocs);
     }
 
     public ModuleId moduleId() {
         return moduleId;
     }
 
-    public ModuleName moduleName() {
-        return moduleName;
+    public ModuleDescriptor moduleDescriptor() {
+        return moduleDescriptor;
     }
 
     public boolean isDefaultModule() {
-        return moduleName.isDefaultModuleName();
+        return moduleDescriptor.name().isDefaultModuleName();
     }
 
     public Optional<Path> moduleDirectoryPath() {
