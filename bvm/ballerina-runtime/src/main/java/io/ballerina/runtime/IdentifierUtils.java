@@ -80,16 +80,13 @@ public class IdentifierUtils {
      * @return encoded identifier
      */
     public static String encodeIdentifier(String identifier) {
-        if (identifier == null) {
-            return identifier;
-        }
         if (identifier.contains(ESCAPE_PREFIX)) {
             identifier = encodeSpecialCharacters(identifier);
         }
         return StringEscapeUtils.unescapeJava(identifier);
     }
 
-    public static String encodeGeneratedName(String identifier, boolean isFunc) {
+    public static Identifier encodeGeneratedName(String identifier) {
         StringBuilder sb = new StringBuilder();
         boolean isEncoded = false;
         int index = 0;
@@ -103,7 +100,7 @@ public class IdentifierUtils {
             }
             index++;
         }
-        return (isEncoded && isFunc) ? GENERATED_METHOD_PREFIX + sb.toString() : sb.toString();
+        return new Identifier(sb.toString(), isEncoded);
     }
 
     /**
@@ -162,5 +159,27 @@ public class IdentifierUtils {
             }
         }
         return true;
+    }
+
+    public static String encodeGeneratedFuncName(String functionName) {
+        functionName = encodeIdentifier(functionName);
+        Identifier encodedName = encodeGeneratedName(functionName);
+        return encodedName.isEncoded ? GENERATED_METHOD_PREFIX + encodedName.name : functionName;
+    }
+
+    public static String encodePackageName(String pkgName) {
+        pkgName = encodeIdentifier(pkgName);
+        Identifier encodedName = encodeGeneratedName(pkgName);
+        return encodedName.name;
+    }
+
+    private static class Identifier {
+        boolean isEncoded;
+        String name;
+
+        Identifier(String name, boolean isEncoded) {
+            this.name = name;
+            this.isEncoded = isEncoded;
+        }
     }
 }

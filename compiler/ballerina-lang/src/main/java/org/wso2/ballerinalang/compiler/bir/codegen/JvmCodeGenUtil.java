@@ -278,8 +278,8 @@ public class JvmCodeGenUtil {
     private static String getPackageNameWithSeparator(String orgName, String moduleName, String version,
                                                       String separator) {
         String packageName = "";
-        orgName = encodePackageName(orgName);
-        moduleName = encodePackageName(moduleName);
+        orgName = IdentifierUtils.encodePackageName(orgName);
+        moduleName = IdentifierUtils.encodePackageName(moduleName);
         if (!moduleName.equals("$0046")) {
             if (!version.equals("")) {
                 packageName = getVersionDirectoryName(version) + separator;
@@ -574,8 +574,8 @@ public class JvmCodeGenUtil {
     }
 
     public static PackageID cleanupPackageID(PackageID pkgID) {
-        Name org = new Name(encodePackageName(pkgID.orgName.value));
-        Name module = new Name(encodePackageName(pkgID.name.value));
+        Name org = new Name(IdentifierUtils.encodePackageName(pkgID.orgName.value));
+        Name module = new Name(IdentifierUtils.encodePackageName(pkgID.name.value));
         return new PackageID(org, module, pkgID.version);
     }
 
@@ -584,11 +584,4 @@ public class JvmCodeGenUtil {
         return BALLERINA.equals(packageID.orgName.value) && BUILT_IN_PACKAGE_NAME.equals(packageID.name.value);
     }
 
-    public static String encodeGeneratedFuncName(String functionName) {
-        return IdentifierUtils.encodeGeneratedName(IdentifierUtils.encodeIdentifier(functionName), true);
-    }
-
-    public static String encodePackageName(String pkgName) {
-        return IdentifierUtils.encodeGeneratedName(IdentifierUtils.encodeIdentifier(pkgName), false);
-    }
 }

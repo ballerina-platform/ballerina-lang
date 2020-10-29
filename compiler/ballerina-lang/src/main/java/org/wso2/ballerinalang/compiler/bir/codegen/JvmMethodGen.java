@@ -1024,7 +1024,7 @@ public class JvmMethodGen {
             funcName = orgName + "/" + funcName;
         }
 
-        return JvmCodeGenUtil.encodeGeneratedFuncName(funcName);
+        return IdentifierUtils.encodeGeneratedFuncName(funcName);
     }
 
     private void scheduleStopMethod(MethodVisitor mv, String initClass, String stopFuncName,
@@ -1350,7 +1350,7 @@ public class JvmMethodGen {
         BInvokableSymbol funcSymbol = null;
 
         if (!isVirtual) {
-            encodedFuncName = JvmCodeGenUtil.encodeGeneratedFuncName(funcName);
+            encodedFuncName = IdentifierUtils.encodeGeneratedFuncName(funcName);
             lookupKey = JvmCodeGenUtil.getPackageName(orgName, moduleName, version) + encodedFuncName;
             functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lookupKey);
             if (functionWrapper == null) {

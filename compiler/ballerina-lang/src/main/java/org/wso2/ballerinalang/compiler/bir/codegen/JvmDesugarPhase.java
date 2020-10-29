@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import io.ballerina.runtime.IdentifierUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -256,15 +257,15 @@ public class JvmDesugarPhase {
     }
 
     private static void encodePackageIdentifiers(BIRNode.BIRPackage module, Names names) {
-        module.org = names.fromString(JvmCodeGenUtil.encodePackageName(module.org.value));
-        module.name = names.fromString(JvmCodeGenUtil.encodePackageName(module.name.value));
+        module.org = names.fromString(IdentifierUtils.encodePackageName(module.org.value));
+        module.name = names.fromString(IdentifierUtils.encodePackageName(module.name.value));
     }
 
     private static void encodeTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs, Names names) {
         for (BIRTypeDefinition typeDefinition : typeDefs) {
             typeDefinition.type.tsymbol.name =
-                    names.fromString(JvmCodeGenUtil.encodePackageName(typeDefinition.type.tsymbol.name.value));
-            typeDefinition.name = names.fromString(JvmCodeGenUtil.encodePackageName(typeDefinition.name.value));
+                    names.fromString(IdentifierUtils.encodePackageName(typeDefinition.type.tsymbol.name.value));
+            typeDefinition.name = names.fromString(IdentifierUtils.encodePackageName(typeDefinition.name.value));
 
             encodeFunctionIdentifiers(typeDefinition.attachedFuncs, names);
             BType bType = typeDefinition.type;
@@ -289,7 +290,7 @@ public class JvmDesugarPhase {
 
     private static void encodeFunctionIdentifiers(List<BIRFunction> functions, Names names) {
         for (BIRFunction function : functions) {
-            function.name = names.fromString(JvmCodeGenUtil.encodeGeneratedFuncName(function.name.value));
+            function.name = names.fromString(IdentifierUtils.encodeGeneratedFuncName(function.name.value));
             for (BIRNode.BIRVariableDcl localVar : function.localVars) {
                 if (localVar.metaVarName == null) {
                     continue;
@@ -314,7 +315,7 @@ public class JvmDesugarPhase {
 
     private static void encodeAttachedFunctionIdentifiers(List<BAttachedFunction> functions, Names names) {
         for (BAttachedFunction function : functions) {
-            function.funcName = names.fromString(JvmCodeGenUtil.encodeGeneratedFuncName(function.funcName.value));
+            function.funcName = names.fromString(IdentifierUtils.encodeGeneratedFuncName(function.funcName.value));
         }
     }
 

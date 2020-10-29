@@ -701,7 +701,7 @@ public class JvmTerminatorGen {
                                String methodName, String methodLookupName) {
         // load strand
         this.mv.visitVarInsn(ALOAD, localVarOffset);
-        String encodedMethodName = JvmCodeGenUtil.encodeGeneratedFuncName(methodLookupName);
+        String encodedMethodName = IdentifierUtils.encodeGeneratedFuncName(methodLookupName);
         String lookupKey = JvmCodeGenUtil.getPackageName(orgName, moduleName, version) + encodedMethodName;
 
         int argsCount = callIns.args.size();
@@ -874,7 +874,7 @@ public class JvmTerminatorGen {
             this.mv.visitInsn(AASTORE);
             paramIndex += 1;
         }
-        String funcName = JvmCodeGenUtil.encodeGeneratedFuncName(callIns.name.value);
+        String funcName = IdentifierUtils.encodeGeneratedFuncName(callIns.name.value);
         String lambdaName = "$" + funcName + "$lambda$_" + asyncDataCollector.getLambdaIndex() + "$";
 
         JvmCodeGenUtil.createFunctionPointer(this.mv, asyncDataCollector.getEnclosingClass(), lambdaName);

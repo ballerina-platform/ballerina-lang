@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import io.ballerina.runtime.IdentifierUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -139,7 +140,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodG
 class JvmValueGen {
 
     static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
-    static final String ENCODED_RECORD_INIT = JvmCodeGenUtil.encodeGeneratedFuncName(Names.INIT_FUNCTION_SUFFIX.value);
+    static final String ENCODED_RECORD_INIT = IdentifierUtils.encodeGeneratedFuncName(Names.INIT_FUNCTION_SUFFIX.value);
     private BIRNode.BIRPackage module;
     private JvmPackageGen jvmPackageGen;
     private JvmMethodGen jvmMethodGen;
