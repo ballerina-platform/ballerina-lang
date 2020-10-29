@@ -11,8 +11,6 @@
 // if the same is set as a CLI parameter, it replaces the environment
 // variable value.
 //
-// The configuration file is in the TOML(v0.4) format.
-//
 // If a mapping does not exist for the specified key, the default value
 // is returned as the configuration value. The default values of these
 // optional configurations are the default values of the return types of
