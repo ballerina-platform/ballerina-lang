@@ -17,15 +17,20 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.environment.EnvironmentContext;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironmentContext;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
@@ -45,6 +50,10 @@ public class JBallerinaBackend extends CompilerBackend {
     private final PackageCompilation pkgCompilation;
     private final PackageContext packageContext;
     private final PackageResolver packageResolver;
+    private final CompilerContext compilerContext;
+
+    private List<Diagnostic> diagnostics;
+    private boolean codeGenCompleted;
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JdkVersion jdkVersion) {
         return new JBallerinaBackend(packageCompilation, jdkVersion);
@@ -55,12 +64,39 @@ public class JBallerinaBackend extends CompilerBackend {
         this.packageContext = packageCompilation.packageContext();
 
         ProjectEnvironmentContext projectEnvContext = this.packageContext.project().environmentContext();
+        EnvironmentContext environmentContext = projectEnvContext.getService(EnvironmentContext.class);
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
+        this.compilerContext = environmentContext.compilerContext();
+        performCodeGen();
     }
 
+    private void performCodeGen() {
+        if (codeGenCompleted) {
+            return;
+        }
+
+        diagnostics = new ArrayList<>();
+        for (ModuleContext moduleContext : pkgCompilation.sortedModuleContextList()) {
+            moduleContext.generatePlatformSpecificCode(compilerContext, this);
+            diagnostics.addAll(moduleContext.diagnostics());
+        }
+
+        diagnostics = Collections.unmodifiableList(diagnostics);
+        codeGenCompleted = true;
+    }
+
+    public List<Diagnostic> diagnostics() {
+        return diagnostics;
+    }
+
+    public boolean hasDiagnostics() {
+        return !diagnostics.isEmpty();
+    }
+
+    // TODO EmitResult should not contain compilation diagnostics.
     public EmitResult emit(OutputType outputType, Path filePath) {
-        if (pkgCompilation.hasDiagnostics()) {
-            return new EmitResult(false, pkgCompilation.diagnostics());
+        if (!diagnostics.isEmpty()) {
+            return new EmitResult(false, diagnostics);
         }
 
         switch (outputType) {
@@ -80,7 +116,7 @@ public class JBallerinaBackend extends CompilerBackend {
                 throw new RuntimeException("Unexpected output type: " + outputType);
         }
         // TODO handle the EmitResult properly
-        return new EmitResult(true, pkgCompilation.diagnostics());
+        return new EmitResult(true, diagnostics);
     }
 
     private void emitBalo(Path filePath) {

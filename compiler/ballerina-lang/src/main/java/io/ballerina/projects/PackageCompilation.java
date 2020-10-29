@@ -44,26 +44,28 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public class PackageCompilation {
-
     private final PackageContext packageContext;
     private final PackageResolver packageResolver;
     private final CompilerContext compilerContext;
 
     private final DependencyGraph<PackageId> dependencyGraph;
+    private final List<ModuleContext> sortedModuleContextList;
     private List<Diagnostic> diagnostics;
+
+    private boolean compiled;
 
     PackageCompilation(PackageContext packageContext) {
         this.packageContext = packageContext;
 
-        // Resolving the dependencies of this package before the compilation
-        packageContext.resolveDependencies();
-
         ProjectEnvironmentContext projectEnvContext = packageContext.project().environmentContext();
         EnvironmentContext environmentContext = projectEnvContext.getService(EnvironmentContext.class);
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
-        this.dependencyGraph = buildDependencyGraph();
         this.compilerContext = environmentContext.compilerContext();
-        compile(compilerContext);
+
+        // Resolving the dependencies of this package before the compilation
+        packageContext.resolveDependencies();
+        this.dependencyGraph = buildDependencyGraph();
+        this.sortedModuleContextList = populateSortedModuleList();
     }
 
     private DependencyGraph<PackageId> buildDependencyGraph() {
@@ -83,8 +85,8 @@ public class PackageCompilation {
         }
     }
 
-    private void compile(CompilerContext compilerContext) {
-        diagnostics = new ArrayList<>();
+    private List<ModuleContext> populateSortedModuleList() {
+        List<ModuleContext> sortedModuleContextList = new ArrayList<>();
         // Topologically sort packages in the package dependency graph.
         // Iterate through the sorted package list
         // Get the module dependency graph of the package.
@@ -100,17 +102,24 @@ public class PackageCompilation {
             List<ModuleId> sortedModuleIds = moduleDependencyGraph.toTopologicallySortedList();
             for (ModuleId moduleId : sortedModuleIds) {
                 ModuleContext moduleContext = pkg.module(moduleId).moduleContext();
-                // Load symbols from bir
-                packageContext.repository()
-                        .ifPresent(repo -> moduleContext.loadBirFromCache(repo, pkg.module(moduleId)));
-                moduleContext.compile(compilerContext, pkg.packageDescriptor());
-                // Cash the compiled bir
-                packageContext.repository()
-                        .ifPresent(repo -> moduleContext.cacheBir(repo, pkg.module(moduleId)));
-                diagnostics.addAll(moduleContext.diagnostics());
+                sortedModuleContextList.add(moduleContext);
             }
         }
+        return Collections.unmodifiableList(sortedModuleContextList);
+    }
+
+    List<ModuleContext> sortedModuleContextList() {
+        return this.sortedModuleContextList;
+    }
+
+    private void compile() {
+        diagnostics = new ArrayList<>();
+        for (ModuleContext moduleContext : sortedModuleContextList) {
+            moduleContext.compile(compilerContext);
+            diagnostics.addAll(moduleContext.diagnostics());
+        }
         diagnostics = Collections.unmodifiableList(diagnostics);
+        compiled = true;
     }
 
     PackageContext packageContext() {
@@ -122,18 +131,28 @@ public class PackageCompilation {
     }
 
     public List<Diagnostic> diagnostics() {
+        // TODO think about parallel invocations of this method
+        if (!compiled) {
+            compile();
+        }
         return diagnostics;
     }
 
     public boolean hasDiagnostics() {
-        return diagnostics.size() > 0;
+        return !diagnostics().isEmpty();
     }
 
     public SemanticModel getSemanticModel(ModuleId moduleId) {
+        // TODO think about parallel invocations of this method
+        if (!compiled) {
+            compile();
+        }
+
         ModuleContext moduleContext = this.packageContext.moduleContext(moduleId);
         return new BallerinaSemanticModel(moduleContext.bLangPackage(), this.compilerContext);
     }
 
+    // TODO Remove this method. We should not expose BLangPackage from this class
     public BLangPackage defaultModuleBLangPackage() {
         return this.packageContext.defaultModuleContext().bLangPackage();
     }
