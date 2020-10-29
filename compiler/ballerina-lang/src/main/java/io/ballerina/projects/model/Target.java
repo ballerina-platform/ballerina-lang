@@ -39,6 +39,7 @@ public class Target {
     private Path jarCachePath;
     private Path baloCachePath;
     private Path birCachePath;
+    private Path testsCachePath;
     private Path binPath;
 
     public Target(Path sourceRoot) throws IOException {
@@ -47,6 +48,7 @@ public class Target {
         this.baloCachePath = this.targetPath.resolve(ProjectConstants.TARGET_BALO_DIR_NAME);
         this.jarCachePath = this.cache.resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
         this.birCachePath = this.cache.resolve(ProjectConstants.BIR_CACHE_DIR_NAME);
+        this.testsCachePath = this.cache.resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
         this.binPath = this.targetPath.resolve(ProjectConstants.BIN_DIR_NAME);
         Files.createDirectories(this.targetPath);
     }
@@ -115,6 +117,16 @@ public class Target {
     public Path getBirCachePath() throws IOException {
         Files.createDirectories(birCachePath);
         return birCachePath;
+    }
+
+    /**
+     * Returns the tests-cache directory path.
+     *
+     * @return caches path
+     */
+    public Path getTestsCachePath() throws IOException {
+        Files.createDirectories(testsCachePath);
+        return testsCachePath;
     }
 
     /**

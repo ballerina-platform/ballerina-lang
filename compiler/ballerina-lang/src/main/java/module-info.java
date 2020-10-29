@@ -69,4 +69,5 @@ module io.ballerina.lang {
     exports io.ballerina.projects.directory;
     exports io.ballerina.projects.balo;
     exports io.ballerina.projects.repos;
+    exports io.ballerina.projects.testsuite;
 }

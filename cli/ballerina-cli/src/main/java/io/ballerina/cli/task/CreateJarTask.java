@@ -42,8 +42,8 @@ public class CreateJarTask implements Task {
             target = new Target(project.sourceRoot());
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JdkVersion.JAVA_11);
-            jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR,
-                    target.getJarCachePath());
+            jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR, target.getJarCachePath());
+            jBallerinaBackend.emit(JBallerinaBackend.OutputType.TESTABLE_JAR, target.getTestsCachePath());
         } catch (IOException e) {
             throw createLauncherException(
                     "error occurred while creating the JAR files for package " + e.getMessage());

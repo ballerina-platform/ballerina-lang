@@ -8,6 +8,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.Lists;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -56,6 +57,17 @@ public class ProjectUtils {
     public static Path getBallerinaRTJarPath() {
         String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
         String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
+        return getBalHomePath().resolve("bre").resolve("lib").resolve(runtimeJarName);
+    }
+
+    /**
+     * Returns the testerina-runtime jar path.
+     *
+     * @return jar path
+     */
+    public static Path getTesterinaRuntimeJarPath() {
+        String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
+        String runtimeJarName = "testerina-runtime-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
         return getBalHomePath().resolve("bre").resolve("lib").resolve(runtimeJarName);
     }
 
@@ -191,5 +203,49 @@ public class ProjectUtils {
             }
         }
         return jarName + ProjectConstants.BLANG_COMPILED_JAR_EXT;
+    }
+
+    /**
+     * Return the testable thin jar name of the provided module.
+     *
+     * @param module Module instance
+     * @return the name of the thin jar
+     */
+    public static String getTestableJarName(Module module) {
+        String jarName;
+        if (module.packageInstance().packageDescriptor().org().anonymous()) {
+            DocumentId documentId = module.documentIds().iterator().next();
+            String documentName = module.document(documentId).name();
+            jarName = getFileNameWithoutExtension(documentName);
+        } else {
+            ModuleName moduleName = module.moduleName();
+            if (moduleName.isDefaultModuleName()) {
+                jarName = moduleName.packageName().toString();
+            } else {
+                jarName = moduleName.moduleNamePart();
+            }
+        }
+        return jarName + "-testable" + ProjectConstants.BLANG_COMPILED_JAR_EXT;
+    }
+
+    /**
+     * Provides Qualified Class Name.
+     *
+     * @param orgName     Org name
+     * @param packageName Package name
+     * @param version Package version
+     * @param className   Class name
+     * @return Qualified class name
+     */
+    public static String getQualifiedClassName(String orgName, String packageName, String version, String className) {
+
+        if (!Names.DEFAULT_PACKAGE.value.equals(packageName)) {
+            className = packageName.replace('.', '_') + "." + version.replace('.', '_') + "." + className;
+        }
+        if (!Names.ANON_ORG.value.equals(orgName)) {
+            className = orgName.replace('.', '_') + "." +  className;
+        }
+
+        return className;
     }
 }

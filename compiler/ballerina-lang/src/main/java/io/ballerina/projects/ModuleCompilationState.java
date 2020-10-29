@@ -123,7 +123,9 @@ enum ModuleCompilationState {
 
         @Override
         void compile(ModuleContext moduleContext, CompilerContext compilerContext) {
-            // Do nothing
+            if (moduleContext.bLangPackage().hasTestablePackage()) {
+                moduleContext.generateTestSuite(compilerContext);
+            }
         }
 
         @Override

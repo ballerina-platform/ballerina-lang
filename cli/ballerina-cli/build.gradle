@@ -15,6 +15,7 @@
  *
  */
 
+apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 configurations {
@@ -22,7 +23,10 @@ configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
     distributionBalo
+    distributionBirJar
     balRt
+    testRt
+    testCore
 }
 
 dependencies {
@@ -33,12 +37,19 @@ dependencies {
     implementation project(':ballerina-tools-api')
     implementation 'info.picocli:picocli'
     implementation 'org.apache.commons:commons-compress:1.18'
-
+    implementation 'com.google.code.gson:gson:2.7'
+    implementation project(':testerina:testerina-core')
+    implementation project(':testerina:testerina-runtime')
     testCompile 'org.testng:testng'
 
     distributionBalo project(path: ':ballerina-langlib:test', configuration: 'distributionBalo')
+    distributionBalo project(path: ':testerina:testerina-core', configuration: 'distributionBalo')
+    distributionBirJar project(path: ':testerina:testerina-core', configuration: 'distributionBirJar')
+
     testRuntime project(":ballerina-lang-test")
     balRt project(':ballerina-rt')
+    testRt project(':testerina:testerina-runtime')
+    testCore project(':testerina:testerina-core')
 }
 
 task createTestDistributionCache(type: Copy) {
@@ -49,6 +60,9 @@ task createTestDistributionCache(type: Copy) {
 
 task createTestBre(type: Copy) {
     from configurations.balRt
+    from configurations.testRt
+    from configurations.testCore
+    from configurations.distributionBirJar
     into "$buildDir/bre/lib"
 }
 
@@ -64,3 +78,15 @@ test {
 }
 
 description = 'Ballerina - CLI'
+
+ext.moduleName = 'ballerina-cli'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

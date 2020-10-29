@@ -9,4 +9,6 @@ public class ProjectConstants {
     public static final String BLANG_COMPILED_PKG_BIR_EXT = ".bir";
     public static final String BLANG_COMPILED_JAR_EXT = ".jar";
     public static final String ANON_ORG = "$anon";
+
+    public static final String TEST_SUITE = "test_suite.json";
 }

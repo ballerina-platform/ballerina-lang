@@ -23,7 +23,6 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.model.Target;
 import io.ballerina.projects.util.ProjectUtils;
-import org.ballerinalang.tool.util.BFileUtil;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.File;
@@ -108,7 +107,7 @@ public class RunExecutableTask implements Task {
 
     private void runGeneratedExecutable(Module executableModule, Project project) {
 
-        String initClassName = BFileUtil.getQualifiedClassName(
+        String initClassName = ProjectUtils.getQualifiedClassName(
                 executableModule.packageInstance().packageOrg().toString(),
                 executableModule.packageInstance().packageName().toString(),
                 executableModule.packageInstance().packageVersion().toString(),

@@ -159,7 +159,7 @@ public class RunTestsTask implements Task {
             }
 
             if (isSingleTestExecution || isRerunTestExection) {
-                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite.getTests(), singleExecTests));
+                suite.setTests(TesterinaUtils.getSingleExecutionTestsOld(suite.getTests(), singleExecTests));
             }
             if (suite == null) {
                 if (!DOT.equals(bLangPackage.packageID.toString())) {
