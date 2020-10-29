@@ -27,6 +27,8 @@ import io.ballerina.runtime.values.ErrorValue;
 import io.ballerina.runtime.values.MapValueImpl;
 import io.ballerina.runtime.values.MappingInitialValueEntry;
 
+import static io.ballerina.runtime.values.ReadOnlyUtils.setImmutableTypeAndGetEffectiveType;
+
 /**
  * Class @{@link ErrorCreator} provides APIs to create ballerina error instances.
  *
@@ -43,7 +45,8 @@ public class ErrorCreator {
      * @return new error
      */
     public static BError createError(BString message) {
-        return new ErrorValue(message, new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+        return new ErrorValue(message,
+                new MapValueImpl<>(setImmutableTypeAndGetEffectiveType(PredefinedTypes.TYPE_ERROR_DETAIL)));
     }
 
     /**
@@ -58,7 +61,8 @@ public class ErrorCreator {
         if (details != null) {
             initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_MESSAGE_FIELD, details);
         }
-        MapValueImpl<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
+        MapValueImpl<BString, Object> detailMap =
+                new MapValueImpl(setImmutableTypeAndGetEffectiveType(PredefinedTypes.TYPE_ERROR_DETAIL), initialValues);
         return new ErrorValue(message, detailMap);
     }
 
@@ -71,8 +75,8 @@ public class ErrorCreator {
      */
     public static BError createError(BString message, Throwable throwable) {
         return new ErrorValue(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage()),
-                              message, createError(StringUtils.fromString(throwable.getMessage())),
-                              new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+                            message, createError(StringUtils.fromString(throwable.getMessage())),
+                            new MapValueImpl<>(setImmutableTypeAndGetEffectiveType(PredefinedTypes.TYPE_ERROR_DETAIL)));
     }
 
     /**
@@ -97,7 +101,8 @@ public class ErrorCreator {
      * @return new error
      */
     public static BError createError(Type type, BString message, BString details) {
-        MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL);
+        MapValueImpl<BString, Object> detailMap =
+                new MapValueImpl<>(setImmutableTypeAndGetEffectiveType(PredefinedTypes.TYPE_ERROR_DETAIL));
         if (details != null) {
             detailMap.put(ERROR_MESSAGE_FIELD, details);
         }
