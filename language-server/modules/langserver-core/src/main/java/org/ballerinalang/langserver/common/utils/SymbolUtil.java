@@ -22,10 +22,10 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.api.types.ObjectTypeSymbol;
 import io.ballerina.compiler.api.types.RecordTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.TypeSymbol;
 
 import java.util.List;
 import java.util.Optional;

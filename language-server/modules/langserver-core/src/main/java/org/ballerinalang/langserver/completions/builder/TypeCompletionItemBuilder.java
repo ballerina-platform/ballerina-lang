@@ -19,9 +19,9 @@ package org.ballerinalang.langserver.completions.builder;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.api.types.UnionTypeSymbol;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.eclipse.lsp4j.CompletionItem;

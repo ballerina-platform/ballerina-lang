@@ -109,7 +109,8 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
                             && CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()).kind()
                             == TypeDescKind.OBJECT
                             && symbol.name().equals(identifier))
-                    .map(symbol -> (ObjectTypeSymbol) CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()))
+                    .map(symbol -> (ObjectTypeSymbol) CommonUtil
+                            .getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()))
                     .findAny();
         } else {
             objectType = Optional.empty();

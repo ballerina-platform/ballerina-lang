@@ -15,8 +15,8 @@
  */
 package org.ballerinalang.langserver.codeaction.impl;
 
-import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.api.types.UnionTypeSymbol;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;

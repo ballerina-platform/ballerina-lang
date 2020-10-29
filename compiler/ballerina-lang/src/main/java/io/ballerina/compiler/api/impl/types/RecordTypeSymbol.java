@@ -20,8 +20,8 @@ package io.ballerina.compiler.api.impl.types;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.types.FieldSymbol;
-import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 
