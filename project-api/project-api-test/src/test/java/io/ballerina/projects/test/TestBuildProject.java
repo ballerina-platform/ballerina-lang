@@ -26,10 +26,12 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleCompilation;
 import io.ballerina.projects.ModuleConfig;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageId;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
@@ -507,11 +509,14 @@ public class TestBuildProject {
         Path projectRoot = ProjectUtils.findProjectRoot(filePath);
         BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(projectRoot);
         Package oldPackage = buildProject.currentPackage();
+        PackageDescriptor pkgDesc = oldPackage.packageDescriptor();
 
         ModuleId newModuleId = ModuleId.create(filePath.toString(), oldPackage.packageId());
         ModuleName moduleName = ModuleName.from(oldPackage.packageName(), filePath.getFileName().toString());
+        ModuleDescriptor moduleDesc = ModuleDescriptor.from(pkgDesc.name(),
+                pkgDesc.org(), pkgDesc.version(), moduleName);
 
-        ModuleConfig newModuleConfig = ModuleConfig.from(newModuleId, moduleName,
+        ModuleConfig newModuleConfig = ModuleConfig.from(newModuleId, moduleDesc,
                 filePath, new ArrayList<>(), new ArrayList<>());
         Package newPackage = oldPackage.modify().addModule(newModuleConfig).apply();
 
@@ -547,9 +552,12 @@ public class TestBuildProject {
         Path projectRoot = ProjectUtils.findProjectRoot(filePath);
         BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(projectRoot);
         Package oldPackage = buildProject.currentPackage();
+        PackageDescriptor pkgDesc = oldPackage.packageDescriptor();
 
         ModuleId newModuleId = ModuleId.create(filePath.toString(), oldPackage.packageId());
         ModuleName moduleName = ModuleName.from(oldPackage.packageName(), filePath.getFileName().toString());
+        ModuleDescriptor moduleDesc = ModuleDescriptor.from(pkgDesc.name(),
+                pkgDesc.org(), pkgDesc.version(), moduleName);
         DocumentId documentId = DocumentId.create(filePath.resolve("main.bal").toString(), newModuleId);
         String mainContent = "import ballerina/io;\n";
         DocumentConfig documentConfig = DocumentConfig.from(documentId, mainContent, filePath.getFileName().toString());
@@ -560,8 +568,9 @@ public class TestBuildProject {
         DocumentConfig testDocumentConfig = DocumentConfig.from(
                 testDocumentId, testContent, filePath.getFileName().toString());
 
-        ModuleConfig newModuleConfig = ModuleConfig.from(newModuleId, moduleName,
-                filePath, Collections.singletonList(documentConfig), Collections.singletonList(testDocumentConfig));
+        ModuleConfig newModuleConfig = ModuleConfig.from(newModuleId, moduleDesc,
+                filePath, Collections.singletonList(documentConfig),
+                Collections.singletonList(testDocumentConfig));
         Package newPackage = oldPackage.modify().addModule(newModuleConfig).apply();
 
         Assert.assertEquals(newPackage.module(newModuleId).documentIds().size(), 1);

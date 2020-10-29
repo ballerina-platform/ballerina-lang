@@ -56,13 +56,12 @@ public class BCompileUtil {
 
         Package currentPackage = project.currentPackage();
         PackageCompilation packageCompilation = currentPackage.getCompilation();
-
-        if (packageCompilation.diagnostics().size() > 0) {
-            return new CompileResult(currentPackage);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        if (jBallerinaBackend.hasDiagnostics()) {
+            return new CompileResult(currentPackage, jBallerinaBackend.diagnostics());
         }
 
         Path jarFilePath = jarEmitPath(currentPackage);
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR, jarFilePath);
 
         if (!(isSingleFileProject(project))) {
@@ -73,7 +72,7 @@ public class BCompileUtil {
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloEmitPath);
         }
 
-        CompileResult compileResult = new CompileResult(currentPackage, jarFilePath);
+        CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend.diagnostics(), jarFilePath);
         invokeModuleInit(compileResult);
         return compileResult;
     }
