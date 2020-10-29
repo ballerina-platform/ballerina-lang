@@ -666,6 +666,7 @@ public class ASTBuilderUtil {
         listConstructorExpr.pos = pos;
         listConstructorExpr.type = type;
         listConstructorExpr.exprs = new ArrayList<>();
+        listConstructorExpr.internal = true;
         return listConstructorExpr;
     }
 
@@ -673,16 +674,20 @@ public class ASTBuilderUtil {
         BLangTypeInit objectInitNode = (BLangTypeInit) TreeBuilder.createInitNode();
         objectInitNode.pos = pos;
         objectInitNode.type = type;
+        objectInitNode.internal = true;
 
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.symbol = ((BObjectTypeSymbol) type.tsymbol).generatedInitializerFunc.symbol;
         invocationNode.type = type;
+        invocationNode.pos = pos;
+        invocationNode.internal = true;
 
         BLangIdentifier pkgNameNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         BLangIdentifier nameNode = (BLangIdentifier)  TreeBuilder.createIdentifierNode();
 
         nameNode.setLiteral(false);
         nameNode.setValue(Names.GENERATED_INIT_SUFFIX.getValue());
+        nameNode.pos = pos;
         invocationNode.name = nameNode;
         invocationNode.pkgAlias = pkgNameNode;
 

@@ -215,7 +215,7 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
 
         @Override
         public void accept(BLangNodeVisitor visitor) {
-
+            visitor.visit(this);
         }
 
         @Override
