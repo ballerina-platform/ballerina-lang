@@ -19,8 +19,7 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -35,17 +34,17 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class BallerinaTypeSymbol extends BallerinaSymbol implements TypeSymbol {
+public class BallerinaTypeSymbol extends BallerinaSymbol implements io.ballerina.compiler.api.symbols.TypeSymbol {
 
     private final Set<Qualifier> qualifiers;
-    private final BallerinaTypeDescriptor typeDescriptor;
+    private final TypeSymbol typeDescriptor;
     private final boolean deprecated;
     private final boolean readonly;
 
     protected BallerinaTypeSymbol(String name,
                                   PackageID moduleID,
                                   Set<Qualifier> qualifiers,
-                                  BallerinaTypeDescriptor typeDescriptor,
+                                  TypeSymbol typeDescriptor,
                                   BSymbol bSymbol) {
         super(name, moduleID, SymbolKind.TYPE, bSymbol);
         this.qualifiers = Collections.unmodifiableSet(qualifiers);
@@ -65,7 +64,7 @@ public class BallerinaTypeSymbol extends BallerinaSymbol implements TypeSymbol {
     }
 
     @Override
-    public BallerinaTypeDescriptor typeDescriptor() {
+    public TypeSymbol typeDescriptor() {
         return this.typeDescriptor;
     }
 
@@ -87,13 +86,13 @@ public class BallerinaTypeSymbol extends BallerinaSymbol implements TypeSymbol {
     public static class TypeDefSymbolBuilder extends SymbolBuilder<TypeDefSymbolBuilder> {
 
         protected Set<Qualifier> qualifiers = new HashSet<>();
-        protected BallerinaTypeDescriptor typeDescriptor;
+        protected TypeSymbol typeDescriptor;
 
         public TypeDefSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
             super(name, moduleID, SymbolKind.TYPE, symbol);
         }
 
-        public TypeDefSymbolBuilder withTypeDescriptor(BallerinaTypeDescriptor typeDescriptor) {
+        public TypeDefSymbolBuilder withTypeDescriptor(TypeSymbol typeDescriptor) {
             this.typeDescriptor = typeDescriptor;
             return this;
         }

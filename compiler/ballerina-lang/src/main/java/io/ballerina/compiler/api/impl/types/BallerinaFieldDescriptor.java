@@ -21,7 +21,7 @@ import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.impl.symbols.BallerinaDocumentation;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Qualifier;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.api.types.FieldDescriptor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.util.Flags;
@@ -37,7 +37,7 @@ public class BallerinaFieldDescriptor implements FieldDescriptor {
 
     private final Documentation docAttachment;
     private final BField bField;
-    private final BallerinaTypeDescriptor typeDescriptor;
+    private final TypeSymbol typeDescriptor;
 
     public BallerinaFieldDescriptor(BField bField) {
         this.bField = bField;
@@ -70,7 +70,7 @@ public class BallerinaFieldDescriptor implements FieldDescriptor {
      * {@inheritDoc}
      */
     @Override
-    public BallerinaTypeDescriptor typeDescriptor() {
+    public TypeSymbol typeDescriptor() {
         return TypesFactory.getTypeDescriptor(this.bField.getType());
     }
 

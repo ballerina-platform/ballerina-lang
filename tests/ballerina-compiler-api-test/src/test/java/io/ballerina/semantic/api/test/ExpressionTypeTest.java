@@ -19,12 +19,12 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
-import io.ballerina.compiler.api.types.ArrayTypeDescriptor;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-import io.ballerina.compiler.api.types.MapTypeDescriptor;
-import io.ballerina.compiler.api.types.TupleTypeDescriptor;
+import io.ballerina.compiler.api.types.ArrayTypeSymbol;
+import io.ballerina.compiler.api.types.TypeSymbol;
+import io.ballerina.compiler.api.types.MapTypeSymbol;
+import io.ballerina.compiler.api.types.TupleTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeReferenceTypeSymbol;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.test.util.CompileResult;
@@ -94,9 +94,9 @@ public class ExpressionTypeTest {
 
     @Test
     public void testByteLiteral() {
-        BallerinaTypeDescriptor type = getExprType(19, 13, 19, 42);
+        TypeSymbol type = getExprType(19, 13, 19, 42);
         assertEquals(type.kind(), ARRAY);
-        assertEquals(((ArrayTypeDescriptor) type).memberTypeDescriptor().kind(), BYTE);
+        assertEquals(((ArrayTypeSymbol) type).memberTypeDescriptor().kind(), BYTE);
     }
 
     @Test(dataProvider = "TemplateExprProvider")
@@ -114,10 +114,10 @@ public class ExpressionTypeTest {
 
     @Test
     public void testRawTemplate() {
-        BallerinaTypeDescriptor type = getExprType(25, 29, 25, 50);
+        TypeSymbol type = getExprType(25, 29, 25, 50);
         assertEquals(type.kind(), TYPE_REFERENCE);
 
-        BallerinaTypeDescriptor objType = ((TypeReferenceTypeDescriptor) type).typeDescriptor();
+        TypeSymbol objType = ((TypeReferenceTypeSymbol) type).typeDescriptor();
         assertEquals(objType.kind(), OBJECT);
 
         type = getExprType(25, 32, 25, 33);
@@ -126,23 +126,23 @@ public class ExpressionTypeTest {
 
     @Test
     public void testArrayLiteral() {
-        BallerinaTypeDescriptor type = getExprType(29, 20, 29, 34);
+        TypeSymbol type = getExprType(29, 20, 29, 34);
         assertEquals(type.kind(), ARRAY);
 
-        BallerinaTypeDescriptor memberType = ((ArrayTypeDescriptor) type).memberTypeDescriptor();
+        TypeSymbol memberType = ((ArrayTypeSymbol) type).memberTypeDescriptor();
         assertEquals(memberType.kind(), STRING);
     }
 
     @Test(dataProvider = "TupleLiteralPosProvider")
     public void testTupleLiteral(int sLine, int sCol, int eLine, int eCol, List<TypeDescKind> memberKinds) {
-        BallerinaTypeDescriptor type = getExprType(sLine, sCol, eLine, eCol);
+        TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
         assertEquals(type.kind(), TUPLE);
 
-        List<BallerinaTypeDescriptor> memberTypes = ((TupleTypeDescriptor) type).memberTypeDescriptors();
+        List<TypeSymbol> memberTypes = ((TupleTypeSymbol) type).memberTypeDescriptors();
 
         assertEquals(memberTypes.size(), memberKinds.size());
         for (int i = 0; i < memberTypes.size(); i++) {
-            BallerinaTypeDescriptor memberType = memberTypes.get(i);
+            TypeSymbol memberType = memberTypes.get(i);
             assertEquals(memberType.kind(), memberKinds.get(i));
         }
     }
@@ -157,10 +157,10 @@ public class ExpressionTypeTest {
 
     @Test
     public void testMapLiteral() {
-        BallerinaTypeDescriptor type = getExprType(34, 20, 34, 34);
+        TypeSymbol type = getExprType(34, 20, 34, 34);
         assertEquals(type.kind(), MAP);
 
-        BallerinaTypeDescriptor constraint = ((MapTypeDescriptor) type).typeParameter().get();
+        TypeSymbol constraint = ((MapTypeSymbol) type).typeParameter().get();
         assertEquals(constraint.kind(), STRING);
 
         assertType(34, 28, 34, 33, STRING);
@@ -168,10 +168,10 @@ public class ExpressionTypeTest {
 
     @Test
     public void testInferredMappingConstructorType() {
-        BallerinaTypeDescriptor type = getExprType(35, 13, 35, 43);
+        TypeSymbol type = getExprType(35, 13, 35, 43);
         assertEquals(type.kind(), TYPE_REFERENCE);
 
-        BallerinaTypeDescriptor referredType = ((TypeReferenceTypeDescriptor) type).typeDescriptor();
+        TypeSymbol referredType = ((TypeReferenceTypeSymbol) type).typeDescriptor();
         assertEquals(referredType.kind(), RECORD);
 
         assertType(35, 14, 35, 20, STRING);
@@ -182,7 +182,7 @@ public class ExpressionTypeTest {
 
     @Test
     public void testRecordLiteral() {
-        BallerinaTypeDescriptor type = getExprType(40, 16, 40, 43);
+        TypeSymbol type = getExprType(40, 16, 40, 43);
         assertEquals(type.kind(), RECORD);
 
         // Disabled ones due to #26628
@@ -194,10 +194,10 @@ public class ExpressionTypeTest {
 
     @Test
     public void testJSONObject() {
-        BallerinaTypeDescriptor type = getExprType(42, 13, 42, 40);
+        TypeSymbol type = getExprType(42, 13, 42, 40);
         assertEquals(type.kind(), MAP);
 
-        BallerinaTypeDescriptor constraint = ((MapTypeDescriptor) type).typeParameter().get();
+        TypeSymbol constraint = ((MapTypeSymbol) type).typeParameter().get();
         assertEquals(constraint.kind(), JSON);
 
         // Disabled ones due to #26628
@@ -230,10 +230,10 @@ public class ExpressionTypeTest {
 
     @Test(dataProvider = "TypeInitPosProvider")
     public void testObjecTypeInit(int sLine, int sCol, int eLine, int eCol) {
-        BallerinaTypeDescriptor type = getExprType(sLine, sCol, eLine, eCol);
+        TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
         assertEquals(type.kind(), TYPE_REFERENCE);
-        assertEquals(((TypeReferenceTypeDescriptor) type).name(), "PersonObj");
-        assertEquals(((TypeReferenceTypeDescriptor) type).typeDescriptor().kind(), OBJECT);
+        assertEquals(((TypeReferenceTypeSymbol) type).name(), "PersonObj");
+        assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().kind(), OBJECT);
     }
 
     @DataProvider(name = "TypeInitPosProvider")
@@ -305,11 +305,11 @@ public class ExpressionTypeTest {
 
 
     private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
-        BallerinaTypeDescriptor type = getExprType(sLine, sCol, eLine, eCol);
+        TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
         assertEquals(type.kind(), kind);
     }
 
-    private BallerinaTypeDescriptor getExprType(int sLine, int sCol, int eLine, int eCol) {
+    private TypeSymbol getExprType(int sLine, int sCol, int eLine, int eCol) {
         LinePosition start = LinePosition.from(sLine, sCol);
         LinePosition end = LinePosition.from(eLine, eCol);
         return model.getType("expressions_test.bal", LineRange.from("expressions_test.bal", start, end)).get();

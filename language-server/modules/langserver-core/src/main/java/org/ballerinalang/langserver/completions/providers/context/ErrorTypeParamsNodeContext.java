@@ -17,8 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.syntax.tree.ErrorTypeParamsNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -65,7 +64,7 @@ public class ErrorTypeParamsNodeContext extends AbstractCompletionProvider<Error
             if (symbol.kind() != SymbolKind.TYPE) {
                 return false;
             }
-            BallerinaTypeDescriptor typeDesc = ((TypeSymbol) symbol).typeDescriptor();
+            TypeSymbol typeDesc = ((io.ballerina.compiler.api.symbols.TypeSymbol) symbol).typeDescriptor();
             return (CommonUtil.getRawType(typeDesc).kind() == TypeDescKind.MAP
                     || CommonUtil.getRawType(typeDesc).kind() == TypeDescKind.RECORD);
         };

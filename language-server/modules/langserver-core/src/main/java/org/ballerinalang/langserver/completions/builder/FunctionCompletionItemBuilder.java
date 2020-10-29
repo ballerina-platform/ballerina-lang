@@ -20,12 +20,12 @@ package org.ballerinalang.langserver.completions.builder;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
-import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
-import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
+import io.ballerina.compiler.api.types.FunctionTypeSymbol;
+import io.ballerina.compiler.api.types.ObjectTypeSymbol;
 import io.ballerina.compiler.api.types.Parameter;
 import io.ballerina.compiler.api.types.ParameterKind;
 import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeReferenceTypeSymbol;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
@@ -93,13 +93,13 @@ public final class FunctionCompletionItemBuilder {
         return item;
     }
 
-    public static CompletionItem build(ObjectTypeDescriptor typeDesc, InitializerBuildMode mode, LSContext ctx) {
+    public static CompletionItem build(ObjectTypeSymbol typeDesc, InitializerBuildMode mode, LSContext ctx) {
         MethodSymbol initMethod = typeDesc.initMethod().isEmpty() ? null : typeDesc.initMethod().get();
         CompletionItem item = new CompletionItem();
         setMeta(item, initMethod, ctx);
         String functionName;
         if (mode == InitializerBuildMode.EXPLICIT && typeDesc.kind() == TypeDescKind.TYPE_REFERENCE) {
-            functionName = ((TypeReferenceTypeDescriptor) typeDesc).name();
+            functionName = ((TypeReferenceTypeSymbol) typeDesc).name();
             // TODO: Following is blocked due to the Type Referencing issue in Semantic Model
 //            Optional<BLangIdentifier> moduleAlias = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY).stream()
 //                    .filter(pkg -> pkg.symbol != null && pkg.symbol.pkgID == typeDesc.pkgID)
@@ -145,7 +145,7 @@ public final class FunctionCompletionItemBuilder {
     private static Either<String, MarkupContent> getDocumentation(FunctionSymbol functionSymbol,
                                                                   boolean skipFirstParam, LSContext ctx) {
         String pkgID = functionSymbol.moduleID().toString();
-        FunctionTypeDescriptor functionTypeDesc = functionSymbol.typeDescriptor();
+        FunctionTypeSymbol functionTypeDesc = functionSymbol.typeDescriptor();
 
         Optional<Documentation> docAttachment = functionSymbol.docAttachment();
         String description = docAttachment.isEmpty() || docAttachment.get().description().isEmpty()

@@ -18,9 +18,9 @@ package org.ballerinalang.langserver.codeaction.impl;
 import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.UnionTypeDescriptor;
+import io.ballerina.compiler.api.types.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.command.CommandUtil;
@@ -57,9 +57,9 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATO
 public class TypeGuardCodeAction implements DiagBasedCodeAction {
     private final NonTerminalNode scopedNode;
     private final Symbol scopedSymbol;
-    private final BallerinaTypeDescriptor typeDescriptor;
+    private final TypeSymbol typeDescriptor;
 
-    public TypeGuardCodeAction(BallerinaTypeDescriptor typeDescriptor, NonTerminalNode scopedNode,
+    public TypeGuardCodeAction(TypeSymbol typeDescriptor, NonTerminalNode scopedNode,
                                Symbol scopedSymbol) {
         this.typeDescriptor = typeDescriptor;
         this.scopedNode = scopedNode;
@@ -72,7 +72,7 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         try {
             if (typeDescriptor.kind() == TypeDescKind.UNION) {
-                UnionTypeDescriptor unionType = (UnionTypeDescriptor) typeDescriptor;
+                UnionTypeSymbol unionType = (UnionTypeSymbol) typeDescriptor;
                 boolean isRemoteInvocation = scopedSymbol instanceof Qualifiable &&
                         ((Qualifiable) scopedSymbol).qualifiers().contains(Qualifier.REMOTE);
                 if (!isRemoteInvocation) {
@@ -94,7 +94,7 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
     private static List<TextEdit> getTypeGuardCodeActionEdits(LSContext context, String uri,
                                                               NonTerminalNode scopedNode,
                                                               Symbol scopedSymbol,
-                                                              UnionTypeDescriptor unionType)
+                                                              UnionTypeSymbol unionType)
             throws WorkspaceDocumentException, IOException {
         WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         int sLine = scopedNode.lineRange().startLine().line();
@@ -117,7 +117,7 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
 
         boolean hasError = unionType.memberTypeDescriptors().stream().anyMatch(s -> s.kind() == TypeDescKind.ERROR);
 
-        List<BallerinaTypeDescriptor> members = new ArrayList<>((unionType).memberTypeDescriptors());
+        List<TypeSymbol> members = new ArrayList<>((unionType).memberTypeDescriptors());
         long errorTypesCount = unionType.memberTypeDescriptors().stream().filter(t -> t.kind() == TypeDescKind.ERROR)
                 .count();
         if (members.size() == 1) {
@@ -151,7 +151,7 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
             String typeDef = unionType.signature();
             boolean addErrorTypeAtEnd;
 
-            List<BallerinaTypeDescriptor> tMembers = new ArrayList<>((unionType).memberTypeDescriptors());
+            List<TypeSymbol> tMembers = new ArrayList<>((unionType).memberTypeDescriptors());
             if (errorTypesCount > 1) {
                 tMembers.removeIf(s -> s.kind() == TypeDescKind.ERROR);
                 addErrorTypeAtEnd = true;
@@ -161,7 +161,7 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
             List<String> memberTypes = new ArrayList<>();
             IntStream.range(0, tMembers.size())
                     .forEachOrdered(value -> {
-                        BallerinaTypeDescriptor bType = tMembers.get(value);
+                        TypeSymbol bType = tMembers.get(value);
                         String bTypeName = bType.signature();
                         boolean isErrorType = bType instanceof BErrorType;
                         if (isErrorType && !addErrorTypeAtEnd) {

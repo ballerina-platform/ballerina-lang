@@ -19,10 +19,10 @@ package org.ballerinalang.langserver.completions.builder;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
-import io.ballerina.compiler.api.types.UnionTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.types.UnionTypeSymbol;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -68,9 +68,9 @@ public class TypeCompletionItemBuilder {
             item.setKind(CompletionItemKind.Module);
             return;
         }
-        Optional<? extends BallerinaTypeDescriptor> typeDescriptor = SymbolUtil.getTypeDescriptor(bSymbol);
+        Optional<? extends TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(bSymbol);
         typeDescriptor = (typeDescriptor.isPresent() && typeDescriptor.get().kind() == TypeDescKind.TYPE_REFERENCE)
-                ? Optional.of(((TypeReferenceTypeDescriptor) typeDescriptor.get()).typeDescriptor()) : typeDescriptor;
+                ? Optional.of(((TypeReferenceTypeSymbol) typeDescriptor.get()).typeDescriptor()) : typeDescriptor;
 
         if (typeDescriptor.isEmpty() || typeDescriptor.get().kind() == null) {
             item.setKind(CompletionItemKind.Unit);
@@ -86,7 +86,7 @@ public class TypeCompletionItemBuilder {
         switch (typeDescriptor.get().kind()) {
             case UNION:
                 // Union types
-                List<BallerinaTypeDescriptor> memberTypes = new ArrayList<>(((UnionTypeDescriptor) typeDescriptor.get())
+                List<TypeSymbol> memberTypes = new ArrayList<>(((UnionTypeSymbol) typeDescriptor.get())
                         .memberTypeDescriptors());
                 boolean allMatch = memberTypes.stream()
                         .allMatch(typeDesc -> typeDesc.kind() == memberTypes.get(0).kind());

@@ -31,8 +31,8 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaXMLNSSymbol;
 import io.ballerina.compiler.api.impl.types.BallerinaParameter;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeSymbol;
+import io.ballerina.compiler.api.types.FunctionTypeSymbol;
 import io.ballerina.compiler.api.types.Parameter;
 import io.ballerina.compiler.api.types.ParameterKind;
 import io.ballerina.compiler.api.types.TypeDescKind;
@@ -145,7 +145,7 @@ public class SymbolFactory {
             builder.withQualifier(Qualifier.TRANSACTIONAL);
         }
 
-        return builder.withTypeDescriptor((FunctionTypeDescriptor) TypesFactory.getTypeDescriptor(invokableSymbol.type))
+        return builder.withTypeDescriptor((FunctionTypeSymbol) TypesFactory.getTypeDescriptor(invokableSymbol.type))
                 .build();
     }
 
@@ -157,7 +157,7 @@ public class SymbolFactory {
      * @return {@link Symbol} generated
      */
     public static BallerinaMethodSymbol createMethodSymbol(BInvokableSymbol invokableSymbol, String name) {
-        BallerinaTypeDescriptor typeDescriptor = TypesFactory.getTypeDescriptor(invokableSymbol.type);
+        TypeSymbol typeDescriptor = TypesFactory.getTypeDescriptor(invokableSymbol.type);
         BallerinaFunctionSymbol functionSymbol = SymbolFactory.createFunctionSymbol(invokableSymbol, name);
         if (typeDescriptor.kind() == TypeDescKind.FUNCTION) {
             return new BallerinaMethodSymbol(functionSymbol);
@@ -214,7 +214,7 @@ public class SymbolFactory {
             return null;
         }
         String name = symbol.getName().getValue();
-        BallerinaTypeDescriptor typeDescriptor = TypesFactory.getTypeDescriptor(symbol.getType());
+        TypeSymbol typeDescriptor = TypesFactory.getTypeDescriptor(symbol.getType());
         List<Qualifier> qualifiers = new ArrayList<>();
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             qualifiers.add(Qualifier.PUBLIC);

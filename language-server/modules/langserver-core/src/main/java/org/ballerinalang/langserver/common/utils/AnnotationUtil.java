@@ -19,10 +19,10 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.AnnotationAttachPoint;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
-import io.ballerina.compiler.api.types.ArrayTypeDescriptor;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.ArrayTypeSymbol;
+import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.api.types.FieldDescriptor;
-import io.ballerina.compiler.api.types.RecordTypeDescriptor;
+import io.ballerina.compiler.api.types.RecordTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -174,11 +174,11 @@ public class AnnotationUtil {
         }
         if (annotationSymbol.typeDescriptor().isPresent()) {
             annotationStart.append(annotationSymbol.name());
-            Optional<BallerinaTypeDescriptor> attachedType
+            Optional<TypeSymbol> attachedType
                     = Optional.ofNullable(CommonUtil.getRawType(annotationSymbol.typeDescriptor().get()));
-            Optional<BallerinaTypeDescriptor> resultType;
+            Optional<TypeSymbol> resultType;
             if (attachedType.isPresent() && attachedType.get().kind() == TypeDescKind.ARRAY) {
-                resultType = Optional.of(((ArrayTypeDescriptor) attachedType.get()).memberTypeDescriptor());
+                resultType = Optional.of(((ArrayTypeSymbol) attachedType.get()).memberTypeDescriptor());
             } else {
                 resultType = attachedType;
             }
@@ -187,7 +187,7 @@ public class AnnotationUtil {
                 List<FieldDescriptor> requiredFields = new ArrayList<>();
                 annotationStart.append(" ").append(CommonKeys.OPEN_BRACE_KEY).append(LINE_SEPARATOR);
                 if (resultType.get().kind() == TypeDescKind.RECORD) {
-                    requiredFields.addAll(CommonUtil.getMandatoryRecordFields((RecordTypeDescriptor) resultType.get()));
+                    requiredFields.addAll(CommonUtil.getMandatoryRecordFields((RecordTypeSymbol) resultType.get()));
                 }
                 List<String> insertTexts = new ArrayList<>();
                 requiredFields.forEach(field -> {

@@ -53,9 +53,9 @@ public interface FieldDescriptor {
     /**
      * Get the type descriptor of the field.
      *
-     * @return {@link BallerinaTypeDescriptor} of the field
+     * @return {@link TypeSymbol} of the field
      */
-    BallerinaTypeDescriptor typeDescriptor();
+    TypeSymbol typeDescriptor();
 
     /**
      * Get the documentation attachment.

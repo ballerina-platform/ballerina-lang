@@ -18,7 +18,7 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.symbols.Qualifier;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.api.types.Parameter;
 import io.ballerina.compiler.api.types.ParameterKind;
 
@@ -37,10 +37,10 @@ public class BallerinaParameter implements Parameter {
     // add the metadata field
     private List<Qualifier> qualifiers;
     private String parameterName;
-    private BallerinaTypeDescriptor typeDescriptor;
+    private TypeSymbol typeDescriptor;
     private ParameterKind kind;
 
-    public BallerinaParameter(String parameterName, BallerinaTypeDescriptor typeDescriptor, List<Qualifier> qualifiers,
+    public BallerinaParameter(String parameterName, TypeSymbol typeDescriptor, List<Qualifier> qualifiers,
                               ParameterKind kind) {
         // TODO: Add the metadata
         this.parameterName = parameterName;
@@ -62,10 +62,10 @@ public class BallerinaParameter implements Parameter {
     /**
      * Get the type descriptor of the field.
      *
-     * @return {@link BallerinaTypeDescriptor} of the field
+     * @return {@link TypeSymbol} of the field
      */
     @Override
-    public BallerinaTypeDescriptor typeDescriptor() {
+    public TypeSymbol typeDescriptor() {
         return typeDescriptor;
     }
 

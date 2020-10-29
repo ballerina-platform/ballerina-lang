@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
+import io.ballerina.compiler.api.types.ObjectTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -184,7 +184,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         (1) public listener mod:Listener test = <cursor>
         (2) public listener mod:Listener test = a<cursor>
          */
-        Optional<ObjectTypeDescriptor> objectTypeDesc = getListenerTypeDesc(context, listenerNode);
+        Optional<ObjectTypeSymbol> objectTypeDesc = getListenerTypeDesc(context, listenerNode);
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == VARIABLE)
                 .collect(Collectors.toList());
@@ -241,7 +241,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                 || (cursorPos.getLine() > lineRange.startLine().line());
     }
 
-    private Optional<ObjectTypeDescriptor> getListenerTypeDesc(LSContext context, ListenerDeclarationNode node) {
+    private Optional<ObjectTypeSymbol> getListenerTypeDesc(LSContext context, ListenerDeclarationNode node) {
         Node typeDescriptor = node.typeDescriptor();
         Optional<TypeSymbol> typeSymbol = Optional.empty();
         List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
@@ -267,7 +267,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                     .findAny();
         }
 
-        return typeSymbol.map(symbol -> (ObjectTypeDescriptor) CommonUtil.getRawType(symbol.typeDescriptor()));
+        return typeSymbol.map(symbol -> (ObjectTypeSymbol) CommonUtil.getRawType(symbol.typeDescriptor()));
     }
 
     private enum ContextScope {
