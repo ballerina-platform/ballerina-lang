@@ -694,9 +694,9 @@ public class Types {
                 return true;
             }
 
-//            if (isAssignableToUnionType(source, target, unresolvedTypes)) {
-//                return true;
-//            }
+            if (isAssignableToUnionType(source, target, unresolvedTypes)) {
+                return true;
+            }
         }
 
         if (targetTag == TypeTags.READONLY &&
@@ -2481,17 +2481,71 @@ public class Types {
             return true;
         }
 
-        if (source.tag == TypeTags.UNION) {
+        if (source.tag == TypeTags.UNION || source.tag == TypeTags.JSON || source.tag == TypeTags.ANYDATA) {
             sourceTypes.addAll(getEffectiveMemberTypes((BUnionType) source));
         } else {
             sourceTypes.add(source);
         }
 
-        if (target.tag == TypeTags.UNION) {
+        if (target.tag == TypeTags.UNION || source.tag == TypeTags.JSON || source.tag == TypeTags.ANYDATA) {
             targetTypes.addAll(getEffectiveMemberTypes((BUnionType) target));
         } else {
             targetTypes.add(target);
         }
+
+        // check if all the value types are assignable between two unions
+        var sourceIterator = sourceTypes.iterator();
+        while (sourceIterator.hasNext()) {
+            BType s = sourceIterator.next();
+            if (s.tag == TypeTags.NEVER) {
+                sourceIterator.remove();
+                continue;
+            }
+            if (s.tag == TypeTags.FINITE && isAssignable(s, target, unresolvedTypes)) {
+                sourceIterator.remove();
+                continue;
+            }
+            if (s.tag == TypeTags.XML && isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes)) {
+                sourceIterator.remove();
+                continue;
+            }
+
+            if (!isValueType(s)) {
+                continue;
+            }
+
+            boolean sourceTypeIsNotAssignableToAnyTargetType = true;
+            var targetIterator = targetTypes.iterator();
+            while (targetIterator.hasNext()) {
+                BType t = targetIterator.next();
+                if (isAssignable(s, t, unresolvedTypes)) {
+                    sourceTypeIsNotAssignableToAnyTargetType = false;
+                    break;
+                }
+            }
+            if (sourceTypeIsNotAssignableToAnyTargetType) {
+                return false;
+            }
+        }
+
+        // check if all the value types are assignable between two unions
+        sourceIterator = sourceTypes.iterator();
+        while (sourceIterator.hasNext()) {
+            BType s = sourceIterator.next();
+            boolean sourceTypeIsNotAssignableToAnyTargetType = true;
+            var targetIterator = targetTypes.iterator();
+            while (targetIterator.hasNext()) {
+                BType t = targetIterator.next();
+                if (isAssignable(s, t, unresolvedTypes)) {
+                    sourceTypeIsNotAssignableToAnyTargetType = false;
+                    break;
+                }
+            }
+            if (sourceTypeIsNotAssignableToAnyTargetType) {
+                return false;
+            }
+        }
+
 
         for (BType s : sourceTypes) {
             if (s.tag == TypeTags.NEVER) {
