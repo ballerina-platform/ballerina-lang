@@ -41,6 +41,7 @@ public class StatementContextTest extends CompletionTestNew {
                 {"assignment_stmt_ctx_config2.json", this.getTestResourceDir()},
                 {"assignment_stmt_ctx_config3.json", this.getTestResourceDir()},
                 {"assignment_stmt_ctx_config4.json", this.getTestResourceDir()},
+                {"assignment_stmt_ctx_config5.json", this.getTestResourceDir()},
                 {"async_send_action_ctx_config1.json", this.getTestResourceDir()},
                 {"async_send_action_ctx_config2.json", this.getTestResourceDir()},
                 {"checking_call_stmt_ctx_config1.json", this.getTestResourceDir()},
