@@ -106,8 +106,6 @@ public class TomlParser extends AbstractParser {
                     peekToken = peek(lookahead);
                 }
                 return parseKeyValue();
-            case NEW_LINE:
-                return parseInitialTrivia();
             default:
                 recover(nextToken, ParserRuleContext.TOP_LEVEL_NODE);
                 return parseTopLevelNode();
@@ -117,11 +115,6 @@ public class TomlParser extends AbstractParser {
     private boolean isEndOfStatement(STToken nextToken) {
         return nextToken.kind == SyntaxKind.EQUAL_TOKEN ||
                 nextToken.kind == SyntaxKind.NEW_LINE || nextToken.kind == EOF_TOKEN;
-    }
-
-    private STNode parseInitialTrivia () {
-        STNode node = parseNewLines();
-        return STNodeFactory.createTopLevelTriviaNode(node);
     }
 
     /**
@@ -257,7 +250,7 @@ public class TomlParser extends AbstractParser {
             return STNodeFactory.createIdentifierLiteralNode(consume());
         } else {
             recover(token, ParserRuleContext.IDENTIFIER_LITERAL);
-            return parseBoolean();
+            return parseIdentifierLiteral();
         }
     }
 
@@ -312,7 +305,7 @@ public class TomlParser extends AbstractParser {
         STToken token = peek();
         switch (token.kind) {
             case DOT_TOKEN:
-                return parseDot();
+                return consume();
             case EQUAL_TOKEN:
             case CLOSE_BRACKET_TOKEN:
                 // null marks the end of values
@@ -321,24 +314,6 @@ public class TomlParser extends AbstractParser {
                 recover(token, ParserRuleContext.KEY_END);
                 return parseKeyEnd();
         }
-    }
-
-    public static boolean isKey(STToken token) { //change in error handler
-        switch (token.kind) {
-            case IDENTIFIER_LITERAL:
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-                return true;
-            default:
-                return isNumberValidKey(token);
-        }
-    }
-
-    public static boolean isNumberValidKey(STToken token) {
-        if (token.kind == SyntaxKind.DECIMAL_INT_TOKEN || token.kind == SyntaxKind.DECIMAL_FLOAT_TOKEN) {
-            return !(token.text().startsWith("+") || token.text().startsWith("-"));
-        }
-        return false;
     }
 
     private STNode parseEquals() {
@@ -401,22 +376,12 @@ public class TomlParser extends AbstractParser {
     private STNode parseNumericalToken() {
         STToken token = peek();
         if (token.kind == SyntaxKind.DECIMAL_INT_TOKEN) {
-            return parseIntToken();
+            return consume();
         } else if (token.kind == SyntaxKind.DECIMAL_FLOAT_TOKEN) {
-            return parseFloatToken();
+            return consume();
         } else {
             recover(token, ParserRuleContext.NUMERICAL_LITERAL);
             return parseNumericalToken();
-        }
-    }
-
-    private STNode parseIntToken () {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.DECIMAL_INT_TOKEN) {
-            return consume();
-        } else {
-            recover(token, ParserRuleContext.DECIMAL_INTEGER_LITERAL);
-            return parseIntToken();
         }
     }
 
@@ -501,11 +466,9 @@ public class TomlParser extends AbstractParser {
      * @return ArrayNode
      */
     private STNode parseArray() {
-//        startContext(ParserRuleContext.TOML_ARRAY);
         STNode openBracket = parseOpenBracket(ParserRuleContext.ARRAY_VALUE_LIST_START);
         STNode values = parseArrayValues();
         STNode closeBracket = parseCloseBracket(ParserRuleContext.ARRAY_VALUE_LIST_END);
-//        endContext();
         return STNodeFactory.createArrayNode(openBracket, values, closeBracket);
     }
 
@@ -558,7 +521,7 @@ public class TomlParser extends AbstractParser {
     private STNode parseValueEnd() {
         switch (peek().kind) {
             case COMMA_TOKEN:
-                return parseComma();
+                return consume();
             case CLOSE_BRACKET_TOKEN:
                 // null marks the end of values
                 return null;
@@ -581,26 +544,6 @@ public class TomlParser extends AbstractParser {
         } else {
             recover(peek(), ParserRuleContext.ARRAY_VALUE_START);
             return parseArrayValue();
-        }
-    }
-
-    private STNode parseDot() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.DOT_TOKEN) {
-            return consume();
-        } else {
-            recover(token, ParserRuleContext.DOT);
-            return parseDot();
-        }
-    }
-
-    private STNode parseComma() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.COMMA_TOKEN) {
-            return consume();
-        } else {
-            recover(token, ParserRuleContext.COMMA);
-            return parseComma();
         }
     }
 

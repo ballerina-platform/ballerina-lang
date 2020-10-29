@@ -44,10 +44,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(documentNode);
     }
 
-    public T transform(TopLevelTriviaNode topLevelTriviaNode) {
-        return transformSyntaxNode(topLevelTriviaNode);
-    }
-
     public T transform(TableNode tableNode) {
         return transformSyntaxNode(tableNode);
     }

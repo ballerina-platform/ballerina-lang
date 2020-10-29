@@ -44,15 +44,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public TopLevelTriviaNode transform(
-            TopLevelTriviaNode topLevelTriviaNode) {
-        NodeList<Token> newLines =
-                modifyNodeList(topLevelTriviaNode.newLines());
-        return topLevelTriviaNode.modify(
-                newLines);
-    }
-
-    @Override
     public TableNode transform(
             TableNode tableNode) {
         Token openBracket =

@@ -33,10 +33,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(documentNode);
     }
 
-    public void visit(STTopLevelTriviaNode topLevelTriviaNode) {
-        visitSyntaxNode(topLevelTriviaNode);
-    }
-
     public void visit(STTableNode tableNode) {
         visitSyntaxNode(tableNode);
     }

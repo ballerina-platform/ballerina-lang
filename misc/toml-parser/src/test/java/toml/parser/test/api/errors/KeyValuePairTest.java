@@ -54,7 +54,7 @@ public class KeyValuePairTest {
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
-        LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 1, 1);
+        LineRange expectedLineRange = ErrorTestUtils.toLineRange(1, 1, 1, 1);
         TomlDiagnostic actualDiag = diagnostics.get(0);
 
         ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange, "missing identifier",

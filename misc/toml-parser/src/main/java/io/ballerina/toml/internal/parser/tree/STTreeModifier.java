@@ -38,14 +38,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STTopLevelTriviaNode transform(
-            STTopLevelTriviaNode topLevelTriviaNode) {
-        STNode newLines = modifyNode(topLevelTriviaNode.newLines);
-        return topLevelTriviaNode.modify(
-                newLines);
-    }
-
-    @Override
     public STTableNode transform(
             STTableNode tableNode) {
         STNode openBracket = modifyNode(tableNode.openBracket);

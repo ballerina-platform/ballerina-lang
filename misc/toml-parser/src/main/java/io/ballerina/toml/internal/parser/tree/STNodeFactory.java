@@ -45,13 +45,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 eofToken);
     }
 
-    public static STNode createTopLevelTriviaNode(
-            STNode newLines) {
-
-        return new STTopLevelTriviaNode(
-                newLines);
-    }
-
     public static STNode createTableNode(
             STNode openBracket,
             STNode identifier,

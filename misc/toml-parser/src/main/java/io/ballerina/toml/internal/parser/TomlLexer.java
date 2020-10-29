@@ -34,6 +34,7 @@ import java.util.List;
  * @since 2.0.0
  */
 public class TomlLexer extends AbstractLexer {
+    private boolean isInitialTrivia = true;
 
     public TomlLexer(CharReader charReader) {
         super(charReader, ParserMode.DEFAULT);
@@ -73,6 +74,7 @@ public class TomlLexer extends AbstractLexer {
         if (reader.isEOF()) {
             return getSyntaxToken(SyntaxKind.EOF_TOKEN);
         }
+        isInitialTrivia = false;
 
         int c = reader.peek();
         reader.advance();
@@ -337,13 +339,15 @@ public class TomlLexer extends AbstractLexer {
                 case LexerTerminals.FORM_FEED:
                     triviaList.add(processWhitespaces());
                     break;
-//                case LexerTerminals.CARRIAGE_RETURN:
-//                case LexerTerminals.NEWLINE:
-//                    triviaList.add(processEndOfLine());
-//                    if (isLeading) {
-//                        break;
-//                    }
-//                    return;
+                case LexerTerminals.CARRIAGE_RETURN:
+                case LexerTerminals.NEWLINE:
+                    if (isInitialTrivia) {
+                        triviaList.add(processEndOfLine());
+                        if (isLeading) {
+                            break;
+                        }
+                    }
+                    return;
                 case LexerTerminals.HASH:
                     triviaList.add(processComment());
                     break;
@@ -381,29 +385,29 @@ public class TomlLexer extends AbstractLexer {
         return STNodeFactory.createMinutiae(SyntaxKind.WHITESPACE_MINUTIAE, getLexeme());
     }
 
-//    /**
-//     * Process end of line.
-//     * <p>
-//     * <code>end-of-line := 0xA | 0xD</code>
-//     *
-//     * @return End of line trivia
-//     */
-//    private STNode processEndOfLine() {
-//        char c = reader.peek();
-//        switch (c) {
-//            case LexerTerminals.NEWLINE:
-//                reader.advance();
-//                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme());
-//            case LexerTerminals.CARRIAGE_RETURN:
-//                reader.advance();
-//                if (reader.peek() == LexerTerminals.NEWLINE) {
-//                    reader.advance();
-//                }
-//                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme());
-//            default:
-//                throw new IllegalStateException();
-//        }
-//    }
+    /**
+     * Process end of line.
+     * <p>
+     * <code>end-of-line := 0xA | 0xD</code>
+     *
+     * @return End of line trivia
+     */
+    private STNode processEndOfLine() {
+        char c = reader.peek();
+        switch (c) {
+            case LexerTerminals.NEWLINE:
+                reader.advance();
+                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme());
+            case LexerTerminals.CARRIAGE_RETURN:
+                reader.advance();
+                if (reader.peek() == LexerTerminals.NEWLINE) {
+                    reader.advance();
+                }
+                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme());
+            default:
+                throw new IllegalStateException();
+        }
+    }
 
     /**
      * <p>

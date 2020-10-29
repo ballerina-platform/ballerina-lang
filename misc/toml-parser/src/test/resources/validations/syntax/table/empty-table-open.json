@@ -7,127 +7,6 @@
       "hasDiagnostics": true,
       "children": [
         {
-          "kind": "INITIAL_TRIVIA",
-          "children": [
-            {
-              "kind": "LIST",
-              "children": [
-                {
-                  "kind": "NEW_LINE",
-                  "leadingMinutiae": [
-                    {
-                      "kind": "COMMENT_MINUTIAE",
-                      "value": "# Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved."
-                    }
-                  ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "COMMENT_MINUTIAE",
-                      "value": "#\n# WSO2 Inc. licenses this file to you under the Apache License,"
-                    }
-                  ]
-                },
-                {
-                  "kind": "NEW_LINE",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "COMMENT_MINUTIAE",
-                      "value": "# Version 2.0 (the \"License\"); you may not use this file except"
-                    }
-                  ]
-                },
-                {
-                  "kind": "NEW_LINE",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "COMMENT_MINUTIAE",
-                      "value": "# in compliance with the License."
-                    }
-                  ]
-                },
-                {
-                  "kind": "NEW_LINE",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "COMMENT_MINUTIAE",
-                      "value": "# You may obtain a copy of the License at"
-                    }
-                  ]
-                },
-                {
-                  "kind": "NEW_LINE",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "COMMENT_MINUTIAE",
-                      "value": "#\n#   http://www.apache.org/licenses/LICENSE-2.0"
-                    }
-                  ]
-                },
-                {
-                  "kind": "NEW_LINE",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "COMMENT_MINUTIAE",
-                      "value": "#\n# Unless required by applicable law or agreed to in writing,"
-                    }
-                  ]
-                },
-                {
-                  "kind": "NEW_LINE",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "COMMENT_MINUTIAE",
-                      "value": "# software distributed under the License is distributed on an"
-                    }
-                  ]
-                },
-                {
-                  "kind": "NEW_LINE",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "COMMENT_MINUTIAE",
-                      "value": "# \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY"
-                    }
-                  ]
-                },
-                {
-                  "kind": "NEW_LINE",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "COMMENT_MINUTIAE",
-                      "value": "# KIND, either express or implied.  See the License for the"
-                    }
-                  ]
-                },
-                {
-                  "kind": "NEW_LINE",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "COMMENT_MINUTIAE",
-                      "value": "# specific language governing permissions and limitations"
-                    }
-                  ]
-                },
-                {
-                  "kind": "NEW_LINE",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "COMMENT_MINUTIAE",
-                      "value": "# under the License."
-                    }
-                  ]
-                },
-                {
-                  "kind": "NEW_LINE"
-                },
-                {
-                  "kind": "NEW_LINE"
-                }
-              ]
-            }
-          ]
-        },
-        {
           "kind": "TABLE",
           "hasDiagnostics": true,
           "children": [
@@ -147,7 +26,109 @@
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "table"
+                      "value": "table",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved."
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "#\n# WSO2 Inc. licenses this file to you under the Apache License,"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# Version 2.0 (the \"License\"); you may not use this file except"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# in compliance with the License."
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# You may obtain a copy of the License at"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "#\n#   http://www.apache.org/licenses/LICENSE-2.0"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "#\n# Unless required by applicable law or agreed to in writing,"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# software distributed under the License is distributed on an"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# KIND, either express or implied.  See the License for the"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# specific language governing permissions and limitations"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# under the License."
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ]
                     }
                   ]
                 }

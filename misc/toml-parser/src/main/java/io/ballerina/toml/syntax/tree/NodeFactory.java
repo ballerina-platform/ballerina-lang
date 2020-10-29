@@ -46,15 +46,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stDocumentNode.createUnlinkedFacade();
     }
 
-    public static TopLevelTriviaNode createTopLevelTriviaNode(
-            NodeList<Token> newLines) {
-        Objects.requireNonNull(newLines, "newLines must not be null");
-
-        STNode stTopLevelTriviaNode = STNodeFactory.createTopLevelTriviaNode(
-                newLines.underlyingListNode().internalNode());
-        return stTopLevelTriviaNode.createUnlinkedFacade();
-    }
-
     public static TableNode createTableNode(
             Token openBracket,
             SeparatedNodeList<ValueNode> identifier,

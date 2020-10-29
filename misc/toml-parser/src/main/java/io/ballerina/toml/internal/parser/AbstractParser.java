@@ -30,6 +30,8 @@ import java.util.Deque;
 import java.util.List;
 
 /**
+ * An abstract parser to be extended by parser implementations.
+ *
  * @since 2.0.0
  */
 public abstract class AbstractParser {
@@ -134,7 +136,7 @@ public abstract class AbstractParser {
         this.errorHandler.switchContext(context);
     }
 
-    protected STToken getNextNextToken(SyntaxKind tokenKind) {
+    protected STToken getNextNextToken() {
         return peek(2);
     }
 
