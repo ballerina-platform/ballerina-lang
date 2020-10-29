@@ -21,7 +21,6 @@ import io.ballerina.compiler.internal.parser.BallerinaParser;
 import io.ballerina.compiler.internal.parser.ParserFactory;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -36,15 +35,12 @@ public class TestParser {
     private static final PrintStream OUT = System.out;
 
     public static void main(String[] args) throws IOException {
-        String path = "src/test/resources/test1.bal";
-        // String path = "src/test/resources/test2.bal";
-        // String path = "src/test/resources/test3.bal";
-
+        String path = TestParser.class.getClassLoader().getResource("test_parser.bal").getPath();
         String content = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
         testParser(content);
     }
 
-    private static void testParser(String content) throws FileNotFoundException {
+    private static void testParser(String content) {
         long sTime = System.currentTimeMillis();
         BallerinaParser parser = ParserFactory.getParser(content);
         STNode node = parser.parse();

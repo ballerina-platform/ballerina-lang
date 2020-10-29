@@ -76,6 +76,8 @@ public class StatementContextTest extends CompletionTestNew {
                 {"if_stmt_ctx_config4.json", this.getTestResourceDir()},
                 {"if_stmt_ctx_config5.json", this.getTestResourceDir()},
                 {"if_stmt_ctx_config6.json", this.getTestResourceDir()},
+                {"if_stmt_ctx_config7.json", this.getTestResourceDir()},
+                {"if_stmt_ctx_config8.json", this.getTestResourceDir()},
                 {"lock_stmt_ctx_config1.json", this.getTestResourceDir()},
                 {"match_stmt_ctx_config1.json", this.getTestResourceDir()},
                 {"receive_action_ctx_config1.json", this.getTestResourceDir()},
