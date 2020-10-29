@@ -2502,6 +2502,22 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 closeBrace);
     }
 
+    @Override
+    public STErrorConstructorExpressionNode transform(
+            STErrorConstructorExpressionNode errorConstructorExpressionNode) {
+        STNode errorKeyword = modifyNode(errorConstructorExpressionNode.errorKeyword);
+        STNode typeReference = modifyNode(errorConstructorExpressionNode.typeReference);
+        STNode openParenToken = modifyNode(errorConstructorExpressionNode.openParenToken);
+        STNode arguments = modifyNode(errorConstructorExpressionNode.arguments);
+        STNode closeParenToken = modifyNode(errorConstructorExpressionNode.closeParenToken);
+        return errorConstructorExpressionNode.modify(
+                errorKeyword,
+                typeReference,
+                openParenToken,
+                arguments,
+                closeParenToken);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {

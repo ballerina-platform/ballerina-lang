@@ -320,6 +320,7 @@ public enum SyntaxKind {
     BYTE_ARRAY_LITERAL(1342),
     ASTERISK_LITERAL(1343),
     OBJECT_CONSTRUCTOR(1344),
+    ERROR_CONSTRUCTOR(1345),
 
     // Type descriptors
     TYPE_DESC(2000),

@@ -2328,5 +2328,20 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 members,
                 closeBrace);
     }
+
+    public static STNode createErrorConstructorExpressionNode(
+            STNode errorKeyword,
+            STNode typeReference,
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken) {
+
+        return new STErrorConstructorExpressionNode(
+                errorKeyword,
+                typeReference,
+                openParenToken,
+                arguments,
+                closeParenToken);
+    }
 }
 

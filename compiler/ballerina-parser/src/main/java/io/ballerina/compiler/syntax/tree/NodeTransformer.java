@@ -812,6 +812,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(classDefinitionNode);
     }
 
+    public T transform(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
+        return transformSyntaxNode(errorConstructorExpressionNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

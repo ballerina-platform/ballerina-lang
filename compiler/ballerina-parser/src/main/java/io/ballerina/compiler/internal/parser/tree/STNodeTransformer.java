@@ -801,6 +801,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(classDefinitionNode);
     }
 
+    public T transform(STErrorConstructorExpressionNode errorConstructorExpressionNode) {
+        return transformSyntaxNode(errorConstructorExpressionNode);
+    }
+
     // Tokens
 
     public T transform(STToken token) {

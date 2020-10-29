@@ -4247,6 +4247,35 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "ErrorConstructorExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "ERROR_CONSTRUCTOR",
+            "attributes": [
+                {
+                    "name": "errorKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeReference",
+                    "type": "TypeDescriptorNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "openParenToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "arguments",
+                    "type": "FunctionArgumentNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeParenToken",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }
