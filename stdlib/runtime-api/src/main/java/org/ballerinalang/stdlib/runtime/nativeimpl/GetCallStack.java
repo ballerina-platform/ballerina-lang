@@ -39,13 +39,13 @@ public class GetCallStack {
 
     public static BArray getCallStack() {
         List<StackTraceElement> filteredStack = ErrorCreator.createError(StringUtils.fromString("")).getCallStack();
-        Type recordType = ValueCreator.createRecordValue(Constant.BALLERINA_RUNTIME_PKG_ID,
-                Constant.CALL_STACK_ELEMENT).getType();
+        Type recordType = ValueCreator.createRecordValue(Constants.BALLERINA_RUNTIME_PKG_ID,
+                Constants.CALL_STACK_ELEMENT).getType();
         BArray callStack = ValueCreator.createArrayValue(TypeCreator.createArrayType(recordType));
         for (int i = 0; i < filteredStack.size(); i++) {
             Object[] values = ErrorValue.getStackFrame(filteredStack.get(i));
             BMap<BString, Object> createRecordValue = ValueCreator.createRecordValue(ValueCreator.
-                            createRecordValue(Constant.BALLERINA_RUNTIME_PKG_ID, Constant.CALL_STACK_ELEMENT), values);
+                            createRecordValue(Constants.BALLERINA_RUNTIME_PKG_ID, Constants.CALL_STACK_ELEMENT), values);
             callStack.add(i, createRecordValue);
         }
         return callStack;

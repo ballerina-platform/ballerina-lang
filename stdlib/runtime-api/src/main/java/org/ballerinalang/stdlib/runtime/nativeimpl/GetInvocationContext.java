@@ -55,7 +55,7 @@ public class GetInvocationContext {
 
     private static BMap<BString, Object> initInvocationContext() {
         BMap<BString, Object> invocationContextInfo =
-                ValueCreator.createRecordValue(Constant.BALLERINA_RUNTIME_PKG_ID, STRUCT_TYPE_INVOCATION_CONTEXT);
+                ValueCreator.createRecordValue(Constants.BALLERINA_RUNTIME_PKG_ID, STRUCT_TYPE_INVOCATION_CONTEXT);
         UUID invocationId = UUID.randomUUID();
         invocationContextInfo.put(StringUtils.fromString(INVOCATION_ID_KEY),
                                   StringUtils.fromString(invocationId.toString()));

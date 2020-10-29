@@ -23,8 +23,10 @@ import io.ballerina.runtime.util.BLangConstants;
 
 /**
  * Constants related to Ballerina runtime stdlib.
+ *
+ * @since 2.0.0
  */
-public class Constant {
+public class Constants {
 
     private static final String PACKAGE_NAME = "runtime";
     public static final String CALL_STACK_ELEMENT = "CallStackElement";
@@ -32,7 +34,7 @@ public class Constant {
     public static final Module BALLERINA_RUNTIME_PKG_ID = new Module(BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX,
             PACKAGE_NAME, PACKAGE_VERSION);
 
-    public Constant() {
+    public Constants() {
 
     }
 }
