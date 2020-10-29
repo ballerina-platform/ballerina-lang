@@ -164,7 +164,7 @@ public class Quuz {
 }
 
 public function testSubtypingAgainstConcreteReturnType() {
-    Bar bar = new Baz(); // OK
+    Bar bar = new Baz();
     Baz baz = new Bar(); // OK
     Bar bar2 = new Qux(); // OK
 

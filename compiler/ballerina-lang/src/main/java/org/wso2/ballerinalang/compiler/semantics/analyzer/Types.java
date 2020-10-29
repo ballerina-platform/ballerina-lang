@@ -578,10 +578,6 @@ public class Types {
             return isAssignable(resolvedSourceType, target, unresolvedTypes);
         }
 
-        if (targetTag == TypeTags.PARAMETERIZED_TYPE) {
-            return isAssignable(source, typeBuilder.build(target), unresolvedTypes);
-        }
-
         if (sourceTag == TypeTags.BYTE && targetTag == TypeTags.INT) {
             return true;
         }

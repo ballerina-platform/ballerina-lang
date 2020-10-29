@@ -90,6 +90,7 @@ public class VariableReturnTypeTest {
                 " (other|error)'", 143, 5);
         validateError(errors, indx++, "a function with a non-'external' function body cannot be a dependently-typed " +
                 "function", 143, 64);
+        validateError(errors, indx++, "incompatible types: expected 'Bar', found 'Baz'", 167, 15);
         validateError(errors, indx++, "incompatible types: expected 'Quux', found 'Qux'", 171, 17);
         validateError(errors, indx++, "incompatible types: expected 'Qux', found 'Quux'", 172, 15);
         validateError(errors, indx++, "incompatible types: expected 'Baz', found 'Quux'", 173, 16);
