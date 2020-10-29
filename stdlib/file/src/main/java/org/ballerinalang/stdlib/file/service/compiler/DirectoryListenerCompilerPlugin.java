@@ -31,11 +31,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 import java.util.List;
 
+import static io.ballerina.tools.diagnostics.DiagnosticSeverity.ERROR;
 import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.FILE_SYSTEM_EVENT;
 import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.RESOURCE_NAME_ON_CREATE;
 import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.RESOURCE_NAME_ON_DELETE;
 import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.RESOURCE_NAME_ON_MODIFY;
-import static org.ballerinalang.util.diagnostic.DiagnosticKind.ERROR;
 
 /**
  * Compiler plugin for validating Directory Listener.

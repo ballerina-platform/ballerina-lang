@@ -23,7 +23,6 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.ballerinalang.util.diagnostic.DiagnosticKind;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -147,40 +146,12 @@ public class BLangDiagnosticLog implements DiagnosticLog {
 
     @Override
     @Deprecated
-    public void logDiagnostic(DiagnosticKind kind, Location location, CharSequence message) {
-        DiagnosticSeverity severity;
-        switch (kind) {
-            case ERROR:
-                severity = DiagnosticSeverity.ERROR;
-                break;
-            case WARNING:
-                severity = DiagnosticSeverity.WARNING;
-                break;
-            case NOTE:
-            default:
-                severity = DiagnosticSeverity.INFO;
-                break;
-        }
-
+    public void logDiagnostic(DiagnosticSeverity severity, Location location, CharSequence message) {
         reportDiagnostic(null, location, message.toString(), severity);
     }
 
     @Override
-    public void logDiagnostic(DiagnosticKind kind, PackageID pkgId, Location location, CharSequence message) {
-        DiagnosticSeverity severity;
-        switch (kind) {
-            case ERROR:
-                severity = DiagnosticSeverity.ERROR;
-                break;
-            case WARNING:
-                severity = DiagnosticSeverity.WARNING;
-                break;
-            case NOTE:
-            default:
-                severity = DiagnosticSeverity.INFO;
-                break;
-        }
-
+    public void logDiagnostic(DiagnosticSeverity severity, PackageID pkgId, Location location, CharSequence message) {
         reportDiagnostic(pkgId, null, location, message.toString(), severity);
     }
 

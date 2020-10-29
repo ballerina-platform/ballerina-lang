@@ -19,13 +19,13 @@
 package org.ballerinalang.observability.anaylze;
 
 import com.google.gson.JsonElement;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
 import org.ballerinalang.observability.anaylze.model.CUnitASTHolder;
 import org.ballerinalang.observability.anaylze.model.PkgASTHolder;
-import org.ballerinalang.util.diagnostic.DiagnosticKind;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectoryManager;
@@ -178,7 +178,7 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
             JsonElement jsonAST = TextDocumentFormatUtil.generateJSON(cUnit, new HashMap<>(), visibleEPsByNode);
             cUnitASTHolder.setAst(jsonAST);
         } catch (JSONGenerationException e) {
-            diagnosticLog.logDiagnostic(DiagnosticKind.WARNING, cUnit.getPosition(),
+            diagnosticLog.logDiagnostic(DiagnosticSeverity.WARNING, cUnit.getPosition(),
                     "Error while generating json AST for " + cUnit.name + ". " + e.getMessage());
         }
         return cUnitASTHolder;
