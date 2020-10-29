@@ -719,8 +719,13 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         pkgNode.globalVars.forEach(globalVar -> {
-            BLangAssignment assignment = createAssignmentStmt(globalVar);
-            if (assignment.expr != null) {
+
+            if (globalVar.expr != null) {
+                // Create ternary expression for configurable variables
+                if (Symbols.isFlagOn(globalVar.symbol.flags, Flags.CONFIGURABLE)) {
+                    globalVar.expr  = createTernaryExprFromConfigurable(globalVar);
+                }
+                BLangAssignment assignment = createAssignmentStmt(globalVar);
                 initFnBody.stmts.add(assignment);
             }
         });
@@ -763,6 +768,16 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         initFuncIndex = 0;
         result = pkgNode;
+    }
+    
+    private BLangTernaryExpr createTernaryExprFromConfigurable(BLangSimpleVariable configurableVar) {
+        BLangInvocation hasValueInvocation = createLangLibInvocationNode();
+        BLangInvocation getValueInvocation = createLangLibInvocationNode();
+
+        BLangTernaryExpr ternaryExpr = ASTBuilderUtil.createTernaryExpr(configurableVar.pos, hasValueInvocation,
+                getValueInvocation, configurableVar.expr);
+
+        return rewrite(ternaryExpr, env);
     }
 
     private void desugarClassDefinitions(List<TopLevelNode> topLevelNodes) {

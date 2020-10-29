@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
@@ -385,6 +386,18 @@ public class ASTBuilderUtil {
         unaryExpr.operator = kind;
         unaryExpr.opSymbol = symbol;
         return unaryExpr;
+    }
+
+    static BLangTernaryExpr createTernaryExpr(DiagnosticPos pos,
+                                              BLangExpression conditionExpr,
+                                              BLangExpression thenExpr,
+                                              BLangExpression elseExpr) {
+        final BLangTernaryExpr ternaryExprExpr = (BLangTernaryExpr) TreeBuilder.createTernaryExpressionNode();
+        ternaryExprExpr.pos = pos;
+        ternaryExprExpr.expr = conditionExpr;
+        ternaryExprExpr.thenExpr = thenExpr;
+        ternaryExprExpr.elseExpr = elseExpr;
+        return ternaryExprExpr;
     }
 
     static BLangTypedescExpr createTypeofExpr(DiagnosticPos pos, BType type, BType resolvedType) {

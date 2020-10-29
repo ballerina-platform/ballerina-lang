@@ -4314,6 +4314,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLSimpleVar.flagSet.add(Flag.PUBLIC);
             }
         }
+        // TODO change this after parser supports configurable
+        bLSimpleVar.flagSet.add(Flag.CONFIGURABLE);
 
         if (isFinal) {
             markVariableAsFinal(bLSimpleVar);
