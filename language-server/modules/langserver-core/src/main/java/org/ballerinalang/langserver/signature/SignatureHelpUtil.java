@@ -20,8 +20,8 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.types.FieldSymbol;
 import io.ballerina.compiler.api.types.TypeSymbol;
-import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.ObjectTypeSymbol;
 import io.ballerina.compiler.api.types.RecordTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
@@ -399,19 +399,19 @@ public class SignatureHelpUtil {
             return Optional.empty();
         }
 
-        List<FieldDescriptor> fieldDescriptors = new ArrayList<>();
+        List<FieldSymbol> fieldSymbols = new ArrayList<>();
 
         if (CommonUtil.getRawType(typeDescriptor.get()).kind() == TypeDescKind.OBJECT) {
-            fieldDescriptors.addAll(((ObjectTypeSymbol) CommonUtil
+            fieldSymbols.addAll(((ObjectTypeSymbol) CommonUtil
                     .getRawType(typeDescriptor.get())).fieldDescriptors());
         } else if (CommonUtil.getRawType(typeDescriptor.get()).kind() == TypeDescKind.RECORD) {
-            fieldDescriptors.addAll(((RecordTypeSymbol) CommonUtil
+            fieldSymbols.addAll(((RecordTypeSymbol) CommonUtil
                     .getRawType(typeDescriptor.get())).fieldDescriptors());
         }
 
-        return fieldDescriptors.stream()
+        return fieldSymbols.stream()
                 .filter(fieldDescriptor -> fieldDescriptor.name().equals(fieldName))
-                .map(FieldDescriptor::typeDescriptor)
+                .map(FieldSymbol::typeDescriptor)
                 .findAny();
     }
 

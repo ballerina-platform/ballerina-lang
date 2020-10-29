@@ -20,8 +20,8 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.api.types.FieldSymbol;
 import io.ballerina.compiler.api.types.TypeSymbol;
-import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.RecordTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
@@ -104,7 +104,7 @@ public class MappingConstructorExpressionNodeContext extends
         }
         Optional<RecordTypeSymbol> recordTypeDesc = this.getRecordTypeDesc(context, node);
         if (recordTypeDesc.isPresent()) {
-            List<FieldDescriptor> fields = new ArrayList<>(recordTypeDesc.get().fieldDescriptors());
+            List<FieldSymbol> fields = new ArrayList<>(recordTypeDesc.get().fieldDescriptors());
             // TODO: Revamp the implementation
 //            completionItems.addAll(BLangRecordLiteralUtil.getSpreadCompletionItems(context, recordType));
             completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(context, fields));
@@ -190,7 +190,7 @@ public class MappingConstructorExpressionNodeContext extends
         return Optional.empty();
     }
 
-    private List<LSCompletionItem> getVariableCompletionsForFields(LSContext ctx, List<FieldDescriptor> recordFields) {
+    private List<LSCompletionItem> getVariableCompletionsForFields(LSContext ctx, List<FieldSymbol> recordFields) {
         List<Symbol> visibleSymbols = ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
         Map<String, TypeSymbol> fieldTypeMap = new HashMap<>();
         recordFields.forEach(fieldDesc -> fieldTypeMap.put(fieldDesc.name(), fieldDesc.typeDescriptor()));
@@ -242,7 +242,7 @@ public class MappingConstructorExpressionNodeContext extends
         RecordTypeSymbol recordType = record.get();
         Collections.reverse(fieldNames);
         for (String fieldName : fieldNames) {
-            Optional<FieldDescriptor> fieldDesc = recordType.fieldDescriptors().stream()
+            Optional<FieldSymbol> fieldDesc = recordType.fieldDescriptors().stream()
                     .filter(fieldDescriptor -> fieldDescriptor.name().equals(fieldName))
                     .findAny();
             if (fieldDesc.isEmpty()

@@ -21,7 +21,7 @@ import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.types.ArrayTypeSymbol;
 import io.ballerina.compiler.api.types.TypeSymbol;
-import io.ballerina.compiler.api.types.FieldDescriptor;
+import io.ballerina.compiler.api.types.FieldSymbol;
 import io.ballerina.compiler.api.types.RecordTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import org.ballerinalang.langserver.common.CommonKeys;
@@ -184,7 +184,7 @@ public class AnnotationUtil {
             }
             if (resultType.isPresent() && (resultType.get().kind() == TypeDescKind.RECORD
                     || resultType.get().kind() == TypeDescKind.MAP)) {
-                List<FieldDescriptor> requiredFields = new ArrayList<>();
+                List<FieldSymbol> requiredFields = new ArrayList<>();
                 annotationStart.append(" ").append(CommonKeys.OPEN_BRACE_KEY).append(LINE_SEPARATOR);
                 if (resultType.get().kind() == TypeDescKind.RECORD) {
                     requiredFields.addAll(CommonUtil.getMandatoryRecordFields((RecordTypeSymbol) resultType.get()));

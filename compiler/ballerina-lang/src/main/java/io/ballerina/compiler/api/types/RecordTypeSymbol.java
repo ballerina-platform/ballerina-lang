@@ -32,7 +32,7 @@ public interface RecordTypeSymbol extends TypeSymbol {
      *
      * @return {@link List} of ballerina field
      */
-    List<FieldDescriptor> fieldDescriptors();
+    List<FieldSymbol> fieldDescriptors();
 
     /**
      * Whether inclusive record ot not.

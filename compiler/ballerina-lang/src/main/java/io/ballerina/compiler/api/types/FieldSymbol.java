@@ -27,7 +27,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public interface FieldDescriptor {
+public interface FieldSymbol {
 
     /**
      * Get the field name.

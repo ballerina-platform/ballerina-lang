@@ -41,7 +41,7 @@ public interface ObjectTypeSymbol extends TypeSymbol {
      *
      * @return {@link List} of object fields
      */
-    List<FieldDescriptor> fieldDescriptors();
+    List<FieldSymbol> fieldDescriptors();
 
     /**
      * Get the list of methods.

@@ -20,7 +20,7 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.types.TypeSymbol;
-import io.ballerina.compiler.api.types.FieldDescriptor;
+import io.ballerina.compiler.api.types.FieldSymbol;
 import io.ballerina.compiler.api.types.FunctionTypeSymbol;
 import io.ballerina.compiler.api.types.RecordTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
@@ -290,7 +290,7 @@ public class CommonUtil {
      * @return {@link List}     List of completion items for the struct fields
      */
     public static List<LSCompletionItem> getRecordFieldCompletionItems(LSContext context,
-                                                                       List<FieldDescriptor> fields) {
+                                                                       List<FieldSymbol> fields) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         fields.forEach(field -> {
             String insertText = getRecordFieldCompletionInsertText(field, 0);
@@ -314,12 +314,12 @@ public class CommonUtil {
      * @param fields  List of fields
      * @return {@link LSCompletionItem}   Completion Item to fill all the options
      */
-    public static LSCompletionItem getFillAllStructFieldsItem(LSContext context, List<FieldDescriptor> fields) {
+    public static LSCompletionItem getFillAllStructFieldsItem(LSContext context, List<FieldSymbol> fields) {
         List<String> fieldEntries = new ArrayList<>();
 
-        for (FieldDescriptor fieldDescriptor : fields) {
-            String defaultFieldEntry = fieldDescriptor.name()
-                    + CommonKeys.PKG_DELIMITER_KEYWORD + " " + getDefaultValueForType(fieldDescriptor.typeDescriptor());
+        for (FieldSymbol fieldSymbol : fields) {
+            String defaultFieldEntry = fieldSymbol.name()
+                    + CommonKeys.PKG_DELIMITER_KEYWORD + " " + getDefaultValueForType(fieldSymbol.typeDescriptor());
             fieldEntries.add(defaultFieldEntry);
         }
 
@@ -577,7 +577,7 @@ public class CommonUtil {
      * @param recordType record type descriptor to evaluate
      * @return {@link List} of required fields captured
      */
-    public static List<FieldDescriptor> getMandatoryRecordFields(RecordTypeSymbol recordType) {
+    public static List<FieldSymbol> getMandatoryRecordFields(RecordTypeSymbol recordType) {
         return recordType.fieldDescriptors().stream()
                 .filter(field -> !field.hasDefaultValue() && !field.isOptional())
                 .collect(Collectors.toList());
@@ -589,11 +589,11 @@ public class CommonUtil {
      * @param bField BField to evaluate
      * @return {@link String} Insert text
      */
-    public static String getRecordFieldCompletionInsertText(FieldDescriptor bField, int tabOffset) {
+    public static String getRecordFieldCompletionInsertText(FieldSymbol bField, int tabOffset) {
         TypeSymbol fieldType = bField.typeDescriptor();
         StringBuilder insertText = new StringBuilder(bField.name() + ": ");
         if (fieldType.kind() == TypeDescKind.RECORD) {
-            List<FieldDescriptor> requiredFields = getMandatoryRecordFields((RecordTypeSymbol) fieldType);
+            List<FieldSymbol> requiredFields = getMandatoryRecordFields((RecordTypeSymbol) fieldType);
             if (requiredFields.isEmpty()) {
                 insertText.append("{").append("${1}}");
                 return insertText.toString();
@@ -601,7 +601,7 @@ public class CommonUtil {
             insertText.append("{").append(LINE_SEPARATOR);
             int tabCount = tabOffset;
             List<String> requiredFieldInsertTexts = new ArrayList<>();
-            for (FieldDescriptor field : requiredFields) {
+            for (FieldSymbol field : requiredFields) {
                 String fieldText = String.join("", Collections.nCopies(tabCount + 1, "\t")) +
                         getRecordFieldCompletionInsertText(field, tabCount) +
                         String.join("", Collections.nCopies(tabCount, "\t"));

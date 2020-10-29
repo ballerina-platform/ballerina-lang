@@ -22,7 +22,7 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaDocumentation;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.types.TypeSymbol;
-import io.ballerina.compiler.api.types.FieldDescriptor;
+import io.ballerina.compiler.api.types.FieldSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -33,13 +33,13 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class BallerinaFieldDescriptor implements FieldDescriptor {
+public class BallerinaFieldSymbol implements FieldSymbol {
 
     private final Documentation docAttachment;
     private final BField bField;
     private final TypeSymbol typeDescriptor;
 
-    public BallerinaFieldDescriptor(BField bField) {
+    public BallerinaFieldSymbol(BField bField) {
         this.bField = bField;
         this.typeDescriptor = TypesFactory.getTypeDescriptor(bField.getType());
         this.docAttachment = new BallerinaDocumentation(bField.symbol.markdownDocumentation);

@@ -19,8 +19,8 @@ package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.TypesFactory;
+import io.ballerina.compiler.api.types.FieldSymbol;
 import io.ballerina.compiler.api.types.TypeSymbol;
-import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -36,7 +36,7 @@ import java.util.StringJoiner;
  * @since 2.0.0
  */
 public class RecordTypeSymbol extends AbstractTypeSymbol implements io.ballerina.compiler.api.types.RecordTypeSymbol {
-    private List<FieldDescriptor> fieldDescriptors;
+    private List<FieldSymbol> fieldSymbols;
     private final boolean isInclusive;
     private TypeSymbol restTypeDesc;
 
@@ -51,15 +51,15 @@ public class RecordTypeSymbol extends AbstractTypeSymbol implements io.ballerina
      * @return {@link List} of ballerina field
      */
     @Override
-    public List<FieldDescriptor> fieldDescriptors() {
-        if (this.fieldDescriptors == null) {
-            this.fieldDescriptors = new ArrayList<>();
+    public List<FieldSymbol> fieldDescriptors() {
+        if (this.fieldSymbols == null) {
+            this.fieldSymbols = new ArrayList<>();
             for (BField field : ((BRecordType) this.getBType()).fields.values()) {
-                this.fieldDescriptors.add(new BallerinaFieldDescriptor(field));
+                this.fieldSymbols.add(new BallerinaFieldSymbol(field));
             }
         }
 
-        return this.fieldDescriptors;
+        return this.fieldSymbols;
     }
 
     /**
@@ -88,8 +88,8 @@ public class RecordTypeSymbol extends AbstractTypeSymbol implements io.ballerina
         } else {
             joiner = new StringJoiner("; ", "{| ", " |}");
         }
-        for (FieldDescriptor fieldDescriptor : this.fieldDescriptors()) {
-            String ballerinaFieldSignature = fieldDescriptor.signature();
+        for (FieldSymbol fieldSymbol : this.fieldDescriptors()) {
+            String ballerinaFieldSignature = fieldSymbol.signature();
             joiner.add(ballerinaFieldSignature);
         }
 

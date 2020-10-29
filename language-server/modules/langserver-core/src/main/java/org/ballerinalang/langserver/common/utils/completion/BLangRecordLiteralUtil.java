@@ -21,8 +21,8 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.api.types.FieldSymbol;
 import io.ballerina.compiler.api.types.TypeSymbol;
-import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.FunctionTypeSymbol;
 import io.ballerina.compiler.api.types.MapTypeSymbol;
 import io.ballerina.compiler.api.types.RecordTypeSymbol;
@@ -110,7 +110,7 @@ public class BLangRecordLiteralUtil {
             return Collections.singletonList(memberType.get());
         } else if (typeDesc.kind() == TypeDescKind.RECORD) {
             return ((RecordTypeSymbol) typeDesc).fieldDescriptors().stream()
-                    .map(FieldDescriptor::typeDescriptor)
+                    .map(FieldSymbol::typeDescriptor)
                     .collect(Collectors.toList());
         }
 

@@ -20,7 +20,7 @@ package io.ballerina.compiler.api.impl.types;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
-import io.ballerina.compiler.api.types.FieldDescriptor;
+import io.ballerina.compiler.api.types.FieldSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -42,7 +42,7 @@ public class ObjectTypeSymbol extends AbstractTypeSymbol implements io.ballerina
 
     private List<TypeQualifier> typeQualifiers;
     // private TypeDescriptor objectTypeReference;
-    private List<FieldDescriptor> objectFields;
+    private List<FieldSymbol> objectFields;
     private List<MethodSymbol> methods;
     private MethodSymbol initFunction;
 
@@ -71,11 +71,11 @@ public class ObjectTypeSymbol extends AbstractTypeSymbol implements io.ballerina
     }
 
     @Override
-    public List<FieldDescriptor> fieldDescriptors() {
+    public List<FieldSymbol> fieldDescriptors() {
         if (this.objectFields == null) {
             this.objectFields = new ArrayList<>();
             for (BField field : ((BObjectType) this.getBType()).fields.values()) {
-                this.objectFields.add(new BallerinaFieldDescriptor(field));
+                this.objectFields.add(new BallerinaFieldSymbol(field));
             }
         }
         return objectFields;

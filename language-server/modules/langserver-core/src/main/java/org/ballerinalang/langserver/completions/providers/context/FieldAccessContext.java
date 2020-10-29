@@ -19,8 +19,8 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.types.FieldSymbol;
 import io.ballerina.compiler.api.types.TypeSymbol;
-import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.ObjectTypeSymbol;
 import io.ballerina.compiler.api.types.RecordTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
@@ -131,17 +131,17 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
             return Optional.empty();
         }
 
-        List<FieldDescriptor> fieldDescriptors = new ArrayList<>();
+        List<FieldSymbol> fieldSymbols = new ArrayList<>();
         TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor.get());
         if (rawType.kind() == TypeDescKind.OBJECT) {
-            fieldDescriptors.addAll(((ObjectTypeSymbol) rawType).fieldDescriptors());
+            fieldSymbols.addAll(((ObjectTypeSymbol) rawType).fieldDescriptors());
         } else if (rawType.kind() == TypeDescKind.RECORD) {
-            fieldDescriptors.addAll(((RecordTypeSymbol) rawType).fieldDescriptors());
+            fieldSymbols.addAll(((RecordTypeSymbol) rawType).fieldDescriptors());
         }
 
-        return fieldDescriptors.stream()
+        return fieldSymbols.stream()
                 .filter(fieldDescriptor -> fieldDescriptor.name().equals(fieldName))
-                .map(FieldDescriptor::typeDescriptor)
+                .map(FieldSymbol::typeDescriptor)
                 .findAny();
     }
 

@@ -26,8 +26,8 @@ import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.types.ArrayTypeSymbol;
+import io.ballerina.compiler.api.types.FieldSymbol;
 import io.ballerina.compiler.api.types.TypeSymbol;
-import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.FunctionTypeSymbol;
 import io.ballerina.compiler.api.types.FutureTypeSymbol;
 import io.ballerina.compiler.api.types.MapTypeSymbol;
@@ -164,8 +164,8 @@ public class TypedescriptorTest {
         ObjectTypeSymbol type = (ObjectTypeSymbol) typeRef.typeDescriptor();
         assertEquals(type.kind(), OBJECT);
 
-        List<FieldDescriptor> fields = type.fieldDescriptors();
-        FieldDescriptor field = fields.get(0);
+        List<FieldSymbol> fields = type.fieldDescriptors();
+        FieldSymbol field = fields.get(0);
         assertEquals(fields.size(), 1);
         assertEquals(field.name(), "name");
         assertEquals(field.typeDescriptor().kind(), STRING);
@@ -188,8 +188,8 @@ public class TypedescriptorTest {
         assertFalse(type.inclusive());
         assertFalse(type.restTypeDescriptor().isPresent());
 
-        List<FieldDescriptor> fields = type.fieldDescriptors();
-        FieldDescriptor field = fields.get(0);
+        List<FieldSymbol> fields = type.fieldDescriptors();
+        FieldSymbol field = fields.get(0);
         assertEquals(fields.size(), 1);
         assertEquals(field.name(), "path");
         assertEquals(field.typeDescriptor().kind(), STRING);
