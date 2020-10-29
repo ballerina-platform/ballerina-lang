@@ -24,7 +24,7 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
 import io.ballerina.compiler.api.impl.symbols.BallerinaServiceSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaTypeDefinitionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaWorkerSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaXMLNSSymbol;
@@ -229,9 +229,9 @@ public class SymbolFactory {
      * @param name       symbol name
      * @return {@link}
      */
-    public static BallerinaTypeSymbol createTypeDefinition(BTypeSymbol typeSymbol, String name) {
-        BallerinaTypeSymbol.TypeDefSymbolBuilder symbolBuilder =
-                new BallerinaTypeSymbol.TypeDefSymbolBuilder(name, typeSymbol.pkgID, typeSymbol);
+    public static BallerinaTypeDefinitionSymbol createTypeDefinition(BTypeSymbol typeSymbol, String name) {
+        BallerinaTypeDefinitionSymbol.TypeDefSymbolBuilder symbolBuilder =
+                new BallerinaTypeDefinitionSymbol.TypeDefSymbolBuilder(name, typeSymbol.pkgID, typeSymbol);
 
         if (isFlagOn(typeSymbol.flags, Flags.PUBLIC)) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);

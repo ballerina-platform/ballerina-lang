@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.api.types.ObjectTypeSymbol;
@@ -49,7 +50,7 @@ public class SymbolUtil {
         TypeSymbol typeDescriptor;
         switch (symbol.kind()) {
             case TYPE:
-                typeDescriptor = ((io.ballerina.compiler.api.symbols.TypeSymbol) symbol).typeDescriptor();
+                typeDescriptor = ((TypeDefinitionSymbol) symbol).typeDescriptor();
                 break;
             case VARIABLE:
                 typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
@@ -71,7 +72,7 @@ public class SymbolUtil {
         TypeSymbol typeDescriptor;
         switch (symbol.kind()) {
             case TYPE:
-                typeDescriptor = ((io.ballerina.compiler.api.symbols.TypeSymbol) symbol).typeDescriptor();
+                typeDescriptor = ((TypeDefinitionSymbol) symbol).typeDescriptor();
                 break;
             case VARIABLE:
                 typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
@@ -96,7 +97,7 @@ public class SymbolUtil {
         }
         switch (symbol.kind()) {
             case TYPE:
-                return Optional.ofNullable(((io.ballerina.compiler.api.symbols.TypeSymbol) symbol).typeDescriptor());
+                return Optional.ofNullable(((TypeDefinitionSymbol) symbol).typeDescriptor());
             case VARIABLE:
                 return Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor());
             case ANNOTATION:

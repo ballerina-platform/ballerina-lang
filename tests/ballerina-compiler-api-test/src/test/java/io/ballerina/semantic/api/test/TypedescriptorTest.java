@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.types.ArrayTypeSymbol;
 import io.ballerina.compiler.api.types.FieldSymbol;
@@ -160,7 +161,7 @@ public class TypedescriptorTest {
     public void testObjectType() {
         Symbol symbol = getSymbol(28, 6);
         TypeReferenceTypeSymbol typeRef =
-                (TypeReferenceTypeSymbol) ((io.ballerina.compiler.api.symbols.TypeSymbol) symbol).typeDescriptor();
+                (TypeReferenceTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor();
         ObjectTypeSymbol type = (ObjectTypeSymbol) typeRef.typeDescriptor();
         assertEquals(type.kind(), OBJECT);
 
@@ -182,7 +183,7 @@ public class TypedescriptorTest {
     public void testRecordType() {
         Symbol symbol = getSymbol(18, 5);
         TypeReferenceTypeSymbol typeRef =
-                (TypeReferenceTypeSymbol) ((io.ballerina.compiler.api.symbols.TypeSymbol) symbol).typeDescriptor();
+                (TypeReferenceTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor();
         RecordTypeSymbol type = (RecordTypeSymbol) typeRef.typeDescriptor();
         assertEquals(type.kind(), RECORD);
         assertFalse(type.inclusive());

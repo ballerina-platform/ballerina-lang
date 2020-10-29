@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.api.types.FunctionTypeSymbol;
@@ -233,7 +234,7 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
                 return Optional.of(((VariableSymbol) scopedSymbol).typeDescriptor());
             }
             case TYPE: {
-                return Optional.of(((io.ballerina.compiler.api.symbols.TypeSymbol) scopedSymbol).typeDescriptor());
+                return Optional.of(((TypeDefinitionSymbol) scopedSymbol).typeDescriptor());
             }
         }
         return Optional.empty();

@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.types.ObjectTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -65,7 +65,7 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
              */
             List<ObjectTypeSymbol> filteredList = visibleSymbols.stream()
                     .filter(SymbolUtil::isListener)
-                    .map(symbol -> (ObjectTypeSymbol) ((TypeSymbol) symbol).typeDescriptor())
+                    .map(symbol -> (ObjectTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor())
                     .collect(Collectors.toList());
             for (ObjectTypeSymbol objectTypeDesc : filteredList) {
                 completionItems.add(this.getExplicitNewCompletionItem(objectTypeDesc, context));
@@ -80,7 +80,7 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
             }
             List<ObjectTypeSymbol> filteredList = module.get().allSymbols().stream()
                     .filter(SymbolUtil::isListener)
-                    .map(symbol -> (ObjectTypeSymbol) ((TypeSymbol) symbol).typeDescriptor())
+                    .map(symbol -> (ObjectTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor())
                     .collect(Collectors.toList());
             for (ObjectTypeSymbol objectTypeDesc : filteredList) {
                 completionItems.add(this.getExplicitNewCompletionItem(objectTypeDesc, context));

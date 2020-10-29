@@ -19,6 +19,7 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.types.TypeSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -34,18 +35,18 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class BallerinaTypeSymbol extends BallerinaSymbol implements io.ballerina.compiler.api.symbols.TypeSymbol {
+public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements TypeDefinitionSymbol {
 
     private final Set<Qualifier> qualifiers;
     private final TypeSymbol typeDescriptor;
     private final boolean deprecated;
     private final boolean readonly;
 
-    protected BallerinaTypeSymbol(String name,
-                                  PackageID moduleID,
-                                  Set<Qualifier> qualifiers,
-                                  TypeSymbol typeDescriptor,
-                                  BSymbol bSymbol) {
+    protected BallerinaTypeDefinitionSymbol(String name,
+                                            PackageID moduleID,
+                                            Set<Qualifier> qualifiers,
+                                            TypeSymbol typeDescriptor,
+                                            BSymbol bSymbol) {
         super(name, moduleID, SymbolKind.TYPE, bSymbol);
         this.qualifiers = Collections.unmodifiableSet(qualifiers);
         this.typeDescriptor = typeDescriptor;
@@ -103,9 +104,9 @@ public class BallerinaTypeSymbol extends BallerinaSymbol implements io.ballerina
         }
 
         @Override
-        public BallerinaTypeSymbol build() {
-            return new BallerinaTypeSymbol(this.name, this.moduleID, this.qualifiers, this.typeDescriptor,
-                    this.bSymbol);
+        public BallerinaTypeDefinitionSymbol build() {
+            return new BallerinaTypeDefinitionSymbol(this.name, this.moduleID, this.qualifiers, this.typeDescriptor,
+                                                     this.bSymbol);
         }
     }
 }

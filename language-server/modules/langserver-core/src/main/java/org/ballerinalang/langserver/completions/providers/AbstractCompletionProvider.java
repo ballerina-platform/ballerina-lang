@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.symbols.WorkerSymbol;
 import io.ballerina.compiler.api.types.TypeSymbol;
@@ -218,7 +219,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @return {@link List} list of filtered type entries
      */
     @Deprecated
-    protected List<io.ballerina.compiler.api.symbols.TypeSymbol> filterTypesInModule(ModuleSymbol moduleSymbol) {
+    protected List<TypeDefinitionSymbol> filterTypesInModule(ModuleSymbol moduleSymbol) {
         return moduleSymbol.typeDefinitions();
     }
 

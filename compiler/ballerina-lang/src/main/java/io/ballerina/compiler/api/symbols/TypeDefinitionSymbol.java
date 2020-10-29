@@ -17,12 +17,14 @@
  */
 package io.ballerina.compiler.api.symbols;
 
+import io.ballerina.compiler.api.types.TypeSymbol;
+
 /**
  * Represents a ballerina type definition.
  *
  * @since 2.0.0
  */
-public interface TypeSymbol extends Symbol, Qualifiable, Deprecatable {
+public interface TypeDefinitionSymbol extends Symbol, Qualifiable, Deprecatable {
 
     /**
      * Get the module qualified name.
@@ -36,7 +38,7 @@ public interface TypeSymbol extends Symbol, Qualifiable, Deprecatable {
      *
      * @return {@link io.ballerina.compiler.api.types.TypeSymbol} attached
      */
-    io.ballerina.compiler.api.types.TypeSymbol typeDescriptor();
+    TypeSymbol typeDescriptor();
 
     /**
      * Checks whether the type is a readonly type.

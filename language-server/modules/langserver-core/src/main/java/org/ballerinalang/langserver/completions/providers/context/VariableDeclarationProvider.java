@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.types.ObjectTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
@@ -106,10 +106,10 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
             String identifier = ((SimpleNameReferenceNode) typeDescriptorNode).name().text();
             objectType = visibleSymbols.stream()
                     .filter(symbol -> symbol.kind() == SymbolKind.TYPE
-                            && CommonUtil.getRawType(((TypeSymbol) symbol).typeDescriptor()).kind()
+                            && CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()).kind()
                             == TypeDescKind.OBJECT
                             && symbol.name().equals(identifier))
-                    .map(symbol -> (ObjectTypeSymbol) CommonUtil.getRawType(((TypeSymbol) symbol).typeDescriptor()))
+                    .map(symbol -> (ObjectTypeSymbol) CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()))
                     .findAny();
         } else {
             objectType = Optional.empty();
