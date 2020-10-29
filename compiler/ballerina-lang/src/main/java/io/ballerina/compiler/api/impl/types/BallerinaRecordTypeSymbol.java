@@ -20,6 +20,7 @@ package io.ballerina.compiler.api.impl.types;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.types.FieldSymbol;
+import io.ballerina.compiler.api.types.RecordTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -35,12 +36,12 @@ import java.util.StringJoiner;
  *
  * @since 2.0.0
  */
-public class RecordTypeSymbol extends AbstractTypeSymbol implements io.ballerina.compiler.api.types.RecordTypeSymbol {
+public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements RecordTypeSymbol {
     private List<FieldSymbol> fieldSymbols;
     private final boolean isInclusive;
     private TypeSymbol restTypeDesc;
 
-    public RecordTypeSymbol(ModuleID moduleID, BRecordType recordType) {
+    public BallerinaRecordTypeSymbol(ModuleID moduleID, BRecordType recordType) {
         super(TypeDescKind.RECORD, moduleID, recordType);
         this.isInclusive = !recordType.sealed;
     }

@@ -20,39 +20,39 @@ package io.ballerina.compiler.api.impl.types;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.TypeDescTypeSymbol;
 import io.ballerina.compiler.api.types.TypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 
 import java.util.Optional;
 
 /**
- * Represents an array type descriptor.
+ * Represents a typeDesc type descriptor.
  *
  * @since 2.0.0
  */
-public class ArrayTypeSymbol extends AbstractTypeSymbol implements io.ballerina.compiler.api.types.ArrayTypeSymbol {
+public class BallerinaTypeDescTypeSymbol extends AbstractTypeSymbol implements TypeDescTypeSymbol {
 
-    private TypeSymbol memberTypeDesc;
+    private TypeSymbol typeParameter;
 
-    public ArrayTypeSymbol(ModuleID moduleID, BArrayType arrayType) {
-        super(TypeDescKind.ARRAY, moduleID, arrayType);
+    public BallerinaTypeDescTypeSymbol(ModuleID moduleID, BTypedescType typedescType) {
+        super(TypeDescKind.TYPEDESC, moduleID, typedescType);
     }
 
     @Override
-    public TypeSymbol memberTypeDescriptor() {
-        if (this.memberTypeDesc == null) {
-            this.memberTypeDesc = TypesFactory.getTypeDescriptor(((BArrayType) this.getBType()).eType);
+    public Optional<TypeSymbol> typeParameter() {
+        if (this.typeParameter == null) {
+            this.typeParameter = TypesFactory.getTypeDescriptor(((BTypedescType) this.getBType()).constraint);
         }
-        return memberTypeDesc;
+
+        return Optional.ofNullable(this.typeParameter);
     }
 
     @Override
     public String signature() {
-        return memberTypeDescriptor().signature() + "[]";
-    }
-
-    @Override
-    public Optional<Integer> size() {
-        return Optional.empty();
+        if (this.typeParameter().isPresent()) {
+            return this.kind().name() + "<" + this.typeParameter().get().signature() + ">";
+        }
+        return this.kind().name();
     }
 }

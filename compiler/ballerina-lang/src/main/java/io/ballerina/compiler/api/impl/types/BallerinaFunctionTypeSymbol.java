@@ -20,6 +20,7 @@ package io.ballerina.compiler.api.impl.types;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.impl.TypesFactory;
+import io.ballerina.compiler.api.types.FunctionTypeSymbol;
 import io.ballerina.compiler.api.types.ParameterKind;
 import io.ballerina.compiler.api.types.ParameterSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
@@ -42,15 +43,14 @@ import static java.util.stream.Collectors.toList;
  *
  * @since 2.0.0
  */
-public class FunctionTypeSymbol extends AbstractTypeSymbol
-        implements io.ballerina.compiler.api.types.FunctionTypeSymbol {
+public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements FunctionTypeSymbol {
 
     private List<ParameterSymbol> requiredParams;
     private ParameterSymbol restParam;
     private TypeSymbol returnType;
     private final BInvokableTypeSymbol typeSymbol;
 
-    public FunctionTypeSymbol(ModuleID moduleID, BInvokableTypeSymbol invokableSymbol) {
+    public BallerinaFunctionTypeSymbol(ModuleID moduleID, BInvokableTypeSymbol invokableSymbol) {
         super(TypeDescKind.FUNCTION, moduleID, invokableSymbol.type);
         this.typeSymbol = invokableSymbol;
     }

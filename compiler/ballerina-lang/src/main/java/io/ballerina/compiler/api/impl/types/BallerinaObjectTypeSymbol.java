@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.types.FieldSymbol;
+import io.ballerina.compiler.api.types.ObjectTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -38,7 +39,7 @@ import java.util.StringJoiner;
  *
  * @since 2.0.0
  */
-public class ObjectTypeSymbol extends AbstractTypeSymbol implements io.ballerina.compiler.api.types.ObjectTypeSymbol {
+public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements ObjectTypeSymbol {
 
     private List<TypeQualifier> typeQualifiers;
     // private TypeDescriptor objectTypeReference;
@@ -46,7 +47,7 @@ public class ObjectTypeSymbol extends AbstractTypeSymbol implements io.ballerina
     private List<MethodSymbol> methods;
     private MethodSymbol initFunction;
 
-    public ObjectTypeSymbol(ModuleID moduleID, BObjectType objectType) {
+    public BallerinaObjectTypeSymbol(ModuleID moduleID, BObjectType objectType) {
         super(TypeDescKind.OBJECT, moduleID, objectType);
         // TODO: Fix this
         // objectTypeReference = null;

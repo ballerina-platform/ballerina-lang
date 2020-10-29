@@ -19,40 +19,42 @@ package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.TypesFactory;
+import io.ballerina.compiler.api.types.FutureTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 
 import java.util.Optional;
 
 /**
- * Represents a typeDesc type descriptor.
+ * Represents an future type descriptor.
  *
  * @since 2.0.0
  */
-public class TypeDescTypeSymbol extends AbstractTypeSymbol
-        implements io.ballerina.compiler.api.types.TypeDescTypeSymbol {
+public class BallerinaFutureTypeSymbol extends AbstractTypeSymbol implements FutureTypeSymbol {
 
-    private TypeSymbol typeParameter;
+    private TypeSymbol memberTypeDesc;
 
-    public TypeDescTypeSymbol(ModuleID moduleID, BTypedescType typedescType) {
-        super(TypeDescKind.TYPEDESC, moduleID, typedescType);
+    public BallerinaFutureTypeSymbol(ModuleID moduleID, BFutureType futureType) {
+        super(TypeDescKind.FUTURE, moduleID, futureType);
     }
 
     @Override
     public Optional<TypeSymbol> typeParameter() {
-        if (this.typeParameter == null) {
-            this.typeParameter = TypesFactory.getTypeDescriptor(((BTypedescType) this.getBType()).constraint);
+        if (this.memberTypeDesc == null) {
+            this.memberTypeDesc = TypesFactory.getTypeDescriptor(((BFutureType) this.getBType()).constraint);
         }
-
-        return Optional.ofNullable(this.typeParameter);
+        return Optional.ofNullable(this.memberTypeDesc);
     }
 
     @Override
     public String signature() {
-        if (this.typeParameter().isPresent()) {
-            return this.kind().name() + "<" + this.typeParameter().get().signature() + ">";
+        String memberSignature;
+        if (typeParameter().isPresent()) {
+            memberSignature = typeParameter().get().signature();
+        } else {
+            memberSignature = "()";
         }
-        return this.kind().name();
+        return "future<" + memberSignature + ">";
     }
 }

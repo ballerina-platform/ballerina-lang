@@ -19,6 +19,7 @@ package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.TypesFactory;
+import io.ballerina.compiler.api.types.StreamTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -32,11 +33,11 @@ import java.util.StringJoiner;
  *
  * @since 2.0.0
  */
-public class StreamTypeSymbol extends AbstractTypeSymbol implements io.ballerina.compiler.api.types.StreamTypeSymbol {
+public class BallerinaStreamTypeSymbol extends AbstractTypeSymbol implements StreamTypeSymbol {
 
     private List<TypeSymbol> typeParameters;
 
-    public StreamTypeSymbol(ModuleID moduleID, BStreamType streamType) {
+    public BallerinaStreamTypeSymbol(ModuleID moduleID, BStreamType streamType) {
         super(TypeDescKind.STREAM, moduleID, streamType);
     }
 

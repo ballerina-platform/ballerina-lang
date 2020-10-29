@@ -19,6 +19,7 @@ package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.TypesFactory;
+import io.ballerina.compiler.api.types.MapTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -30,11 +31,11 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class MapTypeSymbol extends AbstractTypeSymbol implements io.ballerina.compiler.api.types.MapTypeSymbol {
+public class BallerinaMapTypeSymbol extends AbstractTypeSymbol implements MapTypeSymbol {
 
     private TypeSymbol memberTypeDesc;
 
-    public MapTypeSymbol(ModuleID moduleID, BMapType mapType) {
+    public BallerinaMapTypeSymbol(ModuleID moduleID, BMapType mapType) {
         super(TypeDescKind.MAP, moduleID, mapType);
     }
 

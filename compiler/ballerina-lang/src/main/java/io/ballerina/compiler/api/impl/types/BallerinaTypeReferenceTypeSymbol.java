@@ -20,6 +20,7 @@ package io.ballerina.compiler.api.impl.types;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.types.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -29,14 +30,13 @@ import org.wso2.ballerinalang.compiler.util.Names;
  *
  * @since 2.0.0
  */
-public class TypeReferenceTypeSymbol extends AbstractTypeSymbol
-        implements io.ballerina.compiler.api.types.TypeReferenceTypeSymbol {
+public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol implements TypeReferenceTypeSymbol {
 
     private static final String ANON_ORG = "$anon";
     private final String definitionName;
     private TypeSymbol typeDescriptorImpl;
 
-    public TypeReferenceTypeSymbol(ModuleID moduleID, BType bType, String definitionName) {
+    public BallerinaTypeReferenceTypeSymbol(ModuleID moduleID, BType bType, String definitionName) {
         super(TypeDescKind.TYPE_REFERENCE, moduleID, bType);
         this.definitionName = definitionName;
     }

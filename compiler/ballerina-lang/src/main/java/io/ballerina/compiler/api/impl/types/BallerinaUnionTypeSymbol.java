@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeSymbol;
+import io.ballerina.compiler.api.types.UnionTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -37,15 +38,15 @@ import java.util.StringJoiner;
  *
  * @since 2.0.0
  */
-public class UnionTypeSymbol extends AbstractTypeSymbol implements io.ballerina.compiler.api.types.UnionTypeSymbol {
+public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements UnionTypeSymbol {
 
     private List<TypeSymbol> memberTypes;
 
-    public UnionTypeSymbol(ModuleID moduleID, BUnionType unionType) {
+    public BallerinaUnionTypeSymbol(ModuleID moduleID, BUnionType unionType) {
         super(TypeDescKind.UNION, moduleID, unionType);
     }
 
-    public UnionTypeSymbol(ModuleID moduleID, BFiniteType finiteType) {
+    public BallerinaUnionTypeSymbol(ModuleID moduleID, BFiniteType finiteType) {
         super(TypeDescKind.UNION, moduleID, finiteType);
     }
 
@@ -60,7 +61,7 @@ public class UnionTypeSymbol extends AbstractTypeSymbol implements io.ballerina.
                 }
             } else {
                 for (BLangExpression value : ((BFiniteType) this.getBType()).getValueSpace()) {
-                    members.add(new SingletonTypeSymbol(moduleID(), value, value.type));
+                    members.add(new BallerinaSingletonTypeSymbol(moduleID(), value, value.type));
                 }
             }
 

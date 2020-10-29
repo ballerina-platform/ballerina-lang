@@ -18,27 +18,23 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.types.NilTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 
 /**
- * Represents a singleton type descriptor.
+ * Represents the nil type descriptor.
  *
  * @since 2.0.0
  */
-public class SingletonTypeSymbol extends AbstractTypeSymbol
-        implements io.ballerina.compiler.api.types.SingletonTypeSymbol {
+public class BallerinaNilTypeSymbol extends AbstractTypeSymbol implements NilTypeSymbol {
 
-    private String typeName;
-
-    public SingletonTypeSymbol(ModuleID moduleID, BLangExpression shape, BType bType) {
-        super(TypeDescKind.SINGLETON, moduleID, bType);
-        this.typeName = shape.toString();
+    public BallerinaNilTypeSymbol(ModuleID moduleID, BNilType nilType) {
+        super(TypeDescKind.NIL, moduleID, nilType);
     }
 
     @Override
     public String signature() {
-        return this.typeName;
+        return "()";
     }
 }

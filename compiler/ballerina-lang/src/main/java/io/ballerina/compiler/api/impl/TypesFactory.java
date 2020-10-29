@@ -18,21 +18,21 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.types.ArrayTypeSymbol;
-import io.ballerina.compiler.api.impl.types.ErrorTypeSymbol;
-import io.ballerina.compiler.api.impl.types.FunctionTypeSymbol;
-import io.ballerina.compiler.api.impl.types.FutureTypeSymbol;
-import io.ballerina.compiler.api.impl.types.MapTypeSymbol;
-import io.ballerina.compiler.api.impl.types.NilTypeSymbol;
-import io.ballerina.compiler.api.impl.types.ObjectTypeSymbol;
-import io.ballerina.compiler.api.impl.types.RecordTypeSymbol;
-import io.ballerina.compiler.api.impl.types.SimpleTypeSymbol;
-import io.ballerina.compiler.api.impl.types.SingletonTypeSymbol;
-import io.ballerina.compiler.api.impl.types.StreamTypeSymbol;
-import io.ballerina.compiler.api.impl.types.TupleTypeSymbol;
-import io.ballerina.compiler.api.impl.types.TypeDescTypeSymbol;
-import io.ballerina.compiler.api.impl.types.TypeReferenceTypeSymbol;
-import io.ballerina.compiler.api.impl.types.UnionTypeSymbol;
+import io.ballerina.compiler.api.impl.types.BallerinaArrayTypeSymbol;
+import io.ballerina.compiler.api.impl.types.BallerinaErrorTypeSymbol;
+import io.ballerina.compiler.api.impl.types.BallerinaFunctionTypeSymbol;
+import io.ballerina.compiler.api.impl.types.BallerinaFutureTypeSymbol;
+import io.ballerina.compiler.api.impl.types.BallerinaMapTypeSymbol;
+import io.ballerina.compiler.api.impl.types.BallerinaNilTypeSymbol;
+import io.ballerina.compiler.api.impl.types.BallerinaObjectTypeSymbol;
+import io.ballerina.compiler.api.impl.types.BallerinaRecordTypeSymbol;
+import io.ballerina.compiler.api.impl.types.BallerinaSimpleTypeSymbol;
+import io.ballerina.compiler.api.impl.types.BallerinaSingletonTypeSymbol;
+import io.ballerina.compiler.api.impl.types.BallerinaStreamTypeSymbol;
+import io.ballerina.compiler.api.impl.types.BallerinaTupleTypeSymbol;
+import io.ballerina.compiler.api.impl.types.BallerinaTypeDescTypeSymbol;
+import io.ballerina.compiler.api.impl.types.BallerinaTypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.impl.types.BallerinaUnionTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeSymbol;
 import org.ballerinalang.model.types.TypeKind;
@@ -86,49 +86,49 @@ public class TypesFactory {
         ModuleID moduleID = bType.tsymbol == null ? null : new BallerinaModuleID(bType.tsymbol.pkgID);
 
         if (isTypeReference(bType, rawTypeOnly)) {
-            return new TypeReferenceTypeSymbol(moduleID, bType, bType.tsymbol.getName().getValue());
+            return new BallerinaTypeReferenceTypeSymbol(moduleID, bType, bType.tsymbol.getName().getValue());
         }
 
         switch (bType.getKind()) {
             case OBJECT:
-                return new ObjectTypeSymbol(moduleID, (BObjectType) bType);
+                return new BallerinaObjectTypeSymbol(moduleID, (BObjectType) bType);
             case RECORD:
-                return new RecordTypeSymbol(moduleID, (BRecordType) bType);
+                return new BallerinaRecordTypeSymbol(moduleID, (BRecordType) bType);
             case ERROR:
-                return new ErrorTypeSymbol(moduleID, (BErrorType) bType);
+                return new BallerinaErrorTypeSymbol(moduleID, (BErrorType) bType);
             case UNION:
-                return new UnionTypeSymbol(moduleID, (BUnionType) bType);
+                return new BallerinaUnionTypeSymbol(moduleID, (BUnionType) bType);
             case FUTURE:
-                return new FutureTypeSymbol(moduleID, (BFutureType) bType);
+                return new BallerinaFutureTypeSymbol(moduleID, (BFutureType) bType);
             case MAP:
-                return new MapTypeSymbol(moduleID, (BMapType) bType);
+                return new BallerinaMapTypeSymbol(moduleID, (BMapType) bType);
             case STREAM:
-                return new StreamTypeSymbol(moduleID, (BStreamType) bType);
+                return new BallerinaStreamTypeSymbol(moduleID, (BStreamType) bType);
             case ARRAY:
-                return new ArrayTypeSymbol(moduleID, (BArrayType) bType);
+                return new BallerinaArrayTypeSymbol(moduleID, (BArrayType) bType);
             case TUPLE:
-                return new TupleTypeSymbol(moduleID, (BTupleType) bType);
+                return new BallerinaTupleTypeSymbol(moduleID, (BTupleType) bType);
             case TYPEDESC:
-                return new TypeDescTypeSymbol(moduleID, (BTypedescType) bType);
+                return new BallerinaTypeDescTypeSymbol(moduleID, (BTypedescType) bType);
             case NIL:
-                return new NilTypeSymbol(moduleID, (BNilType) bType);
+                return new BallerinaNilTypeSymbol(moduleID, (BNilType) bType);
             case FINITE:
                 BFiniteType finiteType = (BFiniteType) bType;
                 Set<BLangExpression> valueSpace = finiteType.getValueSpace();
 
                 if (valueSpace.size() == 1) {
                     BLangExpression shape = valueSpace.iterator().next();
-                    return new SingletonTypeSymbol(moduleID, shape, bType);
+                    return new BallerinaSingletonTypeSymbol(moduleID, shape, bType);
                 }
 
-                return new UnionTypeSymbol(moduleID, finiteType);
+                return new BallerinaUnionTypeSymbol(moduleID, finiteType);
             case OTHER:
                 if (bType instanceof BInvokableType) {
-                    return new FunctionTypeSymbol(moduleID, (BInvokableTypeSymbol) bType.tsymbol);
+                    return new BallerinaFunctionTypeSymbol(moduleID, (BInvokableTypeSymbol) bType.tsymbol);
                 }
                 // fall through
             default:
-                return new SimpleTypeSymbol(moduleID, bType);
+                return new BallerinaSimpleTypeSymbol(moduleID, bType);
         }
     }
 

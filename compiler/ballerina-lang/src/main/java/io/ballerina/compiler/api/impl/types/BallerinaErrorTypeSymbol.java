@@ -19,6 +19,7 @@ package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.TypesFactory;
+import io.ballerina.compiler.api.types.ErrorTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
@@ -29,11 +30,11 @@ import org.wso2.ballerinalang.compiler.util.Names;
  *
  * @since 2.0.0
  */
-public class ErrorTypeSymbol extends AbstractTypeSymbol implements io.ballerina.compiler.api.types.ErrorTypeSymbol {
+public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements ErrorTypeSymbol {
 
     private TypeSymbol detail;
 
-    public ErrorTypeSymbol(ModuleID moduleID, BErrorType errorType) {
+    public BallerinaErrorTypeSymbol(ModuleID moduleID, BErrorType errorType) {
         super(TypeDescKind.ERROR, moduleID, errorType);
     }
 

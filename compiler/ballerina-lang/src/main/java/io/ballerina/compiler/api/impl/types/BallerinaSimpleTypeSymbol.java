@@ -19,6 +19,7 @@ package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.TypesFactory;
+import io.ballerina.compiler.api.types.SimpleTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
@@ -26,11 +27,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
  * 
  * @since 2.0.0
  */
-public class SimpleTypeSymbol extends AbstractTypeSymbol implements io.ballerina.compiler.api.types.SimpleTypeSymbol {
+public class BallerinaSimpleTypeSymbol extends AbstractTypeSymbol implements SimpleTypeSymbol {
 
     private String typeName;
 
-    public SimpleTypeSymbol(ModuleID moduleID, BType bType) {
+    public BallerinaSimpleTypeSymbol(ModuleID moduleID, BType bType) {
         super(TypesFactory.getTypeDescKind(bType.getKind()), moduleID, bType);
         this.typeName = bType.getKind().typeName();
     }

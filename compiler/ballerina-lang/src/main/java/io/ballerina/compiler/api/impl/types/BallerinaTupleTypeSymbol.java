@@ -19,6 +19,7 @@ package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.TypesFactory;
+import io.ballerina.compiler.api.types.TupleTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -34,12 +35,12 @@ import java.util.StringJoiner;
  *
  * @since 2.0.0
  */
-public class TupleTypeSymbol extends AbstractTypeSymbol implements io.ballerina.compiler.api.types.TupleTypeSymbol {
+public class BallerinaTupleTypeSymbol extends AbstractTypeSymbol implements TupleTypeSymbol {
 
     private List<TypeSymbol> memberTypes;
     private TypeSymbol restTypeDesc;
 
-    public TupleTypeSymbol(ModuleID moduleID, BTupleType tupleType) {
+    public BallerinaTupleTypeSymbol(ModuleID moduleID, BTupleType tupleType) {
         super(TypeDescKind.TUPLE, moduleID, tupleType);
     }
 

@@ -19,41 +19,41 @@ package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.TypesFactory;
+import io.ballerina.compiler.api.types.ArrayTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 
 import java.util.Optional;
 
 /**
- * Represents an future type descriptor.
+ * Represents an array type descriptor.
  *
  * @since 2.0.0
  */
-public class FutureTypeSymbol extends AbstractTypeSymbol implements io.ballerina.compiler.api.types.FutureTypeSymbol {
+public class BallerinaArrayTypeSymbol extends AbstractTypeSymbol implements ArrayTypeSymbol {
 
     private TypeSymbol memberTypeDesc;
 
-    public FutureTypeSymbol(ModuleID moduleID, BFutureType futureType) {
-        super(TypeDescKind.FUTURE, moduleID, futureType);
+    public BallerinaArrayTypeSymbol(ModuleID moduleID, BArrayType arrayType) {
+        super(TypeDescKind.ARRAY, moduleID, arrayType);
     }
 
     @Override
-    public Optional<TypeSymbol> typeParameter() {
+    public TypeSymbol memberTypeDescriptor() {
         if (this.memberTypeDesc == null) {
-            this.memberTypeDesc = TypesFactory.getTypeDescriptor(((BFutureType) this.getBType()).constraint);
+            this.memberTypeDesc = TypesFactory.getTypeDescriptor(((BArrayType) this.getBType()).eType);
         }
-        return Optional.ofNullable(this.memberTypeDesc);
+        return memberTypeDesc;
     }
 
     @Override
     public String signature() {
-        String memberSignature;
-        if (typeParameter().isPresent()) {
-            memberSignature = typeParameter().get().signature();
-        } else {
-            memberSignature = "()";
-        }
-        return "future<" + memberSignature + ">";
+        return memberTypeDescriptor().signature() + "[]";
+    }
+
+    @Override
+    public Optional<Integer> size() {
+        return Optional.empty();
     }
 }
