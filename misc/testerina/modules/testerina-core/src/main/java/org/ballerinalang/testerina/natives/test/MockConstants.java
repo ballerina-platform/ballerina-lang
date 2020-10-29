@@ -30,9 +30,11 @@ public class MockConstants {
     public static final String FUNCTION_CALL_PLACEHOLDER = "__CALL__";
     public static final String ANY_TYPE_PLACEHOLDER = "__ANY__";
     public static final String MOCK_STRAND_NAME = "mock";
+    public static final String ERROR_DETAILS = "Detail";
 
     // constants to represent error messages
     public static final BPackage TEST_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "test", "0.0.0");
+    public static final String TEST_PACKAGE_PREFIX = "{ballerina/test}";
     public static final String FUNCTION_NOT_FOUND_ERROR = "FunctionNotFoundError";
     public static final String INVALID_MOCK_OBJECT_ERROR = "InvalidObjectError";
     public static final String FUNCTION_SIGNATURE_MISMATCH_ERROR = "FunctionSignatureMismatchError";
