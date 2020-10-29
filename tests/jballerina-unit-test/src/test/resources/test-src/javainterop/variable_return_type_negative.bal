@@ -163,6 +163,14 @@ public class Quuz {
     public function get(typedesc<int|string> td) returns td|error = external;
 }
 
+class Corge {
+    function get(typedesc<anydata> td, typedesc<anydata> td2) returns td2|error = external;
+}
+
+class Grault {
+    function get(typedesc<anydata> td, typedesc<anydata> td2) returns td|error = external;
+}
+
 public function testSubtypingAgainstConcreteReturnType() {
     Bar bar = new Baz();
     Baz baz = new Bar(); // OK
@@ -172,4 +180,7 @@ public function testSubtypingAgainstConcreteReturnType() {
     Qux qux = new Quux();
     Baz baz2 = new Quux();
     Quuz quuz = new Qux();
+
+    Corge corge = new Grault();
+    Grault grault = new Corge();
 }

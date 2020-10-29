@@ -259,4 +259,8 @@ public class VariableReturnType {
 
         return getValue(describingType);
     }
+
+    public static Object getValueForParamOne(ObjectValue objectValue, BTypedesc td1, BTypedesc td2) {
+        return getIntFieldOrDefault(objectValue, td1);
+    }
 }

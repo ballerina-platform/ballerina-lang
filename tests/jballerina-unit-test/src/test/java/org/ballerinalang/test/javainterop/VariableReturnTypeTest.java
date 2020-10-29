@@ -90,11 +90,13 @@ public class VariableReturnTypeTest {
                 " (other|error)'", 143, 5);
         validateError(errors, indx++, "a function with a non-'external' function body cannot be a dependently-typed " +
                 "function", 143, 64);
-        validateError(errors, indx++, "incompatible types: expected 'Bar', found 'Baz'", 167, 15);
-        validateError(errors, indx++, "incompatible types: expected 'Quux', found 'Qux'", 171, 17);
-        validateError(errors, indx++, "incompatible types: expected 'Qux', found 'Quux'", 172, 15);
-        validateError(errors, indx++, "incompatible types: expected 'Baz', found 'Quux'", 173, 16);
-        validateError(errors, indx++, "incompatible types: expected 'Quuz', found 'Qux'", 174, 17);
+        validateError(errors, indx++, "incompatible types: expected 'Bar', found 'Baz'", 175, 15);
+        validateError(errors, indx++, "incompatible types: expected 'Quux', found 'Qux'", 179, 17);
+        validateError(errors, indx++, "incompatible types: expected 'Qux', found 'Quux'", 180, 15);
+        validateError(errors, indx++, "incompatible types: expected 'Baz', found 'Quux'", 181, 16);
+        validateError(errors, indx++, "incompatible types: expected 'Quuz', found 'Qux'", 182, 17);
+        validateError(errors, indx++, "incompatible types: expected 'Corge', found 'Grault'", 184, 19);
+        validateError(errors, indx++, "incompatible types: expected 'Grault', found 'Corge'", 185, 21);
 
         Assert.assertEquals(errors.getErrorCount(), indx);
     }

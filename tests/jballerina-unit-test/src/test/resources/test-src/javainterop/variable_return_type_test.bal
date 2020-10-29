@@ -411,6 +411,26 @@ public class Quux {
     } external;
 }
 
+class Corge {
+    int i = 100;
+
+    function get(typedesc<anydata> td2, typedesc<anydata> td) returns td2|error = @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getValueForParamOne",
+        paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
+}
+
+class Grault {
+    int i = 200;
+
+    function get(typedesc<anydata> td, typedesc<anydata> td2) returns td|error = @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getValueForParamOne",
+        paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
+}
+
 public function testSubtypingWithDependentlyTypedMethods() {
     Bar bar = new;
     Baz baz = new;
@@ -436,6 +456,14 @@ public function testSubtypingWithDependentlyTypedMethods() {
     assert(true, <any> baz is Bar);
     assert(false, <any> new Quux() is Qux);
     assert(false, <any> qux is Quux);
+
+    Corge corge = new Grault();
+    assert(200, <int> corge.get(int, string));
+    assert("Hello World!", <string> corge.get(string, int));
+
+    Grault grault = new Corge();
+    assert(100, <int> grault.get(int, string));
+    assert("Hello World!", <string> grault.get(string, float));
 }
 
 // Util functions

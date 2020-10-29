@@ -569,13 +569,7 @@ public class Types {
         }
 
         if (sourceTag == TypeTags.PARAMETERIZED_TYPE) {
-            BType resolvedSourceType = typeBuilder.build(source);
-
-            if (targetTag == TypeTags.PARAMETERIZED_TYPE) {
-                return isAssignable(resolvedSourceType, typeBuilder.build(target), unresolvedTypes);
-            }
-
-            return isAssignable(resolvedSourceType, target, unresolvedTypes);
+            return isParameterizedTypeAssignable(source, target, unresolvedTypes);
         }
 
         if (sourceTag == TypeTags.BYTE && targetTag == TypeTags.INT) {
@@ -729,6 +723,38 @@ public class Types {
 
         return sourceTag == TypeTags.ARRAY && targetTag == TypeTags.ARRAY &&
                 isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes);
+    }
+
+    private boolean isParameterizedTypeAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
+        BType resolvedSourceType = typeBuilder.build(source);
+
+        if (target.tag != TypeTags.PARAMETERIZED_TYPE) {
+            return isAssignable(resolvedSourceType, target, unresolvedTypes);
+        }
+
+        BParameterizedType parameterizedSource = (BParameterizedType) source;
+        BParameterizedType parameterizedTarget = (BParameterizedType) target;
+
+        BVarSymbol parameterizedSourceSymbol = parameterizedSource.paramSymbol;
+        int index = 0;
+
+        List<BVarSymbol> sourceParams = ((BInvokableSymbol) parameterizedSourceSymbol.owner).params;
+
+        for (int i = 0; i < sourceParams.size(); i++) {
+            if (sourceParams.get(i) == parameterizedSourceSymbol) {
+                index = i;
+                break;
+            }
+        }
+
+        BVarSymbol parameterizedTargetSymbol = parameterizedTarget.paramSymbol;
+        List<BVarSymbol> targetParams = ((BInvokableSymbol) parameterizedTargetSymbol.owner).params;
+
+        if (index >= targetParams.size() || targetParams.get(index) != parameterizedTargetSymbol) {
+            return false;
+        }
+
+        return isAssignable(resolvedSourceType, typeBuilder.build(target), unresolvedTypes);
     }
 
     private boolean isAssignableRecordType(BRecordType recordType, BType type, Set<TypePair> unresolvedTypes) {
