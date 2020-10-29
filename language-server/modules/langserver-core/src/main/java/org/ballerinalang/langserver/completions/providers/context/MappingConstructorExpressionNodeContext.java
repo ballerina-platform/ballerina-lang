@@ -282,10 +282,10 @@ public class MappingConstructorExpressionNodeContext extends
                 .filter(symbol -> symbol.kind() == SymbolKind.ANNOTATION && symbol.name().equals(annotationName))
                 .map(entry -> ((AnnotationSymbol) entry).typeDescriptor().orElse(null))
                 .findAny();
-        if (bTypeSymbol.isEmpty() || bTypeSymbol.get().kind() != TypeDescKind.RECORD) {
+        if (bTypeSymbol.isEmpty() || CommonUtil.getRawType(bTypeSymbol.get()).kind() != TypeDescKind.RECORD) {
             return Optional.empty();
         }
-        return Optional.of((RecordTypeDescriptor) bTypeSymbol.get());
+        return Optional.of((RecordTypeDescriptor) CommonUtil.getRawType(bTypeSymbol.get()));
     }
 
     private List<LSCompletionItem> getComputedNameCompletions(LSContext context) {
