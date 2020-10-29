@@ -136,8 +136,12 @@ public type MockHttpClientSigErr client object {
 // 1.1) when the user-defined mock object is empty
 @test:Config {}
 function testEmptyUserDefinedObj() {
-  email:SmtpClient mockSmtpClient = <email:SmtpClient>test:mock(email:SmtpClient, new MockSmtpClientEmpty());
-  smtpClient = mockSmtpClient;
+  email:SmtpClient|error mockSmtpClient = trap <email:SmtpClient>test:mock(email:SmtpClient, new MockSmtpClientEmpty());
+  if(mockSmtpClient is error){
+    test:assertEquals(mockSmtpClient.reason(), "InvalidObjectError");
+  }else{
+    test:assertFail(msg="Empty user defined object to mock not handled!");
+  }
 }
 
 
@@ -145,37 +149,56 @@ function testEmptyUserDefinedObj() {
 @test:Config {}
 function testUserDefinedMockRegisterCases() {
   email:SmtpClient mockSmtpClient = <email:SmtpClient>test:mock(email:SmtpClient, new MockSmtpClient());
-  test:prepare(mockSmtpClient).when("send").doNothing();
+  error? result = trap test:prepare(mockSmtpClient).when("send").doNothing();
+  if(result is error){
+    test:assertEquals(result.reason(), "InvalidObjectError");
+  }else{
+    test:assertFail(msg="Invalid object for mock object not handled!");
+  }
 }
 
 // 1.3) when the functions in mock is not available in the original
 @test:Config {}
 function testUserDefinedMockInvalidFunction() {
-  email:SmtpClient mockSmtpClient = <email:SmtpClient>test:mock(email:SmtpClient, new MockSmtpClientFuncErr());
-  smtpClient = mockSmtpClient;
-  error? sendNotificationResult = sendNotification(["user1@test.com"]);
+  email:SmtpClient|error mockSmtpClient = trap <email:SmtpClient>test:mock(email:SmtpClient, new MockSmtpClientFuncErr());
+  if(mockSmtpClient is error){
+    test:assertEquals(mockSmtpClient.reason(),"FunctionNotFoundError");
+  }else{
+    test:assertFail(msg="Missing function for mock object not handled!");
+  }
 }
 
 // 1.4.1) when the function return types do not match
 @test:Config {}
 function testUserDefinedMockFunctionSignatureMismatch() {
-  email:SmtpClient mockSmtpClient = <email:SmtpClient>test:mock(email:SmtpClient, new MockSmtpClientSigErr());
-  smtpClient = mockSmtpClient;
-  error? sendNotificationResult = sendNotification(["user1@test.com"]);
+  email:SmtpClient|error mockSmtpClient = trap <email:SmtpClient>test:mock(email:SmtpClient, new MockSmtpClientSigErr());
+  if(mockSmtpClient is error){
+    test:assertEquals(mockSmtpClient.reason(), "FunctionSignatureMismatchError");
+  }else{
+    test:assertFail(msg="Function signature mismatch for object not handled!");
+  }
 }
 
 // 1.4.2) when the function parameters do not match
 @test:Config {}
 function testUserDefinedMockFunctionSignatureMismatch2() {
-  email:SmtpClient mockSmtpClient = <email:SmtpClient>test:mock(email:SmtpClient, new MockSmtpClientSigErr2());
-  smtpClient = mockSmtpClient;
-  error? sendNotificationResult = sendNotification(["user1@test.com"]);
+  email:SmtpClient|error mockSmtpClient = trap <email:SmtpClient>test:mock(email:SmtpClient, new MockSmtpClientSigErr2());
+  if(mockSmtpClient is error){
+    test:assertEquals(mockSmtpClient.reason(), "FunctionSignatureMismatchError");
+  }else{
+    test:assertFail(msg="Function signature mismatch for object not handled!");
+  }
 }
 
 // 1.4.3
 @test:Config {}
 function testUserDefinedMockFunctionSignatureMismatch3() {
-  http:Client mockHttpClient = <http:Client>test:mock(http:Client, new MockHttpClientSigErr());
+  http:Client|error mockHttpClient = trap <http:Client>test:mock(http:Client, new MockHttpClientSigErr());
+  if(mockHttpClient is error){
+    test:assertEquals(mockHttpClient.reason(), "FunctionSignatureMismatchError");
+  }else{
+    test:assertFail(msg="Function signature mismatch for object not handled!");
+  }
 }
 
 # 2 - Validations for framework provided default mock object
@@ -184,35 +207,60 @@ function testUserDefinedMockFunctionSignatureMismatch3() {
 @test:Config {}
 function testDefaultMockInvalidFunctionName() {
   email:SmtpClient mockSmtpClient = <email:SmtpClient>test:mock(email:SmtpClient);
-  test:prepare(mockSmtpClient).when("get").doNothing();
+  error? result = trap test:prepare(mockSmtpClient).when("get").doNothing();
+  if(result is error){
+    test:assertEquals(result.reason(), "FunctionNotFoundError");
+  }else{
+    test:assertFail(msg="Invalid function name for mock object not handled!");
+  }
 }
 
 // 2.2) call doNothing() - the function has a return type specified
 @test:Config {}
 function testDefaultMockWrongAction() {
   http:Client mockHttpClient = <http:Client>test:mock(http:Client);
-  test:prepare(mockHttpClient).when("get").doNothing();
+  error? result = trap test:prepare(mockHttpClient).when("get").doNothing();
+  if(result is error){
+    test:assertEquals(result.reason(), "FunctionSignatureMismatchError");
+  }else{
+    test:assertFail(msg="Wrong mock action for object not handled!");
+  }
 }
 
 // 2.3) when the return value does not match the function return type
 @test:Config {}
 function testDefaultInvalidFunctionReturnValue() {
   http:Client mockHttpClient = <http:Client>test:mock(http:Client);
-  test:prepare(mockHttpClient).when("get").thenReturn("success");
+  error? result = trap test:prepare(mockHttpClient).when("get").thenReturn("success");
+    if(result is error){
+    test:assertEquals(result.reason(), "FunctionSignatureMismatchError");
+  } else{
+    test:assertFail(msg="Invalid function return value for mock object not handled!");
+  }
 }
 
 // 2.4.1) when the number of arguments provided does not match the function signature
 @test:Config {}
 function testDefaultTooManyArgs() {
   http:Client mockHttpClient = <http:Client>test:mock(http:Client);
-  test:prepare(mockHttpClient).when("get").withArguments("test", "", "").thenReturn(new http:Response());
+  error? result = trap test:prepare(mockHttpClient).when("get").withArguments("test", "", "").thenReturn(new http:Response());
+  if(result is error){
+    test:assertEquals(result.reason(), "FunctionSignatureMismatchError");
+  } else{
+    test:assertFail(msg="Too many arguments to mock object not handled!");
+  }
 }
 
 // 2.4.2) when the type of arguments provided does not match the function signature
 @test:Config {}
 function testDefaultIncompatibleArgs() {
   http:Client mockHttpClient = <http:Client>test:mock(http:Client);
-  test:prepare(mockHttpClient).when("get").withArguments(0).thenReturn(new http:Response());
+  error? result = trap test:prepare(mockHttpClient).when("get").withArguments(0).thenReturn(new http:Response());
+  if(result is error){
+    test:assertEquals(result.reason(), "FunctionSignatureMismatchError");
+  } else{
+    test:assertFail(msg="Incompatible arguments to mock object not handled!");
+  }
 }
 
 // 2.5) when the object does not have a member variable of specified name
@@ -220,15 +268,22 @@ function testDefaultIncompatibleArgs() {
 function testDefaultMockInvalidFieldName() {
   string mockClientUrl = "http://foo";
   http:Client mockHttpClient = <http:Client>test:mock(http:Client);
-  test:prepare(mockHttpClient).getMember("clientUrl").thenReturn(mockClientUrl);
-
-  clientEndpoint = mockHttpClient;
-  test:assertEquals(getClientUrl(), mockClientUrl);
+  error? result = trap test:prepare(mockHttpClient).getMember("clientUrl").thenReturn(mockClientUrl);
+  if(result is error){
+    test:assertEquals(result.reason(), "InvalidMemberFieldError");
+  } else{
+    test:assertFail(msg="Invalid field name for mock object not handled!");
+  }
 }
 
 // 2.6) when the member variable type does not match the return value
 @test:Config{}
 function testDefaultInvalidMemberReturnValue() {
   http:Client mockHttpClient = <http:Client>test:mock(http:Client);
-  test:prepare(mockHttpClient).getMember("url").thenReturn(());
+  error? result = trap test:prepare(mockHttpClient).getMember("url").thenReturn(());
+    if(result is error){
+    test:assertEquals(result.reason(), "InvalidMemberFieldError");
+  } else{
+    test:assertFail(msg="Invalid member return value for mock object not handled!");
+  }
 }

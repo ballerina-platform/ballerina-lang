@@ -63,8 +63,8 @@ public class MockTest extends BaseTestCase {
 
     @Test
     public void testObjectMocking() throws BallerinaTestException {
-        String msg1 = "7 passing";
-        String msg2 = "13 failing";
+        String msg1 = "20 passing";
+        String msg2 = "0 failing";
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
         balClient.runMain("test", new String[]{"--all"}, null,
