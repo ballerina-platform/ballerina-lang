@@ -20,12 +20,14 @@ package io.ballerina.projects.directory;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.ModuleConfig;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageId;
 import io.ballerina.projects.PackageName;
+import io.ballerina.projects.environment.Repository;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -42,11 +44,12 @@ public class PackageLoader {
                                             boolean isSingleFile,
                                             PackageDescriptor packageDescriptor) {
         final PackageData packageData = ProjectFiles.loadPackageData(packageDir, isSingleFile);
-        return createPackageConfig(packageData, packageDescriptor);
+        return createPackageConfig(packageData, packageDescriptor, null);
     }
 
     protected static PackageConfig createPackageConfig(PackageData packageData,
-                                                       PackageDescriptor packageDescriptor) {
+                                                       PackageDescriptor packageDescriptor,
+                                                       Repository repository) {
         // TODO PackageData should contain the packageName. This should come from the Ballerina.toml file.
         // TODO For now, I take the directory name as the project name. I am not handling the case where the
         //  directory name is not a valid Ballerina identifier.
@@ -54,26 +57,28 @@ public class PackageLoader {
         // TODO: Should replace with Ballerina Toml parser generic model.
 
         PackageName packageName = packageDescriptor.name();
-        PackageId packageId = PackageId.create(packageDescriptor.name().value());
+        PackageId packageId = PackageId.create(packageName.value());
 
         List<ModuleConfig> moduleConfigs = packageData.otherModules()
                 .stream()
-                .map(moduleData -> createModuleConfig(packageName, moduleData, packageId))
+                .map(moduleData -> createModuleConfig(packageDescriptor, moduleData, packageId))
                 .collect(Collectors.toList());
-        ModuleConfig defaultModuleConfig = createDefaultModuleData(packageName,
-                packageData.defaultModule(), packageId);
-        moduleConfigs.add(defaultModuleConfig);
-        return PackageConfig.from(packageId, packageData.packagePath(), packageDescriptor, moduleConfigs);
+        moduleConfigs.add(createDefaultModuleData(packageDescriptor, packageData.defaultModule(), packageId));
+        return PackageConfig.from(packageId, packageData.packagePath(), packageDescriptor, moduleConfigs, repository);
     }
 
-    private static ModuleConfig createDefaultModuleData(PackageName packageName,
+    private static ModuleConfig createDefaultModuleData(PackageDescriptor pkgDescriptor,
                                                         ModuleData moduleData,
                                                         PackageId packageId) {
-        ModuleName moduleName = ModuleName.from(packageName);
-        return createModuleConfig(moduleName, moduleData, packageId);
+        ModuleName moduleName = ModuleName.from(pkgDescriptor.name());
+        return createModuleConfig(createModuleDescriptor(pkgDescriptor, moduleName), moduleData, packageId);
     }
 
-    private static ModuleConfig createModuleConfig(PackageName packageName,
+    private static ModuleDescriptor createModuleDescriptor(PackageDescriptor pkgDesc, ModuleName moduleName) {
+        return ModuleDescriptor.from(pkgDesc.name(), pkgDesc.org(), pkgDesc.version(), moduleName);
+    }
+
+    private static ModuleConfig createModuleConfig(PackageDescriptor pkgDescriptor,
                                                    ModuleData moduleData,
                                                    PackageId packageId) {
         Path fileName = moduleData.moduleDirectoryPath().getFileName();
@@ -81,20 +86,19 @@ public class PackageLoader {
             // TODO Proper error handling
             throw new IllegalStateException("This branch cannot be reached");
         }
-        ModuleName moduleName = ModuleName.from(packageName, fileName.toString());
-        return createModuleConfig(moduleName, moduleData, packageId);
+        ModuleName moduleName = ModuleName.from(pkgDescriptor.name(), fileName.toString());
+        return createModuleConfig(createModuleDescriptor(pkgDescriptor, moduleName), moduleData, packageId);
     }
 
-    private static ModuleConfig createModuleConfig(ModuleName moduleName,
+    private static ModuleConfig createModuleConfig(ModuleDescriptor moduleDescriptor,
                                                    ModuleData moduleData,
                                                    PackageId packageId) {
         Path moduleDirPath = moduleData.moduleDirectoryPath();
-        ModuleId moduleId = ModuleId.create(moduleName.toString(), packageId);
+        ModuleId moduleId = ModuleId.create(moduleDescriptor.name().toString(), packageId);
 
         List<DocumentConfig> srcDocs = getDocumentConfigs(moduleId, moduleData.sourceDocs());
         List<DocumentConfig> testSrcDocs = getDocumentConfigs(moduleId, moduleData.testSourceDocs());
-        final ModuleConfig moduleConfig = ModuleConfig.from(moduleId, moduleName, moduleDirPath, srcDocs, testSrcDocs);
-        return moduleConfig;
+        return ModuleConfig.from(moduleId, moduleDescriptor, moduleDirPath, srcDocs, testSrcDocs);
     }
 
     private static List<DocumentConfig> getDocumentConfigs(ModuleId moduleId, List<DocumentData> documentData) {
