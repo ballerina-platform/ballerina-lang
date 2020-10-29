@@ -37,7 +37,7 @@ public class ConstantAccessTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/types/constant/access");
+        compileResult = BCompileUtil.compile("test-src/types/constant/AccessProject");
     }
 
     @Test(description = "Test accessing constant from other packages")

@@ -31,7 +31,7 @@ public class ConstantAccessNegativeTest {
 
     @Test
     public void accessPublicConstantFromOtherPackage() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/access");
+        CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/AccessProjectNegative");
         Assert.assertEquals(compileResult.getErrorCount(), 5);
         BAssertUtil.validateError(compileResult, 0, "attempt to refer to non-accessible symbol 'address'", 5, 16);
         BAssertUtil.validateError(compileResult, 1, "undefined symbol 'address'", 5, 16);
