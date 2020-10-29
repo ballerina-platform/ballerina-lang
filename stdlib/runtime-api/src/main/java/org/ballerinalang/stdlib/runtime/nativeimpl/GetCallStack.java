@@ -45,7 +45,8 @@ public class GetCallStack {
         for (int i = 0; i < filteredStack.size(); i++) {
             Object[] values = ErrorValue.getStackFrame(filteredStack.get(i));
             BMap<BString, Object> createRecordValue = ValueCreator.createRecordValue(ValueCreator.
-                            createRecordValue(Constants.BALLERINA_RUNTIME_PKG_ID, Constants.CALL_STACK_ELEMENT), values);
+                            createRecordValue(Constants.BALLERINA_RUNTIME_PKG_ID, Constants.CALL_STACK_ELEMENT),
+                    values);
             callStack.add(i, createRecordValue);
         }
         return callStack;
