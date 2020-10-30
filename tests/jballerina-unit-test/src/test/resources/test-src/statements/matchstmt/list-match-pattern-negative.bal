@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testListMatchPatternNegative() returns string {
-    any v1 = 0;
-    match v1 {
+function testListMatchPatternNegative1() returns string {
+    any v = 0;
+    match v {
         var a => {
             return "var a";
         }
@@ -24,16 +24,19 @@ function testListMatchPatternNegative() returns string {
             return "[1, 2]";
         }
     }
+}
 
-    any v2 = 0; // unreachable code
-    match v2 {
-        var a | [1, 2] => { // unreachable pattern, match patterns should contain same set of variables
-            return "var a | [1, 2]";
+function testListMatchPatternNegative2() {
+    any v = 0;
+    match v {
+        var a | [1, 2] => { // unreachable pattern, all match patterns should contain same set of variables
         }
     }
+}
 
-    int v3 = 2; // unreachable code
-    match v3 {
+function testListMatchPatternNegative3() returns string {
+    int v = 2;
+    match v {
         [1, 2] => { // pattern will not be matched
             return "[1, 2]";
         }
@@ -41,9 +44,12 @@ function testListMatchPatternNegative() returns string {
             return "[var a, var b]";
         }
     }
+    return "";
+}
 
-    [int, int] v5 = [1, 2];
-    match v5 {
+function testListMatchPatternNegative4() returns string {
+    [int, int] v = [1, 2];
+    match v {
         _ | [var a, var b] => { // unreachable pattern
             return "_ | [var a, var b]";
         }
@@ -64,6 +70,7 @@ function testListOfMatchPatternsNegative() returns string {
     match v2 {
         [var a, 2] | [var a, var b] | [var a, var b, var c] => { // match patterns should contain same set of variables
                                                                  // pattern will not be matched
+                                                                 // unreachable pattern
             return "match1";
         }
     }
@@ -73,7 +80,7 @@ function testListOfMatchPatternsNegative() returns string {
 
 const X = 2;
 const Y = 4;
-function testSameMatchPatternsNegative() {
+function testSameMatchPatternsNegative1() {
     [int, int] v = [1, 2];
     match v {
         [var a, 2] | [var a, 2] => { // unreachable pattern
@@ -95,4 +102,85 @@ function testSameMatchPatternsNegative() {
         [var a, 21] if a is int => { // unreachable pattern
         }
     }
+}
+
+function testSameMatchPatternsNegative2(any v) {
+    match v {
+        [var a, var b] => {}
+        [var c, var d] => {} // unreachable pattern
+    }
+}
+
+function testSameMatchPatternsNegative3(any v) {
+    match v {
+        [var a, ...var b] => {}
+        [var c, ...var d] => {} // unreachable pattern
+    }
+}
+
+function testSameMatchPatternsNegative4(any v) {
+    match v {
+        [var x, ...var y] => {}
+        [var a, var b, ...var c] => {} // unreachable pattern
+    }
+}
+
+function testSameMatchPatternsNegative5(any v) {
+    match v {
+        [var a, var b, ...var c] => {}
+        [var x, var y, ...var z] => {} // unreachable pattern
+    }
+}
+
+function testUnreachablePattern1() {
+    [int, int] v = [1, 3];
+
+    match v {
+        [var a, var b] => {
+        }
+        [1, 3] => { // unreachable pattern
+        }
+    }
+}
+
+function testUnreachablePattern2() {
+    [int, [string]] v = [1, ["3"]];
+
+    match v {
+        [var a, [var b]] => {
+        }
+        [1, ["3"]] => { // unreachable pattern
+        }
+    }
+}
+
+
+function testUnreachablePattern3() {
+    [int, [any]] v = [1, ["3"]];
+
+    match v {
+        [var a, [var b]] => {
+        }
+        [1, ["3"]] => { // unreachable pattern
+        }
+    }
+}
+
+function testUnreachablePattern4() {
+    [[int, string]] v = [[1, "3"]];
+
+    match v {
+        [[1, var b]] => {
+        }
+        [[1, "3"]] => { // not an unreachable pattern
+        }
+    }
+}
+
+function testUnreachablePattern5() {
+    [any, any] v = [1, 2];
+    match v {
+        [_, _] => {}
+        [1, 2] => {} // unreachable pattern
+     }
 }

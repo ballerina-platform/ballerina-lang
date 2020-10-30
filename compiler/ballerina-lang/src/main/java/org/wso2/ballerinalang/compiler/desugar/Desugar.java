@@ -3131,10 +3131,9 @@ public class Desugar extends BLangNodeVisitor {
         mainBlockStmt.addStatement(ifStmt);
 
         List<BLangMatchPattern> matchPatterns = listMatchPattern.matchPatterns;
-        BLangExpression condition = createConditionForListMemberPattern(0, matchPatterns.get(0),
-                tempCastVarDef, ifBlock, matchPatterns.get(0).type, pos);
+        BLangExpression condition = ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true);
 
-        for (int i = 1; i < matchPatterns.size(); i++) {
+        for (int i = 0; i < matchPatterns.size(); i++) {
             BLangExpression memberPatternCondition = createConditionForListMemberPattern(i, matchPatterns.get(i),
                     tempCastVarDef, ifBlock, matchPatterns.get(i).type, pos);
             if (memberPatternCondition.getKind() == NodeKind.LITERAL) {

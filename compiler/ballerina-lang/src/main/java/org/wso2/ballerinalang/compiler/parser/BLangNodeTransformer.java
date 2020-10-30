@@ -3841,6 +3841,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private BLangMatchPattern transformMatchPattern(Node matchPattern, DiagnosticPos matchPatternPos) {
 
         if (matchPattern.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
+                ((SimpleNameReferenceNode) matchPattern).name().isMissing()) {
+            dlog.error(matchPatternPos, DiagnosticCode.MATCH_PATTERN_NOT_SUPPORTED);
+            return null;
+        } else if (matchPattern.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
                 ((SimpleNameReferenceNode) matchPattern).name().text().equals("_")) {
             // wildcard match
             BLangWildCardMatchPattern bLangWildCardMatchPattern =
@@ -3887,8 +3891,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLangListMatchPattern.pos = matchPatternPos;
 
             for (Node memberMatchPattern : listMatchPatternNode.matchPatterns()) {
-                bLangListMatchPattern.addMatchPattern(transformMatchPattern(memberMatchPattern,
-                        getPosition(memberMatchPattern)));
+                BLangMatchPattern bLangMemberMatchPattern = transformMatchPattern(memberMatchPattern,
+                        getPosition(memberMatchPattern));
+                if (bLangMemberMatchPattern == null) {
+                    continue;
+                }
+                bLangListMatchPattern.addMatchPattern(bLangMemberMatchPattern);
             }
 
             if (listMatchPatternNode.restMatchPattern().isPresent()) {

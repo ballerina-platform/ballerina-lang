@@ -2503,6 +2503,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWildCardMatchPattern wildCardMatchPattern) {
+        if (wildCardMatchPattern.matchExpr == null) {
+            wildCardMatchPattern.type = symTable.anyType;
+            return;
+        }
+        BType matchExprType = wildCardMatchPattern.matchExpr.type;
+        if (types.isAssignable(matchExprType, symTable.anyType)) {
+            wildCardMatchPattern.matchesAll = true;
+            wildCardMatchPattern.type = symTable.anyType;
+            return;
+        }
+        BType intersectionType = types.getTypeIntersection(matchExprType, symTable.anyType);
+        if (intersectionType == symTable.semanticError) {
+            wildCardMatchPattern.type = symTable.noType;
+            return;
+        }
+        wildCardMatchPattern.type = intersectionType;
     }
 
     @Override
