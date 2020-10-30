@@ -15,13 +15,13 @@ version = "1.2.3"
 
 [[platform.java11.dependency]]
 path = "/user/sameera/libs/toml4j.jar"
-artafactId = "toml4j"
+artifactId = "toml4j"
 version = "0.7.2"
 groupId = "com.moandjiezana.toml"
 
 [[platform.java11.dependency]]
 path = "path/to/swagger.jar"
-artafactId = "swagger"
+artifactId = "swagger"
 version = "0.7.2"
 groupId = "swagger.io"
 
