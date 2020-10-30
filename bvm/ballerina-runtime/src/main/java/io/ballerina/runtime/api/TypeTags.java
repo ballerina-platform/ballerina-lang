@@ -78,6 +78,8 @@ public class TypeTags {
     public static final int XML_TEXT_TAG = XML_COMMENT_TAG + 1;
     public static final int NEVER_TAG = XML_TEXT_TAG + 1;
 
+    public static final int PARAMETERIZED_TYPE_TAG = NEVER_TAG + 1;
+
     public static boolean isIntegerTypeTag(int tag) {
 
         // TODO : Fix byte type. Ideally, byte belongs to here. But we have modeled it differently.

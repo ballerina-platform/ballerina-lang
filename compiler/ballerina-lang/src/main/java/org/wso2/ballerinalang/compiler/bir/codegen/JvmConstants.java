@@ -132,6 +132,7 @@ public class JvmConstants {
     public static final String TUPLE_TYPE_IMPL = "io/ballerina/runtime/types/BTupleType";
     public static final String FUNCTION_TYPE_IMPL = "io/ballerina/runtime/types/BFunctionType";
     public static final String TYPEDESC_TYPE_IMPL = "io/ballerina/runtime/types/BTypedescType";
+    public static final String PARAMETERIZED_TYPE_IMPL = "io/ballerina/runtime/types/BParameterizedType";
     public static final String FIELD_IMPL = "io/ballerina/runtime/types/BField";
     public static final String ATTACHED_FUNCTION_IMPL = "io/ballerina/runtime/types/AttachedFunction";
     public static final String FINITE_TYPE_IMPL = "io/ballerina/runtime/types/BFiniteType";

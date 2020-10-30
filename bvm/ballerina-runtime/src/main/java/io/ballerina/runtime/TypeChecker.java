@@ -43,6 +43,7 @@ import io.ballerina.runtime.types.BIntersectionType;
 import io.ballerina.runtime.types.BJSONType;
 import io.ballerina.runtime.types.BMapType;
 import io.ballerina.runtime.types.BObjectType;
+import io.ballerina.runtime.types.BParameterizedType;
 import io.ballerina.runtime.types.BRecordType;
 import io.ballerina.runtime.types.BStreamType;
 import io.ballerina.runtime.types.BTableType;
@@ -625,6 +626,15 @@ public class TypeChecker {
 
         if (targetTypeTag == TypeTags.INTERSECTION_TAG) {
             return checkIsType(sourceType, ((BIntersectionType) targetType).getEffectiveType(), unresolvedTypes);
+        }
+
+        if (sourceTypeTag == TypeTags.PARAMETERIZED_TYPE_TAG) {
+            if (targetTypeTag != TypeTags.PARAMETERIZED_TYPE_TAG) {
+                return checkIsType(((BParameterizedType) sourceType).getParamValueType(), targetType, unresolvedTypes);
+            }
+
+            return checkIsType(((BParameterizedType) sourceType).getParamValueType(),
+                               ((BParameterizedType) targetType).getParamValueType(), unresolvedTypes);
         }
 
         switch (targetTypeTag) {
@@ -1921,6 +1931,17 @@ public class TypeChecker {
         if (targetTypeTag == TypeTags.INTERSECTION_TAG) {
             return checkIsLikeOnValue(sourceValue, sourceType, ((BIntersectionType) targetType).getEffectiveType(),
                                       unresolvedValues, allowNumericConversion);
+        }
+
+        if (sourceTypeTag == TypeTags.PARAMETERIZED_TYPE_TAG) {
+            if (targetTypeTag != TypeTags.PARAMETERIZED_TYPE_TAG) {
+                return checkIsLikeOnValue(sourceValue, ((BParameterizedType) sourceType).getParamValueType(),
+                                          targetType, unresolvedValues, allowNumericConversion);
+            }
+
+            return checkIsLikeOnValue(sourceValue, ((BParameterizedType) sourceType).getParamValueType(),
+                                      ((BParameterizedType) targetType).getParamValueType(), unresolvedValues,
+                                      allowNumericConversion);
         }
 
         switch (targetTypeTag) {
