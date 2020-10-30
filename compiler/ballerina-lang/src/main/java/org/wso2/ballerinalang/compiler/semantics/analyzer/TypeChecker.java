@@ -3911,9 +3911,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
         checkStringTemplateExprs(bLangXMLTextLiteral.textFragments, false);
-        if (((String) ((BLangLiteral) bLangXMLTextLiteral.textFragments.get(0)).value).isEmpty()) {
-            resultType = types.checkType(bLangXMLTextLiteral, createXMLNeverType(null, bLangXMLTextLiteral), expType);
-            return;
+        List<BLangExpression> literalValues = bLangXMLTextLiteral.textFragments;
+        if (literalValues.get(0) instanceof BLangLiteral) {
+            if (((String) ((BLangLiteral) literalValues.get(0)).value).isEmpty()) {
+                resultType = types.checkType(bLangXMLTextLiteral, createXMLNeverType(null, bLangXMLTextLiteral), expType);
+                return;
+            }
         }
         BXMLSubType actualType = symTable.xmlTextType;
         resultType = types.checkType(bLangXMLTextLiteral, actualType, expType);

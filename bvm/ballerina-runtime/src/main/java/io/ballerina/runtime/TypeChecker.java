@@ -883,11 +883,13 @@ public class TypeChecker {
     }
 
     private static boolean checkIsXMLType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+        int sourceTag = sourceType.getTag();
+        if (sourceTag == TypeTags.FINITE_TYPE_TAG) {
             return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
         }
+
         BXMLType target = ((BXMLType) targetType);
-        if (sourceType.getTag() == TypeTags.XML_TAG) {
+        if (sourceTag == TypeTags.XML_TAG) {
             Type targetConstraint = target.constraint;
             // TODO: Revisit and check why xml<xml<constraint>>> on chained iteration
             while (target.constraint.getTag() == TypeTags.XML_TAG) {
@@ -896,12 +898,14 @@ public class TypeChecker {
             }
             return checkIsType(((BXMLType) sourceType).constraint, targetConstraint,
                     unresolvedTypes);
-        } else if (TypeTags.isXMLTypeTag(sourceType.getTag())) {
-            Type constraintType = ((BXMLType) sourceType).constraint;
-            if (sourceType.getTag() == TypeTags.XML_TEXT_TAG && constraintType != null) {
-                return checkIsType(constraintType, target.constraint, unresolvedTypes);
+        } else if (TypeTags.isXMLTypeTag(sourceTag)) {
+            Type targetConstraintType = target.constraint;
+            Type sourceConstraintType = ((BXMLType) sourceType).constraint;
+            if (sourceTag == TypeTags.XML_TEXT_TAG && sourceConstraintType != null &&
+                    targetConstraintType.getTag() == TypeTags.NEVER_TAG) {
+                return checkIsType(sourceConstraintType, targetConstraintType, unresolvedTypes);
             }
-            return checkIsType(sourceType, target.constraint, unresolvedTypes);
+            return checkIsType(sourceType, targetConstraintType, unresolvedTypes);
         }
         return false;
     }

@@ -364,6 +364,11 @@ public class TypeTestExprTest {
     }
 
     @Test
+    public void testXMLNeverType() {
+        BRunUtil.invoke(result, "testXMLNeverType");
+    }
+
+    @Test
     public void testRestType() {
         BRunUtil.invoke(result, "testRestType");
     }
