@@ -102,22 +102,22 @@ public class VariableReturnTypeTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'map' cannot be cast to " +
-                  "'map<anydata>.*", enabled = false)
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types:" +
+                  " 'map' cannot be cast to 'map<anydata>'.*")
     public void testRuntimeCastError() {
         BRunUtil.invoke(result, "testRuntimeCastError");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'Person' cannot be cast " +
-                  "to 'int'.*", enabled = false)
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types:" +
+                  " 'Person' cannot be cast to 'int'.*")
     public void testCastingForInvalidValues() {
         BRunUtil.invoke(result, "testCastingForInvalidValues");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'string' cannot be cast " +
-                  "to 'int'.*", enabled = false)
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types:" +
+                  " 'string' cannot be cast to 'int'.*")
     public void testFunctionAssignment() {
         BRunUtil.invoke(result, "testFunctionAssignment");
     }

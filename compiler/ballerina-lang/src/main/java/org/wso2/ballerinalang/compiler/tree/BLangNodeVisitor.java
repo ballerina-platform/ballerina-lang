@@ -959,6 +959,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangRecordLiteral.BLangRecordKey recordKey) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField) {
         throw new AssertionError();
     }

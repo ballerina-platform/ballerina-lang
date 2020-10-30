@@ -20,6 +20,7 @@ package io.ballerina.compiler.syntax.tree;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -36,8 +37,8 @@ public class TypeCastParamNode extends NonTerminalNode {
         return new NodeList<>(childInBucket(0));
     }
 
-    public Node type() {
-        return childInBucket(1);
+    public Optional<Node> type() {
+        return optionalChildInBucket(1);
     }
 
     @Override
@@ -88,7 +89,7 @@ public class TypeCastParamNode extends NonTerminalNode {
         public TypeCastParamNodeModifier(TypeCastParamNode oldNode) {
             this.oldNode = oldNode;
             this.annotations = oldNode.annotations();
-            this.type = oldNode.type();
+            this.type = oldNode.type().orElse(null);
         }
 
         public TypeCastParamNodeModifier withAnnotations(
