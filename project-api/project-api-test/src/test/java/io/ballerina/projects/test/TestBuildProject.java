@@ -23,14 +23,19 @@ import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleCompilation;
 import io.ballerina.projects.ModuleConfig;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageId;
+import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.utils.ProjectConstants;
@@ -130,6 +135,31 @@ public class TestBuildProject {
         // This shows that all 4 modules has been compiled, even though the `utils`
         //   module is not imported by any of the other modules.
         Assert.assertEquals(diagnostics.size(), 4);
+    }
+
+    @Test(description = "tests codegen with native libraries", enabled = false)
+    public void testJBallerinaBackend() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("test_proj_pkg_compilation_simple");
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.loadProject(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Load the package
+        Package currentPackage = project.currentPackage();
+
+        // 3) Compile the current package
+        PackageCompilation compilation = currentPackage.getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JdkVersion.JAVA_11);
+        List<Diagnostic> diagnostics = jBallerinaBackend.diagnostics();
+
+        Assert.assertEquals(diagnostics.size(), 1);
+
+        Collection<PlatformLibrary> platformLibraries = jBallerinaBackend.platformLibraries(currentPackage.packageId());
+        Assert.assertEquals(platformLibraries.size(), 1);
     }
 
     @Test(description = "tests package compilation with errors in test source files")
@@ -507,11 +537,14 @@ public class TestBuildProject {
         Path projectRoot = ProjectUtils.findProjectRoot(filePath);
         BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(projectRoot);
         Package oldPackage = buildProject.currentPackage();
+        PackageDescriptor pkgDesc = oldPackage.packageDescriptor();
 
         ModuleId newModuleId = ModuleId.create(filePath.toString(), oldPackage.packageId());
         ModuleName moduleName = ModuleName.from(oldPackage.packageName(), filePath.getFileName().toString());
+        ModuleDescriptor moduleDesc = ModuleDescriptor.from(pkgDesc.name(),
+                pkgDesc.org(), pkgDesc.version(), moduleName);
 
-        ModuleConfig newModuleConfig = ModuleConfig.from(newModuleId, moduleName,
+        ModuleConfig newModuleConfig = ModuleConfig.from(newModuleId, moduleDesc,
                 filePath, new ArrayList<>(), new ArrayList<>());
         Package newPackage = oldPackage.modify().addModule(newModuleConfig).apply();
 
@@ -547,9 +580,12 @@ public class TestBuildProject {
         Path projectRoot = ProjectUtils.findProjectRoot(filePath);
         BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(projectRoot);
         Package oldPackage = buildProject.currentPackage();
+        PackageDescriptor pkgDesc = oldPackage.packageDescriptor();
 
         ModuleId newModuleId = ModuleId.create(filePath.toString(), oldPackage.packageId());
         ModuleName moduleName = ModuleName.from(oldPackage.packageName(), filePath.getFileName().toString());
+        ModuleDescriptor moduleDesc = ModuleDescriptor.from(pkgDesc.name(),
+                pkgDesc.org(), pkgDesc.version(), moduleName);
         DocumentId documentId = DocumentId.create(filePath.resolve("main.bal").toString(), newModuleId);
         String mainContent = "import ballerina/io;\n";
         DocumentConfig documentConfig = DocumentConfig.from(documentId, mainContent, filePath.getFileName().toString());
@@ -560,8 +596,9 @@ public class TestBuildProject {
         DocumentConfig testDocumentConfig = DocumentConfig.from(
                 testDocumentId, testContent, filePath.getFileName().toString());
 
-        ModuleConfig newModuleConfig = ModuleConfig.from(newModuleId, moduleName,
-                filePath, Collections.singletonList(documentConfig), Collections.singletonList(testDocumentConfig));
+        ModuleConfig newModuleConfig = ModuleConfig.from(newModuleId, moduleDesc,
+                filePath, Collections.singletonList(documentConfig),
+                Collections.singletonList(testDocumentConfig));
         Package newPackage = oldPackage.modify().addModule(newModuleConfig).apply();
 
         Assert.assertEquals(newPackage.module(newModuleId).documentIds().size(), 1);

@@ -57,16 +57,15 @@ public class BCompileUtil {
 
         Package currentPackage = project.currentPackage();
         PackageCompilation packageCompilation = currentPackage.getCompilation();
-
-        if (packageCompilation.diagnostics().size() > 0) {
-            return new CompileResult(currentPackage);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        if (jBallerinaBackend.hasDiagnostics()) {
+            return new CompileResult(currentPackage, jBallerinaBackend.diagnostics());
         }
 
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
         Path jarTargetPath = jarTargetPath(currentPackage);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR, jarTargetPath);
 
-        CompileResult compileResult = new CompileResult(currentPackage, jarTargetPath);
+        CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend.diagnostics(), jarTargetPath);
         invokeModuleInit(compileResult);
         return compileResult;
     }
@@ -85,12 +84,11 @@ public class BCompileUtil {
 
         Package currentPackage = project.currentPackage();
         PackageCompilation packageCompilation = currentPackage.getCompilation();
-
-        if (packageCompilation.diagnostics().size() > 0) {
-            return new CompileResult(currentPackage);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        if (jBallerinaBackend.hasDiagnostics()) {
+            return new CompileResult(currentPackage, jBallerinaBackend.diagnostics());
         }
 
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
         Path jarCachePath = jarCachePath(currentPackage);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR, jarCachePath);
 
@@ -100,7 +98,7 @@ public class BCompileUtil {
         Path baloCachePath = baloCachePath(currentPackage);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloCachePath);
 
-        CompileResult compileResult = new CompileResult(currentPackage, jarCachePath);
+        CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend.diagnostics(), jarCachePath);
         invokeModuleInit(compileResult);
         return compileResult;
     }

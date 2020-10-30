@@ -18,6 +18,7 @@
 
 package io.ballerina.projects.test;
 
+import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.directory.BallerinaTomlProcessor;
 import io.ballerina.projects.model.BallerinaToml;
@@ -30,6 +31,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Contains cases to test the ballerina toml processor.
@@ -57,6 +59,17 @@ public class TestBallerinaTomlProcessor {
         Assert.assertEquals(dependencyList.get(1).org().value(), "wso2");
         Assert.assertEquals(dependencyList.get(1).name().value(), "github");
         Assert.assertEquals(dependencyList.get(1).version().toString(), "1.2.3");
+
+        PackageDescriptor.Platform jvmPlatform = packageDescriptor.platform(JdkVersion.JAVA_11.code());
+        List<Map<String, Object>> platformDependencies = jvmPlatform.dependencies();
+        Assert.assertEquals(platformDependencies.size(), 2);
+
+        Map<String, Object> platDep1 = platformDependencies.get(0);
+        Assert.assertEquals(platDep1.size(), 4);
+        Assert.assertEquals(platDep1.get("path").toString(), "/user/sameera/libs/toml4j.jar");
+        Assert.assertEquals(platDep1.get("artifactId").toString(), "toml4j");
+        Assert.assertEquals(platDep1.get("version").toString(), "0.7.2");
+        Assert.assertEquals(platDep1.get("groupId").toString(), "com.moandjiezana.toml");
     }
 
     @Test(description = "Test validate ballerina toml package section which contains build options")

@@ -15,28 +15,25 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.repos;
+package io.ballerina.projects;
 
-import io.ballerina.projects.ModuleName;
-import io.ballerina.projects.Project;
-import io.ballerina.projects.utils.ProjectConstants;
-
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
- * Distribution cache.
+ * Represents the Jar library in JBallerinaBackend implementation.
  *
  * @since 2.0.0
  */
-public class DistributionPackageCache extends FileSystemRepository {
+public class JarLibrary extends PlatformLibrary {
+    static final String KEY_PATH = "path";
+    private final Path path;
 
-    public DistributionPackageCache(Project project) {
-        super(project, Paths.get(System.getProperty(ProjectConstants.BALLERINA_INSTALL_DIR_PROP))
-                .resolve(ProjectConstants.DIST_CACHE_DIRECTORY));
+    public JarLibrary(Path path) {
+        this.path = path;
     }
 
     @Override
-    public void cacheBir(ModuleName moduleName, byte[] bir) {
-        // this is a read only repository
+    public Path path() {
+        return path;
     }
 }

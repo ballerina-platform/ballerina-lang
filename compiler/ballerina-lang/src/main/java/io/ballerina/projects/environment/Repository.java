@@ -19,6 +19,7 @@
 package io.ballerina.projects.environment;
 
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.SemanticVersion;
 
@@ -37,9 +38,9 @@ public interface Repository {
 
     public List<SemanticVersion> getPackageVersions(PackageLoadRequest packageLoadRequest);
 
-    public byte[] getCachedBir(Module module);
+    public byte[] getCachedBir(ModuleName moduleName);
 
-    public void cacheBir(Module module, byte[] bir);
+    public void cacheBir(ModuleName moduleName, byte[] bir);
 
     public Path getCachedJar(Module aPackage);
 

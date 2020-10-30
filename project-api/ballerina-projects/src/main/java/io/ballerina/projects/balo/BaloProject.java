@@ -40,19 +40,20 @@ public class BaloProject extends Project {
      * @param baloPath Balo path
      * @return balo project
      */
-    public static BaloProject loadProject(Path baloPath, Repository repo) {
+    public static BaloProject loadProject(Path baloPath) {
         Path absBaloPath = Optional.of(baloPath.toAbsolutePath()).get();
         if (!absBaloPath.toFile().exists()) {
             throw new RuntimeException("balo path does not exist:" + baloPath);
         }
 
-        return new BaloProject(BuildEnvContext.getInstance(), absBaloPath, repo);
+        return new BaloProject(BuildEnvContext.getInstance(), absBaloPath);
     }
 
-    private BaloProject(EnvironmentContext environmentContext, Path baloPath, Repository repo) {
+    private BaloProject(EnvironmentContext environmentContext, Path baloPath) {
         super(environmentContext);
         this.sourceRoot = baloPath;
-        addPackage(baloPath.toString(), repo);
+        Repository repository = environmentContext().getService(Repository.class);
+        addPackage(baloPath.toString(), repository);
     }
 
     /**
@@ -61,8 +62,7 @@ public class BaloProject extends Project {
      * @param baloPath balo path
      */
     private void addPackage(String baloPath, Repository repo) {
-        PackageConfig packageConfig = BaloPackageLoader.loadPackage(baloPath);
-        packageConfig.setRepository(Optional.ofNullable(repo));
+        PackageConfig packageConfig = BaloPackageLoader.loadPackage(baloPath, repo);
         this.addPackage(packageConfig);
     }
 }

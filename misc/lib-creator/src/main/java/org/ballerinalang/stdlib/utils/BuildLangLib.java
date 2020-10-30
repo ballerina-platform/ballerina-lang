@@ -18,6 +18,7 @@
 
 package org.ballerinalang.stdlib.utils;
 
+import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Package;
@@ -70,13 +71,13 @@ public class BuildLangLib {
         Target target = new Target(projectDir);
         Package pkg = project.currentPackage();
         PackageCompilation packageCompilation = pkg.getCompilation();
-        if (packageCompilation.diagnostics().size() > 0) {
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR, target.path());
+        if (!emitResult.successful()) {
             out.println("Error building module");
-            packageCompilation.diagnostics().forEach(d -> out.println(d.toString()));
+            emitResult.diagnostics().forEach(d -> out.println(d.toString()));
             System.exit(1);
         }
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR, target.path());
         LangLibArchive langLibArchive = new LangLibArchive(target.path(), pkg);
     }
 }

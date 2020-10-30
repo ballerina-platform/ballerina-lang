@@ -22,9 +22,8 @@ import io.ballerina.projects.environment.EnvironmentContext;
 import io.ballerina.projects.environment.GlobalPackageCache;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironmentContext;
-import io.ballerina.projects.environment.ProjectJarResolver;
+import io.ballerina.projects.environment.Repository;
 import io.ballerina.projects.repos.DistributionPackageCache;
-import org.ballerinalang.compiler.JarResolver;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,9 +42,13 @@ public class BuildProjectEnvContext extends ProjectEnvironmentContext {
     }
 
     private BuildProjectEnvContext(Project project, BuildEnvContext buildEnvContext) {
+        // TODO following line is a hack. We need to remove it
         services.put(EnvironmentContext.class, buildEnvContext);
+
+        DistributionPackageCache distCache = new DistributionPackageCache(project);
+        services.put(Repository.class, distCache);
+
         GlobalPackageCache globalPackageCache = buildEnvContext.getService(GlobalPackageCache.class);
-        DistributionPackageCache distCache = buildEnvContext.getService(DistributionPackageCache.class);
         services.put(PackageResolver.class, new DefaultPackageResolver(project, distCache, globalPackageCache));
         // services.put(ProjectJarResolver.class, new ProjectJarResolver(project, globalPackageCache));
 //        buildEnvContext.compilerContext()
