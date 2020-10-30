@@ -1,4 +1,4 @@
-import org.bar;
+import final_types.org.bar;
 
 final var globalFinalInt = 10;
 final string globalFinalString = "hello";

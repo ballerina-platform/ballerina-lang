@@ -121,6 +121,10 @@ public class CompileResult {
 
     private void addClasspathEntries(Path jarFilePath, List<URL> jarFiles) throws IOException {
 
+        if (!Files.exists(jarFilePath)) {
+            return;
+        }
+
         if (Files.isRegularFile(jarFilePath) &&
                 jarFilePath.toString().endsWith(BLANG_COMPILED_JAR_EXT)) {
             jarFiles.add(jarFilePath.normalize().toUri().toURL());

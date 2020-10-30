@@ -1,5 +1,5 @@
 
-import c.d;
+import map_init.c.d;
 
 function testMapInitWithPackageVars() returns (map<any>) {
     map<any> m = { name: d:PI_NAME, value: d:PI_VALUE};
