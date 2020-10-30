@@ -26,6 +26,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.model.Target;
 import io.ballerina.projects.utils.ProjectUtils;
 import org.ballerinalang.packerina.utils.FileUtils;
 
@@ -61,19 +62,45 @@ public class BCompileUtil {
             return new CompileResult(currentPackage);
         }
 
-        Path jarFilePath = jarEmitPath(currentPackage);
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR, jarFilePath);
+        Path jarTargetPath = jarTargetPath(currentPackage);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR, jarTargetPath);
 
-        if (!(isSingleFileProject(project))) {
-            Path birEmitPath = birEmitPath(currentPackage);
-            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BIR, birEmitPath);
+        CompileResult compileResult = new CompileResult(currentPackage, jarTargetPath);
+        invokeModuleInit(compileResult);
+        return compileResult;
+    }
 
-            Path baloEmitPath = baloEmitPath(currentPackage);
-            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloEmitPath);
+    public static CompileResult compileAndCacheBalo(String sourceFilePath) {
+        Path sourcePath = Paths.get(sourceFilePath);
+        String sourceFileName = sourcePath.getFileName().toString();
+        Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
+
+        Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
+        Project project = ProjectLoader.loadProject(projectPath);
+
+        if (isSingleFileProject(project)) {
+            throw new RuntimeException("single file project is given for compilation at " + project.sourceRoot());
         }
 
-        CompileResult compileResult = new CompileResult(currentPackage, jarFilePath);
+        Package currentPackage = project.currentPackage();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+
+        if (packageCompilation.diagnostics().size() > 0) {
+            return new CompileResult(currentPackage);
+        }
+
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        Path jarCachePath = jarCachePath(currentPackage);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR, jarCachePath);
+
+        Path birCachePath = birCachePath(currentPackage);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BIR, birCachePath);
+
+        Path baloCachePath = baloCachePath(currentPackage);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloCachePath);
+
+        CompileResult compileResult = new CompileResult(currentPackage, jarCachePath);
         invokeModuleInit(compileResult);
         return compileResult;
     }
@@ -90,10 +117,10 @@ public class BCompileUtil {
         }
     }
 
-    private static Path jarEmitPath(Package pkg) {
+    private static Path jarTargetPath(Package pkg) {
         try {
-            Path cache = cachePathForPackage(pkg);
-            Path jarCache = cache.resolve("jar");
+            Target target = new Target(testBuildDirectory);
+            Path jarTargetPath = target.getJarCachePath();
 
             if (isSingleFileProject(pkg.project())) {
                 Module defaultModule = pkg.getDefaultModule();
@@ -101,13 +128,16 @@ public class BCompileUtil {
                 String documentName = defaultModule.document(documentId).name();
                 String executableName = FileUtils.geFileNameWithoutExtension(Paths.get(documentName));
                 if (executableName == null) {
-                    throw new RuntimeException("cannot identify executable name for : " + defaultModule.moduleName());
+                    throw new RuntimeException("cannot identify executable name for " + defaultModule.moduleName());
                 }
-                jarCache = jarCache.resolve(executableName).toAbsolutePath().normalize();
+                jarTargetPath = jarTargetPath.resolve(executableName).toAbsolutePath().normalize();
+            } else {
+                jarTargetPath = jarTargetPath.resolve(pkg.packageOrg().toString()).resolve(pkg.packageName().value()).
+                        resolve(pkg.packageVersion().version().toString());
             }
 
-            Files.createDirectories(jarCache);
-            return jarCache;
+            Files.createDirectories(jarTargetPath);
+            return jarTargetPath;
         } catch (IOException e) {
             throw new RuntimeException("error while creating the jar cache directory at " + testBuildDirectory, e);
         }
@@ -117,7 +147,18 @@ public class BCompileUtil {
         return project instanceof SingleFileProject;
     }
 
-    private static Path birEmitPath(Package pkg) {
+    private static Path jarCachePath(Package pkg) {
+        try {
+            Path cache = cachePathForPackage(pkg);
+            Path jarCache = cache.resolve("jar");
+            Files.createDirectories(jarCache);
+            return jarCache;
+        } catch (IOException e) {
+            throw new RuntimeException("error while creating the jar cache directory at " + testBuildDirectory, e);
+        }
+    }
+
+    private static Path birCachePath(Package pkg) {
         try {
             Path cache = cachePathForPackage(pkg);
             Path birCache = cache.resolve("bir");
@@ -140,7 +181,7 @@ public class BCompileUtil {
         return cache;
     }
 
-    private static Path baloEmitPath(Package pkg) {
+    private static Path baloCachePath(Package pkg) {
         try {
             Path distributionCache = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
             Path balos = distributionCache.resolve("balo")

@@ -124,7 +124,7 @@ public class MapInitializerExprTest {
 
     @Test()
     public void testMapInitWithPackageVars() {
-        CompileResult result = BCompileUtil.compile("test-src/types/map/pkgvars");
+        CompileResult result = BCompileUtil.compile("test-src/types/map/MapAccessProject");
         BValue[] returns = BRunUtil.invoke(result, "testMapInitWithPackageVars");
 
         Assert.assertEquals(returns.length, 1);

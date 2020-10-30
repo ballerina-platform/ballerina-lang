@@ -1,4 +1,4 @@
-import variable;
+import constant_types.variable;
 
 function test() {
 

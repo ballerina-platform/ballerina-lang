@@ -1,4 +1,4 @@
 [package]
 org = "test_org"
-name = "final_types"
+name = "constant_types"
 version = "1.0.0"
