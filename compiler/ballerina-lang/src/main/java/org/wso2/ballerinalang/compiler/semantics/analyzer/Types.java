@@ -732,25 +732,7 @@ public class Types {
             return isAssignable(resolvedSourceType, target, unresolvedTypes);
         }
 
-        BParameterizedType parameterizedSource = (BParameterizedType) source;
-        BParameterizedType parameterizedTarget = (BParameterizedType) target;
-
-        BVarSymbol parameterizedSourceSymbol = parameterizedSource.paramSymbol;
-        int index = 0;
-
-        List<BVarSymbol> sourceParams = ((BInvokableSymbol) parameterizedSourceSymbol.owner).params;
-
-        for (int i = 0; i < sourceParams.size(); i++) {
-            if (sourceParams.get(i) == parameterizedSourceSymbol) {
-                index = i;
-                break;
-            }
-        }
-
-        BVarSymbol parameterizedTargetSymbol = parameterizedTarget.paramSymbol;
-        List<BVarSymbol> targetParams = ((BInvokableSymbol) parameterizedTargetSymbol.owner).params;
-
-        if (index >= targetParams.size() || targetParams.get(index) != parameterizedTargetSymbol) {
+        if (((BParameterizedType) source).paramIndex != ((BParameterizedType) target).paramIndex) {
             return false;
         }
 
