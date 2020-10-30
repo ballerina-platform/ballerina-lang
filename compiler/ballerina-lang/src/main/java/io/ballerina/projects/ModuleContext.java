@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -69,7 +68,6 @@ class ModuleContext {
     private Set<ModuleDependency> moduleDependencies;
     private BLangPackage bLangPackage;
     private BPackageSymbol bPackageSymbol;
-    private List<Diagnostic> diagnostics;
     private byte[] birBytes = new byte[0];
     private final Bootstrap bootstrap;
     private ModuleCompilationState moduleCompState;
@@ -210,20 +208,12 @@ class ModuleContext {
      * @return Returns the list of compilation diagnostics of this module
      */
     List<Diagnostic> diagnostics() {
-        // First get from the cache in ModuleContext
-        if (diagnostics != null) {
-            return diagnostics;
-
-        }
-
         // Try to get the diagnostics from the bLangPackage, if the module is already compiled
         if (bLangPackage != null) {
-            diagnostics = bLangPackage.getDiagnostics();
-            return diagnostics;
+            return bLangPackage.getDiagnostics();
         }
 
-        // TODO error handling - Module is not compiled
-        throw new IllegalStateException("Compile the module first!");
+        return Collections.emptyList();
     }
 
     private void parseTestSources(BLangPackage pkgNode, PackageID pkgId, CompilerContext compilerContext) {
@@ -314,7 +304,6 @@ class ModuleContext {
     }
 
     static void compileInternal(ModuleContext moduleContext, CompilerContext compilerContext) {
-
         PackageID moduleCompilationId = moduleContext.moduleDescriptor().moduleCompilationId();
         String bootstrapLangLibName = System.getProperty("BOOTSTRAP_LANG_LIB");
         if (bootstrapLangLibName != null) {
@@ -355,7 +344,12 @@ class ModuleContext {
     static void generateCodeInternal(ModuleContext moduleContext,
                                      CompilerContext compilerContext,
                                      CompilerBackend compilerBackend) {
-        // TODO implement
+        // Skip the code generation phase if there diagnostics
+        if (!moduleContext.diagnostics().isEmpty()) {
+            return;
+        }
+        CompilerPhaseRunner compilerPhaseRunner = CompilerPhaseRunner.getInstance(compilerContext);
+        compilerPhaseRunner.codeGen(moduleContext.moduleId, compilerBackend, moduleContext.bLangPackage);
     }
 
     static void loadBirBytesInternal(ModuleContext moduleContext) {
@@ -374,7 +368,6 @@ class ModuleContext {
         moduleContext.bPackageSymbol = birPackageSymbolEnter.definePackage(
                 moduleCompilationId, null, moduleContext.birBytes);
         packageCache.putSymbol(moduleCompilationId, moduleContext.bPackageSymbol);
-        moduleContext.diagnostics = new ArrayList<>();
     }
 
     static void loadPlatformSpecificCodeInternal(ModuleContext moduleContext, CompilerBackend compilerBackend) {

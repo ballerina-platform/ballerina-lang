@@ -17,13 +17,14 @@
  */
 package io.ballerina.projects.internal;
 
+import io.ballerina.projects.CompilerBackend;
+import io.ballerina.projects.ModuleId;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.BIRGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
@@ -35,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -57,7 +57,6 @@ public class CompilerPhaseRunner {
             new CompilerContext.Key<>();
 
     private final CompilerOptions options;
-    private final BLangDiagnosticLog dlog;
     private final PackageCache pkgCache;
     private final SymbolTable symbolTable;
     private final SymbolEnter symbolEnter;
@@ -90,7 +89,6 @@ public class CompilerPhaseRunner {
         context.put(COMPILER_DRIVER_KEY, this);
 
         this.options = CompilerOptions.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgCache = PackageCache.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
@@ -110,15 +108,6 @@ public class CompilerPhaseRunner {
         this.isolationAnalyzer = IsolationAnalyzer.getInstance(context);
         this.isToolingCompilation = this.options.isSet(TOOLING_COMPILATION)
                 && Boolean.parseBoolean(this.options.get(TOOLING_COMPILATION));
-    }
-
-    private BPackageSymbol getLangModuleFromSource(BLangPackage pkgNode) {
-        BLangPackage pkg = taintAnalyze(documentationAnalyzer.analyze(codeAnalyze(semAnalyzer.analyze(pkgNode))));
-        if (dlog.errorCount() > 0) {
-            return null;
-        }
-
-        return codeGen(birGen(desugar(pkg))).symbol;
     }
 
     public void compile(BLangPackage pkgNode) {
@@ -177,11 +166,6 @@ public class CompilerPhaseRunner {
         }
 
         birGen(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.CODE_GEN)) {
-            return;
-        }
-
-        codeGen(pkgNode);
     }
 
     public void compileLangLibs(BLangPackage pkgNode) {
@@ -215,15 +199,10 @@ public class CompilerPhaseRunner {
         }
 
         birGen(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.CODE_GEN)) {
-            return;
-        }
-
-        codeGen(pkgNode);
     }
 
-    private BLangPackage codeGen(BLangPackage pkgNode) {
-        return this.codeGenerator.generate(pkgNode);
+    public void codeGen(ModuleId moduleId, CompilerBackend compilerBackend, BLangPackage pkgNode) {
+        codeGenerator.generate(moduleId, compilerBackend, pkgNode);
     }
 
     private void generateObservabilityData(BLangPackage pkgNode) {
@@ -278,7 +257,7 @@ public class CompilerPhaseRunner {
         if (compilerPhase.compareTo(nextPhase) < 0) {
             return true;
         }
-        return (checkNextPhase(nextPhase) && dlog.errorCount() > 0);
+        return (checkNextPhase(nextPhase) && pkgNode.getErrorCount() > 0);
     }
 
     private boolean checkNextPhase(CompilerPhase nextPhase) {

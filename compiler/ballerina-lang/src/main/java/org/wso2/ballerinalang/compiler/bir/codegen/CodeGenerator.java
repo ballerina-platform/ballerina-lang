@@ -17,6 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import io.ballerina.projects.CompilerBackend;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.PlatformLibrary;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.JarResolver;
@@ -46,9 +49,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.JarResolver.JAR_RESOLVER_KEY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.encodeModuleIdentifiers;
@@ -106,41 +111,44 @@ public class CodeGenerator {
         return compilerOptions.isSet(optionName) && Boolean.parseBoolean(compilerOptions.get(optionName));
     }
 
-    public BLangPackage generate(BLangPackage bLangPackage) {
-
+    public void generate(ModuleId moduleId, CompilerBackend compilerBackend, BLangPackage bLangPackage) {
         if (dumbBIR) {
             birEmitter.emit(bLangPackage.symbol.bir);
         }
 
         if (dumpBIRFile != null) {
             try {
-                Files.write(Paths.get(dumpBIRFile),
-                            bLangPackage.symbol.birPackageFile.pkgBirBinaryContent);
+                Files.write(Paths.get(dumpBIRFile), bLangPackage.symbol.birPackageFile.pkgBirBinaryContent);
             } catch (IOException e) {
                 throw new BLangCompilerException("BIR file dumping failed", e);
             }
         }
 
         // find module dependencies path
-        Set<Path> moduleDependencies = findDependencies(bLangPackage.packageID);
+        // TODO Implement the scope support properly
+        Set<Path> moduleDependencies = getPlatformDependencyPaths(moduleId, compilerBackend, null);
 
-        // generate module jar
+        // generate module
         generate(bLangPackage.symbol, moduleDependencies);
-
         if (skipTests || !bLangPackage.hasTestablePackage()) {
-            return bLangPackage;
+            return;
         }
 
         bLangPackage.getTestablePkgs().forEach(testablePackage -> {
-
             // find module dependencies path
-            Set<Path> testDependencies = findTestDependencies(testablePackage.packageID, moduleDependencies);
-
+            Set<Path> testDependencies = getPlatformDependencyPaths(moduleId, compilerBackend, "testOnly");
+            testDependencies.addAll(moduleDependencies);
             // generate test module jar
             generate(testablePackage.symbol, testDependencies);
         });
+    }
 
-        return bLangPackage;
+    private Set<Path> getPlatformDependencyPaths(ModuleId moduleId,
+                                                 CompilerBackend compilerBackend,
+                                                 String scope) {
+        Collection<PlatformLibrary> platformLibraries = compilerBackend.platformLibraries(moduleId.packageId());
+        return platformLibraries.stream().map(PlatformLibrary::path)
+                .collect(Collectors.toSet());
     }
 
     private void generate(BPackageSymbol packageSymbol, Set<Path> moduleDependencies) {

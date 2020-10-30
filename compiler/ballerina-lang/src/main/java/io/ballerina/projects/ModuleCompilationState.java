@@ -40,8 +40,7 @@ enum ModuleCompilationState {
         }
 
         @Override
-        void compile(ModuleContext moduleContext,
-                     CompilerContext compilerContext) {
+        void compile(ModuleContext moduleContext, CompilerContext compilerContext) {
             resolveDependencies(moduleContext);
             ModuleContext.compileInternal(moduleContext, compilerContext);
             moduleContext.setCompilationState(COMPILED);
@@ -158,6 +157,7 @@ enum ModuleCompilationState {
             // Do nothing
         }
     },
+
     LOADED_FROM_CACHE {
         @Override
         void parse(ModuleContext moduleContext) {

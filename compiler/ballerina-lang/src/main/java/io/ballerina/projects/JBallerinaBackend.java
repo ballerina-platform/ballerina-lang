@@ -29,9 +29,12 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
@@ -48,6 +51,7 @@ import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 public class JBallerinaBackend extends CompilerBackend {
 
     private final PackageCompilation pkgCompilation;
+    private final JdkVersion jdkVersion;
     private final PackageContext packageContext;
     private final PackageResolver packageResolver;
     private final CompilerContext compilerContext;
@@ -61,6 +65,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private JBallerinaBackend(PackageCompilation packageCompilation, JdkVersion jdkVersion) {
         this.pkgCompilation = packageCompilation;
+        this.jdkVersion = jdkVersion;
         this.packageContext = packageCompilation.packageContext();
 
         ProjectEnvironmentContext projectEnvContext = this.packageContext.project().environmentContext();
@@ -198,6 +203,28 @@ public class JBallerinaBackend extends CompilerBackend {
                 () -> new RuntimeException("main class not found in:" + this.packageContext.packageName()));
         mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClass);
         return manifest;
+    }
+
+    @Override
+    public Collection<PlatformLibrary> platformLibraries(PackageId packageId) {
+        Package pkg = packageResolver.getPackage(packageId);
+        if (pkg == null) {
+            // TODO Proper error handling
+            throw new IllegalStateException("Cannot find a Package for the given PackageId: " + packageId);
+        }
+        PackageDescriptor.Platform javaPlatform = pkg.packageDescriptor().platform(jdkVersion.code());
+        if (javaPlatform == null || javaPlatform.dependencies().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Collection<PlatformLibrary> platformLibraries = new ArrayList<>();
+        for (Map<String, Object> dependency : javaPlatform.dependencies()) {
+            String dependencyFilePath = (String) dependency.get(JarLibrary.KEY_PATH);
+            platformLibraries.add(new JarLibrary(Paths.get(dependencyFilePath)));
+        }
+
+        // TODO Where can we cache this collection
+        return platformLibraries;
     }
 
     /**
