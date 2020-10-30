@@ -731,3 +731,5 @@ function functionWithUnaryOps() {
     a = -b;
     c = ~b;
 }
+
+function dependentlyTypedFunction(typedesc<anydata> td, string[] arr) returns td = external;
