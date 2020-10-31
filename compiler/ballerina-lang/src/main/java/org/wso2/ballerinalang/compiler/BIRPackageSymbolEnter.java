@@ -945,8 +945,7 @@ public class BIRPackageSymbolEnter {
             return readBType(inputStream);
         }
 
-        public BType readType(int cpI)
-                throws IOException {
+        public BType readType(int cpI) throws IOException {
             byte tag = inputStream.readByte();
             Name name = names.fromString(getStringCPEntryValue(inputStream));
             int flags = inputStream.readInt();
