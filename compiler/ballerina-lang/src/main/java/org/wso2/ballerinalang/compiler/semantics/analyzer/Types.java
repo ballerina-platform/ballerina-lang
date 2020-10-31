@@ -1999,6 +1999,7 @@ public class Types {
         implicitConversionExpr.expr = expr.impConversionExpr == null ? expr : expr.impConversionExpr;
         implicitConversionExpr.type = expType;
         implicitConversionExpr.targetType = expType;
+        implicitConversionExpr.internal = true;
         expr.impConversionExpr = implicitConversionExpr;
     }
 

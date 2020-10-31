@@ -368,8 +368,8 @@ isolated function testAccessingFinalIsolatedObjectInIsolatedFunction() {
     IsolatedClass cl = isolatedObject;
     int[] arr = isolatedObject.getArray();
 
-    assertEquality(<int[]> [1, 2], arr);
-    assertEquality(<int[]> [1, 2], cl.getArray());
+    assertEquality(<int[]> [1, 2, 5], arr);
+    assertEquality(<int[]> [1, 2, 5], cl.getArray());
 }
 
 isolated function getIntArray() returns int[] => arr;

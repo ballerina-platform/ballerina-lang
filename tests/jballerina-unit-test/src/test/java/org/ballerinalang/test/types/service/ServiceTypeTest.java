@@ -42,7 +42,7 @@ public class ServiceTypeTest {
         compileResult = BCompileUtil.compile("test-src/types/service/service_test.bal");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testServiceType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testServiceType");
         Assert.assertTrue(returns[0] instanceof BMap);
