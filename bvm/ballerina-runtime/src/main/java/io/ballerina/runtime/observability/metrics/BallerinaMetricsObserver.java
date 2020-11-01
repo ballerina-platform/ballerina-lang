@@ -26,7 +26,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static io.ballerina.runtime.observability.ObservabilityConstants.*;
+import static io.ballerina.runtime.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP;
+import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
+
 
 /**
  * Observe the runtime and collect measurements.
@@ -104,8 +107,9 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
 
     private void stopObservation(ObserverContext observerContext) {
         Set<Tag> tags = new HashSet<>();
-        Map<String, Tag> customTags = (Map<String, Tag>) observerContext.getProperty(BallerinaMetricsObserver.PROPERTY_CUSTOM_TAGS);
-        if(customTags != null){
+        Map<String, Tag> customTags =
+                (Map<String, Tag>) observerContext.getProperty(BallerinaMetricsObserver.PROPERTY_CUSTOM_TAGS);
+        if (customTags != null) {
             tags.addAll(customTags.values());
         }
         tags.addAll(observerContext.getAllTags());

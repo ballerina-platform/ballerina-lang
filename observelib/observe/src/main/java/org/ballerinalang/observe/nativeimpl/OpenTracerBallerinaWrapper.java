@@ -165,7 +165,7 @@ public class OpenTracerBallerinaWrapper {
             Optional<ObserverContext> observer = ObserveUtils.getObserverContextOfCurrentFrame(env);
             if (observer.isPresent()) {
                 BSpan span = (BSpan) observer.get().getProperty(TraceConstants.KEY_SPAN);
-                span.addTag(tagKey,tagValue);
+                span.addTag(tagKey, tagValue);
                 observer.get().addProperty(TraceConstants.KEY_SPAN, span);
                 return true;
             }
@@ -173,7 +173,7 @@ public class OpenTracerBallerinaWrapper {
         ObserverContext observerContext = observerContextMap.get(spanId);
         if (observerContext != null) {
             BSpan span = (BSpan) observerContext.getProperty(TraceConstants.KEY_SPAN);
-            span.addTag(tagKey,tagValue);
+            span.addTag(tagKey, tagValue);
             observerContext.addProperty(TraceConstants.KEY_SPAN, span);
             return true;
         } else {

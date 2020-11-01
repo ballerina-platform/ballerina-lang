@@ -27,7 +27,6 @@ import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.ObserverContext;
 import io.ballerina.runtime.observability.metrics.BallerinaMetricsObserver;
 import io.ballerina.runtime.observability.metrics.Tag;
-import io.ballerina.runtime.observability.tracer.TraceConstants;
 import io.ballerina.runtime.scheduling.Scheduler;
 
 import java.util.HashMap;
@@ -44,11 +43,12 @@ public class AddTagToMetrics {
         ObserverContext observerContext;
         if (observer.isPresent()) {
             observerContext = observer.get();
-            Map<String, Tag> customTags = observerContext.getProperty(BallerinaMetricsObserver.PROPERTY_CUSTOM_TAGS) != null ?
+            Map<String, Tag> customTags =
+                    observerContext.getProperty(BallerinaMetricsObserver.PROPERTY_CUSTOM_TAGS) != null ?
                     (Map<String, Tag>) observerContext.getProperty(BallerinaMetricsObserver.PROPERTY_CUSTOM_TAGS) :
                     new HashMap<String, Tag>();
             customTags.put(tagKey.getValue(), Tag.of(tagKey.getValue(), tagValue.getValue()));
-            observerContext.addProperty(BallerinaMetricsObserver.PROPERTY_CUSTOM_TAGS,customTags);
+            observerContext.addProperty(BallerinaMetricsObserver.PROPERTY_CUSTOM_TAGS, customTags);
             return null;
         }
         return ErrorCreator.createError(

@@ -76,7 +76,7 @@ public class TraceManager {
     }
 
     public void addTag(BSpan bSpan, String tagKey, String tagValue) {
-        bSpan.getSpan().setTag(tagKey,tagValue);
+        bSpan.getSpan().setTag(tagKey, tagValue);
     }
 
     public Map<String, String> extractTraceContext(Span span, String serviceName) {
