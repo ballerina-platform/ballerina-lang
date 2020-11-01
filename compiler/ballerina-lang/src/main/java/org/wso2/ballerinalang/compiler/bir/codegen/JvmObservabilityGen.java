@@ -384,7 +384,7 @@ class JvmObservabilityGen {
                 Optional<BIRErrorEntry> existingEE = func.errorTable.stream()
                         .filter(errorEntry -> isBBCoveredInErrorEntry(errorEntry, func.basicBlocks, currentBB))
                         .findAny();
-                if (!existingEE.isPresent()) {
+                if (existingEE.isEmpty()) {
                     BIRBasicBlock errorCheckBB = insertBasicBlock(func, i + 1);
                     BIRBasicBlock errorReportBB = insertBasicBlock(func, i + 2);
                     BIRBasicBlock observeEndBB = insertBasicBlock(func, i + 3);
@@ -826,7 +826,7 @@ class JvmObservabilityGen {
                 || Objects.equals(basicBlock, errorEntry.endBB);
         if (!isCovered) {
             /*
-             * Traverse in the same way JvmMethodGen.generateBasicBlocks traverses through basic blocks to generate
+             * Traverse in the same way MethodGen.generateBasicBlocks traverses through basic blocks to generate
              * method body to check if the basic block is covered in the error entry.
              */
             int i = 0;

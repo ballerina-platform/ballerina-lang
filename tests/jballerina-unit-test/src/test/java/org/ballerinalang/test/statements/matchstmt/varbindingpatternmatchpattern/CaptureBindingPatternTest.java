@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
  *
  * @since Swan Lake
  */
-@Test(groups = { "disableOnOldParser" })
 public class CaptureBindingPatternTest {
     private CompileResult result, resultNegative;
 

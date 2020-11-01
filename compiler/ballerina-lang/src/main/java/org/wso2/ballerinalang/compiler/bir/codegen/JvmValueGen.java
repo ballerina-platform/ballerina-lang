@@ -30,6 +30,9 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JFieldFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.OldStyleExternalFunctionWrapper;
+import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.LambdaGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -141,16 +144,18 @@ class JvmValueGen {
 
     static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
     static final String ENCODED_RECORD_INIT = IdentifierUtils.encodeGeneratedFuncName(Names.INIT_FUNCTION_SUFFIX.value);
-    private BIRNode.BIRPackage module;
-    private JvmPackageGen jvmPackageGen;
-    private JvmMethodGen jvmMethodGen;
-    private BType booleanType;
+    private final BIRNode.BIRPackage module;
+    private final JvmPackageGen jvmPackageGen;
+    private final MethodGen methodGen;
+    private final LambdaGen lambdaGen;
+    private final BType booleanType;
 
-    JvmValueGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, JvmMethodGen jvmMethodGen) {
-
+    JvmValueGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, MethodGen methodGen,
+                LambdaGen lambdaGen) {
         this.module = module;
         this.jvmPackageGen = jvmPackageGen;
-        this.jvmMethodGen = jvmMethodGen;
+        this.methodGen = methodGen;
+        this.lambdaGen = lambdaGen;
         this.booleanType = jvmPackageGen.symbolTable.booleanType;
     }
 
@@ -163,23 +168,21 @@ class JvmValueGen {
         return func;
     }
 
-    static void injectDefaultParamInitsToAttachedFuncs(BIRNode.BIRPackage module, JvmMethodGen jvmMethodGen,
+    static void injectDefaultParamInitsToAttachedFuncs(BIRNode.BIRPackage module, InitMethodGen initMethodGen,
                                                        JvmPackageGen jvmPackageGen) {
-
         List<BIRNode.BIRTypeDefinition> typeDefs = module.typeDefs;
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
             if (bType instanceof BServiceType || (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(
                     bType.tsymbol.flags, Flags.CLASS)) || bType.tag == TypeTags.RECORD) {
-                desugarObjectMethods(module, bType, optionalTypeDef.attachedFuncs, jvmMethodGen, jvmPackageGen);
+                desugarObjectMethods(module, bType, optionalTypeDef.attachedFuncs, initMethodGen, jvmPackageGen);
             }
         }
     }
 
     private static void desugarObjectMethods(BIRNode.BIRPackage module, BType bType,
-                                             List<BIRNode.BIRFunction> attachedFuncs, JvmMethodGen jvmMethodGen,
+                                             List<BIRNode.BIRFunction> attachedFuncs, InitMethodGen initMethodGen,
                                              JvmPackageGen jvmPackageGen) {
-
         if (attachedFuncs == null) {
             return;
         }
@@ -190,17 +193,17 @@ class JvmValueGen {
             if (JvmCodeGenUtil.isExternFunc(birFunc)) {
                 BIRFunctionWrapper extFuncWrapper = lookupBIRFunctionWrapper(module, birFunc, bType, jvmPackageGen);
                 if (extFuncWrapper instanceof OldStyleExternalFunctionWrapper) {
-                    desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, birFunc, jvmMethodGen);
+                    desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, birFunc, initMethodGen);
                 } else if (extFuncWrapper instanceof JMethodFunctionWrapper) {
-                    desugarInteropFuncs((JMethodFunctionWrapper) extFuncWrapper, birFunc, jvmMethodGen);
-                    enrichWithDefaultableParamInits(birFunc, jvmMethodGen);
+                    desugarInteropFuncs((JMethodFunctionWrapper) extFuncWrapper, birFunc, initMethodGen);
+                    enrichWithDefaultableParamInits(birFunc, initMethodGen);
                 } else if (!(extFuncWrapper instanceof JFieldFunctionWrapper)) {
-                    enrichWithDefaultableParamInits(birFunc, jvmMethodGen);
+                    enrichWithDefaultableParamInits(birFunc, initMethodGen);
                 }
             } else {
                 addDefaultableBooleanVarsToSignature(birFunc, jvmPackageGen.symbolTable.booleanType);
             }
-            enrichWithDefaultableParamInits(birFunc, jvmMethodGen);
+            enrichWithDefaultableParamInits(birFunc, initMethodGen);
         }
     }
 
@@ -310,9 +313,8 @@ class JvmValueGen {
     }
 
     private void createLambdas(ClassWriter cw, AsyncDataCollector asyncDataCollector) {
-
         for (Map.Entry<String, BIRInstruction> entry : asyncDataCollector.getLambdas().entrySet()) {
-            jvmMethodGen.generateLambdaMethod(entry.getValue(), cw, entry.getKey());
+            lambdaGen.generateLambdaMethod(entry.getValue(), cw, entry.getKey());
         }
     }
 
@@ -339,8 +341,8 @@ class JvmValueGen {
             if (func == null) {
                 continue;
             }
-            jvmMethodGen.generateMethod(func, cw, module, currentObjectType, moduleClassName,
-                                        asyncDataCollector);
+            methodGen.generateMethod(func, cw, module, currentObjectType, moduleClassName,
+                                     asyncDataCollector);
         }
     }
 
@@ -709,7 +711,7 @@ class JvmValueGen {
             if (func == null) {
                 continue;
             }
-            jvmMethodGen.generateMethod(func, cw, this.module, null, moduleClassName, asyncDataCollector);
+            methodGen.generateMethod(func, cw, this.module, null, moduleClassName, asyncDataCollector);
         }
     }
 
