@@ -22,7 +22,11 @@ import io.ballerina.runtime.observability.ObserverContext;
 
 import java.io.PrintStream;
 import java.time.Duration;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+
+import static io.ballerina.runtime.observability.ObservabilityConstants.*;
 
 /**
  * Observe the runtime and collect measurements.
@@ -31,6 +35,7 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
 
     private static final String PROPERTY_START_TIME = "_observation_start_time_";
     private static final String PROPERTY_IN_PROGRESS_COUNTER = "_observation_in_progress_counter_";
+    public static final String PROPERTY_CUSTOM_TAGS = "_custom_metric_tags_";
 
     private static final PrintStream consoleError = System.err;
 
@@ -98,7 +103,19 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
     }
 
     private void stopObservation(ObserverContext observerContext) {
-        Set<Tag> tags = observerContext.getAllTags();
+        Set<Tag> tags = new HashSet<>();
+        Map<String, Tag> customTags = (Map<String, Tag>) observerContext.getProperty(BallerinaMetricsObserver.PROPERTY_CUSTOM_TAGS);
+        if(customTags != null){
+            tags.addAll(customTags.values());
+        }
+        tags.addAll(observerContext.getAllTags());
+
+        // Add status_code_group tag
+        Integer statusCode = (Integer) observerContext.getProperty(PROPERTY_KEY_HTTP_STATUS_CODE);
+        if (statusCode != null && statusCode >= 100) {
+            tags.add(Tag.of(TAG_KEY_HTTP_STATUS_CODE_GROUP, (statusCode / 100) + STATUS_CODE_GROUP_SUFFIX));
+        }
+
         try {
             Long startTime = (Long) observerContext.getProperty(PROPERTY_START_TIME);
             long duration = System.nanoTime() - startTime;
