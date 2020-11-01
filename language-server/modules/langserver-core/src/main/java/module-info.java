@@ -1,4 +1,5 @@
 module io.ballerina.language.server.core {
+    uses org.ballerinalang.langserver.commons.LanguageExtension;
     requires gson;
     requires io.ballerina.formatter.core;
     requires org.eclipse.lsp4j;

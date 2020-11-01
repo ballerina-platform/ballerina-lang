@@ -49,7 +49,6 @@ import org.ballerinalang.langserver.compiler.config.LSClientConfig;
 import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.completions.exceptions.CompletionContextNotSupportedException;
-import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.HighlightingFailedException;
@@ -156,14 +155,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams position) {
-        final List<CompletionItem> completions = new ArrayList<>();
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = position.getTextDocument().getUri();
             Optional<Path> completionPath = CommonUtil.getPathFromURI(fileUri);
 
             // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
             if (completionPath.isEmpty() || CommonUtil.isCachedExternalSource(fileUri)) {
-                return Either.forLeft(completions);
+                return Either.forLeft(new ArrayList<>());
             }
 
             Path compilationPath = getUntitledFilePath(completionPath.toString()).orElse(completionPath.get());
@@ -174,13 +172,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .withCommonParams(position, fileUri, docManager)
                     .withCompletionParams(clientCapabilities.getTextDocCapabilities().getCompletion())
                     .build();
-
             try {
                 LSModuleCompiler.getBLangPackage(context, docManager, false, false);
                 // Fill the current file imports
                 context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
-                CompletionUtil.resolveSymbols(context);
-                completions.addAll(CompletionUtil.getCompletionItems(context));
+                return LangExtensionDelegator.instance().completion(position, context);
             } catch (CompletionContextNotSupportedException e) {
                 // Ignore the exception
             } catch (Throwable e) {
@@ -190,7 +186,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
             } finally {
                 lock.ifPresent(Lock::unlock);
             }
-            return Either.forLeft(completions);
+
+            return Either.forLeft(new ArrayList<>());
         });
     }
 
@@ -553,7 +550,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     /**
      * The document range formatting request is sent from the client to the
      * server to format a given range in a document.
-     *
+     * <p>
      * Registration Options: TextDocumentRegistrationOptions
      */
     @Override
