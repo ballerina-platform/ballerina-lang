@@ -105,6 +105,18 @@ public class BSpan {
 
     }
 
+    public void addTag(String tagKey,String tagValue) {
+        if (span != null) {
+            //span has started, therefore add tags to the span.
+            manager.addTag(this, tagKey,tagValue);
+        } else {
+            //otherwise keep the tags in a map, and add it once
+            //the span get created.
+            this.tags.put(tagKey,tagValue);
+        }
+
+    }
+
     public String getServiceName() {
         return serviceName;
     }
