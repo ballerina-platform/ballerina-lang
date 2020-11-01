@@ -489,7 +489,7 @@ public class JvmCodeGenUtil {
     }
 
     public static String toNameString(BType t) {
-        return t.tsymbol.name.value;
+        return IdentifierUtils.encodePackageName(t.tsymbol.name.value);
     }
 
     public static boolean isBallerinaBuiltinModule(String orgName, String moduleName) {
