@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.runtime.IdentifierUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
@@ -1602,7 +1601,7 @@ public class JvmTypeGen {
      */
     private static String getTypeFieldName(String typeName) {
 
-        return String.format("$type$%s", IdentifierUtils.encodePackageName(typeName));
+        return String.format("$type$%s", typeName);
     }
 
     private static void loadFutureType(MethodVisitor mv, BFutureType bType) {
