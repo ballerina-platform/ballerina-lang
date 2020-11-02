@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completions.providers;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
@@ -418,7 +419,12 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     protected LSCompletionItem getImplicitNewCompletionItem(ObjectTypeSymbol objectType, LSContext context) {
         CompletionItem cItem = FunctionCompletionItemBuilder.build(objectType,
                 FunctionCompletionItemBuilder.InitializerBuildMode.IMPLICIT, context);
-        MethodSymbol initMethod = objectType.initMethod().isPresent() ? objectType.initMethod().get() : null;
+
+        MethodSymbol initMethod = null;
+        if (objectType.kind() == SymbolKind.CLASS) {
+            ClassSymbol classSymbol = (ClassSymbol) objectType;
+            initMethod = classSymbol.initMethod().isPresent() ? classSymbol.initMethod().get() : null;
+        }
 
         return new SymbolCompletionItem(context, initMethod, cItem);
     }
@@ -426,7 +432,12 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     protected LSCompletionItem getExplicitNewCompletionItem(ObjectTypeSymbol objectType, LSContext context) {
         CompletionItem cItem = FunctionCompletionItemBuilder.build(objectType,
                 FunctionCompletionItemBuilder.InitializerBuildMode.EXPLICIT, context);
-        MethodSymbol initMethod = objectType.initMethod().isPresent() ? objectType.initMethod().get() : null;
+
+        MethodSymbol initMethod = null;
+        if (objectType.kind() == SymbolKind.CLASS) {
+            ClassSymbol classSymbol = (ClassSymbol) objectType;
+            initMethod = classSymbol.initMethod().isPresent() ? classSymbol.initMethod().get() : null;
+        }
 
         return new SymbolCompletionItem(context, initMethod, cItem);
     }
