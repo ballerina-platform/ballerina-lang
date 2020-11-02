@@ -102,7 +102,7 @@ public class SymbolBIRTest {
         Optional<Symbol> symbol = model.symbol("symbol_at_cursor_import_test.bal", LinePosition.from(line, column));
         symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
 
-        if (!symbol.isPresent()) {
+        if (symbol.isEmpty()) {
             assertNull(expSymbolName);
         }
     }

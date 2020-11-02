@@ -17,7 +17,6 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.projects.environment.EnvironmentContext;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironmentContext;
 import io.ballerina.projects.util.ProjectConstants;
@@ -68,10 +67,9 @@ public class JBallerinaBackend extends CompilerBackend {
         this.jdkVersion = jdkVersion;
         this.packageContext = packageCompilation.packageContext();
 
-        ProjectEnvironmentContext projectEnvContext = this.packageContext.project().environmentContext();
-        EnvironmentContext environmentContext = projectEnvContext.getService(EnvironmentContext.class);
+        ProjectEnvironmentContext projectEnvContext = this.packageContext.project().projectEnvironmentContext();
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
-        this.compilerContext = environmentContext.compilerContext();
+        this.compilerContext = projectEnvContext.getService(CompilerContext.class);
         performCodeGen();
     }
 

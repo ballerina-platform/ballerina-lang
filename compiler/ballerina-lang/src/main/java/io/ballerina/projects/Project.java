@@ -64,7 +64,7 @@ public abstract class Project {
         this.currentPackage = currentPackage;
     }
 
-    public ProjectEnvironmentContext environmentContext() {
+    public ProjectEnvironmentContext projectEnvironmentContext() {
         return this.projectEnvironmentContext;
     }
 }

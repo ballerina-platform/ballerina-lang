@@ -24,6 +24,7 @@ import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironmentContext;
 import io.ballerina.projects.environment.Repository;
 import io.ballerina.projects.repos.DistributionPackageCache;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,28 +36,30 @@ import java.util.Map;
  */
 public class BuildProjectEnvContext extends ProjectEnvironmentContext {
 
-    private Map<Class<?>, Object> services = new HashMap<>();
+    private final Map<Class<?>, Object> services = new HashMap<>();
+    private final EnvironmentContext environmentContext;
 
     public static BuildProjectEnvContext from(Project project, BuildEnvContext buildEnvContext) {
         return new BuildProjectEnvContext(project, buildEnvContext);
     }
 
     private BuildProjectEnvContext(Project project, BuildEnvContext buildEnvContext) {
-        // TODO following line is a hack. We need to remove it
-        services.put(EnvironmentContext.class, buildEnvContext);
+        this.environmentContext = buildEnvContext;
 
-        DistributionPackageCache distCache = new DistributionPackageCache(project);
+        DistributionPackageCache distCache = new DistributionPackageCache(buildEnvContext, project);
         services.put(Repository.class, distCache);
 
         GlobalPackageCache globalPackageCache = buildEnvContext.getService(GlobalPackageCache.class);
         services.put(PackageResolver.class, new DefaultPackageResolver(project, distCache, globalPackageCache));
-        // services.put(ProjectJarResolver.class, new ProjectJarResolver(project, globalPackageCache));
-//        buildEnvContext.compilerContext()
-//            .put(JarResolver.JAR_RESOLVER_KEY, new ProjectJarResolver(project, globalPackageCache));
+        services.put(CompilerContext.class, buildEnvContext.compilerContext());
     }
 
     @SuppressWarnings("unchecked")
     public <T> T getService(Class<T> clazz) {
         return (T) services.get(clazz);
+    }
+
+    public EnvironmentContext environmentContext() {
+        return environmentContext;
     }
 }

@@ -23,7 +23,7 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.env.BuildEnvContext;
+import io.ballerina.projects.env.EnvironmentContextBuilder;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
 
@@ -55,7 +55,7 @@ public class SingleFileProject extends Project {
     }
 
     private SingleFileProject(Path projectPath) {
-        super(BuildEnvContext.getInstance());
+        super(EnvironmentContextBuilder.buildDefault());
 
         this.sourceRoot = createTempProjectRoot(); // create a temp directory and assign to source root
         addPackage(projectPath);

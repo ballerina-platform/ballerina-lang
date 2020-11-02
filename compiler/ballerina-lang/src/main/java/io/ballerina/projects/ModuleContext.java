@@ -89,7 +89,7 @@ class ModuleContext {
         this.testSrcDocIds = Collections.unmodifiableCollection(testDocContextMap.keySet());
         this.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
 
-        ProjectEnvironmentContext projectEnvironmentContext = project.environmentContext();
+        ProjectEnvironmentContext projectEnvironmentContext = project.projectEnvironmentContext();
         this.bootstrap = new Bootstrap(projectEnvironmentContext.getService(PackageResolver.class));
         this.repository = projectEnvironmentContext.getService(Repository.class);
     }
@@ -287,7 +287,7 @@ class ModuleContext {
         }
 
         // 2) Resolve all the dependencies of this module
-        PackageResolver packageResolver = moduleContext.project.environmentContext().
+        PackageResolver packageResolver = moduleContext.project.projectEnvironmentContext().
                 getService(PackageResolver.class);
         Collection<ModuleLoadResponse> moduleLoadResponses = packageResolver.loadPackages(moduleLoadRequests);
 

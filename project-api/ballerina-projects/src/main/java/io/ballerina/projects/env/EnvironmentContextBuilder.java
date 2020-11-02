@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * This class allows API users to build a custom {@code EnvironmentContext}.
+ *
  * @since 2.0.0
  */
 public class EnvironmentContextBuilder {

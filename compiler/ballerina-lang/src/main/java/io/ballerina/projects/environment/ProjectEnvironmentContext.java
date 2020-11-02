@@ -24,7 +24,7 @@ package io.ballerina.projects.environment;
  */
 public abstract class ProjectEnvironmentContext {
 
-    public <T> T getService(Class<T> clazz) {
-        return null;
-    }
+    public abstract <T> T getService(Class<T> clazz);
+
+    public abstract EnvironmentContext environmentContext();
 }

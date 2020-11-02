@@ -39,45 +39,41 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_API_INITIATE
  * @since 2.0.0
  */
 public class BuildEnvContext extends EnvironmentContext {
-    private static BuildEnvContext instance;
-    private Map<Class<?>, Object> services = new HashMap<>();
+    private final Map<Class<?>, Object> services = new HashMap<>();
+    private final CompilerContext compilerContext;
 
-    CompilerContext compilerContext;
+    BuildEnvContext() {
+        initGlobalPackageCache();
 
-    public static synchronized BuildEnvContext getInstance() {
-        if (instance == null) {
-            instance = new BuildEnvContext();
-            instance.initGlobalPackageCache();
-            instance.populateCompilerContext();
-        }
-        return instance;
+        // TODO Move the compilationContext building and langlib loading to BallerinaPlatform loader utility
+        // TODO Ballerina platform should be initialized before everything else.
+        this.compilerContext = populateCompilerContext();
+        loadLangLibs(compilerContext);
     }
 
     public ProjectEnvironmentContext projectEnvironmentContext(Project project) {
         return BuildProjectEnvContext.from(project, this);
     }
 
-    @Override
-    public CompilerContext compilerContext() {
+    CompilerContext compilerContext() {
         return compilerContext;
     }
 
-    public void reset() {
-        initGlobalPackageCache();
-        populateCompilerContext();
-    }
-
-    private void populateCompilerContext() {
-        compilerContext = new CompilerContext();
+    private CompilerContext populateCompilerContext() {
+        CompilerContext compilerContext = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
 
         // TODO Remove the following line, once we fully migrate the old project structures
         options.put(PROJECT_API_INITIATED_COMPILATION, Boolean.toString(true));
+        return compilerContext;
+    }
 
+    private void loadLangLibs(CompilerContext compilerContext) {
         String bootstrapLangLibName = System.getProperty("BOOTSTRAP_LANG_LIB");
         if (bootstrapLangLibName == null) {
-            Bootstrap bootstrap = new Bootstrap(new LangLibResolver(new DistributionPackageCache(null),
+            Bootstrap bootstrap = new Bootstrap(new LangLibResolver(
+                    new DistributionPackageCache(this, null),
                     getService(GlobalPackageCache.class)));
             bootstrap.loadLangLibSymbols(compilerContext);
         }

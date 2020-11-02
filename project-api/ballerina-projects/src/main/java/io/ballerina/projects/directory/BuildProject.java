@@ -23,7 +23,7 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.env.BuildEnvContext;
+import io.ballerina.projects.env.EnvironmentContextBuilder;
 import io.ballerina.projects.environment.EnvironmentContext;
 import io.ballerina.projects.model.BallerinaToml;
 import io.ballerina.projects.utils.ProjectConstants;
@@ -62,7 +62,7 @@ public class BuildProject extends Project {
                     absProjectPath.getParent());
         }
 
-        return new BuildProject(BuildEnvContext.getInstance(), absProjectPath);
+        return new BuildProject(EnvironmentContextBuilder.buildDefault(), absProjectPath);
     }
 
     private BuildProject(EnvironmentContext environmentContext, Path projectPath) {

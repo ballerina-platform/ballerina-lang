@@ -19,6 +19,7 @@ package io.ballerina.projects.repos;
 
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.environment.EnvironmentContext;
 import io.ballerina.projects.utils.ProjectConstants;
 
 import java.nio.file.Paths;
@@ -30,8 +31,8 @@ import java.nio.file.Paths;
  */
 public class DistributionPackageCache extends FileSystemRepository {
 
-    public DistributionPackageCache(Project project) {
-        super(project, Paths.get(System.getProperty(ProjectConstants.BALLERINA_INSTALL_DIR_PROP))
+    public DistributionPackageCache(EnvironmentContext environmentContext, Project project) {
+        super(environmentContext, project, Paths.get(System.getProperty(ProjectConstants.BALLERINA_INSTALL_DIR_PROP))
                 .resolve(ProjectConstants.DIST_CACHE_DIRECTORY));
     }
 
