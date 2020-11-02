@@ -177,16 +177,16 @@ public class AnnotationUtil {
             Optional<TypeSymbol> attachedType
                     = Optional.ofNullable(CommonUtil.getRawType(annotationSymbol.typeDescriptor().get()));
             Optional<TypeSymbol> resultType;
-            if (attachedType.isPresent() && attachedType.get().kind() == TypeDescKind.ARRAY) {
+            if (attachedType.isPresent() && attachedType.get().typeKind() == TypeDescKind.ARRAY) {
                 resultType = Optional.of(((ArrayTypeSymbol) attachedType.get()).memberTypeDescriptor());
             } else {
                 resultType = attachedType;
             }
-            if (resultType.isPresent() && (resultType.get().kind() == TypeDescKind.RECORD
-                    || resultType.get().kind() == TypeDescKind.MAP)) {
+            if (resultType.isPresent() && (resultType.get().typeKind() == TypeDescKind.RECORD
+                    || resultType.get().typeKind() == TypeDescKind.MAP)) {
                 List<FieldSymbol> requiredFields = new ArrayList<>();
                 annotationStart.append(" ").append(CommonKeys.OPEN_BRACE_KEY).append(LINE_SEPARATOR);
-                if (resultType.get().kind() == TypeDescKind.RECORD) {
+                if (resultType.get().typeKind() == TypeDescKind.RECORD) {
                     requiredFields.addAll(CommonUtil.getMandatoryRecordFields((RecordTypeSymbol) resultType.get()));
                 }
                 List<String> insertTexts = new ArrayList<>();

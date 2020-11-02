@@ -19,6 +19,7 @@ package io.ballerina.compiler.api.types;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
 
 import java.util.List;
 
@@ -34,7 +35,7 @@ public interface TypeSymbol {
      *
      * @return {@link TypeDescKind} represented by the model
      */
-    TypeDescKind kind();
+    TypeDescKind typeKind();
 
     /**
      * Get the module ID.

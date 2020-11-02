@@ -133,9 +133,9 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
 
         List<FieldSymbol> fieldSymbols = new ArrayList<>();
         TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor.get());
-        if (rawType.kind() == TypeDescKind.OBJECT) {
+        if (rawType.typeKind() == TypeDescKind.OBJECT) {
             fieldSymbols.addAll(((ObjectTypeSymbol) rawType).fieldDescriptors());
-        } else if (rawType.kind() == TypeDescKind.RECORD) {
+        } else if (rawType.typeKind() == TypeDescKind.RECORD) {
             fieldSymbols.addAll(((RecordTypeSymbol) rawType).fieldDescriptors());
         }
 
@@ -188,7 +188,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         }
         TypeSymbol rawType = CommonUtil.getRawType(fieldTypeDesc.get());
         List<MethodSymbol> visibleMethods = rawType.builtinMethods();
-        if (rawType.kind() == TypeDescKind.OBJECT) {
+        if (rawType.typeKind() == TypeDescKind.OBJECT) {
             visibleMethods.addAll(((ObjectTypeSymbol) rawType).methods());
         }
         Optional<MethodSymbol> filteredMethod = visibleMethods.stream()
@@ -206,7 +206,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                                                              TypeSymbol typeDescriptor) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor);
-        switch (rawType.kind()) {
+        switch (rawType.typeKind()) {
             case RECORD:
                 ((RecordTypeSymbol) rawType).fieldDescriptors().forEach(fieldDescriptor -> {
                     CompletionItem completionItem = new CompletionItem();

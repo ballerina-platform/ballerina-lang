@@ -253,7 +253,7 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
         }
 
         @Override
-        public TypeDescKind kind() {
+        public TypeDescKind typeKind() {
             return typeDescKind;
         }
 

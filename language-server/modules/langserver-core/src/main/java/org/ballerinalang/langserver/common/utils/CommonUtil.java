@@ -238,7 +238,7 @@ public class CommonUtil {
         if (bType == null) {
             return "()";
         }
-        switch (bType.kind()) {
+        switch (bType.typeKind()) {
             case INT:
                 typeString = Integer.toString(0);
                 break;
@@ -558,13 +558,13 @@ public class CommonUtil {
         signature.append(")");
         insertText.append(")");
         Optional<TypeSymbol> returnType = functionTypeDesc.returnTypeDescriptor();
-        if (returnType.isEmpty() || returnType.get().kind() == TypeDescKind.NIL) {
+        if (returnType.isEmpty() || returnType.get().typeKind() == TypeDescKind.NIL) {
             insertText.append(";");
         }
         String initString = "(";
         String endString = ")";
 
-        if (returnType.isPresent() && returnType.get().kind() != TypeDescKind.NIL) {
+        if (returnType.isPresent() && returnType.get().typeKind() != TypeDescKind.NIL) {
             signature.append(initString).append(returnType.get().signature());
             signature.append(endString);
         }
@@ -593,7 +593,7 @@ public class CommonUtil {
     public static String getRecordFieldCompletionInsertText(FieldSymbol bField, int tabOffset) {
         TypeSymbol fieldType = bField.typeDescriptor();
         StringBuilder insertText = new StringBuilder(bField.name() + ": ");
-        if (fieldType.kind() == TypeDescKind.RECORD) {
+        if (fieldType.typeKind() == TypeDescKind.RECORD) {
             List<FieldSymbol> requiredFields = getMandatoryRecordFields((RecordTypeSymbol) fieldType);
             if (requiredFields.isEmpty()) {
                 insertText.append("{").append("${1}}");
@@ -615,7 +615,7 @@ public class CommonUtil {
                     .append("}");
         } else if (fieldType instanceof BArrayType) {
             insertText.append("[").append("${1}").append("]");
-        } else if (fieldType.kind() == TypeDescKind.STRING) {
+        } else if (fieldType.typeKind() == TypeDescKind.STRING) {
             insertText.append("\"").append("${1}").append("\"");
         } else {
             insertText.append("${1:").append(getDefaultValueForType(bField.typeDescriptor())).append("}");
@@ -1032,7 +1032,7 @@ public class CommonUtil {
      * @return {@link TypeSymbol} extracted type descriptor
      */
     public static TypeSymbol getRawType(TypeSymbol typeDescriptor) {
-        return typeDescriptor.kind() == TypeDescKind.TYPE_REFERENCE
+        return typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE
                 ? ((TypeReferenceTypeSymbol) typeDescriptor).typeDescriptor() : typeDescriptor;
     }
 }

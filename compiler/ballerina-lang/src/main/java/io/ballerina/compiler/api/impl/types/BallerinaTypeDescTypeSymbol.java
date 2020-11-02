@@ -51,8 +51,8 @@ public class BallerinaTypeDescTypeSymbol extends AbstractTypeSymbol implements T
     @Override
     public String signature() {
         if (this.typeParameter().isPresent()) {
-            return this.kind().name() + "<" + this.typeParameter().get().signature() + ">";
+            return this.typeKind().name() + "<" + this.typeParameter().get().signature() + ">";
         }
-        return this.kind().name();
+        return this.typeKind().name();
     }
 }

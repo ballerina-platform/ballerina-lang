@@ -43,7 +43,7 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     }
 
     @Override
-    public TypeDescKind kind() {
+    public TypeDescKind typeKind() {
         return typeDescKind;
     }
 
