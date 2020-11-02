@@ -2567,28 +2567,28 @@ public class Types {
         }
 
 //
-//        for (BType s : sourceTypes) {
-//            if (s.tag == TypeTags.NEVER) {
-//                continue;
-//            }
-//            if (s.tag == TypeTags.FINITE && isAssignable(s, target, unresolvedTypes)) {
-//                continue;
-//            }
-//            if (s.tag == TypeTags.XML && isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes)) {
-//                continue;
-//            }
+//for (BType s : sourceTypes) {
+//    if (s.tag == TypeTags.NEVER) {
+//        continue;
+//    }
+//    if (s.tag == TypeTags.FINITE && isAssignable(s, target, unresolvedTypes)) {
+//        continue;
+//    }
+//    if (s.tag == TypeTags.XML && isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes)) {
+//        continue;
+//    }
 //
-//            boolean sourceTypeIsNotAssignableToAnyTargetType = true;
-//            for (BType t : targetTypes) {
-//                if (isAssignable(s, t, unresolvedTypes)) {
-//                    sourceTypeIsNotAssignableToAnyTargetType = false;
-//                    break;
-//                }
-//            }
-//            if (sourceTypeIsNotAssignableToAnyTargetType) {
-//                return false;
-//            }
+//    boolean sourceTypeIsNotAssignableToAnyTargetType = true;
+//    for (BType t : targetTypes) {
+//        if (isAssignable(s, t, unresolvedTypes)) {
+//            sourceTypeIsNotAssignableToAnyTargetType = false;
+//            break;
 //        }
+//    }
+//    if (sourceTypeIsNotAssignableToAnyTargetType) {
+//        return false;
+//    }
+//}
         return true;
     }
 

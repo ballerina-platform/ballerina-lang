@@ -1156,9 +1156,9 @@ public class BIRPackageSymbolEnter {
                     for (int i = 0; i < unionMemberCount; i++) {
                         unionType.add(readTypeFromCp());
                     }
-//                    if (Symbols.isFlagOn(flags, Flags.CYCLIC)) {
-//                        symbolResolver.resolveCyclicUnionType(unionType);
-//                    }
+                    if (unionType.isCyclic) {
+                        symbolResolver.resolveCyclicUnionType(unionType);
+                    }
                     return unionType;
                 case TypeTags.INTERSECTION:
                     BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,

@@ -256,6 +256,42 @@ public class BUnionType extends BType implements UnionType {
         }
     }
 
+    protected void resolveCyclicType(BUnionType unionType) {
+        for (BType member : unionType.getMemberTypes()) {
+            if (member.tag == TypeTags.ARRAY) {
+                var arrayType = (BArrayType) member;
+                if (arrayType.eType == unionType) {
+                    arrayType.eType = this;
+                    continue;
+                }
+            }
+
+            if (member.tag == TypeTags.MAP) {
+                var mapType = (BMapType) member;
+                if (mapType.constraint == unionType) {
+                    mapType.constraint = this;
+                    continue;
+                }
+            }
+
+            if (member.tag == TypeTags.TABLE) {
+                var tableType = (BTableType) member;
+                if (tableType.constraint == unionType) {
+                    tableType.constraint = this;
+                    continue;
+                }
+                if (tableType.constraint.tag == TypeTags.MAP) {
+                    var mapType = (BMapType) tableType.constraint;
+                    if (mapType.constraint == unionType) {
+                        mapType.constraint = this;
+                        continue;
+                    }
+                }
+            }
+            this.add(member);
+        }
+    }
+
     /**
      * Returns an iterator to iterate over the member types of the union.
      *

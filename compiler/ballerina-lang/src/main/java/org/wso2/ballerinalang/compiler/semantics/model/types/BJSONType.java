@@ -32,14 +32,16 @@ import java.util.LinkedHashSet;
 public class BJSONType extends BUnionType {
 
     public BJSONType(BJSONType type, boolean nullable) {
-        super(type.tsymbol, type.getMemberTypes(), nullable, Symbols.isFlagOn(type.flags, Flags.READONLY));
+        super(type.tsymbol, new LinkedHashSet<>(), nullable, Symbols.isFlagOn(type.flags, Flags.READONLY));
+        resolveCyclicType(type);
         this.tag = TypeTags.JSON;
         this.isCyclic = true;
     }
 
     public BJSONType(BUnionType type) {
-        super(type.tsymbol, new LinkedHashSet<>(type.getMemberTypes()), type.isNullable(), Symbols.isFlagOn(type.flags,
+        super(type.tsymbol, new LinkedHashSet<>(), type.isNullable(), Symbols.isFlagOn(type.flags,
                 Flags.READONLY));
+        resolveCyclicType(type);
         this.immutableType = type.immutableType;
         this.tag = TypeTags.JSON;
         this.isCyclic = true;

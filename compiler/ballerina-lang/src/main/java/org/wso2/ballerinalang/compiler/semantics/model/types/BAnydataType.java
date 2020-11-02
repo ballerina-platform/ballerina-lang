@@ -53,15 +53,17 @@ public class BAnydataType extends BUnionType {
     }
 
     public BAnydataType(BUnionType type) {
-        super(type.tsymbol, new LinkedHashSet<>(type.getMemberTypes()), type.isNullable(), Symbols.isFlagOn(type.flags,
+        super(type.tsymbol, new LinkedHashSet<>(), type.isNullable(), Symbols.isFlagOn(type.flags,
                 Flags.READONLY));
+        resolveCyclicType(type);
         this.immutableType = type.immutableType;
         this.tag = TypeTags.ANYDATA;
         this.isCyclic = true;
     }
 
     public BAnydataType(BAnydataType type, boolean nullable) {
-        super(type.tsymbol, type.getMemberTypes(), nullable, Symbols.isFlagOn(type.flags, Flags.READONLY));
+        super(type.tsymbol, new LinkedHashSet<>(), nullable, Symbols.isFlagOn(type.flags, Flags.READONLY));
+        resolveCyclicType(type);
         this.tag = TypeTags.ANYDATA;
         this.isCyclic = true;
     }
