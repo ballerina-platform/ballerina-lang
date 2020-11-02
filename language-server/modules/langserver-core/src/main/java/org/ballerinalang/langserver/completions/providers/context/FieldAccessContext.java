@@ -215,7 +215,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
     private Optional<? extends TypeSymbol> getTypeDescForIndexedExpr(LSContext context, IndexedExpressionNode node) {
         Optional<? extends TypeSymbol> typeDesc = getTypeDesc(context, node.containerExpression());
         
-        if (typeDesc.isEmpty() || typeDesc.get().kind() != TypeDescKind.ARRAY) {
+        if (typeDesc.isEmpty() || typeDesc.get().typeKind() != TypeDescKind.ARRAY) {
             return Optional.empty();
         }
         
