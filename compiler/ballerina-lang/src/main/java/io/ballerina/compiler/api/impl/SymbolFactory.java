@@ -159,7 +159,7 @@ public class SymbolFactory {
     public static BallerinaMethodSymbol createMethodSymbol(BInvokableSymbol invokableSymbol, String name) {
         TypeSymbol typeDescriptor = TypesFactory.getTypeDescriptor(invokableSymbol.type);
         BallerinaFunctionSymbol functionSymbol = SymbolFactory.createFunctionSymbol(invokableSymbol, name);
-        if (typeDescriptor.kind() == TypeDescKind.FUNCTION) {
+        if (typeDescriptor.typeKind() == TypeDescKind.FUNCTION) {
             return new BallerinaMethodSymbol(functionSymbol);
         }
 

@@ -99,16 +99,16 @@ public class BLangRecordLiteralUtil {
     }
 
     private static List<TypeSymbol> getTypeListForMapAndRecords(TypeSymbol typeDesc) {
-        if (typeDesc.kind() == TypeDescKind.MAP) {
+        if (typeDesc.typeKind() == TypeDescKind.MAP) {
             Optional<TypeSymbol> memberType = ((MapTypeSymbol) typeDesc).typeParameter();
             if (memberType.isEmpty()) {
                 return new ArrayList<>();
             }
-            if (memberType.get().kind() == TypeDescKind.UNION) {
+            if (memberType.get().typeKind() == TypeDescKind.UNION) {
                 return new ArrayList<>(((UnionTypeSymbol) memberType.get()).memberTypeDescriptors());
             }
             return Collections.singletonList(memberType.get());
-        } else if (typeDesc.kind() == TypeDescKind.RECORD) {
+        } else if (typeDesc.typeKind() == TypeDescKind.RECORD) {
             return ((RecordTypeSymbol) typeDesc).fieldDescriptors().stream()
                     .map(FieldSymbol::typeDescriptor)
                     .collect(Collectors.toList());

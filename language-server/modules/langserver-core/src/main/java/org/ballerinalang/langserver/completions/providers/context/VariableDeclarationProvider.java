@@ -97,7 +97,7 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
             }
             String identifier = ((QualifiedNameReferenceNode) typeDescriptorNode).identifier().text();
             objectType = module.get().typeDefinitions().stream()
-                    .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol.typeDescriptor()).kind()
+                    .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol.typeDescriptor()).typeKind()
                             == TypeDescKind.OBJECT
                             && typeSymbol.name().equals(identifier))
                     .map(typeSymbol -> (ObjectTypeSymbol) CommonUtil.getRawType(typeSymbol.typeDescriptor()))
@@ -106,7 +106,7 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
             String identifier = ((SimpleNameReferenceNode) typeDescriptorNode).name().text();
             objectType = visibleSymbols.stream()
                     .filter(symbol -> symbol.kind() == SymbolKind.TYPE
-                            && CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()).kind()
+                            && CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()).typeKind()
                             == TypeDescKind.OBJECT
                             && symbol.name().equals(identifier))
                     .map(symbol -> (ObjectTypeSymbol) CommonUtil

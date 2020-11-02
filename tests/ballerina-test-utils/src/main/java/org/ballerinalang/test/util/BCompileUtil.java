@@ -768,7 +768,7 @@ public class BCompileUtil {
     }
 
     private static String calcFileNameForJar(BLangPackage bLangPackage) {
-        PackageID pkgID = bLangPackage.pos.src.pkgID;
+        PackageID pkgID = bLangPackage.packageID;
         Name sourceFileName = pkgID.sourceFileName;
         if (sourceFileName != null) {
             return sourceFileName.value.replaceAll("\\.bal$", "");

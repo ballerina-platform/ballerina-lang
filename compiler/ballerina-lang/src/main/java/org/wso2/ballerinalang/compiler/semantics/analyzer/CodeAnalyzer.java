@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
@@ -39,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -114,7 +116,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -153,6 +157,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
@@ -215,11 +220,11 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -262,7 +267,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean lastStatement;
     private boolean errorThrown;
     private boolean failVisited;
-    private boolean hasLastPatternInClause = false;
+    private boolean hasLastPatternInClause;
     private boolean withinLockBlock;
     private SymbolTable symTable;
     private Types types;
@@ -333,6 +338,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
+        this.dlog.setCurrentPackageId(pkgNode.packageID);
         pkgNode.accept(this);
         return pkgNode;
     }
@@ -397,7 +403,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         // To ensure the order of the compile errors
-        bLangFunctionList.sort(Comparator.comparingInt(function -> function.pos.sLine));
+        bLangFunctionList.sort(Comparator.comparingInt(function -> function.pos.lineRange().startLine().line()));
         for (BLangFunction function : bLangFunctionList) {
             this.analyzeNode(function, objectEnv);
         }
@@ -825,11 +831,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         matchExprType = matchStatement.expr.type;
 
         boolean currentErrorThrown = this.errorThrown;
-        this.matchClauseReturns = false;
         this.hasLastPatternInClause = false;
         boolean containsLastPatternInStatement = false;
         boolean allClausesReturns = true;
-        for (BLangMatchClause matchClause : matchStatement.matchClauses) {
+        List<BLangMatchClause> matchClauses = matchStatement.matchClauses;
+        for (int i = 0; i < matchClauses.size(); i++) {
+            this.matchClauseReturns = false;
+            BLangMatchClause matchClause = matchClauses.get(i);
+            for (int j = i; j > 0; j--) {
+                if (!checkSimilarMatchGuard(matchClause.matchGuard, matchClauses.get(j - 1).matchGuard)) {
+                    continue;
+                }
+                checkSimilarMatchPatternsBetweenClauses(matchClauses.get(j - 1), matchClause);
+            }
             this.resetErrorThrown();
             analyzeNode(matchClause, env);
             allClausesReturns = allClausesReturns && this.matchClauseReturns;
@@ -843,12 +857,25 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchClause matchClause) {
-        for (BLangMatchPattern matchPattern : matchClause.matchPatterns) {
+        Map<String, BVarSymbol> variablesInMatchPattern = new HashMap<>();
+        boolean patternListContainsSameVars = true;
+
+        List<BLangMatchPattern> matchPatterns = matchClause.matchPatterns;
+        for (int i = 0; i < matchPatterns.size(); i++) {
+            BLangMatchPattern matchPattern = matchPatterns.get(i);
             if (this.hasLastPatternInClause && matchClause.matchGuard == null) {
                 dlog.error(matchPattern.pos, DiagnosticCode.MATCH_STMT_PATTERN_UNREACHABLE);
             }
             if (matchPattern.type == symTable.noType) {
-                dlog.error(matchClause.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
+                dlog.error(matchPattern.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
+            }
+            if (patternListContainsSameVars) {
+                patternListContainsSameVars = compareVariables(variablesInMatchPattern, matchPattern);
+            }
+            for (int j = i; j > 0; j--) {
+                if (checkSimilarMatchPatterns(matchPatterns.get(j - 1), matchPattern)) {
+                    dlog.error(matchPattern.pos, DiagnosticCode.MATCH_STMT_PATTERN_UNREACHABLE);
+                }
             }
 
             this.isJSONContext = types.isJSONContext(matchExprType);
@@ -856,8 +883,163 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             matchPattern.isLastPattern = this.hasLastPatternInClause;
         }
 
+        if (!patternListContainsSameVars) {
+            dlog.error(matchClause.pos, DiagnosticCode.MATCH_PATTERNS_SHOULD_CONTAIN_SAME_SET_OF_VARIABLES);
+        }
+        matchClause.declaredVars.putAll(matchClause.matchPatterns.get(0).declaredVars);
+
         analyzeNode(matchClause.blockStmt, env);
         resetStatementReturns();
+    }
+
+    private void checkSimilarMatchPatternsBetweenClauses(BLangMatchClause firstClause, BLangMatchClause secondClause) {
+        for (BLangMatchPattern firstMatchPattern : firstClause.matchPatterns) {
+            for (BLangMatchPattern secondMatchPattern : secondClause.matchPatterns) {
+                if (checkSimilarMatchPatterns(firstMatchPattern, secondMatchPattern)) {
+                    dlog.error(secondMatchPattern.pos, DiagnosticCode.MATCH_STMT_PATTERN_UNREACHABLE);
+                }
+            }
+        }
+    }
+
+    private boolean checkSimilarMatchPatterns(BLangMatchPattern firstPattern, BLangMatchPattern secondPattern) {
+        NodeKind firstPatternKind = firstPattern.getKind();
+        NodeKind secondPatternKind = secondPattern.getKind();
+        if (firstPatternKind != secondPatternKind) {
+            return false;
+        }
+
+        switch (firstPatternKind) {
+            case CONST_MATCH_PATTERN:
+                return checkSimilarConstMatchPattern((BLangConstPattern) firstPattern,
+                        (BLangConstPattern) secondPattern);
+            case VAR_BINDING_PATTERN_MATCH_PATTERN:
+                return checkSimilarBindingPatterns(
+                        ((BLangVarBindingPatternMatchPattern) firstPattern).getBindingPattern(),
+                        ((BLangVarBindingPatternMatchPattern) secondPattern).getBindingPattern());
+            case LIST_MATCH_PATTERN:
+                return checkSimilarListMatchPattern((BLangListMatchPattern) firstPattern,
+                        (BLangListMatchPattern) secondPattern);
+            case REST_MATCH_PATTERN:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private boolean checkSimilarConstMatchPattern(BLangConstPattern firstConstMatchPattern,
+                                                  BLangConstPattern secondConstMatchPattern) {
+        NodeKind firstConstPatternExprKind = firstConstMatchPattern.expr.getKind();
+        NodeKind secondConstPatternExprKind = secondConstMatchPattern.expr.getKind();
+        if (firstConstPatternExprKind != secondConstPatternExprKind) {
+            return false;
+        }
+
+        switch (firstConstPatternExprKind) {
+            case NUMERIC_LITERAL:
+                return ((BLangNumericLiteral) firstConstMatchPattern.expr).value.
+                        equals(((BLangNumericLiteral) secondConstMatchPattern.expr).value);
+            case LITERAL:
+                return ((BLangLiteral) firstConstMatchPattern.expr).value.
+                        equals(((BLangLiteral) secondConstMatchPattern.expr).value);
+            case SIMPLE_VARIABLE_REF:
+                return ((BLangSimpleVarRef) secondConstMatchPattern.expr).variableName.
+                        equals(((BLangSimpleVarRef) firstConstMatchPattern.expr).variableName);
+            default:
+                return false;
+        }
+    }
+
+    private boolean checkSimilarListMatchPattern(BLangListMatchPattern firstListMatchPattern,
+                                                 BLangListMatchPattern secondListMatchPattern) {
+        if (firstListMatchPattern.restMatchPattern != null && secondListMatchPattern.restMatchPattern == null) {
+            return false;
+        }
+        if (firstListMatchPattern.restMatchPattern == null && secondListMatchPattern.restMatchPattern != null) {
+            return false;
+        }
+
+        List<BLangMatchPattern> firstListMatchPatterns = firstListMatchPattern.matchPatterns;
+        List<BLangMatchPattern> secondListMatchPatterns = secondListMatchPattern.matchPatterns;
+        if (firstListMatchPattern.restMatchPattern == null) {
+            if (firstListMatchPatterns.size() != secondListMatchPatterns.size()) {
+                return false;
+            }
+            return checkSimilarListMemberPatterns(firstListMatchPatterns, secondListMatchPatterns);
+        }
+        if (firstListMatchPatterns.size() > secondListMatchPatterns.size()) {
+            return false;
+        }
+        if (firstListMatchPatterns.size() == secondListMatchPatterns.size()) {
+            return checkSimilarListMemberPatterns(firstListMatchPatterns, secondListMatchPatterns);
+        }
+        return checkSimilarMatchPatterns(firstListMatchPattern.restMatchPattern,
+                secondListMatchPattern.restMatchPattern);
+    }
+
+    private boolean checkSimilarListMemberPatterns(List<BLangMatchPattern> firstListMatchPatterns,
+                                                   List<BLangMatchPattern> secondListMatchPatterns) {
+        for (int i = 0; i < firstListMatchPatterns.size(); i++) {
+            if (!checkSimilarMatchPatterns(firstListMatchPatterns.get(i), secondListMatchPatterns.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean checkSimilarBindingPatterns(BLangBindingPattern firstBidingPattern,
+                                                BLangBindingPattern secondBindingPattern) {
+        NodeKind firstBindingPatternKind = firstBidingPattern.getKind();
+        NodeKind secondBindingPatternKind = secondBindingPattern.getKind();
+        if (firstBindingPatternKind != secondBindingPatternKind) {
+            return false;
+        }
+
+        switch (firstBindingPatternKind) {
+            case CAPTURE_BINDING_PATTERN:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    // a is int && b is int, b is int && a is int -> create an issue
+    private boolean checkSimilarMatchGuard(BLangMatchGuard firstMatchGuard, BLangMatchGuard secondMatchGuard) {
+        if (firstMatchGuard == null && secondMatchGuard == null) {
+            return true;
+        }
+        if (firstMatchGuard == null || secondMatchGuard == null) {
+            return false;
+        }
+        if (firstMatchGuard.expr.getKind() == NodeKind.TYPE_TEST_EXPR &&
+                secondMatchGuard.expr.getKind() == NodeKind.TYPE_TEST_EXPR &&
+                ((BLangTypeTestExpr) firstMatchGuard.expr).expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                ((BLangTypeTestExpr) secondMatchGuard.expr).expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangTypeTestExpr firstTypeTest = (BLangTypeTestExpr) firstMatchGuard.expr;
+            BLangTypeTestExpr secondTypeTest = (BLangTypeTestExpr) secondMatchGuard.expr;
+            return ((BLangSimpleVarRef) firstTypeTest.expr).variableName.toString().equals(
+                    ((BLangSimpleVarRef) secondTypeTest.expr).variableName.toString()) &&
+                    firstTypeTest.typeNode.type.tag == secondTypeTest.typeNode.type.tag;
+        }
+        return false;
+    }
+
+    private boolean compareVariables(Map<String, BVarSymbol> varsInPreviousMatchPattern,
+                                     BLangMatchPattern matchPattern) {
+        Map<String, BVarSymbol> varsInCurrentMatchPattern = matchPattern.declaredVars;
+        if (varsInPreviousMatchPattern.size() == 0) {
+            varsInPreviousMatchPattern.putAll(varsInCurrentMatchPattern);
+            return true;
+        }
+        if (varsInPreviousMatchPattern.size() != varsInCurrentMatchPattern.size()) {
+            return false;
+        }
+        for (String identifier : varsInPreviousMatchPattern.keySet()) {
+            if (!varsInCurrentMatchPattern.containsKey(identifier)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -868,14 +1050,37 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWildCardMatchPattern wildCardMatchPattern) {
         this.hasLastPatternInClause = wildCardMatchPattern.matchesAll =
-                types.isAssignable(wildCardMatchPattern.matchExpr.type, symTable.anyType);
+                wildCardMatchPattern.matchExpr != null && types.isAssignable(wildCardMatchPattern.matchExpr.type,
+                        symTable.anyType);
     }
 
     @Override
     public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
         BLangBindingPattern bindingPattern = varBindingPattern.getBindingPattern();
         analyzeNode(bindingPattern, env);
-        this.hasLastPatternInClause = this.hasLastPatternInClause && !varBindingPattern.matchGuardIsAvailable;
+        this.hasLastPatternInClause = varBindingPattern.matchExpr != null
+                && this.hasLastPatternInClause && !varBindingPattern.matchGuardIsAvailable;
+    }
+
+    @Override
+    public void visit(BLangListMatchPattern listMatchPattern) {
+        if (listMatchPattern.matchExpr == null) {
+            return;
+        }
+        this.hasLastPatternInClause = types.isSameType(listMatchPattern.type, listMatchPattern.matchExpr.type)
+                && !isConstMatchPatternExist(listMatchPattern);
+    }
+
+    private boolean isConstMatchPatternExist(BLangMatchPattern matchPattern) {
+        if (matchPattern.getKind() != NodeKind.LIST_MATCH_PATTERN) {
+            return matchPattern.getKind() == NodeKind.CONST_MATCH_PATTERN;
+        }
+        for (BLangMatchPattern memberMatchPattern : ((BLangListMatchPattern) matchPattern).matchPatterns) {
+            if (isConstMatchPatternExist(memberMatchPattern)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -1641,7 +1846,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeExportableTypeRef(BSymbol owner, BTypeSymbol symbol, boolean inFuncSignature,
-                                          DiagnosticPos pos) {
+                                          Location pos) {
 
         if (!inFuncSignature && Symbols.isFlagOn(owner.flags, Flags.ANONYMOUS)) {
             // Specially validate function signatures.
@@ -1652,7 +1857,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void checkForExportableType(BTypeSymbol symbol, DiagnosticPos pos) {
+    private void checkForExportableType(BTypeSymbol symbol, Location pos) {
 
         if (symbol == null || symbol.type == null || Symbols.isFlagOn(symbol.flags, Flags.TYPE_PARAM)) {
             // This is a built-in symbol or a type Param.
@@ -1763,7 +1968,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         varNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
 
-    private void checkWorkerPeerWorkerUsageInsideWorker(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
+    private void checkWorkerPeerWorkerUsageInsideWorker(Location pos, BSymbol symbol, SymbolEnv env) {
         if ((symbol.flags & Flags.WORKER) == Flags.WORKER) {
             if (isCurrentPositionInWorker(env) && env.scope.lookup(symbol.name).symbol == null) {
                 if (referingForkedWorkerOutOfFork(symbol, env)) {
@@ -2099,7 +2304,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         validateActionParentNode(workerSendNode.pos, workerSendNode.expr);
     }
 
-    private BType createAccumulatedErrorTypeForMatchingRecive(DiagnosticPos pos, BType exprType) {
+    private BType createAccumulatedErrorTypeForMatchingRecive(Location pos, BType exprType) {
         Set<BType> returnTypesUpToNow = this.returnTypes.peek();
         LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<BType>() {
             {
@@ -2184,7 +2389,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         was.addWorkerAction(workerReceiveNode);
     }
 
-    private void verifyPeerCommunication(DiagnosticPos pos, BSymbol otherWorker, String otherWorkerName) {
+    private void verifyPeerCommunication(Location pos, BSymbol otherWorker, String otherWorkerName) {
         if (env.enclEnv.node.getKind() != NodeKind.FUNCTION) {
             return;
         }
@@ -2519,7 +2724,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         validateActionInvocation(actionInvocation.pos, actionInvocation);
     }
 
-    private void validateActionInvocation(DiagnosticPos pos, BLangInvocation iExpr) {
+    private void validateActionInvocation(Location pos, BLangInvocation iExpr) {
         if (iExpr.expr != null) {
             final NodeKind clientNodeKind = iExpr.expr.getKind();
             // Validation against node kind.
@@ -2543,7 +2748,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     /**
      * Actions can only occur as part of a statement or nested inside other actions.
      */
-    private void validateActionParentNode(DiagnosticPos pos, BLangNode node) {
+    private void validateActionParentNode(Location pos, BLangNode node) {
         // Validate for parent nodes.
         BLangNode parent = node.parent;
 
@@ -2868,7 +3073,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         // To ensure the order of the compile errors
-        bLangFunctionList.sort(Comparator.comparingInt(function -> function.pos.sLine));
+        bLangFunctionList.sort(Comparator.comparingInt(function -> function.pos.lineRange().startLine().line()));
         for (BLangFunction function : bLangFunctionList) {
             this.analyzeNode(function, objectEnv);
         }
@@ -3234,7 +3439,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void checkAccessSymbol(BSymbol symbol, DiagnosticPos position) {
+    private void checkAccessSymbol(BSymbol symbol, Location position) {
         if (symbol == null) {
             return;
         }
@@ -3466,7 +3671,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         private boolean hasErrors = false;
 
 
-        public void startWorkerActionStateMachine(String workerId, DiagnosticPos pos, BLangFunction node) {
+        public void startWorkerActionStateMachine(String workerId, Location pos, BLangFunction node) {
             workerActionStateMachines.push(new WorkerActionStateMachine(pos, workerId, node));
         }
 
@@ -3491,7 +3696,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return this.finshedWorkers.stream().allMatch(WorkerActionStateMachine::done);
         }
 
-        public DiagnosticPos getRootPosition() {
+        public Location getRootPosition() {
             return this.finshedWorkers.iterator().next().pos;
         }
 
@@ -3517,11 +3722,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         public List<BLangNode> actions = new ArrayList<>();
 
-        public DiagnosticPos pos;
+        public Location pos;
         public String workerId;
         public BLangFunction node;
 
-        public WorkerActionStateMachine(DiagnosticPos pos, String workerId, BLangFunction node) {
+        public WorkerActionStateMachine(Location pos, String workerId, BLangFunction node) {
             this.pos = pos;
             this.workerId = workerId;
             this.node = node;
@@ -3565,7 +3770,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void checkExperimentalFeatureValidity(ExperimentalFeatures constructName, DiagnosticPos pos) {
+    private void checkExperimentalFeatureValidity(ExperimentalFeatures constructName, Location pos) {
 
         if (enableExperimentalFeatures) {
             return;

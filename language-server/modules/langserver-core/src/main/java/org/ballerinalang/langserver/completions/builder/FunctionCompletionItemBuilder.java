@@ -98,7 +98,7 @@ public final class FunctionCompletionItemBuilder {
         CompletionItem item = new CompletionItem();
         setMeta(item, initMethod, ctx);
         String functionName;
-        if (mode == InitializerBuildMode.EXPLICIT && typeDesc.kind() == TypeDescKind.TYPE_REFERENCE) {
+        if (mode == InitializerBuildMode.EXPLICIT && typeDesc.typeKind() == TypeDescKind.TYPE_REFERENCE) {
             functionName = ((TypeReferenceTypeSymbol) typeDesc).name();
             // TODO: Following is blocked due to the Type Referencing issue in Semantic Model
 //            Optional<BLangIdentifier> moduleAlias = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY).stream()
@@ -190,7 +190,7 @@ public final class FunctionCompletionItemBuilder {
         if (!paramsStr.isEmpty()) {
             documentation += "**Params**" + CommonUtil.MD_LINE_SEPARATOR + paramsStr;
         }
-        if (functionTypeDesc.kind() != TypeDescKind.NIL) {
+        if (functionTypeDesc.typeKind() != TypeDescKind.NIL) {
             String desc = "";
             if (docAttachment.isPresent() && docAttachment.get().returnDescription().isPresent()
                     && !docAttachment.get().returnDescription().get().isEmpty()) {

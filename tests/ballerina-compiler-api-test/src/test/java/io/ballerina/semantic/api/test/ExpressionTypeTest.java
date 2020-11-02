@@ -95,8 +95,8 @@ public class ExpressionTypeTest {
     @Test
     public void testByteLiteral() {
         TypeSymbol type = getExprType(19, 13, 19, 42);
-        assertEquals(type.kind(), ARRAY);
-        assertEquals(((ArrayTypeSymbol) type).memberTypeDescriptor().kind(), BYTE);
+        assertEquals(type.typeKind(), ARRAY);
+        assertEquals(((ArrayTypeSymbol) type).memberTypeDescriptor().typeKind(), BYTE);
     }
 
     @Test(dataProvider = "TemplateExprProvider")
@@ -115,35 +115,35 @@ public class ExpressionTypeTest {
     @Test
     public void testRawTemplate() {
         TypeSymbol type = getExprType(25, 29, 25, 50);
-        assertEquals(type.kind(), TYPE_REFERENCE);
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
 
         TypeSymbol objType = ((TypeReferenceTypeSymbol) type).typeDescriptor();
-        assertEquals(objType.kind(), OBJECT);
+        assertEquals(objType.typeKind(), OBJECT);
 
         type = getExprType(25, 32, 25, 33);
-        assertEquals(type.kind(), STRING);
+        assertEquals(type.typeKind(), STRING);
     }
 
     @Test
     public void testArrayLiteral() {
         TypeSymbol type = getExprType(29, 20, 29, 34);
-        assertEquals(type.kind(), ARRAY);
+        assertEquals(type.typeKind(), ARRAY);
 
         TypeSymbol memberType = ((ArrayTypeSymbol) type).memberTypeDescriptor();
-        assertEquals(memberType.kind(), STRING);
+        assertEquals(memberType.typeKind(), STRING);
     }
 
     @Test(dataProvider = "TupleLiteralPosProvider")
     public void testTupleLiteral(int sLine, int sCol, int eLine, int eCol, List<TypeDescKind> memberKinds) {
         TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
-        assertEquals(type.kind(), TUPLE);
+        assertEquals(type.typeKind(), TUPLE);
 
         List<TypeSymbol> memberTypes = ((TupleTypeSymbol) type).memberTypeDescriptors();
 
         assertEquals(memberTypes.size(), memberKinds.size());
         for (int i = 0; i < memberTypes.size(); i++) {
             TypeSymbol memberType = memberTypes.get(i);
-            assertEquals(memberType.kind(), memberKinds.get(i));
+            assertEquals(memberType.typeKind(), memberKinds.get(i));
         }
     }
 
@@ -158,10 +158,10 @@ public class ExpressionTypeTest {
     @Test
     public void testMapLiteral() {
         TypeSymbol type = getExprType(34, 20, 34, 34);
-        assertEquals(type.kind(), MAP);
+        assertEquals(type.typeKind(), MAP);
 
         TypeSymbol constraint = ((MapTypeSymbol) type).typeParameter().get();
-        assertEquals(constraint.kind(), STRING);
+        assertEquals(constraint.typeKind(), STRING);
 
         assertType(34, 28, 34, 33, STRING);
     }
@@ -169,10 +169,10 @@ public class ExpressionTypeTest {
     @Test
     public void testInferredMappingConstructorType() {
         TypeSymbol type = getExprType(35, 13, 35, 43);
-        assertEquals(type.kind(), TYPE_REFERENCE);
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
 
         TypeSymbol referredType = ((TypeReferenceTypeSymbol) type).typeDescriptor();
-        assertEquals(referredType.kind(), RECORD);
+        assertEquals(referredType.typeKind(), RECORD);
 
         assertType(35, 14, 35, 20, STRING);
         assertType(35, 22, 35, 31, STRING);
@@ -183,7 +183,7 @@ public class ExpressionTypeTest {
     @Test
     public void testRecordLiteral() {
         TypeSymbol type = getExprType(40, 16, 40, 43);
-        assertEquals(type.kind(), RECORD);
+        assertEquals(type.typeKind(), RECORD);
 
         // Disabled ones due to #26628
 //        assertType(40, 17, 40, 21, STRING);
@@ -195,10 +195,10 @@ public class ExpressionTypeTest {
     @Test
     public void testJSONObject() {
         TypeSymbol type = getExprType(42, 13, 42, 40);
-        assertEquals(type.kind(), MAP);
+        assertEquals(type.typeKind(), MAP);
 
         TypeSymbol constraint = ((MapTypeSymbol) type).typeParameter().get();
-        assertEquals(constraint.kind(), JSON);
+        assertEquals(constraint.typeKind(), JSON);
 
         // Disabled ones due to #26628
 //        assertType(42, 14, 42, 18, STRING);
@@ -231,9 +231,9 @@ public class ExpressionTypeTest {
     @Test(dataProvider = "TypeInitPosProvider")
     public void testObjecTypeInit(int sLine, int sCol, int eLine, int eCol) {
         TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
-        assertEquals(type.kind(), TYPE_REFERENCE);
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
         assertEquals(((TypeReferenceTypeSymbol) type).name(), "PersonObj");
-        assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().kind(), OBJECT);
+        assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), OBJECT);
     }
 
     @DataProvider(name = "TypeInitPosProvider")
@@ -306,7 +306,7 @@ public class ExpressionTypeTest {
 
     private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
         TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
-        assertEquals(type.kind(), kind);
+        assertEquals(type.typeKind(), kind);
     }
 
     private TypeSymbol getExprType(int sLine, int sCol, int eLine, int eCol) {

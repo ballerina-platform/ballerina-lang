@@ -121,7 +121,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                     continue;
                 }
                 String sortText = genSortTextForInitContextItem(context, lsItem,
-                        (assignableType.get().typeDescriptor()).kind());
+                        (assignableType.get().typeDescriptor()).typeKind());
                 cItem.setSortText(sortText);
             }
         }

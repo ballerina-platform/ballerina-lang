@@ -149,6 +149,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -387,6 +389,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangCompilationUnit clone = new BLangCompilationUnit();
         source.cloneRef = clone;
         clone.name = source.name;
+        clone.setPackageID(source.getPackageID());
         for (TopLevelNode node : source.topLevelNodes) {
             clone.topLevelNodes.add(clone(node));
         }
@@ -730,6 +733,25 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.matchGuardIsAvailable = source.matchGuardIsAvailable;
         clone.setBindingPattern(source.getBindingPattern());
         clone.isLastPattern = source.isLastPattern;
+    }
+
+    @Override
+    public void visit(BLangListMatchPattern source) {
+        BLangListMatchPattern clone = new BLangListMatchPattern();
+        source.cloneRef = clone;
+        clone.matchExpr = source.matchExpr;
+        clone.restMatchPattern = clone(source.restMatchPattern);
+        clone.matchGuardIsAvailable = source.matchGuardIsAvailable;
+        clone.matchPatterns = cloneList(source.matchPatterns);
+        clone.declaredVars = source.declaredVars;
+    }
+
+    @Override
+    public void visit(BLangRestMatchPattern source) {
+        BLangRestMatchPattern clone = new BLangRestMatchPattern();
+        source.cloneRef = clone;
+        clone.matchExpr = source.matchExpr;
+        clone.setIdentifier(source.getIdentifier());
     }
 
     @Override
