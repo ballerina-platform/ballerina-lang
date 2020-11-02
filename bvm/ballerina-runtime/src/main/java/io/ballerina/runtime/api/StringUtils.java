@@ -300,7 +300,7 @@ public class StringUtils {
      * @param value The value on which the function is invoked
      * @return Ballerina value represented by Ballerina expression syntax
      */
-    public static Object parseExpressionStringValue(String value) {
+    public static Object parseExpressionStringValue(String value, BLink parent) {
         String exprValue = value.trim();
         int endIndex = exprValue.length() - 1;
         if (exprValue.equals("()")) {
@@ -325,23 +325,26 @@ public class StringUtils {
             return Boolean.parseBoolean(exprValue);
         }
         if (exprValue.startsWith("[") && exprValue.endsWith("]")) {
-            return BalStringUtils.parseArrayExpressionStringValue(exprValue);
+            return BalStringUtils.parseArrayExpressionStringValue(exprValue, parent);
         }
         if (exprValue.startsWith("{") && exprValue.endsWith("}")) {
-            return BalStringUtils.parseMapExpressionStringValue(exprValue);
+            return BalStringUtils.parseMapExpressionStringValue(exprValue, parent);
         }
         if (exprValue.startsWith("table key")) {
-            return BalStringUtils.parseTableExpressionStringValue(exprValue);
+            return BalStringUtils.parseTableExpressionStringValue(exprValue, parent);
         }
         if (exprValue.startsWith("xml")) {
             String xml = exprValue.substring(exprValue.indexOf('`') + 1,
                     exprValue.lastIndexOf('`')).trim();
-            return BalStringUtils.parseXmlExpressionStringValue(xml);
+            return BalStringUtils.parseXmlExpressionStringValue(xml, parent);
         }
-        if (!exprValue.startsWith("error") && !exprValue.startsWith("object") && !exprValue.startsWith("...")) {
-            return BalStringUtils.parseTupleExpressionStringValue(exprValue);
+        if (exprValue.startsWith("...")) {
+            return BalStringUtils.parseCycleDetectedExpressionStringValue(exprValue, parent);
         }
-        return ErrorCreator.createError(fromString("Cannot parse Ballerina expression syntax"),
+        if (!exprValue.startsWith("error") && !exprValue.startsWith("object")) {
+            return BalStringUtils.parseTupleExpressionStringValue(exprValue, parent);
+        }
+        return ErrorCreator.createError(fromString("{ballerina/lang.value}FromBalStringError"),
                 fromString("fromBalString supported only for Ballerina expression syntax of anydata value"));
     }
 

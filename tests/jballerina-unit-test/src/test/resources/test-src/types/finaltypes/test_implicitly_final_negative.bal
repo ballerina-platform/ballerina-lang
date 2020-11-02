@@ -1,4 +1,4 @@
-import ballerina/http;
+import ballerina/lang.test;
 
 public function testFieldAsFinalParameter() returns (int) {
     int i = 50;
@@ -30,7 +30,7 @@ function finalFunction() {
     int i = 0;
 }
 
-service FooService on new http:Listener(9090) {
+service FooService on new test:MockListener(9090) {
 
 }
 
@@ -39,10 +39,10 @@ function testCompound(int a) returns int {
     return a;
 }
 
-listener http:MockListener ml = new http:MockListener(8080);
+listener test:MockListener ml = new (8080);
 
 public function testChangingListenerVariableAfterDefining() {
-    ml = new http:MockListener(8081);
+    ml = new test:MockListener(8081);
 }
 
 service s on ml {}

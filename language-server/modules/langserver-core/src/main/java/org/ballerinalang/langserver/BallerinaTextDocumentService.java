@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.formatter.core.Formatter;
+import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.langserver.codeaction.CodeActionRouter;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
@@ -43,10 +44,11 @@ import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.ballerinalang.langserver.compiler.LSCompilerCache;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
+import org.ballerinalang.langserver.compiler.config.ClientConfigListener;
+import org.ballerinalang.langserver.compiler.config.LSClientConfig;
 import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.completions.exceptions.CompletionContextNotSupportedException;
-import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.HighlightingFailedException;
@@ -133,8 +135,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
         this.languageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
         this.docManager = globalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
         this.diagnosticsHelper = globalContext.get(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY);
-        LSClientConfigHolder.getInstance().register((oldConfig, newConfig) -> {
-            this.enableStdlibDefinition = newConfig.getGoToDefinition().isEnableStdlib();
+        LSClientConfigHolder.getInstance().register(new ClientConfigListener() {
+            @Override
+            public void didChangeConfig(LSClientConfig oldConfig, LSClientConfig newConfig) {
+                enableStdlibDefinition = newConfig.getGoToDefinition().isEnableStdlib();
+            }
         });
         this.diagPushDebouncer = new Debouncer(DIAG_PUSH_DEBOUNCE_DELAY);
     }
@@ -150,14 +155,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams position) {
-        final List<CompletionItem> completions = new ArrayList<>();
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = position.getTextDocument().getUri();
             Optional<Path> completionPath = CommonUtil.getPathFromURI(fileUri);
 
             // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
             if (completionPath.isEmpty() || CommonUtil.isCachedExternalSource(fileUri)) {
-                return Either.forLeft(completions);
+                return Either.forLeft(Collections.emptyList());
             }
 
             Path compilationPath = getUntitledFilePath(completionPath.toString()).orElse(completionPath.get());
@@ -168,13 +172,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .withCommonParams(position, fileUri, docManager)
                     .withCompletionParams(clientCapabilities.getTextDocCapabilities().getCompletion())
                     .build();
-
             try {
                 LSModuleCompiler.getBLangPackage(context, docManager, false, false);
                 // Fill the current file imports
                 context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
-                CompletionUtil.resolveSymbols(context);
-                completions.addAll(CompletionUtil.getCompletionItems(context));
+                return LangExtensionDelegator.instance().completion(position, context);
             } catch (CompletionContextNotSupportedException e) {
                 // Ignore the exception
             } catch (Throwable e) {
@@ -184,7 +186,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
             } finally {
                 lock.ifPresent(Lock::unlock);
             }
-            return Either.forLeft(completions);
+
+            return Either.forLeft(Collections.emptyList());
         });
     }
 
@@ -531,7 +534,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 Range range = new Range(new Position(0, 0), new Position(eofPos.line() + 1, eofPos.offset()));
                 textEdit = new TextEdit(range, formattedSource);
                 return Collections.singletonList(textEdit);
-            } catch (UserErrorException e) {
+            } catch (UserErrorException | FormatterException e) {
                 notifyUser("Formatting", e);
                 return Collections.singletonList(textEdit);
             } catch (Throwable e) {
@@ -547,7 +550,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     /**
      * The document range formatting request is sent from the client to the
      * server to format a given range in a document.
-     *
+     * <p>
      * Registration Options: TextDocumentRegistrationOptions
      */
     @Override
@@ -576,7 +579,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 Range updateRange = new Range(new Position(0, 0), new Position(eofPos.line() + 1, eofPos.offset()));
                 textEdit = new TextEdit(updateRange, formattedTree.toSourceCode());
                 return Collections.singletonList(textEdit);
-            } catch (UserErrorException e) {
+            } catch (UserErrorException | FormatterException e) {
                 notifyUser("Formatting", e);
                 return Collections.singletonList(textEdit);
             } catch (Throwable e) {

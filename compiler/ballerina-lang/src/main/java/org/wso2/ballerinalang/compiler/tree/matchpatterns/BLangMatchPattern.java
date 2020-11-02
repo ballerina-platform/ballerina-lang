@@ -18,16 +18,22 @@
 package org.wso2.ballerinalang.compiler.tree.matchpatterns;
 
 import org.ballerinalang.model.tree.matchpatterns.MatchPatternNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * @since Swan Lake
+ * Represent match-pattern.
+ *
+ * @since 2.0.0
  */
 public abstract class BLangMatchPattern extends BLangNode implements MatchPatternNode {
+
     public BLangExpression matchExpr; // TODO : should changed as action or expr
-
     public boolean matchGuardIsAvailable;
-
     public boolean isLastPattern;
+    public Map<String, BVarSymbol> declaredVars = new HashMap<>();
 }

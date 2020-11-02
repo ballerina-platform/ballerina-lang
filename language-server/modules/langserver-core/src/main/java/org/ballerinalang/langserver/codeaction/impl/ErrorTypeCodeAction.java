@@ -16,9 +16,9 @@
 package org.ballerinalang.langserver.codeaction.impl;
 
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.UnionTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeSymbol;
+import io.ballerina.compiler.api.types.UnionTypeSymbol;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -44,9 +44,9 @@ import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActi
  */
 public class ErrorTypeCodeAction implements DiagBasedCodeAction {
     private final Symbol scopedSymbol;
-    private final BallerinaTypeDescriptor typeDescriptor;
+    private final TypeSymbol typeDescriptor;
 
-    public ErrorTypeCodeAction(BallerinaTypeDescriptor typeDescriptor, Symbol scopedSymbol) {
+    public ErrorTypeCodeAction(TypeSymbol typeDescriptor, Symbol scopedSymbol) {
         this.typeDescriptor = typeDescriptor;
         this.scopedSymbol = scopedSymbol;
     }
@@ -71,7 +71,7 @@ public class ErrorTypeCodeAction implements DiagBasedCodeAction {
 
 
     private static List<CodeAction> addErrorTypeBasedCodeActions(String uri, Symbol symbol,
-                                                                 BallerinaTypeDescriptor typeDescriptor,
+                                                                 TypeSymbol typeDescriptor,
                                                                  Position position, List<TextEdit> importEdits,
                                                                  String type,
                                                                  String name) {
@@ -79,11 +79,11 @@ public class ErrorTypeCodeAction implements DiagBasedCodeAction {
         // add code action for `check`
         if (symbol != null) {
             boolean hasError = false;
-            if (typeDescriptor.kind() == TypeDescKind.ERROR) {
+            if (typeDescriptor.typeKind() == TypeDescKind.ERROR) {
                 hasError = true;
-            } else if (typeDescriptor.kind() == TypeDescKind.UNION) {
-                UnionTypeDescriptor unionType = (UnionTypeDescriptor) typeDescriptor;
-                hasError = unionType.memberTypeDescriptors().stream().anyMatch(s -> s.kind() == TypeDescKind.ERROR);
+            } else if (typeDescriptor.typeKind() == TypeDescKind.UNION) {
+                UnionTypeSymbol unionType = (UnionTypeSymbol) typeDescriptor;
+                hasError = unionType.memberTypeDescriptors().stream().anyMatch(s -> s.typeKind() == TypeDescKind.ERROR);
             }
             if (hasError) {
                 String panicCmd = String.format(CommandConstants.CREATE_VARIABLE_TITLE + " with '%s'", "Check");

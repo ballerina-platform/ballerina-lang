@@ -90,10 +90,6 @@ function retIntSuccess() returns int {
     return 1;
 }
 
-//function getCallStackTest() returns runtime:CallStackElement[] {
-//    return runtime:getCallStack();
-//}
-
 function testConsecutiveTraps() returns [string, string] {
     error? e1 = trap generatePanic();
     error? e2 = trap generatePanic();

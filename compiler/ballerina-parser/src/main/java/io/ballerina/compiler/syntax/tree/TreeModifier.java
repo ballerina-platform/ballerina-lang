@@ -1431,7 +1431,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(typeCastParamNode.annotations());
         Node type =
-                modifyNode(typeCastParamNode.type());
+                modifyNode(typeCastParamNode.type().orElse(null));
         return typeCastParamNode.modify(
                 annotations,
                 type);
@@ -1618,7 +1618,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(templateExpressionNode.type().orElse(null));
         Token startBacktick =
                 modifyToken(templateExpressionNode.startBacktick());
-        NodeList<TemplateMemberNode> content =
+        NodeList<Node> content =
                 modifyNodeList(templateExpressionNode.content());
         Token endBacktick =
                 modifyToken(templateExpressionNode.endBacktick());

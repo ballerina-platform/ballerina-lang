@@ -1382,11 +1382,10 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             NodeList<AnnotationNode> annotations,
             Node type) {
         Objects.requireNonNull(annotations, "annotations must not be null");
-        Objects.requireNonNull(type, "type must not be null");
 
         STNode stTypeCastParamNode = STNodeFactory.createTypeCastParamNode(
                 annotations.underlyingListNode().internalNode(),
-                type.internalNode());
+                getOptionalSTNode(type));
         return stTypeCastParamNode.createUnlinkedFacade();
     }
 
@@ -1561,7 +1560,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             SyntaxKind kind,
             Token type,
             Token startBacktick,
-            NodeList<TemplateMemberNode> content,
+            NodeList<Node> content,
             Token endBacktick) {
         Objects.requireNonNull(startBacktick, "startBacktick must not be null");
         Objects.requireNonNull(content, "content must not be null");

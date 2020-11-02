@@ -20,12 +20,12 @@ import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
-import io.ballerina.compiler.api.types.RecordTypeDescriptor;
+import io.ballerina.compiler.api.types.ObjectTypeSymbol;
+import io.ballerina.compiler.api.types.RecordTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.TypeSymbol;
 
 import java.util.List;
 import java.util.Optional;
@@ -47,10 +47,10 @@ public class SymbolUtil {
      * @return {@link Boolean} whether the symbol holds the type object
      */
     public static boolean isObject(Symbol symbol) {
-        BallerinaTypeDescriptor typeDescriptor;
+        TypeSymbol typeDescriptor;
         switch (symbol.kind()) {
             case TYPE:
-                typeDescriptor = ((TypeSymbol) symbol).typeDescriptor();
+                typeDescriptor = ((TypeDefinitionSymbol) symbol).typeDescriptor();
                 break;
             case VARIABLE:
                 typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
@@ -59,7 +59,7 @@ public class SymbolUtil {
                 return false;
         }
 
-        return CommonUtil.getRawType(typeDescriptor).kind() == TypeDescKind.OBJECT;
+        return CommonUtil.getRawType(typeDescriptor).typeKind() == TypeDescKind.OBJECT;
     }
 
     /**
@@ -69,10 +69,10 @@ public class SymbolUtil {
      * @return {@link Boolean} whether the symbol holds the type record
      */
     public static boolean isRecord(Symbol symbol) {
-        BallerinaTypeDescriptor typeDescriptor;
+        TypeSymbol typeDescriptor;
         switch (symbol.kind()) {
             case TYPE:
-                typeDescriptor = ((TypeSymbol) symbol).typeDescriptor();
+                typeDescriptor = ((TypeDefinitionSymbol) symbol).typeDescriptor();
                 break;
             case VARIABLE:
                 typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
@@ -81,7 +81,7 @@ public class SymbolUtil {
                 return false;
         }
 
-        return CommonUtil.getRawType(typeDescriptor).kind() == TypeDescKind.RECORD;
+        return CommonUtil.getRawType(typeDescriptor).typeKind() == TypeDescKind.RECORD;
     }
 
     /**
@@ -91,13 +91,13 @@ public class SymbolUtil {
      * @param symbol to evaluate
      * @return {@link Optional} type descriptor
      */
-    public static Optional<? extends BallerinaTypeDescriptor> getTypeDescriptor(Symbol symbol) {
+    public static Optional<? extends TypeSymbol> getTypeDescriptor(Symbol symbol) {
         if (symbol == null) {
             return Optional.empty();
         }
         switch (symbol.kind()) {
             case TYPE:
-                return Optional.ofNullable(((TypeSymbol) symbol).typeDescriptor());
+                return Optional.ofNullable(((TypeDefinitionSymbol) symbol).typeDescriptor());
             case VARIABLE:
                 return Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor());
             case ANNOTATION:
@@ -115,30 +115,30 @@ public class SymbolUtil {
      * Get the type descriptor for the object symbol.
      *
      * @param symbol to evaluate
-     * @return {@link ObjectTypeDescriptor} for the object symbol
+     * @return {@link ObjectTypeSymbol} for the object symbol
      */
-    public static ObjectTypeDescriptor getTypeDescForObjectSymbol(Symbol symbol) {
-        Optional<? extends BallerinaTypeDescriptor> typeDescriptor = getTypeDescriptor(symbol);
+    public static ObjectTypeSymbol getTypeDescForObjectSymbol(Symbol symbol) {
+        Optional<? extends TypeSymbol> typeDescriptor = getTypeDescriptor(symbol);
         if (typeDescriptor.isEmpty() || !isObject(symbol)) {
             throw new UnsupportedOperationException("Cannot find a valid type descriptor");
         }
 
-        return (ObjectTypeDescriptor) CommonUtil.getRawType(typeDescriptor.get());
+        return (ObjectTypeSymbol) CommonUtil.getRawType(typeDescriptor.get());
     }
 
     /**
      * Get the type descriptor for the record symbol.
      *
      * @param symbol to evaluate
-     * @return {@link RecordTypeDescriptor} for the record symbol
+     * @return {@link RecordTypeSymbol} for the record symbol
      */
-    public static RecordTypeDescriptor getTypeDescForRecordSymbol(Symbol symbol) {
-        Optional<? extends BallerinaTypeDescriptor> typeDescriptor = getTypeDescriptor(symbol);
+    public static RecordTypeSymbol getTypeDescForRecordSymbol(Symbol symbol) {
+        Optional<? extends TypeSymbol> typeDescriptor = getTypeDescriptor(symbol);
         if (typeDescriptor.isEmpty() || !isRecord(symbol)) {
             throw new UnsupportedOperationException("Cannot find a valid type descriptor");
         }
 
-        return (RecordTypeDescriptor) CommonUtil.getRawType(typeDescriptor.get());
+        return (RecordTypeSymbol) CommonUtil.getRawType(typeDescriptor.get());
     }
 
     /**
@@ -148,12 +148,12 @@ public class SymbolUtil {
      * @return {@link Boolean} status of the evaluation
      */
     public static boolean isListener(Symbol symbol) {
-        Optional<? extends BallerinaTypeDescriptor> symbolTypeDesc = getTypeDescriptor(symbol);
+        Optional<? extends TypeSymbol> symbolTypeDesc = getTypeDescriptor(symbol);
         
-        if (symbolTypeDesc.isEmpty() || CommonUtil.getRawType(symbolTypeDesc.get()).kind() != TypeDescKind.OBJECT) {
+        if (symbolTypeDesc.isEmpty() || CommonUtil.getRawType(symbolTypeDesc.get()).typeKind() != TypeDescKind.OBJECT) {
             return false;
         }
-        List<String> attachedMethods = ((ObjectTypeDescriptor) CommonUtil.getRawType(symbolTypeDesc.get())).methods()
+        List<String> attachedMethods = ((ObjectTypeSymbol) CommonUtil.getRawType(symbolTypeDesc.get())).methods()
                 .stream()
                 .map(Symbol::name)
                 .collect(Collectors.toList());
@@ -171,8 +171,8 @@ public class SymbolUtil {
         if (!isObject(symbol)) {
             return false;
         }
-        ObjectTypeDescriptor typeDesc = getTypeDescForObjectSymbol(symbol);
-        return typeDesc.typeQualifiers().contains(ObjectTypeDescriptor.TypeQualifier.CLIENT);
+        ObjectTypeSymbol typeDesc = getTypeDescForObjectSymbol(symbol);
+        return typeDesc.typeQualifiers().contains(ObjectTypeSymbol.TypeQualifier.CLIENT);
     }
 
     /**
@@ -185,9 +185,9 @@ public class SymbolUtil {
         if (symbol.kind() != SymbolKind.VARIABLE) {
             return false;
         }
-        BallerinaTypeDescriptor typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
+        TypeSymbol typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
 
-        return typeDescriptor.kind() == TypeDescKind.ERROR;
+        return typeDescriptor.typeKind() == TypeDescKind.ERROR;
     }
 
     /**
@@ -201,6 +201,6 @@ public class SymbolUtil {
             return Optional.empty();
         }
 
-        return Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor().kind());
+        return Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor().typeKind());
     }
 }
