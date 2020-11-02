@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/test;
+import ballerina/lang.test as test;
 
 xmlns "http://sample.com/wso2/a1" as ns;
 
@@ -192,5 +192,5 @@ function testTypeNameAsVariable5() {
 
 function testGeneratedNames() {
     test:assertFalse(serviceEPAvailable);
-    test:assertEquals(LOCK_STORE, "lockStore");
+    test:assertValueEqual(LOCK_STORE, "lockStore");
 }
