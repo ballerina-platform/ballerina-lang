@@ -19,7 +19,7 @@ package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -137,7 +137,7 @@ public class BallerinaSemanticModel implements SemanticModel {
      * {@inheritDoc}
      */
     @Override
-    public Optional<BallerinaTypeDescriptor> getType(String fileName, LineRange range) {
+    public Optional<TypeSymbol> getType(String fileName, LineRange range) {
         BLangCompilationUnit compilationUnit = getCompilationUnit(fileName);
         NodeFinder nodeFinder = new NodeFinder();
         BLangNode node = nodeFinder.lookup(compilationUnit, range);

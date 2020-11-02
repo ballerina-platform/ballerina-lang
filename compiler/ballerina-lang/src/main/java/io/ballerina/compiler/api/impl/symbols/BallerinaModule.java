@@ -24,7 +24,7 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ServiceSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
@@ -50,10 +50,10 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols.is
 public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
 
     private BPackageSymbol packageSymbol;
-    private List<TypeSymbol> typeDefs;
+    private List<TypeDefinitionSymbol> typeDefs;
     private List<FunctionSymbol> functions;
     private List<ConstantSymbol> constants;
-    private List<TypeSymbol> listeners;
+    private List<TypeDefinitionSymbol> listeners;
     private List<Symbol> allSymbols;
 
     protected BallerinaModule(String name, PackageID moduleID, BPackageSymbol packageSymbol) {
@@ -94,11 +94,11 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
      * @return {@link List} of type definitions
      */
     @Override
-    public List<TypeSymbol> typeDefinitions() {
+    public List<TypeDefinitionSymbol> typeDefinitions() {
         if (this.typeDefs == null) {
             this.typeDefs = this.allSymbols().stream()
                     .filter(symbol -> symbol.kind() == SymbolKind.TYPE)
-                    .map(symbol -> (TypeSymbol) symbol)
+                    .map(symbol -> (TypeDefinitionSymbol) symbol)
                     .collect(Collectors.toUnmodifiableList());
         }
 
@@ -136,7 +136,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
      * @return {@link List} of listeners
      */
     @Override
-    public List<TypeSymbol> listeners() {
+    public List<TypeDefinitionSymbol> listeners() {
         if (this.listeners != null) {
             return listeners;
         }

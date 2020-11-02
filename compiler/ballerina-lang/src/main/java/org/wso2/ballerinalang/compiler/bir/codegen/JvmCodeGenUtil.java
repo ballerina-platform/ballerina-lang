@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
-import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -122,7 +121,7 @@ public class JvmCodeGenUtil {
         return builder.toString();
     }
 
-    static void createFunctionPointer(MethodVisitor mv, String className, String lambdaName) {
+    public static void createFunctionPointer(MethodVisitor mv, String className, String lambdaName) {
         mv.visitTypeInsn(Opcodes.NEW, FUNCTION_POINTER);
         mv.visitInsn(Opcodes.DUP);
         visitInvokeDynamic(mv, className, cleanupFunctionName(lambdaName), 0);
@@ -141,16 +140,16 @@ public class JvmCodeGenUtil {
      * @param name type name to be replaced and cleaned
      * @return cleaned name
      */
-    static String cleanupReadOnlyTypeName(String name) {
+    public static String cleanupReadOnlyTypeName(String name) {
         return IMMUTABLE_TYPE_CHAR_PATTERN.matcher(name).replaceAll("_");
     }
 
-    static String cleanupPathSeparators(String name) {
+    public static String cleanupPathSeparators(String name) {
         name = cleanupBalExt(name);
         return name.replace(WINDOWS_PATH_SEPERATOR, JAVA_PACKAGE_SEPERATOR);
     }
 
-    static String rewriteVirtualCallTypeName(String value) {
+    public static String rewriteVirtualCallTypeName(String value) {
         return StringEscapeUtils.unescapeJava(cleanupObjectTypeName(value));
     }
 
@@ -158,7 +157,7 @@ public class JvmCodeGenUtil {
         return name.replace(BAL_EXTENSION, "");
     }
 
-    static String getFieldTypeSignature(BType bType) {
+    public static String getFieldTypeSignature(BType bType) {
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
@@ -215,7 +214,7 @@ public class JvmCodeGenUtil {
         }
     }
 
-    static void generateDefaultConstructor(ClassWriter cw, String ownerClass) {
+    public static void generateDefaultConstructor(ClassWriter cw, String ownerClass) {
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, JVM_INIT_METHOD, "()V", null, null);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
@@ -261,7 +260,7 @@ public class JvmCodeGenUtil {
         fv.visitEnd();
     }
 
-    static String getStrandMetadataVarName(String parentFunction) {
+    public static String getStrandMetadataVarName(String parentFunction) {
         return STRAND_METADATA_VAR_PREFIX + parentFunction + "$";
     }
 
@@ -271,7 +270,7 @@ public class JvmCodeGenUtil {
                 "$" + JVM_RESERVED_CHAR_SET.matcher(functionName).replaceAll("_") : functionName;
     }
 
-    static boolean isExternFunc(BIRNode.BIRFunction func) {
+    public static boolean isExternFunc(BIRNode.BIRFunction func) {
         return (func.flags & Flags.NATIVE) == Flags.NATIVE;
     }
 
@@ -307,11 +306,12 @@ public class JvmCodeGenUtil {
         return name.replace(".", "_");
     }
 
-    static String getModuleLevelClassName(BIRNode.BIRPackage module, String sourceFileName) {
+    public static String getModuleLevelClassName(BIRNode.BIRPackage module, String sourceFileName) {
         return getModuleLevelClassName(module.org.value, module.name.value, module.version.value, sourceFileName);
     }
 
-    static String getModuleLevelClassName(String orgName, String moduleName, String version, String sourceFileName) {
+    public static String getModuleLevelClassName(String orgName, String moduleName, String version,
+                                                 String sourceFileName) {
         return getModuleLevelClassName(orgName, moduleName, version, sourceFileName, "/");
     }
 
@@ -479,7 +479,7 @@ public class JvmCodeGenUtil {
         }
     }
 
-    static void loadChannelDetails(MethodVisitor mv, List<BIRNode.ChannelDetails> channels) {
+    public static void loadChannelDetails(MethodVisitor mv, List<BIRNode.ChannelDetails> channels) {
         mv.visitIntInsn(BIPUSH, channels.size());
         mv.visitTypeInsn(ANEWARRAY, CHANNEL_DETAILS);
         int index = 0;
@@ -528,9 +528,9 @@ public class JvmCodeGenUtil {
         for (int i = 0; i < insCount; i++) {
             Label insLabel = labelGen.getLabel(funcName + bb.id.value + "ins" + i);
             mv.visitLabel(insLabel);
-            BIRInstruction inst = bb.instructions.get(i);
+            BIRAbstractInstruction inst = bb.instructions.get(i);
             if (inst != null) {
-                lastScope = getLastScopeFromDiagnosticGen((BIRAbstractInstruction) inst, funcName, mv, labelGen,
+                lastScope = getLastScopeFromDiagnosticGen(inst, funcName, mv, labelGen,
                                                           visitedScopesSet, lastScope);
                 instGen.generateInstructions(localVarOffset, asyncDataCollector, inst);
             }
@@ -593,5 +593,8 @@ public class JvmCodeGenUtil {
         // goto thenBB
         Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
         mv.visitJumpInsn(GOTO, gotoLabel);
+    }
+
+    private JvmCodeGenUtil() {
     }
 }

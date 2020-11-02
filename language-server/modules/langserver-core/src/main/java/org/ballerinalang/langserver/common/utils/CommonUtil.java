@@ -19,14 +19,14 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-import io.ballerina.compiler.api.types.FieldDescriptor;
-import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
-import io.ballerina.compiler.api.types.RecordTypeDescriptor;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.types.FieldSymbol;
+import io.ballerina.compiler.api.types.FunctionTypeSymbol;
+import io.ballerina.compiler.api.types.RecordTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
-import io.ballerina.compiler.api.types.UnionTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.types.TypeSymbol;
+import io.ballerina.compiler.api.types.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -235,7 +235,7 @@ public class CommonUtil {
      * @param bType Type descriptor to get the default value
      * @return {@link String}   Default value as a String
      */
-    public static String getDefaultValueForType(BallerinaTypeDescriptor bType) {
+    public static String getDefaultValueForType(TypeSymbol bType) {
         String typeString;
         if (bType == null) {
             return "()";
@@ -272,8 +272,8 @@ public class CommonUtil {
 //                }
 //                break;
             case UNION:
-                List<BallerinaTypeDescriptor> members =
-                        new ArrayList<>(((UnionTypeDescriptor) bType).memberTypeDescriptors());
+                List<TypeSymbol> members =
+                        new ArrayList<>(((UnionTypeSymbol) bType).memberTypeDescriptors());
                 typeString = getDefaultValueForType(members.get(0));
                 break;
             case STREAM:
@@ -293,7 +293,7 @@ public class CommonUtil {
      * @return {@link List}     List of completion items for the struct fields
      */
     public static List<LSCompletionItem> getRecordFieldCompletionItems(LSContext context,
-                                                                       List<FieldDescriptor> fields) {
+                                                                       List<FieldSymbol> fields) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         fields.forEach(field -> {
             String insertText = getRecordFieldCompletionInsertText(field, 0);
@@ -317,12 +317,12 @@ public class CommonUtil {
      * @param fields  List of fields
      * @return {@link LSCompletionItem}   Completion Item to fill all the options
      */
-    public static LSCompletionItem getFillAllStructFieldsItem(LSContext context, List<FieldDescriptor> fields) {
+    public static LSCompletionItem getFillAllStructFieldsItem(LSContext context, List<FieldSymbol> fields) {
         List<String> fieldEntries = new ArrayList<>();
 
-        for (FieldDescriptor fieldDescriptor : fields) {
-            String defaultFieldEntry = fieldDescriptor.name()
-                    + CommonKeys.PKG_DELIMITER_KEYWORD + " " + getDefaultValueForType(fieldDescriptor.typeDescriptor());
+        for (FieldSymbol fieldSymbol : fields) {
+            String defaultFieldEntry = fieldSymbol.name()
+                    + CommonKeys.PKG_DELIMITER_KEYWORD + " " + getDefaultValueForType(fieldSymbol.typeDescriptor());
             fieldEntries.add(defaultFieldEntry);
         }
 
@@ -376,14 +376,14 @@ public class CommonUtil {
      * @param typeName type name to be filtered against
      * @return {@link Optional} type found
      */
-    public static Optional<TypeSymbol> getTypeFromModule(LSContext context, String alias, String typeName) {
+    public static Optional<TypeDefinitionSymbol> getTypeFromModule(LSContext context, String alias, String typeName) {
         Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, alias);
         if (module.isEmpty()) {
             return Optional.empty();
         }
-        for (TypeSymbol typeSymbol : module.get().typeDefinitions()) {
-            if (typeSymbol.name().equals(typeName)) {
-                return Optional.of(typeSymbol);
+        for (TypeDefinitionSymbol typeDefinitionSymbol : module.get().typeDefinitions()) {
+            if (typeDefinitionSymbol.name().equals(typeName)) {
+                return Optional.of(typeDefinitionSymbol);
             }
         }
 
@@ -549,7 +549,7 @@ public class CommonUtil {
         if (functionSymbol == null) {
             return ImmutablePair.of(functionName + "();", functionName + "()");
         }
-        FunctionTypeDescriptor functionTypeDesc = functionSymbol.typeDescriptor();
+        FunctionTypeSymbol functionTypeDesc = functionSymbol.typeDescriptor();
         StringBuilder signature = new StringBuilder(functionName + "(");
         StringBuilder insertText = new StringBuilder(functionName + "(");
         List<String> funcArguments = FunctionGenerator.getFuncArguments(functionSymbol, ctx);
@@ -559,7 +559,7 @@ public class CommonUtil {
         }
         signature.append(")");
         insertText.append(")");
-        Optional<BallerinaTypeDescriptor> returnType = functionTypeDesc.returnTypeDescriptor();
+        Optional<TypeSymbol> returnType = functionTypeDesc.returnTypeDescriptor();
         if (returnType.isEmpty() || returnType.get().kind() == TypeDescKind.NIL) {
             insertText.append(";");
         }
@@ -580,7 +580,7 @@ public class CommonUtil {
      * @param recordType record type descriptor to evaluate
      * @return {@link List} of required fields captured
      */
-    public static List<FieldDescriptor> getMandatoryRecordFields(RecordTypeDescriptor recordType) {
+    public static List<FieldSymbol> getMandatoryRecordFields(RecordTypeSymbol recordType) {
         return recordType.fieldDescriptors().stream()
                 .filter(field -> !field.hasDefaultValue() && !field.isOptional())
                 .collect(Collectors.toList());
@@ -592,11 +592,11 @@ public class CommonUtil {
      * @param bField BField to evaluate
      * @return {@link String} Insert text
      */
-    public static String getRecordFieldCompletionInsertText(FieldDescriptor bField, int tabOffset) {
-        BallerinaTypeDescriptor fieldType = bField.typeDescriptor();
+    public static String getRecordFieldCompletionInsertText(FieldSymbol bField, int tabOffset) {
+        TypeSymbol fieldType = bField.typeDescriptor();
         StringBuilder insertText = new StringBuilder(bField.name() + ": ");
         if (fieldType.kind() == TypeDescKind.RECORD) {
-            List<FieldDescriptor> requiredFields = getMandatoryRecordFields((RecordTypeDescriptor) fieldType);
+            List<FieldSymbol> requiredFields = getMandatoryRecordFields((RecordTypeSymbol) fieldType);
             if (requiredFields.isEmpty()) {
                 insertText.append("{").append("${1}}");
                 return insertText.toString();
@@ -604,7 +604,7 @@ public class CommonUtil {
             insertText.append("{").append(LINE_SEPARATOR);
             int tabCount = tabOffset;
             List<String> requiredFieldInsertTexts = new ArrayList<>();
-            for (FieldDescriptor field : requiredFields) {
+            for (FieldSymbol field : requiredFields) {
                 String fieldText = String.join("", Collections.nCopies(tabCount + 1, "\t")) +
                         getRecordFieldCompletionInsertText(field, tabCount) +
                         String.join("", Collections.nCopies(tabCount, "\t"));
@@ -1033,10 +1033,10 @@ public class CommonUtil {
      * type descriptor.
      *
      * @param typeDescriptor type descriptor to evaluate
-     * @return {@link BallerinaTypeDescriptor} extracted type descriptor
+     * @return {@link TypeSymbol} extracted type descriptor
      */
-    public static BallerinaTypeDescriptor getRawType(BallerinaTypeDescriptor typeDescriptor) {
+    public static TypeSymbol getRawType(TypeSymbol typeDescriptor) {
         return typeDescriptor.kind() == TypeDescKind.TYPE_REFERENCE
-                ? ((TypeReferenceTypeDescriptor) typeDescriptor).typeDescriptor() : typeDescriptor;
+                ? ((TypeReferenceTypeSymbol) typeDescriptor).typeDescriptor() : typeDescriptor;
     }
 }

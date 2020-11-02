@@ -69,7 +69,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
-import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -83,6 +82,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -286,8 +286,35 @@ public class Types {
         return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfList);
     }
 
-    public BType resolvePatternTypeFromMatchExpr(BType matchExprType, BLangConstPattern constMatchPattern) {
-        BLangExpression constPatternExpr = constMatchPattern.expr;
+    public BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BTupleType listMatchPatternType) {
+        if (matchExpr == null) {
+            return listMatchPatternType;
+        }
+        BType matchExprType = matchExpr.type;
+        BType intersectionType = getTypeIntersection(matchExprType, listMatchPatternType);
+        if (intersectionType != symTable.semanticError) {
+            return intersectionType;
+        }
+        if (matchExprType.tag == TypeTags.ANYDATA) {
+            Collections.fill(listMatchPatternType.tupleTypes, symTable.anydataType);
+            if (listMatchPatternType.restType != null) {
+                listMatchPatternType.restType = symTable.anydataType;
+            }
+            return listMatchPatternType;
+        }
+        return symTable.noType;
+    }
+
+    public BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BLangExpression constPatternExpr) {
+        if (matchExpr == null) {
+            if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                return ((BLangSimpleVarRef) constPatternExpr).symbol.type;
+            } else {
+                return constPatternExpr.type;
+            }
+        }
+
+        BType matchExprType = matchExpr.type;
         BType constMatchPatternExprType = constPatternExpr.type;
 
         if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -340,7 +367,7 @@ public class Types {
         return symTable.noType;
     }
 
-    public boolean containsAnyType(BType type) {
+    private boolean containsAnyType(BType type) {
         if (type.tag != TypeTags.UNION) {
             return type.tag == TypeTags.ANY;
         }
@@ -351,6 +378,16 @@ public class Types {
             }
         }
         return false;
+    }
+
+    public BType mergeTypes(BType typeFirst, BType typeSecond) {
+        if (containsAnyType(typeFirst)) {
+            return typeSecond;
+        }
+        if (isSameBasicType(typeFirst, typeSecond)) {
+            return typeFirst;
+        }
+        return BUnionType.create(null, typeFirst, typeSecond);
     }
 
     public boolean isSubTypeOfMapping(BType type) {
