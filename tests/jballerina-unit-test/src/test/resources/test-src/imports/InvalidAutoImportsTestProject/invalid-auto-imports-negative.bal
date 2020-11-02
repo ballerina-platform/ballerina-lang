@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
+
 import ballerina/lang.'decimal as 'xml;
 import ballerina/lang.'int as 'error;
 import ballerina/lang.'float as 'object;
@@ -28,23 +28,23 @@ class CustomListener {
     *'object:Listener;
 
     public function __attach(service s, string? name) returns error? {
-        io:println("running __attach");
+        // do nothing
     }
 
     public function __detach(service s) returns error? {
-        io:println("running __dettach");
+        // do nothing
     }
 
     public function __start() returns error? {
-        io:println("running __start");
+        // do nothing
     }
 
     public function __gracefulStop() returns error? {
-        io:println("running __gracefulStop");
+        // do nothing
     }
 
     public function __immediateStop() returns error? {
-        io:println("running __immediateStop");
+        // do nothing
     }
 }
 

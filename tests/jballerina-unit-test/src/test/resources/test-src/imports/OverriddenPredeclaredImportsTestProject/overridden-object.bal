@@ -14,30 +14,29 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/lang.'object as obj;
 
 class CustomListener {
     *obj:Listener;
 
     public function __attach(service s, string? name) returns error? {
-        io:println("running __attach");
+        // do nothing
     }
 
     public function __detach(service s) returns error? {
-        io:println("running __dettach");
+        // do nothing
     }
 
     public function __start() returns error? {
-        io:println("running __start");
+        // do nothing
     }
 
     public function __gracefulStop() returns error? {
-        io:println("running __gracefulStop");
+        // do nothing
     }
 
     public function __immediateStop() returns error? {
-        io:println("running __immediateStop");
+        // do nothing
     }
 }
 
@@ -45,22 +44,22 @@ class CustomListenerWithAutoImports {
     *obj:Listener;
 
     public function __attach(service s, string? name) returns error? {
-        io:println("running __attach");
+        // do nothing
     }
 
     public function __detach(service s) returns error? {
-        io:println("running __dettach");
+        // do nothing
     }
 
     public function __start() returns error? {
-        io:println("running __start");
+        // do nothing
     }
 
     public function __gracefulStop() returns error? {
-        io:println("running __gracefulStop");
+        // do nothing
     }
 
     public function __immediateStop() returns error? {
-        io:println("running __immediateStop");
+        // do nothing
     }
 }
