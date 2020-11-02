@@ -30,30 +30,37 @@ public class Flags {
     public static final int NATIVE = PUBLIC << 1;
     public static final int FINAL = NATIVE << 1;
     public static final int ATTACHED = FINAL << 1;
+
     public static final int DEPRECATED = ATTACHED << 1;
     public static final int READONLY = DEPRECATED << 1;
     public static final int FUNCTION_FINAL = READONLY << 1;
     public static final int INTERFACE = FUNCTION_FINAL << 1;
+
     public static final int REQUIRED = INTERFACE << 1; // Marks as a field for which the user MUST provide a value
     public static final int RECORD = REQUIRED << 1;
     public static final int PRIVATE = RECORD << 1;
     public static final int ANONYMOUS = PRIVATE << 1;
+
     public static final int OPTIONAL = ANONYMOUS << 1;
     public static final int TESTABLE = OPTIONAL << 1;
     public static final int CONSTANT = TESTABLE << 1;
     public static final int REMOTE = CONSTANT << 1;
+
     public static final int CLIENT = REMOTE << 1;
     public static final int RESOURCE = CLIENT << 1;
     public static final int SERVICE = RESOURCE << 1;
     public static final int LISTENER = SERVICE << 1;
+
     public static final int LAMBDA = LISTENER << 1;
     public static final int TYPE_PARAM = LAMBDA << 1;
     public static final int LANG_LIB = TYPE_PARAM << 1;
     public static final int WORKER = LANG_LIB << 1;
+
     public static final int FORKED = WORKER << 1;
     public static final int TRANSACTIONAL = FORKED << 1;
     public static final int PARAMETERIZED = TRANSACTIONAL << 1;
     public static final int DISTINCT = PARAMETERIZED << 1;
+
     public static final int CLASS = DISTINCT << 1;
     public static final int ISOLATED = CLASS << 1;
     public static final int ISOLATED_PARAM = ISOLATED << 1;
