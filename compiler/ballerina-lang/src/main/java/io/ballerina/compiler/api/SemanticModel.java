@@ -18,7 +18,7 @@
 package io.ballerina.compiler.api;
 
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -66,7 +66,7 @@ public interface SemanticModel {
      * @param range    the text range of the expression
      * @return the type of the expression
      */
-    Optional<BallerinaTypeDescriptor> getType(String fileName, LineRange range);
+    Optional<TypeSymbol> getType(String fileName, LineRange range);
 
     /**
      * Get the diagnostics within the given text Span.

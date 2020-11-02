@@ -19,7 +19,7 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.WorkerSymbol;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
@@ -30,12 +30,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
  */
 public class BallerinaWorkerSymbol extends BallerinaSymbol implements WorkerSymbol {
 
-    private BallerinaTypeDescriptor returnType;
+    private TypeSymbol returnType;
 
     private BallerinaWorkerSymbol(String name,
                                       PackageID moduleID,
                                       SymbolKind ballerinaSymbolKind,
-                                      BallerinaTypeDescriptor returnType,
+                                      TypeSymbol returnType,
                                       BSymbol symbol) {
         super(name, moduleID, ballerinaSymbolKind, symbol);
         this.returnType = returnType;
@@ -44,10 +44,10 @@ public class BallerinaWorkerSymbol extends BallerinaSymbol implements WorkerSymb
     /**
      * Get the return type.
      *
-     * @return {@link BallerinaTypeDescriptor} return type of the worker.
+     * @return {@link TypeSymbol} return type of the worker.
      */
     @Override
-    public BallerinaTypeDescriptor returnType() {
+    public TypeSymbol returnType() {
         return returnType;
     }
 
@@ -56,7 +56,7 @@ public class BallerinaWorkerSymbol extends BallerinaSymbol implements WorkerSymb
      */
     public static class WorkerSymbolBuilder extends SymbolBuilder<WorkerSymbolBuilder> {
 
-        protected BallerinaTypeDescriptor returnType;
+        protected TypeSymbol returnType;
 
         public WorkerSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
             super(name, moduleID, SymbolKind.WORKER, symbol);
@@ -71,7 +71,7 @@ public class BallerinaWorkerSymbol extends BallerinaSymbol implements WorkerSymb
                     this.bSymbol);
         }
 
-        public WorkerSymbolBuilder withReturnType(BallerinaTypeDescriptor typeDescriptor) {
+        public WorkerSymbolBuilder withReturnType(TypeSymbol typeDescriptor) {
             this.returnType = typeDescriptor;
             return this;
         }
