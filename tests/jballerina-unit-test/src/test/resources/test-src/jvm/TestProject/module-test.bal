@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/test.math;
+import moduletest.test.math;
 
 public function testModule(int x) returns int {
    int sumValue = math:sum(x, x + 2);
