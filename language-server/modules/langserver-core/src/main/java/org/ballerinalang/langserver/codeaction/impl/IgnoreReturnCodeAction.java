@@ -15,9 +15,9 @@
  */
 package org.ballerinalang.langserver.codeaction.impl;
 
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.UnionTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeSymbol;
+import io.ballerina.compiler.api.types.UnionTypeSymbol;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -39,9 +39,9 @@ import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActi
  * @since 2.0.0
  */
 public class IgnoreReturnCodeAction implements DiagBasedCodeAction {
-    private final BallerinaTypeDescriptor typeDescriptor;
+    private final TypeSymbol typeDescriptor;
 
-    public IgnoreReturnCodeAction(BallerinaTypeDescriptor typeDescriptor) {
+    public IgnoreReturnCodeAction(TypeSymbol typeDescriptor) {
         this.typeDescriptor = typeDescriptor;
     }
 
@@ -53,7 +53,7 @@ public class IgnoreReturnCodeAction implements DiagBasedCodeAction {
         if (typeDescriptor.kind() == TypeDescKind.ERROR) {
             hasError = true;
         } else if (typeDescriptor.kind() == TypeDescKind.UNION) {
-            UnionTypeDescriptor unionType = (UnionTypeDescriptor) typeDescriptor;
+            UnionTypeSymbol unionType = (UnionTypeSymbol) typeDescriptor;
             hasError = unionType.memberTypeDescriptors().stream().anyMatch(s -> s.kind() == TypeDescKind.ERROR);
         }
         // Add ignore return value code action

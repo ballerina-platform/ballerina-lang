@@ -18,9 +18,9 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
+import io.ballerina.compiler.api.types.ObjectTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -88,7 +88,7 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
     private List<LSCompletionItem> getNewExprCompletionItems(LSContext context, TypeDescriptorNode typeDescriptorNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         ArrayList<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        Optional<ObjectTypeDescriptor> objectType;
+        Optional<ObjectTypeSymbol> objectType;
         if (this.onQualifiedNameIdentifier(context, typeDescriptorNode)) {
             String modulePrefix = QNameReferenceUtil.getAlias(((QualifiedNameReferenceNode) typeDescriptorNode));
             Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, modulePrefix);
@@ -100,16 +100,17 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
                     .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol.typeDescriptor()).kind()
                             == TypeDescKind.OBJECT
                             && typeSymbol.name().equals(identifier))
-                    .map(typeSymbol -> (ObjectTypeDescriptor) CommonUtil.getRawType(typeSymbol.typeDescriptor()))
+                    .map(typeSymbol -> (ObjectTypeSymbol) CommonUtil.getRawType(typeSymbol.typeDescriptor()))
                     .findAny();
         } else if (typeDescriptorNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String identifier = ((SimpleNameReferenceNode) typeDescriptorNode).name().text();
             objectType = visibleSymbols.stream()
                     .filter(symbol -> symbol.kind() == SymbolKind.TYPE
-                            && CommonUtil.getRawType(((TypeSymbol) symbol).typeDescriptor()).kind()
+                            && CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()).kind()
                             == TypeDescKind.OBJECT
                             && symbol.name().equals(identifier))
-                    .map(symbol -> (ObjectTypeDescriptor) CommonUtil.getRawType(((TypeSymbol) symbol).typeDescriptor()))
+                    .map(symbol -> (ObjectTypeSymbol) CommonUtil
+                            .getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()))
                     .findAny();
         } else {
             objectType = Optional.empty();
