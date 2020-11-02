@@ -23,7 +23,7 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.env.EnvironmentBuilder;
+import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.model.BallerinaToml;
 import io.ballerina.projects.utils.ProjectConstants;

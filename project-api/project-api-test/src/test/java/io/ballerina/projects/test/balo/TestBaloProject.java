@@ -24,7 +24,7 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.balo.BaloProject;
-import io.ballerina.projects.env.EnvironmentBuilder;
+import io.ballerina.projects.environment.EnvironmentBuilder;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

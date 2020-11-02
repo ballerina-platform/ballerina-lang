@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.env;
+package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.Bootstrap;
 import io.ballerina.projects.Project;
@@ -42,7 +42,7 @@ public class DefaultEnvironment extends Environment {
     private final Map<Class<?>, Object> services = new HashMap<>();
     private final CompilerContext compilerContext;
 
-    DefaultEnvironment() {
+    public DefaultEnvironment() {
         initGlobalPackageCache();
 
         // TODO Move the compilationContext building and langlib loading to BallerinaPlatform loader utility

@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.env;
+package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.Project;
 import io.ballerina.projects.environment.Environment;

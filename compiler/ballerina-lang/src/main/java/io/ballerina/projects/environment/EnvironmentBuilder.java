@@ -15,9 +15,9 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.env;
+package io.ballerina.projects.environment;
 
-import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.internal.environment.DefaultEnvironment;
 
 import java.util.HashMap;
 import java.util.Map;
