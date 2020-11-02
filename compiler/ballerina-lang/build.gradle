@@ -29,6 +29,7 @@ dependencies {
     implementation 'org.ow2.asm:asm'
     implementation 'org.ow2.asm:asm-util'
     implementation 'org.ow2.asm:asm-tree'
+    implementation 'commons-io:commons-io'
     testCompile 'org.testng:testng'
 }
 
@@ -41,6 +42,8 @@ checkstyleMain {
     exclude 'org/ballerinalang/toml/model/Balo.java'
     exclude 'org/ballerinalang/toml/model/LockFile.java'
     exclude 'org/ballerinalang/toml/model/LockFileImport.java'
+    exclude 'io/ballerina/projects/model/BaloJson.java'
+    exclude 'io/ballerina/projects/model/PackageJson.java'
 }
 
 test {
