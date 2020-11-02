@@ -19,6 +19,7 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.impl.symbols.BallerinaAnnotationSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaClassSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaConstantSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
@@ -30,15 +31,18 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaWorkerSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaXMLNSSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -124,6 +128,9 @@ public class SymbolFactory {
             }
             if (symbol instanceof BPackageSymbol) {
                 return createModuleSymbol((BPackageSymbol) symbol, name);
+            }
+            if (symbol instanceof BClassSymbol) {
+                return createClassSymbol((BClassSymbol) symbol, name);
             }
             // create the typeDefs
             return createTypeDefinition((BTypeSymbol) symbol, name);
@@ -257,18 +264,35 @@ public class SymbolFactory {
         if (isFlagOn(typeSymbol.flags, Flags.PUBLIC)) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
-        if (isFlagOn(typeSymbol.flags, Flags.DISTINCT)) {
+
+        return symbolBuilder.withTypeDescriptor(TypesFactory.getTypeDescriptor(typeSymbol.type))
+                .build();
+    }
+
+    public BallerinaClassSymbol createClassSymbol(BClassSymbol classSymbol, String name) {
+        BallerinaClassSymbol.ClassSymbolBuilder symbolBuilder =
+                new BallerinaClassSymbol.ClassSymbolBuilder(name, classSymbol.pkgID, classSymbol);
+
+        if (isFlagOn(classSymbol.flags, Flags.PUBLIC)) {
+            symbolBuilder.withQualifier(Qualifier.PUBLIC);
+        }
+        if (isFlagOn(classSymbol.flags, Flags.DISTINCT)) {
             symbolBuilder.withQualifier(Qualifier.DISTINCT);
         }
-        if (isFlagOn(typeSymbol.flags, Flags.CLIENT)) {
+        if (isFlagOn(classSymbol.flags, Flags.CLIENT)) {
             symbolBuilder.withQualifier(Qualifier.CLIENT);
         }
-        if (isFlagOn(typeSymbol.flags, Flags.READONLY)) {
+        if (isFlagOn(classSymbol.flags, Flags.READONLY)) {
             symbolBuilder.withQualifier(Qualifier.READONLY);
         }
 
-        return symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(typeSymbol.type))
-                .build();
+        TypeSymbol type = typesFactory.getTypeDescriptor(classSymbol.type);
+
+        if (type.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+            type = ((TypeReferenceTypeSymbol) type).typeDescriptor();
+        }
+
+        return symbolBuilder.withTypeDescriptor((ObjectTypeSymbol) type).build();
     }
 
     /**
