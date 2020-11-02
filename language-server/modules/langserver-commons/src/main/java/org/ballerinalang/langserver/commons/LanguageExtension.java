@@ -19,10 +19,9 @@ package org.ballerinalang.langserver.commons;
 
 /**
  * Represents the language extension SPI to cater the multi-language support in the language server.
- * 
+ *
  * @param <I> Input parameter type
  * @param <O> output parameter type
- *
  * @since 2.0.0
  */
 public interface LanguageExtension<I, O> {
@@ -45,9 +44,11 @@ public interface LanguageExtension<I, O> {
 
     /**
      * Execute the operation and output the result.
-     * 
+     *
      * @param inputParams input params for the opration
      * @return {@link O} output of the operation
+     * @throws Throwable while executing. Here we throw the Throwable rather than a narrower exception since the
+     *                   executor has to handle the exceptions accordingly.
      */
-    O execute(I inputParams, LSContext context);
+    O execute(I inputParams, LSContext context) throws Throwable;
 }

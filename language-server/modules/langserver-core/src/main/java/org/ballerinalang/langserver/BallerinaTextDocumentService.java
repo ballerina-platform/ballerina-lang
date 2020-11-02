@@ -161,7 +161,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
             // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
             if (completionPath.isEmpty() || CommonUtil.isCachedExternalSource(fileUri)) {
-                return Either.forLeft(new ArrayList<>());
+                return Either.forLeft(Collections.emptyList());
             }
 
             Path compilationPath = getUntitledFilePath(completionPath.toString()).orElse(completionPath.get());
@@ -187,7 +187,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 lock.ifPresent(Lock::unlock);
             }
 
-            return Either.forLeft(new ArrayList<>());
+            return Either.forLeft(Collections.emptyList());
         });
     }
 

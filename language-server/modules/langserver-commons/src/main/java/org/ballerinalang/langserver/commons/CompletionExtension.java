@@ -18,9 +18,7 @@
 package org.ballerinalang.langserver.commons;
 
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.List;
 
@@ -29,8 +27,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public interface CompletionExtension
-        extends LanguageExtension<CompletionParams, Either<List<CompletionItem>, CompletionList>> {
+public interface CompletionExtension extends LanguageExtension<CompletionParams, List<CompletionItem>> {
 
     /**
      * {@inheritDoc}

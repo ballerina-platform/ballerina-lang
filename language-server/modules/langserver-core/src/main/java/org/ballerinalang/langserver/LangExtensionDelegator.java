@@ -70,12 +70,18 @@ public class LangExtensionDelegator {
      *
      * @param params completion parameters
      * @return {@link Either} completion results
+     * @throws Throwable while executing the extension
      */
-    public Either<List<CompletionItem>, CompletionList> completion(CompletionParams params, LSContext context) {
-        return completionExtensions.stream().filter(ext -> ext.validate(params))
-                .map(ext -> ext.execute(params, context))
-                .findFirst()
-                .orElse(Either.forRight(new CompletionList()));
+    public Either<List<CompletionItem>, CompletionList> completion(CompletionParams params, LSContext context)
+            throws Throwable {
+        List<CompletionItem> completionItems = new ArrayList<>();
+        for (CompletionExtension ext : completionExtensions) {
+            if (ext.validate(params)) {
+                completionItems.addAll(ext.execute(params, context));
+            }
+        }
+
+        return Either.forLeft(completionItems);
     }
 
     /**
@@ -83,12 +89,17 @@ public class LangExtensionDelegator {
      *
      * @param params formatting parameters
      * @return {@link List} of text edits
+     * @throws Throwable while executing the extension
      */
-    public List<? extends TextEdit> formatting(DocumentFormattingParams params, LSContext context) {
-        return formatExtensions.stream().filter(ext -> ext.validate(params))
-                .map(ext -> ext.execute(params, context))
-                .findFirst()
-                .orElse(new ArrayList<>());
+    public List<? extends TextEdit> formatting(DocumentFormattingParams params, LSContext context) throws Throwable {
+        List<TextEdit> textEdits = new ArrayList<>();
+        for (FormattingExtension ext : formatExtensions) {
+            if (ext.validate(params)) {
+                textEdits.addAll(ext.execute(params, context));
+            }
+        }
+
+        return textEdits;
     }
 
     /**
@@ -96,12 +107,17 @@ public class LangExtensionDelegator {
      *
      * @param uri document URI
      * @return {@link PublishDiagnosticsParams} diagnostic params calculated
+     * @throws Throwable while executing the extension
      */
-    public PublishDiagnosticsParams diagnostics(String uri, LSContext context) {
-        return diagExtensions.stream().filter(ext -> ext.validate(uri))
-                .map(ext -> ext.execute(uri, context))
-                .findFirst()
-                .orElse(new PublishDiagnosticsParams());
+    public List<PublishDiagnosticsParams> diagnostics(String uri, LSContext context) throws Throwable {
+        List<PublishDiagnosticsParams> diagnosticsParams = new ArrayList<>();
+        for (DiagnosticsExtension ext : diagExtensions) {
+            if (ext.validate(uri)) {
+                diagnosticsParams.addAll(ext.execute(uri, context));
+            }
+        }
+        
+        return diagnosticsParams;
     }
 
     public static LangExtensionDelegator instance() {

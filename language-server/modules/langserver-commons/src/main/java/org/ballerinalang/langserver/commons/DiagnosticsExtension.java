@@ -19,12 +19,14 @@ package org.ballerinalang.langserver.commons;
 
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 
+import java.util.List;
+
 /**
  * Represents a completion extension.
  *
  * @since 2.0.0
  */
-public interface DiagnosticsExtension extends LanguageExtension<String, PublishDiagnosticsParams> {
+public interface DiagnosticsExtension extends LanguageExtension<String, List<PublishDiagnosticsParams>> {
 
     /**
      * {@inheritDoc}

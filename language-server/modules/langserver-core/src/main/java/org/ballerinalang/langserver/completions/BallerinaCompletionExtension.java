@@ -20,20 +20,15 @@ package org.ballerinalang.langserver.completions;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.CompletionExtension;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Completion extension implementation for ballerina.
- * 
+ *
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.LanguageExtension")
@@ -45,13 +40,9 @@ public class BallerinaCompletionExtension implements CompletionExtension {
     }
 
     @Override
-    public Either<List<CompletionItem>, CompletionList> execute(CompletionParams inputParams, LSContext context) {
+    public List<CompletionItem> execute(CompletionParams inputParams, LSContext context)
+            throws Throwable {
         CompletionUtil.resolveSymbols(context);
-        try {
-            return Either.forLeft(CompletionUtil.getCompletionItems(context));
-        } catch (WorkspaceDocumentException | LSCompletionException e) {
-            // TODO: Handle this properly
-        }
-        return Either.forLeft(new ArrayList<>());
+        return CompletionUtil.getCompletionItems(context);
     }
 }
