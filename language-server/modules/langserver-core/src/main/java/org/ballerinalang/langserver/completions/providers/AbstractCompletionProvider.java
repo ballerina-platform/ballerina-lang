@@ -169,7 +169,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                 String typeName = typeDesc.signature();
                 CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, symbol.name(), typeName);
                 completionItems.add(new SymbolCompletionItem(context, symbol, variableCItem));
-            } else if (symbol.kind() == SymbolKind.TYPE) {
+            } else if (symbol.kind() == SymbolKind.TYPE || symbol.kind() == SymbolKind.CLASS) {
                 // Here skip all the package symbols since the package is added separately
                 CompletionItem typeCItem = TypeCompletionItemBuilder.build(symbol, symbol.name());
                 completionItems.add(new SymbolCompletionItem(context, symbol, typeCItem));
