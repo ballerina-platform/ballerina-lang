@@ -19,8 +19,8 @@ import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
+import io.ballerina.compiler.api.types.ObjectTypeSymbol;
+import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -108,8 +108,8 @@ public abstract class RightArrowActionNodeContext<T extends Node> extends Abstra
         if (!SymbolUtil.isObject(symbol)) {
             return new ArrayList<>();
         }
-        BallerinaTypeDescriptor typeDescriptor = CommonUtil.getRawType(((VariableSymbol) symbol).typeDescriptor());
-        return ((ObjectTypeDescriptor) typeDescriptor).methods().stream()
+        TypeSymbol typeDescriptor = CommonUtil.getRawType(((VariableSymbol) symbol).typeDescriptor());
+        return ((ObjectTypeSymbol) typeDescriptor).methods().stream()
                 .filter(method -> method.qualifiers().contains(Qualifier.REMOTE))
                 .collect(Collectors.toList());
     }

@@ -35,7 +35,6 @@ import org.testng.annotations.Test;
  *
  * @since 0.990.4
  */
-@Test(groups = { "brokenOnNewParser" })
 public class ErrorVariableDefinitionTest {
     private CompileResult result;
 
@@ -231,20 +230,20 @@ public class ErrorVariableDefinitionTest {
                 compile("test-src/statements/variabledef/error_variable_definition_stmt_negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 13);
         int i = -1;
-        BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 27, 9);
+        BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 27, 16);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'SMS', found 'SMA'", 28, 85);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 30, 26);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 31, 28);
-        BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 41, 9);
+        BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 41, 16);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 44, 26);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 45, 28);
         BAssertUtil.validateError(resultNegative, ++i,
-                "redeclared symbol 'message'", 54, 26);
+                "redeclared symbol 'message'", 54, 36);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'int', found 'map<(anydata|readonly)>'", 56, 18);
         BAssertUtil.validateError(resultNegative, ++i,

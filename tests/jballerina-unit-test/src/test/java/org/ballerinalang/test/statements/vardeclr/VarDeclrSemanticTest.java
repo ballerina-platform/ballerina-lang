@@ -41,7 +41,6 @@ public class VarDeclrSemanticTest {
         validateError(result, 0, "incompatible types: expected 'int', found 'string'", 2, 13);
     }
 
-    @Test(groups = "disableOnOldParser")
     public void testIncompleteListenerDecl() {
         CompileResult result = BCompileUtil.compile("test-src/statements/vardeclr/incomplete_listener_decl.bal");
         int indx = 0;
@@ -60,7 +59,6 @@ public class VarDeclrSemanticTest {
         assertEquals(result.getErrorCount(), indx);
     }
 
-    @Test(groups = {"disableOnOldParser", "brokenOnClassChange"})
     public void testIncompleteListenerDecl2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/vardeclr/incomplete_listener_decl_2.bal");
         int indx = 0;
@@ -77,7 +75,6 @@ public class VarDeclrSemanticTest {
         assertEquals(result.getErrorCount(), indx);
     }
 
-    @Test(groups = "disableOnOldParser", enabled = false)
     public void testIncompleteVarDecl() {
         CompileResult result = BCompileUtil.compile("test-src/statements/vardeclr/incomplete_var_decl.bal");
         int indx = 0;

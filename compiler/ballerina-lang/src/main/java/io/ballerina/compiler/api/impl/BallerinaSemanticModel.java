@@ -19,6 +19,7 @@ package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -30,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -129,6 +131,22 @@ public class BallerinaSemanticModel implements SemanticModel {
         }
 
         return compiledSymbols;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<TypeSymbol> getType(String fileName, LineRange range) {
+        BLangCompilationUnit compilationUnit = getCompilationUnit(fileName);
+        NodeFinder nodeFinder = new NodeFinder();
+        BLangNode node = nodeFinder.lookup(compilationUnit, range);
+
+        if (node == null) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(TypesFactory.getTypeDescriptor(node.type));
     }
 
     /**

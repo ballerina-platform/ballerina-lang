@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.codeaction.impl;
 
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeSymbol;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -41,9 +41,9 @@ import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActi
  */
 public class CreateVariableCodeAction implements DiagBasedCodeAction {
     private final Symbol scopedSymbol;
-    private final BallerinaTypeDescriptor typeDescriptor;
+    private final TypeSymbol typeDescriptor;
 
-    public CreateVariableCodeAction(BallerinaTypeDescriptor typeDescriptor, Symbol scopedSymbol) {
+    public CreateVariableCodeAction(TypeSymbol typeDescriptor, Symbol scopedSymbol) {
         this.typeDescriptor = typeDescriptor;
         this.scopedSymbol = scopedSymbol;
     }
@@ -61,7 +61,7 @@ public class CreateVariableCodeAction implements DiagBasedCodeAction {
 
     private static List<CodeAction> getCreateVariableCodeActions(LSContext context, String uri, Position position,
                                                                  String name,
-                                                                 BallerinaTypeDescriptor typeDescriptor) {
+                                                                 TypeSymbol typeDescriptor) {
         List<CodeAction> actions = new ArrayList<>();
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         List<TextEdit> importEdits = new ArrayList<>();
