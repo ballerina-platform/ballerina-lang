@@ -1,4 +1,4 @@
-import org.foo;
+import privatefields.foo;
 
 public class employee01 {
     public int age = 0;

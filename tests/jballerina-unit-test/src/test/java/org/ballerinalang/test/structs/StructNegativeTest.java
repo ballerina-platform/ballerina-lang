@@ -98,12 +98,11 @@ public class StructNegativeTest {
 
     @Test(description = "Test defining a struct constant")
     public void testStructConstant() {
-//        CompileResult compileResult = BCompileUtil.compile("test-src/structs/proj", "constants");
-        CompileResult compileResult = BCompileUtil.compile("test-src/structs/proj/constants");
+        CompileResult compileResult = BCompileUtil.compile("test-src/structs/ConstantsTestProject");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics()[0].message(),
-                            "incompatible types: expected 'ballerina-test/constants:0.0.0:Person', found 'int'");
+                            "incompatible types: expected 'testorg/constants:0.0.0:Person', found 'int'");
     }
 
     @Test(description = "Test accessing an field of a noninitialized struct",

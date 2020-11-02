@@ -1,5 +1,5 @@
-import org.foo;
-import org.foo.bar;
+import equivalencynegative.foo;
+import equivalencynegative.bar;
 
 function handleUser(foo:user u) returns (string) {
     return u.name;
