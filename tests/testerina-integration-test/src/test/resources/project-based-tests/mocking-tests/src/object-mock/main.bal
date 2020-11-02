@@ -1,11 +1,11 @@
-import ballerina/io;
-import ballerina/http;
 import ballerina/email;
+import ballerina/http;
+import ballerina/io;
 
 // main bal
 
-http:Client clientEndpoint = new("http://postman-echo.com");
-email:SmtpClient smtpClient = new ("localhost", "admin","admin");
+http:Client clientEndpoint = new ("http://postman-echo.com");
+email:SmtpClient smtpClient = new ("localhost", "admin", "admin");
 
 function doGet() returns http:Response {
     http:Request req = new;
@@ -28,7 +28,7 @@ function doGetBasic() returns http:Response {
 function doGetRepeat() returns http:Response {
     http:Response|error result = clientEndpoint->get("/healthz");
     http:Response response = <http:Response>result;
-    if(response.statusCode == 200) {
+    if (response.statusCode == 200) {
         result = clientEndpoint->get("/get?test=1234");
         response = <http:Response>result;
         io:println(response.statusCode);
@@ -47,9 +47,9 @@ function sendNotification(string[] emailIds) returns error? {
     email:Error? response = smtpClient->send(msg);
 
     if (response is error) {
-      string errMsg = <string> response.detail()["message"];
-      io:println("error while sending the email: " + errMsg);
-      return response;
+        string errMsg = <string>response.detail()["message"];
+        io:println("error while sending the email: " + errMsg);
+        return response;
     }
 }
 
