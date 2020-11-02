@@ -233,7 +233,7 @@ public class MappingConstructorExpressionNodeContext extends
         }
 
         Optional<RecordTypeSymbol> record = this.getRecordTypeDesc(context,
-                                                                   (MappingConstructorExpressionNode) evalNode);
+                (MappingConstructorExpressionNode) evalNode);
 
         if (record.isEmpty()) {
             return Optional.empty();

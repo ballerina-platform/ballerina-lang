@@ -19,6 +19,7 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.types.ArrayTypeSymbol;
 import io.ballerina.compiler.api.types.FieldSymbol;
 import io.ballerina.compiler.api.types.ObjectTypeSymbol;
 import io.ballerina.compiler.api.types.RecordTypeSymbol;
@@ -27,6 +28,7 @@ import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -115,6 +117,14 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                  */
                 return this.getTypeDescForFieldAccess(ctx, (FieldAccessExpressionNode) expr);
             }
+            case INDEXED_EXPRESSION: {
+                /*
+                Address the following
+                (1) test1[].<cursor>
+                (2) test1[].t<cursor>
+                 */
+                return this.getTypeDescForIndexedExpr(ctx, (IndexedExpressionNode) expr);
+            }
 
             default:
                 return Optional.empty();
@@ -202,6 +212,16 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         return filteredMethod.get().typeDescriptor().returnTypeDescriptor();
     }
 
+    private Optional<? extends TypeSymbol> getTypeDescForIndexedExpr(LSContext context, IndexedExpressionNode node) {
+        Optional<? extends TypeSymbol> typeDesc = getTypeDesc(context, node.containerExpression());
+        
+        if (typeDesc.isEmpty() || typeDesc.get().kind() != TypeDescKind.ARRAY) {
+            return Optional.empty();
+        }
+        
+        return Optional.of(((ArrayTypeSymbol) typeDesc.get()).memberTypeDescriptor());
+    }
+    
     private List<LSCompletionItem> getCompletionsForTypeDesc(LSContext context,
                                                              TypeSymbol typeDescriptor) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
