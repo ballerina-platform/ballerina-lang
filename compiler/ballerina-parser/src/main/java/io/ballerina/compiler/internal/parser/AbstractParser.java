@@ -243,12 +243,12 @@ public abstract class AbstractParser {
                                                     STNode invalidParam,
                                                     DiagnosticCode diagnosticCode,
                                                     Object... args) {
-        STNode node = nodeList.remove(indexOfTheNode);
+        STNode node = nodeList.get(indexOfTheNode);
         STNode newNode = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(node, invalidParam);
         if (diagnosticCode != null) {
             newNode = SyntaxErrors.addDiagnostic(newNode, diagnosticCode, args);
         }
-        nodeList.add(indexOfTheNode, newNode);
+        nodeList.set(indexOfTheNode, newNode);
     }
 
     /**
