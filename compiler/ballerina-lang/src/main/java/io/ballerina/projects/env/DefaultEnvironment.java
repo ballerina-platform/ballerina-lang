@@ -19,9 +19,9 @@ package io.ballerina.projects.env;
 
 import io.ballerina.projects.Bootstrap;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.environment.EnvironmentContext;
+import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.GlobalPackageCache;
-import io.ballerina.projects.environment.ProjectEnvironmentContext;
+import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.repos.DistributionPackageCache;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -34,15 +34,15 @@ import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_API_INITIATED_COMPILATION;
 
 /**
- * Represents the {@code EnvironmentContext} of the build project.
+ * Represents the {@code Environment} of the build project.
  *
  * @since 2.0.0
  */
-public class BuildEnvContext extends EnvironmentContext {
+public class DefaultEnvironment extends Environment {
     private final Map<Class<?>, Object> services = new HashMap<>();
     private final CompilerContext compilerContext;
 
-    BuildEnvContext() {
+    DefaultEnvironment() {
         initGlobalPackageCache();
 
         // TODO Move the compilationContext building and langlib loading to BallerinaPlatform loader utility
@@ -51,8 +51,8 @@ public class BuildEnvContext extends EnvironmentContext {
         loadLangLibs(compilerContext);
     }
 
-    public ProjectEnvironmentContext projectEnvironmentContext(Project project) {
-        return BuildProjectEnvContext.from(project, this);
+    public ProjectEnvironment projectEnvironment(Project project) {
+        return DefaultProjectEnvironment.from(project, this);
     }
 
     CompilerContext compilerContext() {

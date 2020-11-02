@@ -20,7 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.ModuleLoadResponse;
 import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.environment.ProjectEnvironmentContext;
+import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.environment.Repository;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -89,9 +89,9 @@ class ModuleContext {
         this.testSrcDocIds = Collections.unmodifiableCollection(testDocContextMap.keySet());
         this.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
 
-        ProjectEnvironmentContext projectEnvironmentContext = project.projectEnvironmentContext();
-        this.bootstrap = new Bootstrap(projectEnvironmentContext.getService(PackageResolver.class));
-        this.repository = projectEnvironmentContext.getService(Repository.class);
+        ProjectEnvironment projectEnvironment = project.projectEnvironmentContext();
+        this.bootstrap = new Bootstrap(projectEnvironment.getService(PackageResolver.class));
+        this.repository = projectEnvironment.getService(Repository.class);
     }
 
     private ModuleContext(Project project,

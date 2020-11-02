@@ -20,7 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.environment.ProjectEnvironmentContext;
+import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -54,7 +54,7 @@ public class ModuleCompilation {
         packageContext.resolveDependencies();
 
         // TODO Figure out a better way to handle this
-        ProjectEnvironmentContext projectEnvContext = packageContext.project().projectEnvironmentContext();
+        ProjectEnvironment projectEnvContext = packageContext.project().projectEnvironmentContext();
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
         this.dependencyGraph = buildDependencyGraph();

@@ -15,16 +15,31 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.environment;
+package io.ballerina.projects.env;
+
+import io.ballerina.projects.environment.Environment;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * This class represent an project-specific environment context.
+ * This class allows API users to build a custom {@code Environment}.
  *
  * @since 2.0.0
  */
-public abstract class ProjectEnvironmentContext {
+public class EnvironmentBuilder {
+    private Map<Class<?>, Object> services = new HashMap<>();
 
-    public abstract <T> T getService(Class<T> clazz);
+    public static Environment buildDefault() {
+        return new DefaultEnvironment();
+    }
 
-    public abstract EnvironmentContext environmentContext();
+    public static EnvironmentBuilder getInstance() {
+        return new EnvironmentBuilder();
+    }
+
+    public <T> EnvironmentBuilder addService(Class<T> clazz, T instance) {
+        services.put(clazz, instance);
+        return this;
+    }
 }

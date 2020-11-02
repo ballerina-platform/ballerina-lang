@@ -18,10 +18,10 @@
 package io.ballerina.projects.env;
 
 import io.ballerina.projects.Project;
-import io.ballerina.projects.environment.EnvironmentContext;
+import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.GlobalPackageCache;
 import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.environment.ProjectEnvironmentContext;
+import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.environment.Repository;
 import io.ballerina.projects.repos.DistributionPackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -34,24 +34,24 @@ import java.util.Map;
  *
  * @since 2.0.0
  */
-public class BuildProjectEnvContext extends ProjectEnvironmentContext {
+public class DefaultProjectEnvironment extends ProjectEnvironment {
 
     private final Map<Class<?>, Object> services = new HashMap<>();
-    private final EnvironmentContext environmentContext;
+    private final Environment environment;
 
-    public static BuildProjectEnvContext from(Project project, BuildEnvContext buildEnvContext) {
-        return new BuildProjectEnvContext(project, buildEnvContext);
+    public static DefaultProjectEnvironment from(Project project, DefaultEnvironment defaultEnvironment) {
+        return new DefaultProjectEnvironment(project, defaultEnvironment);
     }
 
-    private BuildProjectEnvContext(Project project, BuildEnvContext buildEnvContext) {
-        this.environmentContext = buildEnvContext;
+    private DefaultProjectEnvironment(Project project, DefaultEnvironment defaultEnvironment) {
+        this.environment = defaultEnvironment;
 
-        DistributionPackageCache distCache = new DistributionPackageCache(buildEnvContext, project);
+        DistributionPackageCache distCache = new DistributionPackageCache(defaultEnvironment, project);
         services.put(Repository.class, distCache);
 
-        GlobalPackageCache globalPackageCache = buildEnvContext.getService(GlobalPackageCache.class);
+        GlobalPackageCache globalPackageCache = defaultEnvironment.getService(GlobalPackageCache.class);
         services.put(PackageResolver.class, new DefaultPackageResolver(project, distCache, globalPackageCache));
-        services.put(CompilerContext.class, buildEnvContext.compilerContext());
+        services.put(CompilerContext.class, defaultEnvironment.compilerContext());
     }
 
     @SuppressWarnings("unchecked")
@@ -59,7 +59,7 @@ public class BuildProjectEnvContext extends ProjectEnvironmentContext {
         return (T) services.get(clazz);
     }
 
-    public EnvironmentContext environmentContext() {
-        return environmentContext;
+    public Environment environment() {
+        return environment;
     }
 }

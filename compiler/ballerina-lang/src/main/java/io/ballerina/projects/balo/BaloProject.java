@@ -20,7 +20,7 @@ package io.ballerina.projects.balo;
 
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.environment.EnvironmentContext;
+import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.Repository;
 
 import java.nio.file.Path;
@@ -39,17 +39,17 @@ public class BaloProject extends Project {
      * @param baloPath Balo path
      * @return balo project
      */
-    public static BaloProject loadProject(EnvironmentContext environmentContext, Path baloPath) {
+    public static BaloProject loadProject(Environment environment, Path baloPath) {
         Path absBaloPath = Optional.of(baloPath.toAbsolutePath()).get();
         if (!absBaloPath.toFile().exists()) {
             throw new RuntimeException("balo path does not exist:" + baloPath);
         }
 
-        return new BaloProject(environmentContext, absBaloPath);
+        return new BaloProject(environment, absBaloPath);
     }
 
-    private BaloProject(EnvironmentContext environmentContext, Path baloPath) {
-        super(environmentContext);
+    private BaloProject(Environment environment, Path baloPath) {
+        super(environment);
         this.sourceRoot = baloPath;
         Repository repository = projectEnvironmentContext().getService(Repository.class);
         addPackage(baloPath.toString(), repository);

@@ -23,8 +23,8 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.env.EnvironmentContextBuilder;
-import io.ballerina.projects.environment.EnvironmentContext;
+import io.ballerina.projects.env.EnvironmentBuilder;
+import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.model.BallerinaToml;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
@@ -62,11 +62,11 @@ public class BuildProject extends Project {
                     absProjectPath.getParent());
         }
 
-        return new BuildProject(EnvironmentContextBuilder.buildDefault(), absProjectPath);
+        return new BuildProject(EnvironmentBuilder.buildDefault(), absProjectPath);
     }
 
-    private BuildProject(EnvironmentContext environmentContext, Path projectPath) {
-        super(environmentContext);
+    private BuildProject(Environment environment, Path projectPath) {
+        super(environment);
         this.sourceRoot = projectPath;
 
         // load Ballerina.toml

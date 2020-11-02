@@ -17,22 +17,14 @@
  */
 package io.ballerina.projects.environment;
 
-import io.ballerina.projects.Project;
-
 /**
- * Represents an environment shared by a set of projects.
- * <p>
- * An environment can be used to maintain a set of utility services common to a set of project instances.
+ * This class represent an project-specific environment.
  *
  * @since 2.0.0
  */
-public abstract class EnvironmentContext {
+public abstract class ProjectEnvironment {
 
-    /**
-     * Returns a {@code Project} aware environment context.
-     *
-     * @param project the project instances
-     * @return Returns a project-aware environment context
-     */
-    public abstract ProjectEnvironmentContext projectEnvironmentContext(Project project);
+    public abstract <T> T getService(Class<T> clazz);
+
+    public abstract Environment environment();
 }

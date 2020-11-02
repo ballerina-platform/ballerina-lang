@@ -25,7 +25,7 @@ import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.balo.BaloProject;
-import io.ballerina.projects.environment.EnvironmentContext;
+import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageLoadRequest;
 import io.ballerina.projects.environment.Repository;
 import io.ballerina.projects.utils.ProjectConstants;
@@ -71,16 +71,16 @@ public class FileSystemRepository implements Repository {
     Path balo;
     Path cache;
     private final Project project;
-    private final EnvironmentContext environmentContext;
+    private final Environment environment;
     private Path birPath;
 
     // TODO Refactor this when we do repository/cache split
-    public FileSystemRepository(EnvironmentContext environmentContext, Project project, Path cacheDirectory) {
+    public FileSystemRepository(Environment environment, Project project, Path cacheDirectory) {
         this.root = cacheDirectory;
         this.balo = this.root.resolve(ProjectConstants.REPO_BALO_DIR_NAME);
         this.cache = this.root.resolve(ProjectConstants.REPO_CACHE_DIR_NAME);
         this.project = project;
-        this.environmentContext = environmentContext;
+        this.environment = environment;
         // todo check if the directories are readable
     }
 
@@ -98,7 +98,7 @@ public class FileSystemRepository implements Repository {
             return Optional.empty();
         }
 
-        Project project = BaloProject.loadProject(environmentContext, baloPath);
+        Project project = BaloProject.loadProject(environment, baloPath);
         return Optional.of(project.currentPackage());
     }
 
