@@ -51,3 +51,8 @@ public function intAdd3((any|error)... intValues) returns (int) {
 
     return  sum;
 }
+
+// Returns (string)
+public function stringAdd(string str) returns (string) {
+    return "test_" + str;
+}

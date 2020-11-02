@@ -59,6 +59,11 @@ test:MockFunction mock_intAdd3 = new();
 }
 test:MockFunction mock_print = new();
 
+@test:Mock {
+    functionName : "stringAdd"
+}
+test:MockFunction mock_stringAdd = new();
+
 //
 //  MOCK FUNCTIONS
 //
@@ -102,6 +107,10 @@ public function mockAbsInt(int value) returns (int) {
 public function mockPrint((any|error)... s) {
     outputs[counter] = s[0];
     counter += 1;
+}
+
+public function mockStringAdd(string str1) returns (string) {
+    return "Hello " + str1;
 }
 
 //
@@ -194,6 +203,14 @@ public function call_Test9() {
     test:assertEquals(outputs[0], "FunctionMocking Tests");
 }
 
+@test:Config {}
+public function call_Test10() {
+    io:println("\t[call_Test10] Test calling function that returns string");
+    // StringAdd
+    test:when(mock_stringAdd).call("mockStringAdd");
+    test:assertEquals(stringAdd("Ibaqu"), "Hello Ibaqu");
+}
+
 @test:Config {
 }
 public function thenReturn_Test1() {
@@ -204,6 +221,9 @@ public function thenReturn_Test1() {
 
     test:when(mock_floatAdd).thenReturn(10.5);
     test:assertEquals(floatAdd(10, 5), 10.5);
+
+    test:when(mock_stringAdd).thenReturn("testing");
+    test:assertEquals(stringAdd("string"), "testing");
 }
 
 @test:Config {
