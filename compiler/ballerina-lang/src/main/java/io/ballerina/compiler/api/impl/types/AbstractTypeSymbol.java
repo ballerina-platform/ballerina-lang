@@ -18,13 +18,17 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeSymbol;
+import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a Ballerina Type Descriptor.
@@ -54,6 +58,26 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
 
     @Override
     public abstract String signature();
+
+    @Override
+    public String name() {
+        return "";
+    }
+
+    @Override
+    public SymbolKind kind() {
+        return SymbolKind.TYPE;
+    }
+
+    @Override
+    public Optional<Documentation> docAttachment() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Location location() {
+        return null;
+    }
 
     @Override
     public List<MethodSymbol> builtinMethods() {

@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public interface TypeSymbol {
+public interface TypeSymbol extends Symbol {
 
     /**
      * Get the Type Kind.
