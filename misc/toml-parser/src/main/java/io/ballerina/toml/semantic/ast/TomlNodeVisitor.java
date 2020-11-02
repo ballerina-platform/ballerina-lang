@@ -23,19 +23,27 @@ package io.ballerina.toml.semantic.ast;
  *
  * @since 2.0.0
  */
-public abstract class TomlNodeVisitor {
+public interface TomlNodeVisitor {
 
-    public abstract void visit(TomlTableNode tomlTableNode);
+    default void visit(TomlTableNode tomlTableNode) {}
 
-    public abstract void visit(TomlTableArrayNode tomlTableArrayNode);
+    default void visit(TomlTableArrayNode tomlTableArrayNode) {}
 
-    public abstract void visit(TomlKeyValueNode keyValue);
+    default void visit(TomlKeyValueNode keyValue) {}
 
-    public abstract void visit(TomlKeyNode tomlKeyNode);
+    default void visit(TomlKeyNode tomlKeyNode) {}
 
-    public abstract void visit(TomlValueNode tomlValue);
+    default void visit(TomlValueNode tomlValue) {}
 
-    public abstract void visit(TomlArrayValueNode tomlArrayValueNode);
+    default void visit(TomlArrayValueNode tomlArrayValueNode) {}
 
-    public abstract void visit(TomlKeyEntryNode tomlKeyEntryNode);
+    default void visit(TomlKeyEntryNode tomlKeyEntryNode) {}
+
+    default void visit(TomlStringValueNode tomlStringValueNode) {}
+
+    default void visit(TomlDoubleValueNodeNode tomlDoubleValueNodeNode) {}
+
+    default void visit(TomlLongValueNode tomlLongValueNode){}
+
+    default void visit(TomlBooleanValueNode tomlBooleanValueNode) {}
 }

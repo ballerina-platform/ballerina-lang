@@ -25,6 +25,7 @@ import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlTransformer;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
+import io.ballerina.toml.semantic.diagnostics.DiagnosticComparator;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.toml.syntax.tree.DocumentNode;
@@ -33,16 +34,15 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * API For Parsing Tom's Obvious, Minimal Language (TOML) file.
@@ -53,6 +53,7 @@ import java.util.List;
 public class Toml {
 
     private TomlTableNode rootNode;
+    private Set<Diagnostic> diagnostics;
 
     /**
      * Creates new Root TOML Node from AST.
@@ -60,7 +61,18 @@ public class Toml {
      * @param tomlTableNode AST representation of TOML Table.
      */
     private Toml(TomlTableNode tomlTableNode) {
+        this(tomlTableNode, new TreeSet<>(new DiagnosticComparator()));
+    }
+
+    /**
+     * Creates new Root TOML Node from AST.
+     *
+     * @param tomlTableNode AST representation of TOML Table.
+     * @param diagnostics Diagnostics of the Node.
+     */
+    private Toml(TomlTableNode tomlTableNode, Set<Diagnostic> diagnostics) {
         this.rootNode = tomlTableNode;
+        this.diagnostics = diagnostics;
     }
 
     /**
@@ -71,7 +83,12 @@ public class Toml {
      * @throws IOException if file is not accessible
      */
     public static Toml read(Path path) throws IOException {
-        return read(Files.newBufferedReader(path));
+        Path fileNamePath = path.getFileName();
+        if (fileNamePath == null) {
+            return null;
+        }
+        return read(Files.readString(path),
+                fileNamePath.toString());
     }
 
     /**
@@ -82,45 +99,29 @@ public class Toml {
      * @throws IOException if file is not accessible
      */
     public static Toml read(InputStream inputStream) throws IOException {
-        return read(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-    }
-
-    /**
-     * Read TOML File using Reader.
-     *
-     * @param reader reader of the TOML file
-     * @return TOML Object
-     * @throws IOException if file is not accessible
-     */
-    public static Toml read(Reader reader) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(reader);
-        StringBuilder w = new StringBuilder();
-        for (String line = bufferedReader.readLine(); line != null; line = bufferedReader.readLine()) {
-            w.append(line).append('\n');
-        }
-        return read(w.toString());
+       return read(new String(inputStream.readAllBytes(), StandardCharsets.UTF_8), null);
     }
 
     /**
      * Parse TOML file using TOML String.
      *
      * @param content String representation of the TOML file content.
+     * @param filePath path of the TOML file
      * @return TOML Object
      */
-    public static Toml read(String content) {
+    public static Toml read(String content, String filePath) {
         TextDocument textDocument = TextDocuments.from(content);
-        SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
-        List<TomlDiagnostic> tomlDiagnostics = reportSyntaxDiagnostics(syntaxTree);
+        SyntaxTree syntaxTree = SyntaxTree.from(textDocument, filePath);
+        Set<Diagnostic> tomlDiagnostics = reportSyntaxDiagnostics(syntaxTree);
         TomlTransformer nodeTransformer = new TomlTransformer();
         TomlTableNode
                 transformedTable = (TomlTableNode) nodeTransformer.transform((DocumentNode) syntaxTree.rootNode());
-        transformedTable.setSyntacticalDiagnostics(tomlDiagnostics);
         tomlDiagnostics.addAll(transformedTable.collectSemanticDiagnostics());
-        return new Toml(transformedTable);
+        return new Toml(transformedTable, tomlDiagnostics);
     }
 
-    private static List<TomlDiagnostic> reportSyntaxDiagnostics(SyntaxTree tree) {
-        List<TomlDiagnostic> diagnostics = new ArrayList<>();
+    private static Set<Diagnostic> reportSyntaxDiagnostics(SyntaxTree tree) {
+        Set<Diagnostic> diagnostics = new TreeSet<>(new DiagnosticComparator());
         for (Diagnostic syntaxDiagnostic : tree.diagnostics()) {
             TomlNodeLocation tomlNodeLocation = new TomlNodeLocation(syntaxDiagnostic.location().lineRange(),
                     syntaxDiagnostic.location().textRange());
@@ -155,10 +156,10 @@ public class Toml {
      */
     public Toml getTable(String key) {
         TopLevelNode topLevelNode = rootNode.children().get(key);
-        if (topLevelNode.kind() == TomlType.TABLE) {
-            return new Toml((TomlTableNode) topLevelNode);
+        if (topLevelNode == null || topLevelNode.kind() != TomlType.TABLE) {
+            return null;
         }
-        return null;
+        return new Toml((TomlTableNode) topLevelNode);
     }
 
     /**
@@ -169,19 +170,23 @@ public class Toml {
      */
     public List<Toml> getTables(String key) {
         TopLevelNode tableNode = rootNode.children().get(key);
+        if (tableNode == null || tableNode.kind() != TomlType.TABLE_ARRAY) {
+            return null;
+        }
+        TomlTableArrayNode tomlTableArrayNode = (TomlTableArrayNode) tableNode;
+        List<TomlTableNode> childs = tomlTableArrayNode.children();
         List<Toml> tomlList = new ArrayList<>();
-        if (tableNode.kind() == TomlType.TABLE_ARRAY) {
-            TomlTableArrayNode tomlTableArrayNode = (TomlTableArrayNode) tableNode;
-            List<TomlTableNode> childs = tomlTableArrayNode.children();
-            for (TomlTableNode child : childs) {
-                tomlList.add(new Toml(child));
-            }
-            return tomlList;
+        for (TomlTableNode child : childs) {
+            tomlList.add(new Toml(child));
         }
         return tomlList;
     }
 
-    public List<TomlDiagnostic> getDiagnostics() {
-        return this.rootNode.diagnostics();
+    public Set<Diagnostic> getDiagnostics() {
+        return this.diagnostics;
+    }
+
+    public TomlTableNode getRootNode() {
+        return rootNode;
     }
 }

@@ -14,4 +14,9 @@
 # specific language governing permissions and limitations
 # under the License.
 
-key = "hello"
+[container.image]
+repository = "wso2"
+name = "hello"
+tag = "v0.1.0"
+base = "openjdk:slim"
+field = "Unwated Field"

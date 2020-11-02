@@ -83,10 +83,6 @@ public class TomlTableNode extends TopLevelNode {
                 '}';
     }
 
-    public void setSyntacticalDiagnostics(List<TomlDiagnostic> syntaxDiags) {
-        this.diagnostics().addAll(syntaxDiags);
-    }
-
     public List<TomlDiagnostic> collectSemanticDiagnostics() {
         List<TomlDiagnostic> tomlDiagnostics = new ArrayList<>();
         for (Map.Entry<String, TopLevelNode> child : children.entrySet()) {
