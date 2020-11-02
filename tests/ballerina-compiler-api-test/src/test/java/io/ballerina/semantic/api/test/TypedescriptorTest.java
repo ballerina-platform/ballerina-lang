@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -28,7 +29,6 @@ import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
-import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
@@ -160,23 +160,21 @@ public class TypedescriptorTest {
     @Test
     public void testObjectType() {
         Symbol symbol = getSymbol(28, 6);
-        TypeReferenceTypeSymbol typeRef =
-                (TypeReferenceTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor();
-        ObjectTypeSymbol type = (ObjectTypeSymbol) typeRef.typeDescriptor();
-        assertEquals(type.typeKind(), OBJECT);
+        ClassSymbol clazz = (ClassSymbol) symbol;
+        assertEquals(clazz.typeKind(), OBJECT);
 
-        List<FieldSymbol> fields = type.fieldDescriptors();
+        List<FieldSymbol> fields = clazz.fieldDescriptors();
         FieldSymbol field = fields.get(0);
         assertEquals(fields.size(), 1);
         assertEquals(field.name(), "name");
         assertEquals(field.typeDescriptor().typeKind(), STRING);
 
-        List<MethodSymbol> methods = type.methods();
+        List<MethodSymbol> methods = clazz.methods();
         MethodSymbol method = methods.get(0);
         assertEquals(fields.size(), 1);
         assertEquals(method.name(), "getName");
 
-        assertEquals(type.initMethod().get().name(), "init");
+        assertEquals(clazz.initMethod().get().name(), "init");
     }
 
     @Test
