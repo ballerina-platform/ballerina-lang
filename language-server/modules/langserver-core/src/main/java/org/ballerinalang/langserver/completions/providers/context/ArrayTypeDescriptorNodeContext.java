@@ -72,12 +72,13 @@ public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<A
     private Predicate<Symbol> constantFilter() {
         return symbol -> {
             Optional<? extends TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
-            typeDescriptor = typeDescriptor.isPresent() && typeDescriptor.get().kind() == TypeDescKind.TYPE_REFERENCE ?
-                    Optional.ofNullable(((TypeReferenceTypeSymbol) typeDescriptor.get()).typeDescriptor())
-                    : typeDescriptor;
+            typeDescriptor =
+                    typeDescriptor.isPresent() && typeDescriptor.get().typeKind() == TypeDescKind.TYPE_REFERENCE ?
+                            Optional.ofNullable(((TypeReferenceTypeSymbol) typeDescriptor.get()).typeDescriptor())
+                            : typeDescriptor;
             return symbol.kind() == SymbolKind.CONSTANT
                     && typeDescriptor.isPresent()
-                    && typeDescriptor.get().kind() == TypeDescKind.INT;
+                    && typeDescriptor.get().typeKind() == TypeDescKind.INT;
         };
     }
 }

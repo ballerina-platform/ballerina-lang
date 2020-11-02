@@ -222,7 +222,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                         return false;
                     }
                     TypeSymbol typeDesc = ((VariableSymbol) symbol).typeDescriptor();
-                    return typeDesc.kind() == TypeDescKind.UNION && !capturedSymbols.contains(symbol.name());
+                    return typeDesc.typeKind() == TypeDescKind.UNION && !capturedSymbols.contains(symbol.name());
                 })
                 .map(symbol -> {
                     capturedSymbols.add(symbol.name());
@@ -232,7 +232,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                             = new ArrayList<>(((UnionTypeSymbol) ((VariableSymbol) symbol).typeDescriptor())
                             .memberTypeDescriptors());
                     members.forEach(bType -> {
-                        if (bType.kind() == TypeDescKind.ERROR) {
+                        if (bType.typeKind() == TypeDescKind.ERROR) {
                             errorTypes.add(bType);
                         } else {
                             resultTypes.add(bType);

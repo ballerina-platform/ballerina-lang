@@ -18,9 +18,11 @@ package org.ballerinalang.langserver.codeaction.providers;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.types.FunctionTypeSymbol;
@@ -29,6 +31,7 @@ import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -49,6 +52,7 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -245,6 +249,7 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
         private final TypeDescKind typeDescKind;
         private final ModuleID moduleID;
         private final String definitionName;
+        private final Location location = new BLangDiagnosticLocation("$builtin$", -1, -1, -1, -1);
 
         TempTypeSymbol(String definitionName, TypeDescKind typeDescKind, ModuleID moduleID) {
             this.typeDescKind = typeDescKind;
@@ -253,7 +258,7 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
         }
 
         @Override
-        public TypeDescKind kind() {
+        public TypeDescKind typeKind() {
             return typeDescKind;
         }
 
@@ -271,6 +276,26 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
             return !ANON_ORG.equals(moduleID.orgName()) ? moduleID.orgName() + Names.ORG_NAME_SEPARATOR +
                     moduleID.moduleName() + Names.VERSION_SEPARATOR + moduleID.version() + ":" +
                     definitionName : definitionName;
+        }
+
+        @Override
+        public String name() {
+            return "";
+        }
+
+        @Override
+        public SymbolKind kind() {
+            return SymbolKind.TYPE;
+        }
+
+        @Override
+        public Optional<Documentation> docAttachment() {
+            return Optional.empty();
+        }
+
+        @Override
+        public Location location() {
+            return this.location;
         }
 
         @Override

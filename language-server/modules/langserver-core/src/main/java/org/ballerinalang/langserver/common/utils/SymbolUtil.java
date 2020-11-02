@@ -59,7 +59,7 @@ public class SymbolUtil {
                 return false;
         }
 
-        return CommonUtil.getRawType(typeDescriptor).kind() == TypeDescKind.OBJECT;
+        return CommonUtil.getRawType(typeDescriptor).typeKind() == TypeDescKind.OBJECT;
     }
 
     /**
@@ -81,7 +81,7 @@ public class SymbolUtil {
                 return false;
         }
 
-        return CommonUtil.getRawType(typeDescriptor).kind() == TypeDescKind.RECORD;
+        return CommonUtil.getRawType(typeDescriptor).typeKind() == TypeDescKind.RECORD;
     }
 
     /**
@@ -150,7 +150,7 @@ public class SymbolUtil {
     public static boolean isListener(Symbol symbol) {
         Optional<? extends TypeSymbol> symbolTypeDesc = getTypeDescriptor(symbol);
         
-        if (symbolTypeDesc.isEmpty() || CommonUtil.getRawType(symbolTypeDesc.get()).kind() != TypeDescKind.OBJECT) {
+        if (symbolTypeDesc.isEmpty() || CommonUtil.getRawType(symbolTypeDesc.get()).typeKind() != TypeDescKind.OBJECT) {
             return false;
         }
         List<String> attachedMethods = ((ObjectTypeSymbol) CommonUtil.getRawType(symbolTypeDesc.get())).methods()
@@ -187,7 +187,7 @@ public class SymbolUtil {
         }
         TypeSymbol typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
 
-        return typeDescriptor.kind() == TypeDescKind.ERROR;
+        return typeDescriptor.typeKind() == TypeDescKind.ERROR;
     }
 
     /**
@@ -201,6 +201,6 @@ public class SymbolUtil {
             return Optional.empty();
         }
 
-        return Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor().kind());
+        return Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor().typeKind());
     }
 }

@@ -66,8 +66,8 @@ public class ErrorTypeParamsNodeContext extends AbstractCompletionProvider<Error
                 return false;
             }
             TypeSymbol typeDesc = ((TypeDefinitionSymbol) symbol).typeDescriptor();
-            return (CommonUtil.getRawType(typeDesc).kind() == TypeDescKind.MAP
-                    || CommonUtil.getRawType(typeDesc).kind() == TypeDescKind.RECORD);
+            return (CommonUtil.getRawType(typeDesc).typeKind() == TypeDescKind.MAP
+                    || CommonUtil.getRawType(typeDesc).typeKind() == TypeDescKind.RECORD);
         };
         List<Symbol> mappingTypes;
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {

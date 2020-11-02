@@ -79,11 +79,11 @@ public class ErrorTypeCodeAction implements DiagBasedCodeAction {
         // add code action for `check`
         if (symbol != null) {
             boolean hasError = false;
-            if (typeDescriptor.kind() == TypeDescKind.ERROR) {
+            if (typeDescriptor.typeKind() == TypeDescKind.ERROR) {
                 hasError = true;
-            } else if (typeDescriptor.kind() == TypeDescKind.UNION) {
+            } else if (typeDescriptor.typeKind() == TypeDescKind.UNION) {
                 UnionTypeSymbol unionType = (UnionTypeSymbol) typeDescriptor;
-                hasError = unionType.memberTypeDescriptors().stream().anyMatch(s -> s.kind() == TypeDescKind.ERROR);
+                hasError = unionType.memberTypeDescriptors().stream().anyMatch(s -> s.typeKind() == TypeDescKind.ERROR);
             }
             if (hasError) {
                 String panicCmd = String.format(CommandConstants.CREATE_VARIABLE_TITLE + " with '%s'", "Check");
