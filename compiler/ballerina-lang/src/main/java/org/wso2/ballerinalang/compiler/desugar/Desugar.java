@@ -3021,7 +3021,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangExpression createConditionFromMatchPatterns(BLangMatchClause matchClause,
-                                                             BLangSimpleVariable matchExprVar, DiagnosticPos pos) {
+                                                             BLangSimpleVariable matchExprVar, Location pos) {
         BLangSimpleVariableDef resultVarDef = createVarDef("$result$", symTable.booleanType, null, pos);
         BLangSimpleVarRef resultVarRef = ASTBuilderUtil.createVariableRef(pos, resultVarDef.var.symbol);
         BLangBlockStmt mainBlock = ASTBuilderUtil.createBlockStmt(pos);
@@ -3059,7 +3059,7 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private BLangBlockStmt createSuccessOrFailureBody(boolean status, BLangSimpleVarRef varRef, DiagnosticPos pos) {
+    private BLangBlockStmt createSuccessOrFailureBody(boolean status, BLangSimpleVarRef varRef, Location pos) {
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(pos);
         BLangAssignment bLangAssignment =
                 ASTBuilderUtil.createAssignmentStmt(pos, varRef, getBooleanLiteral(status));
@@ -3070,7 +3070,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangIf createIfElseStmtFromMatchPattern(BLangMatchPattern matchPattern,
                                                      BLangSimpleVariable matchExprVar,
                                                      BLangBlockStmt successBody,
-                                                     DiagnosticPos pos) {
+                                                     Location pos) {
 
         BLangSimpleVarRef matchExprVarRef = ASTBuilderUtil.createVariableRef(matchExprVar.pos, matchExprVar.symbol);
         BLangExpression condition = createConditionForMatchPattern(matchPattern, matchExprVarRef);
@@ -3098,7 +3098,7 @@ public class Desugar extends BLangNodeVisitor {
         switch (bindingPattern.getKind()) {
             case CAPTURE_BINDING_PATTERN:
                 BLangCaptureBindingPattern captureBindingPattern = (BLangCaptureBindingPattern) bindingPattern;
-                DiagnosticPos captureBindingPatternPos = captureBindingPattern.pos;
+                Location captureBindingPatternPos = captureBindingPattern.pos;
                 BLangSimpleVarRef captureBindingPatternVarRef =
                         declaredVarDef.get(captureBindingPattern.getIdentifier().getValue());
                 matchStmtsForPattern.add(ASTBuilderUtil.createAssignmentStmt(captureBindingPatternPos,
@@ -3114,7 +3114,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangExpression createConditionForListMatchPattern(BLangListMatchPattern listMatchPattern,
                                                                BLangSimpleVarRef matchExprVarRef) {
-        DiagnosticPos pos = listMatchPattern.pos;
+        Location pos = listMatchPattern.pos;
         BType matchPatternType = listMatchPattern.type;
 
         BLangSimpleVariableDef resultVarDef = createVarDef("$listPatternResult$", symTable.booleanType, null,
@@ -3183,7 +3183,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangExpression createConditionForListMemberPattern(int index, BLangMatchPattern listMemberMatchPattern,
                                                                 BLangSimpleVariableDef tempCastVarDef,
                                                                 BLangBlockStmt blockStmt, BType type,
-                                                                DiagnosticPos pos) {
+                                                                Location pos) {
 
         BLangExpression indexExpr = createIndexBasedAccessExpr(type, pos, new BLangLiteral((long) index,
                         symTable.intType), tempCastVarDef.var.symbol, null);
@@ -3210,7 +3210,7 @@ public class Desugar extends BLangNodeVisitor {
                         (BLangVarBindingPatternMatchPattern) matchPattern, varRef);
             case LIST_MATCH_PATTERN:
                 BLangListMatchPattern listMatchPattern = (BLangListMatchPattern) matchPattern;
-                DiagnosticPos pos = listMatchPattern.pos;
+                Location pos = listMatchPattern.pos;
                 BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(pos);
 
                 BLangSimpleVariableDef resultVarDef = createVarDef("$listPatternVarResult$", symTable.booleanType, null,

@@ -2435,7 +2435,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void checkForSimilarVars(Map<String, BVarSymbol> declaredVars, Map<String, BVarSymbol> var,
-                                     DiagnosticPos pos) {
+                                     Location pos) {
         for (String variableName : var.keySet()) {
             if (declaredVars.containsKey(variableName)) {
                 dlog.error(pos, DiagnosticCode.MATCH_PATTERN_CANNOT_REPEAT_SAME_VARIABLE);
