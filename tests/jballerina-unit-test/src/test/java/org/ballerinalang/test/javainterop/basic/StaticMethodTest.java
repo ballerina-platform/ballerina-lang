@@ -168,6 +168,7 @@ public class StaticMethodTest {
     @DataProvider(name = "functionNamesProvider")
     public Object[] getFunctionNames() {
         return new String[]{"testBalEnvSlowAsyncVoidSig", "testBalEnvFastAsyncVoidSig", "testBalEnvSlowAsync",
-                "testBalEnvFastAsync", "testReturnNullString", "testReturnNotNullString", "testStaticResolve"};
+                "testBalEnvFastAsync", "testReturnNullString", "testReturnNotNullString", "testStaticResolve",
+                "testStringCast"};
     }
 }

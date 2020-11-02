@@ -35,6 +35,8 @@ public type ApiDefinition record {|
     ResourceDefinition[] resources;
 |};
 
+public type MyType byte[]|string|int|float;
+
 function testAcceptNothingAndReturnNothing() {
     acceptNothingAndReturnNothing();
 }
@@ -130,6 +132,12 @@ public function testReturnNullString() {
 public function testReturnNotNullString() {
     string concat = "some" + (returnNullString(false) ?: "");
     test:assertEquals("someNotNull", concat);
+}
+
+public function testStringCast() {
+    any result = getValue();
+    string s = <string> result;
+    test:assertEquals("Ballerina", s);
 }
 
 // Interop functions
@@ -264,4 +272,8 @@ function hashCode(int receiver) returns int = @java:Method {
     name: "hashCode",
     'class: "java.lang.Byte",
     paramTypes: ["byte"]
+} external;
+
+function getValue() returns MyType = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;

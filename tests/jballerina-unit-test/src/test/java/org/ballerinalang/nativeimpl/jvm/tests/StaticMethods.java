@@ -571,4 +571,8 @@ public class StaticMethods {
     public static TableValue getTableAsReadOnly(TableValue tb) {
         return tb;
     }
+
+    public static Object getValue() {
+        return StringUtils.fromString("Ballerina");
+    }
 }
