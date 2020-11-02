@@ -190,7 +190,11 @@ public class BUnionType extends BType implements UnionType {
     @Override
     public String toString() {
         if (resolving) {
-            return this.typeName;
+            if (this.typeName != null) {
+                return this.typeName;
+            } else {
+                return "...";
+            }
         }
         resolving = true;
         if (cachedToString == null) {

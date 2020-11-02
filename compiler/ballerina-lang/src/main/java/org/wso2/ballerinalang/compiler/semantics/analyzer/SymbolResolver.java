@@ -862,10 +862,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
             BUnionType type = (BUnionType) entry.symbol.type;
             symTable.anydataType = new BAnydataType(type);
-            symTable.anydataType.flags |= Flags.CYCLIC;
-            if (Symbols.isFlagOn(symTable.anydataType.flags, Flags.TYPE_PARAM)) {
-                symTable.anydataType.flags ^= Flags.TYPE_PARAM;
-            }
             symTable.anydataOrReadonly = BUnionType.create(null, symTable.anydataType, symTable.readonlyType);
             entry.symbol.type = symTable.anydataType;
             entry.symbol.origin = BUILTIN;
@@ -886,10 +882,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
             BUnionType type = (BUnionType) entry.symbol.type;
             symTable.jsonType = new BJSONType(type);
-            symTable.jsonType.flags |= Flags.CYCLIC;
-            if (Symbols.isFlagOn(symTable.jsonType.flags, Flags.TYPE_PARAM)) {
-                symTable.jsonType.flags ^= Flags.TYPE_PARAM;
-            }
             symTable.jsonType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.JSON, PackageID.ANNOTATIONS,
                     symTable.jsonType, symTable.langAnnotationModuleSymbol, symTable.builtinPos, BUILTIN);
             entry.symbol.type = symTable.jsonType;
@@ -911,7 +903,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 foundCloneableType = true;
 
                 symTable.cloneableType = (BUnionType) entry.symbol.type;
-                symTable.cloneableType.flags |= Flags.CYCLIC;
+                symTable.cloneableType.isCyclic = true;
                 symTable.cloneableType.tsymbol =
                         new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
                                 symTable.cloneableType, symTable.langValueModuleSymbol, symTable.builtinPos, BUILTIN);

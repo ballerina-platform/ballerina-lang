@@ -2528,14 +2528,34 @@ public class Types {
             }
         }
 
-        // check if all the value types are assignable between two unions
+        Set<BType> selfReferences = new HashSet<>();
+
+        // check the structural values for similarity
         sourceIterator = sourceTypes.iterator();
         while (sourceIterator.hasNext()) {
             BType s = sourceIterator.next();
             boolean sourceTypeIsNotAssignableToAnyTargetType = true;
             var targetIterator = targetTypes.iterator();
+
+            boolean selfReferencedSource = isSelfReferencedStructuredType(source, s);
+            if (selfReferencedSource) {
+                selfReferences.add(s);
+            }
+
             while (targetIterator.hasNext()) {
                 BType t = targetIterator.next();
+
+                boolean selfReferencedTarget = isSelfReferencedStructuredType(target, t);
+                if (selfReferencedTarget) {
+                    selfReferences.add(t);
+                    if (selfReferencedSource) {
+                        if (s.tag == t.tag) {
+                            sourceTypeIsNotAssignableToAnyTargetType = false;
+                            break;
+                        }
+                    }
+                }
+
                 if (isAssignable(s, t, unresolvedTypes)) {
                     sourceTypeIsNotAssignableToAnyTargetType = false;
                     break;
@@ -2546,30 +2566,46 @@ public class Types {
             }
         }
 
-
-        for (BType s : sourceTypes) {
-            if (s.tag == TypeTags.NEVER) {
-                continue;
-            }
-            if (s.tag == TypeTags.FINITE && isAssignable(s, target, unresolvedTypes)) {
-                continue;
-            }
-            if (s.tag == TypeTags.XML && isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes)) {
-                continue;
-            }
-
-            boolean sourceTypeIsNotAssignableToAnyTargetType = true;
-            for (BType t : targetTypes) {
-                if (isAssignable(s, t, unresolvedTypes)) {
-                    sourceTypeIsNotAssignableToAnyTargetType = false;
-                    break;
-                }
-            }
-            if (sourceTypeIsNotAssignableToAnyTargetType) {
-                return false;
-            }
-        }
+//
+//        for (BType s : sourceTypes) {
+//            if (s.tag == TypeTags.NEVER) {
+//                continue;
+//            }
+//            if (s.tag == TypeTags.FINITE && isAssignable(s, target, unresolvedTypes)) {
+//                continue;
+//            }
+//            if (s.tag == TypeTags.XML && isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes)) {
+//                continue;
+//            }
+//
+//            boolean sourceTypeIsNotAssignableToAnyTargetType = true;
+//            for (BType t : targetTypes) {
+//                if (isAssignable(s, t, unresolvedTypes)) {
+//                    sourceTypeIsNotAssignableToAnyTargetType = false;
+//                    break;
+//                }
+//            }
+//            if (sourceTypeIsNotAssignableToAnyTargetType) {
+//                return false;
+//            }
+//        }
         return true;
+    }
+
+    private boolean isSelfReferencedStructuredType(BType source, BType s) {
+        if (source == s) {
+            return true;
+        }
+        if (s.tag == TypeTags.ARRAY) {
+            return isSelfReferencedStructuredType(source, ((BArrayType) s).eType);
+        }
+        if (s.tag == TypeTags.MAP) {
+            return isSelfReferencedStructuredType(source, ((BMapType) s).constraint);
+        }
+        if (s.tag == TypeTags.TABLE) {
+            return isSelfReferencedStructuredType(source, ((BTableType) s).constraint);
+        }
+        return false;
     }
 
     private Set<BType> getEffectiveMemberTypes(BUnionType unionType) {

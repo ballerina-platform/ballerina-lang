@@ -48,6 +48,7 @@ public class BUnionType extends BType implements UnionType {
     protected LinkedHashSet<BType> memberTypes;
     public Boolean isAnyData = null;
     public Boolean isPureType = null;
+    public boolean isCyclic = false;
 
     protected BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly) {
         super(TypeTags.UNION, tsymbol);
@@ -267,7 +268,7 @@ public class BUnionType extends BType implements UnionType {
     private static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
         return types.stream()
                 .flatMap(type -> type.tag == TypeTags.UNION && !isTypeParamAvailable(type) &&
-                        !Symbols.isFlagOn(type.flags, Flags.CYCLIC) ?
+                        !((BUnionType) type).isCyclic ?
                         ((BUnionType) type).memberTypes.stream() : Stream.of(type))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }

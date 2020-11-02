@@ -1250,7 +1250,7 @@ class JvmTypeGen {
                     return;
                 case TypeTags.UNION:
                     BUnionType unionType = (BUnionType) bType;
-                    if (Symbols.isFlagOn(unionType.flags, Flags.CYCLIC)) {
+                    if (unionType.isCyclic) {
                         loadUserDefinedType(mv, bType);
                     } else {
                         loadUnionType(mv, (BUnionType) bType);
@@ -1864,7 +1864,7 @@ class JvmTypeGen {
     }
 
     private static boolean isCyclicUnion(BType bType) {
-        return (bType.tag == TypeTags.UNION) && Symbols.isFlagOn(bType.flags, Flags.CYCLIC);
+        return (bType.tag == TypeTags.UNION) && ((BUnionType) bType).isCyclic;
     }
 
     private JvmTypeGen() {

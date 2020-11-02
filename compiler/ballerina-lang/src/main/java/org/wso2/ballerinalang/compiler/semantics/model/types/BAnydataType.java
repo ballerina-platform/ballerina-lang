@@ -41,7 +41,7 @@ public class BAnydataType extends BUnionType {
     public BAnydataType(BTypeSymbol tsymbol, boolean nullable) {
         super(tsymbol, new LinkedHashSet<>(), nullable, false);
         this.tag = TypeTags.ANYDATA;
-        this.flags |= Flags.CYCLIC;
+        this.isCyclic = true;
     }
 
     public BAnydataType(BTypeSymbol tsymbol, Name name, int flags, boolean nullable) {
@@ -49,7 +49,7 @@ public class BAnydataType extends BUnionType {
         this.tag = TypeTags.ANYDATA;
         this.flags = flags;
         this.name = name;
-        this.flags |= Flags.CYCLIC;
+        this.isCyclic = true;
     }
 
     public BAnydataType(BUnionType type) {
@@ -57,13 +57,13 @@ public class BAnydataType extends BUnionType {
                 Flags.READONLY));
         this.immutableType = type.immutableType;
         this.tag = TypeTags.ANYDATA;
-        this.flags |= Flags.CYCLIC;
+        this.isCyclic = true;
     }
 
     public BAnydataType(BAnydataType type, boolean nullable) {
         super(type.tsymbol, type.getMemberTypes(), nullable, Symbols.isFlagOn(type.flags, Flags.READONLY));
         this.tag = TypeTags.ANYDATA;
-        this.flags |= Flags.CYCLIC;
+        this.isCyclic = true;
     }
 
     @Override

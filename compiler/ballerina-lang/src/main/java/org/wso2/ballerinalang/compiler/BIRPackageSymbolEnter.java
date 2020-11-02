@@ -1396,8 +1396,9 @@ public class BIRPackageSymbolEnter {
         }
 
         private BUnionType createUnionType(int flags, int cpI) throws IOException {
+            boolean isCyclic = inputStream.readBoolean();
             Name unionNameValue;
-            if (Symbols.isFlagOn(flags, Flags.CYCLIC)) {
+            if (isCyclic) {
                 unionNameValue = names.fromString(getStringCPEntryValue(inputStream));
             } else {
                 unionNameValue = Names.EMPTY;
@@ -1408,7 +1409,7 @@ public class BIRPackageSymbolEnter {
 
             BUnionType unionType = BUnionType.create(unionTypeSymbol, new LinkedHashSet<>());
 
-            if (Symbols.isFlagOn(flags, Flags.CYCLIC)) {
+            if (isCyclic) {
                 addShapeCP(unionType, cpI);
             }
 
