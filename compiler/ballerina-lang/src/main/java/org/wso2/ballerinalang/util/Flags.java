@@ -26,44 +26,45 @@ import java.util.Set;
  * @since 0.94
  */
 public class Flags {
-    public static final int PUBLIC = 1;
-    public static final int NATIVE = PUBLIC << 1;
-    public static final int FINAL = NATIVE << 1;
-    public static final int ATTACHED = FINAL << 1;
+    public static final int PUBLIC = 1;                                 // 1
+    public static final int NATIVE = PUBLIC << 1;                       // 2
+    public static final int FINAL = NATIVE << 1;                        // 3
+    public static final int ATTACHED = FINAL << 1;                      // 4
 
-    public static final int DEPRECATED = ATTACHED << 1;
-    public static final int READONLY = DEPRECATED << 1;
-    public static final int FUNCTION_FINAL = READONLY << 1;
-    public static final int INTERFACE = FUNCTION_FINAL << 1;
+    public static final int DEPRECATED = ATTACHED << 1;                 // 5
+    public static final int READONLY = DEPRECATED << 1;                 // 6
+    public static final int FUNCTION_FINAL = READONLY << 1;             // 7
+    public static final int INTERFACE = FUNCTION_FINAL << 1;            // 8
 
-    public static final int REQUIRED = INTERFACE << 1; // Marks as a field for which the user MUST provide a value
-    public static final int RECORD = REQUIRED << 1;
-    public static final int PRIVATE = RECORD << 1;
-    public static final int ANONYMOUS = PRIVATE << 1;
+    // Marks as a field for which the user MUST provide a value
+    public static final int REQUIRED = INTERFACE << 1;                  // 9
+    public static final int RECORD = REQUIRED << 1;                     // 10
+    public static final int PRIVATE = RECORD << 1;                      // 11
+    public static final int ANONYMOUS = PRIVATE << 1;                   // 12
 
-    public static final int OPTIONAL = ANONYMOUS << 1;
-    public static final int TESTABLE = OPTIONAL << 1;
-    public static final int CONSTANT = TESTABLE << 1;
-    public static final int REMOTE = CONSTANT << 1;
+    public static final int OPTIONAL = ANONYMOUS << 1;                  // 13
+    public static final int TESTABLE = OPTIONAL << 1;                   // 14
+    public static final int CONSTANT = TESTABLE << 1;                   // 15
+    public static final int REMOTE = CONSTANT << 1;                     // 16
 
-    public static final int CLIENT = REMOTE << 1;
-    public static final int RESOURCE = CLIENT << 1;
-    public static final int SERVICE = RESOURCE << 1;
-    public static final int LISTENER = SERVICE << 1;
+    public static final int CLIENT = REMOTE << 1;                       // 17
+    public static final int RESOURCE = CLIENT << 1;                     // 18
+    public static final int SERVICE = RESOURCE << 1;                    // 19
+    public static final int LISTENER = SERVICE << 1;                    // 20
 
-    public static final int LAMBDA = LISTENER << 1;
-    public static final int TYPE_PARAM = LAMBDA << 1;
-    public static final int LANG_LIB = TYPE_PARAM << 1;
-    public static final int WORKER = LANG_LIB << 1;
+    public static final int LAMBDA = LISTENER << 1;                     // 21
+    public static final int TYPE_PARAM = LAMBDA << 1;                   // 22
+    public static final int LANG_LIB = TYPE_PARAM << 1;                 // 23
+    public static final int WORKER = LANG_LIB << 1;                     // 24
 
-    public static final int FORKED = WORKER << 1;
-    public static final int TRANSACTIONAL = FORKED << 1;
-    public static final int PARAMETERIZED = TRANSACTIONAL << 1;
-    public static final int DISTINCT = PARAMETERIZED << 1;
+    public static final int FORKED = WORKER << 1;                       // 25
+    public static final int TRANSACTIONAL = FORKED << 1;                // 26
+    public static final int PARAMETERIZED = TRANSACTIONAL << 1;         // 27
+    public static final int DISTINCT = PARAMETERIZED << 1;              // 28
 
-    public static final int CLASS = DISTINCT << 1;
-    public static final int ISOLATED = CLASS << 1;
-    public static final int ISOLATED_PARAM = ISOLATED << 1;
+    public static final int CLASS = DISTINCT << 1;                      // 29
+    public static final int ISOLATED = CLASS << 1;                      // 30
+    public static final int ISOLATED_PARAM = ISOLATED << 1;             // 31
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
