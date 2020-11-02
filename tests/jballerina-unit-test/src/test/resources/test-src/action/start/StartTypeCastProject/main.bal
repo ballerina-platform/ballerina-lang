@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/test;
-import pkg.callee;
+import ballerina/lang.test as test;
+import startactiontest.callee;
 
 public function main() {
     testCast();
@@ -24,10 +24,10 @@ public function main() {
 function testCast() {
     future<string> fs1 = start callee:getValueMessage([1,2]);
     string result1 = wait fs1;
-    test:assertEquals(result1, "The value is [1,2]");
+    test:assertValueEqual(result1, "The value is [1,2]");
 
     map<int> marks = {sam: 50, jon: 60};
     future<string> fs2 = start callee:getValueMessage(marks);
     string result2 = wait fs2;
-    test:assertEquals(result2, "The value is {\"sam\":50,\"jon\":60}");
+    test:assertValueEqual(result2, "The value is {\"sam\":50,\"jon\":60}");
 }

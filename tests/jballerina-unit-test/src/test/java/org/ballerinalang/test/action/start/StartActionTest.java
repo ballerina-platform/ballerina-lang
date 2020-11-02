@@ -75,7 +75,7 @@ public class StartActionTest {
 
     @Test(description = "Test casting for lambda functions for functions from another package")
     public void testStartLambdaParameterCastingFromOtherPackage() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/action/start/startTypeCastProject");
+        CompileResult compileResult = BCompileUtil.compile("test-src/action/start/StartTypeCastProject");
         BRunUtil.ExitDetails output = BRunUtil.run(compileResult, new String[]{});
         Assert.assertEquals("", output.errorOutput);
     }
