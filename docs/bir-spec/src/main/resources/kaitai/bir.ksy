@@ -273,6 +273,8 @@ types:
     seq:
       - id: name_cp_index
         type: s4
+      - id: is_cyclic
+        type: u1
       - id: member_types_count
         type: s4
       - id: member_type_cp_index

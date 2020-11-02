@@ -1414,6 +1414,7 @@ public class BIRPackageSymbolEnter {
             }
 
             unionType.flags = flags;
+            unionType.isCyclic = isCyclic;
             return unionType;
         }
     }
