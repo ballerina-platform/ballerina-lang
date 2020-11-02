@@ -134,6 +134,6 @@ public class TesterinaFunction {
     }
 
     private static String cleanupFunctionName(String name) {
-        return IdentifierUtils.encodeGeneratedFuncName(name);
+        return IdentifierUtils.encodeFunctionIdentifier(name);
     }
 }

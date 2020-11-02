@@ -25,6 +25,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.FieldNameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JFieldFunctionWrapper;
@@ -142,8 +143,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodG
  */
 class JvmValueGen {
 
+    static final FieldNameHashComparator FIELD_NAME_HASH_COMPARATOR = new FieldNameHashComparator();
     static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
-    static final String ENCODED_RECORD_INIT = IdentifierUtils.encodeGeneratedFuncName(Names.INIT_FUNCTION_SUFFIX.value);
+    static final String ENCODED_RECORD_INIT =
+            IdentifierUtils.encodeFunctionIdentifier(Names.INIT_FUNCTION_SUFFIX.value);
     private final BIRNode.BIRPackage module;
     private final JvmPackageGen jvmPackageGen;
     private final MethodGen methodGen;
@@ -207,8 +210,8 @@ class JvmValueGen {
         }
     }
 
-    static List<Label> createLabelsForSwitch(MethodVisitor mv, int nameRegIndex,
-                                             List<? extends NamedNode> nodes, Label defaultCaseLabel) {
+    static List<Label> createDecodedLabelsForSwitch(MethodVisitor mv, int nameRegIndex,
+                                                    List<? extends NamedNode> nodes, Label defaultCaseLabel) {
 
         mv.visitVarInsn(ALOAD, nameRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "hashCode", "()I", false);
@@ -220,7 +223,8 @@ class JvmValueGen {
         for (NamedNode node : nodes) {
             if (node != null) {
                 labels.add(i, new Label());
-                hashCodes[i] = decodeIdentifier(getName(node)).hashCode();
+                String name = decodeIdentifier(node.getName().value);;
+                hashCodes[i] = name.hashCode();
                 i += 1;
             }
         }
@@ -278,9 +282,9 @@ class JvmValueGen {
         return packageName;
     }
 
-    static List<Label> createLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
-                                                 List<? extends NamedNode> nodes,
-                                                 List<Label> labels, Label defaultCaseLabel) {
+    static List<Label> createDecodedLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
+                                                        List<? extends NamedNode> nodes,
+                                                        List<Label> labels, Label defaultCaseLabel) {
 
         List<Label> targetLabels = new ArrayList<>();
         int i = 0;
@@ -290,7 +294,7 @@ class JvmValueGen {
             }
             mv.visitLabel(labels.get(i));
             mv.visitVarInsn(ALOAD, nameRegIndex);
-            mv.visitLdcInsn(decodeIdentifier(getName(node)));
+            mv.visitLdcInsn(decodeIdentifier(node.getName().value));
             mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "equals",
                     String.format("(L%s;)Z", OBJECT), false);
             Label targetLabel = new Label();
@@ -301,15 +305,6 @@ class JvmValueGen {
         }
 
         return targetLabels;
-    }
-
-    private static String getName(Object node) {
-
-        if (node instanceof NamedNode) {
-            return ((NamedNode) node).getName().value;
-        }
-
-        throw new BLangCompilerException(String.format("Invalid node: %s", node));
     }
 
     private void createLambdas(ClassWriter cw, AsyncDataCollector asyncDataCollector) {
@@ -394,8 +389,8 @@ class JvmValueGen {
         // sort the fields before generating switch case
         functions.sort(NAME_HASH_COMPARATOR);
 
-        List<Label> labels = createLabelsForSwitch(mv, funcNameRegIndex, functions, defaultCaseLabel);
-        List<Label> targetLabels = createLabelsForEqualCheck(mv, funcNameRegIndex, functions, labels,
+        List<Label> labels = JvmTypeGen.createLabelsForSwitch(mv, funcNameRegIndex, functions, defaultCaseLabel);
+        List<Label> targetLabels = JvmTypeGen.createLabelsForEqualCheck(mv, funcNameRegIndex, functions, labels,
                                                              defaultCaseLabel);
 
         // case body
@@ -467,10 +462,10 @@ class JvmValueGen {
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields.values());
-        sortedFields.sort(NAME_HASH_COMPARATOR);
+        sortedFields.sort(FIELD_NAME_HASH_COMPARATOR);
 
-        List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
-        List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
+        List<Label> labels = createDecodedLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
+        List<Label> targetLabels = createDecodedLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
                 defaultCaseLabel);
 
         int i = 0;
@@ -523,10 +518,10 @@ class JvmValueGen {
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields.values());
-        sortedFields.sort(NAME_HASH_COMPARATOR);
+        sortedFields.sort(FIELD_NAME_HASH_COMPARATOR);
 
-        List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
-        List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
+        List<Label> labels = createDecodedLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
+        List<Label> targetLabels = createDecodedLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
                                                              defaultCaseLabel);
 
         // case body
@@ -688,8 +683,8 @@ class JvmValueGen {
         this.createRecordContainsKeyMethod(cw, fields, className);
         this.createRecordGetValuesMethod(cw, fields, className);
         this.createGetSizeMethod(cw, fields, className);
-        this.createRecordRemoveMethod(cw);
-        this.createRecordClearMethod(cw, fields, className);
+        this.createRecordClearMethod(cw);
+        this.createRecordRemoveMethod(cw, fields, className);
         this.createRecordGetKeysMethod(cw, fields, className);
         this.createRecordPopulateInitialValuesMethod(cw);
 
@@ -862,10 +857,10 @@ class JvmValueGen {
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields.values());
-        sortedFields.sort(NAME_HASH_COMPARATOR);
+        sortedFields.sort(FIELD_NAME_HASH_COMPARATOR);
 
-            List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
-            List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
+            List<Label> labels = createDecodedLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
+            List<Label> targetLabels = createDecodedLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
                                                                  defaultCaseLabel);
 
         int i = 0;
@@ -920,10 +915,10 @@ class JvmValueGen {
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields.values());
-        sortedFields.sort(NAME_HASH_COMPARATOR);
+        sortedFields.sort(FIELD_NAME_HASH_COMPARATOR);
 
-            List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
-            List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
+            List<Label> labels = createDecodedLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
+            List<Label> targetLabels = createDecodedLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
                                                                  defaultCaseLabel);
 
         // case body
@@ -1062,11 +1057,11 @@ class JvmValueGen {
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields.values());
-        sortedFields.sort(NAME_HASH_COMPARATOR);
+        sortedFields.sort(FIELD_NAME_HASH_COMPARATOR);
 
         Label defaultCaseLabel = new Label();
-        List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
-        List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
+        List<Label> labels = createDecodedLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
+        List<Label> targetLabels = createDecodedLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
                 defaultCaseLabel);
 
         int i = 0;
@@ -1179,8 +1174,8 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    private void createRecordRemoveMethod(ClassWriter cw) {
-        // throw an UnsupportedOperationException, since remove is not supported by for records.
+    private void createRecordClearMethod(ClassWriter cw) {
+        // throw an UnsupportedOperationException, since clear is not supported by for records.
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "clear", "()V", null, null);
         mv.visitCode();
         mv.visitTypeInsn(NEW, UNSUPPORTED_OPERATION_EXCEPTION);
@@ -1191,7 +1186,7 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    private void createRecordClearMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createRecordRemoveMethod(ClassWriter cw, Map<String, BField> fields, String className) {
         // throw an UnsupportedOperationException, since remove is not supported by for records.
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "remove", String.format("(L%s;)L%s;", OBJECT, OBJECT),
                                           String.format("(L%s;)TV;", OBJECT), null);
@@ -1212,11 +1207,11 @@ class JvmValueGen {
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields.values());
-        sortedFields.sort(NAME_HASH_COMPARATOR);
+        sortedFields.sort(FIELD_NAME_HASH_COMPARATOR);
 
         Label defaultCaseLabel = new Label();
-        List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
-        List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
+        List<Label> labels = createDecodedLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
+        List<Label> targetLabels = createDecodedLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
                 defaultCaseLabel);
 
         int i = 0;

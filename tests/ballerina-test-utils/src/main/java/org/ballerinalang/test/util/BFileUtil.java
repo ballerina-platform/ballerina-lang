@@ -126,7 +126,7 @@ public class BFileUtil {
      * @return Qualified class name
      */
     public static String getQualifiedClassName(String orgName, String packageName, String version, String className) {
-        if (!IdentifierUtils.encodePackageName(Names.DEFAULT_PACKAGE.value).equals(packageName)) {
+        if (!IdentifierUtils.encodeNonFunctionIdentifier(Names.DEFAULT_PACKAGE.value).equals(packageName)) {
             className = packageName + "." + version.replace('.', '_') + "." + className;
         }
 

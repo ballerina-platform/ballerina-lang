@@ -29,7 +29,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 
-import static io.ballerina.runtime.IdentifierUtils.encodePackageName;
+import static io.ballerina.runtime.IdentifierUtils.encodeNonFunctionIdentifier;
 
 /**
  * Utility methods for doing file operations.
@@ -129,11 +129,11 @@ public class BFileUtil {
 
 
         if (!Names.DEFAULT_PACKAGE.value.equals(packageName)) {
-            className = encodePackageName(packageName)  + "." + version.replace('.', '_') + "." + className;
+            className = encodeNonFunctionIdentifier(packageName)  + "." + version.replace('.', '_') + "." + className;
         }
 
         if (!Names.ANON_ORG.value.equals(orgName)) {
-            className = encodePackageName(orgName) + "." +  className;
+            className = encodeNonFunctionIdentifier(orgName) + "." +  className;
         }
 
         return className;

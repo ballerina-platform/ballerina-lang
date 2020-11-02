@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 
 import io.ballerina.runtime.IdentifierUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -140,7 +139,7 @@ public class JvmCodeGenUtil {
     }
 
     public static String rewriteVirtualCallTypeName(String value) {
-        return StringEscapeUtils.unescapeJava(cleanupObjectTypeName(value));
+        return IdentifierUtils.encodeFunctionIdentifier(cleanupObjectTypeName(value));
     }
 
     private static String cleanupBalExt(String name) {
@@ -277,8 +276,8 @@ public class JvmCodeGenUtil {
     private static String getPackageNameWithSeparator(String orgName, String moduleName, String version,
                                                       String separator) {
         String packageName = "";
-        orgName = IdentifierUtils.encodePackageName(orgName);
-        moduleName = IdentifierUtils.encodePackageName(moduleName);
+        orgName = IdentifierUtils.encodeNonFunctionIdentifier(orgName);
+        moduleName = IdentifierUtils.encodeNonFunctionIdentifier(moduleName);
         if (!moduleName.equals("$0046")) {
             if (!version.equals("")) {
                 packageName = getVersionDirectoryName(version) + separator;
@@ -489,7 +488,7 @@ public class JvmCodeGenUtil {
     }
 
     public static String toNameString(BType t) {
-        return IdentifierUtils.encodePackageName(t.tsymbol.name.value);
+        return IdentifierUtils.encodeNonFunctionIdentifier(t.tsymbol.name.value);
     }
 
     public static boolean isBallerinaBuiltinModule(String orgName, String moduleName) {
@@ -574,8 +573,8 @@ public class JvmCodeGenUtil {
     }
 
     public static PackageID cleanupPackageID(PackageID pkgID) {
-        Name org = new Name(IdentifierUtils.encodePackageName(pkgID.orgName.value));
-        Name module = new Name(IdentifierUtils.encodePackageName(pkgID.name.value));
+        Name org = new Name(IdentifierUtils.encodeNonFunctionIdentifier(pkgID.orgName.value));
+        Name module = new Name(IdentifierUtils.encodeNonFunctionIdentifier(pkgID.name.value));
         return new PackageID(org, module, pkgID.version);
     }
 

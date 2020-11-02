@@ -24,6 +24,7 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -37,9 +38,11 @@ public class IdentifierLiteralTest  extends BaseTest {
 
     private static final String testFileLocation = Paths.get("src", "test", "resources", "identifier")
             .toAbsolutePath().toString();
+    private BMainInstance bMainInstance;
 
-    @BeforeClass(enabled = false)
+    @BeforeClass
     public void setup() throws BallerinaTestException {
+        bMainInstance = new BMainInstance(balServer);
     }
 
     @Test(description = "Test clashes in module names contain '.' and '_'")
@@ -47,7 +50,6 @@ public class IdentifierLiteralTest  extends BaseTest {
         Path projectPath = Paths.get(testFileLocation, "ModuleNameClashProject")
                 .toAbsolutePath();
         LogLeecher runLeecher = new LogLeecher("1 passing");
-        BMainInstance bMainInstance = new BMainInstance(balServer);
         bMainInstance.runMain("build", new String[]{"main"}, new HashMap<>(), new String[0],
                 new LogLeecher[]{runLeecher}, projectPath.toString());
         runLeecher.waitForText(5000);
@@ -60,11 +62,23 @@ public class IdentifierLiteralTest  extends BaseTest {
         Path importProjectPath = Paths.get(testFileLocation, "testProject")
                 .toAbsolutePath();
         LogLeecher runLeecher = new LogLeecher("2 passing");
-        BMainInstance bMainInstance = new BMainInstance(balServer);
         bMainInstance.runMain("build", new String[]{"foo"}, new HashMap<>(), new String[0],
                 new LogLeecher[]{}, importProjectPath.toString());
         bMainInstance.runMain("build", new String[]{"main"}, new HashMap<>(), new String[0],
                 new LogLeecher[]{runLeecher}, projectPath.toString());
+        runLeecher.waitForText(5000);
+    }
+
+    @Test(description = "Test identifier clashes between generated and user defined identifiers")
+    public void testUserDefinedIdentifierClash() throws BallerinaTestException {
+        String testBalFile = "identifier_clash.bal";
+
+        // Run and see output
+        String msg = "Tests passed";
+        LogLeecher runLeecher = new LogLeecher(msg);
+        String runCommandPath =  testFileLocation + File.separator + testBalFile;
+        bMainInstance.runMain("run", new String[]{runCommandPath}, new HashMap<>(), new String[0],
+                new LogLeecher[]{runLeecher}, testFileLocation);
         runLeecher.waitForText(5000);
     }
 }

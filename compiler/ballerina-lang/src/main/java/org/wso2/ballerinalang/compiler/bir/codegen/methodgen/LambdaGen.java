@@ -373,7 +373,7 @@ public class LambdaGen {
     }
 
     private void populateLambdaFunctionDetails(LambdaDetails lambdaDetails) {
-        lambdaDetails.encodedFuncName = IdentifierUtils.encodeGeneratedFuncName(lambdaDetails.funcName);
+        lambdaDetails.encodedFuncName = IdentifierUtils.encodeFunctionIdentifier(lambdaDetails.funcName);
         lambdaDetails.lookupKey = JvmCodeGenUtil.getPackageName(
                 lambdaDetails.orgName, lambdaDetails.moduleName, lambdaDetails.version) + lambdaDetails.encodedFuncName;
         lambdaDetails.functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lambdaDetails.lookupKey);

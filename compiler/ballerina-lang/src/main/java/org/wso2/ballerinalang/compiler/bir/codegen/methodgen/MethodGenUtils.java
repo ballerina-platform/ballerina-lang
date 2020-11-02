@@ -118,7 +118,7 @@ public class MethodGenUtils {
             funcName = orgName + "/" + funcName;
         }
 
-        return IdentifierUtils.encodeGeneratedFuncName(funcName);
+        return IdentifierUtils.encodeFunctionIdentifier(funcName);
     }
 
     private MethodGenUtils() {

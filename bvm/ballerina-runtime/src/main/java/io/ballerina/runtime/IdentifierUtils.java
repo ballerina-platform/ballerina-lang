@@ -86,7 +86,7 @@ public class IdentifierUtils {
         return StringEscapeUtils.unescapeJava(identifier);
     }
 
-    public static Identifier encodeGeneratedName(String identifier) {
+    private static Identifier encodeGeneratedName(String identifier) {
         StringBuilder sb = new StringBuilder();
         boolean isEncoded = false;
         int index = 0;
@@ -161,13 +161,13 @@ public class IdentifierUtils {
         return true;
     }
 
-    public static String encodeGeneratedFuncName(String functionName) {
+    public static String encodeFunctionIdentifier(String functionName) {
         functionName = encodeIdentifier(functionName);
         Identifier encodedName = encodeGeneratedName(functionName);
         return encodedName.isEncoded ? GENERATED_METHOD_PREFIX + encodedName.name : functionName;
     }
 
-    public static String encodePackageName(String pkgName) {
+    public static String encodeNonFunctionIdentifier(String pkgName) {
         pkgName = encodeIdentifier(pkgName);
         Identifier encodedName = encodeGeneratedName(pkgName);
         return encodedName.name;
