@@ -233,7 +233,7 @@ public class MappingConstructorExpressionNodeContext extends
         }
 
         Optional<RecordTypeSymbol> record = this.getRecordTypeDesc(context,
-                                                                   (MappingConstructorExpressionNode) evalNode);
+                (MappingConstructorExpressionNode) evalNode);
 
         if (record.isEmpty()) {
             return Optional.empty();
@@ -282,10 +282,10 @@ public class MappingConstructorExpressionNodeContext extends
                 .filter(symbol -> symbol.kind() == SymbolKind.ANNOTATION && symbol.name().equals(annotationName))
                 .map(entry -> ((AnnotationSymbol) entry).typeDescriptor().orElse(null))
                 .findAny();
-        if (bTypeSymbol.isEmpty() || bTypeSymbol.get().typeKind() != TypeDescKind.RECORD) {
+        if (bTypeSymbol.isEmpty() || CommonUtil.getRawType(bTypeSymbol.get()).typeKind() != TypeDescKind.RECORD) {
             return Optional.empty();
         }
-        return Optional.of((RecordTypeSymbol) bTypeSymbol.get());
+        return Optional.of((RecordTypeSymbol) CommonUtil.getRawType(bTypeSymbol.get()));
     }
 
     private List<LSCompletionItem> getComputedNameCompletions(LSContext context) {
