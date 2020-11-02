@@ -18,6 +18,7 @@
 
 package io.ballerina.compiler.api.impl;
 
+import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
@@ -149,7 +150,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 
@@ -1132,7 +1132,7 @@ class NodeFinder extends BaseVisitor {
         lookupNodes(xmlNavigation.filters);
     }
 
-    private boolean setEnclosingNode(BLangNode node, DiagnosticPos pos) {
+    private boolean setEnclosingNode(BLangNode node, Location pos) {
         if (PositionUtil.withinRange(this.range, pos) && this.enclosingNode == null) {
             this.enclosingNode = node;
             return true;

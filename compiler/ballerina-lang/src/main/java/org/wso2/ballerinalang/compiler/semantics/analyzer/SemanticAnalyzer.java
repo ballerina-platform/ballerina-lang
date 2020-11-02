@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -158,7 +159,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
@@ -246,6 +246,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
+        this.dlog.setCurrentPackageId(pkgNode.packageID);
         pkgNode.accept(this);
         return pkgNode;
     }
@@ -262,7 +263,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Visit constants first.
         pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> pkgLevelNode.getKind() == NodeKind.CONSTANT)
                 .forEach(constant -> analyzeDef((BLangNode) constant, pkgEnv));
-        this.constantValueResolver.resolve(pkgNode.constants);
+        this.constantValueResolver.resolve(pkgNode.constants, pkgNode.packageID);
 
         for (int i = 0; i < pkgNode.topLevelNodes.size(); i++) {
             TopLevelNode pkgLevelNode = pkgNode.topLevelNodes.get(i);
@@ -1852,8 +1853,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
      * @param rhsType   the type on the rhs
      * @param rhsPos    position of the rhs expression
      */
-    private void checkRecordVarRefEquivalency(DiagnosticPos pos, BLangRecordVarRef lhsVarRef, BType rhsType,
-                                              DiagnosticPos rhsPos) {
+    private void checkRecordVarRefEquivalency(Location pos, BLangRecordVarRef lhsVarRef, BType rhsType,
+                                              Location rhsPos) {
         if (rhsType.tag == TypeTags.MAP) {
             BMapType rhsMapType = (BMapType) rhsType;
             BType expectedType;
@@ -2005,8 +2006,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
      * @param source source type.
      * @param rhsPos position of source expression.
      */
-    private void checkArrayVarRefEquivalency(DiagnosticPos pos, BLangTupleVarRef target, BType source,
-            DiagnosticPos rhsPos) {
+    private void checkArrayVarRefEquivalency(Location pos, BLangTupleVarRef target, BType source,
+                                             Location rhsPos) {
         BArrayType arraySource = (BArrayType) source;
 
         // For unsealed
@@ -2045,8 +2046,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void checkTupleVarRefEquivalency(DiagnosticPos pos, BLangTupleVarRef target, BType source,
-                                             DiagnosticPos rhsPos) {
+    private void checkTupleVarRefEquivalency(Location pos, BLangTupleVarRef target, BType source,
+                                             Location rhsPos) {
         if (source.tag == TypeTags.ARRAY) {
             checkArrayVarRefEquivalency(pos, target, source, rhsPos);
             return;
@@ -2117,7 +2118,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void checkErrorVarRefEquivalency(BLangErrorVarRef lhsRef, BType rhsType,
-                                             DiagnosticPos rhsPos) {
+                                             Location rhsPos) {
         if (rhsType.tag != TypeTags.ERROR) {
             dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorType, rhsType);
             return;
@@ -2196,12 +2197,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return false;
     }
 
-    private void checkErrorDetailRefItem(DiagnosticPos pos, DiagnosticPos rhsPos, BLangNamedArgsExpression detailItem,
+    private void checkErrorDetailRefItem(Location location,
+                                         Location rhsLocation,
+                                         BLangNamedArgsExpression detailItem,
                                          BType expectedType) {
         if (detailItem.expr.getKind() == NodeKind.RECORD_VARIABLE_REF) {
             typeChecker.checkExpr(detailItem.expr, env);
-            checkRecordVarRefEquivalency(pos, (BLangRecordVarRef) detailItem.expr, expectedType,
-                    rhsPos);
+            checkRecordVarRefEquivalency(location, (BLangRecordVarRef) detailItem.expr, expectedType,
+                    rhsLocation);
             return;
         }
 
@@ -2432,7 +2435,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void checkForSimilarVars(Map<String, BVarSymbol> declaredVars, Map<String, BVarSymbol> var,
-                                     DiagnosticPos pos) {
+                                     Location pos) {
         for (String variableName : var.keySet()) {
             if (declaredVars.containsKey(variableName)) {
                 dlog.error(pos, DiagnosticCode.MATCH_PATTERN_CANNOT_REPEAT_SAME_VARIABLE);
@@ -3322,7 +3325,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void validateReferencedFunction(DiagnosticPos pos, BAttachedFunction func, SymbolEnv env) {
+    private void validateReferencedFunction(Location pos, BAttachedFunction func, SymbolEnv env) {
         if (!Symbols.isFlagOn(func.symbol.receiverSymbol.type.tsymbol.flags, Flags.CLASS)) {
             return;
         }
