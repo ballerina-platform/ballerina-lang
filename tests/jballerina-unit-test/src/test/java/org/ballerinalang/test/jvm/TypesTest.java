@@ -38,8 +38,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.math.BigDecimal;
 
 /**
@@ -778,11 +776,6 @@ public class TypesTest {
 
     @Test
     public void testTypeDescValuePrint() {
-        PrintStream tempOut = System.out;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(baos));
         BRunUtil.invoke(compileResult, "testTypeDescValuePrint");
-        Assert.assertEquals(new String(baos.toByteArray()), "typedesc map<int|string>");
-        System.setOut(tempOut);
     }
 }

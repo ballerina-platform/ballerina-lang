@@ -1,4 +1,4 @@
 [package]
 org = "testorg"
-name = "moduletest"
+name = "invalidautoimport"
 version = "1.0.0"

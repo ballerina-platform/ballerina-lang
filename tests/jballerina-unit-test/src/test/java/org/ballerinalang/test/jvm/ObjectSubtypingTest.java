@@ -41,7 +41,7 @@ public class ObjectSubtypingTest {
 
     @BeforeClass
     public void setup() {
-//        BCompileUtil.compile("test-src/balo/test_projects/test_project", "testorg", "subtyping");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/ObjectSubtypingTestProject");
         compileResult = BCompileUtil.compile("test-src/jvm/objects_subtyping.bal");
     }
 

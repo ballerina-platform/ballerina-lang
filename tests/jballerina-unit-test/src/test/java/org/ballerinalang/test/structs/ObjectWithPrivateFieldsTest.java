@@ -35,8 +35,7 @@ public class ObjectWithPrivateFieldsTest {
 
     @BeforeClass
     public void setup() {
-//        compileResult = BCompileUtil.compile("test-src/structs/proj", "default");
-        compileResult = BCompileUtil.compile("test-src/structs/proj/default");
+        compileResult = BCompileUtil.compile("test-src/structs/ObjectWithPrivateFieldsTestProject");
     }
 
     @Test(description = "Test private struct field access")
