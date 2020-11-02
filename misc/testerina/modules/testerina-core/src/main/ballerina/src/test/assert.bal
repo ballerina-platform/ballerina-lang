@@ -20,6 +20,7 @@ const string assertFailureErrorCategory = "assert-failure";
 const string arraysNotEqualMessage = "Arrays are not equal";
 const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
 const int maxArgLength = 80;
+const int mapValueDiffLimit = 5;
 
 # The error struct for assertion errors.
 #
@@ -133,7 +134,7 @@ public isolated function assertFail(string msg = "Test Failed!") {
 # + msg - Assertion error message
 #
 # + return - Error message constructed based on the compared values
-isolated function getInequalityErrorMsg(any|error actual, any|error expected, string msg = "\nAssertion Failed!") returns string {
+isolated function getInequalityErrorMsg(any|error actual, any|error expected, string msg = "\nAssertion Failed!") returns @tainted string {
         string expectedType = getBallerinaType(expected);
         string actualType = getBallerinaType(actual);
         string errorMsg = "";
@@ -152,11 +153,91 @@ isolated function getInequalityErrorMsg(any|error actual, any|error expected, st
             string diff = getStringDiff(<string>actual, <string>expected);
             errorMsg = string `${msg}` + "\n \nexpected: " + string `'${expectedStr}'` + "\nactual\t: "
                                      + string `'${actualStr}'` + "\n \nDiff\t:\n \n" + string `${diff}` + " \n";
+        } else if (actual is map<anydata> && expected is map<anydata>) {
+            string diff = getMapValueDiff(<map<anydata>>actual, <map<anydata>>expected);
+            errorMsg = string `${msg}` + "\n \nexpected: " + string `'${expectedStr}'` + "\nactual\t: " + string `'${actualStr}'` + "\n \nDiff\t:\n \n" + string `${diff}` + " \n";
         } else {
             errorMsg = string `${msg}` + "\n \nexpected: " + string `'${expectedStr}'` + "\nactual\t: "
                                                  + string `'${actualStr}'`;
         }
         return errorMsg;
+}
+
+isolated function getKeyArray(map<anydata> valueMap) returns @tainted string[] {
+    string[] keyArray = valueMap.keys();
+    foreach string keyVal in keyArray {
+        var value = valueMap.get(keyVal);
+        if (value is map<anydata>) {
+            string[] childKeys = getKeyArray(<map<anydata>>value);
+            foreach string childKey in childKeys {
+                keyArray.push(keyVal + "." + childKey);
+            }
+        }
+    }
+    return keyArray;
+}
+
+
+isolated function getMapValueDiff(map<anydata> actualMap, map<anydata> expectedMap) returns @tainted string {
+    string diffValue = "";
+    string[] actualKeyArray = getKeyArray(actualMap);
+    string[] expectedKeyArray = getKeyArray(expectedMap);
+    string keyDiff = getKeysDiff(actualKeyArray, expectedKeyArray);
+    string valueDiff = compareMapValues(actualMap, expectedMap);
+    diffValue = diffValue.concat(keyDiff, "\n \n", valueDiff);
+    return diffValue;
+}
+
+isolated function getValueComparison(anydata actual, anydata expected, string keyVal, int count) returns @tainted ([string, int])  {
+    int diffCount = count;
+    string diff = "";
+    string expectedType = getBallerinaType(expected);
+    string actualType = getBallerinaType(actual);
+    if (expectedType != actualType) {
+        diff = diff.concat("\n \n", "key: ", keyVal, "\nexpected value\t: <", expectedType, "> ", expected.toString(), "\nactual value\t: <", actualType, "> ", actual.toString(), " \n");
+        diffCount = diffCount + 1;
+    } else {
+        if (actual is map<anydata> && expected is map<anydata>) {
+            string[] expectedkeyArray = (<map<anydata>>expected).keys();
+            string[] actualKeyArray = (<map<anydata>>actual).keys();
+            foreach string childKey in actualKeyArray {
+                if (expectedkeyArray.indexOf(childKey) != ()){
+                    anydata expectedChildVal = expected.get(childKey);
+                    anydata actualChildVal = actual.get(childKey);
+                    string childDiff;
+                    [childDiff, diffCount] = getValueComparison(actualChildVal, expectedChildVal, keyVal + "." + childKey, diffCount);
+                    diff = diff.concat(childDiff);
+                }
+            }
+        } else {
+            diff = diff.concat("\n \n", "key: ", keyVal, "\nexpected value\t: ", expected.toString(), "\nactual value\t: ", actual.toString(), " \n");
+            diffCount = diffCount + 1;
+        }
+    }
+    return [diff, diffCount];
+}
+
+isolated function compareMapValues(map<anydata> actualMap, map<anydata> expectedMap) returns @tainted string {
+    string diff = "";
+    map<string> comparisonMap = {};
+    string[] actualKeyArray = actualMap.keys();
+    string[] expectedKeyArray = expectedMap.keys();
+    int count = 0;
+    foreach string keyVal in actualKeyArray {
+        if (expectedMap.hasKey(keyVal)) {
+            anydata expected = expectedMap.get(keyVal);
+            anydata actual = actualMap.get(keyVal);
+            if (expected != actual) {
+                string diffVal;
+                [diffVal, count] = getValueComparison(actual, expected, keyVal, count);
+                diff = diff.concat(diffVal);
+            }
+        }
+    }
+    if (count > mapValueDiffLimit) {
+        diff = diff.concat("\n \nTotal value mismatches: " + count.toString() + "\n \n");
+    }
+    return diff;
 }
 
 isolated function sprintf(string format, (any|error)... args) returns string = @java:Method {
@@ -173,3 +254,9 @@ isolated function getStringDiff(string actual, string expected) returns string =
      name : "getStringDiff",
      'class : "org.ballerinalang.testerina.core.AssertionDiffEvaluator"
  } external;
+
+
+isolated function getKeysDiff(string[] actualKeys, string[] expectedKeys) returns string = @java:Method {
+    name: "getKeysDiff",
+    'class: "org.ballerinalang.testerina.core.AssertionDiffEvaluator"
+} external;
