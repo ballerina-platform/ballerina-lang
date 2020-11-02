@@ -15,39 +15,41 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.tree.bindingpatterns;
+package org.wso2.ballerinalang.compiler.tree.matchpatterns;
 
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.bindingpattern.BindingPatternNode;
-import org.ballerinalang.model.tree.bindingpattern.ListBindingPattern;
+import org.ballerinalang.model.tree.matchpatterns.RestMatchPattern;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
+ * Represent rest-match-pattern.
+ *
  * @since 2.0.0
  */
-public class BLangListBindingPattern extends BLangBindingPattern implements ListBindingPattern {
-    public List<BLangBindingPattern> bindingPatterns = new ArrayList<>();
+public class BLangRestMatchPattern extends BLangMatchPattern implements RestMatchPattern {
+    public BLangIdentifier variableName;
+    public BVarSymbol symbol;
 
     @Override
-    public List<? extends BindingPatternNode> getBindingPatterns() {
-        return bindingPatterns;
+    public IdentifierNode getIdentifier() {
+        return variableName;
     }
 
     @Override
-    public void addBindingPattern(BindingPatternNode bindingPattern) {
-        bindingPatterns.add((BLangBindingPattern) bindingPattern);
+    public void setIdentifier(IdentifierNode variableName) {
+        this.variableName = (BLangIdentifier) variableName;
     }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
-
+        visitor.visit(this);
     }
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.LIST_BINDING_PATTERN;
+        return NodeKind.REST_MATCH_PATTERN;
     }
 }

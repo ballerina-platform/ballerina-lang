@@ -15,15 +15,17 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.model.tree.bindingpattern;
+package org.ballerinalang.model.tree.matchpatterns;
 
-import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.IdentifierNode;
 
 /**
- * The interface with the APIs to implement the binding-pattern.
+ * The interface with the APIs to implement the rest-match-pattern.
  *
  * @since 2.0.0
  */
-public interface BindingPatternNode extends Node {
+public interface RestMatchPattern {
+    IdentifierNode getIdentifier();
 
+    void setIdentifier(IdentifierNode variableName);
 }

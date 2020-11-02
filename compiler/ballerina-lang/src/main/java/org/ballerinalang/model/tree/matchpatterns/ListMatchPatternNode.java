@@ -15,15 +15,21 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.model.tree.bindingpattern;
+package org.ballerinalang.model.tree.matchpatterns;
 
-import org.ballerinalang.model.tree.Node;
+import java.util.List;
 
 /**
- * The interface with the APIs to implement the binding-pattern.
+ * The interface with the APIs to implement the list-match-pattern.
  *
  * @since 2.0.0
  */
-public interface BindingPatternNode extends Node {
+public interface ListMatchPatternNode {
+    List<? extends MatchPatternNode> getMatchPatterns();
 
+    void addMatchPattern(MatchPatternNode matchPattern);
+
+    RestMatchPattern getRestMatchPattern();
+
+    void setRestMatchPattern(RestMatchPattern restMatchPattern);
 }
