@@ -120,13 +120,12 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         if (scope == ContextScope.INITIALIZER) {
             for (LSCompletionItem lsItem : completionItems) {
                 CompletionItem cItem = lsItem.getCompletionItem();
-                Optional<TypeDefinitionSymbol> assignableType = getAssignableType(context, node);
+                Optional<TypeSymbol> assignableType = getAssignableType(context, node);
                 if (assignableType.isEmpty()) {
                     super.sort(context, node, completionItems);
                     continue;
                 }
-                String sortText = genSortTextForInitContextItem(context, lsItem,
-                        (assignableType.get().typeDescriptor()).typeKind());
+                String sortText = genSortTextForInitContextItem(context, lsItem, assignableType.get().typeKind());
                 cItem.setSortText(sortText);
             }
         }
@@ -172,7 +171,9 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
             return completionItems;
         }
 
-        List<TypeDefinitionSymbol> listeners = moduleSymbol.get().typeDefinitions().stream()
+        ModuleSymbol module = moduleSymbol.get();
+        Stream<Symbol> classesAndTypeDefs = Stream.concat(module.classes().stream(), module.typeDefinitions().stream());
+        List<Symbol> listeners = classesAndTypeDefs
                 .filter(SymbolUtil::isListener)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(listeners, context));

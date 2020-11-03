@@ -56,6 +56,9 @@ public class SymbolUtil {
             case VARIABLE:
                 typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
                 break;
+            case CLASS:
+                typeDescriptor = (ClassSymbol) symbol;
+                break;
             default:
                 return false;
         }
@@ -108,7 +111,7 @@ public class SymbolUtil {
             case CONSTANT:
                 return Optional.ofNullable(((ConstantSymbol) symbol).typeDescriptor());
             case CLASS:
-                return Optional.ofNullable((ClassSymbol) symbol);
+                return Optional.of((ClassSymbol) symbol);
             default:
                 return Optional.empty();
         }

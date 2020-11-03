@@ -26,7 +26,6 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.symbols.WorkerSymbol;
@@ -192,7 +191,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         List<LSCompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.forEach(bSymbol -> {
-            if (bSymbol.kind() == SymbolKind.TYPE) {
+            if (bSymbol.kind() == SymbolKind.TYPE || bSymbol.kind() == SymbolKind.CLASS) {
                 CompletionItem cItem = TypeCompletionItemBuilder.build(bSymbol, bSymbol.name());
                 completionItems.add(new SymbolCompletionItem(context, bSymbol, cItem));
             }
@@ -220,8 +219,11 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @return {@link List} list of filtered type entries
      */
     @Deprecated
-    protected List<TypeDefinitionSymbol> filterTypesInModule(ModuleSymbol moduleSymbol) {
-        return moduleSymbol.typeDefinitions();
+    protected List<Symbol> filterTypesInModule(ModuleSymbol moduleSymbol) {
+        List<Symbol> typeDefs = new ArrayList<>();
+        typeDefs.addAll(moduleSymbol.typeDefinitions());
+        typeDefs.addAll(moduleSymbol.classes());
+        return typeDefs;
     }
 
     /**
