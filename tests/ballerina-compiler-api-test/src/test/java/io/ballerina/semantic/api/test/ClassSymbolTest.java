@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.types.TypeReferenceTypeSymbol;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -107,5 +108,25 @@ public class ClassSymbolTest {
         assertEquals(clazz.kind(), CLASS);
         assertEquals(clazz.typeKind(), OBJECT);
         assertTrue(clazz.initMethod().isEmpty());
+    }
+
+    @Test(dataProvider = "TypeInitPosProvider")
+    public void testTypeInit(int line, int col, String name) {
+        Symbol symbol = model.symbol(fileName, LinePosition.from(line, col)).get();
+        ClassSymbol clazz = (ClassSymbol) ((TypeReferenceTypeSymbol) symbol).typeDescriptor();
+        assertEquals(clazz.name(), name);
+    }
+
+    @DataProvider(name = "TypeInitPosProvider")
+    public Object[][] getTypeInit() {
+        return new Object[][]{
+                {40, 17, "Person1"},
+                {40, 21, "Person1"},
+                {40, 30, "Person1"},
+                {41, 17, "Person2"},
+                {42, 9, "Person2"},
+                {42, 13, "Person2"},
+                {42, 21, "Person2"},
+        };
     }
 }

@@ -40,4 +40,5 @@ class Person2 {
 function test() {
     Person1 p1 = new("Pubudu", "Fernando");
     Person2 p2 = new;
+    p2 = new Person2();
 }
