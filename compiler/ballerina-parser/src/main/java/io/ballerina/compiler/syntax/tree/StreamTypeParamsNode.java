@@ -138,14 +138,12 @@ public class StreamTypeParamsNode extends NonTerminalNode {
 
         public StreamTypeParamsNodeModifier withCommaToken(
                 Token commaToken) {
-            Objects.requireNonNull(commaToken, "commaToken must not be null");
             this.commaToken = commaToken;
             return this;
         }
 
         public StreamTypeParamsNodeModifier withRightTypeDescNode(
                 Node rightTypeDescNode) {
-            Objects.requireNonNull(rightTypeDescNode, "rightTypeDescNode must not be null");
             this.rightTypeDescNode = rightTypeDescNode;
             return this;
         }

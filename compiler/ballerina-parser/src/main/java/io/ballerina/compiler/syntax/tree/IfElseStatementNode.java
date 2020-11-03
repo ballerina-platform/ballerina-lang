@@ -135,7 +135,6 @@ public class IfElseStatementNode extends StatementNode {
 
         public IfElseStatementNodeModifier withElseBody(
                 Node elseBody) {
-            Objects.requireNonNull(elseBody, "elseBody must not be null");
             this.elseBody = elseBody;
             return this;
         }

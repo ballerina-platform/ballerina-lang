@@ -114,7 +114,6 @@ public class DocumentationReferenceNode extends DocumentationNode {
 
         public DocumentationReferenceNodeModifier withReferenceType(
                 Token referenceType) {
-            Objects.requireNonNull(referenceType, "referenceType must not be null");
             this.referenceType = referenceType;
             return this;
         }

@@ -141,7 +141,6 @@ public class ImportDeclarationNode extends NonTerminalNode {
 
         public ImportDeclarationNodeModifier withOrgName(
                 ImportOrgNameNode orgName) {
-            Objects.requireNonNull(orgName, "orgName must not be null");
             this.orgName = orgName;
             return this;
         }
@@ -155,14 +154,12 @@ public class ImportDeclarationNode extends NonTerminalNode {
 
         public ImportDeclarationNodeModifier withVersion(
                 ImportVersionNode version) {
-            Objects.requireNonNull(version, "version must not be null");
             this.version = version;
             return this;
         }
 
         public ImportDeclarationNodeModifier withPrefix(
                 ImportPrefixNode prefix) {
-            Objects.requireNonNull(prefix, "prefix must not be null");
             this.prefix = prefix;
             return this;
         }
