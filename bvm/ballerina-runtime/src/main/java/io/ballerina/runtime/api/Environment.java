@@ -17,7 +17,6 @@
  */
 package io.ballerina.runtime.api;
 
-import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.State;
 import io.ballerina.runtime.scheduling.Strand;
 
@@ -44,7 +43,6 @@ public class Environment {
      * @return BalFuture which will resume the current strand when completed.
      */
     public Future markAsync() {
-        Strand strand = Scheduler.getStrand();
         strand.blockedOnExtern = true;
         strand.setState(State.BLOCK_AND_YIELD);
         return new Future(this.strand);
@@ -52,5 +50,13 @@ public class Environment {
 
     public Runtime getRuntime() {
         return new Runtime(strand.scheduler);
+    }
+
+    public void setStrandLocal(String key, Object value) {
+        strand.setProperty(key, value);
+    }
+
+    public Object getStrandLocal(String key) {
+        return strand.getProperty(key);
     }
 }

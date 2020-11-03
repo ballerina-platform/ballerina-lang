@@ -22,7 +22,6 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.observability.ObserverContext;
 import io.ballerina.runtime.transactions.TransactionLocalContext;
 import io.ballerina.runtime.values.ChannelDetails;
 import io.ballerina.runtime.values.ErrorValue;
@@ -71,7 +70,6 @@ public class Strand {
     public boolean blockedOnExtern;
     public Set<ChannelDetails> channelDetails;
     public Set<SchedulerItem> dependants;
-    public ObserverContext observerContext;
     public boolean cancel;
 
     SchedulerItem schedulerItem;
@@ -91,7 +89,6 @@ public class Strand {
         this.scheduler = scheduler;
         this.wdChannels = new WDChannels();
         this.channelDetails = new HashSet<>();
-        this.globalProps = new HashMap<>();
         this.state = RUNNABLE;
         this.dependants = new HashSet<>();
         this.strandLock = new ReentrantLock();
@@ -100,7 +97,15 @@ public class Strand {
         this.metadata = metadata;
         this.trxContexts = new Stack<>();
         this.parent = parent;
-        this.globalProps = properties != null ? properties : new HashMap<>();
+
+        //TODO: improve by using a copy on write map #26710
+        if (properties != null) {
+            this.globalProps = properties;
+        } else if (parent != null) {
+            this.globalProps = new HashMap<>(parent.globalProps);
+        } else {
+            this.globalProps = new HashMap<>();
+        }
     }
 
     public void handleChannelError(ChannelDetails[] channels, ErrorValue error) {
@@ -116,10 +121,19 @@ public class Strand {
         }
     }
 
+    /**
+     * @deprecated use Environment#getStrandLocal()
+     */
+    @Deprecated
     public Object getProperty(String key) {
         return this.globalProps.get(key);
     }
 
+    /**
+     *
+     * @deprecated use Environment#setStrandLocal()
+     */
+    @Deprecated
     public void setProperty(String key, Object value) {
         this.globalProps.put(key, value);
     }

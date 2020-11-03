@@ -18,12 +18,11 @@
 
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.scheduling.Strand;
 
 import java.util.UUID;
 
@@ -36,8 +35,8 @@ import static io.ballerina.runtime.util.BLangConstants.BALLERINA_RUNTIME_PKG_ID;
  */
 public class GetInvocationContext {
 
-    public static BMap<BString, Object> getInvocationContext() {
-        return getInvocationContextRecord(Scheduler.getStrand());
+    public static BMap<BString, Object> getInvocationContext(Environment env) {
+        return getInvocationContextRecord(env);
     }
 
     private static final String RUNTIME_INVOCATION_CONTEXT_PROPERTY = "RuntimeInvocationContext";
@@ -45,12 +44,12 @@ public class GetInvocationContext {
     private static final String INVOCATION_ID_KEY = "id";
     private static final String INVOCATION_ATTRIBUTES = "attributes";
 
-    private static BMap<BString, Object> getInvocationContextRecord(Strand strand) {
+    private static BMap<BString, Object> getInvocationContextRecord(Environment env) {
         BMap<BString, Object> invocationContext =
-                (BMap<BString, Object>) strand.getProperty(RUNTIME_INVOCATION_CONTEXT_PROPERTY);
+                (BMap<BString, Object>) env.getStrandLocal(RUNTIME_INVOCATION_CONTEXT_PROPERTY);
         if (invocationContext == null) {
             invocationContext = initInvocationContext();
-            strand.setProperty(RUNTIME_INVOCATION_CONTEXT_PROPERTY, invocationContext);
+            env.setStrandLocal(RUNTIME_INVOCATION_CONTEXT_PROPERTY, invocationContext);
         }
         return invocationContext;
     }
