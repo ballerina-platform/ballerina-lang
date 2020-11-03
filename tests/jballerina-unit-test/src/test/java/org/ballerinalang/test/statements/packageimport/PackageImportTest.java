@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.statements.packageimport;
 
-import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -62,14 +61,14 @@ public class PackageImportTest {
     public void testInvalidImport1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/imports/invalid-import-negative1.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "cannot resolve module 'abcd'", 1, 1);
+        BAssertUtil.validateError(result, 0, "cannot resolve module 'abcd/efgh'", 1, 1);
     }
 
     @Test()
     public void testInvalidImport2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/imports/invalid-import-negative2.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "cannot resolve module 'foo.x as x'", 1, 1);
+        BAssertUtil.validateError(result, 0, "cannot resolve module 'bar/foo.x as x'", 1, 1);
     }
 
     @Test (enabled = false)
@@ -91,8 +90,8 @@ public class PackageImportTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/imports/unused-imports-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "unused import module 'ballerina/io'", 1, 1);
-        BAssertUtil.validateError(result, i, "unused import module 'ballerina/io as otherIO'", 2, 1);
+        BAssertUtil.validateError(result, i++, "unused import module 'ballerina/java'", 1, 1);
+        BAssertUtil.validateError(result, i, "unused import module 'ballerina/java as otherJAVA'", 2, 1);
     }
 
     @Test(enabled = false)

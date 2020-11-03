@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import def;
+import testorg/enumsdef;
 
 function test() {
    // invalid
-   string pinkFloyd = def:PF;
-   def:Bands q =  def:Queen;
-   def:PF pf = "Pink Floyd";
+   string pinkFloyd = enumsdef:PF;
+   enumsdef:Bands q = enumsdef:Queen;
+   enumsdef:PF pf = "Pink Floyd";
 }
