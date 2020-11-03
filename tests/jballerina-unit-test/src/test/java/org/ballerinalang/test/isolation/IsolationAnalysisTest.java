@@ -84,7 +84,8 @@ public class IsolationAnalysisTest {
                 "testIsolatedObjectFieldInitializers",
                 "testIsolationAnalysisWithRemoteMethods",
                 "testIsolatedFunctionWithDefaultableParams",
-                "testAccessingFinalIsolatedObjectInIsolatedFunction"
+                "testAccessingFinalIsolatedObjectInIsolatedFunction",
+                "testIsolationOfBoundMethods"
         };
     }
 
@@ -106,6 +107,12 @@ public class IsolationAnalysisTest {
                 "returns (int); }'", 37, 13);
         validateError(result, i++, "incompatible types: expected 'isolated function () returns (int)', found " +
                 "'function () returns (int)'", 42, 40);
+        validateError(result, i++, "incompatible types: expected 'isolated function (int) returns (int)', found " +
+                "'function (int) returns (int)'", 60, 51);
+        validateError(result, i++, "incompatible types: expected 'isolated function () returns (int)', found " +
+                "'function () returns (int)'", 63, 48);
+        validateError(result, i++, "incompatible types: expected 'isolated function () returns (int)', found " +
+                "'function () returns (int)'", 66, 48);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

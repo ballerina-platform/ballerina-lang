@@ -376,6 +376,43 @@ isolated function getIntArray() returns int[] => arr;
 
 isolated function getMutableIntArray() returns int[] => [2, 3, 4];
 
+isolated class IsolatedClassWithIsolatedMethod {
+    private int i = 0;
+
+    isolated function foo(int i) returns int {
+        lock {
+            int j = i + self.i;
+            self.i += 1;
+            return j;
+        }
+    }
+}
+
+class NonIsolatedClassWithIsolatedMethod {
+    int i = 0;
+
+    isolated function foo(int i) returns int {
+        int j = i + self.i;
+        self.i += 1;
+        return j;
+    }
+}
+
+function testIsolationOfBoundMethods() {
+    IsolatedClassWithIsolatedMethod ob1 = new;
+    isolated function (int) returns int func1 = ob1.foo;
+    assertEquality(true, <any> func1 is isolated function (int) returns int);
+    assertEquality(1, func1(1));
+    assertEquality(3, func1(2));
+
+    NonIsolatedClassWithIsolatedMethod ob2 = new;
+    function (int) returns int func2 = ob2.foo;
+    assertEquality(true, <any> func2 is function (int) returns int);
+    assertEquality(false, <any> func2 is isolated function (int) returns int);
+    assertEquality(1, func2(1));
+    assertEquality(3, func2(2));
+}
+
 isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

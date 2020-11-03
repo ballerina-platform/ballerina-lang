@@ -5910,6 +5910,14 @@ public class TypeChecker extends BLangNodeVisitor {
             return symTable.semanticError;
         }
 
+        if (Symbols.isFlagOn(fieldSymbol.type.flags, Flags.ISOLATED) &&
+                !Symbols.isFlagOn(objectType.flags, Flags.ISOLATED)) {
+            fieldSymbol = ASTBuilderUtil.duplicateInvokableSymbol((BInvokableSymbol) fieldSymbol);
+
+            fieldSymbol.flags &= ~Flags.ISOLATED;
+            fieldSymbol.type.flags &= ~Flags.ISOLATED;
+        }
+
         // Setting the field symbol. This is used during the code generation phase
         bLangFieldBasedAccess.symbol = fieldSymbol;
         return fieldSymbol.type;
