@@ -15,16 +15,23 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package io.ballerina.projects.environment;
 
+import io.ballerina.projects.Package;
+import io.ballerina.projects.SemanticVersion;
+
+import java.util.List;
+import java.util.Optional;
+
 /**
- * This class represent an project-specific environment context.
+ * This interface represent a repository of packages.
  *
  * @since 2.0.0
  */
-public abstract class ProjectEnvironmentContext {
+public interface PackageRepository {
 
-    public <T> T getService(Class<T> clazz) {
-        return null;
-    }
+    Optional<Package> getPackage(PackageLoadRequest packageLoadRequest);
+
+    List<SemanticVersion> getPackageVersions(PackageLoadRequest packageLoadRequest);
 }

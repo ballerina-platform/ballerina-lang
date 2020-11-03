@@ -15,21 +15,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.repos;
+package io.ballerina.projects.internal.repositories;
 
-import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.balo.BaloProject;
+import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageLoadRequest;
-import io.ballerina.projects.environment.Repository;
+import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
-import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -64,22 +62,17 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class FileSystemRepository implements Repository {
-
-    Path root;
+public class FileSystemRepository implements PackageRepository {
     Path balo;
-    Path cache;
-    private final Project project;
-    private Path birPath;
+    private final Path cacheDir;
+    private final Environment environment;
 
-    public FileSystemRepository(Project project, Path cacheDirectory) {
-        this.root = cacheDirectory;
-        this.balo = this.root.resolve(ProjectConstants.REPO_BALO_DIR_NAME);
-        this.cache = this.root.resolve(ProjectConstants.REPO_CACHE_DIR_NAME);
-        this.project = project;
-        // todo check if the directories are readable
+    // TODO Refactor this when we do repository/cache split
+    public FileSystemRepository(Environment environment, Path cacheDirectory) {
+        this.cacheDir = cacheDirectory;
+        this.balo = cacheDirectory.resolve(ProjectConstants.REPO_BALO_DIR_NAME);
+        this.environment = environment;
     }
-
 
     @Override
     public Optional<Package> getPackage(PackageLoadRequest packageLoadRequest) {
@@ -95,7 +88,10 @@ public class FileSystemRepository implements Repository {
             return Optional.empty();
         }
 
-        Project project = BaloProject.loadProject(baloPath);
+        ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
+        environmentBuilder = environmentBuilder.addCompilationCacheFactory(
+                new FileSystemCache.FileSystemCacheFactory(cacheDir));
+        Project project = BaloProject.loadProject(environmentBuilder, baloPath);
         return Optional.of(project.currentPackage());
     }
 
@@ -131,60 +127,6 @@ public class FileSystemRepository implements Repository {
                     return SemanticVersion.from(version);
                 })
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public byte[] getCachedBir(ModuleName moduleName) {
-        Path birFilePath = getBirPath().resolve(moduleName.toString()
-                + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT);
-        if (Files.exists(birFilePath)) {
-            try {
-                return FileUtils.readFileToByteArray(birFilePath.toFile());
-            } catch (IOException e) {
-                // todo log
-            }
-        }
-        return new byte[0];
-    }
-
-    @Override
-    public void cacheBir(ModuleName moduleName, byte[] bir) {
-        Path birFilePath = getBirPath().resolve(moduleName.toString()
-                + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT);
-        if (!Files.exists(birFilePath)) {
-            try {
-                FileUtils.writeByteArrayToFile(birFilePath.toFile(), bir);
-            } catch (IOException e) {
-                // todo log
-            }
-        }
-    }
-
-    @Override
-    public Path getCachedJar(Module aPackage) {
-        return null;
-    }
-
-    public Path getJarPath(Package aPackage) {
-        String packageName = aPackage.packageName().value();
-        String orgName = aPackage.packageOrg().toString();
-        String version = aPackage.packageVersion().version().toString();
-        return this.cache.resolve(orgName).resolve(packageName).resolve(version)
-                .resolve(ProjectConstants.REPO_JAR_CACHE_NAME);
-    }
-
-    private Path getBirPath() {
-        if (birPath != null) {
-            return birPath;
-        }
-
-        Package currentPkg = project.currentPackage();
-        PackageDescriptor pkgDescriptor = currentPkg.packageDescriptor();
-        birPath = cache.resolve(pkgDescriptor.org().value())
-                .resolve(pkgDescriptor.name().value())
-                .resolve(pkgDescriptor.version().toString())
-                .resolve(ProjectConstants.REPO_BIR_CACHE_NAME);
-        return birPath;
     }
 
     private static class SearchModules extends SimpleFileVisitor<Path> {

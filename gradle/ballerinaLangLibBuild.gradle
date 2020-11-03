@@ -19,7 +19,7 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 
 dependencies {
-    implementation project(':ballerina-projects')
+    implementation project(':ballerina-lang')
 }
 
 configurations {

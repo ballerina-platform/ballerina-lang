@@ -43,7 +43,7 @@ public class TestSingleFileProject {
         Path projectPath = RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal");
         SingleFileProject project = null;
         try {
-            project = SingleFileProject.loadProject(projectPath);
+            project = SingleFileProject.load(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -64,7 +64,7 @@ public class TestSingleFileProject {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("modules").resolve("services")
                 .resolve("svc.bal");
         try {
-            SingleFileProject.loadProject(projectPath);
+            SingleFileProject.load(projectPath);
             Assert.fail("expected an invalid project exception");
         } catch (Exception e) {
             Assert.assertTrue(e.getMessage().contains("provided path is not a valid Ballerina standalone file"));
@@ -72,7 +72,7 @@ public class TestSingleFileProject {
 
         projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("main.bal");
         try {
-            SingleFileProject.loadProject(projectPath);
+            SingleFileProject.load(projectPath);
             Assert.fail("expected an invalid project exception");
         } catch (Exception e) {
             Assert.assertTrue(e.getMessage().contains("provided path is not a valid Ballerina standalone file"));
@@ -84,7 +84,7 @@ public class TestSingleFileProject {
         Path projectPath = RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal");
         SingleFileProject project = null;
         try {
-            project = SingleFileProject.loadProject(projectPath);
+            project = SingleFileProject.load(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -114,7 +114,7 @@ public class TestSingleFileProject {
         String newContent = "import ballerina/io;\n";
 
         // Load the project from document filepath
-        SingleFileProject singleFileProject = SingleFileProject.loadProject(filePath);
+        SingleFileProject singleFileProject = SingleFileProject.load(filePath);
 
         // get the
         // document ID

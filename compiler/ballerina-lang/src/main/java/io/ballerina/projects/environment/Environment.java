@@ -17,9 +17,6 @@
  */
 package io.ballerina.projects.environment;
 
-import io.ballerina.projects.Project;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-
 /**
  * Represents an environment shared by a set of projects.
  * <p>
@@ -27,20 +24,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  *
  * @since 2.0.0
  */
-public abstract class EnvironmentContext {
-
-    /**
-     * Returns a {@code Project} aware environment context.
-     *
-     * @param project the project instances
-     * @return Returns a project-aware environment context
-     */
-    public abstract ProjectEnvironmentContext projectEnvironmentContext(Project project);
-
-    /**
-     * Returns a compiler context.
-     *
-     * @return Returns a project-aware compiler context
-     */
-    public abstract CompilerContext compilerContext();
+public abstract class Environment {
+    public abstract <T> T getService(Class<T> clazz);
 }

@@ -5,7 +5,7 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.PackageLoadRequest;
-import io.ballerina.projects.repos.FileSystemRepository;
+import io.ballerina.projects.environment.PackageRepository;
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 
@@ -26,7 +26,7 @@ public class TestFileSystemRepository {
     private static final Path MOCK_REPO = Paths.get("src/test/resources/mock-repo");
 
     Path mockRepo;
-    FileSystemRepository repo;
+    PackageRepository repo;
 
     PackageLoadRequest aPkg = new PackageLoadRequest(PackageOrg.BALLERINA_ORG,
             PackageName.from("lang.annotations"),

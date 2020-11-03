@@ -143,7 +143,7 @@ public class RunCommand implements BLauncherCmd {
         boolean isSingleFileBuild = false;
         if (FileUtils.hasExtension(this.projectPath)) {
             try {
-                project = SingleFileProject.loadProject(this.projectPath);
+                project = SingleFileProject.load(this.projectPath);
             } catch (RuntimeException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -152,7 +152,7 @@ public class RunCommand implements BLauncherCmd {
             isSingleFileBuild = true;
         } else {
             try {
-                project = BuildProject.loadProject(this.projectPath);
+                project = BuildProject.load(this.projectPath);
             } catch (RuntimeException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);

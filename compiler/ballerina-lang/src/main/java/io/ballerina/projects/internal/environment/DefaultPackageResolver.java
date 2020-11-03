@@ -15,18 +15,20 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.env;
+
+package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageId;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.GlobalPackageCache;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.ModuleLoadResponse;
 import io.ballerina.projects.environment.PackageLoadRequest;
+import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.environment.Repository;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,25 +36,36 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Resolves lang lib packages.
+ * Default Package resolver for Ballerina project.
  *
  * @since 2.0.0
  */
-public class LangLibResolver extends PackageResolver {
-    private final Repository distCache;
+public class DefaultPackageResolver extends PackageResolver {
+    private final Project project;
+    private final PackageRepository distRepository;
     private final GlobalPackageCache globalPackageCache;
 
-    public LangLibResolver(Repository distCache, GlobalPackageCache globalPackageCache) {
-        this.distCache = distCache;
+    public DefaultPackageResolver(Project project, PackageRepository distCache, GlobalPackageCache globalPackageCache) {
+        this.project = project;
+        this.distRepository = distCache;
         this.globalPackageCache = globalPackageCache;
     }
 
-    @Override
     public Collection<ModuleLoadResponse> loadPackages(Collection<ModuleLoadRequest> moduleLoadRequests) {
         // TODO This is a dummy implementation that checks only the current package in the project.
         List<ModuleLoadResponse> modLoadResponses = new ArrayList<>();
+        Package currentPkg = this.project.currentPackage();
         for (ModuleLoadRequest modLoadRequest : moduleLoadRequests) {
-            Module module = loadFromCache(modLoadRequest);
+            Module module = null;
+            if (currentPkg.packageName().equals(modLoadRequest.packageName())) {
+                module = currentPkg.module(modLoadRequest.moduleName());
+            }
+
+            if (module == null) {
+                // Try to get from the already loaded packages
+                module = loadFromCache(modLoadRequest);
+            }
+
             if (module == null) {
                 module = loadFromDistributionCache(modLoadRequest);
             }
@@ -66,8 +79,10 @@ public class LangLibResolver extends PackageResolver {
         return modLoadResponses;
     }
 
-    @Override
     public Package getPackage(PackageId packageId) {
+        if (project.currentPackage().packageId() == packageId) {
+            return project.currentPackage();
+        }
         return globalPackageCache.get(packageId);
     }
 
@@ -76,19 +91,17 @@ public class LangLibResolver extends PackageResolver {
         PackageLoadRequest loadRequest = PackageLoadRequest.from(modLoadRequest);
         if (loadRequest.version().isEmpty()) {
             // find the latest version
-            List<SemanticVersion> packageVersions = distCache.getPackageVersions(loadRequest);
+            List<SemanticVersion> packageVersions = distRepository.getPackageVersions(loadRequest);
             if (packageVersions.isEmpty()) {
                 // no versions found.
                 // todo handle package not found with exception
                 return null;
             }
             SemanticVersion latest = findlatest(packageVersions);
-            loadRequest = new PackageLoadRequest(loadRequest.orgName()
-                    .orElse(null), loadRequest.packageName(), latest);
+            loadRequest = new PackageLoadRequest(loadRequest.orgName().orElse(null), loadRequest.packageName(), latest);
         }
 
-        Optional<Package> packageOptional = distCache.getPackage(loadRequest);
-
+        Optional<Package> packageOptional = distRepository.getPackage(loadRequest);
         return packageOptional.map(pkg -> {
             pkg.resolveDependencies();
             globalPackageCache.put(pkg);

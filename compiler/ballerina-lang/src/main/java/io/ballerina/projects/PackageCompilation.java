@@ -19,9 +19,8 @@ package io.ballerina.projects;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
-import io.ballerina.projects.environment.EnvironmentContext;
 import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.environment.ProjectEnvironmentContext;
+import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -57,10 +56,9 @@ public class PackageCompilation {
     PackageCompilation(PackageContext packageContext) {
         this.packageContext = packageContext;
 
-        ProjectEnvironmentContext projectEnvContext = packageContext.project().environmentContext();
-        EnvironmentContext environmentContext = projectEnvContext.getService(EnvironmentContext.class);
+        ProjectEnvironment projectEnvContext = packageContext.project().projectEnvironmentContext();
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
-        this.compilerContext = environmentContext.compilerContext();
+        this.compilerContext = projectEnvContext.getService(CompilerContext.class);
 
         // Resolving the dependencies of this package before the compilation
         packageContext.resolveDependencies();

@@ -15,20 +15,14 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.ls;
-
-import io.ballerina.projects.Project;
-import io.ballerina.projects.environment.EnvironmentContext;
+package io.ballerina.projects;
 
 /**
- * {@code BuildProject} represents Ballerina project instance created by the language server.
+ * Creates a {@code CompilationCache} instances with the given
+ * project during the project creation.
  *
  * @since 2.0.0
  */
-public class LSProject extends Project {
-    protected LSProject(EnvironmentContext environmentContext) {
-        super(environmentContext);
-    }
-    // Language server specific Project implementation.
-    // TODO Move projects.build package to a different Gradle module.
+public interface CompilationCacheFactory {
+    CompilationCache createCompilationCache(Project project);
 }

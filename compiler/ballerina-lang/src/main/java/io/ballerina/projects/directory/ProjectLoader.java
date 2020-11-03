@@ -21,7 +21,6 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.env.BuildEnvContext;
 import io.ballerina.projects.utils.ProjectConstants;
 
 import java.nio.file.Path;
@@ -41,7 +40,6 @@ public class ProjectLoader {
      * @return project of applicable type
      */
     public static Project loadProject(Path path) {
-        resetEnvironmentContext();
         Path absProjectPath = Optional.of(path.toAbsolutePath()).get();
         Path projectRoot;
         if (absProjectPath.toFile().isDirectory()) {
@@ -51,26 +49,26 @@ public class ProjectLoader {
             } else {
                 projectRoot = absProjectPath;
             }
-            return BuildProject.loadProject(projectRoot);
+            return BuildProject.load(projectRoot);
         }
         // check if the file is a source file in the default module
         projectRoot = Optional.of(absProjectPath.getParent()).get();
         if (hasBallerinaToml(projectRoot)) {
-            return BuildProject.loadProject(projectRoot);
+            return BuildProject.load(projectRoot);
         }
 
         // check if the file is a test file in the default module
         Path testsRoot = Optional.of(absProjectPath.getParent()).get();
         projectRoot = Optional.of(testsRoot.getParent()).get();
         if (ProjectConstants.TEST_DIR_NAME.equals(testsRoot.toFile().getName()) && hasBallerinaToml(projectRoot)) {
-            return BuildProject.loadProject(projectRoot);
+            return BuildProject.load(projectRoot);
         }
 
         // check if the file is a source file in a non-default module
         Path modulesRoot = Optional.of(Optional.of(absProjectPath.getParent()).get().getParent()).get();
         projectRoot = modulesRoot.getParent();
         if (ProjectConstants.MODULES_ROOT.equals(modulesRoot.toFile().getName()) && hasBallerinaToml(projectRoot)) {
-            return BuildProject.loadProject(projectRoot);
+            return BuildProject.load(projectRoot);
         }
 
         // check if the file is a test file in a non-default module
@@ -78,10 +76,10 @@ public class ProjectLoader {
         projectRoot = modulesRoot.getParent();
 
         if (ProjectConstants.MODULES_ROOT.equals(modulesRoot.toFile().getName()) && hasBallerinaToml(projectRoot)) {
-            return BuildProject.loadProject(projectRoot);
+            return BuildProject.load(projectRoot);
         }
 
-        return SingleFileProject.loadProject(absProjectPath);
+        return SingleFileProject.load(absProjectPath);
     }
 
     /**
@@ -121,10 +119,5 @@ public class ProjectLoader {
 
     private static boolean hasBallerinaToml(Path filePath) {
         return filePath.resolve(ProjectConstants.BALLERINA_TOML).toFile().exists();
-    }
-
-    private static void resetEnvironmentContext() {
-        //TODO this is a temporary fix the clean compiler context instance
-        BuildEnvContext.getInstance().reset();
     }
 }

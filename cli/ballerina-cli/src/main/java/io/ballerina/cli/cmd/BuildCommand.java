@@ -29,7 +29,6 @@ import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.projects.env.BuildEnvContext;
 import io.ballerina.runtime.launch.LaunchUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.tool.BLauncherCmd;
@@ -176,7 +175,7 @@ public class BuildCommand implements BLauncherCmd {
                 return;
             }
             try {
-                project = SingleFileProject.loadProject(this.projectPath);
+                project = SingleFileProject.load(this.projectPath);
             } catch (RuntimeException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -195,7 +194,7 @@ public class BuildCommand implements BLauncherCmd {
                 return;
             }
             try {
-                project = BuildProject.loadProject(this.projectPath);
+                project = BuildProject.load(this.projectPath);
             } catch (RuntimeException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -203,8 +202,7 @@ public class BuildCommand implements BLauncherCmd {
             }
         }
 
-        BuildEnvContext buildEnvContext = BuildEnvContext.getInstance();
-        CompilerContext compilerContext = buildEnvContext.compilerContext();
+        CompilerContext compilerContext = project.projectEnvironmentContext().getService(CompilerContext.class);
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(OFFLINE, Boolean.toString(this.offline));

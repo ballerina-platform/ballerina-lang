@@ -20,8 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.ModuleLoadResponse;
 import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.environment.ProjectEnvironmentContext;
-import io.ballerina.projects.environment.Repository;
+import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.TreeBuilder;
@@ -63,7 +62,7 @@ class ModuleContext {
     private final Collection<DocumentId> testSrcDocIds;
     private final Map<DocumentId, DocumentContext> testDocContextMap;
     private final Project project;
-    private final Repository repository;
+    private final CompilationCache compilationCache;
 
     private Set<ModuleDependency> moduleDependencies;
     private BLangPackage bLangPackage;
@@ -89,9 +88,9 @@ class ModuleContext {
         this.testSrcDocIds = Collections.unmodifiableCollection(testDocContextMap.keySet());
         this.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
 
-        ProjectEnvironmentContext projectEnvironmentContext = project.environmentContext();
-        this.bootstrap = new Bootstrap(projectEnvironmentContext.getService(PackageResolver.class));
-        this.repository = projectEnvironmentContext.getService(Repository.class);
+        ProjectEnvironment projectEnvironment = project.projectEnvironmentContext();
+        this.bootstrap = new Bootstrap(projectEnvironment.getService(PackageResolver.class));
+        this.compilationCache = projectEnvironment.getService(CompilationCache.class);
     }
 
     private ModuleContext(Project project,
@@ -237,7 +236,7 @@ class ModuleContext {
         }
 
         // TODO This logic needs to be updated. We need a proper way to decide on the initial state
-        if (repository.getCachedBir(moduleDescriptor.name()).length == 0) {
+        if (compilationCache.getBir(moduleDescriptor.name()).length == 0) {
             moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
         } else {
             moduleCompState = ModuleCompilationState.LOADED_FROM_CACHE;
@@ -287,7 +286,7 @@ class ModuleContext {
         }
 
         // 2) Resolve all the dependencies of this module
-        PackageResolver packageResolver = moduleContext.project.environmentContext().
+        PackageResolver packageResolver = moduleContext.project.projectEnvironmentContext().
                 getService(PackageResolver.class);
         Collection<ModuleLoadResponse> moduleLoadResponses = packageResolver.loadPackages(moduleLoadRequests);
 
@@ -353,7 +352,7 @@ class ModuleContext {
     }
 
     static void loadBirBytesInternal(ModuleContext moduleContext) {
-        moduleContext.birBytes = moduleContext.repository.getCachedBir(moduleContext.moduleName());
+        moduleContext.birBytes = moduleContext.compilationCache.getBir(moduleContext.moduleName());
     }
 
     static void resolveDependenciesFromBALOInternal(ModuleContext moduleContext) {

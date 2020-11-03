@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.env;
+package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
@@ -82,7 +82,7 @@ public class CustomPackageResolver extends PackageResolver {
     private Module loadFromCustomProjectDir(ModuleLoadRequest modLoadRequest) {
         // TODO how about developing a BALRProject to load a package from a .balr file?
         Path testProjectsDirPath = Paths.get("src/test/resources/test_projects_temporary/http");
-        BuildProject buildProject = BuildProject.loadProject(testProjectsDirPath);
+        BuildProject buildProject = BuildProject.load(testProjectsDirPath);
         Package pkg = buildProject.currentPackage();
         pkg.resolveDependencies();
         loadedPackages.put(pkg.packageId(), pkg);

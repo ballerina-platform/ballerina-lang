@@ -152,7 +152,7 @@ public class CompileResult {
                 .resolve(ProjectConstants.DIST_CACHE_DIRECTORY);
 
         List<PackageId> sortedPackageIds = packageCompilation.packageDependencyGraph().toTopologicallySortedList();
-        PackageResolver packageResolver = pkg.project().environmentContext().getService(PackageResolver.class);
+        PackageResolver packageResolver = pkg.project().projectEnvironmentContext().getService(PackageResolver.class);
 
         // Add the thin jars of all the dependent packages to the classpath
         for (PackageId packageId : sortedPackageIds) {

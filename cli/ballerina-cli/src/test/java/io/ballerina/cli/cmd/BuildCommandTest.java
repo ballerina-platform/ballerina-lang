@@ -18,13 +18,10 @@
 
 package io.ballerina.cli.cmd;
 
-import io.ballerina.projects.env.BuildEnvContext;
 import org.ballerinalang.tool.BLauncherException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -221,12 +218,6 @@ public class BuildCommandTest extends BaseCommandTest {
             buildCommand.execute();
         } catch (BLauncherException e) {
             Assert.assertTrue(e.getDetailedMessages().get(0).contains("compilation contains errors"));
-        } finally {
-            //TODO: remove this once the build env ctx is created per project
-            BuildEnvContext buildEnvContext = BuildEnvContext.getInstance();
-            CompilerContext compilerContext = buildEnvContext.compilerContext();
-            BLangDiagnosticLog bLangDiagnosticLog = BLangDiagnosticLog.getInstance(compilerContext);
-            bLangDiagnosticLog.resetErrorCount();
         }
     }
 

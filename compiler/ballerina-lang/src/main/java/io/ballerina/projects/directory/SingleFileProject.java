@@ -23,7 +23,7 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.env.BuildEnvContext;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
 
@@ -43,7 +43,7 @@ public class SingleFileProject extends Project {
      * @param projectPath ballerina standalone file path
      * @return single file project
      */
-    public static SingleFileProject loadProject(Path projectPath) {
+    public static SingleFileProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
         Path absProjectPath = Optional.of(projectPath.toAbsolutePath()).get();
         if (!absProjectPath.toFile().exists()) {
             throw new RuntimeException("project path does not exist:" + projectPath);
@@ -51,11 +51,15 @@ public class SingleFileProject extends Project {
         if (!isBallerinaStandaloneFile(absProjectPath)) {
             throw new RuntimeException("provided path is not a valid Ballerina standalone file: " + projectPath);
         }
-        return new SingleFileProject(projectPath);
+        return new SingleFileProject(environmentBuilder, projectPath);
     }
 
-    private SingleFileProject(Path projectPath) {
-        super(BuildEnvContext.getInstance());
+    public static SingleFileProject load(Path projectPath) {
+        return load(ProjectEnvironmentBuilder.getDefaultBuilder(), projectPath);
+    }
+
+    private SingleFileProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
+        super(environmentBuilder);
 
         this.sourceRoot = createTempProjectRoot(); // create a temp directory and assign to source root
         addPackage(projectPath);

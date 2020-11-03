@@ -11,6 +11,7 @@ module io.ballerina.lang {
     requires io.ballerina.parser;
     requires io.ballerina.tools.api;
     requires org.apache.commons.compress;
+    requires org.apache.commons.io;
     exports io.ballerina.compiler.api;
     exports io.ballerina.compiler.api.symbols;
     exports io.ballerina.compiler.api.types;
@@ -64,4 +65,8 @@ module io.ballerina.lang {
     exports org.wso2.ballerinalang.compiler.tree.matchpatterns;
     exports io.ballerina.projects;
     exports io.ballerina.projects.environment;
+    exports io.ballerina.projects.utils;
+    exports io.ballerina.projects.directory;
+    exports io.ballerina.projects.balo;
+    exports io.ballerina.projects.repos;
 }
