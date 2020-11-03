@@ -1,5 +1,4 @@
 import ballerina/lang.'transaction as transactions;
-import ballerina/io;
 
 function testRetry() {
     string|error x = actualCode(2, false, false);
@@ -159,11 +158,9 @@ function multipleTrxSequence(boolean abort1, boolean abort2, boolean fail1, bool
 public class MyRetryManager {
    private int count;
    public function init(int count = 2) {
-       io:println("Count: ", count);
        self.count = count;
    }
    public function shouldRetry(error? e) returns boolean {
-     io:println("Count: ", self.count);
      if e is error && self.count >  0 {
         self.count -= 1;
         return true;

@@ -1,5 +1,3 @@
-import ballerina/io;
-
 class MyRetryManager {
     public function shouldRetry(error e) returns boolean {
         return true;
@@ -14,7 +12,7 @@ class CustomRetryManager {
 
 function testInvalidRetryManagerType() {
     retry<CustomRetryManager> {
-        io:println("Retry task triggered!");
+        // do nothing
     }
 }
 

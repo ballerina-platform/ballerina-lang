@@ -24,6 +24,3 @@ enum Bands {
     QUEEN,
     PF = "Pink Floyd"
 }
-
-public function main() {
-}
