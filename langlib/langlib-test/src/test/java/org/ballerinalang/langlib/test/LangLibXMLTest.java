@@ -192,8 +192,7 @@ public class LangLibXMLTest {
 
     @Test
     public void testForEach() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testForEach");
-        assertEquals((returns[0]).size(), 3);
+        BRunUtil.invoke(compileResult, "testForEach");
     }
 
     @Test

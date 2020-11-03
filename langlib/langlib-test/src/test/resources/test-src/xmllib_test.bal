@@ -168,16 +168,13 @@ function testCreateText() {
     assert(<string>text5, "XML\ntext");
 }
 
-function testForEach() returns xml {
+function testForEach() {
     xml r = 'xml:concat();
     foreach var x in catalog/* {
-        if (x is xml) {
-            if (x is 'xml:Element) {
-                r = 'xml:concat(r, x);
-            }
+        if (x is 'xml:Element) {
+            r = 'xml:concat(r, x);
         }
     }
-    return r;
 }
 
 function testSlice() returns [xml, xml, xml] {

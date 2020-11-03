@@ -27,12 +27,12 @@ class XMLIterator {
 
     # Return next member or nil if end of iteration is reached.
     # + return - iterator result
-    public isolated function next() returns record {| (xml|string) value; |}? {
+    public isolated function next() returns record {| xml value; |}? {
         return externNext(self);
     }
 }
 
-isolated function externNext(XMLIterator iterator) returns record {| (xml|string) value; |}? = @java:Method {
+isolated function externNext(XMLIterator iterator) returns record {| xml value; |}? = @java:Method {
     'class: "org.ballerinalang.langlib.xml.Next",
     name: "next"
 } external;
