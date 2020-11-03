@@ -59,7 +59,7 @@ public class LanguageConstructDebugTest extends DebugAdapterBaseTestCase {
         initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
         // Test for debug engage in object's init method
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(10000);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(25000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(0));
 
         // Test for debug engage in object's method

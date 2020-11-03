@@ -61,7 +61,7 @@ public class ControlFlowDebugTest extends DebugAdapterBaseTestCase {
         initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
         // Test for debug engage in 'if' statement
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(10000);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(25000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(0));
 
         // Test for debug engage inside 'if' statement when condition is true.
