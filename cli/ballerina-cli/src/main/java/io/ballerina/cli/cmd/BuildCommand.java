@@ -175,7 +175,7 @@ public class BuildCommand implements BLauncherCmd {
                 return;
             }
             try {
-                project = SingleFileProject.loadProject(this.projectPath);
+                project = SingleFileProject.load(this.projectPath);
             } catch (RuntimeException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -194,7 +194,7 @@ public class BuildCommand implements BLauncherCmd {
                 return;
             }
             try {
-                project = BuildProject.loadProject(this.projectPath);
+                project = BuildProject.load(this.projectPath);
             } catch (RuntimeException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);

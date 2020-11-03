@@ -17,27 +17,20 @@
  */
 package io.ballerina.projects.repos;
 
-import io.ballerina.projects.ModuleName;
-import io.ballerina.projects.Project;
 import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.internal.repositories.FileSystemRepository;
 import io.ballerina.projects.utils.ProjectConstants;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Distribution cache.
  *
  * @since 2.0.0
  */
-public class DistributionPackageCache extends FileSystemRepository {
+public class BallerinaDistributionRepository extends FileSystemRepository {
 
-    public DistributionPackageCache(Environment environment, Project project) {
-        super(environment, project, Paths.get(System.getProperty(ProjectConstants.BALLERINA_INSTALL_DIR_PROP))
-                .resolve(ProjectConstants.DIST_CACHE_DIRECTORY));
-    }
-
-    @Override
-    public void cacheBir(ModuleName moduleName, byte[] bir) {
-        // this is a read only repository
+    public BallerinaDistributionRepository(Environment environment, Path distributionPath) {
+        super(environment, distributionPath.resolve(ProjectConstants.DIST_CACHE_DIRECTORY));
     }
 }

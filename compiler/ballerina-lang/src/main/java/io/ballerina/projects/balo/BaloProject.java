@@ -20,14 +20,13 @@ package io.ballerina.projects.balo;
 
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.environment.Environment;
-import io.ballerina.projects.environment.Repository;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
 
 import java.nio.file.Path;
 import java.util.Optional;
 
 /**
- * {@code BaloProject} represents Ballerina project instance created from a balo.
+ * {@code BaloProject} represents a Ballerina project instance created from a balr.
  *
  * @since 2.0.0
  */
@@ -39,20 +38,19 @@ public class BaloProject extends Project {
      * @param baloPath Balo path
      * @return balo project
      */
-    public static BaloProject loadProject(Environment environment, Path baloPath) {
+    public static BaloProject loadProject(ProjectEnvironmentBuilder environmentBuilder, Path baloPath) {
         Path absBaloPath = Optional.of(baloPath.toAbsolutePath()).get();
         if (!absBaloPath.toFile().exists()) {
             throw new RuntimeException("balo path does not exist:" + baloPath);
         }
 
-        return new BaloProject(environment, absBaloPath);
+        return new BaloProject(environmentBuilder, absBaloPath);
     }
 
-    private BaloProject(Environment environment, Path baloPath) {
-        super(environment);
+    private BaloProject(ProjectEnvironmentBuilder environmentBuilder, Path baloPath) {
+        super(environmentBuilder);
         this.sourceRoot = baloPath;
-        Repository repository = projectEnvironmentContext().getService(Repository.class);
-        addPackage(baloPath.toString(), repository);
+        addPackage(baloPath.toString());
     }
 
     /**
@@ -60,8 +58,8 @@ public class BaloProject extends Project {
      *
      * @param baloPath balo path
      */
-    private void addPackage(String baloPath, Repository repo) {
-        PackageConfig packageConfig = BaloPackageLoader.loadPackage(baloPath, repo);
+    private void addPackage(String baloPath) {
+        PackageConfig packageConfig = BaloPackageLoader.loadPackage(baloPath);
         this.addPackage(packageConfig);
     }
 }

@@ -49,26 +49,26 @@ public class ProjectLoader {
             } else {
                 projectRoot = absProjectPath;
             }
-            return BuildProject.loadProject(projectRoot);
+            return BuildProject.load(projectRoot);
         }
         // check if the file is a source file in the default module
         projectRoot = Optional.of(absProjectPath.getParent()).get();
         if (hasBallerinaToml(projectRoot)) {
-            return BuildProject.loadProject(projectRoot);
+            return BuildProject.load(projectRoot);
         }
 
         // check if the file is a test file in the default module
         Path testsRoot = Optional.of(absProjectPath.getParent()).get();
         projectRoot = Optional.of(testsRoot.getParent()).get();
         if (ProjectConstants.TEST_DIR_NAME.equals(testsRoot.toFile().getName()) && hasBallerinaToml(projectRoot)) {
-            return BuildProject.loadProject(projectRoot);
+            return BuildProject.load(projectRoot);
         }
 
         // check if the file is a source file in a non-default module
         Path modulesRoot = Optional.of(Optional.of(absProjectPath.getParent()).get().getParent()).get();
         projectRoot = modulesRoot.getParent();
         if (ProjectConstants.MODULES_ROOT.equals(modulesRoot.toFile().getName()) && hasBallerinaToml(projectRoot)) {
-            return BuildProject.loadProject(projectRoot);
+            return BuildProject.load(projectRoot);
         }
 
         // check if the file is a test file in a non-default module
@@ -76,10 +76,10 @@ public class ProjectLoader {
         projectRoot = modulesRoot.getParent();
 
         if (ProjectConstants.MODULES_ROOT.equals(modulesRoot.toFile().getName()) && hasBallerinaToml(projectRoot)) {
-            return BuildProject.loadProject(projectRoot);
+            return BuildProject.load(projectRoot);
         }
 
-        return SingleFileProject.loadProject(absProjectPath);
+        return SingleFileProject.load(absProjectPath);
     }
 
     /**

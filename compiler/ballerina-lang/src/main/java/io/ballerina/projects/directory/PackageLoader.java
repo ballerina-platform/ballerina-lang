@@ -27,7 +27,6 @@ import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageId;
 import io.ballerina.projects.PackageName;
-import io.ballerina.projects.environment.Repository;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -44,12 +43,11 @@ public class PackageLoader {
                                             boolean isSingleFile,
                                             PackageDescriptor packageDescriptor) {
         final PackageData packageData = ProjectFiles.loadPackageData(packageDir, isSingleFile);
-        return createPackageConfig(packageData, packageDescriptor, null);
+        return createPackageConfig(packageData, packageDescriptor);
     }
 
     protected static PackageConfig createPackageConfig(PackageData packageData,
-                                                       PackageDescriptor packageDescriptor,
-                                                       Repository repository) {
+                                                       PackageDescriptor packageDescriptor) {
         // TODO PackageData should contain the packageName. This should come from the Ballerina.toml file.
         // TODO For now, I take the directory name as the project name. I am not handling the case where the
         //  directory name is not a valid Ballerina identifier.
@@ -64,7 +62,7 @@ public class PackageLoader {
                 .map(moduleData -> createModuleConfig(packageDescriptor, moduleData, packageId))
                 .collect(Collectors.toList());
         moduleConfigs.add(createDefaultModuleData(packageDescriptor, packageData.defaultModule(), packageId));
-        return PackageConfig.from(packageId, packageData.packagePath(), packageDescriptor, moduleConfigs, repository);
+        return PackageConfig.from(packageId, packageData.packagePath(), packageDescriptor, moduleConfigs);
     }
 
     private static ModuleConfig createDefaultModuleData(PackageDescriptor pkgDescriptor,

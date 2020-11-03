@@ -47,7 +47,7 @@ public class TestJarWriter {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.loadProject(projectPath);
+            project = BuildProject.load(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }

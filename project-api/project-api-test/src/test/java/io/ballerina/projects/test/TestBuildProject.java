@@ -72,7 +72,7 @@ public class TestBuildProject {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.loadProject(projectPath);
+            project = BuildProject.load(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -120,7 +120,7 @@ public class TestBuildProject {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.loadProject(projectPath);
+            project = BuildProject.load(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -144,7 +144,7 @@ public class TestBuildProject {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.loadProject(projectPath);
+            project = BuildProject.load(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -169,7 +169,7 @@ public class TestBuildProject {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.loadProject(projectPath);
+            project = BuildProject.load(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -192,7 +192,7 @@ public class TestBuildProject {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.loadProject(projectPath);
+            project = BuildProject.load(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -212,21 +212,21 @@ public class TestBuildProject {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("modules").resolve("services")
                 .resolve("svc.bal");
         try {
-            BuildProject.loadProject(projectPath);
+            BuildProject.load(projectPath);
         } catch (Exception e) {
             Assert.assertTrue(e.getMessage().contains("provided path is not a valid Ballerina project"));
         }
 
         projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("modules").resolve("services");
         try {
-            BuildProject.loadProject(projectPath);
+            BuildProject.load(projectPath);
         } catch (Exception e) {
             Assert.assertTrue(e.getMessage().contains("provided path is not a valid Ballerina project"));
         }
 
         projectPath = RESOURCE_DIRECTORY.resolve("single-file");
         try {
-            BuildProject.loadProject(projectPath);
+            BuildProject.load(projectPath);
             Assert.fail("expected an invalid project exception");
         } catch (Exception e) {
             Assert.assertTrue(e.getMessage().contains("provided path is not a valid Ballerina project"));
@@ -238,7 +238,7 @@ public class TestBuildProject {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("modules").resolve("services")
                 .resolve("resources").resolve("invalidProject");
         try {
-            BuildProject.loadProject(projectPath);
+            BuildProject.load(projectPath);
             Assert.fail("expected an invalid project exception");
         } catch (Exception e) {
             Assert.assertTrue(e.getMessage().contains("provided path is already within a Ballerina project"));
@@ -251,7 +251,7 @@ public class TestBuildProject {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.loadProject(projectPath);
+            project = BuildProject.load(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -288,7 +288,7 @@ public class TestBuildProject {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.loadProject(projectPath);
+            project = BuildProject.load(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -674,7 +674,7 @@ public class TestBuildProject {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.loadProject(projectPath);
+            project = BuildProject.load(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }

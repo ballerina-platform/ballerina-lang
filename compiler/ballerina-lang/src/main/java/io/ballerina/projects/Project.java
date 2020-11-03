@@ -17,7 +17,6 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.ProjectEnvironment;
 
 import java.nio.file.Path;
@@ -33,8 +32,8 @@ public abstract class Project {
     private BuildOptions buildOptions;
     private final ProjectEnvironment projectEnvironment;
 
-    protected Project(Environment environment) {
-        this.projectEnvironment = environment.projectEnvironment(this);
+    protected Project(ProjectEnvironmentBuilder projectEnvironmentBuilder) {
+        this.projectEnvironment = projectEnvironmentBuilder.build(this);
     }
 
     public Package currentPackage() {

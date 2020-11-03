@@ -25,8 +25,8 @@ import io.ballerina.projects.environment.GlobalPackageCache;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.ModuleLoadResponse;
 import io.ballerina.projects.environment.PackageLoadRequest;
+import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.environment.Repository;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,10 +39,10 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class LangLibResolver extends PackageResolver {
-    private final Repository distCache;
+    private final PackageRepository distCache;
     private final GlobalPackageCache globalPackageCache;
 
-    public LangLibResolver(Repository distCache, GlobalPackageCache globalPackageCache) {
+    public LangLibResolver(PackageRepository distCache, GlobalPackageCache globalPackageCache) {
         this.distCache = distCache;
         this.globalPackageCache = globalPackageCache;
     }

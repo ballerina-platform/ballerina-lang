@@ -67,7 +67,7 @@ public class BuildLangLib {
         if (!skipBootstrap) {
             System.setProperty("BOOTSTRAP_LANG_LIB", pkgName);
         }
-        Project project = BuildProject.loadProject(projectDir);
+        Project project = BuildProject.load(projectDir);
         Target target = new Target(projectDir);
         Package pkg = project.currentPackage();
         PackageCompilation packageCompilation = pkg.getCompilation();

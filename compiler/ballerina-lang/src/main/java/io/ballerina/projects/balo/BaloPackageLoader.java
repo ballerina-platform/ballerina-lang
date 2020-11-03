@@ -24,7 +24,6 @@ import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.directory.PackageData;
 import io.ballerina.projects.directory.PackageLoader;
-import io.ballerina.projects.environment.Repository;
 
 import java.nio.file.Path;
 
@@ -39,7 +38,7 @@ import static io.ballerina.projects.utils.ProjectUtils.getVersionFromBaloName;
  */
 public class BaloPackageLoader extends PackageLoader {
 
-    public static PackageConfig loadPackage(String packageDir, Repository repo) {
+    public static PackageConfig loadPackage(String packageDir) {
         // TODO Refactor this code
         PackageData packageData = BaloFiles.loadPackageData(packageDir);
         Path baloName = packageData.packagePath().getFileName();
@@ -48,6 +47,6 @@ public class BaloPackageLoader extends PackageLoader {
         PackageVersion packageVersion = PackageVersion.from(getVersionFromBaloName(String.valueOf(baloName)));
         PackageDescriptor packageDescriptor = PackageDescriptor.from(packageName, packageOrg, packageVersion);
 
-        return createPackageConfig(packageData, packageDescriptor, repo);
+        return createPackageConfig(packageData, packageDescriptor);
     }
 }

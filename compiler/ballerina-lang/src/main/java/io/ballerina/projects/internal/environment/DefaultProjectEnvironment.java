@@ -20,13 +20,10 @@ package io.ballerina.projects.internal.environment;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.GlobalPackageCache;
+import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
-import io.ballerina.projects.environment.Repository;
-import io.ballerina.projects.repos.DistributionPackageCache;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -36,27 +33,26 @@ import java.util.Map;
  */
 public class DefaultProjectEnvironment extends ProjectEnvironment {
 
-    private final Map<Class<?>, Object> services = new HashMap<>();
+    private final Map<Class<?>, Object> services;
     private final Environment environment;
 
-    public static DefaultProjectEnvironment from(Project project, DefaultEnvironment defaultEnvironment) {
-        return new DefaultProjectEnvironment(project, defaultEnvironment);
-    }
+    public DefaultProjectEnvironment(Project project, Environment environment, Map<Class<?>, Object> services) {
+        this.environment = environment;
+        this.services = services;
 
-    private DefaultProjectEnvironment(Project project, DefaultEnvironment defaultEnvironment) {
-        this.environment = defaultEnvironment;
-
-        DistributionPackageCache distCache = new DistributionPackageCache(defaultEnvironment, project);
-        services.put(Repository.class, distCache);
-
-        GlobalPackageCache globalPackageCache = defaultEnvironment.getService(GlobalPackageCache.class);
-        services.put(PackageResolver.class, new DefaultPackageResolver(project, distCache, globalPackageCache));
-        services.put(CompilerContext.class, defaultEnvironment.compilerContext());
+        PackageRepository packageRepository = environment.getService(PackageRepository.class);
+        GlobalPackageCache globalPackageCache = environment.getService(GlobalPackageCache.class);
+        services.put(PackageResolver.class, new DefaultPackageResolver(project, packageRepository, globalPackageCache));
     }
 
     @SuppressWarnings("unchecked")
     public <T> T getService(Class<T> clazz) {
-        return (T) services.get(clazz);
+        Object service = services.get(clazz);
+        if (service == null) {
+            service = environment.getService(clazz);
+        }
+
+        return (T) service;
     }
 
     public Environment environment() {

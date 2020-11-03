@@ -23,6 +23,7 @@ import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.model.BaloJson;
 import io.ballerina.projects.model.PackageJson;
 import io.ballerina.projects.model.Target;
@@ -40,7 +41,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static io.ballerina.projects.directory.BuildProject.loadProject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -63,7 +63,7 @@ public class TestBaloWriter {
     public void testBaloWriter() throws IOException {
         Gson gson = new Gson();
         Path projectPath = RESOURCE_DIRECTORY.resolve("balowriter").resolve("projectOne");
-        Project project = loadProject(projectPath);
+        Project project = BuildProject.load(projectPath);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         Target target = new Target(project.sourceRoot());
@@ -166,7 +166,7 @@ public class TestBaloWriter {
     public void testBaloWriterWithMinimalBalProject() throws IOException {
         Gson gson = new Gson();
         Path projectPath = RESOURCE_DIRECTORY.resolve("balowriter").resolve("projectTwo");
-        Project project = loadProject(projectPath);
+        Project project = BuildProject.load(projectPath);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         Target target = new Target(project.sourceRoot());
@@ -230,7 +230,7 @@ public class TestBaloWriter {
         when(baloPath.toFile()).thenReturn(file);
 
         Path projectPath = RESOURCE_DIRECTORY.resolve("balowriter").resolve("projectTwo");
-        Project project = loadProject(projectPath);
+        Project project = BuildProject.load(projectPath);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);

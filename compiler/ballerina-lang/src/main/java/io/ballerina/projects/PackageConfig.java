@@ -17,11 +17,8 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.projects.environment.Repository;
-
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Optional;
 
 /**
  * {@code PackageConfig} contains necessary configuration elements required to
@@ -36,28 +33,24 @@ public class PackageConfig {
     private final PackageId packageId;
     private final PackageDescriptor packageDescriptor;
     private final Path packagePath;
-    private final Repository repository;
     // Ballerina toml file config
     private final Collection<ModuleConfig> otherModules;
 
     private PackageConfig(PackageId packageId,
                           Path packagePath,
                           PackageDescriptor packageDescriptor,
-                          Collection<ModuleConfig> moduleConfigs,
-                          Repository repository) {
+                          Collection<ModuleConfig> moduleConfigs) {
         this.packageId = packageId;
         this.packagePath = packagePath;
         this.packageDescriptor = packageDescriptor;
         this.otherModules = moduleConfigs;
-        this.repository = repository;
     }
 
     public static PackageConfig from(PackageId packageId,
                                      Path packagePath,
                                      PackageDescriptor packageDescriptor,
-                                     Collection<ModuleConfig> moduleConfigs,
-                                     Repository repository) {
-        return new PackageConfig(packageId, packagePath, packageDescriptor, moduleConfigs, repository);
+                                     Collection<ModuleConfig> moduleConfigs) {
+        return new PackageConfig(packageId, packagePath, packageDescriptor, moduleConfigs);
     }
 
     public PackageId packageId() {
@@ -92,9 +85,5 @@ public class PackageConfig {
 
     public Collection<ModuleConfig> otherModules() {
         return otherModules;
-    }
-
-    public Optional<Repository> repository() {
-        return Optional.ofNullable(repository);
     }
 }

@@ -17,8 +17,6 @@
  */
 package io.ballerina.projects.environment;
 
-import io.ballerina.projects.Project;
-
 /**
  * Represents an environment shared by a set of projects.
  * <p>
@@ -27,12 +25,5 @@ import io.ballerina.projects.Project;
  * @since 2.0.0
  */
 public abstract class Environment {
-
-    /**
-     * Returns a {@code Project} aware environment.
-     *
-     * @param project the project instances
-     * @return Returns a project-aware environment
-     */
-    public abstract ProjectEnvironment projectEnvironment(Project project);
+    public abstract <T> T getService(Class<T> clazz);
 }

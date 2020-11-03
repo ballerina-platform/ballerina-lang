@@ -23,6 +23,7 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.balo.BaloProject;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import org.testng.Assert;
@@ -47,7 +48,7 @@ public class TestBaloProject {
         // 1) Initialize the project instance
         BaloProject baloProject = null;
         try {
-            baloProject = BaloProject.loadProject(EnvironmentBuilder.buildDefault(), baloPath);
+            baloProject = BaloProject.loadProject(ProjectEnvironmentBuilder.getDefaultBuilder(), baloPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage(), e);
         }

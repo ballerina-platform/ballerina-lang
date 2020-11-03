@@ -18,12 +18,9 @@
 
 package io.ballerina.projects.environment;
 
-import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.SemanticVersion;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,16 +29,9 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public interface Repository {
+public interface PackageRepository {
 
-    public Optional<Package> getPackage(PackageLoadRequest packageLoadRequest);
+    Optional<Package> getPackage(PackageLoadRequest packageLoadRequest);
 
-    public List<SemanticVersion> getPackageVersions(PackageLoadRequest packageLoadRequest);
-
-    public byte[] getCachedBir(ModuleName moduleName);
-
-    public void cacheBir(ModuleName moduleName, byte[] bir);
-
-    public Path getCachedJar(Module aPackage);
-
+    List<SemanticVersion> getPackageVersions(PackageLoadRequest packageLoadRequest);
 }

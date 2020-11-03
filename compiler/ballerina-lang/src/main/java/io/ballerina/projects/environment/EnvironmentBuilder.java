@@ -17,10 +17,14 @@
  */
 package io.ballerina.projects.environment;
 
+import io.ballerina.projects.internal.environment.BallerinaDistribution;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
+import org.ballerinalang.compiler.CompilerPhase;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
-import java.util.HashMap;
-import java.util.Map;
+import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_API_INITIATED_COMPILATION;
 
 /**
  * This class allows API users to build a custom {@code Environment}.
@@ -28,18 +32,31 @@ import java.util.Map;
  * @since 2.0.0
  */
 public class EnvironmentBuilder {
-    private Map<Class<?>, Object> services = new HashMap<>();
 
     public static Environment buildDefault() {
-        return new DefaultEnvironment();
+        DefaultEnvironment environment = new DefaultEnvironment();
+
+        // Creating a Ballerina distribution instance
+        BallerinaDistribution ballerinaDistribution = new BallerinaDistribution(environment);
+        PackageRepository packageRepository = ballerinaDistribution.packageRepository();
+        environment.addService(PackageRepository.class, packageRepository);
+
+        GlobalPackageCache packageCache = new GlobalPackageCache();
+        environment.addService(GlobalPackageCache.class, packageCache);
+
+        CompilerContext compilerContext = populateCompilerContext();
+        environment.addService(CompilerContext.class, compilerContext);
+        ballerinaDistribution.loadLangLibPackages(compilerContext, packageCache);
+        return environment;
     }
 
-    public static EnvironmentBuilder getInstance() {
-        return new EnvironmentBuilder();
-    }
+    private static CompilerContext populateCompilerContext() {
+        CompilerContext compilerContext = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(compilerContext);
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
 
-    public <T> EnvironmentBuilder addService(Class<T> clazz, T instance) {
-        services.put(clazz, instance);
-        return this;
+        // TODO Remove the following line, once we fully migrate the old project structures
+        options.put(PROJECT_API_INITIATED_COMPILATION, Boolean.toString(true));
+        return compilerContext;
     }
 }

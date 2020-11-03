@@ -23,8 +23,7 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.environment.EnvironmentBuilder;
-import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.model.BallerinaToml;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
@@ -47,7 +46,7 @@ public class BuildProject extends Project {
      * @param projectPath Ballerina project path
      * @return build project
      */
-    public static BuildProject loadProject(Path projectPath) {
+    public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
         Path absProjectPath = Optional.of(projectPath.toAbsolutePath()).get();
         if (!absProjectPath.toFile().exists()) {
             throw new RuntimeException("project path does not exist:" + projectPath);
@@ -62,11 +61,21 @@ public class BuildProject extends Project {
                     absProjectPath.getParent());
         }
 
-        return new BuildProject(EnvironmentBuilder.buildDefault(), absProjectPath);
+        return new BuildProject(environmentBuilder, absProjectPath);
     }
 
-    private BuildProject(Environment environment, Path projectPath) {
-        super(environment);
+    /**
+     * Loads a BuildProject from the provided path.
+     *
+     * @param projectPath Ballerina project path
+     * @return build project
+     */
+    public static BuildProject load(Path projectPath) {
+        return load(ProjectEnvironmentBuilder.getDefaultBuilder(), projectPath);
+    }
+
+    private BuildProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
+        super(environmentBuilder);
         this.sourceRoot = projectPath;
 
         // load Ballerina.toml
