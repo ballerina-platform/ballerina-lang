@@ -1074,24 +1074,27 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangUnionTypeNode unionTypeNode) {
-        LinkedHashSet<BType> memberTypes = unionTypeNode.memberTypeNodes.stream()
-                .map(memTypeNode -> resolveTypeNode(memTypeNode, env))
-                .flatMap(memBType ->
-                        memBType.tag == TypeTags.UNION
-                                && memBType.tsymbol != null
-                                && !Symbols.isFlagOn(memBType.tsymbol.flags, Flags.TYPE_PARAM) ?
-                                ((BUnionType) memBType).getMemberTypes().stream() :
-                                Stream.of(memBType))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+
+        for (BLangType langType : unionTypeNode.memberTypeNodes) {
+            BType resolvedType = resolveTypeNode(langType, env);
+            if (resolvedType == symTable.noType) {
+                resultType = symTable.noType;
+                return;
+            }
+            if (resolvedType.tag == TypeTags.UNION
+                    && resolvedType.tsymbol != null
+                    && !Symbols.isFlagOn(resolvedType.tsymbol.flags, Flags.TYPE_PARAM)) {
+                memberTypes.addAll(((BUnionType) resolvedType).getMemberTypes());
+            } else {
+                memberTypes.add(resolvedType);
+            }
+        }
 
         BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                                                               Names.EMPTY, env.enclPkg.symbol.pkgID, null,
-                                                               env.scope.owner, unionTypeNode.pos, SOURCE);
-
-        if (memberTypes.contains(symTable.noType)) {
-            resultType = symTable.noType;
-            return;
-        }
+                Names.EMPTY, env.enclPkg.symbol.pkgID, null,
+                env.scope.owner, unionTypeNode.pos, SOURCE);
 
         BUnionType unionType = BUnionType.create(unionTypeSymbol, memberTypes);
         unionTypeSymbol.type = unionType;
