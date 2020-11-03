@@ -3036,7 +3036,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     restType = this.types.mergeTypes(restType, types.get(i));
                 }
                 ((BArrayType) listMatchPattern.restMatchPattern.type).eType = restType;
-                return;
         }
     }
 
@@ -3080,8 +3079,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     restType = this.types.mergeTypes(restType, types.get(i));
                 }
                 ((BArrayType) listBindingPattern.restBindingPattern.type).eType = restType;
-            default:
-                return;
         }
     }
 

@@ -18,7 +18,6 @@
 package org.ballerinalang.model.tree.bindingpattern;
 
 import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.matchpatterns.RestMatchPattern;
 
 import java.util.List;
 

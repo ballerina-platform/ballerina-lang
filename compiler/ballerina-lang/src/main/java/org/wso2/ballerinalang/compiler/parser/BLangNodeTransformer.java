@@ -4248,7 +4248,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 }
                 if (listBindingPatternNode.restBindingPattern().isPresent()) {
                     bLangListBindingPattern.restBindingPattern =
-                            (BLangRestBindingPattern) transformBindingPattern(listBindingPatternNode.restBindingPattern().get());
+                            (BLangRestBindingPattern) transformBindingPattern(
+                                    listBindingPatternNode.restBindingPattern().get());
                 }
                 return bLangListBindingPattern;
             case REST_BINDING_PATTERN:

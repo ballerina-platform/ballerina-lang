@@ -4,6 +4,11 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.bindingpattern.WildCardBindingPatternNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
+/**
+ * Represent wildcard-binding-pattern.
+ *
+ * @since 2.0.0
+ */
 public class BLangWildCardBindingPattern extends BLangBindingPattern implements WildCardBindingPatternNode {
 
     @Override

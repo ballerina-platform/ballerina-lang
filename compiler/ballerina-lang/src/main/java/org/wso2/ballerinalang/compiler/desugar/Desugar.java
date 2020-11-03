@@ -107,7 +107,6 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
-import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -3505,7 +3504,8 @@ public class Desugar extends BLangNodeVisitor {
             case WILDCARD_BINDING_PATTERN:
                 return createConditionForWildCardBindingPattern(true, pos);
             case CAPTURE_BINDING_PATTERN:
-                return createConditionForCaptureBindingPattern((BLangCaptureBindingPattern) bindingPattern, varRef, pos);
+                return createConditionForCaptureBindingPattern((BLangCaptureBindingPattern) bindingPattern, varRef,
+                        pos);
             case LIST_BINDING_PATTERN:
                 BLangListBindingPattern listBindingPattern = (BLangListBindingPattern) bindingPattern;
                 BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(pos);

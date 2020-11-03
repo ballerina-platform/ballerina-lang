@@ -401,7 +401,8 @@ public class Types {
         return symTable.noType;
     }
 
-    public BType resolvePatternTypeFromMatchExpr(BLangListMatchPattern listMatchPattern, BTupleType listMatchPatternType) {
+    public BType resolvePatternTypeFromMatchExpr(BLangListMatchPattern listMatchPattern,
+                                                 BTupleType listMatchPatternType) {
         if (listMatchPattern.matchExpr == null) {
             return listMatchPatternType;
         }

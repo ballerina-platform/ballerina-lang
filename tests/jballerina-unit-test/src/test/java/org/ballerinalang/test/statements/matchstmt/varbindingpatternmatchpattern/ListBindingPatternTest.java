@@ -24,7 +24,8 @@ public class ListBindingPatternTest {
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/matchstmt/varbindingpatternmatchpattern/list-binding" +
                 "-pattern.bal");
-        restMatchPatternResult = BCompileUtil.compile("test-src/statements/matchstmt/varbindingpatternmatchpattern/list-binding-pattern-with-rest-binding-pattern.bal");
+        restMatchPatternResult = BCompileUtil.compile("test-src/statements/matchstmt/varbindingpatternmatchpattern/" +
+                "list-binding-pattern-with-rest-binding-pattern.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/varbindingpatternmatchpattern/list" +
                 "-binding-pattern-negative.bal");
     }
