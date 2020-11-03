@@ -270,6 +270,11 @@ public class SymbolFactory {
     }
 
     public BallerinaClassSymbol createClassSymbol(BClassSymbol classSymbol, String name) {
+        TypeSymbol type = typesFactory.getTypeDescriptor(classSymbol.type, true);
+        return createClassSymbol(classSymbol, name, type);
+    }
+
+    public BallerinaClassSymbol createClassSymbol(BClassSymbol classSymbol, String name, TypeSymbol type) {
         BallerinaClassSymbol.ClassSymbolBuilder symbolBuilder =
                 new BallerinaClassSymbol.ClassSymbolBuilder(name, classSymbol.pkgID, classSymbol);
 
@@ -285,8 +290,6 @@ public class SymbolFactory {
         if (isFlagOn(classSymbol.flags, Flags.READONLY)) {
             symbolBuilder.withQualifier(Qualifier.READONLY);
         }
-
-        TypeSymbol type = typesFactory.getTypeDescriptor(classSymbol.type);
 
         if (type.typeKind() == TypeDescKind.TYPE_REFERENCE) {
             type = ((TypeReferenceTypeSymbol) type).typeDescriptor();

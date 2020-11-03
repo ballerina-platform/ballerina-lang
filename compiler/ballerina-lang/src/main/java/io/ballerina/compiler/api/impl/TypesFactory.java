@@ -33,10 +33,13 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaTupleTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeDescTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaUnionTypeSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -112,7 +115,12 @@ public class TypesFactory {
 
         switch (bType.getKind()) {
             case OBJECT:
-                return new BallerinaObjectTypeSymbol(this.context, moduleID, (BObjectType) bType);
+                ObjectTypeSymbol objType = new BallerinaObjectTypeSymbol(moduleID, (BObjectType) bType);
+                if (Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
+                    return SymbolFactory.createClassSymbol((BClassSymbol) bType.tsymbol, bType.tsymbol.name.value,
+                                                           objType);
+                }
+                return objType;
             case RECORD:
                 return new BallerinaRecordTypeSymbol(this.context, moduleID, (BRecordType) bType);
             case ERROR:
