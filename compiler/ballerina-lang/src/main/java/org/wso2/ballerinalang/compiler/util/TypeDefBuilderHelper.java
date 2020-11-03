@@ -42,11 +42,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -214,5 +217,29 @@ public class TypeDefBuilderHelper {
         env.enclPkg.addClassDefinition(classDefNode);
 
         return classDefNode;
+    }
+
+    public static BLangErrorType createBLangErrorType(Location pos, BLangTypeDefinition detailTypeDef) {
+        BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
+        BLangUserDefinedType detailType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+        detailType.pos = pos;
+        detailType.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        detailType.typeName = createIdentifier(pos, detailTypeDef.symbol.name.value);
+        errorType.detailType = detailType;
+
+        return errorType;
+    }
+
+    private static BLangIdentifier createIdentifier(Location pos, String value) {
+        BLangIdentifier bLIdentifer = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        if (value == null) {
+            return bLIdentifer;
+        }
+
+        bLIdentifer.setValue(value);
+        bLIdentifer.setLiteral(false);
+        bLIdentifer.pos = pos;
+
+        return bLIdentifer;
     }
 }

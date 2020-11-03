@@ -134,6 +134,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -436,7 +437,52 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             BType potentialIntersectionType = types.getTypeIntersection(typeOne, typeTwo);
+
+            definePotentialIntersectionType((BErrorType) potentialIntersectionType, typeDefinition);
         }
+    }
+
+    private void definePotentialIntersectionType(BErrorType potentialIntersectionType,
+                                                 BLangTypeDefinition typeDefinition) {
+
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(potentialIntersectionType.tsymbol.owner);
+        BLangTypeDefinition detailTypeDef = defineErrorDetailRecord((BRecordType) potentialIntersectionType.detailType, typeDefinition.pos, pkgEnv);
+        defineErrorType(potentialIntersectionType, detailTypeDef, pkgEnv, typeDefinition.pos);
+    }
+
+    private BLangTypeDefinition defineErrorDetailRecord(BRecordType detailRecord, Location pos, SymbolEnv env) {
+        BRecordTypeSymbol detailRecordSymbol = (BRecordTypeSymbol) detailRecord.tsymbol; // TODO: need to support map intersection
+        detailRecordSymbol.scope.define(names.fromString(
+                detailRecordSymbol.name.value + "." + detailRecordSymbol.initializerFunc.funcName.value),
+                                        detailRecordSymbol.initializerFunc.symbol);
+
+        for (BField field : detailRecord.fields.values()) {
+            BVarSymbol fieldSymbol = field.symbol;
+            detailRecordSymbol.scope.define(fieldSymbol.name, fieldSymbol);
+        }
+
+        BLangRecordTypeNode detailRecordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(),
+                                                                                             detailRecord, pos);
+        TypeDefBuilderHelper.createInitFunctionForRecordType(detailRecordTypeNode, env, names, symTable);
+        BLangTypeDefinition detailRecordTypeDefinition = TypeDefBuilderHelper.addTypeDefinition(detailRecord,
+                                                                                                detailRecordSymbol,
+                                                                                                detailRecordTypeNode,
+                                                                                                env);
+        detailRecordTypeDefinition.pos = pos;
+        return detailRecordTypeDefinition;
+    }
+
+    private void defineErrorType(BErrorType potentialIntersectionType, BLangTypeDefinition detailTypeDef,
+                                 SymbolEnv pkgEnv, Location pos) {
+
+        defineSymbol(pos, potentialIntersectionType.tsymbol);
+        defineErrorConstructorSymbol(pos, potentialIntersectionType.tsymbol);
+
+        // Create error type definition
+        BLangErrorType errorType = TypeDefBuilderHelper.createBLangErrorType(pos, detailTypeDef);
+        BLangTypeDefinition detailRecordTypeDefinition = TypeDefBuilderHelper.addTypeDefinition(
+                potentialIntersectionType, potentialIntersectionType.tsymbol, errorType, pkgEnv);
+        detailRecordTypeDefinition.pos = pos;
     }
 
     private void defineDistinctClassAndObjectDefinitions(List<BLangNode> typDefs) {

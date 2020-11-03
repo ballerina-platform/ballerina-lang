@@ -29,9 +29,11 @@ import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -63,6 +65,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -3146,6 +3149,7 @@ public class Types {
         BRecordType detailTypeTwo = (BRecordType) ((BErrorType) rhsType).detailType;
 
         if (detailTypeOne.sealed || detailTypeTwo.sealed) {
+            return null;
             // TODO: Log error for sealed detail type
         }
 
@@ -3153,7 +3157,9 @@ public class Types {
 
         BRecordType detailIntersectionType = createRecordIntersection(detailTypeOne, detailTypeTwo, pkgEnv);
 
-        return null;
+        BErrorType intersectionErrorType = createErrorType(lhsType, rhsType, detailIntersectionType, pkgEnv);
+
+        return intersectionErrorType;
     }
 
     private BRecordType createRecordIntersection(BRecordType detailTypeOne, BRecordType detailTypeTwo,
@@ -3162,14 +3168,39 @@ public class Types {
         BRecordTypeSymbol intersectionRecordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
                                                                                 pkgEnv.enclPkg.packageID, null,
                                                                                 pkgEnv.scope.owner, null, VIRTUAL);
-        BRecordType recordType = new BRecordType(intersectionRecordSymbol);
-        intersectionRecordSymbol.type = recordType;
         intersectionRecordSymbol.name = names.fromString(
                 anonymousModelHelper.getNextAnonymousTypeKey(pkgEnv.enclPkg.packageID));
+        BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
+        BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
+                Flags.PUBLIC, Names.EMPTY, pkgEnv.enclPkg.symbol.pkgID, bInvokableType, pkgEnv.scope.owner, false,
+                symTable.builtinPos, VIRTUAL);
+        initFuncSymbol.retType = symTable.nilType;
+        intersectionRecordSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol,
+                                                                         bInvokableType, symTable.builtinPos);
+        intersectionRecordSymbol.scope = new Scope(intersectionRecordSymbol);
+
+        BRecordType recordType = new BRecordType(intersectionRecordSymbol);
         populateRecordFields(recordType, pkgEnv, detailTypeOne);
         populateRecordFields(recordType, pkgEnv, detailTypeTwo);
 
+        intersectionRecordSymbol.type = recordType;
+        recordType.tsymbol = intersectionRecordSymbol;
+
         return recordType;
+    }
+
+    private BErrorType createErrorType(BType lhsType, BType rhsType, BType detailType, SymbolEnv env) {
+        BErrorTypeSymbol errorTypeSymbol = Symbols.createErrorSymbol(lhsType.flags, Names.EMPTY,
+                                                                     env.enclPkg.symbol.pkgID,
+                                                                     null, env.scope.owner, null, VIRTUAL);
+        errorTypeSymbol.flags |= rhsType.flags;
+        BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
+        errorType.flags |= errorTypeSymbol.flags;
+        errorTypeSymbol.type = errorType;
+        symResolver.markParameterizedType(errorType, detailType);
+        errorType.typeIdSet = BTypeIdSet.emptySet();
+
+        return errorType;
     }
 
     private void populateRecordFields(BRecordType recordType, SymbolEnv pkgEnv, BRecordType originalRecordType) {
