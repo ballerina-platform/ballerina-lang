@@ -22,6 +22,6 @@ package io.ballerina.runtime.api.types;
  *
  * @since 2.0.0
  */
-public interface JSONType extends Type {
+public interface JsonType extends Type {
 
 }

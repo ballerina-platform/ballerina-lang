@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.JSONDataSource;
-import io.ballerina.runtime.JSONGenerator;
+import io.ballerina.runtime.api.JSONGenerator;
 
 import java.io.Writer;
 
