@@ -44,7 +44,7 @@ public class ErrorVariableDefinitionTest {
                 compile("test-src/statements/variabledef/error_variable_definition_stmt.bal");
     }
 
-    @Test(description = "Test simple error var def with string and map", groups = { "brokenOnSpecDeviation" })
+    @Test(description = "Test simple error var def with string and map")
     public void testBasicErrorVariableWithMapDetails() {
         BValue[] returns = BRunUtil.invoke(result, "testBasicErrorVariableWithMapDetails");
         Assert.assertEquals(returns.length, 12);
@@ -63,7 +63,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertNull(returns[11]);
     }
 
-    @Test(description = "Test simple error var def with const and map", groups = { "brokenOnSpecDeviation" })
+    @Test(description = "Test simple error var def with const and map")
     public void testBasicErrorVariableWithConstAndMap() {
         BValue[] returns = BRunUtil.invoke(result, "testBasicErrorVariableWithConstAndMap");
         Assert.assertEquals(returns.length, 12);
@@ -122,7 +122,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertNull(returns[11]);
     }
 
-    @Test(description = "Test simple error var def with record as detail", groups = { "brokenOnSpecDeviation" })
+    @Test(description = "Test simple error var def with record as detail")
     public void testBasicErrorVariableWithRecordDetails() {
         BValue[] returns = BRunUtil.invoke(result, "testBasicErrorVariableWithRecordDetails");
         Assert.assertEquals(returns.length, 5);
@@ -133,7 +133,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(((BMap) returns[4]).get("message").stringValue(), "Something Wrong");
     }
 
-    @Test(description = "Test simple error var def inside tuple", groups = { "brokenOnSpecDeviation" })
+    @Test(description = "Test simple error var def inside tuple")
     public void testErrorInTuple() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTuple");
         Assert.assertEquals(returns.length, 5);
@@ -144,7 +144,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
     }
 
-    @Test(description = "Test simple error var def inside tuple with var", groups = { "brokenOnSpecDeviation" })
+    @Test(description = "Test simple error var def inside tuple with var")
     public void testErrorInTupleWithVar() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTupleWithVar");
         Assert.assertEquals(returns.length, 5);
@@ -196,7 +196,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns[1].stringValue(), "Fatal");
     }
 
-    @Test(description = "Test error variable with ignore as the detail variable", groups = { "brokenOnSpecDeviation" })
+    @Test(description = "Test error variable with ignore as the detail variable")
     public void testErrorWithUnderscore() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorWithUnderscore");
         Assert.assertEquals(returns.length, 11);
@@ -213,7 +213,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns[10].stringValue(), "Something Wrong");
     }
 
-    @Test(description = "Test named error variable def", groups = { "brokenOnSpecDeviation" })
+    @Test(description = "Test named error variable def")
     public void testIndirectErrorDestructuring() {
         BValue[] returns = BRunUtil.invoke(result, "testIndirectErrorDestructuring");
         Assert.assertEquals(returns[0].stringValue(), "Msg");
@@ -221,7 +221,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns[2].stringValue(), "{\"other\":\"k\"}");
     }
 
-    @Test(description = "Test error destruturing with sealed detail record", groups = { "brokenOnSpecDeviation" })
+    @Test(description = "Test error destruturing with sealed detail record")
     public void testSealedDetailDestructuring() {
         BValue[] returns = BRunUtil.invoke(result, "testSealedDetailDestructuring");
         Assert.assertEquals(returns[0].stringValue(), "sealed");

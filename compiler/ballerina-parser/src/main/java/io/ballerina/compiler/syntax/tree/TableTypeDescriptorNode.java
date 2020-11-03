@@ -118,7 +118,6 @@ public class TableTypeDescriptorNode extends TypeDescriptorNode {
 
         public TableTypeDescriptorNodeModifier withKeyConstraintNode(
                 Node keyConstraintNode) {
-            Objects.requireNonNull(keyConstraintNode, "keyConstraintNode must not be null");
             this.keyConstraintNode = keyConstraintNode;
             return this;
         }

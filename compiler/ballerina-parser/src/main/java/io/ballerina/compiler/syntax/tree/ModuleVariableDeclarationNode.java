@@ -37,8 +37,8 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
         return optionalChildInBucket(0);
     }
 
-    public NodeList<Token> qualifiers() {
-        return new NodeList<>(childInBucket(1));
+    public Optional<Token> finalKeyword() {
+        return optionalChildInBucket(1);
     }
 
     public TypedBindingPatternNode typedBindingPattern() {
@@ -71,7 +71,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
     protected String[] childNames() {
         return new String[]{
                 "metadata",
-                "qualifiers",
+                "finalKeyword",
                 "typedBindingPattern",
                 "equalsToken",
                 "initializer",
@@ -80,14 +80,14 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
 
     public ModuleVariableDeclarationNode modify(
             MetadataNode metadata,
-            NodeList<Token> qualifiers,
+            Token finalKeyword,
             TypedBindingPatternNode typedBindingPattern,
             Token equalsToken,
             ExpressionNode initializer,
             Token semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,
-                qualifiers.underlyingListNode(),
+                finalKeyword,
                 typedBindingPattern,
                 equalsToken,
                 initializer,
@@ -97,7 +97,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
 
         return NodeFactory.createModuleVariableDeclarationNode(
                 metadata,
-                qualifiers,
+                finalKeyword,
                 typedBindingPattern,
                 equalsToken,
                 initializer,
@@ -116,7 +116,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
     public static class ModuleVariableDeclarationNodeModifier {
         private final ModuleVariableDeclarationNode oldNode;
         private MetadataNode metadata;
-        private NodeList<Token> qualifiers;
+        private Token finalKeyword;
         private TypedBindingPatternNode typedBindingPattern;
         private Token equalsToken;
         private ExpressionNode initializer;
@@ -125,7 +125,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
         public ModuleVariableDeclarationNodeModifier(ModuleVariableDeclarationNode oldNode) {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata().orElse(null);
-            this.qualifiers = oldNode.qualifiers();
+            this.finalKeyword = oldNode.finalKeyword().orElse(null);
             this.typedBindingPattern = oldNode.typedBindingPattern();
             this.equalsToken = oldNode.equalsToken().orElse(null);
             this.initializer = oldNode.initializer().orElse(null);
@@ -134,15 +134,13 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
 
         public ModuleVariableDeclarationNodeModifier withMetadata(
                 MetadataNode metadata) {
-            Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
-        public ModuleVariableDeclarationNodeModifier withQualifiers(
-                NodeList<Token> qualifiers) {
-            Objects.requireNonNull(qualifiers, "qualifiers must not be null");
-            this.qualifiers = qualifiers;
+        public ModuleVariableDeclarationNodeModifier withFinalKeyword(
+                Token finalKeyword) {
+            this.finalKeyword = finalKeyword;
             return this;
         }
 
@@ -155,14 +153,12 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
 
         public ModuleVariableDeclarationNodeModifier withEqualsToken(
                 Token equalsToken) {
-            Objects.requireNonNull(equalsToken, "equalsToken must not be null");
             this.equalsToken = equalsToken;
             return this;
         }
 
         public ModuleVariableDeclarationNodeModifier withInitializer(
                 ExpressionNode initializer) {
-            Objects.requireNonNull(initializer, "initializer must not be null");
             this.initializer = initializer;
             return this;
         }
@@ -177,7 +173,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
         public ModuleVariableDeclarationNode apply() {
             return oldNode.modify(
                     metadata,
-                    qualifiers,
+                    finalKeyword,
                     typedBindingPattern,
                     equalsToken,
                     initializer,
