@@ -35,7 +35,6 @@ import org.testng.annotations.Test;
  *
  * @since 0.990.4
  */
-@Test(groups = { "brokenOnNewParser" })
 public class ErrorVariableDefinitionTest {
     private CompileResult result;
 
@@ -45,7 +44,7 @@ public class ErrorVariableDefinitionTest {
                 compile("test-src/statements/variabledef/error_variable_definition_stmt.bal");
     }
 
-    @Test(description = "Test simple error var def with string and map")
+    @Test(description = "Test simple error var def with string and map", groups = { "brokenOnSpecDeviation" })
     public void testBasicErrorVariableWithMapDetails() {
         BValue[] returns = BRunUtil.invoke(result, "testBasicErrorVariableWithMapDetails");
         Assert.assertEquals(returns.length, 12);
@@ -64,7 +63,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertNull(returns[11]);
     }
 
-    @Test(description = "Test simple error var def with const and map")
+    @Test(description = "Test simple error var def with const and map", groups = { "brokenOnSpecDeviation" })
     public void testBasicErrorVariableWithConstAndMap() {
         BValue[] returns = BRunUtil.invoke(result, "testBasicErrorVariableWithConstAndMap");
         Assert.assertEquals(returns.length, 12);
@@ -83,7 +82,8 @@ public class ErrorVariableDefinitionTest {
         Assert.assertNull(returns[11]);
     }
 
-    @Test(description = "Test simple error var def with string and map declared with var")
+    @Test(description = "Test simple error var def with string and map declared with var", groups = {
+            "brokenOnSpecDeviation" })
     public void testVarBasicErrorVariableWithMapDetails() {
         BValue[] returns = BRunUtil.invoke(result, "testVarBasicErrorVariableWithMapDetails");
         Assert.assertEquals(returns.length, 12);
@@ -102,7 +102,8 @@ public class ErrorVariableDefinitionTest {
         Assert.assertNull(returns[11]);
     }
 
-    @Test(description = "Test simple error var def with const and map declared with var")
+    @Test(description = "Test simple error var def with const and map declared with var", groups = {
+            "brokenOnSpecDeviation" })
     public void testVarBasicErrorVariableWithConstAndMap() {
         BValue[] returns = BRunUtil.invoke(result, "testVarBasicErrorVariableWithConstAndMap");
         Assert.assertEquals(returns.length, 12);
@@ -121,7 +122,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertNull(returns[11]);
     }
 
-    @Test(description = "Test simple error var def with record as detail")
+    @Test(description = "Test simple error var def with record as detail", groups = { "brokenOnSpecDeviation" })
     public void testBasicErrorVariableWithRecordDetails() {
         BValue[] returns = BRunUtil.invoke(result, "testBasicErrorVariableWithRecordDetails");
         Assert.assertEquals(returns.length, 5);
@@ -132,7 +133,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(((BMap) returns[4]).get("message").stringValue(), "Something Wrong");
     }
 
-    @Test(description = "Test simple error var def inside tuple")
+    @Test(description = "Test simple error var def inside tuple", groups = { "brokenOnSpecDeviation" })
     public void testErrorInTuple() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTuple");
         Assert.assertEquals(returns.length, 5);
@@ -143,7 +144,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
     }
 
-    @Test(description = "Test simple error var def inside tuple with var")
+    @Test(description = "Test simple error var def inside tuple with var", groups = { "brokenOnSpecDeviation" })
     public void testErrorInTupleWithVar() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTupleWithVar");
         Assert.assertEquals(returns.length, 5);
@@ -165,7 +166,8 @@ public class ErrorVariableDefinitionTest {
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
     }
 
-    @Test(description = "Test simple error var def inside tuple with destructuring error")
+    @Test(description = "Test simple error var def inside tuple with destructuring error", groups = {
+            "brokenOnSpecDeviation" })
     public void testErrorInTupleWithDestructure2() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTupleWithDestructure2");
         Assert.assertEquals(returns.length, 5);
@@ -185,7 +187,8 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns[2].stringValue(), "Something Wrong3");
     }
 
-    @Test(description = "Test simple error var def inside tuple with destructuring error")
+    @Test(description = "Test simple error var def inside tuple with destructuring error", groups = {
+            "brokenOnSpecDeviation" })
     public void testErrorWithAnonErrorType() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorWithAnonErrorType");
         Assert.assertEquals(returns.length, 2);
@@ -193,7 +196,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns[1].stringValue(), "Fatal");
     }
 
-    @Test(description = "Test error variable with ignore as the detail variable")
+    @Test(description = "Test error variable with ignore as the detail variable", groups = { "brokenOnSpecDeviation" })
     public void testErrorWithUnderscore() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorWithUnderscore");
         Assert.assertEquals(returns.length, 11);
@@ -210,7 +213,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns[10].stringValue(), "Something Wrong");
     }
 
-    @Test(description = "Test named error variable def")
+    @Test(description = "Test named error variable def", groups = { "brokenOnSpecDeviation" })
     public void testIndirectErrorDestructuring() {
         BValue[] returns = BRunUtil.invoke(result, "testIndirectErrorDestructuring");
         Assert.assertEquals(returns[0].stringValue(), "Msg");
@@ -218,7 +221,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns[2].stringValue(), "{\"other\":\"k\"}");
     }
 
-    @Test(description = "Test error destruturing with sealed detail record")
+    @Test(description = "Test error destruturing with sealed detail record", groups = { "brokenOnSpecDeviation" })
     public void testSealedDetailDestructuring() {
         BValue[] returns = BRunUtil.invoke(result, "testSealedDetailDestructuring");
         Assert.assertEquals(returns[0].stringValue(), "sealed");
@@ -231,20 +234,20 @@ public class ErrorVariableDefinitionTest {
                 compile("test-src/statements/variabledef/error_variable_definition_stmt_negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 13);
         int i = -1;
-        BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 27, 9);
+        BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 27, 16);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'SMS', found 'SMA'", 28, 85);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 30, 26);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 31, 28);
-        BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 41, 9);
+        BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 41, 16);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 44, 26);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 45, 28);
         BAssertUtil.validateError(resultNegative, ++i,
-                "redeclared symbol 'message'", 54, 26);
+                "redeclared symbol 'message'", 54, 36);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'int', found 'map<(anydata|readonly)>'", 56, 18);
         BAssertUtil.validateError(resultNegative, ++i,

@@ -17,13 +17,13 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.symbols.VariableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.util.NodeUtils;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * @since 0.94
@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 public class BXMLAttributeSymbol extends BSymbol implements VariableSymbol {
 
     public BXMLAttributeSymbol(String localname, String namespaceURI, PackageID pkgID, BSymbol owner,
-                               DiagnosticPos pos, SymbolOrigin origin) {
+                               Location pos, SymbolOrigin origin) {
         super(SymTag.NIL, 0, NodeUtils.getName(localname, namespaceURI), pkgID, new BNoType(TypeTags.NONE), owner, pos,
               origin);
     }

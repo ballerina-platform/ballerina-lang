@@ -73,7 +73,7 @@ public class ByteAsIntTest {
         };
     }
 
-    @Test (enabled = false)
+    @Test
     public void testByteArrayCastToIntArray() {
         BRunUtil.invoke(result, "testByteArrayCastToIntArray");
         BRunUtil.invoke(result, "testDowncastOfByteArrayCastToIntArray");

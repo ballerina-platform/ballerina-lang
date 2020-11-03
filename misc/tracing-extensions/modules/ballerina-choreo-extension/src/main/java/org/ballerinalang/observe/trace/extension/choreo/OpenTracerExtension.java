@@ -67,7 +67,7 @@ public class OpenTracerExtension implements OpenTracer {
         if (reporterInstance == null) { // Singleton instance is used since getTracer can get called multiple times
             synchronized (this) {
                 if (reporterInstance == null) {
-                    reporterInstance = new ChoreoJaegerReporter(2000);
+                    reporterInstance = new ChoreoJaegerReporter();
                 }
             }
         }
