@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.common.utils;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -95,7 +95,7 @@ public class QNameReferenceUtil {
     public static List<Symbol> getTypesInModule(LSContext context, QualifiedNameReferenceNode qNameRef) {
         Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, QNameReferenceUtil.getAlias(qNameRef));
         return module.map(symbol -> symbol.allSymbols().stream()
-                .filter(moduleItem -> moduleItem instanceof TypeSymbol)
+                .filter(moduleItem -> moduleItem instanceof TypeDefinitionSymbol)
                 .collect(Collectors.toList()))
                 .orElseGet(ArrayList::new);
     }

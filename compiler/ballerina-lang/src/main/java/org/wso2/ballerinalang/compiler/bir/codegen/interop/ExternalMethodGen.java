@@ -15,14 +15,16 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.ClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
+import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -63,7 +65,7 @@ public class ExternalMethodGen {
                                                   ClassWriter cw,
                                                   BIRPackage birModule,
                                                   BType attachedType,
-                                                  JvmMethodGen jvmMethodGen,
+                                                  MethodGen methodGen,
                                                   JvmPackageGen jvmPackageGen,
                                                   String moduleClassName,
                                                   String moduleInitClass,
@@ -74,14 +76,14 @@ public class ExternalMethodGen {
 
         if (extFuncWrapper instanceof JFieldFunctionWrapper) {
             genJFieldForInteropField((JFieldFunctionWrapper) extFuncWrapper, cw, birModule, jvmPackageGen,
-                                     jvmMethodGen, moduleClassName, moduleInitClass, lambdaGenMetadata);
+                                     moduleClassName, moduleInitClass, lambdaGenMetadata);
         } else {
-            jvmMethodGen.genJMethodForBFunc(birFunc, cw, birModule, moduleClassName, moduleInitClass,
-                                            attachedType, lambdaGenMetadata);
+            methodGen.genJMethodForBFunc(birFunc, cw, birModule, moduleClassName, moduleInitClass, attachedType,
+                                         lambdaGenMetadata);
         }
     }
 
-    public static void injectDefaultParamInits(BIRPackage module, JvmMethodGen jvmMethodGen,
+    public static void injectDefaultParamInits(BIRPackage module, InitMethodGen initMethodGen,
                                                JvmPackageGen jvmPackageGen) {
 
         // filter out functions.
@@ -96,13 +98,13 @@ public class ExternalMethodGen {
                 count = count + 1;
                 BIRFunctionWrapper extFuncWrapper = lookupBIRFunctionWrapper(module, birFunc, null, jvmPackageGen);
                 if (extFuncWrapper instanceof OldStyleExternalFunctionWrapper) {
-                    desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, birFunc, jvmMethodGen);
-                    enrichWithDefaultableParamInits(birFunc, jvmMethodGen);
+                    desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, birFunc, initMethodGen);
+                    enrichWithDefaultableParamInits(birFunc, initMethodGen);
                 } else if (extFuncWrapper instanceof JMethodFunctionWrapper) {
-                    desugarInteropFuncs((JMethodFunctionWrapper) extFuncWrapper, birFunc, jvmMethodGen);
-                    enrichWithDefaultableParamInits(birFunc, jvmMethodGen);
+                    desugarInteropFuncs((JMethodFunctionWrapper) extFuncWrapper, birFunc, initMethodGen);
+                    enrichWithDefaultableParamInits(birFunc, initMethodGen);
                 } else if (!(extFuncWrapper instanceof JFieldFunctionWrapper)) {
-                    enrichWithDefaultableParamInits(birFunc, jvmMethodGen);
+                    enrichWithDefaultableParamInits(birFunc, initMethodGen);
                 }
             }
         }
@@ -110,8 +112,7 @@ public class ExternalMethodGen {
     }
 
     public static void desugarOldExternFuncs(OldStyleExternalFunctionWrapper extFuncWrapper, BIRFunction birFunc,
-                                             JvmMethodGen jvmMethodGen) {
-
+                                             InitMethodGen initMethodGen) {
         BType retType = birFunc.type.retType;
 
         BIROperand retRef = null;
@@ -121,15 +122,15 @@ public class ExternalMethodGen {
             retRef = new BIROperand(variableDcl);
         }
 
-        jvmMethodGen.resetIds();
+        initMethodGen.resetIds();
 
-        BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, WRAPPER_GEN_BB_ID_NAME, jvmMethodGen);
-        BIRBasicBlock retBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, WRAPPER_GEN_BB_ID_NAME, jvmMethodGen);
+        BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, WRAPPER_GEN_BB_ID_NAME, initMethodGen);
+        BIRBasicBlock retBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, WRAPPER_GEN_BB_ID_NAME, initMethodGen);
 
         List<BIROperand> args = new ArrayList<>();
 
         BIRVariableDcl receiver = birFunc.receiver;
-        if (!(receiver == null)) {
+        if (receiver != null) {
 
             BIROperand argRef = new BIROperand(receiver);
             args.add(argRef);

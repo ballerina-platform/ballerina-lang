@@ -86,7 +86,7 @@ public isolated function 'map(stream<Type,ErrorType> stm, @isolatedParam functio
 # + func - combining function
 # + initial - initial value for the first argument of combining function
 # + return - result of combining the members of `stm` using the combining function
-public isolated function reduce(stream<Type,ErrorType> stm, @isolatedParam function(Type1 accum, Type val) returns Type1 func, Type1 initial)
+public function reduce(stream<Type,ErrorType> stm, function(Type1 accum, Type val) returns Type1 func, Type1 initial)
    returns Type1|ErrorType {
     any | error reducedValue = initial;
     while (true) {
@@ -108,7 +108,7 @@ public isolated function reduce(stream<Type,ErrorType> stm, @isolatedParam funct
 # + stm - the stream
 # + func - a function to apply to each member
 # + return - An error if iterating the stream encounters an error
-public isolated function forEach(stream<Type,ErrorType> stm, @isolatedParam function(Type val) returns () func) returns ErrorType? {
+public function forEach(stream<Type,ErrorType> stm, function(Type val) returns () func) returns ErrorType? {
     var nextVal = next(stm);
     while(true) {
         if (nextVal is ()) {
@@ -127,8 +127,8 @@ public isolated function forEach(stream<Type,ErrorType> stm, @isolatedParam func
 #
 # + stm - the stream
 # + return - a new iterator object that will iterate over the members of `stm`.
-public isolated function iterator(stream<Type,ErrorType> stm) returns object {
-    public isolated function next() returns record {|
+public function iterator(stream<Type,ErrorType> stm) returns object {
+    public function next() returns record {|
         Type value;
     |}|ErrorType?;
 }{
@@ -140,7 +140,7 @@ public isolated function iterator(stream<Type,ErrorType> stm) returns object {
 #
 # + stm - the stream to close
 # + return - () if the close completed successfully, otherwise an error
-public isolated function close(stream<Type,ErrorType> stm) returns ErrorType? {
+public function close(stream<Type,ErrorType> stm) returns ErrorType? {
     var itrObj = internal:getIteratorObj(stm);
     if (itrObj is object {
         public function next() returns record {|Type value;|}|ErrorType?;

@@ -35,7 +35,6 @@ import org.testng.annotations.Test;
  *
  * @since 0.990.4
  */
-@Test(groups = { "brokenOnNewParser" })
 public class ErrorVariableDefinitionTest {
     private CompileResult result;
 
@@ -83,7 +82,8 @@ public class ErrorVariableDefinitionTest {
         Assert.assertNull(returns[11]);
     }
 
-    @Test(description = "Test simple error var def with string and map declared with var")
+    @Test(description = "Test simple error var def with string and map declared with var", groups = {
+            "brokenOnSpecDeviation" })
     public void testVarBasicErrorVariableWithMapDetails() {
         BValue[] returns = BRunUtil.invoke(result, "testVarBasicErrorVariableWithMapDetails");
         Assert.assertEquals(returns.length, 12);
@@ -102,7 +102,8 @@ public class ErrorVariableDefinitionTest {
         Assert.assertNull(returns[11]);
     }
 
-    @Test(description = "Test simple error var def with const and map declared with var")
+    @Test(description = "Test simple error var def with const and map declared with var", groups = {
+            "brokenOnSpecDeviation" })
     public void testVarBasicErrorVariableWithConstAndMap() {
         BValue[] returns = BRunUtil.invoke(result, "testVarBasicErrorVariableWithConstAndMap");
         Assert.assertEquals(returns.length, 12);
@@ -165,7 +166,8 @@ public class ErrorVariableDefinitionTest {
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
     }
 
-    @Test(description = "Test simple error var def inside tuple with destructuring error")
+    @Test(description = "Test simple error var def inside tuple with destructuring error", groups = {
+            "brokenOnSpecDeviation" })
     public void testErrorInTupleWithDestructure2() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTupleWithDestructure2");
         Assert.assertEquals(returns.length, 5);
@@ -185,7 +187,8 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns[2].stringValue(), "Something Wrong3");
     }
 
-    @Test(description = "Test simple error var def inside tuple with destructuring error")
+    @Test(description = "Test simple error var def inside tuple with destructuring error", groups = {
+            "brokenOnSpecDeviation" })
     public void testErrorWithAnonErrorType() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorWithAnonErrorType");
         Assert.assertEquals(returns.length, 2);
@@ -231,20 +234,20 @@ public class ErrorVariableDefinitionTest {
                 compile("test-src/statements/variabledef/error_variable_definition_stmt_negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 13);
         int i = -1;
-        BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 27, 9);
+        BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 27, 16);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'SMS', found 'SMA'", 28, 85);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 30, 26);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 31, 28);
-        BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 41, 9);
+        BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 41, 16);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 44, 26);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 45, 28);
         BAssertUtil.validateError(resultNegative, ++i,
-                "redeclared symbol 'message'", 54, 26);
+                "redeclared symbol 'message'", 54, 36);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'int', found 'map<(anydata|readonly)>'", 56, 18);
         BAssertUtil.validateError(resultNegative, ++i,

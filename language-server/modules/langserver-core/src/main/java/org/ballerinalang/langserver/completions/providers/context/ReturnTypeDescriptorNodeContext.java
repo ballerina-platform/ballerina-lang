@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.tools.text.LineRange;
@@ -62,7 +62,7 @@ public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<
             Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context, modulePrefix);
             if (moduleSymbol.isPresent()) {
                 moduleSymbol.ifPresent(scopeEntry -> {
-                    List<TypeSymbol> entries = this.filterTypesInModule(moduleSymbol.get());
+                    List<TypeDefinitionSymbol> entries = this.filterTypesInModule(moduleSymbol.get());
                     completionItems.addAll(this.getCompletionItemList(entries, context));
                 });
             }

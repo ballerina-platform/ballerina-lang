@@ -136,7 +136,7 @@ public abstract class AbstractParser {
         this.errorHandler.switchContext(context);
     }
 
-    protected STToken getNextNextToken(SyntaxKind tokenKind) {
+    protected STToken getNextNextToken() {
         return peek(2);
     }
 
@@ -212,6 +212,26 @@ public abstract class AbstractParser {
             newNode = SyntaxErrors.addDiagnostic(newNode, diagnosticCode, args);
         }
         nodeList.add(newNode);
+    }
+
+    /**
+     * Clones the first node in list with the invalid node as minutiae and update the list.
+     *
+     * @param nodeList       node list to be updated
+     * @param invalidParam   the invalid node to be attached to the first node in list as minutiae
+     * @param diagnosticCode diagnostic code related to the invalid node
+     * @param args           additional arguments used in diagnostic message
+     */
+    protected void updateFirstNodeInListWithInvalidNode(List<STNode> nodeList,
+                                                        STNode invalidParam,
+                                                        DiagnosticCode diagnosticCode,
+                                                        Object... args) {
+        STNode firstNode = nodeList.remove(0);
+        STNode newNode = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(firstNode, invalidParam);
+        if (diagnosticCode != null) {
+            newNode = SyntaxErrors.addDiagnostic(newNode, diagnosticCode, args);
+        }
+        nodeList.add(0, newNode);
     }
 
     /**

@@ -53,6 +53,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.OptionalFieldAccessExpre
 import org.ballerinalang.debugadapter.evaluation.engine.SimpleNameReferenceEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.StringTemplateEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.TypeOfExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.XMLTemplateEvaluator;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -83,12 +84,13 @@ import java.util.StringJoiner;
  * <li> Conditional expression
  * <li> Typeof expression
  * <li> Equality expression
+ * <li> String template expression
+ * <li> XML template expression
+ * <li> Shift expression
  * </ul>
  * <br>
  * To be Implemented.
  * <ul>
- * <li> String template expression
- * <li> XML template expression
  * <li> New expression
  * <li> XML attribute access expression
  * <li> Annotation access expression
@@ -97,7 +99,6 @@ import java.util.StringJoiner;
  * <li> Let expression
  * <li> Type cast expression
  * <li> Unary expression
- * <li> Shift expression
  * <li> Range expression
  * <li> Type test expression
  * <li> Checking expression
@@ -315,6 +316,8 @@ public class EvaluatorBuilder extends NodeVisitor {
                 templateMemberEvaluators.add(result);
             }
             result = new StringTemplateEvaluator(context, templateExpressionNode, templateMemberEvaluators);
+        } else if (type == SyntaxKind.XML_KEYWORD) {
+            result = new XMLTemplateEvaluator(context, templateExpressionNode);
         }
     }
 
@@ -420,7 +423,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addXmlTemplateExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.XML_TEMPLATE_EXPRESSION);
     }
 
     private void addNewExpressionSyntax() {

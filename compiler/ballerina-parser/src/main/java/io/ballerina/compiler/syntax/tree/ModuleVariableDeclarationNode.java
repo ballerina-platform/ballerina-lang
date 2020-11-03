@@ -134,14 +134,12 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
 
         public ModuleVariableDeclarationNodeModifier withMetadata(
                 MetadataNode metadata) {
-            Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
         public ModuleVariableDeclarationNodeModifier withFinalKeyword(
                 Token finalKeyword) {
-            Objects.requireNonNull(finalKeyword, "finalKeyword must not be null");
             this.finalKeyword = finalKeyword;
             return this;
         }
@@ -155,14 +153,12 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
 
         public ModuleVariableDeclarationNodeModifier withEqualsToken(
                 Token equalsToken) {
-            Objects.requireNonNull(equalsToken, "equalsToken must not be null");
             this.equalsToken = equalsToken;
             return this;
         }
 
         public ModuleVariableDeclarationNodeModifier withInitializer(
                 ExpressionNode initializer) {
-            Objects.requireNonNull(initializer, "initializer must not be null");
             this.initializer = initializer;
             return this;
         }

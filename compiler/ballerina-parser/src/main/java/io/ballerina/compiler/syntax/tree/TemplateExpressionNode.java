@@ -41,7 +41,7 @@ public class TemplateExpressionNode extends ExpressionNode {
         return childInBucket(1);
     }
 
-    public NodeList<TemplateMemberNode> content() {
+    public NodeList<Node> content() {
         return new NodeList<>(childInBucket(2));
     }
 
@@ -72,7 +72,7 @@ public class TemplateExpressionNode extends ExpressionNode {
             SyntaxKind kind,
             Token type,
             Token startBacktick,
-            NodeList<TemplateMemberNode> content,
+            NodeList<Node> content,
             Token endBacktick) {
         if (checkForReferenceEquality(
                 type,
@@ -103,7 +103,7 @@ public class TemplateExpressionNode extends ExpressionNode {
         private final TemplateExpressionNode oldNode;
         private Token type;
         private Token startBacktick;
-        private NodeList<TemplateMemberNode> content;
+        private NodeList<Node> content;
         private Token endBacktick;
 
         public TemplateExpressionNodeModifier(TemplateExpressionNode oldNode) {
@@ -116,7 +116,6 @@ public class TemplateExpressionNode extends ExpressionNode {
 
         public TemplateExpressionNodeModifier withType(
                 Token type) {
-            Objects.requireNonNull(type, "type must not be null");
             this.type = type;
             return this;
         }
@@ -129,7 +128,7 @@ public class TemplateExpressionNode extends ExpressionNode {
         }
 
         public TemplateExpressionNodeModifier withContent(
-                NodeList<TemplateMemberNode> content) {
+                NodeList<Node> content) {
             Objects.requireNonNull(content, "content must not be null");
             this.content = content;
             return this;
