@@ -256,7 +256,7 @@ public class BRunUtil {
         Object jvmResult;
         BIRNode.BIRPackage birPackage = ((BLangPackage) compileResult.getAST()).symbol.bir;
         String funcClassName = BFileUtil.getQualifiedClassName(birPackage.org.value, birPackage.name.value,
-                birPackage.version.value, getClassName(function.pos.src.cUnitName));
+                birPackage.version.value, getClassName(function.pos.lineRange().filePath()));
         try {
             Class<?> funcClass = compileResult.getClassLoader().loadClass(funcClassName);
             Method method = getMethod(functionName, funcClass);
@@ -392,7 +392,7 @@ public class BRunUtil {
         BIRNode.BIRPackage birPackage = ((BLangPackage) compileResult.getAST()).symbol.bir;
         String funcClassName = BFileUtil.getQualifiedClassName(birPackage.org.value, birPackage.name.value,
                                                                birPackage.version.value,
-                                                               getClassName(function.pos.src.cUnitName));
+                                                               getClassName(function.pos.lineRange().filePath()));
         try {
             Class<?> funcClass = compileResult.getClassLoader().loadClass(funcClassName);
             Method method = funcClass.getDeclaredMethod(functionName, jvmParamTypes);

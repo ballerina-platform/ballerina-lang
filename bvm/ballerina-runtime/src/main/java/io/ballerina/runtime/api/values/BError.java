@@ -18,6 +18,7 @@
 package io.ballerina.runtime.api.values;
 
 import java.io.PrintWriter;
+import java.util.List;
 
 /**
  * <p>
@@ -82,6 +83,6 @@ public abstract class BError extends RuntimeException implements BValue {
      *
      * @return ballerina error stacktrace
      */
-    public abstract BArray getCallStack();
+    public abstract List<StackTraceElement> getCallStack();
 
 }
