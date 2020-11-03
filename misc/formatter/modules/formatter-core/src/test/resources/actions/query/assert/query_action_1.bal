@@ -10,6 +10,6 @@ public function main() {
     }];
     var result = from var student in studentList
                  do {
-                     var name = { firstName: student.firstName };
+                     var name = {firstName: student.firstName};
                  };
 }

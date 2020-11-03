@@ -60,19 +60,49 @@ public class DocumentationGenerator {
      * @param node non-terminal node
      * @return optional documentation
      */
-    public static Optional<DocAttachmentInfo> getDocumentationEditForNode(NonTerminalNode node) {
+    public static Optional<DocAttachmentInfo> getDocumentationEditForNode(NonTerminalNode node, boolean skipIfExists) {
         switch (node.kind()) {
             case FUNCTION_DEFINITION:
-            case OBJECT_METHOD_DEFINITION:
-                return Optional.of(getFunctionDefNodeDocumentation((FunctionDefinitionNode) node));
-            case METHOD_DECLARATION:
-                return Optional.of(getMethodDeclrNodeDocumentation((MethodDeclarationNode) node));
-            case SERVICE_DECLARATION:
-                return Optional.of(getServiceDocumentationByPosition((ServiceDeclarationNode) node));
-            case TYPE_DEFINITION:
-                return Optional.of(getRecordOrObjectDocumentation((TypeDefinitionNode) node));
-            case CLASS_DEFINITION:
-                return Optional.of(getClassDefNodeDocumentation((ClassDefinitionNode) node));
+            case OBJECT_METHOD_DEFINITION: {
+                FunctionDefinitionNode functionDefNode = (FunctionDefinitionNode) node;
+                Optional<MetadataNode> metadata = functionDefNode.metadata();
+                if (skipIfExists && metadata.isPresent() && metadata.get().documentationString().isPresent()) {
+                    return Optional.empty();
+                }
+                return Optional.of(getFunctionDefNodeDocumentation(functionDefNode));
+            }
+            case METHOD_DECLARATION: {
+                MethodDeclarationNode methodDeclrNode = (MethodDeclarationNode) node;
+                Optional<MetadataNode> metadata = methodDeclrNode.metadata();
+                if (skipIfExists && metadata.isPresent() && metadata.get().documentationString().isPresent()) {
+                    return Optional.empty();
+                }
+                return Optional.of(getMethodDeclrNodeDocumentation(methodDeclrNode));
+            }
+            case SERVICE_DECLARATION: {
+                ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) node;
+                Optional<MetadataNode> metadata = serviceDeclrNode.metadata();
+                if (skipIfExists && metadata.isPresent() && metadata.get().documentationString().isPresent()) {
+                    return Optional.empty();
+                }
+                return Optional.of(getServiceDocumentation((ServiceDeclarationNode) node));
+            }
+            case TYPE_DEFINITION: {
+                TypeDefinitionNode typeDefNode = (TypeDefinitionNode) node;
+                Optional<MetadataNode> metadata = typeDefNode.metadata();
+                if (skipIfExists && metadata.isPresent() && metadata.get().documentationString().isPresent()) {
+                    return Optional.empty();
+                }
+                return Optional.of(getRecordOrObjectDocumentation(typeDefNode));
+            }
+            case CLASS_DEFINITION: {
+                ClassDefinitionNode classDefNode = (ClassDefinitionNode) node;
+                Optional<MetadataNode> metadata = classDefNode.metadata();
+                if (skipIfExists && metadata.isPresent() && metadata.get().documentationString().isPresent()) {
+                    return Optional.empty();
+                }
+                return Optional.of(getClassDefNodeDocumentation(classDefNode));
+            }
             default:
                 break;
         }
@@ -85,7 +115,7 @@ public class DocumentationGenerator {
      * @param serviceDeclrNode service declaration node
      * @return
      */
-    private static DocAttachmentInfo getServiceDocumentationByPosition(ServiceDeclarationNode serviceDeclrNode) {
+    private static DocAttachmentInfo getServiceDocumentation(ServiceDeclarationNode serviceDeclrNode) {
         MetadataNode metadata = serviceDeclrNode.metadata().orElse(null);
         Position docStart = CommonUtil.toRange(serviceDeclrNode.lineRange()).getStart();
         if (metadata != null && !metadata.annotations().isEmpty()) {

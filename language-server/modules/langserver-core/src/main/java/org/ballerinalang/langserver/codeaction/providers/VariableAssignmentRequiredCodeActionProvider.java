@@ -18,17 +18,20 @@ package org.ballerinalang.langserver.codeaction.providers;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
+import io.ballerina.compiler.api.types.FunctionTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -49,6 +52,7 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -91,7 +95,7 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
                 NonTerminalNode cursorNode = CommonUtil.findNode(context, diagPos, filePath.get());
                 final Symbol[] scopedSymbol = {null};
                 final NonTerminalNode[] scopedNode = {null};
-                final Optional<BallerinaTypeDescriptor>[] optTypeDesc = new Optional[]{Optional.empty()};
+                final Optional<TypeSymbol>[] optTypeDesc = new Optional[]{Optional.empty()};
 
                 BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
                 CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
@@ -99,8 +103,8 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
                 SemanticModel semanticModel = new BallerinaSemanticModel(bLangPackage, compilerContext);
 
                 //TODO: Remove this when #26382 is implemented
-                Optional<BallerinaTypeDescriptor> literalTypeDesc = checkForLiteralTypeDesc(cursorNode, semanticModel,
-                                                                                            relPath);
+                Optional<TypeSymbol> literalTypeDesc = checkForLiteralTypeDesc(cursorNode, semanticModel,
+                                                                               relPath);
                 if (literalTypeDesc.isPresent()) {
                     // If it is a Literal, use the temp type-descriptor
                     scopedNode[0] = cursorNode;
@@ -120,7 +124,7 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
                 }
 
                 // Initialize Code Actions
-                BallerinaTypeDescriptor typeDesc = optTypeDesc[0].get();
+                TypeSymbol typeDesc = optTypeDesc[0].get();
                 DiagBasedCodeAction createVariable = new CreateVariableCodeAction(typeDesc, scopedSymbol[0]);
                 DiagBasedCodeAction errorType = new ErrorTypeCodeAction(typeDesc, scopedSymbol[0]);
                 DiagBasedCodeAction ignoreReturn = new IgnoreReturnCodeAction(typeDesc);
@@ -151,7 +155,7 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
         }
         // Get Symbol of the position
         LinePosition position = positionFinder.getPosition().get();
-        LinePosition scopedNodePos = LinePosition.from(position.line() + 1, position.offset() + 2);
+        LinePosition scopedNodePos = LinePosition.from(position.line(), position.offset() + 1);
         Optional<Symbol> optScopedSymbol = semanticModel.symbol(relPath, scopedNodePos);
         if (optScopedSymbol.isEmpty()) {
             return Optional.empty();
@@ -162,9 +166,9 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
         return Optional.of(new ImmutablePair<>(scopedNode, scopedSymbol));
     }
 
-    private Optional<BallerinaTypeDescriptor> checkForLiteralTypeDesc(NonTerminalNode cursorNode,
-                                                                      SemanticModel semanticModel,
-                                                                      String relPath) {
+    private Optional<TypeSymbol> checkForLiteralTypeDesc(NonTerminalNode cursorNode,
+                                                         SemanticModel semanticModel,
+                                                         String relPath) {
         TypeDescKind typeDescKind = null;
         ModuleID moduleID = null;
         String definitionName = "";
@@ -215,45 +219,46 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
         }
 
         definitionName = (definitionName.isEmpty()) ? typeDescKind.getName() : definitionName;
-        return Optional.of(new TempTypeDescriptor(definitionName, typeDescKind, moduleID));
+        return Optional.of(new TempTypeSymbol(definitionName, typeDescKind, moduleID));
     }
 
-    private Optional<BallerinaTypeDescriptor> getTypeDescriptor(Symbol scopedSymbol) {
+    private Optional<TypeSymbol> getTypeDescriptor(Symbol scopedSymbol) {
         switch (scopedSymbol.kind()) {
             case FUNCTION: {
                 FunctionSymbol functionSymbol = (FunctionSymbol) scopedSymbol;
-                FunctionTypeDescriptor funTypeDesc = functionSymbol.typeDescriptor();
+                FunctionTypeSymbol funTypeDesc = functionSymbol.typeDescriptor();
                 return funTypeDesc.returnTypeDescriptor();
             }
             case METHOD: {
                 MethodSymbol methodSymbol = (MethodSymbol) scopedSymbol;
-                FunctionTypeDescriptor funTypeDesc = methodSymbol.typeDescriptor();
+                FunctionTypeSymbol funTypeDesc = methodSymbol.typeDescriptor();
                 return funTypeDesc.returnTypeDescriptor();
             }
             case VARIABLE: {
                 return Optional.of(((VariableSymbol) scopedSymbol).typeDescriptor());
             }
             case TYPE: {
-                return Optional.of(((TypeSymbol) scopedSymbol).typeDescriptor());
+                return Optional.of(((TypeDefinitionSymbol) scopedSymbol).typeDescriptor());
             }
         }
         return Optional.empty();
     }
 
-    private static class TempTypeDescriptor implements BallerinaTypeDescriptor {
+    private static class TempTypeSymbol implements TypeSymbol {
         private static final String ANON_ORG = "$anon";
         private final TypeDescKind typeDescKind;
         private final ModuleID moduleID;
         private final String definitionName;
+        private final Location location = new BLangDiagnosticLocation("$builtin$", -1, -1, -1, -1);
 
-        TempTypeDescriptor(String definitionName, TypeDescKind typeDescKind, ModuleID moduleID) {
+        TempTypeSymbol(String definitionName, TypeDescKind typeDescKind, ModuleID moduleID) {
             this.typeDescKind = typeDescKind;
             this.moduleID = moduleID;
             this.definitionName = definitionName;
         }
 
         @Override
-        public TypeDescKind kind() {
+        public TypeDescKind typeKind() {
             return typeDescKind;
         }
 
@@ -271,6 +276,26 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
             return !ANON_ORG.equals(moduleID.orgName()) ? moduleID.orgName() + Names.ORG_NAME_SEPARATOR +
                     moduleID.moduleName() + Names.VERSION_SEPARATOR + moduleID.version() + ":" +
                     definitionName : definitionName;
+        }
+
+        @Override
+        public String name() {
+            return "";
+        }
+
+        @Override
+        public SymbolKind kind() {
+            return SymbolKind.TYPE;
+        }
+
+        @Override
+        public Optional<Documentation> docAttachment() {
+            return Optional.empty();
+        }
+
+        @Override
+        public Location location() {
+            return this.location;
         }
 
         @Override

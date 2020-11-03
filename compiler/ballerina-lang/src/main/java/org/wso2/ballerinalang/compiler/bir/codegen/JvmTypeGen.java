@@ -198,7 +198,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeVal
  *
  * @since 1.2.0
  */
-class JvmTypeGen {
+public class JvmTypeGen {
 
     private static ResolvedTypeBuilder typeBuilder = new ResolvedTypeBuilder();
 
@@ -435,7 +435,7 @@ class JvmTypeGen {
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
             if (bType.tag == TypeTags.OBJECT &&
-                    Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
+                    Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.CLASS)) {
                 objectTypeDefs.add(i, optionalTypeDef);
                 i += 1;
             }
@@ -1070,7 +1070,7 @@ class JvmTypeGen {
      * @param mv    method visitor
      * @param bType type to load
      */
-    static void loadType(MethodVisitor mv, BType bType) {
+    public static void loadType(MethodVisitor mv, BType bType) {
         String typeFieldName = "";
         if (bType == null || bType.tag == TypeTags.NIL) {
             typeFieldName = "TYPE_NULL";
@@ -1775,6 +1775,17 @@ class JvmTypeGen {
         // initialize the finite type using the value space
         mv.visitMethodInsn(INVOKESPECIAL, FINITE_TYPE_IMPL, JVM_INIT_METHOD,
                            String.format("(L%s;L%s;I)V", STRING_VALUE, SET), false);
+    }
+
+    static boolean isServiceDefAvailable(List<BIRTypeDefinition> typeDefs) {
+
+        for (BIRTypeDefinition optionalTypeDef : typeDefs) {
+            BType bType = optionalTypeDef.type;
+            if (bType instanceof BServiceType) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private JvmTypeGen() {

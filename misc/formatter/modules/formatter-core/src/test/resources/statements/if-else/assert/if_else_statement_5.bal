@@ -6,8 +6,8 @@ public function main() {
 }
 
 public function simpleVersion() {
-    http:Client ep = new("http://example.com");
-    http:Response|error rp = ep -> get("/");
+    http:Client ep = new ("http://example.com");
+    http:Response|error rp = ep->get("/");
     if (rp is http:Response) {
         (string|error) txt = rp.getTextPayload();
         // 2nd level if block

@@ -1,7 +1,7 @@
-import ballerina/io;
+import ballerina/lang.'int;
 import bar as _;
-import ballerina/math as _;
+import ballerina/lang.'float as _;
 
 public function runFoo() {
-    io:println("Running foo");
+    int|error i3 = 'int:fromString("100");
 }

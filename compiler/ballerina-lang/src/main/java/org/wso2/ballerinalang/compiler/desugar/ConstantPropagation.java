@@ -115,6 +115,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -493,6 +494,11 @@ public class ConstantPropagation extends BLangNodeVisitor {
     @Override
     public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
         result = varBindingPattern;
+    }
+
+    @Override
+    public void visit(BLangListMatchPattern listMatchPattern) {
+        result = listMatchPattern;
     }
 
     @Override

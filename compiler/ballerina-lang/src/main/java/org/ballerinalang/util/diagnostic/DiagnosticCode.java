@@ -410,6 +410,10 @@ public enum DiagnosticCode {
     MATCH_STMT_PATTERN_ALWAYS_MATCHES("match.stmt.pattern.always.matches"),
     MATCH_STMT_PATTERN_UNREACHABLE("match.stmt.unreachable.pattern.available"),
     MATCH_PATTERN_NOT_SUPPORTED("match.pattern.not.supported"),
+    MATCH_PATTERNS_SHOULD_CONTAIN_SAME_SET_OF_VARIABLES("match.patterns.should.contain.same.set.of.variables"),
+    MATCH_PATTERN_CANNOT_REPEAT_SAME_VARIABLE("match.pattern.cannot.repeat.same.variable"),
+    REST_MATCH_PATTERN_NOT_SUPPORTED("rest.match.pattern.not.supported"),
+    VARIABLE_SHOULD_BE_DECLARED_AS_CONSTANT("match.pattern.variable.should.declared.as.constant"),
     MATCH_STMT_CONTAINS_TWO_DEFAULT_PATTERNS("match.stmt.contains.two.default.patterns"),
 
     THROW_STMT_NOT_SUPPORTED("throw.stmt.not.supported"),

@@ -50,7 +50,7 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
         testProjectPath = testProjectBaseDir.toString() + File.separator + testProjectName;
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
 
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 174));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 182));
         initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(25000);
 
@@ -64,116 +64,116 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
         // Asserts the number of globally visible variables (should be 11).
         // Assert.assertEquals(globalVariables.size(), 11);
         // global constants
-        // assertVariable(globalVariables, "gv01_nameWithoutType", "Ballerina", "string");
-        // assertVariable(globalVariables, "gv02_nameWithType", "Ballerina", "string");
+        // assertVariable(globalVariables, "nameWithoutType", "Ballerina", "string");
+        // assertVariable(globalVariables, "nameWithType", "Ballerina", "string");
 
-        assertVariable(globalVariables, "gv03_nameMap", "map", "map");
-        assertVariable(globalVariables, "gv04_nilWithoutType", "()", "nil");
-        assertVariable(globalVariables, "gv05_nilWithType", "()", "nil");
+        assertVariable(globalVariables, "nameMap", "map", "map");
+        assertVariable(globalVariables, "nilWithoutType", "()", "nil");
+        assertVariable(globalVariables, "nilWithType", "()", "nil");
         // global variables
-        assertVariable(globalVariables, "gv06_stringValue", "Ballerina", "string");
-        assertVariable(globalVariables, "gv07_decimalValue", "100.0", "decimal");
-        assertVariable(globalVariables, "gv08_byteValue", "2", "int");
-        assertVariable(globalVariables, "gv09_floatValue", "2.0", "float");
-        assertVariable(globalVariables, "gv10_jsonVar", "map<json>", "json");
-        assertVariable(globalVariables, "gv11_ /:@[`{~⌤_IL", "IL with global var", "string");
+        assertVariable(globalVariables, "stringValue", "Ballerina", "string");
+        assertVariable(globalVariables, "decimalValue", "100.0", "decimal");
+        assertVariable(globalVariables, "byteValue", "2", "int");
+        assertVariable(globalVariables, "floatValue", "2.0", "float");
+        assertVariable(globalVariables, "jsonVar", "map<json>", "json");
+        assertVariable(globalVariables, " /:@[`{~⌤_IL", "IL with global var", "string");
     }
 
     @Test
     public void localVariableVisibilityTest() {
         // var variable visibility test
-        assertVariable(localVariables, "v01_varVariable", "()", "nil");
+        assertVariable(localVariables, "varVariable", "()", "nil");
 
         // boolean variable visibility test
-        assertVariable(localVariables, "v02_booleanVar", "true", "boolean");
+        assertVariable(localVariables, "booleanVar", "true", "boolean");
 
         // int variable visibility test
-        assertVariable(localVariables, "v03_intVar", "20", "int");
+        assertVariable(localVariables, "intVar", "20", "int");
 
         // float variable visibility test
-        assertVariable(localVariables, "v04_floatVar", "-10.0", "float");
+        assertVariable(localVariables, "floatVar", "-10.0", "float");
 
         // decimal variable visibility test
-        assertVariable(localVariables, "v05_decimalVar", "3.5", "decimal");
+        assertVariable(localVariables, "decimalVar", "3.5", "decimal");
 
         // string variable visibility test
-        assertVariable(localVariables, "v06_stringVar", "foo", "string");
+        assertVariable(localVariables, "stringVar", "foo", "string");
 
         // xml variable visibility test
-        assertVariable(localVariables, "v07_xmlVar",
+        assertVariable(localVariables, "xmlVar",
                 "<person gender=\"male\"><firstname>Praveen</firstname><lastname>Nada</lastname></person>",
                 "xml");
 
         // array variable visibility test
-        assertVariable(localVariables, "v08_arrayVar", "any[4]", "array");
+        assertVariable(localVariables, "arrayVar", "any[4]", "array");
 
         // tuple variable visibility test
-        assertVariable(localVariables, "v09_tupleVar", "tuple[int,string]", "tuple");
+        assertVariable(localVariables, "tupleVar", "tuple[int,string]", "tuple");
 
         // map variable visibility test
-        assertVariable(localVariables, "v10_mapVar", "map", "map");
+        assertVariable(localVariables, "mapVar", "map", "map");
 
         // record variable visibility test (Student record)
-        assertVariable(localVariables, "v11_recordVar", " /:@[`{~⌤_123_ƮέŞŢ_Student", "record");
+        assertVariable(localVariables, "recordVar", " /:@[`{~⌤_123_ƮέŞŢ_Student", "record");
 
         // anonymous record variable visibility test
-        assertVariable(localVariables, "v12_anonRecord", "anonymous", "record");
+        assertVariable(localVariables, "anonRecord", "anonymous", "record");
 
         // error variable visibility test
-        assertVariable(localVariables, "v13_errorVar", "SimpleErrorType", "error");
+        assertVariable(localVariables, "errorVar", "SimpleErrorType", "error");
 
         // anonymous function variable visibility test
-        assertVariable(localVariables, "v14_anonFunctionVar",
+        assertVariable(localVariables, "anonFunctionVar",
                 "function (string,string) returns (string)", "function");
 
         // future variable visibility test
-        assertVariable(localVariables, "v15_futureVar", "future", "future");
+        assertVariable(localVariables, "futureVar", "future", "future");
 
         // object variable visibility test (Person object)
-        assertVariable(localVariables, "v16_objectVar", "Person_\\ /<>:@[`{~⌤_ƮέŞŢ", "object");
+        assertVariable(localVariables, "objectVar", "Person_\\ /<>:@[`{~⌤_ƮέŞŢ", "object");
 
-        assertVariable(localVariables, "v17_anonObjectVar", "Person_\\ /<>:@[`{~⌤_ƮέŞŢ", "object");
+        assertVariable(localVariables, "anonObjectVar", "Person_\\ /<>:@[`{~⌤_ƮέŞŢ", "object");
 
         // type descriptor variable visibility test
-        assertVariable(localVariables, "v18_typedescVar", "int", "typedesc");
+        assertVariable(localVariables, "typedescVar", "int", "typedesc");
 
         // union variable visibility test
-        assertVariable(localVariables, "v19_unionVar", "foo", "string");
+        assertVariable(localVariables, "unionVar", "foo", "string");
 
         // optional variable visibility test
-        assertVariable(localVariables, "v20_optionalVar", "foo", "string");
+        assertVariable(localVariables, "optionalVar", "foo", "string");
 
         // any variable visibility test
-        assertVariable(localVariables, "v21_anyVar", "15.0", "float");
+        assertVariable(localVariables, "anyVar", "15.0", "float");
 
         // anydata variable visibility test
-        assertVariable(localVariables, "v22_anydataVar", "619", "int");
+        assertVariable(localVariables, "anydataVar", "619", "int");
 
         // byte variable visibility test
-        assertVariable(localVariables, "v23_byteVar", "128", "int");
+        assertVariable(localVariables, "byteVar", "128", "int");
 
         // json variable visibility test
-        assertVariable(localVariables, "v24_jsonVar", "map<json>", "json");
+        assertVariable(localVariables, "jsonVar", "map<json>", "json");
 
         // table variable visibility test
-        assertVariable(localVariables, "v25_tableVar", "table<Employee>", "table");
+        assertVariable(localVariables, "tableVar", "table<Employee>", "table");
 
         // stream variable visibility test
-        assertVariable(localVariables, "v26_oddNumberStream", "stream<int>", "stream");
+        assertVariable(localVariables, "oddNumberStream", "stream<int>", "stream");
 
         // never variable visibility test
-        assertVariable(localVariables, "v27_neverVar", "", "xml");
+        assertVariable(localVariables, "neverVar", "", "xml");
 
         // variables with quoted identifiers visibility test
-        assertVariable(localVariables, "v28_ /:@[`{~⌤_var", "IL with special characters in var", "string");
-        assertVariable(localVariables, "v29_üňĩćőđę_var", "IL with unicode characters in var", "string");
-        assertVariable(localVariables, "v30_ĠĿŐΒȂɭ_ /:@[`{~⌤_json", "map<json>", "json");
+        assertVariable(localVariables, " /:@[`{~⌤_var", "IL with special characters in var", "string");
+        assertVariable(localVariables, "üňĩćőđę_var", "IL with unicode characters in var", "string");
+        assertVariable(localVariables, "ĠĿŐΒȂɭ_ /:@[`{~⌤_json", "map<json>", "json");
     }
 
     @Test
     public void localVariableChildrenVisibilityTest() throws BallerinaTestException {
         // xml child variable visibility test
-        Map<String, Variable> xmlChildVariables = fetchChildVariables(localVariables.get("v07_xmlVar"));
+        Map<String, Variable> xmlChildVariables = fetchChildVariables(localVariables.get("xmlVar"));
         assertVariable(xmlChildVariables, "attributes", "map", "map");
         assertVariable(xmlChildVariables, "children", "<firstname>Praveen</firstname><lastname>Nada</lastname>", "xml");
 
@@ -191,26 +191,26 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
         assertVariable(xmlGrandChildrenVariables, "children", "Praveen", "xml");
 
         // array child variable visibility test
-        Map<String, Variable> arrayChildVariables = fetchChildVariables(localVariables.get("v08_arrayVar"));
+        Map<String, Variable> arrayChildVariables = fetchChildVariables(localVariables.get("arrayVar"));
         assertVariable(arrayChildVariables, "[0]", "1", "int");
         assertVariable(arrayChildVariables, "[1]", "20", "int");
         assertVariable(arrayChildVariables, "[2]", "-10.0", "float");
         assertVariable(arrayChildVariables, "[3]", "foo", "string");
 
         // tuple child variable visibility test
-        Map<String, Variable> tupleChildVariables = fetchChildVariables(localVariables.get("v09_tupleVar"));
+        Map<String, Variable> tupleChildVariables = fetchChildVariables(localVariables.get("tupleVar"));
         assertVariable(tupleChildVariables, "[0]", "20", "int");
         assertVariable(tupleChildVariables, "[1]", "foo", "string");
 
         // map child variable visibility test
-        Map<String, Variable> mapChildVariables = fetchChildVariables(localVariables.get("v10_mapVar"));
+        Map<String, Variable> mapChildVariables = fetchChildVariables(localVariables.get("mapVar"));
         assertVariable(mapChildVariables, "city", "Colombo 03", "string");
         assertVariable(mapChildVariables, "country", "Sri Lanka", "string");
         assertVariable(mapChildVariables, "line1", "No. 20", "string");
         assertVariable(mapChildVariables, "line2", "Palm Grove", "string");
 
         // record child variable visibility test (Student record)
-        Map<String, Variable> studentRecordChildVariables = fetchChildVariables(localVariables.get("v11_recordVar"));
+        Map<String, Variable> studentRecordChildVariables = fetchChildVariables(localVariables.get("recordVar"));
         assertVariable(studentRecordChildVariables, "1st_name", "John Doe", "string");
         assertVariable(studentRecordChildVariables, "grades", "Grades", "record");
         assertVariable(studentRecordChildVariables, "Ȧɢέ_ /:@[`{~⌤", "20", "int");
@@ -222,12 +222,12 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
         assertVariable(gradesChildVariables, "physics", "75", "int");
 
         // anonymous record child variable visibility test
-        Map<String, Variable> recordChildVariables = fetchChildVariables(localVariables.get("v12_anonRecord"));
+        Map<String, Variable> recordChildVariables = fetchChildVariables(localVariables.get("anonRecord"));
         assertVariable(recordChildVariables, "city", "London", "string");
         assertVariable(recordChildVariables, "country", "UK", "string");
 
         // error child variable visibility test
-        Map<String, Variable> errorChildVariables = fetchChildVariables(localVariables.get("v13_errorVar"));
+        Map<String, Variable> errorChildVariables = fetchChildVariables(localVariables.get("errorVar"));
         assertVariable(errorChildVariables, "details", "map", "map");
         assertVariable(errorChildVariables, "message", "SimpleErrorType", "string");
 
@@ -236,12 +236,12 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
         assertVariable(errorDetailsChildVariables, "message", "Simple error occurred", "string");
 
         // future child variable visibility test
-        Map<String, Variable> futureChildVariables = fetchChildVariables(localVariables.get("v15_futureVar"));
+        Map<String, Variable> futureChildVariables = fetchChildVariables(localVariables.get("futureVar"));
         assertVariable(futureChildVariables, "isDone", "true", "boolean");
         assertVariable(futureChildVariables, "result", "90", "int");
 
         // object child variable visibility test (Person object)
-        Map<String, Variable> personObjectChildVariables = fetchChildVariables(localVariables.get("v16_objectVar"));
+        Map<String, Variable> personObjectChildVariables = fetchChildVariables(localVariables.get("objectVar"));
         assertVariable(personObjectChildVariables, "1st_name", "John", "string");
         assertVariable(personObjectChildVariables, "address", "No 20, Palm grove", "string");
         assertVariable(personObjectChildVariables, "parent", "()", "nil");
@@ -249,7 +249,7 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
         assertVariable(personObjectChildVariables, "Ȧɢέ_ /:@[`{~⌤", "0", "int");
 
         // anonymous object child variable visibility test (AnonPerson object)
-        Map<String, Variable> anonObjectChildVariables = fetchChildVariables(localVariables.get("v17_anonObjectVar"));
+        Map<String, Variable> anonObjectChildVariables = fetchChildVariables(localVariables.get("anonObjectVar"));
         assertVariable(anonObjectChildVariables, "1st_name", "John", "string");
         assertVariable(anonObjectChildVariables, "address", "No 20, Palm grove", "string");
         assertVariable(anonObjectChildVariables, "parent", "()", "nil");
@@ -263,7 +263,7 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
         // assertVariable(anonPersonAddressChildVariables[1], "country", "Sri Lanka", "string");
 
         // json child variable visibility test
-        Map<String, Variable> jsonChildVariables = fetchChildVariables(localVariables.get("v24_jsonVar"));
+        Map<String, Variable> jsonChildVariables = fetchChildVariables(localVariables.get("jsonVar"));
         assertVariable(jsonChildVariables, "color", "red", "string");
         assertVariable(jsonChildVariables, "name", "apple", "string");
         assertVariable(jsonChildVariables, "price", "40", "int");

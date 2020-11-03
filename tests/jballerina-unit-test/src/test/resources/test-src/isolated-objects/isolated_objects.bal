@@ -269,3 +269,15 @@ isolated object {} isolatedObjectWithUniqueInitializerExprs = object {
         ];
     }
 };
+
+isolated class IsolatedClassWithValidCopyInInsideBlock {
+    private string[] uniqueGreetings = [];
+
+    isolated function add(string[] greetings) {
+        lock {
+            if self.uniqueGreetings.length() == 0 {
+                self.uniqueGreetings = greetings.clone();
+            }
+        }
+    }
+}

@@ -156,7 +156,7 @@ public class BasicCasesTest extends BaseTestCase {
 
     @Test
     public void testIsolatedFunctions() throws BallerinaTestException {
-        String msg = "2 passing";
+        String msg = "3 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"isolated-functions"}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);

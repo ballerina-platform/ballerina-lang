@@ -20,9 +20,9 @@ import ballerina/test;
 
 @test:Config {}
 function testAssertStringValues() {
-    error? err = trap test:assertEquals("hello dilhasha","hello dilhashaaa");
+    error? err = trap test:assertEquals("hello user1","hello user2");
     error result = <error>err;
-    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ actual\n@@ -1,1 +1,1 @@\n\n-hello dilhasha\n+hello dilhashaaa\n\n\n"));
+    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ actual \n \n @@ -1,1 +1,1 @@ \n \n -hello user1\n+hello user2\n \n"));
 }
 
 @test:Config {}
@@ -31,14 +31,14 @@ function testAssertLongStringValues() {
         string value2 = "Ballerina is an open source programming language and platform for cloud-era application " + "programmersss.\nSequence diagrams have been everyone’s favorite tool to describe how distributed & concurrent " + "programs work.";
         error? err = trap test:assertEquals(value1, value2);
         error result = <error>err;
-        test:assertTrue(result.message().toString().endsWith("Sequence diagrams have been everyone’s favorite tool to " + "describe how distributed\n- & conccurrent programs work.\n+ & concurrent programs work.\n\n\n"));
+        test:assertTrue(result.message().toString().endsWith("--- expected\n+++ actual \n \n @@ -1,4 +1,4 @@ \n \n  Ballerina is an open source programming language and platform for cloud-era appl\n-ication programmers.\n+ication programmersss.\n Sequence diagrams have been everyone’s favorite tool to describe how distributed\n- & conccurrent programs work.\n+ & concurrent programs work.\n \n"));
 }
 
 @test:Config {}
 function testAssertIntValues() {
     error? err = trap test:assertEquals(124, 123);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: '123'\nactual\t: '124'");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '123'\nactual\t: '124'");
 }
 
 @test:Config {}
@@ -47,7 +47,7 @@ function testAssertDecimalValues() {
     decimal f = 27.6;
     error? err = trap test:assertEquals(d, f);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: '27.6'\nactual\t: '27.5'");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '27.6'\nactual\t: '27.5'");
 }
 
 @test:Config {}
@@ -57,7 +57,7 @@ function testAssertJsonValues() {
     error? err = trap test:assertEquals(bioData, bioData2);
     error result = <error>err;
     test:assertEquals(result.message().toString(),
-    "Assertion Failed!\nexpected: '{\"name\":\"John Doe New\",\"age\":25,\"address\":{\"city\":\"Colombo\"," + "\"country\":\"Sri Lanka...'\nactual\t: '{\"name\":\"John Doe\",\"age\":25,\"address\":{\"city\":\"Colombo\"," + "\"country\":\"Sri Lanka\"}}'");
+    "Assertion Failed!\n \nexpected: '{\"name\":\"John Doe New\",\"age\":25,\"address\":{\"city\":\"Colombo\"," + "\"country\":\"Sri Lanka...'\nactual\t: '{\"name\":\"John Doe\",\"age\":25,\"address\":{\"city\":\"Colombo\"," + "\"country\":\"Sri Lanka\"}}'");
 }
 
 @test:Config {}
@@ -66,7 +66,7 @@ function testAssertLongJsonValues() {
     json bioData2 = {name:"John Doe New", age:25, designation: "SSE", address:{city:"Colombo", country:"Sri Lanka"}};
     error? err = trap test:assertEquals(bioData, bioData2);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: '{\"name\":\"John Doe New\"," + "\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",...'\nactual\t: '{\"name\":" + 
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '{\"name\":\"John Doe New\"," + "\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",...'\nactual\t: '{\"name\":" + 
     "\"John Doe Old\",\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",...'");
 }
 
@@ -76,7 +76,7 @@ function testAssertTuples() {
     [int, string] b = [12, "John"];
     error? err = trap test:assertEquals(a, b);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: '12 John'\nactual\t: '10 John'");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '12 John'\nactual\t: '10 John'");
 }
 
 @test:Config {}
@@ -86,5 +86,5 @@ function testAssertObjects() {
     person.name = "dilhasha";
     error? err = trap test:assertExactEquals(person, person2);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: 'object assertions-error-messages:Person'\nactual\t: 'object assertions-error-messages:Person'");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: 'object assertions-error-messages:Person'\nactual\t: 'object assertions-error-messages:Person'");
 }

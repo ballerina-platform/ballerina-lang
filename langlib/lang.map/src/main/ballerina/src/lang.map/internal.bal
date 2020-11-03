@@ -21,7 +21,7 @@ class MapIterator {
 
     private map<Type> m;
 
-    public function init(map<Type> m) {
+    public isolated function init(map<Type> m) {
         self.m = m;
     }
 
@@ -32,7 +32,7 @@ class MapIterator {
     }
 }
 
-function externNext(MapIterator iterator) returns record {| Type value; |}? = @java:Method {
+isolated function externNext(MapIterator iterator) returns record {| Type value; |}? = @java:Method {
     'class: "org.ballerinalang.langlib.map.Next",
     name: "next"
 } external;
