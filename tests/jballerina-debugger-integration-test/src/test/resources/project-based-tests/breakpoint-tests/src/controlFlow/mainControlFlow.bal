@@ -1,42 +1,40 @@
-import ballerina/io;
-
 public function main() {
     int v01_intVar = 10;
     int v02_intVar = 1;
     int v03_intVar = 5;
+    int z = 0;
 
     // debug engage in 'if' statement
     if (v01_intVar == 10 && v02_intVar == 1) {
-        io:println("v01_intVar == 10 && v02_intVar == 1");
+        z = 1;
     }
 
     // debug engage in 'else' statement
     if (v01_intVar < v02_intVar && v03_intVar == 5) {
-        io:println("v01_intVar < v02_intVar && v03_intVar == 5");
+        z = 2;
     } else {
-        io:println("v01_intVar >= v02_intVar && v03_intVar == 5");
+        z = 3;
     }
 
     // debug engage in 'else-if' statement
     if (v02_intVar < 0 && v03_intVar == 5) {
-        io:println("v02_intVar < 0 && v03_intVar == 5");
+        z = 4;
     } else if (v02_intVar > 0 && v03_intVar == 5) {
-        io:println("v02_intVar > 0 && v03_intVar == 5");
+        z = 5;
     } else {
-        io:println("v02_intVar == 0 && v03_intVar == 5");
+        z = 6;
     }
 
     // debug engage in 'while' loop
     int v04_intVar = 0;
     while (v04_intVar < 1) {
-        io:println(v04_intVar);
         v04_intVar = v04_intVar + 1;
     }
 
     // debug engage in 'foreach' loop
     string[] v05_fruits = ["apple"];
     foreach var v in v05_fruits {
-        io:println("fruit: ", v);
+        z = 7;
     }
 
     // debug engage in 'match' statement

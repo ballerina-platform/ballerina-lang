@@ -111,6 +111,11 @@ public class AmbiguityResolutionTest extends AbstractMiscTest {
         testFile("ambiguity/ambiguity_source_24.bal", "ambiguity/ambiguity_assert_24.json");
     }
 
+    @Test
+    public void testTopLevelAmbiguousQualifiers() {
+        testFile("ambiguity/ambiguity_source_31.bal", "ambiguity/ambiguity_assert_31.json");
+    }
+
     // Recovery tests
 
     @Test

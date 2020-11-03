@@ -110,6 +110,10 @@ public class BinaryExpressionEvaluator extends Evaluator {
             case LT_EQUAL_TOKEN:
             case GT_EQUAL_TOKEN:
                 return compare(lVar, rVar, operatorType);
+            case DOUBLE_LT_TOKEN:
+            case DOUBLE_GT_TOKEN:
+            case TRIPPLE_GT_TOKEN:
+                return bitwiseShift(lVar, rVar, operatorType);
             case BITWISE_AND_TOKEN:
                 return bitwiseAND(lVar, rVar);
             case PIPE_TOKEN:
@@ -365,6 +369,32 @@ public class BinaryExpressionEvaluator extends Evaluator {
             throw createUnsupportedOperationException(lVar, rVar, operator);
         }
         throw createUnsupportedOperationException(lVar, rVar, operator);
+    }
+
+    private BExpressionValue bitwiseShift(BVariable lVar, BVariable rVar, SyntaxKind operatorType)
+            throws EvaluationException {
+        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
+            // int,int
+            // Todo - filter unsigned integers and signed integers with 8, 16 and 32 bits
+            long result;
+            switch (operatorType) {
+                case DOUBLE_LT_TOKEN:
+                    result = Long.parseLong(lVar.computeValue()) << Long.parseLong(rVar.computeValue());
+                    break;
+                case DOUBLE_GT_TOKEN:
+                    result = Long.parseLong(lVar.computeValue()) >> Long.parseLong(rVar.computeValue());
+                    break;
+                case TRIPPLE_GT_TOKEN:
+                    result = Long.parseLong(lVar.computeValue()) >>> Long.parseLong(rVar.computeValue());
+                    break;
+                default:
+                    throw createUnsupportedOperationException(lVar, rVar, operatorType);
+            }
+            return EvaluationUtils.make(context, result);
+        } else {
+            // Todo - Add support for signed and unsigned integers
+            throw createUnsupportedOperationException(lVar, rVar, operatorType);
+        }
     }
 
     /**

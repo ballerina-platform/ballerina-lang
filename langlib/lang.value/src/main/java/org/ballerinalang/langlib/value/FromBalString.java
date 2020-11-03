@@ -32,6 +32,6 @@ public class FromBalString {
         if (str.equals("null")) {
             return null;
         }
-        return StringUtils.parseExpressionStringValue(str);
+        return StringUtils.parseExpressionStringValue(str, null);
     }
 }

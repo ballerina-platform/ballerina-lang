@@ -101,7 +101,6 @@ public class StreamTypeDescriptorNode extends TypeDescriptorNode {
 
         public StreamTypeDescriptorNodeModifier withStreamTypeParamsNode(
                 Node streamTypeParamsNode) {
-            Objects.requireNonNull(streamTypeParamsNode, "streamTypeParamsNode must not be null");
             this.streamTypeParamsNode = streamTypeParamsNode;
             return this;
         }

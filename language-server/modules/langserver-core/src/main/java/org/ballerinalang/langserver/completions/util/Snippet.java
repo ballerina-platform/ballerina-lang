@@ -104,6 +104,8 @@ public enum Snippet {
 
     DEF_CLASS(SnippetGenerator.getClassDefSnippet()),
 
+    DEF_ENUM(SnippetGenerator.getEnumDefSnippet()),
+
     DEF_WORKER(SnippetGenerator.getWorkerDeclarationSnippet()),
 
     DEF_REMOTE_FUNCTION(SnippetGenerator.getRemoteFunctionSnippet()),

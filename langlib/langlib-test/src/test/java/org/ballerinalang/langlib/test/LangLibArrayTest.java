@@ -89,7 +89,7 @@ public class LangLibArrayTest {
         assertEquals(elem.getRefValue(1).stringValue(), "Ballerina");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testMap() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMap");
         assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
@@ -137,7 +137,7 @@ public class LangLibArrayTest {
         assertEquals(((BInteger) result.getRefValue(5)).intValue(), 2);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testPushAfterSlice() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testPushAfterSlice");
         BValueArray result = (BValueArray) returns[0];
@@ -297,7 +297,7 @@ public class LangLibArrayTest {
         assertEquals(returns[0].stringValue(), "[]");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testPush() {
         BRunUtil.invoke(compileResult, "testPush");
     }
@@ -487,7 +487,7 @@ public class LangLibArrayTest {
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testShiftOperation() {
         BRunUtil.invoke(compileResult, "testShiftOperation");
     }
