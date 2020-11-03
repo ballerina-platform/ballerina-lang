@@ -256,4 +256,12 @@ public class InstanceMethodTest {
     public void testInstanceResolve() {
         BRunUtil.invoke(result, "testInstanceResolve");
     }
+
+    @Test
+    public void testGetCurrentModule() {
+        InstanceMethods testIns = new InstanceMethods();
+        BValue[] args = new BValue[1];
+        args[0] = new BHandleValue(testIns);
+        BRunUtil.invoke(result, "testGetCurrentModule", args);
+    }
 }

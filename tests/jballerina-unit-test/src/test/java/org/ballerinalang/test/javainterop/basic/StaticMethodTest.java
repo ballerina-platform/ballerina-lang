@@ -200,4 +200,9 @@ public class StaticMethodTest {
     public void testStaticResolve() {
         BRunUtil.invoke(result, "testStaticResolve");
     }
+
+    @Test
+    public void testGetCurrentModule() {
+        BRunUtil.invoke(result, "testGetCurrentModule");
+    }
 }

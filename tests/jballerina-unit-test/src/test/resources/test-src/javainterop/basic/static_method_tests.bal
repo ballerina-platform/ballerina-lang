@@ -226,6 +226,10 @@ function decimalParamAndReturn(decimal a1) returns decimal = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
+function getCurrentModule(int a) returns string  = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
 public function testBalEnvSlowAsyncVoidSig() {
     int added = addTwoNumbersSlowAsyncVoidSig(1, 2);
     assertEquality(3, added);
@@ -244,6 +248,11 @@ public function testBalEnvSlowAsync() {
 public function testBalEnvFastAsync() {
     int added = addTwoNumbersFastAsync(1, 2);
     assertEquality(3, added);
+}
+
+public function testGetCurrentModule() {
+     string moduleString =  getCurrentModule(4);
+     assertEquality(moduleString, "$anon#.#0.0.0#4");
 }
 
 function hashCode(int receiver) returns int = @java:Method {

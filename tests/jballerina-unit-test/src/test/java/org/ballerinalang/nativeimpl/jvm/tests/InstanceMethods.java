@@ -17,6 +17,10 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.values.BmpStringValue;
 import io.ballerina.runtime.values.HandleValue;
 import io.ballerina.runtime.values.ObjectValue;
@@ -171,5 +175,11 @@ public class InstanceMethods {
 
     public int getRandomInt() {
         return 123;
+    }
+
+    public BString getCurrentModule(Environment env, long b) {
+        Module callerModule = env.getCurrentModule();
+        return StringUtils.fromString(callerModule.getOrg() + "#" + callerModule.getName() + "#" +
+                                              callerModule.getVersion() + "#" + b);
     }
 }

@@ -86,6 +86,11 @@ function testInstanceResolve() {
     test:assertEquals(val, 2);
 }
 
+public function testGetCurrentModule(handle receiver) {
+     string moduleString =  getCurrentModule(receiver, 4);
+     assertEquality(moduleString, "$anon#.#0.0.0#4");
+}
+
 // Interop functions
 
 public function increaseCounterByOne(handle receiver) = @java:Method{
@@ -181,6 +186,10 @@ public function uncheckedErrorDetail(handle receiver) returns int = @java:Method
     'class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
 } external;
 
+function getCurrentModule(handle receiver, int a) returns string  = @java:Method {
+    'class: "org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
 function hashCode(handle receiver) returns int = @java:Method {
     name: "hashCode",
     'class: "java.lang.Byte",
@@ -191,3 +200,15 @@ function newByte(int val) returns handle = @java:Constructor {
    'class: "java.lang.Byte"
 } external;
 
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+    if expected === actual {
+        return;
+    }
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

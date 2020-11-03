@@ -67,7 +67,11 @@ public class Person {
     } external;
 
     function echoObject() returns object {}  = @java:Method {
-            'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    } external;
+
+    function getCurrentModuleForObject(int a) returns string  = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
     } external;
 
     function getBIntFromJInt(handle receiver) returns int = @java:Method {
@@ -121,6 +125,10 @@ public function testInteropsInsideObject() {
     assertEquality(p.height, 123.45);
     float f = p.floor(p.height);
     assertEquality(f, 123.0);
+
+    // Test get current Module
+    string moduleString =  p.getCurrentModuleForObject(4);
+    assertEquality(moduleString, "$anon#.#0.0.0#12#4");
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
