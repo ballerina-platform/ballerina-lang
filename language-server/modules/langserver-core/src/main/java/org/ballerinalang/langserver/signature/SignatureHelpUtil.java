@@ -54,6 +54,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureInformation;
 import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4j.jsonrpc.messages.Tuple;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -61,7 +62,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
@@ -92,21 +92,35 @@ public class SignatureHelpUtil {
         SignatureInfoModel signatureInfoModel = getSignatureInfoModel(functionSymbol.get(), context);
 
         // Override label for 'new' constructor
-        String label = functionSymbol.get().name();
-        int initIndex = label.indexOf(INIT_SYMBOL);
-        if (initIndex > -1) {
-            label = "new " + label.substring(0, initIndex);
-        }
+        int initIndex = functionSymbol.get().name().indexOf(INIT_SYMBOL);
+        StringBuilder labelBuilder = initIndex > -1
+                ? new StringBuilder("new " + functionSymbol.get().name().substring(0, initIndex))
+                : new StringBuilder(functionSymbol.get().name());
 
+        labelBuilder.append("(");
         // Join the function parameters to generate the function's signature
-        String paramsJoined = signatureInfoModel.getParameterInfoModels().stream().map(parameterInfoModel -> {
-            // For each of the parameters, create a parameter info instance
-            parameterInformationList.add(getParameterInformation(parameterInfoModel));
+        List<ParameterInfoModel> parameterInfoModels = signatureInfoModel.getParameterInfoModels();
+        for (ParameterInfoModel paramModel : parameterInfoModels) {
+            int labelOffset = labelBuilder.toString().length();
+            labelBuilder.append(paramModel.parameter.getType());
+            ParameterInformation paramInfo = new ParameterInformation();
+            paramInfo.setDocumentation(getParameterDocumentation(paramModel));
+            int paramStart = labelOffset;
+            int paramEnd = labelOffset + paramModel.parameter.getType().length();
+            if (paramModel.parameter.getName().isPresent()) {
+                paramStart = paramEnd + 1;
+                paramEnd += (paramModel.parameter.getName().get() + " ").length();
+                labelBuilder.append(" ").append(paramModel.parameter.getName().get());
+            }
+            if (parameterInfoModels.indexOf(paramModel) < parameterInfoModels.size() - 1) {
+                labelBuilder.append(", ");
+            }
+            paramInfo.setLabel(Tuple.two(paramStart, paramEnd));
 
-            return parameterInfoModel.toString();
-        }).collect(Collectors.joining(", "));
-
-        signatureInformation.setLabel(label + "(" + paramsJoined + ")");
+            parameterInformationList.add(paramInfo);
+        }
+        labelBuilder.append(")");
+        signatureInformation.setLabel(labelBuilder.toString());
         signatureInformation.setParameters(parameterInformationList);
         signatureInformation.setDocumentation(signatureInfoModel.signatureDescription);
 
@@ -160,12 +174,10 @@ public class SignatureHelpUtil {
             documentation.get().parameterMap().forEach(paramToDesc::put);
         }
         // Add parameters and rest params
-        functionSymbol.typeDescriptor().parameters().forEach(
-                param -> parameters.add(new Parameter(param.name().get(), param.typeDescriptor(), false, false))
-        );
+        functionSymbol.typeDescriptor().parameters()
+                .forEach(param -> parameters.add(new Parameter(param, false, false)));
         Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();
-        restParam.ifPresent(parameter
-                -> parameters.add(new Parameter(parameter.name().get(), parameter.typeDescriptor(), false, true)));
+        restParam.ifPresent(parameter -> parameters.add(new Parameter(parameter, false, true)));
         boolean skipFirstParam = functionSymbol.kind() == METHOD && CommonUtil.isLangLib(functionSymbol.moduleID());
         // Create a list of param info models
         for (int i = 0; i < parameters.size(); i++) {
@@ -174,70 +186,88 @@ public class SignatureHelpUtil {
                 continue;
             }
             Parameter param = parameters.get(i);
-            String name = param.isOptional ? param.name + "?" : param.name;
             String desc = "";
-            if (paramToDesc.containsKey(param.name)) {
-                desc = paramToDesc.get(param.name);
+            if (param.getName().isPresent() && paramToDesc.containsKey(param.getName().get())) {
+                desc = paramToDesc.get(param.getName().get());
             }
-            String type = param.type.signature();
-            if (param.isRestArg && !"".equals(type)) {
-                // Rest Arg type sometimes appear as array [], sometimes not eg. 'error()'
-                if (type.contains("[]")) {
-                    type = type.substring(0, type.length() - 2);
-                }
-                type += "...";
-            }
-            paramModels.add(new ParameterInfoModel(name, type, desc));
+            paramModels.add(new ParameterInfoModel(param, desc));
         }
         signatureInfoModel.setParameterInfoModels(paramModels);
         return signatureInfoModel;
     }
 
-    private static ParameterInformation getParameterInformation(ParameterInfoModel parameterInfoModel) {
+    private static MarkupContent getParameterDocumentation(ParameterInfoModel paramInfo) {
         MarkupContent paramDocumentation = new MarkupContent();
         paramDocumentation.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
-        String type = parameterInfoModel.paramType;
-        String markupContent = "**Parameter**" + CommonUtil.MD_LINE_SEPARATOR;
-        markupContent += "**" + ((!type.isEmpty()) ? "`" + type + "`" : "");
-        markupContent += parameterInfoModel.paramValue + "**: ";
-        paramDocumentation.setValue(markupContent + parameterInfoModel.description);
-        return new ParameterInformation(parameterInfoModel.toString(), paramDocumentation);
+        String type = paramInfo.parameter.getType();
+        StringBuilder markupContent = new StringBuilder();
+
+        markupContent.append("**Parameter**")
+                .append(CommonUtil.MD_LINE_SEPARATOR)
+                .append("**")
+                .append((!type.isEmpty()) ? "`" + type + "`" : "");
+        if (paramInfo.parameter.getName().isPresent()) {
+            markupContent.append(paramInfo.parameter.getName().get());
+        }
+        markupContent.append("**");
+        if (!paramInfo.description.isBlank()) {
+            markupContent.append(": ").append(paramInfo.description);
+        }
+        paramDocumentation.setValue(markupContent.toString());
+
+        return paramDocumentation;
     }
 
     /**
      * Parameter model to hold the parameter information meta data.
      */
     private static class Parameter {
-        private final String name;
-        private final TypeSymbol type;
         private final boolean isRestArg;
         private final boolean isOptional;
+        private final ParameterSymbol parameterSymbol;
 
-        public Parameter(String name, TypeSymbol type, boolean isOptional, boolean isRestArg) {
-            this.name = name;
-            this.type = type;
+        public Parameter(ParameterSymbol parameterSymbol, boolean isOptional, boolean isRestArg) {
+            this.parameterSymbol = parameterSymbol;
             this.isOptional = isOptional;
             this.isRestArg = isRestArg;
         }
+
+        public Optional<String> getName() {
+            return (parameterSymbol.name().isPresent() && this.isOptional)
+                    ? Optional.of(parameterSymbol.name().get() + "?") : parameterSymbol.name();
+        }
+
+        public String getType() {
+            String type = parameterSymbol.typeDescriptor().signature();
+            if (this.isRestArg && !"".equals(type)) {
+                // Rest Arg type sometimes appear as array [], sometimes not eg. 'error()'
+                if (type.contains("[]")) {
+                    type = type.substring(0, type.length() - 2);
+                }
+                type += "...";
+            }
+
+            return type;
+        }
+
     }
 
     /**
      * Parameter information model to hold the parameter information meta data.
      */
     private static class ParameterInfoModel {
-        private final String paramValue;
-        private final String paramType;
         private final String description;
+        private final Parameter parameter;
 
-        public ParameterInfoModel(String name, String type, String desc) {
-            this.paramValue = name;
-            this.paramType = type;
+        public ParameterInfoModel(Parameter parameter, String desc) {
+            this.parameter = parameter;
             this.description = desc;
         }
 
         @Override
         public String toString() {
-            return this.paramType + " " + this.paramValue;
+            return this.parameter.getType()
+                    + (parameter.getName().isPresent() ? (" " + parameter.getName().get()) : "");
         }
     }
 

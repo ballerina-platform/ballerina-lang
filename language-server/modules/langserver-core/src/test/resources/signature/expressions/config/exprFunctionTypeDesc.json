@@ -1,46 +1,39 @@
 {
     "position": {
-        "line": 103,
-        "character": 19
+        "line": 398,
+        "character": 11
     },
-    "source": "expressions/expressions.bal",
     "expected": {
         "result": {
             "signatures": [
                 {
-                    "label": "foo(float a, boolean b)",
-                    "documentation": {
-                        "right": {
-                            "kind": "markdown",
-                            "value": "**Description**  \nFunction Foo"
-                        }
-                    },
+                    "label": "concat(string, string)",
                     "parameters": [
                         {
                             "label": {
                                 "right": {
-                                    "first": 10,
-                                    "second": 11
+                                    "first": 7,
+                                    "second": 13
                                 }
                             },
                             "documentation": {
                                 "right": {
                                     "kind": "markdown",
-                                    "value": "**Parameter**  \n**`float`a**: a float"
+                                    "value": "**Parameter**  \n**`string`**"
                                 }
                             }
                         },
                         {
                             "label": {
                                 "right": {
-                                    "first": 21,
-                                    "second": 22
+                                    "first": 15,
+                                    "second": 21
                                 }
                             },
                             "documentation": {
                                 "right": {
                                     "kind": "markdown",
-                                    "value": "**Parameter**  \n**`boolean`b**: b bool"
+                                    "value": "**Parameter**  \n**`string`**"
                                 }
                             }
                         }
@@ -48,7 +41,7 @@
                 }
             ],
             "activeSignature": 0,
-            "activeParameter": 1
+            "activeParameter": 0
         },
         "jsonrpc": "2.0"
     }

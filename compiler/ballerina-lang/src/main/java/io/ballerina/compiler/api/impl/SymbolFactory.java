@@ -213,7 +213,7 @@ public class SymbolFactory {
         if (symbol == null) {
             return null;
         }
-        String name = symbol.getName().getValue();
+        String name = symbol.getName().getValue().isBlank() ? null : symbol.getName().getValue();
         TypeSymbol typeDescriptor = TypesFactory.getTypeDescriptor(symbol.getType());
         List<Qualifier> qualifiers = new ArrayList<>();
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
