@@ -76,7 +76,7 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
         List<String> pkgNameLabels = new ArrayList<>();
 
         packagesList.forEach(ballerinaPackage -> {
-            if (isAnnotationLangLib(ballerinaPackage)) {
+            if (this.isPreDeclaredLangLib(ballerinaPackage)) {
                 return;
             }
             String packageName = ballerinaPackage.getPackageName();
@@ -105,10 +105,5 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
         item.setDetail(ItemResolverConstants.MODULE_TYPE);
 
         return new StaticCompletionItem(context, item, StaticCompletionItem.Kind.MODULE);
-    }
-
-    private boolean isAnnotationLangLib(BallerinaPackage ballerinaPackage) {
-        return "ballerina".equals(ballerinaPackage.getOrgName())
-                && "lang.annotations".equals(ballerinaPackage.getPackageName());
     }
 }

@@ -17,9 +17,9 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -71,13 +71,14 @@ public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<A
 
     private Predicate<Symbol> constantFilter() {
         return symbol -> {
-            Optional<? extends BallerinaTypeDescriptor> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
-            typeDescriptor = typeDescriptor.isPresent() && typeDescriptor.get().kind() == TypeDescKind.TYPE_REFERENCE ?
-                    Optional.ofNullable(((TypeReferenceTypeDescriptor) typeDescriptor.get()).typeDescriptor())
-                    : typeDescriptor;
+            Optional<? extends TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
+            typeDescriptor =
+                    typeDescriptor.isPresent() && typeDescriptor.get().typeKind() == TypeDescKind.TYPE_REFERENCE ?
+                            Optional.ofNullable(((TypeReferenceTypeSymbol) typeDescriptor.get()).typeDescriptor())
+                            : typeDescriptor;
             return symbol.kind() == SymbolKind.CONSTANT
                     && typeDescriptor.isPresent()
-                    && typeDescriptor.get().kind() == TypeDescKind.INT;
+                    && typeDescriptor.get().typeKind() == TypeDescKind.INT;
         };
     }
 }
