@@ -86,7 +86,6 @@ function testAssertJsonInJson() {
 function testAssertLongJsonValues() {
     json bioData = {name:"John Doe Old", age:25, designation: "SSE", address:{city:"Colombo", country:"Sri Lankaa"}};
     json bioData2 = {name:"John Doe New", age:25, designation: "SSE", address:{city:"Colombo", country:"Sri Lanka"}};
-    //test:assertEquals(bioData, bioData2);
     error? err = trap test:assertEquals(bioData, bioData2);
     error result = <error>err;
     test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '{\"name\":\"John Doe New\"," + "\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",...'\nactual\t: '{\"name\":" + 
@@ -134,7 +133,6 @@ function testAssertObjects() {
 function testAssertJsonArray() {
         json j1 = [1, false, null, "foo", {first: "John", last: "Pala"}];
         json j2 = [2, false, null, "foo", {first: "John", last: "Pala"}];
-        //test:assertEquals(j1, j2);
         error? err = trap test:assertEquals(j1, j2);
         error result = <error>err;
         test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '[2,false,null,\"foo\",{\"first\":\"John\",\"last\":\"Pala\"}]'\nactual\t: '[1,false,null,\"foo\",{\"first\":\"John\",\"last\":\"Pala\"}]'");

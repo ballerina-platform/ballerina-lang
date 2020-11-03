@@ -177,7 +177,6 @@ isolated function getKeyArray(map<anydata> valueMap) returns @tainted string[] {
     return keyArray;
 }
 
-
 isolated function getMapValueDiff(map<anydata> actualMap, map<anydata> expectedMap) returns @tainted string {
     string diffValue = "";
     string[] actualKeyArray = getKeyArray(actualMap);
