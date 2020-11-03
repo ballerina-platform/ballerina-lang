@@ -103,6 +103,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULT_STRAND_DISPATCHER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
@@ -120,6 +121,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STOR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
@@ -262,9 +264,9 @@ public class JvmTerminatorGen {
         }
     }
 
-    public void genTerminator(BIRTerminator terminator, String moduleClassName, BIRNode.BIRFunction func,
-                       String funcName, int localVarOffset, int returnVarRefIndex,
-                       BType attachedType, AsyncDataCollector asyncDataCollector) {
+    public void genTerminator(BIRTerminator terminator, String moduleClassName, String moduleInitClass,
+                              BIRNode.BIRFunction func, String funcName, int localVarOffset, int returnVarRefIndex,
+                              BType attachedType, AsyncDataCollector asyncDataCollector) {
 
         switch (terminator.kind) {
             case LOCK:
@@ -316,7 +318,7 @@ public class JvmTerminatorGen {
                     this.genJCallTerm((JavaMethodCall) terminator, attachedType, localVarOffset);
                     return;
                 } else if (terminator instanceof JIMethodCall) {
-                    this.genJICallTerm((JIMethodCall) terminator, localVarOffset);
+                    this.genJICallTerm((JIMethodCall) terminator, localVarOffset, moduleInitClass);
                     return;
                 } else if (terminator instanceof JIConstructorCall) {
                     this.genJIConstructorTerm((JIConstructorCall) terminator,
@@ -484,7 +486,7 @@ public class JvmTerminatorGen {
         this.mv.visitLabel(notBlockedOnExternLabel);
     }
 
-    private void genJICallTerm(JIMethodCall callIns, int localVarOffset) {
+    private void genJICallTerm(JIMethodCall callIns, int localVarOffset, String moduleInitClass) {
         // Load function parameters of the target Java method to the stack..
         Label blockedOnExternLabel = new Label();
         Label notBlockedOnExternLabel = new Label();
@@ -542,8 +544,10 @@ public class JvmTerminatorGen {
             mv.visitTypeInsn(NEW, BAL_ENV);
             mv.visitInsn(DUP);
             this.mv.visitVarInsn(ALOAD, localVarOffset); // load the strand
-            mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, JVM_INIT_METHOD, String.format("(L%s;)V", STRAND_CLASS),
-                               false);
+            // load the current Module
+            mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", MODULE));
+            mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, JVM_INIT_METHOD,
+                               String.format("(L%s;L%s;)V", STRAND_CLASS, MODULE), false);
         }
 
         int argsCount = callIns.varArgExist ? callIns.args.size() - 1 : callIns.args.size();

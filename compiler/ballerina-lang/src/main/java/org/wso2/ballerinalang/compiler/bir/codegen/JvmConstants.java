@@ -137,6 +137,7 @@ public class JvmConstants {
     public static final String FINITE_TYPE_IMPL = "io/ballerina/runtime/types/BFiniteType";
     public static final String FUTURE_TYPE_IMPL = "io/ballerina/runtime/types/BFutureType";
     public static final String MODULE = "io/ballerina/runtime/api/Module";
+    public static final String CURRENT_MODULE_VAR_NAME = "$moduleName";
     public static final String TYPE_ID_SET = "io/ballerina/runtime/types/BTypeIdSet";
     public static final String TYPE_ID = "io/ballerina/runtime/types/BTypeIdSet$TypeId";
 

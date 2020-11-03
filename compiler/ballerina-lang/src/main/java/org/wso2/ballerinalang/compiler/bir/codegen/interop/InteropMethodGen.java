@@ -130,6 +130,7 @@ public class InteropMethodGen {
                                          JvmPackageGen jvmPackageGen,
                                          JvmMethodGen jvmMethodGen,
                                          String moduleClassName,
+                                         String moduleInitClass,
                                          AsyncDataCollector asyncDataCollector) {
 
         // Create a local variable for the strand
@@ -195,7 +196,7 @@ public class InteropMethodGen {
 
             List<BIRBasicBlock> basicBlocks = birFunc.parameters.get(birFuncParam);
             generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, birFunc, moduleClassName,
-                                asyncDataCollector);
+                                moduleInitClass, asyncDataCollector);
 
             mv.visitLabel(paramNextLabel);
 
@@ -290,7 +291,7 @@ public class InteropMethodGen {
 
     private static void generateBasicBlocks(MethodVisitor mv, List<BIRBasicBlock> basicBlocks, LabelGenerator labelGen,
                                             JvmErrorGen errorGen, JvmInstructionGen instGen, JvmTerminatorGen termGen,
-                                            BIRFunction func, String moduleClassName,
+                                            BIRFunction func, String moduleClassName, String moduleInitClass,
                                             AsyncDataCollector asyncDataCollector) {
         String funcName = JvmCodeGenUtil.cleanupFunctionName(func.name.value);
         BirScope lastScope = null;
@@ -307,7 +308,8 @@ public class InteropMethodGen {
             // process terminator
             if (!(terminator instanceof BIRTerminator.Return)) {
                 JvmCodeGenUtil.generateDiagnosticPos(terminator.pos, mv);
-                termGen.genTerminator(terminator, moduleClassName, func, funcName, -1, -1, null, asyncDataCollector);
+                termGen.genTerminator(terminator, moduleClassName, moduleInitClass, func, funcName, -1, -1,
+                                      null, asyncDataCollector);
             }
             errorGen.generateTryCatch(func, funcName, basicBlock, termGen, labelGen);
 
