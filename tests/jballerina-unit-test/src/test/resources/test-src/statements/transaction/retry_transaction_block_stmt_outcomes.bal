@@ -1,4 +1,3 @@
-import ballerina/io;
 import ballerina/lang.'transaction as transactions;
 
 function testCommitSuccessWithSuccessOutcome() returns error? {
@@ -28,7 +27,6 @@ function testCommitSuccessWithNoRetryFailOutcome() returns error? {
     error err = error("error");
     var onCommitFunc = function(transactions:Info? info) {
         str = str + "-> commit triggered ";
-        io:println(str);
     };
 
     retry transaction {
@@ -44,7 +42,6 @@ function testCommitSuccessWithPanicOutcome() returns string|error {
     string str = "";
     var onCommitFunc = function(transactions:Info? info) {
         str = str + "-> commit triggered ";
-        io:println(str);
     };
     retry transaction {
         str += "trx started ";
@@ -273,7 +270,6 @@ function testPanicFromRollbackWithUnusualFailOutcome() returns string|error {
         if (cause is error) {
             var err = trap panicWithError(cause);
             rollbackWithErr = true;
-            io:println("Panic from rollback");
         }
     };
 
@@ -373,7 +369,6 @@ function testNoCommitOrRollbackPerformedWithRollbackAndFailOutcome() returns str
 
     var onRollbackFunc = function(transactions:Info? info, error? cause, boolean willTry) {
         if (cause is error) {
-            io:println("rollback due to fail");
         }
     };
 
@@ -447,7 +442,6 @@ function nestedRetryFunc(boolean needPanic, boolean failCommit) returns string|e
     int count = 0;
     var onCommitFunc = function(transactions:Info? info) {
         str = str + "-> commit triggered ";
-        io:println(str);
     };
 
     retry transaction {

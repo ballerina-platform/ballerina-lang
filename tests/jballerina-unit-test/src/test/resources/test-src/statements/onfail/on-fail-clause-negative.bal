@@ -14,17 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 function testVariableScope() returns error?{
         do {
-            io:println("This is inside do");
             int i = 0;
             fail getError();
         } on fail error e {
-            io:println("This is inner on-fail" + i.toString());
+            string errMsg = "This is inner on-fail" + i.toString();
         }
-    io:println("While is completed.");
 }
 
 function getError() returns error {

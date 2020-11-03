@@ -51,7 +51,7 @@ public class OnFailClauseTest {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/statements/onfail/on-fail-clause-negative.bal");
         Assert.assertEquals(negativeResult.getErrorCount(), 1);
-        BAssertUtil.validateError(negativeResult, 0, "undefined symbol 'i'", 25, 50);
+        BAssertUtil.validateError(negativeResult, 0, "undefined symbol 'i'", 22, 55);
     }
 
     @Test(description = "Test on-fail clause negative cases - v2")
@@ -61,6 +61,6 @@ public class OnFailClauseTest {
 
         //TODO Fix required https://github.com/ballerina-platform/ballerina-lang/issues/26201
         Assert.assertEquals(negativeResult.getErrorCount(), 2);
-        BAssertUtil.validateError(negativeResult, 0, "unreachable code", 23, 9);
+        BAssertUtil.validateError(negativeResult, 0, "unreachable code", 21, 9);
     }
 }

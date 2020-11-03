@@ -14,15 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 function testQuery() returns error?{
     int i = 0;
     while (i > 2) {
         fail getError();
         i = i + 1;
     }
-    io:println("While is completed.");
+    i = 7;
 }
 
 function getError() returns error {
