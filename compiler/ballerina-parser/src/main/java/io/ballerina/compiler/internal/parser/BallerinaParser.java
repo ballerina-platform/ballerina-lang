@@ -1045,7 +1045,7 @@ public class BallerinaParser extends AbstractParser {
             STNode qualifier = qualifierList.get(i);
             int nextIndex = i + 1;
 
-            if (isNodeWithSyntaxKindInList(validatedList, qualifier.kind)) {
+            if (isDuplicate(validatedList, qualifier.kind)) {
                 updateLastNodeInListWithInvalidNode(validatedList, qualifier,
                         DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
             } else if (isValidFuncDefQualifier(qualifier.kind)) {
@@ -1068,7 +1068,7 @@ public class BallerinaParser extends AbstractParser {
             STNode qualifier = qualifierList.get(i);
             int nextIndex = i + 1;
 
-            if (isNodeWithSyntaxKindInList(validatedList, qualifier.kind)) {
+            if (isDuplicate(validatedList, qualifier.kind)) {
                 updateLastNodeInListWithInvalidNode(validatedList, qualifier,
                         DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
             } else if (isValidMethodQualifier(qualifier.kind)) {
@@ -1256,7 +1256,7 @@ public class BallerinaParser extends AbstractParser {
             STNode qualifier = qualifierList.get(i);
             int nextIndex = i + 1;
 
-            if (isNodeWithSyntaxKindInList(validatedList, qualifier.kind)) {
+            if (isDuplicate(validatedList, qualifier.kind)) {
                 updateLastNodeInListWithInvalidNode(validatedList, qualifier,
                         DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
             } else if (isRegularFuncQualifier(qualifier.kind)) {
@@ -1558,7 +1558,7 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private boolean isNodeWithSyntaxKindInList(List<STNode> nodeList, SyntaxKind kind) {
+    private boolean isDuplicate(List<STNode> nodeList, SyntaxKind kind) {
         for (STNode node : nodeList) {
             if (node.kind == kind) {
                 return true;
@@ -2719,7 +2719,7 @@ public class BallerinaParser extends AbstractParser {
             STNode qualifier = qualifierList.get(i);
             int nextIndex = i + 1;
 
-            if (isNodeWithSyntaxKindInList(validatedList, qualifier.kind)) {
+            if (isDuplicate(validatedList, qualifier.kind)) {
                 updateLastNodeInListWithInvalidNode(validatedList, qualifier,
                         DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
             } else if (isClassTypeQual(qualifier.kind)) {
@@ -2753,7 +2753,7 @@ public class BallerinaParser extends AbstractParser {
             STNode qualifier = qualifierList.get(i);
             int nextIndex = i + 1;
 
-            if (isNodeWithSyntaxKindInList(validatedList, qualifier.kind)) {
+            if (isDuplicate(validatedList, qualifier.kind)) {
                 updateLastNodeInListWithInvalidNode(validatedList, qualifier,
                         DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
             } else if (isObjectTypeQual(qualifier.kind)) {
@@ -3614,25 +3614,15 @@ public class BallerinaParser extends AbstractParser {
                     typedBindingPattern, assign, expr, semicolon);
         }
 
-        // Only final qualifier is allowed for non initialized module var declaration
-
-        // If type descriptor in the binding pattern is either object or function type
-        // and qualifier list has isolated qualifier as the last token,
-        // that isolated qualifier should be part of the type.
+        // If following 3 conditions are satisfied, we should let isolated qualifier to be a part of the type.
+        // 1. module variable declaration is not initialized.
+        // 2. type descriptor in the typed binding pattern is either object or function type.
+        // 3. qualifier list has isolated qualifier as the last token.
         STNode lastQualifier = isolatedFinalQualifiers.get(isolatedFinalQualifiers.size() - 1);
         if (lastQualifier.kind == SyntaxKind.ISOLATED_KEYWORD) {
             lastQualifier = isolatedFinalQualifiers.remove(isolatedFinalQualifiers.size() - 1);
             typedBindingPattern =
                     modifyTypedBindingPatternWithIsolatedQualifier(typedBindingPattern, lastQualifier);
-        }
-
-        // Now the list can have only following possibilities
-        // empty, final, isolated final
-        if (!isolatedFinalQualifiers.isEmpty() &&
-                isNodeWithSyntaxKindInList(isolatedFinalQualifiers, SyntaxKind.ISOLATED_KEYWORD)) {
-            STNode invalidIsolatedToken = isolatedFinalQualifiers.remove(0);
-            updateFirstNodeInListWithInvalidNode(isolatedFinalQualifiers, invalidIsolatedToken,
-                    DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) invalidIsolatedToken).text());
         }
 
         STNode isolatedFinalQualifierNode = STNodeFactory.createNodeList(isolatedFinalQualifiers);
@@ -5069,7 +5059,7 @@ public class BallerinaParser extends AbstractParser {
         STNode qualifier;
         for (int i = 0; i < 2; i++) {
             STToken nextToken = peek();
-            if (isNodeWithSyntaxKindInList(qualifiers, nextToken.kind)) {
+            if (isDuplicate(qualifiers, nextToken.kind)) {
                 qualifier = consume();
                 updateLastNodeInListOrAddInvalidNodeToNextToken(qualifiers, nextToken,
                         DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
@@ -5408,7 +5398,7 @@ public class BallerinaParser extends AbstractParser {
                 }
         }
 
-        if (isNodeWithSyntaxKindInList(qualifierList, currentQualifier.kind)) {
+        if (isDuplicate(qualifierList, currentQualifier.kind)) {
             return DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER;
         }
 
@@ -7989,7 +7979,7 @@ public class BallerinaParser extends AbstractParser {
             STNode qualifier = qualifierList.get(i);
             int nextIndex = i + 1;
 
-            if (isNodeWithSyntaxKindInList(validatedList, qualifier.kind)) {
+            if (isDuplicate(validatedList, qualifier.kind)) {
                 updateLastNodeInListWithInvalidNode(validatedList, qualifier,
                         DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
             } else if (qualifier.kind == SyntaxKind.TRANSACTIONAL_KEYWORD) {
@@ -9316,7 +9306,7 @@ public class BallerinaParser extends AbstractParser {
             STNode qualifier = qualifierList.get(i);
             int nextIndex = i + 1;
 
-            if (isNodeWithSyntaxKindInList(validatedList, qualifier.kind)) {
+            if (isDuplicate(validatedList, qualifier.kind)) {
                 updateLastNodeInListWithInvalidNode(validatedList, qualifier,
                         DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
             } else if (isRegularFuncQualifier(qualifier.kind)) {
