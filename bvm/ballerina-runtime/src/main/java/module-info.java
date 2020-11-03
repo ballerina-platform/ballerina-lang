@@ -25,7 +25,11 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.util.exceptions;
     exports io.ballerina.runtime.launch;
     exports io.ballerina.runtime;
-    exports io.ballerina.runtime.scheduling;
+    exports io.ballerina.runtime.scheduling to
+                io.ballerina.lang.array, io.ballerina.testerina.runtime, io.ballerina.lang.error, io.ballerina.java,
+                io.ballerina.lang.map, io.ballerina.lang.table, io.ballerina.lang.value, io.ballerina.lang.xml,
+                io.ballerina.lang.transaction, io.ballerina.log.api, io.ballerina.testerina.core,
+                io.ballerina.cli.utils;
     exports io.ballerina.runtime.observability;
     exports io.ballerina.runtime.transactions;
     exports io.ballerina.runtime.services;
