@@ -31,11 +31,12 @@ import org.ballerinalang.observe.trace.extension.choreo.logging.Logger;
 import org.ballerinalang.observe.trace.extension.choreo.model.ChoreoTraceSpan;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -47,6 +48,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
     private static final int PUBLISH_INTERVAL_SECS = 10;
+    private static final int SPAN_LIST_BOUND = 50000;
     private static final Logger LOGGER = LogFactory.getLogger();
 
     private final ScheduledExecutorService executorService;
@@ -94,7 +96,8 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
      */
     private static class Task implements Runnable {
         private final ChoreoClient choreoClient;
-        private final List<ChoreoTraceSpan> traceSpans;
+        private List<ChoreoTraceSpan> traceSpans;
+        private List<ChoreoTraceSpan> swappedTraceSpans;
 
         private Task(ChoreoClient choreoClient) {
             this.choreoClient = choreoClient;
@@ -129,22 +132,41 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
 
         @Override
         public void run() {
-            ChoreoTraceSpan[] spansToBeSent;
+
             synchronized (this) {
                 if (traceSpans.size() > 0) {
-                    spansToBeSent = traceSpans.toArray(new ChoreoTraceSpan[0]);
-                    traceSpans.clear();
+                    swappedTraceSpans = traceSpans;
+                    traceSpans = new ArrayList<>();
                 } else {
-                    spansToBeSent = new ChoreoTraceSpan[0];
+                    swappedTraceSpans = Collections.emptyList();
                 }
             }
-            if (spansToBeSent.length > 0) {
+            if (swappedTraceSpans.size() > 0) {
                 if (!Objects.isNull(choreoClient)) {
                     try {
-                        choreoClient.publishTraceSpans(spansToBeSent);
+                        choreoClient.publishTraceSpans(swappedTraceSpans);
                     } catch (Throwable t) {
                         synchronized (this) {
-                            traceSpans.addAll(Arrays.asList(spansToBeSent));
+                            if (swappedTraceSpans.size() > SPAN_LIST_BOUND) {
+                                Random random = new Random();
+                                //remove 10% of the trace spans
+                                int spansToRemove = (int) (swappedTraceSpans.size() * (10.0f / 100.0f));
+                                for (int i = 0; i < spansToRemove; i++) {
+                                    if (swappedTraceSpans.size() > 0) {
+                                        int randomSpanPos = random.nextInt(swappedTraceSpans.size());
+                                        long traceID = swappedTraceSpans.get(randomSpanPos).getTraceId();
+                                        for (int j = 0; j < swappedTraceSpans.size(); j++) {
+                                            if (swappedTraceSpans.get(j).getTraceId() == traceID) {
+                                                swappedTraceSpans.remove(j);
+                                                //reduce the count as well since the size of the arryList shrink
+                                                j--;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            traceSpans.addAll(swappedTraceSpans);
                         }
                         LOGGER.error("failed to publish traces to Choreo due to " + t.getMessage());
                     }
