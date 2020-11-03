@@ -20,6 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.ModuleLoadResponse;
 import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.ProjectEnvironmentContext;
 import io.ballerina.projects.environment.Repository;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -34,12 +35,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -57,47 +56,52 @@ import java.util.Set;
  */
 class ModuleContext {
     private final ModuleId moduleId;
-    private ModuleName moduleName;
+    private final ModuleDescriptor moduleDescriptor;
     private final Collection<DocumentId> srcDocIds;
     private final boolean isDefaultModule;
     private final Map<DocumentId, DocumentContext> srcDocContextMap;
     private final Collection<DocumentId> testSrcDocIds;
     private final Map<DocumentId, DocumentContext> testDocContextMap;
     private final Project project;
+    private final Repository repository;
 
     private Set<ModuleDependency> moduleDependencies;
     private BLangPackage bLangPackage;
     private BPackageSymbol bPackageSymbol;
-    private List<Diagnostic> diagnostics;
     private byte[] birBytes = new byte[0];
-
     private final Bootstrap bootstrap;
+    private ModuleCompilationState moduleCompState;
 
-
-    // TODO How about introducing a ModuleState concept. ModuleState.DEPENDENCIES_RESOLVED
-    private boolean dependenciesResolved;
-
-    ModuleContext(Project project, ModuleId moduleId, ModuleName moduleName, boolean isDefaultModule,
+    ModuleContext(Project project,
+                  ModuleId moduleId,
+                  ModuleDescriptor moduleDescriptor,
+                  boolean isDefaultModule,
                   Map<DocumentId, DocumentContext> srcDocContextMap,
                   Map<DocumentId, DocumentContext> testDocContextMap,
                   Set<ModuleDependency> moduleDependencies) {
         this.project = project;
         this.moduleId = moduleId;
-        this.moduleName = moduleName;
+        this.moduleDescriptor = moduleDescriptor;
         this.isDefaultModule = isDefaultModule;
         this.srcDocContextMap = srcDocContextMap;
         this.srcDocIds = Collections.unmodifiableCollection(srcDocContextMap.keySet());
         this.testDocContextMap = testDocContextMap;
         this.testSrcDocIds = Collections.unmodifiableCollection(testDocContextMap.keySet());
         this.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
-        this.bootstrap = new Bootstrap(project.environmentContext().getService(PackageResolver.class));
+
+        ProjectEnvironmentContext projectEnvironmentContext = project.environmentContext();
+        this.bootstrap = new Bootstrap(projectEnvironmentContext.getService(PackageResolver.class));
+        this.repository = projectEnvironmentContext.getService(Repository.class);
     }
 
-    private ModuleContext(Project project, ModuleId moduleId, ModuleName moduleName, boolean isDefaultModule,
+    private ModuleContext(Project project,
+                          ModuleId moduleId,
+                          ModuleDescriptor moduleDescriptor,
+                          boolean isDefaultModule,
                           Map<DocumentId, DocumentContext> srcDocContextMap,
                           Map<DocumentId, DocumentContext> testDocContextMap) {
-        this(project, moduleId, moduleName, isDefaultModule, srcDocContextMap, testDocContextMap,
-                Collections.emptySet());
+        this(project, moduleId, moduleDescriptor, isDefaultModule, srcDocContextMap,
+                testDocContextMap, Collections.emptySet());
     }
 
     static ModuleContext from(Project project, ModuleConfig moduleConfig) {
@@ -111,17 +115,21 @@ class ModuleContext {
             testDocContextMap.put(testSrcDocConfig.documentId(), DocumentContext.from(testSrcDocConfig));
         }
 
-        final ModuleContext moduleContext = new ModuleContext(project, moduleConfig.moduleId(),
-                moduleConfig.moduleName(), moduleConfig.isDefaultModule(), srcDocContextMap, testDocContextMap);
-        return moduleContext;
+        return new ModuleContext(project, moduleConfig.moduleId(),
+                moduleConfig.moduleDescriptor(), moduleConfig.isDefaultModule(),
+                srcDocContextMap, testDocContextMap);
     }
 
     ModuleId moduleId() {
         return this.moduleId;
     }
 
+    ModuleDescriptor moduleDescriptor() {
+        return moduleDescriptor;
+    }
+
     ModuleName moduleName() {
-        return this.moduleName;
+        return moduleDescriptor.name();
     }
 
     Collection<DocumentId> srcDocumentIds() {
@@ -148,97 +156,8 @@ class ModuleContext {
         return this.isDefaultModule;
     }
 
-    boolean resolveDependencies() {
-        // This method mutate the internal state of the moduleContext instance. This is considered as lazy loading
-        // TODO Figure out a way to handle concurrent modifications
-        // We should not mutate the object model for any modifications originated from the user
-        if (dependenciesResolved) {
-            return false;
-        }
-
-        // 1) Combine all the moduleLoadRequests of documents
-        Set<ModuleLoadRequest> moduleLoadRequests = new HashSet<>();
-        for (DocumentContext docContext : srcDocContextMap.values()) {
-            moduleLoadRequests.addAll(docContext.moduleLoadRequests());
-        }
-
-        // 2) Resolve all the dependencies of this module
-        PackageResolver packageResolver = project.environmentContext().getService(PackageResolver.class);
-        Collection<ModuleLoadResponse> moduleLoadResponses = packageResolver.loadPackages(moduleLoadRequests);
-
-        // The usage of Set eliminates duplicates
-        Set<ModuleDependency> moduleDependencies = new HashSet<>();
-        for (ModuleLoadResponse moduleLoadResponse : moduleLoadResponses) {
-            ModuleDependency moduleDependency = new ModuleDependency(
-                    new PackageDependency(moduleLoadResponse.packageId()),
-                    moduleLoadResponse.moduleId());
-            moduleDependencies.add(moduleDependency);
-        }
-
-        this.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
-        this.dependenciesResolved = true;
-        return true;
-    }
-
     Collection<ModuleDependency> dependencies() {
         return moduleDependencies;
-    }
-
-    void compile(CompilerContext compilerContext, PackageDescriptor packageDescriptor) {
-        // TODO use ModuleState enum
-        if (bLangPackage != null) {
-            return;
-        }
-
-        PackageID pkgId;
-        if (packageDescriptor.name().value().equals(".") && packageDescriptor.org().anonymous()) {
-            pkgId = PackageID.DEFAULT;
-        } else {
-            pkgId = new PackageID(new Name(packageDescriptor.org().toString()),
-                    new Name(this.moduleName.toString()), new Name(packageDescriptor.version().toString()));
-        }
-
-        String bootstrapLangLibName = System.getProperty("BOOTSTRAP_LANG_LIB");
-        if (bootstrapLangLibName != null) {
-            bootstrap.loadLangLib(compilerContext, pkgId);
-        }
-
-        PackageCache packageCache = PackageCache.getInstance(compilerContext);
-        if (birBytes.length > 0) {
-            BIRPackageSymbolEnter birPackageSymbolEnter = BIRPackageSymbolEnter.getInstance(compilerContext);
-            bPackageSymbol = birPackageSymbolEnter.definePackage(pkgId, null, birBytes);
-            packageCache.putSymbol(pkgId, bPackageSymbol);
-            diagnostics = new ArrayList<>();
-            return;
-        }
-
-        SymbolEnter symbolEnter = SymbolEnter.getInstance(compilerContext);
-        CompilerPhaseRunner compilerPhaseRunner = CompilerPhaseRunner.getInstance(compilerContext);
-
-        BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
-        packageCache.put(pkgId, pkgNode);
-
-        // Parse source files
-        for (DocumentContext documentContext : srcDocContextMap.values()) {
-            pkgNode.addCompilationUnit(documentContext.compilationUnit(compilerContext, pkgId));
-        }
-
-        // Parse test source files
-        // TODO use the compilerOption such as --skip-tests to enable or disable tests
-        if (!testSrcDocumentIds().isEmpty()) {
-            parseTestSources(pkgNode, pkgId, compilerContext);
-        }
-
-        pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgId, this.moduleName.toString()), 0, 0, 0, 0);
-        symbolEnter.definePackage(pkgNode);
-        packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
-
-        if (bootstrapLangLibName != null) {
-            compilerPhaseRunner.compileLangLibs(pkgNode);
-        } else {
-            compilerPhaseRunner.compile(pkgNode);
-        }
-        this.bLangPackage = pkgNode;
     }
 
     boolean entryPointExists() {
@@ -289,20 +208,12 @@ class ModuleContext {
      * @return Returns the list of compilation diagnostics of this module
      */
     List<Diagnostic> diagnostics() {
-        // First get from the cache in ModuleContext
-        if (diagnostics != null) {
-            return diagnostics;
-
-        }
-
         // Try to get the diagnostics from the bLangPackage, if the module is already compiled
         if (bLangPackage != null) {
-            diagnostics = bLangPackage.getDiagnostics();
-            return diagnostics;
+            return bLangPackage.getDiagnostics();
         }
 
-        // TODO error handling - Module is not compiled
-        throw new IllegalStateException("Compile the module first!");
+        return Collections.emptyList();
     }
 
     private void parseTestSources(BLangPackage pkgNode, PackageID pkgId, CompilerContext compilerContext) {
@@ -312,20 +223,154 @@ class ModuleContext {
         testablePkg.flagSet.add(Flag.TESTABLE);
         // TODO Why we need two different diagnostic positions. This is how it is done in the current compiler.
         //  So I kept this as is for now.
-        testablePkg.pos = new DiagnosticPos(new BDiagnosticSource(pkgId, this.moduleName.toString()), 1, 1, 1, 1);
+        testablePkg.pos = new DiagnosticPos(new BDiagnosticSource(pkgId,
+                this.moduleName().toString()), 1, 1, 1, 1);
         pkgNode.addTestablePkg(testablePkg);
         for (DocumentContext documentContext : testDocContextMap.values()) {
             testablePkg.addCompilationUnit(documentContext.compilationUnit(compilerContext, pkgId));
         }
     }
 
-    void loadBirFromCache(Repository repository, Module module) {
-        if (this.birBytes.length == 0) {
-            this.birBytes = repository.getCachedBir(module);
+    private ModuleCompilationState currentCompilationState() {
+        if (moduleCompState != null) {
+            return moduleCompState;
+        }
+
+        // TODO This logic needs to be updated. We need a proper way to decide on the initial state
+        if (repository.getCachedBir(moduleDescriptor.name()).length == 0) {
+            moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
+        } else {
+            moduleCompState = ModuleCompilationState.LOADED_FROM_CACHE;
+        }
+        return moduleCompState;
+    }
+
+    void setCompilationState(ModuleCompilationState moduleCompState) {
+        this.moduleCompState = moduleCompState;
+    }
+
+    void parse() {
+        currentCompilationState().parse(this);
+    }
+
+    boolean resolveDependencies() {
+        // TODO refactor the boolean return
+        ModuleCompilationState moduleState = currentCompilationState();
+        if (moduleState == ModuleCompilationState.DEPENDENCIES_RESOLVED_FROM_BALO ||
+                moduleState == ModuleCompilationState.DEPENDENCIES_RESOLVED_FROM_SOURCES) {
+            return false;
+        } else {
+            moduleState.resolveDependencies(this);
+            return true;
         }
     }
 
-    void cacheBir(Repository repository, Module module) {
-        // todo
+    void compile(CompilerContext compilerContext) {
+        currentCompilationState().compile(this, compilerContext);
+    }
+
+    void generatePlatformSpecificCode(CompilerContext compilerContext, CompilerBackend compilerBackend) {
+        currentCompilationState().generatePlatformSpecificCode(this, compilerContext, compilerBackend);
+    }
+
+    static void parseInternal(ModuleContext moduleContext) {
+        for (DocumentContext docContext : moduleContext.srcDocContextMap.values()) {
+            docContext.parse();
+        }
+    }
+
+    static void resolveDependenciesInternal(ModuleContext moduleContext) {
+        // 1) Combine all the moduleLoadRequests of documents
+        Set<ModuleLoadRequest> moduleLoadRequests = new HashSet<>();
+        for (DocumentContext docContext : moduleContext.srcDocContextMap.values()) {
+            moduleLoadRequests.addAll(docContext.moduleLoadRequests());
+        }
+
+        // 2) Resolve all the dependencies of this module
+        PackageResolver packageResolver = moduleContext.project.environmentContext().
+                getService(PackageResolver.class);
+        Collection<ModuleLoadResponse> moduleLoadResponses = packageResolver.loadPackages(moduleLoadRequests);
+
+        // The usage of Set eliminates duplicates
+        Set<ModuleDependency> moduleDependencies = new HashSet<>();
+        for (ModuleLoadResponse moduleLoadResponse : moduleLoadResponses) {
+            ModuleDependency moduleDependency = new ModuleDependency(
+                    new PackageDependency(moduleLoadResponse.packageId()),
+                    moduleLoadResponse.moduleId());
+            moduleDependencies.add(moduleDependency);
+        }
+
+        moduleContext.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
+    }
+
+    static void compileInternal(ModuleContext moduleContext, CompilerContext compilerContext) {
+        PackageID moduleCompilationId = moduleContext.moduleDescriptor().moduleCompilationId();
+        String bootstrapLangLibName = System.getProperty("BOOTSTRAP_LANG_LIB");
+        if (bootstrapLangLibName != null) {
+            moduleContext.bootstrap.loadLangLib(compilerContext, moduleCompilationId);
+        }
+
+        PackageCache packageCache = PackageCache.getInstance(compilerContext);
+        SymbolEnter symbolEnter = SymbolEnter.getInstance(compilerContext);
+        CompilerPhaseRunner compilerPhaseRunner = CompilerPhaseRunner.getInstance(compilerContext);
+
+        BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
+        packageCache.put(moduleCompilationId, pkgNode);
+
+        // Parse source files
+        for (DocumentContext documentContext : moduleContext.srcDocContextMap.values()) {
+            pkgNode.addCompilationUnit(documentContext.compilationUnit(compilerContext, moduleCompilationId));
+        }
+
+        // Parse test source files
+        // TODO use the compilerOption such as --skip-tests to enable or disable tests
+        if (!moduleContext.testSrcDocumentIds().isEmpty()) {
+            moduleContext.parseTestSources(pkgNode, moduleCompilationId, compilerContext);
+        }
+
+        pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(moduleCompilationId,
+                moduleContext.moduleName().toString()), 0, 0, 0, 0);
+        symbolEnter.definePackage(pkgNode);
+        packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
+
+        if (bootstrapLangLibName != null) {
+            compilerPhaseRunner.compileLangLibs(pkgNode);
+        } else {
+            compilerPhaseRunner.compile(pkgNode);
+        }
+        moduleContext.bLangPackage = pkgNode;
+    }
+
+    static void generateCodeInternal(ModuleContext moduleContext,
+                                     CompilerContext compilerContext,
+                                     CompilerBackend compilerBackend) {
+        // Skip the code generation phase if there diagnostics
+        if (!moduleContext.diagnostics().isEmpty()) {
+            return;
+        }
+        CompilerPhaseRunner compilerPhaseRunner = CompilerPhaseRunner.getInstance(compilerContext);
+        compilerPhaseRunner.codeGen(moduleContext.moduleId, compilerBackend, moduleContext.bLangPackage);
+    }
+
+    static void loadBirBytesInternal(ModuleContext moduleContext) {
+        moduleContext.birBytes = moduleContext.repository.getCachedBir(moduleContext.moduleName());
+    }
+
+    static void resolveDependenciesFromBALOInternal(ModuleContext moduleContext) {
+        // TODO implement
+    }
+
+    static void loadPackageSymbolInternal(ModuleContext moduleContext, CompilerContext compilerContext) {
+        PackageCache packageCache = PackageCache.getInstance(compilerContext);
+        BIRPackageSymbolEnter birPackageSymbolEnter = BIRPackageSymbolEnter.getInstance(compilerContext);
+
+        PackageID moduleCompilationId = moduleContext.moduleDescriptor().moduleCompilationId();
+        moduleContext.bPackageSymbol = birPackageSymbolEnter.definePackage(
+                moduleCompilationId, null, moduleContext.birBytes);
+        packageCache.putSymbol(moduleCompilationId, moduleContext.bPackageSymbol);
+    }
+
+    static void loadPlatformSpecificCodeInternal(ModuleContext moduleContext, CompilerBackend compilerBackend) {
+        // TODO implement
     }
 }

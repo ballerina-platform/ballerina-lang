@@ -21,6 +21,8 @@ package io.ballerina.projects.directory;
 import com.google.gson.JsonSyntaxException;
 import com.moandjiezana.toml.Toml;
 import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageDescriptor.Dependency;
+import io.ballerina.projects.PackageDescriptor.Platform;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
@@ -34,6 +36,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -84,20 +88,53 @@ public class BallerinaTomlProcessor {
         // Process dependencies
         List<Map<String, Object>> dependencyEntries =
                 (List<Map<String, Object>>) otherEntries.remove("dependency");
-        List<PackageDescriptor.Dependency> dependencies;
-        if (dependencyEntries == null) {
-            dependencies = new ArrayList<>(0);
+        var dependencies = getDependencies(dependencyEntries);
+
+        // Process platforms
+        Map<String, Object> platformEntries = (Map<String, Object>) otherEntries.remove("platform");
+        Map<String, Platform> platforms = getPlatforms(platformEntries);
+
+        return PackageDescriptor.from(packageName, packageOrg, packageVersion,
+                dependencies, platforms, otherEntries);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Platform> getPlatforms(Map<String, Object> platformEntries) {
+        Map<String, Platform> platforms;
+        if (platformEntries == null || platformEntries.isEmpty()) {
+            platforms = Collections.emptyMap();
+        } else {
+            platforms = new HashMap<>(platformEntries.size());
+            for (Map.Entry<String, Object> platformEntry : platformEntries.entrySet()) {
+                String platformCode = platformEntry.getKey();
+                // TODO We need to validate the toml before making this cast
+                Map<String, Object> platformValue = (Map<String, Object>) platformEntry.getValue();
+                if (platformValue != null) {
+                    List<Map<String, Object>> platformDependencies =
+                            (List<Map<String, Object>>) platformValue.get("dependency");
+                    Platform platform = new Platform(platformDependencies);
+                    platforms.put(platformCode, platform);
+                }
+            }
+        }
+
+        return platforms;
+    }
+
+    private static List<Dependency> getDependencies(List<Map<String, Object>> dependencyEntries) {
+        List<Dependency> dependencies;
+        if (dependencyEntries == null || dependencyEntries.isEmpty()) {
+            dependencies = Collections.emptyList();
         } else {
             dependencies = new ArrayList<>(dependencyEntries.size());
             for (Map<String, Object> dependencyEntry : dependencyEntries) {
                 PackageName depName = PackageName.from((String) dependencyEntry.get("name"));
                 PackageOrg depOrg = PackageOrg.from((String) dependencyEntry.get("org"));
                 PackageVersion depVersion = PackageVersion.from((String) dependencyEntry.get("version"));
-                dependencies.add(new PackageDescriptor.Dependency(depName, depOrg, depVersion));
+                dependencies.add(new Dependency(depName, depOrg, depVersion));
             }
         }
-
-        return new PackageDescriptor(packageName, packageOrg, packageVersion, dependencies, otherEntries);
+        return dependencies;
     }
 
     /**

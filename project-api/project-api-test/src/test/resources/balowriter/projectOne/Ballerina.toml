@@ -8,11 +8,8 @@ repository = "https://github.com/ballerinalang/ballerina"
 keywords = ["ballerina", "security", "crypto"]
 exported = ["winery", "service"]
 
-[platform]
-target = "java8"
-
-    [[platform.libraries]]
-    artifactId = "ldap"
-    version = "1.0.0"
-    path = "./libs/ballerina-io-1.0.0-java.txt"
-    groupId = "ballerina"
+[[platform.java11.dependency]]
+artifactId = "ldap"
+version = "1.0.0"
+path = "./libs/ballerina-io-1.0.0-java.txt"
+groupId = "ballerina"

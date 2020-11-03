@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import java.util.Collection;
+
 /**
  * An abstract class that represents a Ballerina compiler backend.
  *
@@ -24,5 +26,5 @@ package io.ballerina.projects;
  * @since 2.0.0
  */
 public abstract class CompilerBackend {
-
+    public abstract Collection<PlatformLibrary> platformLibraries(PackageId packageId);
 }

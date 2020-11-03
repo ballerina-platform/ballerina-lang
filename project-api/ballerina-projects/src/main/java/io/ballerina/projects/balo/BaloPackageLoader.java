@@ -21,6 +21,7 @@ import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.directory.PackageData;
 import io.ballerina.projects.directory.PackageLoader;
+import io.ballerina.projects.environment.Repository;
 
 /**
  * Contains a set of utility methods that creates the config hierarchy from balo file.
@@ -29,9 +30,9 @@ import io.ballerina.projects.directory.PackageLoader;
  */
 public class BaloPackageLoader extends PackageLoader {
 
-    public static PackageConfig loadPackage(String packageDir, PackageDescriptor packageDescriptor) {
+    public static PackageConfig loadPackage(String packageDir, Repository repo, PackageDescriptor packageDescriptor) {
         // TODO Refactor this code
         PackageData packageData = BaloFiles.loadPackageData(packageDir, packageDescriptor);
-        return createPackageConfig(packageData, packageDescriptor);
+        return createPackageConfig(packageData, packageDescriptor, repo);
     }
 }

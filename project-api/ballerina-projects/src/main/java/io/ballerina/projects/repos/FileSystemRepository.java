@@ -18,7 +18,9 @@
 package io.ballerina.projects.repos;
 
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.SemanticVersion;
@@ -67,11 +69,14 @@ public class FileSystemRepository implements Repository {
     Path root;
     Path balo;
     Path cache;
+    private final Project project;
+    private Path birPath;
 
-    public FileSystemRepository(Path cacheDirectory) {
+    public FileSystemRepository(Project project, Path cacheDirectory) {
         this.root = cacheDirectory;
         this.balo = this.root.resolve(ProjectConstants.REPO_BALO_DIR_NAME);
         this.cache = this.root.resolve(ProjectConstants.REPO_CACHE_DIR_NAME);
+        this.project = project;
         // todo check if the directories are readable
     }
 
@@ -90,7 +95,7 @@ public class FileSystemRepository implements Repository {
             return Optional.empty();
         }
 
-        Project project = BaloProject.loadProject(baloPath, this);
+        Project project = BaloProject.loadProject(baloPath);
         return Optional.of(project.currentPackage());
     }
 
@@ -129,8 +134,8 @@ public class FileSystemRepository implements Repository {
     }
 
     @Override
-    public byte[] getCachedBir(Module module) {
-        Path birFilePath = getBirPath(module.packageInstance()).resolve(module.moduleName().toString()
+    public byte[] getCachedBir(ModuleName moduleName) {
+        Path birFilePath = getBirPath().resolve(moduleName.toString()
                 + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT);
         if (Files.exists(birFilePath)) {
             try {
@@ -143,8 +148,8 @@ public class FileSystemRepository implements Repository {
     }
 
     @Override
-    public void cacheBir(Module module, byte[] bir) {
-        Path birFilePath = getBirPath(module.packageInstance()).resolve(module.moduleName().toString()
+    public void cacheBir(ModuleName moduleName, byte[] bir) {
+        Path birFilePath = getBirPath().resolve(moduleName.toString()
                 + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT);
         if (!Files.exists(birFilePath)) {
             try {
@@ -168,12 +173,18 @@ public class FileSystemRepository implements Repository {
                 .resolve(ProjectConstants.REPO_JAR_CACHE_NAME);
     }
 
-    public Path getBirPath(Package aPackage) {
-        String packageName = aPackage.packageName().value();
-        String orgName = aPackage.packageOrg().toString();
-        String version = aPackage.packageVersion().version().toString();
-        return this.cache.resolve(orgName).resolve(packageName).resolve(version)
+    private Path getBirPath() {
+        if (birPath != null) {
+            return birPath;
+        }
+
+        Package currentPkg = project.currentPackage();
+        PackageDescriptor pkgDescriptor = currentPkg.packageDescriptor();
+        birPath = cache.resolve(pkgDescriptor.org().value())
+                .resolve(pkgDescriptor.name().value())
+                .resolve(pkgDescriptor.version().toString())
                 .resolve(ProjectConstants.REPO_BIR_CACHE_NAME);
+        return birPath;
     }
 
     private static class SearchModules extends SimpleFileVisitor<Path> {

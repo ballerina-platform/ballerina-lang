@@ -59,20 +59,16 @@ public class CompileResult {
     private int errorCount = 0;
     private int warnCount = 0;
 
-    public CompileResult(Package pkg) {
-        this.pkg = pkg;
-        this.packageCompilation = pkg.getCompilation();
-        this.targetPath = null;
-        this.diagnostics = packageCompilation.diagnostics().toArray(new Diagnostic[]{});
-        populateDiagnosticsCount();
+    public CompileResult(Package pkg, List<Diagnostic> diagnostics) {
+        this(pkg, diagnostics, null);
     }
 
-    public CompileResult(Package pkg, Path targetPath) {
+    public CompileResult(Package pkg, List<Diagnostic> diagnostics, Path targetPath) {
         this.pkg = pkg;
         this.packageCompilation = pkg.getCompilation();
         this.targetPath = targetPath;
-        this.diagnostics = packageCompilation.diagnostics().toArray(new Diagnostic[]{});
-        populateDiagnosticsCount();
+        this.diagnostics = diagnostics.toArray(new Diagnostic[0]);
+        populateDiagnosticsCount(this.diagnostics);
     }
 
     Path projectSourceRoot() {
@@ -125,6 +121,10 @@ public class CompileResult {
 
     private void addClasspathEntries(Path jarFilePath, List<URL> jarFiles) throws IOException {
 
+        if (!Files.exists(jarFilePath)) {
+            return;
+        }
+
         if (Files.isRegularFile(jarFilePath) &&
                 jarFilePath.toString().endsWith(BLANG_COMPILED_JAR_EXT)) {
             jarFiles.add(jarFilePath.normalize().toUri().toURL());
@@ -176,8 +176,8 @@ public class CompileResult {
         return new URLClassLoader(urls);
     }
 
-    private void populateDiagnosticsCount() {
-        for (Diagnostic diagnostic : packageCompilation.diagnostics()) {
+    private void populateDiagnosticsCount(Diagnostic[] diagnostics) {
+        for (Diagnostic diagnostic : diagnostics) {
             switch (diagnostic.diagnosticInfo().severity()) {
                 case WARNING:
                     warnCount++;
@@ -188,5 +188,4 @@ public class CompileResult {
             }
         }
     }
-
 }

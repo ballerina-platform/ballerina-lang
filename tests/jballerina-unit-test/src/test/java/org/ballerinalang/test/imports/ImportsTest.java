@@ -35,10 +35,10 @@ public class ImportsTest {
 
     @Test(description = "Test self import")
     public void testSelfImport() {
-        CompileResult result = BCompileUtil.compile("test-src/imports/self-import");
+        CompileResult result = BCompileUtil.compile("test-src/imports/SelfImportTestProject");
         assertEquals(result.getErrorCount(), 1);
-        validateError(result, 0, "cyclic module imports detected 'self-import/foo:1.0.0 -> self-import/foo:1.0.0'", 2,
-                1);
+        validateError(result, 0, "cyclic module imports detected " +
+                        "'testorg/selfimport.foo:1.0.0 -> testorg/selfimport.foo:1.0.0'", 2, 1);
     }
 
     @Test(enabled = false, description = "Test cyclic imports")
@@ -69,22 +69,19 @@ public class ImportsTest {
 
     @Test(description = "Test auto imports")
     public void testPredeclaredModules() {
-//        CompileResult result = BCompileUtil.compile("test-src/imports/predeclared-imports", "bar");
-        CompileResult result = BCompileUtil.compile("test-src/imports/predeclared-imports");
+        CompileResult result = BCompileUtil.compile("test-src/imports/PredeclaredImportsTestProject");
         BRunUtil.invoke(result, "testPredeclaredModules");
     }
 
     @Test(description = "Test overridden predeclared modules")
     public void testOverriddenPredeclaredModules() {
-//        CompileResult result = BCompileUtil.compile("test-src/imports/predeclared-imports", "foo");
-        CompileResult result = BCompileUtil.compile("test-src/imports/predeclared-imports");
+        CompileResult result = BCompileUtil.compile("test-src/imports/OverriddenPredeclaredImportsTestProject");
         BRunUtil.invoke(result, "testOverriddenPredeclaredModules");
     }
 
     @Test(description = "Test overridden predeclared modules using keywords")
     public void testOverriddenPredeclaredModulesUsingKeywords() {
-//        CompileResult result = BCompileUtil.compile("test-src/imports/predeclared-imports", "bar");
-        CompileResult result = BCompileUtil.compile("test-src/imports/predeclared-imports");
+        CompileResult result = BCompileUtil.compile("test-src/imports/PredeclaredImportsTestProject");
         BRunUtil.invoke(result, "testPredeclaredModules2");
     }
 }

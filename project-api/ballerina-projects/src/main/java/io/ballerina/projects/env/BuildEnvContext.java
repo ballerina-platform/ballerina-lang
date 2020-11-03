@@ -48,14 +48,9 @@ public class BuildEnvContext extends EnvironmentContext {
         if (instance == null) {
             instance = new BuildEnvContext();
             instance.initGlobalPackageCache();
-            instance.initDistPackageCache();
             instance.populateCompilerContext();
         }
         return instance;
-    }
-
-    private void initDistPackageCache() {
-        services.put(DistributionPackageCache.class, new DistributionPackageCache());
     }
 
     public ProjectEnvironmentContext projectEnvironmentContext(Project project) {
@@ -69,7 +64,6 @@ public class BuildEnvContext extends EnvironmentContext {
 
     public void reset() {
         initGlobalPackageCache();
-        initDistPackageCache();
         populateCompilerContext();
     }
 
@@ -83,7 +77,7 @@ public class BuildEnvContext extends EnvironmentContext {
 
         String bootstrapLangLibName = System.getProperty("BOOTSTRAP_LANG_LIB");
         if (bootstrapLangLibName == null) {
-            Bootstrap bootstrap = new Bootstrap(new LangLibResolver(getService(DistributionPackageCache.class),
+            Bootstrap bootstrap = new Bootstrap(new LangLibResolver(new DistributionPackageCache(null),
                     getService(GlobalPackageCache.class)));
             bootstrap.loadLangLibSymbols(compilerContext);
         }
@@ -97,5 +91,4 @@ public class BuildEnvContext extends EnvironmentContext {
     public <T> T getService(Class<T> clazz) {
         return (T) services.get(clazz);
     }
-
 }

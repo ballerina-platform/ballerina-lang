@@ -164,7 +164,8 @@ public class StructTest {
 
     @Test
     public void testStructLiteral() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/structs/proj/src/default/struct-literals.bal");
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/structs/ObjectWithPrivateFieldsTestProject/struct-literals.bal");
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructLiteral1");
         Assert.assertEquals(returns[0].stringValue(), "{dptName:\"\", employees:[], manager:" +
                 "{name:\"default first name\", lname:\"\", adrs:{}, age:999, child:()}}");
@@ -176,7 +177,8 @@ public class StructTest {
 
     @Test
     public void testStructLiteralInitFunc() {
-        CompileResult result = BCompileUtil.compile("test-src/structs/proj/src/default/nested-struct-inline-init.bal");
+        CompileResult result = BCompileUtil.compile(
+                "test-src/structs/ObjectWithPrivateFieldsTestProject/nested-struct-inline-init.bal");
         BValue[] returns = BRunUtil.invoke(result, "testCreateStruct");
         Assert.assertEquals(returns[0].stringValue(),
                 "{name:\"default first name\", fname:\"\", lname:\"Doe\", adrs:{}, age:999, " +

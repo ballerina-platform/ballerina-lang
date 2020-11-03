@@ -30,7 +30,6 @@ import io.ballerina.projects.utils.ProjectUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.Optional;
 
 /**
@@ -80,8 +79,7 @@ public class SingleFileProject extends Project {
         PackageName packageName = PackageName.from(ProjectConstants.DOT);
         PackageOrg packageOrg = PackageOrg.from(ProjectConstants.ANON_ORG);
         PackageVersion packageVersion = PackageVersion.from(ProjectConstants.DEFAULT_VERSION);
-        PackageDescriptor packageDescriptor = new PackageDescriptor(packageName,
-                packageOrg, packageVersion, Collections.emptyList(), Collections.emptyMap());
+        PackageDescriptor packageDescriptor = PackageDescriptor.from(packageName, packageOrg, packageVersion);
         PackageConfig packageConfig = PackageLoader.loadPackage(projectPath, true, packageDescriptor);
         this.addPackage(packageConfig);
     }

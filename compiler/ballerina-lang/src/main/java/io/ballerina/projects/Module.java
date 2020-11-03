@@ -68,6 +68,10 @@ public class Module {
         return this.moduleContext.moduleName();
     }
 
+    public ModuleDescriptor moduleDescriptor() {
+        return moduleContext.moduleDescriptor();
+    }
+
     public Collection<DocumentId> documentIds() {
         return this.moduleContext.srcDocumentIds();
     }
@@ -152,7 +156,7 @@ public class Module {
      */
     public static class Modifier {
         private ModuleId moduleId;
-        private ModuleName moduleName;
+        private ModuleDescriptor moduleDescriptor;
         private Map<DocumentId, DocumentContext> srcDocContextMap;
         private Map<DocumentId, DocumentContext> testDocContextMap;
         private boolean isDefaultModule;
@@ -163,7 +167,7 @@ public class Module {
 
         private Modifier(Module oldModule) {
             moduleId = oldModule.moduleId();
-            moduleName = oldModule.moduleName();
+            moduleDescriptor = oldModule.moduleDescriptor();
             srcDocContextMap = copySrcDocs(oldModule);
             testDocContextMap = copyTestDocs(oldModule);
             isDefaultModule = oldModule.isDefaultModule();
@@ -249,7 +253,7 @@ public class Module {
         private Module createNewModule(Map<DocumentId, DocumentContext> srcDocContextMap, Map<DocumentId,
                 DocumentContext> testDocContextMap) {
             ModuleContext newModuleContext = new ModuleContext(this.project,
-                    this.moduleId, this.moduleName, this.isDefaultModule, srcDocContextMap,
+                    this.moduleId, this.moduleDescriptor, this.isDefaultModule, srcDocContextMap,
                     testDocContextMap, this.moduleDependencies);
             Package newPackage = this.packageInstance.modify().updateModule(newModuleContext).apply();
             return newPackage.module(this.moduleId);

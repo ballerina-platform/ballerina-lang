@@ -73,13 +73,17 @@ class DocumentContext {
         return this.name;
     }
 
-    SyntaxTree syntaxTree() {
-        if (this.syntaxTree != null) {
-            return this.syntaxTree;
+    void parse() {
+        if (syntaxTree != null) {
+            return;
         }
 
-        this.syntaxTree = SyntaxTree.from(this.textDocument(), name);
-        return this.syntaxTree;
+        syntaxTree = SyntaxTree.from(this.textDocument(), name);
+    }
+
+    SyntaxTree syntaxTree() {
+        parse();
+        return syntaxTree;
     }
 
     TextDocument textDocument() {

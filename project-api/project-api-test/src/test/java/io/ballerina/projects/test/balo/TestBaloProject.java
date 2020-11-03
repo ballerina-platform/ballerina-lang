@@ -46,7 +46,7 @@ public class TestBaloProject {
         // 1) Initialize the project instance
         BaloProject baloProject = null;
         try {
-            baloProject = BaloProject.loadProject(baloPath, null);
+            baloProject = BaloProject.loadProject(baloPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage(), e);
         }
