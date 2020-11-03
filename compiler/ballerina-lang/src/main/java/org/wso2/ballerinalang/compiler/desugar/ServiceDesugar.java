@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
@@ -68,6 +69,7 @@ public class ServiceDesugar {
     private final SymbolResolver symResolver;
     private final Names names;
     private HttpFiltersDesugar httpFiltersDesugar;
+    private TransactionDesugar transactionDesugar;
 
     public static ServiceDesugar getInstance(CompilerContext context) {
         ServiceDesugar desugar = context.get(SERVICE_DESUGAR_KEY);
@@ -84,6 +86,7 @@ public class ServiceDesugar {
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
         this.httpFiltersDesugar = HttpFiltersDesugar.getInstance(context);
+        this.transactionDesugar = TransactionDesugar.getInstance(context);
     }
 
     void rewriteListeners(List<BLangSimpleVariable> variables, SymbolEnv env, BLangFunction startFunction,
@@ -199,6 +202,11 @@ public class ServiceDesugar {
     }
 
     private void engageCustomResourceDesugar(BLangFunction functionNode, SymbolEnv env) {
+        if (Symbols.isFlagOn(functionNode.symbol.flags, Flags.TRANSACTIONAL)) {
+            BLangExpressionStmt stmt = new BLangExpressionStmt(transactionDesugar
+                    .createTransactionalCheckInvocation(functionNode.pos));
+            ((BLangBlockFunctionBody) functionNode.body).stmts.add(0, stmt);
+        }
         httpFiltersDesugar.addHttpFilterStatementsToResource(functionNode, env);
         httpFiltersDesugar.addCustomAnnotationToResource(functionNode, env);
     }

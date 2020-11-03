@@ -230,6 +230,11 @@ public class CompilerDriver {
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
         }
 
+        if (langLib.equals(TRANSACTION_INTERNAL)) {
+            symbolTable.internalTransactionModuleSymbol = pkgLoader.loadPackageSymbol(TRANSACTION_INTERNAL, null,
+                    null);
+        }
+
         symResolver.reloadIntRangeType();
 
         // Now load each module.
