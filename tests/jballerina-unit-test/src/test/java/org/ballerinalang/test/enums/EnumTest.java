@@ -39,8 +39,10 @@ public class EnumTest {
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/enums/enums.bal");
         negativeTest = BCompileUtil.compile("test-src/enums/enums-negative.bal");
-//        accessTest = BCompileUtil.compile("test-src/enums/access", "main");
-//        accessTestNegative = BCompileUtil.compile("test-src/enums/access", "main2");
+
+        BCompileUtil.compileAndCacheBalo("test-src/enums/TestEnumDefinitionProject");
+        accessTest = BCompileUtil.compile("test-src/enums/enum-access.bal");
+        accessTestNegative = BCompileUtil.compile("test-src/enums/enum-access-negative.bal");
     }
 
     @Test(description = "Positive tests for enums", dataProvider = "FunctionList")
@@ -83,7 +85,7 @@ public class EnumTest {
         validateError(accessTestNegative, i++, "undefined symbol 'PF'", 21, 23);
         validateError(accessTestNegative, i++, "attempt to refer to non-accessible symbol 'Bands'", 22, 4);
         validateError(accessTestNegative, i++, "unknown type 'Bands'", 22, 4);
-        validateError(accessTestNegative, i++, "undefined symbol 'Queen'", 22, 19);
+        validateError(accessTestNegative, i++, "undefined symbol 'Queen'", 22, 23);
         validateError(accessTestNegative, i++, "attempt to refer to non-accessible symbol 'PF'", 23, 4);
         validateError(accessTestNegative, i++, "unknown type 'PF'", 23, 4);
         assertEquals(accessTestNegative.getErrorCount(), i);

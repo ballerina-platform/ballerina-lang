@@ -14,17 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import def;
+import testorg/enumsdef;
 
 function test() {
     // valid since public
-    string s = def:RED;
+    string s = enumsdef:RED;
     assert(s, "RED");
 
-    def:Color c = def:BLUE;
+    enumsdef:Color c = enumsdef:BLUE;
     assert(c, "BLUE");
 
-    def:RED red = "RED";
+    enumsdef:RED red = "RED";
     assert(red, "RED");
 }
 
