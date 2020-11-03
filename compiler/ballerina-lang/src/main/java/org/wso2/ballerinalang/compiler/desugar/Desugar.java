@@ -3401,13 +3401,13 @@ public class Desugar extends BLangNodeVisitor {
         return createBinaryExpression(constPattern.pos, matchExprVarRef, constPattern.expr);
     }
 
-    private BLangExpression createConditionForWildCardBindingPattern(boolean matchesAll, DiagnosticPos pos) {
+    private BLangExpression createConditionForWildCardBindingPattern(boolean matchesAll, Location pos) {
         return ASTBuilderUtil.createLiteral(pos, symTable.booleanType, matchesAll);
     }
 
     private BLangExpression createConditionForCaptureBindingPattern(BLangCaptureBindingPattern captureBindingPattern,
                                                                     BLangSimpleVarRef matchExprVarRef,
-                                                                    DiagnosticPos pos) {
+                                                                    Location pos) {
         BLangSimpleVarRef captureBindingPatternVarRef =
                 declaredVarDef.get(captureBindingPattern.getIdentifier().getValue());
         matchStmtsForPattern.add(ASTBuilderUtil.createAssignmentStmt(pos,
@@ -3446,14 +3446,12 @@ public class Desugar extends BLangNodeVisitor {
         BLangIf ifStmt = ASTBuilderUtil.createIfElseStmt(pos, typeCheckCondition, ifBlock, null);
         mainBlockStmt.addStatement(ifStmt);
 
-        List<BType> memberTupleTypes = ((BTupleType) tempCastVarRef.type).getTupleTypes();
         List<BLangBindingPattern> bindingPatterns = listBindingPattern.bindingPatterns;
-        BLangExpression condition = createConditionForListMemberPattern(0, bindingPatterns.get(0),
-                tempCastVarDef, ifBlock, bindingPatterns.get(0).type, pos);
+        BLangExpression condition = ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true);;
 
-        for (int i = 1; i < bindingPatterns.size(); i++) {
+        for (int i = 0; i < bindingPatterns.size(); i++) {
             BLangExpression memberPatternCondition = createConditionForListMemberPattern(i, bindingPatterns.get(i),
-                    tempCastVarDef, ifBlock, memberTupleTypes.get(i), pos);
+                    tempCastVarDef, ifBlock, bindingPatterns.get(i).type, pos);
             if (memberPatternCondition.getKind() == NodeKind.LITERAL) {
                 if ((Boolean) ((BLangLiteral) memberPatternCondition).value) {
                     continue;
@@ -3488,7 +3486,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangExpression createConditionForListMemberPattern(int index, BLangBindingPattern bindingPattern,
                                                                 BLangSimpleVariableDef tempCastVarDef,
                                                                 BLangBlockStmt blockStmt, BType type,
-                                                                DiagnosticPos pos) {
+                                                                Location pos) {
         BLangExpression indexExpr = createIndexBasedAccessExpr(type, pos, new BLangLiteral((long) index,
                 symTable.intType), tempCastVarDef.var.symbol, null);
 
@@ -3502,7 +3500,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangExpression createVarCheckCondition(BLangBindingPattern bindingPattern, BLangSimpleVarRef varRef) {
         NodeKind bindingPatternKind = bindingPattern.getKind();
-        DiagnosticPos pos = bindingPattern.pos;
+        Location pos = bindingPattern.pos;
         switch (bindingPatternKind) {
             case WILDCARD_BINDING_PATTERN:
                 return createConditionForWildCardBindingPattern(true, pos);

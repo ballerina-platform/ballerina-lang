@@ -4221,7 +4221,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private BLangBindingPattern transformBindingPattern(Node bindingPattern) {
-
         Location pos = getPosition(bindingPattern);
         SyntaxKind patternKind = bindingPattern.kind();
         switch (patternKind) {

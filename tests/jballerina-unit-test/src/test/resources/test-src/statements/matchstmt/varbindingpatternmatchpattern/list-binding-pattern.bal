@@ -381,6 +381,19 @@ function testListBindingPattern14() {
     assertEquals("Default" ,listBindingPattern14(a8));
 }
 
+function listBindingPattern15() returns string {
+    [boolean, string] | [int, string, decimal] v = [1, "A", 1.1d];
+    match v {
+        var [i, ...s] => {
+            return "i: " + i.toString() + " s: " + s.toString();
+        }
+    }
+}
+
+function testListBindingPattern15() {
+    assertEquals("i: 1 s: [\"A\",1.1]", listBindingPattern15());
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

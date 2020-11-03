@@ -2805,8 +2805,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case LIST_BINDING_PATTERN:
                 BLangListBindingPattern listBindingPattern = (BLangListBindingPattern) bindingPattern;
                 analyzeNode(listBindingPattern, env);
-                listBindingPattern.type = types.resolvePatternTypeFromMatchExpr(varBindingPattern.matchExpr,
-                        listBindingPattern.type);
+                listBindingPattern.type = types.resolvePatternTypeFromMatchExpr(listBindingPattern, varBindingPattern);
                 assignTypesToMemberPatterns(listBindingPattern, listBindingPattern.type);
         }
         varBindingPattern.declaredVars.putAll(bindingPattern.declaredVars);
@@ -2860,6 +2859,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             symbolEnter.defineSymbol(restBindingPattern.pos, symbol, env);
         }
         restBindingPattern.symbol = (BVarSymbol) symbol;
+        restBindingPattern.declaredVars.put(name.value, restBindingPattern.symbol);
     }
 
     @Override
@@ -2968,7 +2968,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangListMatchPattern listMatchPattern) {
-        BLangExpression listMatchExpr = listMatchPattern.matchExpr;
         List<BType> memberTypes = new ArrayList<>();
         for (BLangMatchPattern memberMatchPattern : listMatchPattern.matchPatterns) {
             memberMatchPattern.accept(this);
@@ -3018,11 +3017,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     for (BType type : ((BUnionType) patternType).getMemberTypes()) {
                         assignTypesToMemberPatterns(listMatchPattern, type);
                     }
-                    List<BType> types = new ArrayList<>();
-                    for (BLangMatchPattern memberMatchPattern : listMatchPattern.matchPatterns) {
-                        types.add(memberMatchPattern.type);
-                    }
-                    listMatchPattern.type = new BTupleType(types);
                     return;
                 }
                 if (patternType.tag != TypeTags.TUPLE) {
@@ -3042,6 +3036,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     restType = this.types.mergeTypes(restType, types.get(i));
                 }
                 ((BArrayType) listMatchPattern.restMatchPattern.type).eType = restType;
+                return;
         }
     }
 
@@ -3066,11 +3061,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     for (BType type : ((BUnionType) bindingPatternType).getMemberTypes()) {
                         assignTypesToMemberPatterns(bindingPattern, type);
                     }
-                    List<BType> types = new ArrayList<>();
-                    for (BLangBindingPattern memberBindingPattern : listBindingPattern.bindingPatterns) {
-                        types.add(memberBindingPattern.type);
-                    }
-                    listBindingPattern.type = new BTupleType(types);
                     return;
                 }
                 if (bindingPatternType.tag != TypeTags.TUPLE) {

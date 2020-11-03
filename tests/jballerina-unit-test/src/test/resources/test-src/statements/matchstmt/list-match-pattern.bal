@@ -562,6 +562,19 @@ function testListMatchPattern19() {
     assertEquals("Default" ,listMatchPattern19(a8));
 }
 
+function listMatchPattern20() returns string {
+    [boolean, string] | [int, string, decimal] v = [1, "A", 1.1d];
+    match v {
+        [var i, ...var s] => {
+            return "i: " + i.toString() + " s: " + s.toString();
+        }
+    }
+}
+
+function testListMatchPattern20() {
+    assertEquals("i: 1 s: [\"A\",1.1]", listMatchPattern20());
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

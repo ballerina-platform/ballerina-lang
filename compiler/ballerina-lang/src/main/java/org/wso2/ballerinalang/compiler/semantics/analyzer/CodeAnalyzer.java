@@ -1117,19 +1117,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (firstListMatchPatterns.size() != secondListMatchPatterns.size()) {
                 return false;
             }
-            return checkSimilarListMemberPatterns(firstListMatchPatterns, secondListMatchPatterns);
+            return checkSimilarListMemberMatchPatterns(firstListMatchPatterns, secondListMatchPatterns);
         }
         if (firstListMatchPatterns.size() > secondListMatchPatterns.size()) {
             return false;
         }
         if (firstListMatchPatterns.size() == secondListMatchPatterns.size()) {
-            return checkSimilarListMemberPatterns(firstListMatchPatterns, secondListMatchPatterns);
+            return checkSimilarListMemberMatchPatterns(firstListMatchPatterns, secondListMatchPatterns);
         }
         return checkSimilarMatchPatterns(firstListMatchPattern.restMatchPattern,
                 secondListMatchPattern.restMatchPattern);
     }
 
-    private boolean checkSimilarListMemberPatterns(List<BLangMatchPattern> firstListMatchPatterns,
+    private boolean checkSimilarListMemberMatchPatterns(List<BLangMatchPattern> firstListMatchPatterns,
                                                    List<BLangMatchPattern> secondListMatchPatterns) {
         for (int i = 0; i < firstListMatchPatterns.size(); i++) {
             if (!checkSimilarMatchPatterns(firstListMatchPatterns.get(i), secondListMatchPatterns.get(i))) {
@@ -1198,16 +1198,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         switch (firstBindingPatternKind) {
             case WILDCARD_BINDING_PATTERN:
-                return true;
+            case REST_BINDING_PATTERN:
             case CAPTURE_BINDING_PATTERN:
-                return ((BLangCaptureBindingPattern) firstBidingPattern).getIdentifier().
-                        equals(((BLangCaptureBindingPattern) secondBindingPattern).getIdentifier());
+                return true;
             case LIST_BINDING_PATTERN:
                 return checkSimilarListBindingPatterns((BLangListBindingPattern) firstBidingPattern,
                         (BLangListBindingPattern) secondBindingPattern);
-            case REST_BINDING_PATTERN:
-                return ((BLangRestBindingPattern) firstBidingPattern).variableName
-                        .equals(((BLangRestBindingPattern) secondBindingPattern).variableName);
             default:
                 return false;
         }
@@ -1215,9 +1211,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean checkSimilarListBindingPatterns(BLangListBindingPattern firstBindingPattern,
                                                     BLangListBindingPattern secondBindingPattern) {
-        if (firstBindingPattern.bindingPatterns.size() != secondBindingPattern.bindingPatterns.size()) {
-            return false;
-        }
         if (firstBindingPattern.restBindingPattern != null && secondBindingPattern.restBindingPattern == null) {
             return false;
         }
@@ -1225,24 +1218,32 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
-        for (BLangBindingPattern firstListMemberBindingPattern : firstBindingPattern.bindingPatterns) {
-            boolean isPatternDuplicated = false;
-            for (BLangBindingPattern secondListMemberBindingPattern : secondBindingPattern.bindingPatterns) {
-                if (checkSimilarBindingPatterns(firstListMemberBindingPattern, secondListMemberBindingPattern)) {
-                    isPatternDuplicated = true;
-                    break;
-                }
-            }
-            if (!isPatternDuplicated) {
+        List<BLangBindingPattern> firstListMatchPatterns = firstBindingPattern.bindingPatterns;
+        List<BLangBindingPattern> secondListMatchPatterns = secondBindingPattern.bindingPatterns;
+        if (firstBindingPattern.restBindingPattern == null) {
+            if (firstListMatchPatterns.size() != secondListMatchPatterns.size()) {
                 return false;
             }
+            return checkSimilarListMemberBindingPatterns(firstListMatchPatterns, secondListMatchPatterns);
         }
-
-        if (firstBindingPattern.restBindingPattern == null && secondBindingPattern.restBindingPattern == null) {
-            return true;
+        if (firstListMatchPatterns.size() > secondListMatchPatterns.size()) {
+            return false;
+        }
+        if (firstListMatchPatterns.size() == secondListMatchPatterns.size()) {
+            return checkSimilarListMemberBindingPatterns(firstListMatchPatterns, secondListMatchPatterns);
         }
         return checkSimilarBindingPatterns(firstBindingPattern.restBindingPattern,
                 secondBindingPattern.restBindingPattern);
+    }
+
+    private boolean checkSimilarListMemberBindingPatterns(List<BLangBindingPattern> firstListBindingPatterns,
+                                                   List<BLangBindingPattern> secondListBindingPatterns) {
+        for (int i = 0; i < firstListBindingPatterns.size(); i++) {
+            if (!checkSimilarBindingPatterns(firstListBindingPatterns.get(i), secondListBindingPatterns.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean checkSimilarMatchGuard(BLangMatchGuard firstMatchGuard, BLangMatchGuard secondMatchGuard) {
@@ -1296,18 +1297,23 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangListMatchPattern listMatchPattern) {}
-
-    @Override
     public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
         BLangBindingPattern bindingPattern = varBindingPattern.getBindingPattern();
         analyzeNode(bindingPattern, env);
-
-        // This switch-case will be extended when implementing other binding-patterns
         switch (bindingPattern.getKind()) {
+            case WILDCARD_BINDING_PATTERN:
+                return;
             case CAPTURE_BINDING_PATTERN:
                 varBindingPattern.isLastPattern =
                         varBindingPattern.matchExpr != null && !varBindingPattern.matchGuardIsAvailable;
+                return;
+            case LIST_BINDING_PATTERN:
+                if (varBindingPattern.matchExpr == null) {
+                    return;
+                }
+                this.hasLastPatternInClause = types.isSameType(varBindingPattern.type,
+                        varBindingPattern.matchExpr.type);
+                return;
         }
     }
 
@@ -1346,7 +1352,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCaptureBindingPattern captureBindingPattern) {
+    }
 
+    @Override
+    public void visit(BLangListBindingPattern listBindingPattern) {
+    }
+
+    @Override
+    public void visit(BLangWildCardBindingPattern wildCardBindingPattern) {
     }
 
     @Override

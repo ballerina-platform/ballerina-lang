@@ -79,7 +79,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -378,12 +380,33 @@ public class Types {
         return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfList);
     }
 
-    BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BTupleType listMatchPatternType,
-                                                 SymbolEnv env) {
-        if (matchExpr == null) {
+    public BType resolvePatternTypeFromMatchExpr(BLangListBindingPattern listBindingPattern,
+                                                 BLangVarBindingPatternMatchPattern varBindingPatternMatchPattern) {
+        BTupleType listBindingPatternType = (BTupleType) listBindingPattern.type;
+        if (varBindingPatternMatchPattern.matchExpr == null) {
+            return listBindingPatternType;
+        }
+        BType matchExprType = varBindingPatternMatchPattern.matchExpr.type;
+        BType intersectionType = getTypeIntersection(matchExprType, listBindingPatternType);
+        if (intersectionType != symTable.semanticError) {
+            return intersectionType;
+        }
+        if (matchExprType.tag == TypeTags.ANYDATA) {
+            Collections.fill(listBindingPatternType.tupleTypes, symTable.anydataType);
+            if (listBindingPatternType.restType != null) {
+                listBindingPatternType.restType = symTable.anydataType;
+            }
+            return listBindingPatternType;
+        }
+        return symTable.noType;
+    }
+
+    public BType resolvePatternTypeFromMatchExpr(BLangListMatchPattern listMatchPattern, BTupleType listMatchPatternType) {
+        if (listMatchPattern.matchExpr == null) {
             return listMatchPatternType;
         }
-        BType intersectionType = getTypeIntersection(matchExpr.type, listMatchPatternType);
+        BType matchExprType = listMatchPattern.matchExpr.type;
+        BType intersectionType = getTypeIntersection(matchExprType, listMatchPatternType);
         if (intersectionType != symTable.semanticError) {
             return intersectionType;
         }

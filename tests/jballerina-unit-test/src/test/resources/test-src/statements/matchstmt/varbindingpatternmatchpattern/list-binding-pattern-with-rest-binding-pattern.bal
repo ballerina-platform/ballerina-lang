@@ -35,7 +35,6 @@ function listBindingPattern2([int, int] v) returns int {
             return b[0];
         }
     }
-    return -1;
 }
 
 function testListBindingPatternWithRest2() {
@@ -48,7 +47,6 @@ function listBindingPattern3([int, int, int, int] v) returns int {
             return c[1];
         }
     }
-    return -1;
 }
 
 function testListBindingPatternWithRest3() {
@@ -62,7 +60,6 @@ function listBindingPattern4([int, int, string] v) returns int|string {
             return c[0];
         }
     }
-    return -1;
 }
 
 function testListBindingPatternWithRest4() {
@@ -95,9 +92,6 @@ function listBindingPattern6([int, [int, int, int]] v) returns int {
     match v {
         var [a, [b, ...c]] => {
             return c[0];
-        }
-        _ => {
-            return -1;
         }
     }
 }
