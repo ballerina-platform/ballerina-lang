@@ -41,6 +41,10 @@ public class BallerinaTypeCheck {
      */
     public static BString getBallerinaType(Object value) {
         Type bType = TypeChecker.getType(value);
-        return StringUtils.fromString(bType.getName());
+        String typeName = bType.getName();
+        if (typeName == null) {
+            typeName = "";
+        }
+        return StringUtils.fromString(typeName);
     }
 }

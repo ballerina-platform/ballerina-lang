@@ -184,7 +184,11 @@ isolated function getMapValueDiff(map<anydata> actualMap, map<anydata> expectedM
     string[] expectedKeyArray = getKeyArray(expectedMap);
     string keyDiff = getKeysDiff(actualKeyArray, expectedKeyArray);
     string valueDiff = compareMapValues(actualMap, expectedMap);
-    diffValue = diffValue.concat(keyDiff, "\n \n", valueDiff);
+    if (keyDiff != "") {
+        diffValue = diffValue.concat(keyDiff, "\n \n", valueDiff);
+    } else {
+        diffValue = diffValue.concat(valueDiff);
+    }
     return diffValue;
 }
 
@@ -205,8 +209,10 @@ isolated function getValueComparison(anydata actual, anydata expected, string ke
                     anydata expectedChildVal = expected.get(childKey);
                     anydata actualChildVal = actual.get(childKey);
                     string childDiff;
-                    [childDiff, diffCount] = getValueComparison(actualChildVal, expectedChildVal, keyVal + "." + childKey, diffCount);
-                    diff = diff.concat(childDiff);
+                    if (expectedChildVal != actualChildVal) {
+                        [childDiff, diffCount] = getValueComparison(actualChildVal, expectedChildVal, keyVal + "." + childKey, diffCount);
+                        diff = diff.concat(childDiff);
+                    }
                 }
             }
         } else {
