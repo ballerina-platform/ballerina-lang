@@ -26,7 +26,6 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
-import org.ballerinalang.langserver.codeaction.CodeActionRouter;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderHolder;
@@ -379,7 +378,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Optional<Path> docSymbolFilePath = CommonUtil.getPathFromURI(fileUri);
 
             // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
-            if (!docSymbolFilePath.isPresent() || CommonUtil.isCachedExternalSource(fileUri)) {
+            if (docSymbolFilePath.isEmpty() || CommonUtil.isCachedExternalSource(fileUri)) {
                 return new ArrayList<>();
             }
             Path compilationPath = getUntitledFilePath(docSymbolFilePath.toString()).orElse(docSymbolFilePath.get());
@@ -422,7 +421,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
 
             // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
-            if (!filePath.isPresent() || CommonUtil.isCachedExternalSource(fileUri)) {
+            if (filePath.isEmpty() || CommonUtil.isCachedExternalSource(fileUri)) {
                 return new ArrayList<>();
             }
 
@@ -432,7 +431,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             int line = params.getRange().getStart().getLine();
             int col = params.getRange().getStart().getCharacter();
             TextDocumentPositionParams positionParams = new TextDocumentPositionParams(params.getTextDocument(),
-                    new Position(line, col));
+                                                                                       new Position(line, col));
 
             LSContext context = new DocumentServiceOperationContext
                     .ServiceOperationContextBuilder(LSContextOperation.TXT_CODE_ACTION)
@@ -477,7 +476,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Optional<Path> docSymbolFilePath = CommonUtil.getPathFromURI(fileUri);
 
             // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
-            if (!docSymbolFilePath.isPresent() || CommonUtil.isCachedExternalSource(fileUri)) {
+            if (docSymbolFilePath.isEmpty() || CommonUtil.isCachedExternalSource(fileUri)) {
                 return new ArrayList<>();
             }
 
@@ -520,7 +519,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             String fileUri = params.getTextDocument().getUri();
             Optional<Path> formattingFilePath = CommonUtil.getPathFromURI(fileUri);
             // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
-            if (!formattingFilePath.isPresent() || CommonUtil.isCachedExternalSource(fileUri)) {
+            if (formattingFilePath.isEmpty() || CommonUtil.isCachedExternalSource(fileUri)) {
                 return Collections.singletonList(textEdit);
             }
             Path compilationPath = getUntitledFilePath(formattingFilePath.toString()).orElse(formattingFilePath.get());
@@ -560,7 +559,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             String fileUri = params.getTextDocument().getUri();
             Optional<Path> formattingFilePath = CommonUtil.getPathFromURI(fileUri);
             // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
-            if (!formattingFilePath.isPresent() || CommonUtil.isCachedExternalSource(fileUri)) {
+            if (formattingFilePath.isEmpty() || CommonUtil.isCachedExternalSource(fileUri)) {
                 return Collections.singletonList(textEdit);
             }
             Path compilationPath = getUntitledFilePath(formattingFilePath.toString()).orElse(formattingFilePath.get());
@@ -733,7 +732,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         String fileUri = params.getTextDocument().getUri();
         Optional<Path> changedPath = CommonUtil.getPathFromURI(fileUri);
         // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
-        if (!changedPath.isPresent() || CommonUtil.isCachedExternalSource(fileUri)) {
+        if (changedPath.isEmpty() || CommonUtil.isCachedExternalSource(fileUri)) {
             return;
         }
         Path compilationPath = getUntitledFilePath(changedPath.toString()).orElse(changedPath.get());
@@ -794,7 +793,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         String docUri = params.getTextDocument().getUri();
         Optional<Path> closedPath = CommonUtil.getPathFromURI(docUri);
 
-        if (!closedPath.isPresent()) {
+        if (closedPath.isEmpty()) {
             return;
         }
 
