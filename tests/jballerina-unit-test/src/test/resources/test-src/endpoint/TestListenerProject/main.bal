@@ -1,4 +1,4 @@
-import a;
+import endpoint_pkg.a;
 
 service sample2 on a:ep {
 

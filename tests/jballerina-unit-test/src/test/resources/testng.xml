@@ -31,6 +31,7 @@
                 <exclude name="brokenOnNewParser"/>
                 <exclude name="brokenOnErrorChange"/>
                 <exclude name="brokenOnClassChange"/>
+                <exclude name="fixNeededWithProjectAPIMigration"/>
             </run>
         </groups>
         <packages>
