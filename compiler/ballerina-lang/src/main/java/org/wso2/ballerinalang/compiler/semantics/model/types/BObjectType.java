@@ -46,7 +46,7 @@ public class BObjectType extends BStructureType implements ObjectType {
     public BIntersectionType immutableType;
     public BObjectType mutableType = null;
 
-    public BTypeIdSet typeIdSet = BTypeIdSet.emptySet();
+    public BTypeIdSet typeIdSet = new BTypeIdSet();
 
     public BObjectType(BTypeSymbol tSymbol) {
         super(TypeTags.OBJECT, tSymbol);

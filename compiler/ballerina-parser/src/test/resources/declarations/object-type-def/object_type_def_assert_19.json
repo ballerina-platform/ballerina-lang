@@ -40,14 +40,9 @@
               "kind": "INVALID_NODE_MINUTIAE",
               "invalidNode": {
                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                "hasDiagnostics": true,
                 "children": [
                   {
-                    "kind": "ABSTRACT_KEYWORD",
-                    "hasDiagnostics": true,
-                    "diagnostics": [
-                      "ERROR_DUPLICATE_QUALIFIER"
-                    ]
+                    "kind": "ABSTRACT_KEYWORD"
                   }
                 ]
               }
@@ -60,9 +55,14 @@
               "kind": "INVALID_NODE_MINUTIAE",
               "invalidNode": {
                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "hasDiagnostics": true,
                 "children": [
                   {
-                    "kind": "ABSTRACT_KEYWORD"
+                    "kind": "ABSTRACT_KEYWORD",
+                    "hasDiagnostics": true,
+                    "diagnostics": [
+                      "ERROR_QUALIFIER_NOT_ALLOWED"
+                    ]
                   }
                 ]
               }

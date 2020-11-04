@@ -101,7 +101,6 @@ public class TypeCastParamNode extends NonTerminalNode {
 
         public TypeCastParamNodeModifier withType(
                 Node type) {
-            Objects.requireNonNull(type, "type must not be null");
             this.type = type;
             return this;
         }

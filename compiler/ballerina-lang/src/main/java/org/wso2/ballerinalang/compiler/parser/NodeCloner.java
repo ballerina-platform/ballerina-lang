@@ -2154,10 +2154,11 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangObjectConstructorExpression source) {
         BLangObjectConstructorExpression clone = new BLangObjectConstructorExpression();
 
-        clone.classNode = clone(source.classNode);
         clone.pos = source.pos;
-        clone.referenceType = clone(source.referenceType);
+        clone.classNode = clone(source.classNode);
         clone.typeInit = clone(source.typeInit);
+        clone.referenceType = clone(source.referenceType);
+        clone.isClient = source.isClient;
 
         source.cloneRef = clone;
     }

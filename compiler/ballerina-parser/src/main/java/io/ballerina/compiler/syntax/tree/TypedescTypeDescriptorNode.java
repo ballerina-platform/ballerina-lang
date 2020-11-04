@@ -101,7 +101,6 @@ public class TypedescTypeDescriptorNode extends TypeDescriptorNode {
 
         public TypedescTypeDescriptorNodeModifier withTypedescTypeParamsNode(
                 TypeParameterNode typedescTypeParamsNode) {
-            Objects.requireNonNull(typedescTypeParamsNode, "typedescTypeParamsNode must not be null");
             this.typedescTypeParamsNode = typedescTypeParamsNode;
             return this;
         }

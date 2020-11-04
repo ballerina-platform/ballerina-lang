@@ -14,32 +14,37 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/test;
+type Obj0 distinct object {
+    function apply() returns int;
+};
 
-# Before Suite Function
+type Obj1 distinct object {
+    *Obj0;
+};
 
-@test:BeforeSuite
-function beforeSuiteFunc() {}
+type Obj2 object {
+    function apply() returns int;
+};
 
-# Before test function
+function f(Obj0 o) {
 
-function beforeFunc() {}
-
-# Test function
-
-@test:Config {
-    before: "beforeFunc",
-    after: "afterFunc"
-}
-function testFunction() {
-    test:assertTrue(true, msg = "Failed!");
 }
 
-# After test function
+function g(Obj2 o) {
 
-function afterFunc() {}
+}
 
-# After Suite Function
+function foo() {
+    any k = "any-val";
+    Obj0 o0 = <Obj0> k;
+    Obj1 o1 = <Obj1> k;
+    Obj2 o2 = <Obj2> k;
 
-@test:AfterSuite {}
-function afterSuiteFunc() {}
+    f(o0);
+    f(o1);
+    f(o2);
+
+    g(o0);
+    g(o1);
+    g(o2);
+}

@@ -560,9 +560,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ModuleVariableDeclarationNode modVarDeclrNode) {
         TypedBindingPatternNode typedBindingPattern = modVarDeclrNode.typedBindingPattern();
         CaptureBindingPatternNode bindingPattern = (CaptureBindingPatternNode) typedBindingPattern.bindingPattern();
+
+        boolean isFinal = false;
+        for (Token qualifier : modVarDeclrNode.qualifiers()) {
+            if (qualifier.kind() == SyntaxKind.FINAL_KEYWORD) {
+                isFinal = true;
+            }
+        }
+
         BLangSimpleVariable simpleVar = createSimpleVar(bindingPattern.variableName(),
-                typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer().orElse(null),
-                modVarDeclrNode.finalKeyword().isPresent(), false, null,
+                typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer().orElse(null), isFinal, false, null,
                 getAnnotations(modVarDeclrNode.metadata()));
         simpleVar.pos = getPositionWithoutMetadata(modVarDeclrNode);
         simpleVar.markdownDocumentationAttachment =
@@ -943,7 +950,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return deSugarTypeAsUserDefType(objectTypeNode);
     }
 
-    public BLangClassDefinition createObjectExpressionBody(NodeList<Node> members) {
+    public BLangClassDefinition transformObjectCtorExpressionBody(NodeList<Node> members) {
         BLangClassDefinition classDefinition = (BLangClassDefinition) TreeBuilder.createClassDefNode();
         classDefinition.flagSet.add(Flag.ANONYMOUS);
 
@@ -995,30 +1002,30 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ObjectConstructorExpressionNode objectConstructorExpressionNode) {
         Location pos = getPositionWithoutMetadata(objectConstructorExpressionNode);
-        BLangClassDefinition annonClassDef = createObjectExpressionBody(objectConstructorExpressionNode.members());
-        annonClassDef.pos = pos;
+        BLangClassDefinition anonClass = transformObjectCtorExpressionBody(objectConstructorExpressionNode.members());
+        anonClass.pos = pos;
         BLangObjectConstructorExpression objectCtorExpression = TreeBuilder.createObjectCtorExpression();
         objectCtorExpression.pos = pos;
-        objectCtorExpression.classNode = annonClassDef;
+        objectCtorExpression.classNode = anonClass;
 
         // Generate a name for the anonymous object
         String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID);
         IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
-        annonClassDef.setName(anonTypeGenName);
-        annonClassDef.flagSet.add(Flag.PUBLIC);
+        anonClass.setName(anonTypeGenName);
+        anonClass.flagSet.add(Flag.PUBLIC);
 
         Optional<TypeDescriptorNode> typeReference = objectConstructorExpressionNode.typeReference();
         typeReference.ifPresent(typeReferenceNode -> {
             objectCtorExpression.addTypeReference(createTypeNode(typeReferenceNode));
         });
 
-        annonClassDef.annAttachments = applyAll(objectConstructorExpressionNode.annotations());
-        addToTop(annonClassDef);
+        anonClass.annAttachments = applyAll(objectConstructorExpressionNode.annotations());
+        addToTop(anonClass);
 
         NodeList<Token> objectConstructorQualifierList = objectConstructorExpressionNode.objectTypeQualifiers();
         for (Token qualifier : objectConstructorQualifierList) {
             if (qualifier.kind() == SyntaxKind.CLIENT_KEYWORD) {
-                annonClassDef.flagSet.add(Flag.CLIENT);
+                anonClass.flagSet.add(Flag.CLIENT);
                 objectCtorExpression.isClient = true;
             } else {
                 throw new RuntimeException("Syntax kind is not supported: " + qualifier.kind());
@@ -1026,7 +1033,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         BLangIdentifier identifier = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        BLangUserDefinedType userDefinedType = createUserDefinedType(pos, identifier, annonClassDef.name);
+        BLangUserDefinedType userDefinedType = createUserDefinedType(pos, identifier, anonClass.name);
 
         BLangTypeInit initNode = (BLangTypeInit) TreeBuilder.createInitNode();
         initNode.pos = pos;
@@ -1035,7 +1042,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         BLangIdentifier pkgAlias = createIdentifier(pos, "");
-        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, annonClassDef.name);
+        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, anonClass.name);
 
         invocationNode.name = (BLangIdentifier) nameReference.name;
         invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
@@ -1043,9 +1050,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         initNode.argsExpr.addAll(invocationNode.argExprs);
         initNode.initInvocation = invocationNode;
 
-        objectCtorExpression.classNode = annonClassDef;
         objectCtorExpression.typeInit = initNode;
-        return initNode;
+        return objectCtorExpression;
     }
 
     @Override
@@ -5124,8 +5130,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private boolean checkIfAnonymous(Node node) {
-        Node parent = node.parent();
-        return parent.kind() != SyntaxKind.TYPE_DEFINITION;
+        SyntaxKind parentKind = node.parent().kind();
+        return parentKind != SyntaxKind.DISTINCT_TYPE_DESC && parentKind != SyntaxKind.TYPE_DEFINITION;
     }
 
     private boolean ifInLocalContext(Node parent) {

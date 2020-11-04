@@ -118,7 +118,6 @@ public class AnnotationNode extends NonTerminalNode {
 
         public AnnotationNodeModifier withAnnotValue(
                 MappingConstructorExpressionNode annotValue) {
-            Objects.requireNonNull(annotValue, "annotValue must not be null");
             this.annotValue = annotValue;
             return this;
         }

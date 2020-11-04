@@ -125,6 +125,62 @@ function testObjectConstructorIncludedMethod() {
     assertTrue(objWithIncludedMethod.n == 100);
 }
 
+// test distinct id support
+
+distinct class DistinctFoo {
+    int i = 0;
+}
+
+distinct class DistinctFooA {
+    int i = 0;
+}
+
+distinct class DistinctFooB {
+    int i = 0;
+}
+
+function testObjectConstructorWithDistintExpectedType() {
+    DistinctFoo distinctObject = object {
+                                        int i;
+                                        function init() {
+                                            self.i = 20;
+                                        }
+                                    };
+    assertValueEquality(20, distinctObject.i);
+}
+
+function testObjectConstructorWithDistintTypeReference() {
+    DistinctFooA distinctObject = object DistinctFooA {
+                                            int i;
+                                            function init() {
+                                                self.i = 30;
+                                            }
+                                         };
+    assertValueEquality(30, distinctObject.i);
+}
+
+function testObjectConstructorWithDistintTypeReferenceVar() {
+    var distinctObject = object DistinctFooB {
+                                            int i;
+                                            function init() {
+                                                self.i = 25;
+                                            }
+                                         };
+    DistinctFooB newDistinctRef = distinctObject;
+    assertValueEquality(25, newDistinctRef.i);
+}
+
+function testObjectConstructorWithDefiniteTypeAndWithoutReference() {
+    DistinctFooA|DistinctFooA distinctObject = object {
+                                        int i;
+                                        function init() {
+                                            self.i = 20;
+                                        }
+                                    };
+    DistinctFooA newDistinctRef = distinctObject;
+    assertValueEquality(20, newDistinctRef.i);
+}
+
 // assertion helpers
 
 const ASSERTION_ERROR_REASON = "AssertionError";

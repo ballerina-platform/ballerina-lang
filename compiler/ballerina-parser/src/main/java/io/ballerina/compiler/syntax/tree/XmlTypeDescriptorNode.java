@@ -101,7 +101,6 @@ public class XmlTypeDescriptorNode extends TypeDescriptorNode {
 
         public XmlTypeDescriptorNodeModifier withXmlTypeParamsNode(
                 TypeParameterNode xmlTypeParamsNode) {
-            Objects.requireNonNull(xmlTypeParamsNode, "xmlTypeParamsNode must not be null");
             this.xmlTypeParamsNode = xmlTypeParamsNode;
             return this;
         }
