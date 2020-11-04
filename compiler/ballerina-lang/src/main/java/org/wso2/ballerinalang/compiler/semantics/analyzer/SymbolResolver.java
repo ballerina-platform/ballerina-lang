@@ -1246,6 +1246,13 @@ public class SymbolResolver extends BLangNodeVisitor {
         List<BType> memberTypes = new ArrayList<>();
         for (BLangType memTypeNode : tupleTypeNode.memberTypeNodes) {
             BType type = resolveTypeNode(memTypeNode, env);
+
+            // If at least one member is undefined, return noType as the type.
+            if (type == symTable.noType) {
+                resultType = symTable.noType;
+                return;
+            }
+
             memberTypes.add(type);
         }
 
@@ -1275,6 +1282,11 @@ public class SymbolResolver extends BLangNodeVisitor {
     public void visit(BLangErrorType errorTypeNode) {
         BType detailType = Optional.ofNullable(errorTypeNode.detailType)
                 .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.detailType);
+
+        if (detailType == symTable.noType) {
+            resultType = symTable.noType;
+            return;
+        }
 
         boolean distinctErrorDef = errorTypeNode.flagSet.contains(Flag.DISTINCT);
         if (detailType == symTable.detailType && !distinctErrorDef &&
