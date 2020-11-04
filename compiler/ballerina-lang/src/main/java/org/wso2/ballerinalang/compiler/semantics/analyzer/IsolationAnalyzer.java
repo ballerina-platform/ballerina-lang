@@ -314,7 +314,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             if (!varInfo.uniqueInitExpr) {
                 for (BLangSimpleVarRef varRef : refsOfVarExpectedToBeUnique) {
                     dlog.error(varRef.pos,
-                               DiagnosticCode.INVALID_NON_UNIQUE_EXPRESSION_AS_INITIAL_VALUE_IN_ISOLATED_OBJECT);
+                               DiagnosticCode.INVALID_NON_ISOLATED_EXPRESSION_AS_INITIAL_VALUE);
                 }
                 continue;
             }
@@ -338,7 +338,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
             for (BLangSimpleVarRef varRef : refsOfVarExpectedToBeUnique) {
                 dlog.error(varRef.pos,
-                           DiagnosticCode.INVALID_NON_UNIQUE_EXPRESSION_AS_INITIAL_VALUE_IN_ISOLATED_OBJECT);
+                           DiagnosticCode.INVALID_NON_ISOLATED_EXPRESSION_AS_INITIAL_VALUE);
             }
         }
     }
@@ -2379,8 +2379,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (logErrors) {
-            dlog.error(expression.pos,
-                       DiagnosticCode.INVALID_NON_UNIQUE_EXPRESSION_AS_INITIAL_VALUE_IN_ISOLATED_OBJECT);
+            dlog.error(expression.pos, DiagnosticCode.INVALID_NON_ISOLATED_EXPRESSION_AS_INITIAL_VALUE);
         }
 
         return false;

@@ -31,6 +31,9 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
  */
 public class IsolatedObjectTest {
 
+    private static final String ERROR_EXPECTED_AN_ISOLATED_EXPRESSION =
+            "invalid initial value expression: expected an isolated expression";
+
     @Test
     public void testIsolatedObjectSemanticNegative() {
         CompileResult result = BCompileUtil.compile(
@@ -70,15 +73,15 @@ public class IsolatedObjectTest {
                       "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 94, 13);
         validateError(result, i++,
                       "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 101, 20);
-        validateError(result, i++, "invalid initial value expression: expected a unique expression", 118, 30);
-        validateError(result, i++, "invalid initial value expression: expected a unique expression", 131, 18);
-        validateError(result, i++, "invalid initial value expression: expected a unique expression", 131, 24);
-        validateError(result, i++, "invalid initial value expression: expected a unique expression", 131, 36);
-        validateError(result, i++, "invalid initial value expression: expected a unique expression", 134, 18);
-        validateError(result, i++, "invalid initial value expression: expected a unique expression", 141, 30);
-        validateError(result, i++, "invalid initial value expression: expected a unique expression", 141, 42);
-        validateError(result, i++, "invalid initial value expression: expected a unique expression", 142, 34);
-        validateError(result, i++, "invalid initial value expression: expected a unique expression", 157, 22);
+        validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 118, 30);
+        validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 131, 18);
+        validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 131, 24);
+        validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 131, 36);
+        validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 134, 18);
+        validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 141, 30);
+        validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 141, 42);
+        validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 142, 34);
+        validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 157, 22);
         validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 179, 25);
         validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 180, 25);
         validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 181, 23);

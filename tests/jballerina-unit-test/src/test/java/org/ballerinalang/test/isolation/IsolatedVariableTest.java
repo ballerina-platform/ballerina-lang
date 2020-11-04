@@ -32,7 +32,7 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
 public class IsolatedVariableTest {
 
     private static final String ERROR_EXPECTED_AN_ISOLATED_EXPRESSION =
-            "invalid initial value expression: expected a unique expression";
+            "invalid initial value expression: expected an isolated expression";
 
     @Test
     public void testIsolatedVariablesSemanticNegative() {
