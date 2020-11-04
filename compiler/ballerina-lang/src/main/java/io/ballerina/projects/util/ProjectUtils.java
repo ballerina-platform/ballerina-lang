@@ -21,6 +21,7 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -153,7 +154,7 @@ public class ProjectUtils {
      * @param packageName package name
      * @return package name
      */
-    public static String guessPkgName (String packageName) {
+    public static String guessPkgName(String packageName) {
         if (!validatePkgName(packageName)) {
             return packageName.replaceAll("[^a-z0-9_]", "_");
         }
@@ -244,6 +245,7 @@ public class ProjectUtils {
     }
 
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
+
     public static Path getBalHomePath() {
         return Paths.get(System.getProperty(BALLERINA_HOME));
     }
@@ -437,7 +439,7 @@ public class ProjectUtils {
      *
      * @param orgName     Org name
      * @param packageName Package name
-     * @param version Package version
+     * @param version     Package version
      * @param className   Class name
      * @return Qualified class name
      */
@@ -447,9 +449,15 @@ public class ProjectUtils {
             className = packageName.replace('.', '_') + "." + version.replace('.', '_') + "." + className;
         }
         if (!Names.ANON_ORG.value.equals(orgName)) {
-            className = orgName.replace('.', '_') + "." +  className;
+            className = orgName.replace('.', '_') + "." + className;
         }
 
         return className;
+    }
+
+    public static boolean hasErrors(List<Diagnostic> diagnostics) {
+        return diagnostics.stream().anyMatch(d -> {
+            return !d.diagnosticInfo().severity().name().equals("WARNING");
+        });
     }
 }

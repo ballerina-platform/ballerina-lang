@@ -18,6 +18,8 @@
 
 package io.ballerina.projects.internal.balo;
 
+import com.google.gson.JsonArray;
+
 import java.util.List;
 
 /**
@@ -38,13 +40,13 @@ public class PackageJson {
 
     // Distribution details
     private String ballerina_version;
-    private String platform;
     private String implementation_vendor;
     private String spec;                     // 2020R1
 
     // Dependencies
     private List<Dependency> dependencies; //?
-    private List<PlatformLibrary> platformLibraries; //?
+    private String target; // target of the balo ie. java11, any etc.
+    private JsonArray platformDependencies; // platform dependencies
 
     // Templating support
     private boolean template; //?
@@ -128,12 +130,12 @@ public class PackageJson {
         this.ballerina_version = ballerina_version;
     }
 
-    public String getPlatform() {
-        return platform;
+    public String getTarget() {
+        return target;
     }
 
-    public void setPlatform(String platform) {
-        this.platform = platform;
+    public void setTarget(String target) {
+        this.target = target;
     }
 
     public String getImplementationVendor() {
@@ -160,12 +162,12 @@ public class PackageJson {
         this.dependencies = dependencies;
     }
 
-    public List<PlatformLibrary> getPlatformLibraries() {
-        return platformLibraries;
+    public JsonArray getPlatformDependencies() {
+        return platformDependencies;
     }
 
-    public void setPlatformLibraries(List<PlatformLibrary> platformLibraries) {
-        this.platformLibraries = platformLibraries;
+    public void setPlatformDependencies(JsonArray platform) {
+        this.platformDependencies = platform;
     }
 
     public boolean isTemplate() {

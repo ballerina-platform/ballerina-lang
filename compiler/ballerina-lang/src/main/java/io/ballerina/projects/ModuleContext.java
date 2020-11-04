@@ -362,7 +362,7 @@ class ModuleContext {
                                      CompilerContext compilerContext,
                                      CompilerBackend compilerBackend) {
         // Skip the code generation phase if there diagnostics
-        if (!moduleContext.diagnostics().isEmpty()) {
+        if (ProjectUtils.hasErrors(moduleContext.diagnostics())) {
             return;
         }
         CompilerPhaseRunner compilerPhaseRunner = CompilerPhaseRunner.getInstance(compilerContext);

@@ -106,7 +106,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
     // TODO EmitResult should not contain compilation diagnostics.
     public EmitResult emit(OutputType outputType, Path filePath) {
-        if (!diagnostics.isEmpty()) {
+        if (ProjectUtils.hasErrors(diagnostics)) {
             return new EmitResult(false, diagnostics);
         }
 
@@ -187,7 +187,8 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private void emitBalo(Path filePath) {
-        BaloWriter.write(packageResolver.getPackage(packageContext.packageId()), filePath);
+        JBallerinaBaloWriter writer = new JBallerinaBaloWriter(jdkVersion);
+        writer.write(packageResolver.getPackage(packageContext.packageId()), filePath);
     }
 
     private void emitBirs(Path filePath) {
@@ -282,11 +283,20 @@ public class JBallerinaBackend extends CompilerBackend {
         Collection<PlatformLibrary> platformLibraries = new ArrayList<>();
         for (Map<String, Object> dependency : javaPlatform.dependencies()) {
             String dependencyFilePath = (String) dependency.get(JarLibrary.KEY_PATH);
-            platformLibraries.add(new JarLibrary(Paths.get(dependencyFilePath)));
+            // if the path is relative we will covert to absolute relative to Ballerina.toml file
+            Path jarPath = Paths.get(dependencyFilePath);
+            if (!jarPath.isAbsolute()) {
+                jarPath = pkg.project().sourceRoot().resolve(jarPath);
+            }
+            platformLibraries.add(new JarLibrary(jarPath));
         }
 
         // TODO Where can we cache this collection
         return platformLibraries;
+    }
+
+    public PlatformLibrary runtimeLibrary() {
+        return new JarLibrary(ProjectUtils.getBallerinaRTJarPath());
     }
 
     /**

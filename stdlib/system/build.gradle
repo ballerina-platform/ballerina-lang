@@ -14,9 +14,8 @@
  * limitations under the License.
  *
  */
- 
-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
-apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+
+apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
 
 configurations.testCompileClasspath {
     resolutionStrategy {
@@ -25,6 +24,8 @@ configurations.testCompileClasspath {
 }
 
 dependencies {
+    distributionBalo project(path: ':ballerina-io', configuration: 'distributionBalo')
+
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
@@ -34,16 +35,6 @@ dependencies {
     implementation project(':ballerina-io')
     implementation project(':ballerina-runtime')
 
-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-
-
-    interopImports project(':ballerina-io')
-
-    interopImports project(':ballerina-io')
 
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')
@@ -52,10 +43,6 @@ dependencies {
     testCompile 'org.apache.commons:commons-lang3'
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-simple'
-}
-
-createBalo {
-    jvmTarget = 'true'
 }
 
 description = 'Ballerina - System'
