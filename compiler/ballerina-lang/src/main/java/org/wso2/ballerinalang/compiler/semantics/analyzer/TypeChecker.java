@@ -2423,8 +2423,8 @@ public class TypeChecker extends BLangNodeVisitor {
             return env.enclEnv;
         }
 
-        if (env.enclEnv.node != null && ((env.enclEnv.node.getKind() == NodeKind.TRANSACTION) ||
-                (env.enclEnv.node.getKind() == NodeKind.RETRY) || (env.enclEnv.node.getKind() == NodeKind.ON_FAIL))) {
+        if (env.enclEnv.node != null && ((env.enclEnv.node.getKind() == NodeKind.RETRY) ||
+                (env.enclEnv.node.getKind() == NodeKind.ON_FAIL))) {
             // if enclosing env's node is a transaction, retry or a on-fail
             return env.enclEnv;
         }
@@ -2441,8 +2441,8 @@ public class TypeChecker extends BLangNodeVisitor {
             return env.enclEnv;
         }
 
-        if (env.enclEnv.node != null && ((env.enclEnv.node.getKind() == NodeKind.TRANSACTION) ||
-                (env.enclEnv.node.getKind() == NodeKind.RETRY) || (env.enclEnv.node.getKind() == NodeKind.ON_FAIL))) {
+        if (env.enclEnv.node != null && ((env.enclEnv.node.getKind() == NodeKind.RETRY)
+                || (env.enclEnv.node.getKind() == NodeKind.ON_FAIL))) {
             // if enclosing env's node is a transaction, retry or on-fail
             return env.enclEnv;
         }
@@ -4847,7 +4847,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangNode node = env.node;
         SymbolEnv cEnv = env;
         while (node != null && node.getKind() != NodeKind.FUNCTION) {
-            if (node.getKind() == NodeKind.TRANSACTION || node.getKind() == NodeKind.RETRY ||
+            if (node.getKind() == NodeKind.RETRY ||
                     node.getKind() == NodeKind.ON_FAIL) {
                 SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
                 BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,

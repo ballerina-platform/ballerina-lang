@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -345,7 +346,12 @@ public class Desugar extends BLangNodeVisitor {
     private BLangSimpleVariableDef onFailCallFuncDef;
     private BLangOnFailClause onFailClause;
     private BType forceCastReturnType = null;
+    private boolean visitngTrx;
     private boolean skipFailDesugaring = false;
+    boolean desugaringTrx = false;
+    private int transactionBlockCount;
+    BLangLiteral trxBlockId;
+//    private BLangSimpleVarRef trxBlockIdRef;
     private Stack<BLangOnFailClause> enclosingOnFailClause = new Stack<>();
     private Stack<BLangSimpleVariableDef> enclosingOnFailCallFunc = new Stack<>();
 
@@ -2737,8 +2743,21 @@ public class Desugar extends BLangNodeVisitor {
         // If the return node do not have an expression, we add `done` statement instead of a return statement. This is
         // to distinguish between returning nil value specifically and not returning any value.
         if (returnNode.expr != null) {
-            if (forceCastReturnType != null && returnNode.expr.type != null) {
-                returnNode.expr = addConversionExprIfRequired(returnNode.expr, forceCastReturnType);
+            if (returnNode.expr.type != null) {
+                if (visitngTrx && returnNode.expr.getKind() != NodeKind.CHECK_EXPR &&
+                        returnNode.expr.getKind() != NodeKind.CHECK_PANIC_EXPR &&
+                        types.containsErrorType(returnNode.expr.type)) {
+                    BType checkType = returnNode.expr.type.tag == symTable.errorType.tag ? symTable.nilType :
+                            types.getSafeType(returnNode.expr.type, true, true);
+                    BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckExpr(returnNode.pos, returnNode.expr,
+                            checkType);
+                    checkedExpr.returnExpr = true;
+                    checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
+                    types.setImplicitCastExpr(checkedExpr, checkType, env.enclInvokable.returnTypeNode.type);
+                    returnNode.expr = checkedExpr;
+                } else if (forceCastReturnType != null) {
+                    returnNode.expr = addConversionExprIfRequired(returnNode.expr, forceCastReturnType);
+                }
             }
             returnNode.expr = rewriteExpr(returnNode.expr);
         }
@@ -3207,7 +3226,8 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangStatementExpression createOnFailInvocation(BLangSimpleVariableDef onFailCallFuncDef,
-                                                            BLangOnFailClause onFailClause, BLangExpression failExpr) {
+                                                            BLangOnFailClause onFailClause, BLangExpression failExpr,
+                                                            BLangNode stmt) {
         BLangStatementExpression expression;
         BLangSimpleVarRef onFailFuncRef = new BLangSimpleVarRef.BLangLocalVarRef(onFailCallFuncDef.var.symbol);
         onFailFuncRef.type = onFailCallFuncDef.var.type;
@@ -3226,6 +3246,9 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariableDef trxFuncVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos,
                 resultVariable);
         onFailFuncBlock.stmts.add(trxFuncVarDef);
+        if (stmt != null) {
+            onFailFuncBlock.stmts.add((BLangStatement) stmt);
+        }
 
         BLangSimpleVarRef resultRef = ASTBuilderUtil.createVariableRef(onFailClause.pos, resultSymbol);
         if (onFailClause.statementBlockReturns) {
@@ -3469,19 +3492,90 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
+        BLangLiteral currentTrxBlockId = this.trxBlockId;
+        boolean currentVisitingTrx = this.visitngTrx;
+        this.visitngTrx = true;
         BLangOnFailClause currentOnFailClause = this.onFailClause;
         BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
+        String uniqueId = String.valueOf(++transactionBlockCount);
+        this.trxBlockId = ASTBuilderUtil.createLiteral(transactionNode.pos, symTable.stringType,
+                uniqueId);
+//        if (!transactionNode.transactionBody.isBreakable) {
+//            transactionNode.transactionBody.isBreakable = transactionNode.statementBlockReturns;
+//        }
+        if (transactionNode.onFailClause != null) {
+            BSymbol onErrorSymbol =
+                    ((BLangSimpleVariableDef) transactionNode.onFailClause.variableDefinitionNode).var.symbol;
+//            createRollbackIfFailed(transactionNode.onFailClause.pos, transactionNode.onFailClause.body, onErrorSymbol);
+        } else if (this.onFailClause != null) {
+            BSymbol onErrorSymbol =
+                    ((BLangSimpleVariableDef) this.onFailClause.variableDefinitionNode).var.symbol;
+//            createRollbackIfFailed(this.onFailClause.pos, this.onFailClause.body, onErrorSymbol);
+        } else {
+            BLangOnFailClause trxOnFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
+            trxOnFailClause.pos = transactionNode.pos;
+            trxOnFailClause.body = ASTBuilderUtil.createBlockStmt(transactionNode.pos);
+            BVarSymbol trxOnFailErrorSym = new BVarSymbol(0, names.fromString("$trxError$"),
+                    env.scope.owner.pkgID, symTable.errorType, env.scope.owner, transactionNode.pos, VIRTUAL);
+            BLangSimpleVariable trxOnFailError = ASTBuilderUtil.createVariable(transactionNode.pos,
+                    "$trxError$", symTable.errorType, null, trxOnFailErrorSym);
+            trxOnFailClause.variableDefinitionNode = ASTBuilderUtil.createVariableDef(transactionNode.pos,
+                    trxOnFailError);
+//            trxOnFailClause.body.scope = env.scope;
+            trxOnFailClause.body.scope = new Scope(env.scope.owner);
+            trxOnFailClause.body.scope.define(trxOnFailErrorSym.name, trxOnFailErrorSym);
+//            createRollbackIfFailed(transactionNode.pos, trxOnFailClause.body, trxOnFailErrorSym);
+            transactionNode.onFailClause = trxOnFailClause;
+            //todo @chiran check onfail.returns should be set to true when trx has a return
+        }
         analyzeOnFailClause(transactionNode.onFailClause, transactionNode.transactionBody);
-        BLangStatementExpression transactionStmtExpr = transactionDesugar.rewrite(transactionNode, env,
+        BLangBlockStmt transactionStmtBlock = transactionDesugar.rewrite(transactionNode, trxBlockId, env, uniqueId,
                 onFailClause != null);
-        result = createExpressionStatement(transactionNode.pos, transactionStmtExpr,
-                transactionNode.statementBlockReturns, env);
+        transactionStmtBlock.isBreakable = true;
+        result = rewrite(transactionStmtBlock, env);
+//        result = transactionStmtBlock;
         swapAndResetEnclosingOnFail(currentOnFailClause, currentOnFailCallDef);
+        this.visitngTrx = currentVisitingTrx;
+        this.trxBlockId = currentTrxBlockId;
+    }
+
+    //  commit or rollback was not executed and fail(e) or panic(e) returned, so rollback
+    //    if ((result is error) && !(result is TransactionError)) {
+    //        rollback result;
+    //    }
+    void createRollbackIfFailed(DiagnosticPos pos, BLangBlockStmt transactionBlockStmt,
+                                BSymbol trxFuncResultSymbol) {
+        BLangIf rollbackCheck = (BLangIf) TreeBuilder.createIfElseStatementNode();
+        rollbackCheck.pos = pos;
+        transactionBlockStmt.stmts.add(0, rollbackCheck);
+        BConstructorSymbol transactionErrorSymbol = (BConstructorSymbol) symTable.langTransactionModuleSymbol
+                .scope.lookup(names.fromString("TransactionError")).symbol;
+        BType errorType = transactionErrorSymbol.type;
+        BLangErrorType trxErrorTypeNode = (BLangErrorType) TreeBuilder.createErrorTypeNode();
+        trxErrorTypeNode.type = errorType;
+        BLangSimpleVarRef result = ASTBuilderUtil.createVariableRef(pos, trxFuncResultSymbol);
+        BLangTypeTestExpr testExpr = ASTBuilderUtil.createTypeTestExpr(pos, result, trxErrorTypeNode);
+        testExpr.type = symTable.booleanType;
+        BLangGroupExpr transactionErrorCheckGroupExpr = new BLangGroupExpr();
+        transactionErrorCheckGroupExpr.type = symTable.booleanType;
+        BOperatorSymbol notOperatorSymbol = new BOperatorSymbol(names.fromString(OperatorKind.NOT.value()),
+                symTable.rootPkgSymbol.pkgID, errorType,
+                symTable.rootPkgSymbol, symTable.builtinPos, VIRTUAL);
+        transactionErrorCheckGroupExpr.expression = ASTBuilderUtil.createUnaryExpr(pos, testExpr,
+                symTable.booleanType, OperatorKind.NOT, notOperatorSymbol);
+
+        BLangTypeTestExpr errorCheck = createTypeCheckExpr(pos, result, getErrorTypeNode());
+        rollbackCheck.expr = ASTBuilderUtil.createBinaryExpr(pos, errorCheck, transactionErrorCheckGroupExpr,
+                symTable.booleanType, OperatorKind.AND, null);
+        BLangRollback rollbackStmt = (BLangRollback) TreeBuilder.createRollbackNode();
+        rollbackStmt.expr = addConversionExprIfRequired(result, symTable.errorOrNilType);
+        rollbackCheck.body = ASTBuilderUtil.createBlockStmt(pos);
+        rollbackCheck.body.stmts.add(rewrite(rollbackStmt, env));
     }
 
     @Override
     public void visit(BLangRollback rollbackNode) {
-        BLangStatementExpression rollbackStmtExpr = transactionDesugar.desugar(rollbackNode);
+        BLangStatementExpression rollbackStmtExpr = transactionDesugar.desugar(rollbackNode, trxBlockId);
         BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckPanickedExpr(rollbackNode.pos, rollbackStmtExpr,
                 symTable.nilType);
         checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
@@ -4778,6 +4872,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
+        boolean currentTrxVisit = this.visitngTrx;
+        this.visitngTrx = false;
         BLangFunction bLangFunction = (BLangFunction) TreeBuilder.createFunctionNode();
         bLangFunction.setName(bLangArrowFunction.functionName);
 
@@ -4830,6 +4926,7 @@ public class Desugar extends BLangNodeVisitor {
         env.enclPkg.addFunction(lambdaFunction.function);
         bLangArrowFunction.function = lambdaFunction.function;
         result = rewriteExpr(lambdaFunction);
+        this.visitngTrx = currentTrxVisit;
     }
 
     private void defineInvokableSymbol(BLangInvokableNode invokableNode, BInvokableSymbol funcSymbol,
@@ -5146,7 +5243,7 @@ public class Desugar extends BLangNodeVisitor {
                 result = rewriteNestedOnFail(this.onFailClause, failNode.expr);
             } else {
                 BLangStatementExpression expression = createOnFailInvocation(onFailCallFuncDef, onFailClause,
-                        failNode.expr);
+                        failNode.expr, failNode.exprStmt);
                 failNode.exprStmt = createExpressionStatement(failNode.pos, expression,
                         onFailClause.statementBlockReturns, env);
                 result = failNode;
@@ -5460,7 +5557,7 @@ public class Desugar extends BLangNodeVisitor {
                                             checkedExprVar.symbol, null);
         BLangMatchTypedBindingPatternClause patternErrorCase =
                 getSafeAssignErrorPattern(checkedExpr.pos, this.env.scope.owner, checkedExpr.equivalentErrorTypeList,
-                                          isCheckPanic);
+                                          isCheckPanic, checkedExpr.returnExpr);
 
         // Create the match statement
         BLangMatch matchStmt = ASTBuilderUtil.createMatchStatement(checkedExpr.pos, checkedExpr.expr,
@@ -6181,7 +6278,8 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangMatchTypedBindingPatternClause getSafeAssignErrorPattern(
-            DiagnosticPos pos, BSymbol invokableSymbol, List<BType> equivalentErrorTypes, boolean isCheckPanicExpr) {
+            DiagnosticPos pos, BSymbol invokableSymbol, List<BType> equivalentErrorTypes, boolean isCheckPanicExpr,
+            boolean returnError) {
         // From here onwards we assume that this function has only one return type
         // Owner of the variable symbol must be an invokable symbol
         BType enclosingFuncReturnType = ((BInvokableType) invokableSymbol.type).retType;
@@ -6214,6 +6312,12 @@ public class Desugar extends BLangNodeVisitor {
         if (!isCheckPanicExpr && (returnOnError || this.onFailClause != null)) {
             //fail e;
             BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
+            if (returnError) {
+                BLangReturn errorReturn = ASTBuilderUtil.createReturnStmt(pos,
+                        rewrite(patternFailureCaseVarRef, env));
+                failStmt.exprStmt = errorReturn;
+                errorReturn.desugared = true;
+            }
             failStmt.pos = pos;
             failStmt.expr = patternFailureCaseVarRef;
             patternBlockFailureCase.stmts.add(failStmt);
