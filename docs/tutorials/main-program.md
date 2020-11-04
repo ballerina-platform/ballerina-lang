@@ -35,11 +35,11 @@ It is time to create a main program to solve your integration problem.
 
 Now that you have added a main program, you need a connector to connect to the external weather API. The connector ideal for this is the **HTTP Client Connector** since you are invoking an HTTP endpoint.
 
-Connectors represents network services that are used by a Ballerina program. The term "network services" here is meant in the broadest possible sense - Ballerina is designed to connect with everything from a database to a JMS queue to an OAuth protected API to LDAP servers and more. Thus connectors are the representation of any such remote service in Ballerina.
+Connectors represent network services that are used by a Ballerina program. The term "network services" here is meant in the broadest possible sense - Ballerina is designed to connect with everything from a database to a JMS queue to an OAuth protected API to LDAP servers and more. Thus connectors are the representation of any such remote service in Ballerina.
 
 Graphically, connectors are modeled as a separate lifeline to represent its independent and parallel execution. However, that lifeline is not a programmable thread of execution for the Ballerina developer - it only exists to represent the remote system.
 
-Connectors may need to have usage specific parameters and hence must be instantiated prior to use. For example, an HTTP connector will need the URL to connect to in the minimum.
+Connectors may need to have usage-specific parameters and hence must be instantiated prior to use. For example, an HTTP connector will need the URL to connect to, as a minimum.
 
 1. On the tool palette, click **More Connectors** to see a list of all available connectors.
 1. From the list that appears, expand **ballerina.net.http** and drag the **Endpoint** of the connector onto the canvas.
@@ -53,7 +53,7 @@ Connectors may need to have usage specific parameters and hence must be instanti
 
 When you add a connector, you need to have a way of calling a connector and those are called remote functions.
 
-A connector comes with a set of remote functions that represent the interactions that one can have with the remote service. Remote functions can be one directional or bi-directional and represent blocking from the calling worker's perspective. That is, the calling thread is blocked until the remote function has completed its remote interaction.
+A connector comes with a set of remote functions that represent the interactions that one can have with the remote service. Remote functions can be one-directional or bi-directional and represent blocking from the calling worker's perspective. That is, the calling thread is blocked until the remote function has completed its remote interaction.
 
 In the case of the **HTTPClient** connector you are using in this tutorial, the remote functions are listed out under the connector in the tool palette.
 
@@ -96,7 +96,7 @@ The next step is to obtain the JSON payload content.
 
 JSON is a textual format for representing a collection of values: a simple value (string, number, “true”, “false”, “null”), an array of values or an object. Ballerina also understands the JSON Schema and allows one to declare that a JSON document must conform to a particular schema.
 
-Ballerina has a variable type named “json” that can represent any JSON value. Thus it is a built-in union type in Ballerina whose value can be any one of a string, a float, a boolean, an array of any or a map of any. We provide utility functions to read a JSON document to create a JSON typed value. The lexical representation of a value of that type is JSON, thus simply printing a JSON typed variable results in a JSON string.
+Ballerina has a variable type named “json” that can represent any JSON value. Thus it is a built-in union type in Ballerina whose value can be any one of a string, a float, a boolean, an array of any, or a map of any. We provide utility functions to read a JSON document to create a JSON typed value. The lexical representation of a value of that type is JSON, thus simply printing a JSON typed variable results in a JSON string.
 
 JSON variables are declared in the following way:
 
@@ -111,9 +111,9 @@ This is a variable that may hold any JSON document.
     ![alt text](../images/GetJsonPayload.gif)
 1. Modify the name of the JSON function you added to something meaningful.
     ![alt text](../images/GetJsonPayloadMessage.png)
-1. To get the data under list, you need to add a variable from the tool palette to the main function in the canvas.
+1. To get the data under the list, you need to add a variable from the tool palette to the main function in the canvas.
     ![alt text](../images/JsonVariable.gif)
-1. Modify the variable so that you can get the data under list. In this example, **.list** is a JSON path. 
+1. Modify the variable so that you can get the data under the list. In this example, **.list** is a JSON path. 
     ![alt text](../images/forecastDataList.png)
     > The dot notation (**.**) enables you to invoke any of the attributes available in the JSON. These JSON paths can be used to access the contents of an attribute. For example, if `json j = {a:"hello"}` you can access `hello` using `j.a`. When considering the example used in this tutorial, if `json j = {list:[1,2,3]}` you can access the list using `j.list`. This is done because all the content that you need resides within the list attribute in the JSON file.
 
@@ -188,7 +188,7 @@ Once the function is added, it is available on the tool palette and can be dragg
 
 ## Get information from the weather forecast API
 
-In order to get this tutorial to work, you need to obtain some information from the public API for use in Ballerina. This section showcases how to get the URL and how to call it.
+To get this tutorial to work, you need to obtain some information from the public API for use in Ballerina. This section showcases how to get the URL and how to call it.
 
 ### Get the API key
 
@@ -215,10 +215,10 @@ Now that you have got the API key and the country code, you can identify the URL
 
 > Here the `appid` is the API key and the country code is `Washington,US`.
 
-Use a tool that can interact with HTTP APIs. In this instance we use Postman, which is a Google Chrome app. Paste the URL above in the **Enter request URL** text box and change the request type to **GET**. In the JSON response you can see the **list** part of the response contans the temperature (**temp**) in Kelvin.
+Use a tool that can interact with HTTP APIs. In this instance, we use Postman, which is a Google Chrome app. Paste the URL above in the **Enter request URL** text box and change the request type to **GET**. In the JSON response, you can see the **list** part of the response contains the temperature (**temp**) in Kelvin.
 
 ![alt text](../images/PostmanWeather.png)
 
-## Whats Next
+## What's Next
 
-Now that you have learnt how to write a main program, it is time to learn how to [work with services](passthrough-service.md).
+Now that you have learned how to write a main program, it is time to learn how to [work with services](passthrough-service.md).
