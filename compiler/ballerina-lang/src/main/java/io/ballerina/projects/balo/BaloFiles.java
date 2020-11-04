@@ -25,7 +25,7 @@ import io.ballerina.projects.directory.PackageData;
 import io.ballerina.projects.model.BallerinaToml;
 import io.ballerina.projects.model.Package;
 import io.ballerina.projects.model.PackageJson;
-import io.ballerina.projects.utils.ProjectUtils;
+import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.IOException;
 import java.net.URI;
@@ -41,8 +41,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.projects.directory.ProjectFiles.loadDocuments;
-import static io.ballerina.projects.utils.ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT;
-import static io.ballerina.projects.utils.ProjectConstants.MODULES_ROOT;
+import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT;
+import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 
 /**
  * Contains a set of utility methods that create an in-memory representation of a Ballerina project using a balo.

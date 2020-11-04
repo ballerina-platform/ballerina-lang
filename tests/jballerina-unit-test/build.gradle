@@ -21,6 +21,7 @@
 //apply from: "$rootDir/gradle/birTestableProject.gradle"
 //apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
+apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 configurations {

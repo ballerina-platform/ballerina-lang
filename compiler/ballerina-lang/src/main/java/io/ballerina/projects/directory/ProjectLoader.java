@@ -21,7 +21,7 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.utils.ProjectConstants;
+import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
 import java.util.Optional;

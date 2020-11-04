@@ -19,7 +19,7 @@ package io.ballerina.projects.repos;
 
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.internal.repositories.FileSystemRepository;
-import io.ballerina.projects.utils.ProjectConstants;
+import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
 

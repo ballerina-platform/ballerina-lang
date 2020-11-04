@@ -274,7 +274,7 @@ public class BuildCommandTest extends BaseCommandTest {
                 .resolve("winery.bir").toFile().exists());
     }
 
-    @Test(description = "Build a valid ballerina project")
+    @Test(description = "Build a valid ballerina project", enabled = false)
     public void testBuildProjectWithTests() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         System.setProperty("user.dir", projectPath.toString());
@@ -288,6 +288,10 @@ public class BuildCommandTest extends BaseCommandTest {
                 "\n" +
                 "Creating balos\n" +
                 "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
+                "\n" +
+                "Running Tests\n" +
+                "\twinery\n" +
+                "\tNo tests found\n" +
                 "\n" +
                 "Generating executable\n" +
                 "\ttarget/bin/winery.jar\n");

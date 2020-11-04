@@ -17,8 +17,10 @@
  */
 package io.ballerina.projects;
 
+import com.google.gson.Gson;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
+import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -26,7 +28,12 @@ import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -34,6 +41,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
@@ -115,11 +123,67 @@ public class JBallerinaBackend extends CompilerBackend {
             case BALO:
                 emitBalo(filePath);
                 break;
+            case TESTABLE_JAR:
+                emitTestableJar(filePath);
+                break;
             default:
                 throw new RuntimeException("Unexpected output type: " + outputType);
         }
         // TODO handle the EmitResult properly
         return new EmitResult(true, diagnostics);
+    }
+
+    private void emitTestableJar(Path filePath) {
+        for (ModuleId moduleId : packageContext.moduleIds()) {
+            ModuleContext moduleContext = packageContext.moduleContext(moduleId);
+            Optional<CompiledJarFile> compiledTestJarFile = moduleContext.compiledTestJarEntries();
+            if (compiledTestJarFile.isPresent()) {
+                String jarName;
+                String packageName; // this is used to log the error message
+                if (packageContext.packageDescriptor().org().anonymous()) {
+                    DocumentId documentId = moduleContext.srcDocumentIds().iterator().next();
+                    String documentName = moduleContext.documentContext(documentId).name();
+                    jarName = getFileNameWithoutExtension(documentName);
+                    packageName = documentName;
+                } else {
+                    ModuleName moduleName = moduleContext.moduleName();
+                    if (moduleName.isDefaultModuleName()) {
+                        jarName = moduleName.packageName().toString();
+                    } else {
+                        jarName = moduleName.moduleNamePart();
+                    }
+                    packageName = this.packageContext.packageName().toString();
+                }
+                try {
+                    JarWriter.write(compiledTestJarFile.get(),
+                            filePath.resolve(jarName + "-testable" + ProjectConstants.BLANG_COMPILED_JAR_EXT));
+                } catch (IOException e) {
+                    throw new RuntimeException("error while creating the jar file for module: "
+                            + jarName + " in package: " + packageName, e);
+                }
+                if (moduleContext.bLangPackage().hasTestablePackage()) {
+                    TestSuite testSuite = moduleContext.generateTestSuite(compilerContext);
+                    emitTestSuiteJson(testSuite, filePath);
+                }
+            }
+        }
+    }
+
+    /**
+     * Write the content into a json.
+     *
+     * @param testSuite Data that are parsed to the json
+     */
+    private static void emitTestSuiteJson(TestSuite testSuite, Path jsonPath) {
+        Path tmpJsonPath = Paths.get(jsonPath.toString(), ProjectConstants.TEST_SUITE);
+        File jsonFile = new File(tmpJsonPath.toString());
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
+            Gson gson = new Gson();
+            String json = gson.toJson(testSuite);
+            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new RuntimeException("couldn't read data from the Json file : " + e.toString());
+        }
     }
 
     private void emitBalo(Path filePath) {
@@ -233,7 +297,8 @@ public class JBallerinaBackend extends CompilerBackend {
         BIR("bir"),
         EXEC("exec"),
         BALO("balo"),
-        JAR("jar");
+        JAR("jar"),
+        TESTABLE_JAR("testable_jar");
 
         private String value;
 

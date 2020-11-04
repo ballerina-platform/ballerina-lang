@@ -18,8 +18,8 @@
 
 package org.ballerinalang.packerina.cmd;
 
-import io.ballerina.projects.utils.ProjectConstants;
-import io.ballerina.projects.utils.ProjectUtils;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.tool.BLauncherCmd;
 import picocli.CommandLine;
 

@@ -27,7 +27,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.model.Target;
-import io.ballerina.projects.utils.ProjectUtils;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.packerina.utils.FileUtils;
 
 import java.io.IOException;
@@ -35,7 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static io.ballerina.projects.utils.ProjectConstants.DIST_CACHE_DIRECTORY;
+import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 
 /**
  * Helper to drive test source compilation.
