@@ -30,12 +30,20 @@ import io.ballerinalang.compiler.syntax.tree.Token;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * Generates a Map<String, Object> for a given SyntaxTree.
  */
 public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
+    private Map<String, JsonObject> typeInfo = new HashMap<>();
+
+    public SyntaxTreeMapGenerator(Map<String, JsonObject> typeInfo) {
+        this.typeInfo = typeInfo;
+    }
+
     @Override
     protected JsonElement transformSyntaxNode(Node node) {
         JsonObject nodeJson = new JsonObject();
@@ -63,8 +71,11 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             position.addProperty("startColumn", startLine.offset());
             position.addProperty("endLine", endLine.line());
             position.addProperty("endColumn", endLine.offset());
-
             nodeJson.add("position", position);
+            if (typeInfo.size() > 0 && typeInfo.get(startLine.line() + ":" + startLine.offset()) != null) {
+                nodeJson.add("typeData", typeInfo.get(startLine.line() + ":" + startLine.offset()));
+                typeInfo.remove(startLine.line() + ":" + startLine.offset());
+            }
         }
 
         return nodeJson;

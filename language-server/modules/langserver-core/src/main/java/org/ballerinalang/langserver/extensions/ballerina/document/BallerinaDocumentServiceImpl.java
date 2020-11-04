@@ -324,8 +324,47 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
         Optional<Lock> lock = documentManager.lockFile(compilationPath);
         try {
+            LSContext astContext = new DocumentOperationContext
+                    .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
+                    .withCommonParams(null, fileUri, documentManager)
+                    .build();
+            BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(astContext, this.documentManager, null, false,
+                    false, true);
+            Map<String, JsonObject> typeInfo = new HashMap<>();
+//            TypeInfoExtractingVisitor typeInfoExtractingVisitor = new TypeInfoExtractingVisitor(typeInfo);
+//            bLangPackage.accept(typeInfoExtractingVisitor);
+
+            CompilerContext compilerContext = astContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+            VisibleEndpointVisitor visibleEndpointVisitor = new VisibleEndpointVisitor(compilerContext);
+            bLangPackage.accept(visibleEndpointVisitor);
+            Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode = visibleEndpointVisitor.getVisibleEPsByNode();
+
+            for (Map.Entry<BLangNode, List<SymbolMetaInfo>> entry : visibleEPsByNode.entrySet()) {
+                JsonArray eps = new JsonArray();
+                for (SymbolMetaInfo symbolMetaInfo : entry.getValue()) {
+                    JsonObject endpoint = new JsonObject();
+                    endpoint.addProperty("isEndpoint", true);
+                    endpoint.addProperty("typeName", symbolMetaInfo.getTypeName());
+                    endpoint.addProperty("pkgAlias", symbolMetaInfo.getPkgAlias());
+                    endpoint.addProperty("pkgName", symbolMetaInfo.getPkgName());
+                    endpoint.addProperty("pkgOrgName", symbolMetaInfo.getPkgOrgName());
+                    endpoint.addProperty("kind", symbolMetaInfo.getKind());
+                    if (symbolMetaInfo.getPosition() != null) {
+                        eps.add(endpoint);
+                        typeInfo.put((symbolMetaInfo.getPosition().sLine - 1) + ":"
+                                        + (symbolMetaInfo.getPosition().sCol - 1)
+                                , endpoint);
+                    } else {
+                        eps.add(endpoint);
+                    }
+                }
+                JsonObject endpoints = new JsonObject();
+                endpoints.add("visibleEndpoints", eps);
+                typeInfo.put((entry.getKey().pos.sLine - 1) + ":" + (entry.getKey().pos.sCol - 1), endpoints);
+            }
+
             TextDocument doc = documentManager.getTree(compilationPath).textDocument();
-            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
+            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(typeInfo);
             SyntaxTree syntaxTree = SyntaxTree.from(doc, compilationPath.toString());
             ModulePartNode modulePartNode = syntaxTree.rootNode();
             reply.setSyntaxTree(mapGenerator.transform(modulePartNode));
@@ -354,7 +393,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         try {
             LSContext astContext = BallerinaTreeModifyUtil.modifyTree(request.getAstModifications(), fileUri,
                     compilationPath, documentManager);
-            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
+            Map<String, JsonObject> typeInfo = new HashMap<>();
+            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(typeInfo);
             String fileContent = astContext.get(UPDATED_SOURCE);
             TextDocument textDocument = TextDocuments.from(fileContent);
             SyntaxTree syntaxTree = SyntaxTree.from(textDocument, compilationPath.toString());
