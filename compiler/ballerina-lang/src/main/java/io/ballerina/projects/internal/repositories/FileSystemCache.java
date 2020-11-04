@@ -23,7 +23,7 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.utils.ProjectConstants;
+import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;

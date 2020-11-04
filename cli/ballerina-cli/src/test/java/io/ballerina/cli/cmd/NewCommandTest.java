@@ -18,7 +18,7 @@
 
 package io.ballerina.cli.cmd;
 
-import io.ballerina.projects.utils.ProjectConstants;
+import io.ballerina.projects.util.ProjectConstants;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import picocli.CommandLine;

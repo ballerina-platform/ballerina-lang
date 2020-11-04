@@ -18,8 +18,8 @@
 package io.ballerina.projects.model;
 
 import io.ballerina.projects.Package;
-import io.ballerina.projects.utils.ProjectConstants;
-import io.ballerina.projects.utils.ProjectUtils;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.io.FileUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 

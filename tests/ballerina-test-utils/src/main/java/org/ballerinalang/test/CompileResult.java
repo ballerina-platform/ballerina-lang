@@ -25,7 +25,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageId;
 import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.utils.ProjectConstants;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.model.tree.PackageNode;

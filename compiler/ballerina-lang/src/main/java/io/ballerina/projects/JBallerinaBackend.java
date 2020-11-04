@@ -21,8 +21,8 @@ import com.google.gson.Gson;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.testsuite.TestSuite;
-import io.ballerina.projects.utils.ProjectConstants;
-import io.ballerina.projects.utils.ProjectUtils;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -46,7 +46,7 @@ import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
-import static io.ballerina.projects.utils.FileUtils.getFileNameWithoutExtension;
+import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 
 /**
  * This class represents the Ballerina compiler backend that produces executables that runs on the JVM.
