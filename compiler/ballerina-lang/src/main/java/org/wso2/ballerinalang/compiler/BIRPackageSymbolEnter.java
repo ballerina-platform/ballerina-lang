@@ -1383,7 +1383,7 @@ public class BIRPackageSymbolEnter {
             readTypeFromCp();
         }
 
-        private BUnionType createUnionType(int flags, int cpI) throws IOException {
+        private BUnionType readUnionType(int flags, int cpI) throws IOException {
             boolean isCyclic = inputStream.readBoolean();
             Name unionNameValue;
             if (isCyclic) {
@@ -1395,20 +1395,14 @@ public class BIRPackageSymbolEnter {
                     Flags.asMask(EnumSet.of(Flag.PUBLIC)), unionNameValue, env.pkgSymbol.pkgID,
                     null, env.pkgSymbol.owner, symTable.builtinPos, COMPILED_SOURCE);
 
-            BUnionType unionType = BUnionType.create(unionTypeSymbol, new LinkedHashSet<>());
-
+            int unionMemberCount = inputStream.readInt();
+            BUnionType unionType = BUnionType.create(unionTypeSymbol, new LinkedHashSet<>(unionMemberCount));
             if (isCyclic) {
                 addShapeCP(unionType, cpI);
             }
-
             unionType.flags = flags;
             unionType.isCyclic = isCyclic;
-            return unionType;
-        }
 
-        private BUnionType readUnionType(int flags, int cpI) throws IOException {
-            BUnionType unionType = createUnionType(flags, cpI);
-            int unionMemberCount = inputStream.readInt();
             for (int i = 0; i < unionMemberCount; i++) {
                 unionType.add(readTypeFromCp());
             }
