@@ -35,8 +35,6 @@ public class ServiceClassTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/klass/simple_service_class.bal");
-        int i = 0;
-        //distinctCompUnit = BCompileUtil.compile("test-src/klass/distinct-class-def.bal");
     }
 
     @Test

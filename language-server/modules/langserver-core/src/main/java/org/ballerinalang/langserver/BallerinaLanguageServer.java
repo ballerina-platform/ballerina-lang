@@ -26,8 +26,11 @@ import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.extensions.AbstractExtendedLanguageServer;
+import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorService;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorServiceImpl;
+import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentService;
+import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleService;
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.fragment.BallerinaFragmentService;
@@ -69,11 +72,11 @@ import static org.ballerinalang.langserver.Experimental.SEMANTIC_SYNTAX_HIGHLIGH
  * Language server implementation for Ballerina.
  */
 public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
-        implements ExtendedLanguageClientAware {
+        implements ExtendedLanguageClientAware, ExtendedLanguageServer {
     private ExtendedLanguageClient client = null;
     private final TextDocumentService textService;
     private final WorkspaceService workspaceService;
-//    private final BallerinaDocumentService ballerinaDocumentService;
+    private final BallerinaDocumentService ballerinaDocumentService;
     private final BallerinaConnectorService ballerinaConnectorService;
     private final BallerinaProjectService ballerinaProjectService;
     private final BallerinaExampleService ballerinaExampleService;
@@ -97,7 +100,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 
         this.textService = new BallerinaTextDocumentService(lsGlobalContext);
         this.workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
-//        this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(lsGlobalContext);
+        this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(lsGlobalContext);
         this.ballerinaConnectorService = new BallerinaConnectorServiceImpl(lsGlobalContext);
         this.ballerinaProjectService = new BallerinaProjectServiceImpl(lsGlobalContext);
         this.ballerinaExampleService = new BallerinaExampleServiceImpl();
@@ -132,6 +135,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setCodeActionProvider(true);
         res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
         res.getCapabilities().setDocumentFormattingProvider(true);
+        res.getCapabilities().setDocumentRangeFormattingProvider(true);
         res.getCapabilities().setRenameProvider(false);
         res.getCapabilities().setWorkspaceSymbolProvider(false);
         res.getCapabilities().setImplementationProvider(false);
@@ -140,7 +144,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         HashMap experimentalClientCapabilities = null;
         if (params.getCapabilities().getExperimental() != null) {
             experimentalClientCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(),
-                                                                 HashMap.class);
+                    HashMap.class);
         }
 
         // Set AST provider and examples provider capabilities
@@ -168,8 +172,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         TextDocumentClientCapabilities textDocClientCapabilities = params.getCapabilities().getTextDocument();
         WorkspaceClientCapabilities workspaceClientCapabilities = params.getCapabilities().getWorkspace();
         LSClientCapabilities capabilities = new LSClientCapabilitiesImpl(textDocClientCapabilities,
-                                                                         workspaceClientCapabilities,
-                                                                         experimentalClientCapabilities);
+                workspaceClientCapabilities,
+                experimentalClientCapabilities);
         ((BallerinaTextDocumentService) textService).setClientCapabilities(capabilities);
         ((BallerinaWorkspaceService) workspaceService).setClientCapabilities(capabilities);
         return CompletableFuture.supplyAsync(() -> res);
@@ -199,29 +203,29 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         return this.workspaceService;
     }
 
-//    public BallerinaDocumentService getBallerinaDocumentService() {
-//        return this.ballerinaDocumentService;
-//    }
+    public BallerinaDocumentService getBallerinaDocumentService() {
+        return this.ballerinaDocumentService;
+    }
 
-//    @Override
-//    public BallerinaConnectorService getBallerinaConnectorService() {
-//        return this.ballerinaConnectorService;
-//    }
-//
-//    @Override
-//    public BallerinaExampleService getBallerinaExampleService() {
-//        return this.ballerinaExampleService;
-//    }
-//
-//    @Override
-//    public BallerinaProjectService getBallerinaProjectService() {
-//        return this.ballerinaProjectService;
-//    }
-//
-//    @Override
-//    public BallerinaTraceService getBallerinaTraceService() {
-//        return this.ballerinaTraceService;
-//    }
+    @Override
+    public BallerinaConnectorService getBallerinaConnectorService() {
+        return this.ballerinaConnectorService;
+    }
+
+    @Override
+    public BallerinaExampleService getBallerinaExampleService() {
+        return this.ballerinaExampleService;
+    }
+
+    @Override
+    public BallerinaProjectService getBallerinaProjectService() {
+        return this.ballerinaProjectService;
+    }
+
+    @Override
+    public BallerinaTraceService getBallerinaTraceService() {
+        return this.ballerinaTraceService;
+    }
 
     @Override
     public void connect(ExtendedLanguageClient languageClient) {
@@ -229,18 +233,18 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         LSClientLogger.initialize(this.client);
     }
 
-//    public BallerinaSymbolService getBallerinaSymbolService() {
-//        return ballerinaSymbolService;
-//    }
+    public BallerinaSymbolService getBallerinaSymbolService() {
+        return ballerinaSymbolService;
+    }
 
     public WorkspaceDocumentManager getDocumentManager() {
         return documentManager;
     }
 
-//    @Override
-//    public BallerinaFragmentService getBallerinaFragmentService() {
-//        return ballerinaFragmentService;
-//    }
+    //    @Override
+    public BallerinaFragmentService getBallerinaFragmentService() {
+        return ballerinaFragmentService;
+    }
     // Private Methods
 
     private String[][] getScopes() {

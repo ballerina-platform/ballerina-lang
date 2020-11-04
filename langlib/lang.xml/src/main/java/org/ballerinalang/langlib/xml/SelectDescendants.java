@@ -18,10 +18,10 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 import org.wso2.ballerinalang.util.Lists;
 
 /**
@@ -41,11 +41,11 @@ public class SelectDescendants {
 
     private static final String OPERATION = "select descendants from xml";
 
-    public static XMLValue selectDescendants(Strand strand, XMLValue xml, ArrayValue qnames) {
+    public static BXML selectDescendants(Strand strand, BXML xml, BArray qnames) {
         try {
             // todo: this need to support list of qnames.
             String qname = qnames.getString(0);
-            return (XMLValue) xml.descendants(Lists.of(qname));
+            return (BXML) xml.descendants(Lists.of(qname));
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }

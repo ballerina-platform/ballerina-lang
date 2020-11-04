@@ -125,7 +125,7 @@ public client class Foo {
         return i;
     }
 
-    public remote function baz(string s, float f = 2.0, boolean... b) {
+    remote function baz(string s, float f = 2.0, boolean... b) {
     }
 }
 
@@ -134,7 +134,7 @@ public client class FooTwo {
         return [i, checkpanic b.cloneWithType(BooleanArray)];
     }
 
-    public remote function bar(int i, string s = "hello", string... t) returns [int, string, string[]] {
+    remote function bar(int i, string s = "hello", string... t) returns [int, string, string[]] {
         return [i, s, checkpanic t.cloneWithType(StringArray)];
     }
 }

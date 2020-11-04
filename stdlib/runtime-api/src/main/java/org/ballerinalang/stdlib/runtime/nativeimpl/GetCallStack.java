@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.values.ArrayValue;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 
 /**
  * Native implementation for get error's call stack.
@@ -29,7 +29,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
  */
 public class GetCallStack {
 
-    public static ArrayValue getCallStack() {
-        return BErrorCreator.createError(BStringUtils.fromString("")).getCallStack();
+    public static BArray getCallStack() {
+        return ErrorCreator.createError(StringUtils.fromString("")).getCallStack();
     }
 }

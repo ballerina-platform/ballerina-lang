@@ -1052,12 +1052,6 @@
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
                             }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
                           ]
                         },
                         {
@@ -1164,13 +1158,7 @@
                           "children": []
                         },
                         {
-                          "kind": "FUNCTION_KEYWORD",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "FUNCTION_KEYWORD"
                         },
                         {
                           "kind": "FUNCTION_SIGNATURE",
@@ -1271,13 +1259,7 @@
                       "children": []
                     },
                     {
-                      "kind": "FUNCTION_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "FUNCTION_KEYWORD"
                     },
                     {
                       "kind": "FUNCTION_SIGNATURE",

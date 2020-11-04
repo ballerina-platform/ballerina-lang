@@ -22,7 +22,7 @@ public client class HttpClient {
         self.url = url;
     }
 
-    public remote function get(string path) returns string {
+    remote function get(string path) returns string {
         return self.url + path;
     }
 

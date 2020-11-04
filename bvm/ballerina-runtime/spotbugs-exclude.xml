@@ -17,34 +17,34 @@
   -->
 <FindBugsFilter>
     <Match>
-        <Package name="org.ballerinalang.jvm"/>
+        <Package name="io.ballerina.runtime"/>
     </Match>
     <Match>
-        <Package name="org.ballerinalang.jvm.values"/>
+        <Package name="io.ballerina.runtime.values"/>
     </Match>
     <Match>
-        <Package name="org.ballerinalang.jvm.types"/>
+        <Package name="io.ballerina.runtime.types"/>
     </Match>
     <Match>
-        <Package name="org.ballerinalang.jvm.util.exceptions"/>
+        <Package name="io.ballerina.runtime.util.exceptions"/>
     </Match>
     <Match>
-        <Package name="org.ballerinalang.jvm.commons"/>
+        <Package name="io.ballerina.runtime.commons"/>
     </Match>
     <Match>
-        <Package name="org.ballerinalang.jvm.values.connector"/>
+        <Package name="io.ballerina.runtime.values.connector"/>
     </Match>
     <Match>
-        <Package name="org.ballerinalang.jvm.observability.metrics"/>
+        <Package name="io.ballerina.runtime.observability.metrics"/>
     </Match>
     <Match>
-        <Package name="org.ballerinalang.jvm.observability"/>
+        <Package name="io.ballerina.runtime.observability"/>
     </Match>
     <Match>
-        <Package name="org.ballerinalang.jvm.observability.tracer"/>
+        <Package name="io.ballerina.runtime.observability.tracer"/>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.jvm.util.ArgumentParser"/>
+        <Class name="io.ballerina.runtime.util.ArgumentParser"/>
     </Match>
     <Match>
         <OR>

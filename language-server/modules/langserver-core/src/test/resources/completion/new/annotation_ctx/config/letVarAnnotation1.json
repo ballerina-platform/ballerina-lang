@@ -10,35 +10,40 @@
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "module1:sourceVarAnnotation1 {\n\tfoo: \"${1}\"\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "module1:sourceVarAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "module1:sourceVarAnnotation2",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "tainted",
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "tainted",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "a1",
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "a1 {\n\tfoo: \"${1}\"\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "a2",
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "a2",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     }
   ]
 }

@@ -2467,7 +2467,7 @@ public class BIRGen extends BLangNodeVisitor {
         long size = -1L;
         List<BLangExpression> exprs = listConstructorExpr.exprs;
         if (listConstructorExpr.type.tag == TypeTags.ARRAY &&
-                ((BArrayType) listConstructorExpr.type).state != BArrayState.UNSEALED) {
+                ((BArrayType) listConstructorExpr.type).state != BArrayState.OPEN) {
             size = ((BArrayType) listConstructorExpr.type).size;
         } else if (listConstructorExpr.type.tag == TypeTags.TUPLE) {
             size = exprs.size();

@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 4,
+    "character": 19
+  },
+  "source": "expression_context/source/field_access_ctx_source6.bal",
+  "items": [
+    {
+      "label": "testClassField",
+      "detail": "int",
+      "insertText": "testClassField",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testMethod()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "insertText": "testMethod()",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

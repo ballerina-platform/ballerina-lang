@@ -24,7 +24,6 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -49,7 +48,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.ballerinalang.jvm.util.BLangConstants.UNDERSCORE;
+import static io.ballerina.runtime.util.BLangConstants.UNDERSCORE;
 
 /**
  * Service De-sugar.
@@ -112,14 +111,14 @@ public class ServiceDesugar {
         final Name functionName = names
                 .fromString(Symbols.getAttachedFuncSymbolName(variable.type.tsymbol.name.value, method));
         BInvokableSymbol methodInvocationSymbol = (BInvokableSymbol) symResolver
-                .lookupMemberSymbol(pos, ((BObjectTypeSymbol) variable.type.tsymbol).methodScope, env, functionName,
+                .lookupMemberSymbol(pos, variable.type.tsymbol.scope, env, functionName,
                         SymTag.INVOKABLE);
 
         BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, variable.symbol);
 
         // Create method invocation
-        addMethodInvocation(pos, varRef, methodInvocationSymbol, Collections.emptyList(), Collections.emptyList(),
-                            (BLangBlockFunctionBody) lifeCycleFunction.body);
+        addMethodInvocation(pos, varRef, methodInvocationSymbol, Collections.emptyList(),
+                (BLangBlockFunctionBody) lifeCycleFunction.body);
     }
 
     BLangBlockStmt rewriteServiceVariables(List<BLangService> services, SymbolEnv env) {
@@ -129,16 +128,15 @@ public class ServiceDesugar {
     }
 
     void rewriteServiceVariable(BLangService service, SymbolEnv env, BLangBlockStmt attachments) {
-        // service x on y { ... }
+        // service x [/abs/Path] on y { ... }
         //
         // after desugar :
-        //      if y is anonymous (globalVar)   ->      y = y(expr)
         //      (init)                          ->      y.__attach(x, {});
 
-        if (service.isAnonymousService()) {
-            return;
-        }
         final DiagnosticPos pos = service.pos;
+
+        ASTBuilderUtil.defineVariable(service.serviceVariable, env.enclPkg.symbol, names);
+        env.enclPkg.globalVars.add(service.serviceVariable);
 
         int count = 0;
         for (BLangExpression attachExpr : service.attachedExprs) {
@@ -163,23 +161,19 @@ public class ServiceDesugar {
             final Name functionName = names
                     .fromString(Symbols.getAttachedFuncSymbolName(attachExpr.type.tsymbol.name.value, ATTACH_METHOD));
             BInvokableSymbol methodRef = (BInvokableSymbol) symResolver
-                    .lookupMemberSymbol(pos, ((BObjectTypeSymbol) listenerVarRef.type.tsymbol).methodScope, env,
+                    .lookupMemberSymbol(pos, listenerVarRef.type.tsymbol.scope, env,
                             functionName, SymTag.INVOKABLE);
 
             // Create method invocation
             List<BLangExpression> args = new ArrayList<>();
-            args.add(ASTBuilderUtil.createVariableRef(pos, service.variableNode.symbol));
+            args.add(ASTBuilderUtil.createVariableRef(pos, service.serviceVariable.symbol));
 
-            BLangLiteral serviceName = ASTBuilderUtil.createLiteral(pos, symTable.stringType, service.name.value);
-            List<BLangNamedArgsExpression> namedArgs = Collections.singletonList(
-                    ASTBuilderUtil.createNamedArg("name", serviceName));
-
-            addMethodInvocation(pos, listenerVarRef, methodRef, args, namedArgs, attachments);
+            addMethodInvocation(pos, listenerVarRef, methodRef, args, attachments);
         }
     }
 
     private void addMethodInvocation(DiagnosticPos pos, BLangSimpleVarRef varRef, BInvokableSymbol methodRefSymbol,
-                                     List<BLangExpression> args, List<BLangNamedArgsExpression> namedArgs,
+                                     List<BLangExpression> args,
                                      BlockNode body) {
         // Create method invocation
         final BLangInvocation methodInvocation =

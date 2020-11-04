@@ -17,7 +17,7 @@
 import ballerina/java;
 
 public client class Caller {
-    public remote isolated function respond(string message) returns error? {
+    remote isolated function respond(string message) returns error? {
         return externRespond(self, message);
     }
 }

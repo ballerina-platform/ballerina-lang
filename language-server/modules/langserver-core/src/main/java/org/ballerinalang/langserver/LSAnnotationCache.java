@@ -15,8 +15,11 @@
  */
 package org.ballerinalang.langserver;
 
+import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import org.ballerinalang.jvm.util.Flags;
+import io.ballerina.runtime.util.Flags;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContextManager;
@@ -54,26 +57,27 @@ public class LSAnnotationCache {
 
     private static final Logger logger = LoggerFactory.getLogger(LSPackageCache.class);
 
-    private static HashMap<PackageID, List<BAnnotationSymbol>> typeAnnotations = new HashMap<>();
-    private static HashMap<PackageID, List<BAnnotationSymbol>> classAnnotations = new HashMap<>();
-    private static HashMap<PackageID, List<BAnnotationSymbol>> objectAnnotations = new HashMap<>();
-    private static HashMap<PackageID, List<BAnnotationSymbol>> functionAnnotations = new HashMap<>();
-    private static HashMap<PackageID, List<BAnnotationSymbol>> objectMethodAnnotations = new HashMap<>();
-    private static HashMap<PackageID, List<BAnnotationSymbol>> resourceAnnotations = new HashMap<>();
-    private static HashMap<PackageID, List<BAnnotationSymbol>> parameterAnnotations = new HashMap<>();
-    private static HashMap<PackageID, List<BAnnotationSymbol>> returnAnnotations = new HashMap<>();
-    private static HashMap<PackageID, List<BAnnotationSymbol>> serviceAnnotations = new HashMap<>();
-    private static HashMap<PackageID, List<BAnnotationSymbol>> listenerAnnotations = new HashMap<>();
-    private static HashMap<PackageID, List<BAnnotationSymbol>> annotationAnnotations = new HashMap<>();
-    private static HashMap<PackageID, List<BAnnotationSymbol>> externalAnnotations = new HashMap<>();
-    private static HashMap<PackageID, List<BAnnotationSymbol>> varAnnotations = new HashMap<>();
-    private static HashMap<PackageID, List<BAnnotationSymbol>> constAnnotations = new HashMap<>();
-    private static HashMap<PackageID, List<BAnnotationSymbol>> workerAnnotations = new HashMap<>();
-    private static HashMap<PackageID, List<BAnnotationSymbol>> fieldAnnotations = new HashMap<>();
-    private static HashMap<PackageID, List<BAnnotationSymbol>> recordFieldAnnotations = new HashMap<>();
-    private static HashMap<PackageID, List<BAnnotationSymbol>> objectFieldAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> typeAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> classAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> objectAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> functionAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> objectMethodAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> resourceAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> parameterAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> returnAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> serviceAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> listenerAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> annotationAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> externalAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> varAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> constAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> workerAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> fieldAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> recordFieldAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> objectFieldAnnotations = new HashMap<>();
+    private static final List<PackageID> processedPackages = new ArrayList<>();
+
     private static LSAnnotationCache lsAnnotationCache = null;
-    private static List<PackageID> processedPackages = new ArrayList<>();
 
     private LSAnnotationCache() {
     }
@@ -93,42 +97,6 @@ public class LSAnnotationCache {
         }
     }
 
-    private static Map<String, BPackageSymbol> loadPackagesMap(CompilerContext compilerCtx) {
-        Map<String, BPackageSymbol> staticPackages = new HashMap<>();
-
-        // Annotation cache will only load the sk packages initially and the others will load in the runtime
-        for (BallerinaPackage sdkPackage : LSPackageLoader.getSdkPackages()) {
-            PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name(sdkPackage.getOrgName()),
-                    new Name(sdkPackage.getPackageName()),
-                    new Name(sdkPackage.getVersion()));
-            try {
-                // We will wrap this with a try catch to prevent LS crashing due to compiler errors.
-                Optional<BPackageSymbol> bPackageSymbol = LSPackageLoader.getPackageSymbolById(compilerCtx, packageID);
-                if (!bPackageSymbol.isPresent()) {
-                    continue;
-                }
-                staticPackages.put(bPackageSymbol.get().pkgID.toString(), bPackageSymbol.get());
-            } catch (Exception e) {
-                logger.warn("Error while loading package :" + sdkPackage.getPackageName());
-            }
-        }
-
-        return staticPackages;
-    }
-
-    private static void loadAnnotations(List<BPackageSymbol> packageList) {
-        packageList.forEach(LSAnnotationCache::loadAnnotationsFromPackage);
-    }
-
-    private static void addAttachment(BAnnotationSymbol bAnnotationSymbol,
-                                      HashMap<PackageID, List<BAnnotationSymbol>> map, PackageID packageID) {
-        if (map.containsKey(packageID)) {
-            map.get(packageID).add(bAnnotationSymbol);
-            return;
-        }
-        map.put(packageID, new ArrayList<>(Collections.singletonList(bAnnotationSymbol)));
-    }
-
     /**
      * Get the annotation map for the given type.
      *
@@ -136,8 +104,8 @@ public class LSAnnotationCache {
      * @param ctx             LSContext
      * @return {@link HashMap}  Map of annotation lists
      */
-    public HashMap<PackageID, List<BAnnotationSymbol>> getAnnotationMapForType(SyntaxKind attachmentPoint,
-                                                                               LSContext ctx) {
+    public Map<ModuleID, List<AnnotationSymbol>> getAnnotationMapForSyntaxKind(SyntaxKind attachmentPoint,
+                                                                                   LSContext ctx) {
         // TODO: Add service method definition, handle individual and rest params
         CompilerContext compilerCtx = ctx.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
 
@@ -163,7 +131,7 @@ public class LSAnnotationCache {
                 return functionAnnotations;
             case METHOD_DECLARATION:
             case OBJECT_METHOD_DEFINITION:
-                HashMap<PackageID, List<BAnnotationSymbol>> methodDefAnnotations = new HashMap<>();
+                HashMap<ModuleID, List<AnnotationSymbol>> methodDefAnnotations = new HashMap<>();
                 methodDefAnnotations.putAll(functionAnnotations);
                 methodDefAnnotations.putAll(objectMethodAnnotations);
                 return methodDefAnnotations;
@@ -184,13 +152,13 @@ public class LSAnnotationCache {
             case RETURN_TYPE_DESCRIPTOR:
                 return returnAnnotations;
             case OBJECT_FIELD:
-                HashMap<PackageID, List<BAnnotationSymbol>> objFieldAnnotations = new HashMap<>();
+                HashMap<ModuleID, List<AnnotationSymbol>> objFieldAnnotations = new HashMap<>();
                 objFieldAnnotations.putAll(fieldAnnotations);
                 objFieldAnnotations.putAll(objectFieldAnnotations);
                 return objFieldAnnotations;
             case RECORD_FIELD:
             case RECORD_FIELD_WITH_DEFAULT_VALUE:
-                HashMap<PackageID, List<BAnnotationSymbol>> recFieldAnnotations = new HashMap<>();
+                HashMap<ModuleID, List<AnnotationSymbol>> recFieldAnnotations = new HashMap<>();
                 recFieldAnnotations.putAll(fieldAnnotations);
                 recFieldAnnotations.putAll(recordFieldAnnotations);
                 return recFieldAnnotations;
@@ -213,22 +181,17 @@ public class LSAnnotationCache {
 
     /**
      * Get the annotations in the module when given the alias.
-     * 
-     * @param context Language server context
-     * @param alias module alias
+     *
+     * @param context         Language server context
+     * @param alias           module alias
      * @param attachmentPoint attachment point
      * @return {@link Map} of annotations
      */
-    public Map<PackageID, List<BAnnotationSymbol>> getAnnotationsInModule(LSContext context, String alias,
-                                                                          SyntaxKind attachmentPoint) {
-        HashMap<PackageID, List<BAnnotationSymbol>> annotations = getAnnotationMapForType(attachmentPoint, context);
+    public Map<ModuleID, List<AnnotationSymbol>> getAnnotationsInModule(LSContext context, String alias,
+                                                                        SyntaxKind attachmentPoint) {
+        Map<ModuleID, List<AnnotationSymbol>> annotations = getAnnotationMapForSyntaxKind(attachmentPoint, context);
         return annotations.entrySet().stream()
-                .filter(entry -> {
-                    PackageID moduleId = entry.getKey();
-                    List<Name> nameComps = moduleId.getNameComps();
-
-                    return nameComps.get(nameComps.size() - 1).getValue().equals(alias);
-                })
+                .filter(entry -> entry.getKey().modulePrefix().equals(alias))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
@@ -237,8 +200,8 @@ public class LSAnnotationCache {
      *
      * @return {@link List} list of all annotations in the cache
      */
-    public List<BAnnotationSymbol> getAnnotations() {
-        List<BAnnotationSymbol> annotations = new ArrayList<>();
+    public List<AnnotationSymbol> getAnnotations() {
+        List<AnnotationSymbol> annotations = new ArrayList<>();
         typeAnnotations.values().forEach(annotations::addAll);
         objectAnnotations.values().forEach(annotations::addAll);
         functionAnnotations.values().forEach(annotations::addAll);
@@ -271,61 +234,61 @@ public class LSAnnotationCache {
                 int attachPoints = ((BAnnotationSymbol) annotationEntry.symbol).maskedPoints;
 
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.TYPE)) {
-                    addAttachment(annotationSymbol, typeAnnotations, bPackageSymbol.pkgID);
-                    addAttachment(annotationSymbol, objectAnnotations, bPackageSymbol.pkgID);
+                    addAttachment(annotationSymbol, typeAnnotations);
+                    addAttachment(annotationSymbol, objectAnnotations);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.OBJECT)) {
-                    addAttachment(annotationSymbol, objectAnnotations, bPackageSymbol.pkgID);
+                    addAttachment(annotationSymbol, objectAnnotations);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.FUNCTION)) {
-                    addAttachment(annotationSymbol, functionAnnotations, bPackageSymbol.pkgID);
-                    addAttachment(annotationSymbol, objectMethodAnnotations, bPackageSymbol.pkgID);
-                    addAttachment(annotationSymbol, resourceAnnotations, bPackageSymbol.pkgID);
+                    addAttachment(annotationSymbol, functionAnnotations);
+                    addAttachment(annotationSymbol, objectMethodAnnotations);
+                    addAttachment(annotationSymbol, resourceAnnotations);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.OBJECT_METHOD)) {
-                    addAttachment(annotationSymbol, objectMethodAnnotations, bPackageSymbol.pkgID);
+                    addAttachment(annotationSymbol, objectMethodAnnotations);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.SERVICE_REMOTE)) {
-                    addAttachment(annotationSymbol, resourceAnnotations, bPackageSymbol.pkgID);
+                    addAttachment(annotationSymbol, resourceAnnotations);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.PARAMETER)) {
-                    addAttachment(annotationSymbol, parameterAnnotations, bPackageSymbol.pkgID);
+                    addAttachment(annotationSymbol, parameterAnnotations);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.RETURN)) {
-                    addAttachment(annotationSymbol, returnAnnotations, bPackageSymbol.pkgID);
+                    addAttachment(annotationSymbol, returnAnnotations);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.SERVICE)) {
-                    addAttachment(annotationSymbol, serviceAnnotations, bPackageSymbol.pkgID);
+                    addAttachment(annotationSymbol, serviceAnnotations);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.LISTENER)) {
-                    addAttachment(annotationSymbol, listenerAnnotations, bPackageSymbol.pkgID);
+                    addAttachment(annotationSymbol, listenerAnnotations);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.ANNOTATION)) {
-                    addAttachment(annotationSymbol, annotationAnnotations, bPackageSymbol.pkgID);
+                    addAttachment(annotationSymbol, annotationAnnotations);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.EXTERNAL)) {
-                    addAttachment(annotationSymbol, externalAnnotations, bPackageSymbol.pkgID);
+                    addAttachment(annotationSymbol, externalAnnotations);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.VAR)) {
-                    addAttachment(annotationSymbol, varAnnotations, bPackageSymbol.pkgID);
+                    addAttachment(annotationSymbol, varAnnotations);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.CONST)) {
-                    addAttachment(annotationSymbol, constAnnotations, bPackageSymbol.pkgID);
+                    addAttachment(annotationSymbol, constAnnotations);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.WORKER)) {
-                    addAttachment(annotationSymbol, workerAnnotations, bPackageSymbol.pkgID);
+                    addAttachment(annotationSymbol, workerAnnotations);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.FIELD)) {
-                    addAttachment(annotationSymbol, fieldAnnotations, bPackageSymbol.pkgID);
+                    addAttachment(annotationSymbol, fieldAnnotations);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.OBJECT_FIELD)) {
-                    addAttachment(annotationSymbol, objectFieldAnnotations, bPackageSymbol.pkgID);
+                    addAttachment(annotationSymbol, objectFieldAnnotations);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.RECORD_FIELD)) {
-                    addAttachment(annotationSymbol, recordFieldAnnotations, bPackageSymbol.pkgID);
+                    addAttachment(annotationSymbol, recordFieldAnnotations);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.CLASS)) {
-                    addAttachment(annotationSymbol, classAnnotations, bPackageSymbol.pkgID);
+                    addAttachment(annotationSymbol, classAnnotations);
                 }
             }
         });
@@ -334,9 +297,8 @@ public class LSAnnotationCache {
     }
 
     private static List<Scope.ScopeEntry> extractAnnotationDefinitions(Map<Name, Scope.ScopeEntry> scopeEntries) {
-        return scopeEntries.entrySet().stream()
-                .filter(entry -> entry.getValue().symbol.kind == SymbolKind.ANNOTATION)
-                .map(Map.Entry::getValue)
+        return scopeEntries.values().stream()
+                .filter(scopeEntry -> scopeEntry.symbol.kind == SymbolKind.ANNOTATION)
                 .collect(Collectors.toList());
     }
 
@@ -344,5 +306,43 @@ public class LSAnnotationCache {
         return processedPackages
                 .stream()
                 .anyMatch(processedPkgId -> processedPkgId.toString().equals(packageID.toString()));
+    }
+
+    private static Map<String, BPackageSymbol> loadPackagesMap(CompilerContext compilerCtx) {
+        Map<String, BPackageSymbol> staticPackages = new HashMap<>();
+
+        // Annotation cache will only load the sk packages initially and the others will load in the runtime
+        for (BallerinaPackage sdkPackage : LSPackageLoader.getSdkPackages()) {
+            PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name(sdkPackage.getOrgName()),
+                    new Name(sdkPackage.getPackageName()),
+                    new Name(sdkPackage.getVersion()));
+            try {
+                // We will wrap this with a try catch to prevent LS crashing due to compiler errors.
+                Optional<BPackageSymbol> bPackageSymbol = LSPackageLoader.getPackageSymbolById(compilerCtx, packageID);
+                if (bPackageSymbol.isEmpty()) {
+                    continue;
+                }
+                staticPackages.put(bPackageSymbol.get().pkgID.toString(), bPackageSymbol.get());
+            } catch (Exception e) {
+                logger.warn("Error while loading package :" + sdkPackage.getPackageName());
+            }
+        }
+
+        return staticPackages;
+    }
+
+    private static void loadAnnotations(List<BPackageSymbol> packageList) {
+        packageList.forEach(LSAnnotationCache::loadAnnotationsFromPackage);
+    }
+
+    private static void addAttachment(BAnnotationSymbol bAnnotationSymbol,
+                                      Map<ModuleID, List<AnnotationSymbol>> map) {
+        AnnotationSymbol annotationSymbol = SymbolFactory.createAnnotationSymbol(bAnnotationSymbol);
+        // TODO: Check the map contains is valid
+        if (map.containsKey(annotationSymbol.moduleID())) {
+            map.get(annotationSymbol.moduleID()).add(annotationSymbol);
+            return;
+        }
+        map.put(annotationSymbol.moduleID(), new ArrayList<>(Collections.singletonList(annotationSymbol)));
     }
 }

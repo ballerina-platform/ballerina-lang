@@ -4,6 +4,6 @@ function testObjectConstructor() {
     int value1 = 12;
 
     var constructor = object {
-        public remote function testName() r
+        remote function testName() r
     };
 }

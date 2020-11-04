@@ -481,7 +481,7 @@ public function functionWithFork() {
 int count = 0;
 
 client class ClientObject {
-    public remote function remoteFunc(string arg) returns int|error {
+    remote function remoteFunc(string arg) returns int|error {
         return 1;
     }
 }

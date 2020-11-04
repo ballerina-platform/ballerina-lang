@@ -88,12 +88,24 @@
                                           "kind": "WHITESPACE_MINUTIAE",
                                           "value": "    "
                                         }
+                                      ],
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
                                       ]
                                     }
                                   ]
                                 },
                                 {
-                                  "kind": "PIPE_TOKEN"
+                                  "kind": "PIPE_TOKEN",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "BINARY_EXPRESSION",
@@ -103,12 +115,24 @@
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "value": "B"
+                                          "value": "B",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
                                     {
-                                      "kind": "PIPE_TOKEN"
+                                      "kind": "PIPE_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "INDEXED_EXPRESSION",
@@ -316,12 +340,24 @@
                                           "kind": "WHITESPACE_MINUTIAE",
                                           "value": "    "
                                         }
+                                      ],
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
                                       ]
                                     }
                                   ]
                                 },
                                 {
-                                  "kind": "PIPE_TOKEN"
+                                  "kind": "PIPE_TOKEN",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "BINARY_EXPRESSION",
@@ -331,12 +367,24 @@
                                       "children": [
                                         {
                                           "kind": "STRING_LITERAL_TOKEN",
-                                          "value": "Orange"
+                                          "value": "Orange",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
                                     {
-                                      "kind": "PIPE_TOKEN"
+                                      "kind": "PIPE_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "INDEXED_EXPRESSION",

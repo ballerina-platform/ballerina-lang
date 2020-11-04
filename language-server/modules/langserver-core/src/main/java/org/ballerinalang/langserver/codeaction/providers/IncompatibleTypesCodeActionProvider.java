@@ -16,8 +16,8 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
-import org.ballerinalang.langserver.codeaction.builder.impl.ChangeReturnTypeCodeAction;
+import org.ballerinalang.langserver.codeaction.impl.ChangeReturnTypeCodeAction;
+import org.ballerinalang.langserver.codeaction.impl.DiagBasedCodeAction;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;

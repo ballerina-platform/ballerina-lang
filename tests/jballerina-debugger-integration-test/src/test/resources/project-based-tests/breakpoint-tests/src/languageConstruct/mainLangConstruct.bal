@@ -28,7 +28,7 @@ function performGet() returns http:Response {
 
 public client class MockHttpClient {
     public string url = "";
-    public remote function get(@untainted string path,
+    remote function get(@untainted string path,
         public http:RequestMessage message = ()) returns
             http:Response|http:ClientError {
 

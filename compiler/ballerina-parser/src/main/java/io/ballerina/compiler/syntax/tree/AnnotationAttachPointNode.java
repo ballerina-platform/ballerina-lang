@@ -20,6 +20,7 @@ package io.ballerina.compiler.syntax.tree;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -32,8 +33,8 @@ public class AnnotationAttachPointNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public Token sourceKeyword() {
-        return childInBucket(0);
+    public Optional<Token> sourceKeyword() {
+        return optionalChildInBucket(0);
     }
 
     public NodeList<Token> identifiers() {
@@ -87,7 +88,7 @@ public class AnnotationAttachPointNode extends NonTerminalNode {
 
         public AnnotationAttachPointNodeModifier(AnnotationAttachPointNode oldNode) {
             this.oldNode = oldNode;
-            this.sourceKeyword = oldNode.sourceKeyword();
+            this.sourceKeyword = oldNode.sourceKeyword().orElse(null);
             this.identifiers = oldNode.identifiers();
         }
 

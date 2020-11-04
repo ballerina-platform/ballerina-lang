@@ -59,7 +59,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "     "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -138,7 +138,7 @@
                         },
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "     "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -208,7 +208,7 @@
                         },
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "     "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -279,7 +279,7 @@
                     },
                     {
                       "kind": "WHITESPACE_MINUTIAE",
-                      "value": "     "
+                      "value": "    "
                     }
                   ],
                   "trailingMinutiae": [

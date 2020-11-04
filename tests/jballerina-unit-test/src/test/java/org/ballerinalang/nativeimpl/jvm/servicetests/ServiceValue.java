@@ -17,14 +17,13 @@
  */
 package org.ballerinalang.nativeimpl.jvm.servicetests;
 
-import org.ballerinalang.jvm.api.BRuntime;
-import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.values.FutureValue;
+import io.ballerina.runtime.values.MapValueImpl;
+import io.ballerina.runtime.values.ObjectValue;
 
 /**
  * Helper methods to test properties of service values.
@@ -32,19 +31,43 @@ import org.ballerinalang.jvm.values.ObjectValue;
  * @since 2.0
  */
 public class ServiceValue {
-    public static FutureValue callMethod(ObjectValue l, BString name) {
-        CallableUnitCallback c = new CallableUnitCallback() {
-            @Override
-            public void notifySuccess() { }
+    private static BObject service;
+    private static BObject listener;
+    private static boolean started;
 
-            @Override
-            public void notifyFailure(BError error) { }
-        };
-
-        BRuntime currentRuntime = BRuntime.getCurrentRuntime();
-        FutureValue k = currentRuntime.invokeMethodAsync(l, name.getValue(), null, null, null, new MapValueImpl<>(),
-                BTypes.typeAny);
+    public static FutureValue callMethod(Environment env, ObjectValue l, BString name) {
+        FutureValue k = env.getRuntime().invokeMethodAsync(l, name.getValue(), null, null, null, new MapValueImpl<>(),
+                PredefinedTypes.TYPE_ANY);
 
         return k;
+    }
+
+    public static Object attach(BObject servObj) {
+        ServiceValue.service = servObj;
+        return null;
+    }
+
+    public static Object start(BObject listener) {
+        ServiceValue.started = true;
+        return null;
+    }
+
+    public static Object listenerInit(BObject listener) {
+        ServiceValue.listener = listener;
+        return null;
+    }
+
+    public static void reset() {
+        ServiceValue.service = null;
+        ServiceValue.listener = null;
+        ServiceValue.started = false;
+    }
+
+    public static BObject getListener() {
+        return ServiceValue.listener;
+    }
+
+    public static BObject getService() {
+        return ServiceValue.service;
     }
 }

@@ -457,6 +457,8 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.name = source.name;
         clone.serviceClass = clone(source.serviceClass);
         clone.attachedExprs = cloneList(source.attachedExprs);
+        clone.serviceVariable = clone(source.serviceVariable);
+        clone.absoluteResourcePath = new ArrayList<>(source.absoluteResourcePath);
 
         clone.variableNode = clone(source.variableNode);
         clone.isAnonymousServiceValue = source.isAnonymousServiceValue;
@@ -687,8 +689,8 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangMatchClause clone = new BLangMatchClause();
         source.cloneRef = clone;
         clone.matchPatterns = cloneList(source.matchPatterns);
-        clone.setMatchGuard(source.getMatchGuard());
-        clone.setBlockStatement(source.getBLockStatement());
+        clone.setMatchGuard(clone(source.getMatchGuard()));
+        clone.setBlockStatement(clone(source.getBLockStatement()));
         clone.expr = source.expr;
     }
 

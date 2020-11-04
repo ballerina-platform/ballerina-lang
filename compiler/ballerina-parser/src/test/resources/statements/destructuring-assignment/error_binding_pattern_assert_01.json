@@ -69,7 +69,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "       "
+                          "value": "    "
                         }
                       ]
                     },
@@ -131,7 +131,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "       "
+                          "value": "    "
                         }
                       ]
                     },
@@ -203,7 +203,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "       "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -218,13 +218,7 @@
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "typeref",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "value": "typeref"
                         }
                       ]
                     },
@@ -296,7 +290,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "       "
+                          "value": "    "
                         }
                       ]
                     },
@@ -368,7 +362,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "       "
+                          "value": "    "
                         }
                       ]
                     },
@@ -388,7 +382,13 @@
                           ]
                         },
                         {
-                          "kind": "COMMA_TOKEN"
+                          "kind": "COMMA_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         },
                         {
                           "kind": "CAPTURE_BINDING_PATTERN",
@@ -452,7 +452,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "       "
+                          "value": "    "
                         }
                       ]
                     },
@@ -472,7 +472,13 @@
                           ]
                         },
                         {
-                          "kind": "COMMA_TOKEN"
+                          "kind": "COMMA_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         },
                         {
                           "kind": "ERROR_BINDING_PATTERN",
@@ -496,7 +502,13 @@
                                   ]
                                 },
                                 {
-                                  "kind": "COMMA_TOKEN"
+                                  "kind": "COMMA_TOKEN",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "CAPTURE_BINDING_PATTERN",
@@ -567,7 +579,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "       "
+                          "value": "    "
                         }
                       ]
                     },
@@ -657,7 +669,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "       "
+                          "value": "    "
                         }
                       ]
                     },
@@ -797,7 +809,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "       "
+                          "value": "    "
                         }
                       ]
                     },
@@ -911,7 +923,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "       "
+                          "value": "    "
                         }
                       ]
                     },
@@ -1007,7 +1019,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "       "
+                          "value": "    "
                         }
                       ]
                     },
@@ -1105,7 +1117,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "       "
+                          "value": "    "
                         }
                       ]
                     },
@@ -1185,7 +1197,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "       "
+                          "value": "    "
                         }
                       ]
                     },
@@ -1301,7 +1313,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "       "
+                          "value": "    "
                         }
                       ]
                     },

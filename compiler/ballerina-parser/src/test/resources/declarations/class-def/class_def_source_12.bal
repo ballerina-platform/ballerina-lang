@@ -8,7 +8,6 @@ client isolated distinct readonly class Foo {
 
 distinct readonly isolated client class Foo {
     string name;
-
 }
 
 distinct client readonly isolated class Foo {

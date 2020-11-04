@@ -1,7 +1,7 @@
 import ballerina/java;
 
 type SType service object {
-    resource string message;
+    string message;
 
     remote function foo(int i) returns int;
 };

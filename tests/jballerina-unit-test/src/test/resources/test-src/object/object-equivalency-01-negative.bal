@@ -410,9 +410,9 @@ client class ObjWithOnlyRemoteMethod {
     function init(string name) {
         self.name = name;
     }
-    public remote function send(string message) returns error? {
+    remote function send(string message) returns error? {
     }
-    public remote function receive(string message) {
+    remote function receive(string message) {
     }
 }
 
@@ -423,7 +423,7 @@ client class ObjWithRemoteMethod {
     function init(string name) {
         self.name = name;
     }
-    public remote function send(string message) returns error? {
+    remote function send(string message) returns error? {
     }
     public function receive(string message) {
     }

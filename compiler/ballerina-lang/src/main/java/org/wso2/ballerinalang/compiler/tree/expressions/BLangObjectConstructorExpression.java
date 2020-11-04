@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
@@ -37,6 +37,7 @@ public class BLangObjectConstructorExpression extends BLangExpression {
     public BLangTypeInit typeInit;
     public BLangType referenceType;
     public boolean isClient;
+    public boolean isService;
 
     public BLangObjectConstructorExpression() {
         super();
@@ -64,6 +65,11 @@ public class BLangObjectConstructorExpression extends BLangExpression {
         if (isClient) {
             sb.append("client ");
         }
+
+        if (isService) {
+            sb.append("service ");
+        }
+
         sb.append("object ");
         if (referenceType != null && referenceType.type.name != null) {
             sb.append(referenceType.type.name.getValue());

@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.OnFailClauseNode;
@@ -25,14 +26,11 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,20 +53,16 @@ public class OnFailClauseNodeContext extends AbstractCompletionProvider<OnFailCl
     public List<LSCompletionItem> getCompletions(LSContext context, OnFailClauseNode node) {
         if (this.onSuggestTypeDescriptors(context, node)) {
             NonTerminalNode symbolAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
-            Predicate<Scope.ScopeEntry> errorPredicate = entry -> {
-                BSymbol bSymbol = entry.symbol;
-                return ((bSymbol instanceof BConstructorSymbol && bSymbol.type != null
-                        && bSymbol.type.getKind() == TypeKind.ERROR));
-            };
+            Predicate<Symbol> errorPredicate = SymbolUtil::isError;
             if (symbolAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
                 QualifiedNameReferenceNode qRef = (QualifiedNameReferenceNode) symbolAtCursor;
                 return this.getCompletionItemList(QNameReferenceUtil.getModuleContent(context, qRef, errorPredicate),
                         context);
             }
 
-            List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+            List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
             List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
-            List<Scope.ScopeEntry> errEntries = visibleSymbols.stream()
+            List<Symbol> errEntries = visibleSymbols.stream()
                     .filter(errorPredicate)
                     .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(errEntries, context));
@@ -76,7 +70,7 @@ public class OnFailClauseNodeContext extends AbstractCompletionProvider<OnFailCl
 
             return completionItems;
         }
-        
+
         return new ArrayList<>();
     }
 
@@ -84,17 +78,18 @@ public class OnFailClauseNodeContext extends AbstractCompletionProvider<OnFailCl
     public boolean onPreValidation(LSContext context, OnFailClauseNode node) {
         return !node.onKeyword().isMissing();
     }
-    
+
     private boolean onSuggestTypeDescriptors(LSContext context, OnFailClauseNode node) {
         int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
         BlockStatementNode blockStatement = node.blockStatement();
         Token failKeyword = node.failKeyword();
-        
+
         if (failKeyword.isMissing()) {
             return false;
         }
 
-        return cursor > failKeyword.textRange().endOffset() && (blockStatement.isMissing()
+        return cursor > failKeyword.textRange().endOffset()
+                && (blockStatement.isMissing()
                 || cursor < blockStatement.openBraceToken().textRange().endOffset());
     }
 }
