@@ -3,7 +3,7 @@
 Ballerina is the premier programming language designed for integration. It allows you to connect apps and services to handle all types of integration scenarios, such as collecting top tweets from a specific location and adding them to a Google spreadsheet, generating emails with real-time quotes pulled from a stock quote service, transforming and routing data based on advanced logic, and much more. 
 
 ## Flexible
-You can build your integrations from sequence diagrams, or write code in the Ballerina language or in OpenAPI Specification. You can also use plug-ins to write Ballerina code in IntelliJ IDEA, Vim, and more. Ballerina is open source, so you can see exactly how it works and join the growing community of users contributing to its code base. And its API allows you to leverage its functionality from other programs.
+You can build your integrations from sequence diagrams, or write code in the Ballerina language or OpenAPI Specification. You can also use plug-ins to write Ballerina code in IntelliJ IDEA, Vim, and more. Ballerina is open-source, so you can see exactly how it works and join the growing community of users contributing to its codebase. And its API allows you to leverage its functionality from other programs.
 
 ## Powerful
 The Ballerina language was designed from the ground up specifically for integration and can handle everything from a simple Hello World program to complex service chaining and content-based routing scenarios. It comes with native support for REST, OpenAPI, JSON, and XML, and it includes connectors for popular services like Twitter and Facebook. The runtime is lightweight and incredibly fast, and you can run it alone without the development tools in a production environment.
