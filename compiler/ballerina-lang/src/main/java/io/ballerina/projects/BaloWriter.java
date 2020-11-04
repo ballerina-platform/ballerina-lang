@@ -20,17 +20,15 @@ package io.ballerina.projects;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import io.ballerina.projects.internal.balo.BaloJson;
 import io.ballerina.projects.internal.balo.PackageJson;
 import io.ballerina.projects.internal.balo.adaptors.JsonCollectionsAdaptor;
 import io.ballerina.projects.internal.balo.adaptors.JsonStringsAdaptor;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -42,6 +40,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -50,12 +49,18 @@ import java.util.zip.ZipOutputStream;
  *
  * @since 2.0.0
  */
-public class BaloWriter {
+public abstract class BaloWriter {
     private static final String MODULES_ROOT = "modules";
     private static final String RESOURCE_DIR_NAME = "resources";
     private static final String BLANG_SOURCE_EXT = ".bal";
+    protected static final String PLATFORM = "platform";
+    protected static final String DEPENDENCY = "dependency";
+    protected static final String PATH = "path";
 
-    private BaloWriter() {
+    // Set the target as any for default balo.
+    protected String target = "any";
+
+    protected BaloWriter() {
     }
 
     /**
@@ -64,9 +69,7 @@ public class BaloWriter {
      * @param pkg  Package to be written as a .balo.
      * @param baloPath Directory where the .balo should be created.
      */
-    public static void write(Package pkg, Path baloPath) {
-        // todo check if the given package is compiled properly
-
+    public void write(Package pkg, Path baloPath) {
         // Create the archive over write if exists
         try (ZipOutputStream baloOutputStream = new ZipOutputStream(new FileOutputStream(String.valueOf(baloPath)))) {
             // Now lets put stuff in
@@ -84,21 +87,17 @@ public class BaloWriter {
         }
     }
 
-    private static void populateBaloArchive(ZipOutputStream baloOutputStream, Package pkg)
+    private void populateBaloArchive(ZipOutputStream baloOutputStream, Package pkg)
             throws IOException {
 
         addBaloJson(baloOutputStream);
-        addPackageJson(baloOutputStream, pkg);
         addPackageDoc(baloOutputStream, pkg.project().sourceRoot(), pkg.packageName().toString());
         addPackageSource(baloOutputStream, pkg);
-        addBIr(baloOutputStream, pkg);
-        // Add platform libs only if it is not a template module
-        //        if (!ballerinaToml.isTemplateModule(packageName)) {
-        //            addPlatformLibs(root, packagePath, ballerinaToml);
-        //        }
+        Optional<JsonArray> platformLibs = addPlatformLibs(baloOutputStream, pkg);
+        addPackageJson(baloOutputStream, pkg, platformLibs);
     }
 
-    private static void addBaloJson(ZipOutputStream baloOutputStream) {
+    private void addBaloJson(ZipOutputStream baloOutputStream) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String baloJson = gson.toJson(new BaloJson());
         try {
@@ -109,32 +108,8 @@ public class BaloWriter {
         }
     }
 
-    private static void addBIr(ZipOutputStream baloOutputStream, Package pkg) {
-        for (ModuleId moduleId : pkg.moduleIds()) {
-            Module module = pkg.module(moduleId);
-            try {
-                String moduleName = module.moduleName().toString();
-                byte[] bir = writePackage(module.bir());
-                putZipEntry(baloOutputStream, moduleName + ".bir",
-                        new ByteArrayInputStream(bir));
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to write 'balo.json' file: " + e.getMessage(), e);
-            }
-        }
-    }
-
-    private static byte[] writePackage(CompiledBinaryFile.BIRPackageFile packageFile) throws IOException {
-        ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
-        try (DataOutputStream dataOutStream = new DataOutputStream(byteArrayOS)) {
-            dataOutStream.write(CompiledBinaryFile.BIRPackageFile.BIR_MAGIC);
-            dataOutStream.writeInt(CompiledBinaryFile.BIRPackageFile.BIR_VERSION);
-
-            dataOutStream.write(packageFile.pkgBirBinaryContent);
-            return byteArrayOS.toByteArray();
-        }
-    }
-
-    private static void addPackageJson(ZipOutputStream baloOutputStream, Package pkg) {
+    private void addPackageJson(ZipOutputStream baloOutputStream,
+                                Package pkg, Optional<JsonArray> platformLibs) {
         //        io.ballerina.projects.model.Package pkg = ballerinaToml.getPackage();
         PackageJson packageJson = new PackageJson(pkg.packageOrg().toString(), pkg.packageName().toString(),
                 pkg.packageVersion().toString());
@@ -167,7 +142,10 @@ public class BaloWriter {
         //                // TODO Need to set platform libraries
         //            }
         //        }
-
+        packageJson.setTarget(target);
+        if (!platformLibs.isEmpty()) {
+            packageJson.setPlatformDependencies(platformLibs.get());
+        }
         // Remove fields with empty values from `package.json`
         Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Collection.class, new JsonCollectionsAdaptor())
                 .registerTypeHierarchyAdapter(String.class, new JsonStringsAdaptor()).setPrettyPrinting().create();
@@ -182,7 +160,7 @@ public class BaloWriter {
 
     // TODO when iterating and adding source files should create source files from Package sources
 
-    private static void addPackageDoc(ZipOutputStream baloOutputStream, Path packageSourceDir, String pkgName)
+    private void addPackageDoc(ZipOutputStream baloOutputStream, Path packageSourceDir, String pkgName)
             throws IOException {
         final String packageMdFileName = "Package.md";
         final String moduleMdFileName = "Module.md";
@@ -229,7 +207,7 @@ public class BaloWriter {
         }
     }
 
-    private static void addPackageSource(ZipOutputStream baloOutputStream, Package pkg) throws IOException {
+    private void addPackageSource(ZipOutputStream baloOutputStream, Package pkg) throws IOException {
 
         // add module sources
         for (ModuleId moduleId : pkg.moduleIds()) {
@@ -259,7 +237,7 @@ public class BaloWriter {
         }
     }
 
-    private static void putZipEntry(ZipOutputStream baloOutputStream, String fileName, InputStream in)
+    protected void putZipEntry(ZipOutputStream baloOutputStream, String fileName, InputStream in)
             throws IOException {
         ZipEntry entry = new ZipEntry(fileName);
         baloOutputStream.putNextEntry(entry);
@@ -268,7 +246,7 @@ public class BaloWriter {
         IOUtils.closeQuietly(in);
     }
 
-    private static void putDirectoryToZipFile(String sourceDir, String pathInZipFile, ZipOutputStream out)
+    protected void putDirectoryToZipFile(String sourceDir, String pathInZipFile, ZipOutputStream out)
             throws IOException {
         String sourceRootDirectory = sourceDir;
         if (Paths.get(sourceDir).toFile().exists()) {
@@ -289,32 +267,6 @@ public class BaloWriter {
         }
     }
 
-    //    private static void addPlatformLibs(Path root, Path projectDirectory, BallerinaToml ballerinaToml)
-    //            throws IOException {
-    //        //If platform libs are defined add them to balo
-    //        List<Library> platformLibs = ballerinaToml.getPlatform().libraries;
-    //        if (platformLibs == null) {
-    //            return;
-    //        }
-    //        Path platformLibsDir = root.resolve(ProjectConstants.LIB_DIR);
-    //        Files.createDirectory(platformLibsDir);
-    //
-    //        for (Library lib : platformLibs) {
-    //            if (lib.getModules() == null && lib.getScope() == null) {
-    //                Path libPath = Paths.get(lib.getPath());
-    //                Path nativeFile = projectDirectory.resolve(libPath);
-    //                Path libFileName = libPath.getFileName();
-    //                if (libFileName == null) {
-    //                    continue;
-    //                }
-    //                Path targetPath = platformLibsDir.resolve(libFileName.toString());
-    //                try {
-    //                    Files.copy(nativeFile, targetPath, StandardCopyOption.REPLACE_EXISTING);
-    //                } catch (IOException e) {
-    //                    throw new BLangCompilerException(
-    //                            "Error while trying to add platform library to the BALO: " + lib.toString(), e);
-    //                }
-    //            }
-    //        }
-    //    }
+    protected abstract Optional<JsonArray> addPlatformLibs(ZipOutputStream baloOutputStream, Package pkg)
+            throws IOException;
 }

@@ -36,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -63,7 +64,7 @@ public class BuildLangLib {
         out.println("Project Dir: " + projectDir);
 
         // TODO Temporary fix
-        String pkgName = projectDir.getFileName().toString();
+        String pkgName = Optional.ofNullable(projectDir.getFileName()).orElse(Paths.get("annon")).toString();
         if (!skipBootstrap) {
             System.setProperty("BOOTSTRAP_LANG_LIB", pkgName);
         }
@@ -78,7 +79,7 @@ public class BuildLangLib {
             emitResult.diagnostics().forEach(d -> out.println(d.toString()));
             System.exit(1);
         }
-        LangLibArchive langLibArchive = new LangLibArchive(target.path(), pkg);
+        new LangLibArchive(target.path(), pkg);
     }
 }
 
@@ -96,7 +97,7 @@ class LangLibArchive {
         archive = target.resolve(pkg.getDefaultModule().moduleName().toString());
         Files.createDirectories(archive);
         aPackage = pkg;
-        zipFile = target.resolve(pkg.packageName().value()+".zip");
+        zipFile = target.resolve(pkg.packageName().value() + ".zip");
         createDirectoryStructure();
         createArtafacts();
         createZip();
@@ -121,7 +122,8 @@ class LangLibArchive {
                             Files.copy(path, zs);
                             zs.closeEntry();
                         } catch (IOException e) {
-                            System.err.println(e);
+                            PrintStream err = System.err;
+                            err.println(e.getMessage());
                         }
                     });
         }
