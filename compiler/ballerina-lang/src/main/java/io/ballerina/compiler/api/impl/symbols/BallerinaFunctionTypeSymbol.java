@@ -59,21 +59,26 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
     @Override
     public List<ParameterSymbol> parameters() {
         if (this.requiredParams == null) {
+            SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+
             this.requiredParams = this.typeSymbol.params.stream()
                     .map(symbol -> {
                         ParameterKind parameterKind = symbol.defaultableParam ? DEFAULTABLE : REQUIRED;
-                        return SymbolFactory.createBallerinaParameter(symbol, parameterKind);
+                        return symbolFactory.createBallerinaParameter(symbol, parameterKind);
                     })
                     .collect(Collectors.collectingAndThen(toList(), Collections::unmodifiableList));
         }
+
         return this.requiredParams;
     }
 
     @Override
     public Optional<ParameterSymbol> restParam() {
         if (restParam == null) {
-            this.restParam = SymbolFactory.createBallerinaParameter(typeSymbol.restParam, REST);
+            SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+            this.restParam = symbolFactory.createBallerinaParameter(typeSymbol.restParam, REST);
         }
+
         return Optional.ofNullable(this.restParam);
     }
 
