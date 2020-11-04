@@ -130,7 +130,7 @@ public class ModuleToPackage {
             for (HashMap<String, String> lib : libs) {
                 lib.remove("modules");
                 String newPath = lib.get("path").replace("<PATH>", "../../libs")
-                    .replace("<VERSION>", "2.0.0-Preview5-SNAPSHOT");
+                    .replace("<VERSION>", "2.0.0-Preview6-SNAPSHOT");
                 lib.put("path", newPath);
                 dependencies.add(lib);
             }
