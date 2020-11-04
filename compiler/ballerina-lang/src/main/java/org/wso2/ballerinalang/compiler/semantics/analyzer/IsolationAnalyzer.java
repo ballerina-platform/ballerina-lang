@@ -446,8 +446,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (isolatedClassField) {
-            validateIsolatedObjectFieldInitialValue(fieldType, expr);
+        if (isolatedClassField || varNode.flagSet.contains(Flag.ISOLATED)) {
+            validateIsolatedExpression(fieldType, expr);
         }
 
         analyzeNode(expr, env);
@@ -521,7 +521,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             if (enclInvokable != null && enclInvokable.getKind() == NodeKind.FUNCTION &&
                     ((BLangFunction) enclInvokable).objInitFunction &&
                     isIsolatedObjectFieldAccessViaSelf(fieldAccess, false)) {
-                validateIsolatedObjectFieldInitialValue(
+                validateIsolatedExpression(
                         ((BObjectType) enclInvokable.symbol.owner.type).fields.get(fieldAccess.field.value).type, expr);
             }
         }
@@ -2079,12 +2079,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return isExpectedToBeAPrivateField(field.symbol, field.type);
     }
 
-    private void validateIsolatedObjectFieldInitialValue(BType fieldType, BLangExpression expression) {
-        if (Symbols.isFlagOn(fieldType.flags, Flags.READONLY) || isIsolatedObjectTypes(fieldType)) {
+    private void validateIsolatedExpression(BType type, BLangExpression expression) {
+        if (Symbols.isFlagOn(type.flags, Flags.READONLY) || isIsolatedObjectTypes(type)) {
             return;
         }
 
-        isReferenceOrIsolatedExpression(expression);
+        validateIsolatedExpression(expression);
     }
 
     private boolean isIsolatedObjectTypes(BType type) {
@@ -2106,7 +2106,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    private void isReferenceOrIsolatedExpression(BLangExpression expression) {
+    private void validateIsolatedExpression(BLangExpression expression) {
         isReferenceOrIsolatedExpression(expression, null, true);
     }
 
@@ -2300,79 +2300,82 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             case TYPE_INIT_EXPR:
                 BLangTypeInit typeInitExpr = (BLangTypeInit) expression;
 
-                BLangInvocation typeInitInvocation = typeInitExpr.initInvocation;
-
                 if (typeInitExpr == null) {
                     return true;
                 }
 
-                return isReferenceOrIsolatedExpression(typeInitInvocation, refList, logErrors);
+                expression = typeInitExpr.initInvocation;
+                break;
             case OBJECT_CTOR_EXPRESSION:
                 var objectConstructorExpression = (BLangObjectConstructorExpression) expression;
                 typeInitExpr = objectConstructorExpression.typeInit;
-                typeInitInvocation = typeInitExpr.initInvocation;
 
                 if (typeInitExpr == null) {
                     return true;
                 }
-                return isReferenceOrIsolatedExpression(typeInitInvocation, refList, logErrors);
-            case INVOCATION:
-                BLangInvocation invocation = (BLangInvocation) expression;
 
-                if (isCloneOrCloneReadOnlyInvocation(invocation)) {
+                expression =  typeInitExpr.initInvocation;
+        }
+
+        if (expression.getKind() == NodeKind.INVOCATION) {
+            BLangInvocation invocation = (BLangInvocation) expression;
+
+            if (isCloneOrCloneReadOnlyInvocation(invocation)) {
+                return true;
+            }
+
+            BSymbol invocationSymbol = invocation.symbol;
+            if (invocationSymbol == null) {
+                // This is `new` used with a stream.
+                List<BLangExpression> argExprs = invocation.argExprs;
+                if (argExprs.isEmpty()) {
                     return true;
                 }
 
-                BSymbol invocationSymbol = invocation.symbol;
-                if (invocationSymbol == null) {
-                    // This is `new` used with a stream.
-                    List<BLangExpression> argExprs = invocation.argExprs;
-                    if (argExprs.isEmpty()) {
-                        return true;
-                    }
+                return isReferenceOrIsolatedExpression(argExprs.get(0), refList, logErrors);
+            } else if (isIsolated(invocationSymbol.type.flags)) {
+                List<BLangExpression> requiredArgs = invocation.requiredArgs;
 
-                    return isReferenceOrIsolatedExpression(argExprs.get(0), refList, logErrors);
-                } else if (isIsolated(invocationSymbol.type.flags)) {
-                    List<BLangExpression> requiredArgs = invocation.requiredArgs;
+                BLangExpression calledOnExpr = invocation.expr;
 
-                    BLangExpression calledOnExpr = invocation.expr;
-
-                    if (calledOnExpr != null &&
-                            (requiredArgs.isEmpty() || calledOnExpr != requiredArgs.get(0)) &&
-                            (!isReferenceOrIsolatedExpression(calledOnExpr, refList, logErrors) && !logErrors)) {
-                        return false;
-                    }
-
-                    for (BLangExpression requiredArg : requiredArgs) {
-                        if (requiredArg.getKind() == NodeKind.NAMED_ARGS_EXPR) {
-                            if (isReferenceOrIsolatedExpression(((BLangNamedArgsExpression) requiredArg).expr,
-                                                                refList, logErrors) || logErrors) {
-                                continue;
-                            }
-                            return false;
-                        }
-
-                        if (isReferenceOrIsolatedExpression(requiredArg, refList, logErrors) || logErrors) {
-                            continue;
-                        }
-                        return false;
-                    }
-
-                    for (BLangExpression restArg : invocation.restArgs) {
-                        if (restArg.getKind() == NodeKind.REST_ARGS_EXPR) {
-                            if (isReferenceOrIsolatedExpression(((BLangRestArgsExpression) restArg).expr, refList,
-                                                                logErrors) || logErrors) {
-                                continue;
-                            }
-                            return false;
-                        }
-
-                        if (isReferenceOrIsolatedExpression(restArg, refList, logErrors) || logErrors) {
-                            continue;
-                        }
-                        return false;
-                    }
+                if (calledOnExpr != null &&
+                        (requiredArgs.isEmpty() || calledOnExpr != requiredArgs.get(0)) &&
+                        (!isReferenceOrIsolatedExpression(calledOnExpr, refList, logErrors) && !logErrors)) {
+                    return false;
                 }
+
+                for (BLangExpression requiredArg : requiredArgs) {
+                    if (requiredArg.getKind() == NodeKind.NAMED_ARGS_EXPR) {
+                        if (isReferenceOrIsolatedExpression(((BLangNamedArgsExpression) requiredArg).expr,
+                                                            refList, logErrors) || logErrors) {
+                            continue;
+                        }
+                        return false;
+                    }
+
+                    if (isReferenceOrIsolatedExpression(requiredArg, refList, logErrors) || logErrors) {
+                        continue;
+                    }
+                    return false;
+                }
+
+                for (BLangExpression restArg : invocation.restArgs) {
+                    if (restArg.getKind() == NodeKind.REST_ARGS_EXPR) {
+                        if (isReferenceOrIsolatedExpression(((BLangRestArgsExpression) restArg).expr, refList,
+                                                            logErrors) || logErrors) {
+                            continue;
+                        }
+                        return false;
+                    }
+
+                    if (isReferenceOrIsolatedExpression(restArg, refList, logErrors) || logErrors) {
+                        continue;
+                    }
+                    return false;
+                }
+
+                return true;
+            }
         }
 
         if (logErrors) {
