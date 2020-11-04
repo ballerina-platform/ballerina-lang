@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
  */
 public class ScopedSymbolFinder extends NodeVisitor {
     private final Range range;
-    private LinePosition currentPosition;
+    private LinePosition currentIdentifierPos;
     private NonTerminalNode currentNode;
     private static final Map<Class<?>, Method> SCOPED_NODE_TO_VISIT_METHOD = Arrays.stream(
             ScopedSymbolFinder.class.getDeclaredMethods())
@@ -68,43 +68,43 @@ public class ScopedSymbolFinder extends NodeVisitor {
     }
 
     public Optional<LinePosition> nodeIdentifierPos() {
-        return Optional.ofNullable(currentPosition);
+        return Optional.ofNullable(currentIdentifierPos);
     }
 
     @Override
     public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
         this.currentNode = functionCallExpressionNode;
-        this.currentPosition = nameRefPosition(functionCallExpressionNode.functionName());
+        this.currentIdentifierPos = nameRefPosition(functionCallExpressionNode.functionName());
     }
 
     @Override
     public void visit(MethodCallExpressionNode methodCallExpressionNode) {
         this.currentNode = methodCallExpressionNode;
-        this.currentPosition = nameRefPosition(methodCallExpressionNode.methodName());
+        this.currentIdentifierPos = nameRefPosition(methodCallExpressionNode.methodName());
     }
 
     @Override
     public void visit(RemoteMethodCallActionNode remoteMethodCallActionNode) {
         this.currentNode = remoteMethodCallActionNode;
-        this.currentPosition = nameRefPosition(remoteMethodCallActionNode.methodName());
+        this.currentIdentifierPos = nameRefPosition(remoteMethodCallActionNode.methodName());
     }
 
     @Override
     public void visit(FieldAccessExpressionNode fieldAccessExpressionNode) {
         this.currentNode = fieldAccessExpressionNode;
-        this.currentPosition = nameRefPosition(fieldAccessExpressionNode.fieldName());
+        this.currentIdentifierPos = nameRefPosition(fieldAccessExpressionNode.fieldName());
     }
 
     @Override
     public void visit(ImplicitNewExpressionNode implicitNewExpressionNode) {
         this.currentNode = implicitNewExpressionNode;
-        this.currentPosition = implicitNewExpressionNode.newKeyword().lineRange().startLine();
+        this.currentIdentifierPos = implicitNewExpressionNode.newKeyword().lineRange().startLine();
     }
 
     @Override
     public void visit(ExplicitNewExpressionNode explicitNewExpressionNode) {
         this.currentNode = explicitNewExpressionNode;
-        this.currentPosition = explicitNewExpressionNode.typeDescriptor().lineRange().startLine();
+        this.currentIdentifierPos = explicitNewExpressionNode.typeDescriptor().lineRange().startLine();
     }
 
     public void visit(Node node) {
