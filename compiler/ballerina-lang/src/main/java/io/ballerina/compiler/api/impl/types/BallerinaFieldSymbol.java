@@ -21,8 +21,8 @@ import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.impl.symbols.BallerinaDocumentation;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Qualifier;
-import io.ballerina.compiler.api.types.FieldSymbol;
-import io.ballerina.compiler.api.types.TypeSymbol;
+import io.ballerina.compiler.api.symbols.FieldSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.util.Flags;
 

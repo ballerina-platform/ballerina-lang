@@ -14,14 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.ballerina.compiler.api.symbols;
 
-package io.ballerina.compiler.api.types;
+import java.util.Optional;
 
 /**
- * Represents the different types of function/method parameters.
+ * Represents an array type descriptor.
  *
  * @since 2.0.0
  */
-public enum ParameterKind {
-    REQUIRED, DEFAULTABLE, REST
+public interface MapTypeSymbol extends TypeSymbol {
+
+    /**
+     * Get the element type descriptor.
+     *
+     * @return {@link TypeSymbol} of the members
+     */
+    Optional<TypeSymbol> typeParameter();
 }

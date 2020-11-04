@@ -19,7 +19,7 @@ package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.TypesFactory;
-import io.ballerina.compiler.api.types.SimpleTypeSymbol;
+import io.ballerina.compiler.api.symbols.SimpleTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**

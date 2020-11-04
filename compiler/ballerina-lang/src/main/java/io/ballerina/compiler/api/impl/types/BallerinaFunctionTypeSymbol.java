@@ -20,11 +20,11 @@ package io.ballerina.compiler.api.impl.types;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.impl.TypesFactory;
-import io.ballerina.compiler.api.types.FunctionTypeSymbol;
-import io.ballerina.compiler.api.types.ParameterKind;
-import io.ballerina.compiler.api.types.ParameterSymbol;
-import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.TypeSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.ParameterKind;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 
 import java.util.Collections;
@@ -33,9 +33,9 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-import static io.ballerina.compiler.api.types.ParameterKind.DEFAULTABLE;
-import static io.ballerina.compiler.api.types.ParameterKind.REQUIRED;
-import static io.ballerina.compiler.api.types.ParameterKind.REST;
+import static io.ballerina.compiler.api.symbols.ParameterKind.DEFAULTABLE;
+import static io.ballerina.compiler.api.symbols.ParameterKind.REQUIRED;
+import static io.ballerina.compiler.api.symbols.ParameterKind.REST;
 import static java.util.stream.Collectors.toList;
 
 /**
