@@ -58,7 +58,7 @@ public class BuildLangLib {
         if (args.length >= 3 && args[2].equals("true")) {
             skipBootstrap = true;
         }
-        System.setProperty(ProjectConstants.BALLERINA_INSTALL_DIR_PROP, distCache.toString());
+        System.setProperty(ProjectConstants.BALLERINA_HOME, distCache.toString());
         out.println("Building langlib ...");
         out.println("Project Dir: " + projectDir);
 

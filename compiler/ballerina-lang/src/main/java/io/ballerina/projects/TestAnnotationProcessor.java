@@ -87,7 +87,6 @@ public class TestAnnotationProcessor {
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private boolean enabled = true;
-    private CompilerContext compilerContext;
     private DiagnosticLog diagnosticLog;
     private Types typeChecker;
     private SymbolResolver symbolResolver;
@@ -102,7 +101,6 @@ public class TestAnnotationProcessor {
 
     public void init(CompilerContext compilerContext, BLangPackage bLangPackage) {
         this.diagnosticLog = BLangDiagnosticLog.getInstance(compilerContext);
-        this.compilerContext = compilerContext;
         this.packageEnvironmentMap = SymbolTable.getInstance(compilerContext).pkgEnvMap;
         this.packageCache = PackageCache.getInstance(compilerContext);
         this.typeChecker = Types.getInstance(compilerContext);

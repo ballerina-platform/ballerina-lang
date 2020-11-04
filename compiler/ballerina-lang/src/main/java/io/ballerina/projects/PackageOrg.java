@@ -17,7 +17,7 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.utils.ProjectConstants;
 
 import java.util.Objects;
 

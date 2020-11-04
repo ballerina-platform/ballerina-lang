@@ -62,10 +62,11 @@ public class ProjectConstants {
     public static final String RESOURCE_DIR_NAME = "resources";
 
     public static final String BALLERINA_VERSION = "ballerina.version";
+    public static final String BALLERINA_PACK_VERSION = "ballerina.packVersion";
     public static final String PROPERTIES_FILE = "/META-INF/tool.properties";
 
     public static final String TARGET_BALO_DIR_NAME = "balo";
-    public static final String BALLERINA_INSTALL_DIR_PROP = "ballerina.home";
+    public static final String BALLERINA_HOME = "ballerina.home";
     public static final String DIST_CACHE_DIRECTORY = "distribution-cache";
 
     public static final String ANON_ORG = "$anon";
@@ -77,4 +78,6 @@ public class ProjectConstants {
     public static final String REPO_CACHE_DIR_NAME = "cache";
     public static final String REPO_JAR_CACHE_NAME = "jar";
     public static final String REPO_BIR_CACHE_NAME = "bir";
+
+    public static final String TEST_SUITE = "test_suite.json";
 }

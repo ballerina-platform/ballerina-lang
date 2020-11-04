@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -35,6 +36,23 @@ import java.nio.file.attribute.BasicFileAttributes;
  * @since 2.0.0
  */
 public class FileUtils {
+
+    /**
+     * Get the name of the without the extension.
+     *
+     * @param filePath Path of the file.
+     * @return File name without extension.
+     */
+    public static String getFileNameWithoutExtension(String filePath) {
+        Path fileName = Paths.get(filePath).getFileName();
+        if (null != fileName) {
+            int index = indexOfExtension(fileName.toString());
+            return index == -1 ? fileName.toString() :
+                    fileName.toString().substring(0, index);
+        } else {
+            return null;
+        }
+    }
 
     public static boolean hasExtension(Path filePath) {
         Path fileName = filePath.getFileName();

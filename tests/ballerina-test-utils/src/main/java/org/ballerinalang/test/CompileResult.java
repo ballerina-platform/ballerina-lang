@@ -148,7 +148,7 @@ public class CompileResult {
     private URLClassLoader jarCacheClassLoader() throws IOException {
         List<URL> jarFiles = new ArrayList<>();
 
-        Path distCachePath = Paths.get(System.getProperty(ProjectConstants.BALLERINA_INSTALL_DIR_PROP))
+        Path distCachePath = Paths.get(System.getProperty(ProjectConstants.BALLERINA_HOME))
                 .resolve(ProjectConstants.DIST_CACHE_DIRECTORY);
 
         List<PackageId> sortedPackageIds = packageCompilation.packageDependencyGraph().toTopologicallySortedList();
