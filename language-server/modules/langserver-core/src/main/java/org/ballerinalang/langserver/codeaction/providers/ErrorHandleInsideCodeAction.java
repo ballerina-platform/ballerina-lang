@@ -21,25 +21,19 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.api.types.UnionTypeSymbol;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.tools.text.LinePosition;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -55,7 +49,15 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATO
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class TypeGuardCodeAction extends AbstractCodeActionProvider {
+public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int priority() {
+        return 997;
+    }
+
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     PositionDetails positionDetails, List<Diagnostic> allDiagnostics,
@@ -65,49 +67,41 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        NonTerminalNode matchedNode = positionDetails.matchedNode();
         Symbol matchedSymbol = positionDetails.matchedSymbol();
         TypeSymbol typeDescriptor = positionDetails.matchedSymbolTypeDesc();
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-        try {
-            if (typeDescriptor.typeKind() == TypeDescKind.UNION) {
-                UnionTypeSymbol unionType = (UnionTypeSymbol) typeDescriptor;
-                boolean isRemoteInvocation = matchedSymbol instanceof Qualifiable &&
-                        ((Qualifiable) matchedSymbol).qualifiers().contains(Qualifier.REMOTE);
-                if (!isRemoteInvocation) {
-                    // Add type guard code action
-                    String commandTitle = String.format(CommandConstants.TYPE_GUARD_TITLE, matchedSymbol.name());
-                    List<TextEdit> tEdits = getTypeGuardCodeActionEdits(context, uri, matchedNode,
-                                                                        matchedSymbol, unionType);
-                    if (!tEdits.isEmpty()) {
-                        return Collections.singletonList(createQuickFixCodeAction(commandTitle, tEdits, uri));
-                    }
-                }
-            }
-        } catch (WorkspaceDocumentException | IOException e) {
-            //ignore
+        if (typeDescriptor.typeKind() != TypeDescKind.UNION) {
+            return Collections.emptyList();
         }
-        return Collections.emptyList();
+        UnionTypeSymbol unionType = (UnionTypeSymbol) typeDescriptor;
+        boolean isRemoteInvocation = matchedSymbol instanceof Qualifiable &&
+                ((Qualifiable) matchedSymbol).qualifiers().contains(Qualifier.REMOTE);
+        if (isRemoteInvocation) {
+            return Collections.emptyList();
+        }
+
+        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(diagnostic, positionDetails, context);
+
+        // Add type guard code action
+        String commandTitle = String.format(CommandConstants.TYPE_GUARD_TITLE, matchedSymbol.name());
+        List<TextEdit> edits = getTypeGuardCodeActionEdits(createVarTextEdits.name, diagnostic, unionType);
+        if (edits.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        edits.add(createVarTextEdits.edits.get(0));
+        edits.addAll(createVarTextEdits.imports);
+        return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, uri));
     }
 
-    private static List<TextEdit> getTypeGuardCodeActionEdits(LSContext context, String uri,
-                                                              NonTerminalNode matchedNode,
-                                                              Symbol matchedSymbol,
-                                                              UnionTypeSymbol unionType)
-            throws WorkspaceDocumentException, IOException {
-        LinePosition startLine = matchedNode.lineRange().startLine();
-        LinePosition endLine = matchedNode.lineRange().endLine();
-        int sLine = startLine.line();
-        int sCol = startLine.offset();
-        int eLine = endLine.line();
-        int eCol = endLine.offset();
-        Position startPos = new Position(sLine, sCol);
-        Position endPosWithSemiColon = new Position(eLine, eCol + 1);
-        Position endPos = new Position(eLine, eCol);
-        Range newTextRange = new Range(startPos, endPosWithSemiColon);
+    private static List<TextEdit> getTypeGuardCodeActionEdits(String varName, Diagnostic diagnostic,
+                                                              UnionTypeSymbol unionType) {
+        Position startPos = diagnostic.getRange().getEnd();
+
+        Range newTextRange = new Range(startPos, startPos);
 
         List<TextEdit> edits = new ArrayList<>();
-        String spaces = StringUtils.repeat(' ', sCol);
+        String spaces = StringUtils.repeat(' ', diagnostic.getRange().getStart().getCharacter());
         String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
 
         boolean hasError = unionType.memberTypeDescriptors().stream().anyMatch(s -> s.typeKind() == TypeDescKind.ERROR);
@@ -129,23 +123,20 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
             members.forEach(bType -> {
                 if (bType.typeKind() == TypeDescKind.NIL) {
                     // if (foo() is error) {...}
-                    String newText = String.format("if (%s is error) {%s}", matchedNode.toSourceCode(), padding);
+                    String newText = String.format("%s%sif (%s is error) {%s}%s", LINE_SEPARATOR, spaces,
+                                                   varName,
+                                                   padding, LINE_SEPARATOR);
                     edits.add(new TextEdit(newTextRange, newText));
                 } else {
                     // if (foo() is int) {...} else {...}
                     String type = bType.signature();
-                    String newText = String.format("if (%s is %s) {%s} else {%s}", matchedNode.toSourceCode(), type,
-                                                   padding, padding);
+                    String newText = String.format("%s%sif (%s is %s) {%s} else {%s}%s", LINE_SEPARATOR, spaces,
+                                                   varName, type, padding, padding, LINE_SEPARATOR);
                     edits.add(new TextEdit(newTextRange, newText));
                 }
             });
-        } else {
-            CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-            String name = matchedSymbol != null ? matchedSymbol.name() : unionType.signature();
-            String varName = CommonUtil.generateVariableName(name, CommonUtil.getAllNameEntries(compilerContext));
-            String typeDef = unionType.signature();
+        } else if (hasError) {
             boolean addErrorTypeAtEnd;
-
             List<TypeSymbol> tMembers = new ArrayList<>((unionType).memberTypeDescriptors());
             if (errorTypesCount > 1) {
                 tMembers.removeIf(s -> s.typeKind() == TypeDescKind.ERROR);
@@ -163,14 +154,11 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
                 memberTypes.add("error");
             }
 
-            String newText = String.format("%s %s = %s;%s", typeDef, varName, matchedNode.toSourceCode(),
-                                           LINE_SEPARATOR);
-            newText += spaces + IntStream.range(0, memberTypes.size() - 1)
-                    .mapToObj(value -> {
-                        return String.format("if (%s is %s) {%s}", varName, memberTypes.get(value), padding);
-                    })
+            String newText = spaces + IntStream.range(0, memberTypes.size() - 1)
+                    .mapToObj(value -> String.format("%sif (%s is %s) {%s}", LINE_SEPARATOR, varName,
+                                                     memberTypes.get(value), padding))
                     .collect(Collectors.joining(" else "));
-            newText += String.format(" else {%s}", padding);
+            newText += String.format(" else {%s}%s", padding, LINE_SEPARATOR);
             edits.add(new TextEdit(newTextRange, newText));
         }
         return edits;

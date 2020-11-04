@@ -43,6 +43,13 @@ import java.util.Locale;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class CreateVariableCodeAction extends AbstractCodeActionProvider {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int priority() {
+        return 999;
+    }
 
     /**
      * {@inheritDoc}
@@ -59,31 +66,56 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         }
 
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        Symbol matchedSymbol = positionDetails.matchedSymbol();
-        TypeSymbol typeDescriptor = positionDetails.matchedSymbolTypeDesc();
-
-        Position pos = diagnostic.getRange().getStart();
-        String name = (matchedSymbol != null) ? matchedSymbol.name() : typeDescriptor.signature();
-        String varName = CommonUtil.generateVariableName(name, CommonUtil.getAllNameEntries(compilerContext));
-
-        List<TextEdit> importEdits = new ArrayList<>();
-        List<String> types = CodeActionUtil.getPossibleTypes(typeDescriptor, importEdits, context, compilerContext);
-
-        for (String type : types) {
+        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(diagnostic, positionDetails, context);
+        for (String type : createVarTextEdits.types) {
             String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
-            if (types.size() > 1) {
+            List<TextEdit> edits = createVarTextEdits.edits;
+            edits.addAll(createVarTextEdits.imports);
+            if (createVarTextEdits.types.size() > 1) {
+                // When there's multiple types; suffix code actions with `with <type>`
                 boolean isTuple = type.startsWith("[") && type.endsWith("]") && !type.endsWith("[]");
                 String typeLabel = isTuple && type.length() > 10 ? "Tuple" : type;
                 commandTitle = String.format(CommandConstants.CREATE_VARIABLE_TITLE + " with '%s'", typeLabel);
             }
-            Position insertPos = new Position(pos.getLine(), pos.getCharacter());
-            String edit = type + " " + varName + " = ";
-            List<TextEdit> edits = new ArrayList<>();
-            edits.add(new TextEdit(new Range(insertPos, insertPos), edit));
-            edits.addAll(importEdits);
             actions.add(createQuickFixCodeAction(commandTitle, edits, uri));
         }
         return actions;
+    }
+
+    CreateVariableOut getCreateVariableTextEdits(Diagnostic diagnostic,
+                                                 PositionDetails positionDetails,
+                                                 LSContext context) {
+        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+        Symbol matchedSymbol = positionDetails.matchedSymbol();
+        TypeSymbol typeDescriptor = positionDetails.matchedSymbolTypeDesc();
+
+
+        String name = (matchedSymbol != null) ? matchedSymbol.name() : typeDescriptor.signature();
+        String varName = CommonUtil.generateVariableName(name, CommonUtil.getAllNameEntries(compilerContext));
+
+        List<TextEdit> importEdits = new ArrayList<>();
+        List<TextEdit> edits = new ArrayList<>();
+        List<String> types = CodeActionUtil.getPossibleTypes(typeDescriptor, importEdits, context, compilerContext);
+        Position pos = diagnostic.getRange().getStart();
+        for (String type : types) {
+            Position insertPos = new Position(pos.getLine(), pos.getCharacter());
+            String edit = type + " " + varName + " = ";
+            edits.add(new TextEdit(new Range(insertPos, insertPos), edit));
+        }
+        return new CreateVariableOut(varName, types, edits, importEdits);
+    }
+
+    static class CreateVariableOut {
+        String name;
+        List<String> types;
+        List<TextEdit> edits;
+        List<TextEdit> imports;
+
+        public CreateVariableOut(String name, List<String> types, List<TextEdit> edits, List<TextEdit> imports) {
+            this.name = name;
+            this.types = types;
+            this.edits = edits;
+            this.imports = imports;
+        }
     }
 }
