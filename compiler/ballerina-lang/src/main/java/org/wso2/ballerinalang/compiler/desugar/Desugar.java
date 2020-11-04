@@ -3506,11 +3506,11 @@ public class Desugar extends BLangNodeVisitor {
         if (transactionNode.onFailClause != null) {
             BSymbol onErrorSymbol =
                     ((BLangSimpleVariableDef) transactionNode.onFailClause.variableDefinitionNode).var.symbol;
-//            createRollbackIfFailed(transactionNode.onFailClause.pos, transactionNode.onFailClause.body, onErrorSymbol);
+            createRollbackIfFailed(transactionNode.onFailClause.pos, transactionNode.onFailClause.body, onErrorSymbol);
         } else if (this.onFailClause != null) {
             BSymbol onErrorSymbol =
                     ((BLangSimpleVariableDef) this.onFailClause.variableDefinitionNode).var.symbol;
-//            createRollbackIfFailed(this.onFailClause.pos, this.onFailClause.body, onErrorSymbol);
+            createRollbackIfFailed(this.onFailClause.pos, this.onFailClause.body, onErrorSymbol);
         } else {
             BLangOnFailClause trxOnFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
             trxOnFailClause.pos = transactionNode.pos;
@@ -3524,7 +3524,7 @@ public class Desugar extends BLangNodeVisitor {
 //            trxOnFailClause.body.scope = env.scope;
             trxOnFailClause.body.scope = new Scope(env.scope.owner);
             trxOnFailClause.body.scope.define(trxOnFailErrorSym.name, trxOnFailErrorSym);
-//            createRollbackIfFailed(transactionNode.pos, trxOnFailClause.body, trxOnFailErrorSym);
+            createRollbackIfFailed(transactionNode.pos, trxOnFailClause.body, trxOnFailErrorSym);
             transactionNode.onFailClause = trxOnFailClause;
             //todo @chiran check onfail.returns should be set to true when trx has a return
         }
@@ -3543,11 +3543,13 @@ public class Desugar extends BLangNodeVisitor {
     //    if ((result is error) && !(result is TransactionError)) {
     //        rollback result;
     //    }
-    void createRollbackIfFailed(DiagnosticPos pos, BLangBlockStmt transactionBlockStmt,
+    void createRollbackIfFailed(DiagnosticPos pos, BLangBlockStmt onFailBodyBlock,
                                 BSymbol trxFuncResultSymbol) {
         BLangIf rollbackCheck = (BLangIf) TreeBuilder.createIfElseStatementNode();
         rollbackCheck.pos = pos;
-        transactionBlockStmt.stmts.add(0, rollbackCheck);
+        int stmtIndex = onFailBodyBlock.stmts.isEmpty() ? 0 : 1;
+        onFailBodyBlock.stmts.add(stmtIndex, rollbackCheck);
+
         BConstructorSymbol transactionErrorSymbol = (BConstructorSymbol) symTable.langTransactionModuleSymbol
                 .scope.lookup(names.fromString("TransactionError")).symbol;
         BType errorType = transactionErrorSymbol.type;
