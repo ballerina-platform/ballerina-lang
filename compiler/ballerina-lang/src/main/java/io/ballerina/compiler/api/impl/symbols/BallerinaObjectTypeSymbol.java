@@ -76,7 +76,7 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         if (this.objectFields == null) {
             this.objectFields = new ArrayList<>();
             for (BField field : ((BObjectType) this.getBType()).fields.values()) {
-                this.objectFields.add(new BallerinaFieldSymbol(field));
+                this.objectFields.add(new BallerinaFieldSymbol(this.context, field));
             }
         }
         return objectFields;

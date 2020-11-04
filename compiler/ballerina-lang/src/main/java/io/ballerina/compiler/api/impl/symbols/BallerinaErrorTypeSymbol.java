@@ -46,7 +46,8 @@ public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements Erro
     @Override
     public TypeSymbol detailTypeDescriptor() {
         if (this.detail == null) {
-            this.detail = TypesFactory.getTypeDescriptor(((BErrorType) this.getBType()).getDetailType());
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.detail = typesFactory.getTypeDescriptor(((BErrorType) this.getBType()).getDetailType());
         }
         return this.detail;
     }

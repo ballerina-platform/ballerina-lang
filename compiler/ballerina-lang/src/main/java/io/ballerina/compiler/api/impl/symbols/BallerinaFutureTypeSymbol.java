@@ -42,8 +42,10 @@ public class BallerinaFutureTypeSymbol extends AbstractTypeSymbol implements Fut
     @Override
     public Optional<TypeSymbol> typeParameter() {
         if (this.memberTypeDesc == null) {
-            this.memberTypeDesc = TypesFactory.getTypeDescriptor(((BFutureType) this.getBType()).constraint);
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.memberTypeDesc = typesFactory.getTypeDescriptor(((BFutureType) this.getBType()).constraint);
         }
+
         return Optional.ofNullable(this.memberTypeDesc);
     }
 

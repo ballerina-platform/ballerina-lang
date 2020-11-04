@@ -42,8 +42,10 @@ public class BallerinaMapTypeSymbol extends AbstractTypeSymbol implements MapTyp
     @Override
     public Optional<TypeSymbol> typeParameter() {
         if (this.memberTypeDesc == null) {
-            this.memberTypeDesc = TypesFactory.getTypeDescriptor(((BMapType) this.getBType()).constraint);
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.memberTypeDesc = typesFactory.getTypeDescriptor(((BMapType) this.getBType()).constraint);
         }
+
         return Optional.ofNullable(this.memberTypeDesc);
     }
 

@@ -45,8 +45,10 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     @Override
     public TypeSymbol typeDescriptor() {
         if (this.typeDescriptorImpl == null) {
-            this.typeDescriptorImpl = TypesFactory.getTypeDescriptor(this.getBType(), true);
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.typeDescriptorImpl = typesFactory.getTypeDescriptor(this.getBType(), true);
         }
+
         return this.typeDescriptorImpl;
     }
 

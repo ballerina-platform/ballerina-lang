@@ -57,6 +57,7 @@ public class BallerinaSemanticModel implements SemanticModel {
     private final BLangPackage bLangPackage;
     private final CompilerContext compilerContext;
     private final EnvironmentResolver envResolver;
+    private final TypesFactory typesFactory;
 
     public BallerinaSemanticModel(BLangPackage bLangPackage, CompilerContext context) {
         this.compilerContext = context;
@@ -65,6 +66,7 @@ public class BallerinaSemanticModel implements SemanticModel {
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(bLangPackage.symbol);
         this.envResolver = new EnvironmentResolver(pkgEnv);
+        this.typesFactory = TypesFactory.getInstance(context);
     }
 
     /**
@@ -146,7 +148,7 @@ public class BallerinaSemanticModel implements SemanticModel {
             return Optional.empty();
         }
 
-        return Optional.ofNullable(TypesFactory.getTypeDescriptor(node.type));
+        return Optional.ofNullable(typesFactory.getTypeDescriptor(node.type));
     }
 
     /**

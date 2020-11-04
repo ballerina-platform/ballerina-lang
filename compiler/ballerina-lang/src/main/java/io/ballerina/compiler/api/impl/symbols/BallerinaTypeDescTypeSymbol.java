@@ -42,7 +42,8 @@ public class BallerinaTypeDescTypeSymbol extends AbstractTypeSymbol implements T
     @Override
     public Optional<TypeSymbol> typeParameter() {
         if (this.typeParameter == null) {
-            this.typeParameter = TypesFactory.getTypeDescriptor(((BTypedescType) this.getBType()).constraint);
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.typeParameter = typesFactory.getTypeDescriptor(((BTypedescType) this.getBType()).constraint);
         }
 
         return Optional.ofNullable(this.typeParameter);

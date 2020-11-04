@@ -42,7 +42,8 @@ public class BallerinaArrayTypeSymbol extends AbstractTypeSymbol implements Arra
     @Override
     public TypeSymbol memberTypeDescriptor() {
         if (this.memberTypeDesc == null) {
-            this.memberTypeDesc = TypesFactory.getTypeDescriptor(((BArrayType) this.getBType()).eType);
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.memberTypeDesc = typesFactory.getTypeDescriptor(((BArrayType) this.getBType()).eType);
         }
         return memberTypeDesc;
     }

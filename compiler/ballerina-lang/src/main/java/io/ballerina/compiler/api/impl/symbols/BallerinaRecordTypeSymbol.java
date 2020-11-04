@@ -57,7 +57,7 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
         if (this.fieldSymbols == null) {
             this.fieldSymbols = new ArrayList<>();
             for (BField field : ((BRecordType) this.getBType()).fields.values()) {
-                this.fieldSymbols.add(new BallerinaFieldSymbol(field));
+                this.fieldSymbols.add(new BallerinaFieldSymbol(this.context, field));
             }
         }
 
@@ -77,8 +77,10 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
     @Override
     public Optional<TypeSymbol> restTypeDescriptor() {
         if (this.restTypeDesc == null) {
-            this.restTypeDesc = TypesFactory.getTypeDescriptor(((BRecordType) this.getBType()).restFieldType);
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.restTypeDesc = typesFactory.getTypeDescriptor(((BRecordType) this.getBType()).restFieldType);
         }
+
         return Optional.ofNullable(this.restTypeDesc);
     }
 
