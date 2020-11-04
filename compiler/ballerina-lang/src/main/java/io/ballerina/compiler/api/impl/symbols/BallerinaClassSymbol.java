@@ -19,12 +19,12 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.types.FieldSymbol;
-import io.ballerina.compiler.api.types.ObjectTypeSymbol;
-import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
