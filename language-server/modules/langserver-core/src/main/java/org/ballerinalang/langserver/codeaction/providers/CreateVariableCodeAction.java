@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -30,11 +32,13 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Code Action for variable assignment.
@@ -67,10 +71,13 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
 
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(diagnostic, positionDetails, context);
-        for (String type : createVarTextEdits.types) {
+        List<String> types = createVarTextEdits.types;
+        for (int i = 0; i < types.size(); i++) {
             String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
-            List<TextEdit> edits = createVarTextEdits.edits;
+            List<TextEdit> edits = new ArrayList<>();
+            edits.add(createVarTextEdits.edits.get(i));
             edits.addAll(createVarTextEdits.imports);
+            String type = types.get(i);
             if (createVarTextEdits.types.size() > 1) {
                 // When there's multiple types; suffix code actions with `with <type>`
                 boolean isTuple = type.startsWith("[") && type.endsWith("]") && !type.endsWith("[]");
@@ -89,9 +96,15 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         Symbol matchedSymbol = positionDetails.matchedSymbol();
         TypeSymbol typeDescriptor = positionDetails.matchedSymbolTypeDesc();
 
+        Set<String> allNameEntries = CommonUtil.getAllNameEntries(compilerContext);
+        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        String filePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        SemanticModel semanticModel = new BallerinaSemanticModel(bLangPackage, compilerContext);
+        semanticModel.visibleSymbols(filePath, positionDetails.matchedNode().lineRange().startLine()).stream()
+                .map(Symbol::name)
+                .forEach(allNameEntries::add);
 
-        String name = (matchedSymbol != null) ? matchedSymbol.name() : typeDescriptor.signature();
-        String varName = CommonUtil.generateVariableName(name, CommonUtil.getAllNameEntries(compilerContext));
+        String name = CommonUtil.generateVariableName(matchedSymbol, typeDescriptor, allNameEntries);
 
         List<TextEdit> importEdits = new ArrayList<>();
         List<TextEdit> edits = new ArrayList<>();
@@ -99,10 +112,10 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         Position pos = diagnostic.getRange().getStart();
         for (String type : types) {
             Position insertPos = new Position(pos.getLine(), pos.getCharacter());
-            String edit = type + " " + varName + " = ";
+            String edit = type + " " + name + " = ";
             edits.add(new TextEdit(new Range(insertPos, insertPos), edit));
         }
-        return new CreateVariableOut(varName, types, edits, importEdits);
+        return new CreateVariableOut(name, types, edits, importEdits);
     }
 
     static class CreateVariableOut {

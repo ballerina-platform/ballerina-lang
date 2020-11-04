@@ -20,9 +20,9 @@ import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.UnionTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeSymbol;
+import io.ballerina.compiler.api.types.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
@@ -79,13 +79,13 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
             return Collections.emptyList();
         }
 
-        if (positionDetails.matchedSymbolTypeDesc().kind() != TypeDescKind.UNION) {
+        if (positionDetails.matchedSymbolTypeDesc().typeKind() != TypeDescKind.UNION) {
             return Collections.emptyList();
         }
-        UnionTypeDescriptor unionTypeDesc = (UnionTypeDescriptor) positionDetails.matchedSymbolTypeDesc();
+        UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) positionDetails.matchedSymbolTypeDesc();
 
         boolean hasErrorMemberType = unionTypeDesc.memberTypeDescriptors().stream()
-                .anyMatch(member -> member.kind() == TypeDescKind.ERROR);
+                .anyMatch(member -> member.typeKind() == TypeDescKind.ERROR);
         if (!hasErrorMemberType) {
             return Collections.emptyList();
         }
@@ -109,15 +109,15 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
             if (parentFunction.functionSignature().returnTypeDesc().isPresent() &&
                     parentFuncSymbol.typeDescriptor().returnTypeDescriptor().isPresent()) {
                 // Parent function already has a return-type
-                BallerinaTypeDescriptor parentRetTypeDesc =
+                TypeSymbol parentRetTypeDesc =
                         parentFuncSymbol.typeDescriptor().returnTypeDescriptor().get();
                 ReturnTypeDescriptorNode parentRetTypeDescNode =
                         parentFunction.functionSignature().returnTypeDesc().get();
-                if (parentRetTypeDesc.kind() == TypeDescKind.UNION) {
+                if (parentRetTypeDesc.typeKind() == TypeDescKind.UNION) {
                     // Parent function already has a union return-type
-                    UnionTypeDescriptor parentUnionRetTypeDesc = (UnionTypeDescriptor) parentRetTypeDesc;
+                    UnionTypeSymbol parentUnionRetTypeDesc = (UnionTypeSymbol) parentRetTypeDesc;
                     boolean hasErrorMember = parentUnionRetTypeDesc.memberTypeDescriptors().stream()
-                            .anyMatch(m -> m.kind() == TypeDescKind.ERROR);
+                            .anyMatch(m -> m.typeKind() == TypeDescKind.ERROR);
                     if (!hasErrorMember) {
                         // Union has no error member-type
                         returnText = "returns " + parentUnionRetTypeDesc.signature() + "|error";
@@ -144,7 +144,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         // Change and add type text edit
         String typeWithError = createVarTextEdits.types.get(0);
         String typeWithoutError = unionTypeDesc.memberTypeDescriptors().stream()
-                .filter(member -> member.kind() != TypeDescKind.ERROR)
+                .filter(member -> member.typeKind() != TypeDescKind.ERROR)
                 .map(typeDesc -> CodeActionUtil.getPossibleTypes(typeDesc, edits, context, compilerContext).get(0))
                 .collect(Collectors.joining("|"));
 

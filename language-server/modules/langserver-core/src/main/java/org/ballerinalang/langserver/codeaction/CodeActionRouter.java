@@ -74,10 +74,10 @@ public class CodeActionRouter {
         }
         // Get available diagnostics based code-actions
         if (cursorDiagnostics != null && !cursorDiagnostics.isEmpty()) {
-            codeActionProvidersHolder.getActiveDiagnosticsBasedProviders().forEach(provider -> {
-                for (Diagnostic diagnostic : cursorDiagnostics) {
+            for (Diagnostic diagnostic : cursorDiagnostics) {
+                PositionDetails positionDetails = findCursorDetails(diagnostic.getRange(), syntaxTree, ctx);
+                codeActionProvidersHolder.getActiveDiagnosticsBasedProviders().forEach(provider -> {
                     try {
-                        PositionDetails positionDetails = findCursorDetails(diagnostic.getRange(), syntaxTree, ctx);
                         List<CodeAction> codeActionsOut = provider.getDiagBasedCodeActions(diagnostic, positionDetails,
                                                                                            allDiagnostics, syntaxTree,
                                                                                            ctx);
@@ -88,8 +88,8 @@ public class CodeActionRouter {
                         String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
                         LSClientLogger.logError(msg, e, null, (Position) null);
                     }
-                }
-            });
+                });
+            }
         }
         return codeActions;
     }

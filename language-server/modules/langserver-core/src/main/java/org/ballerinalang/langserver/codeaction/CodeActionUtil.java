@@ -17,11 +17,11 @@ package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.api.types.FunctionTypeSymbol;
+import io.ballerina.compiler.api.types.FieldSymbol;
+import io.ballerina.compiler.api.types.RecordTypeSymbol;
+import io.ballerina.compiler.api.types.TupleTypeSymbol;
+import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
@@ -47,26 +47,14 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
@@ -208,116 +196,92 @@ public class CodeActionUtil {
     public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, List<TextEdit> edits,
                                                 LSContext context,
                                                 CompilerContext compilerContext) {
+        typeDescriptor = CommonUtil.getRawType(typeDescriptor);
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
 
         List<String> types = new ArrayList<>();
-
         String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor, context);
-        if (typeDescriptor instanceof BLangInvocation) {
-            types.add(variableType);
-        } else if (typeDescriptor instanceof BLangFieldBasedAccess) {
-            types.add(variableType);
-        } else if (typeDescriptor instanceof BLangRecordLiteral) {
-            // Record
-            List<BLangPackage> bLangPackages = context.get(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY);
-            BRecordType matchingRecordType = null;
-            Types typesChk = Types.getInstance(compilerContext);
-            for (BLangPackage pkg : bLangPackages) {
-                for (TopLevelNode topLevelNode : pkg.topLevelNodes) {
-                    if (topLevelNode instanceof BLangTypeDefinition &&
-                            ((BLangTypeDefinition) topLevelNode).typeNode instanceof BLangRecordTypeNode &&
-                            ((BLangTypeDefinition) topLevelNode).typeNode.type instanceof BRecordType) {
-                        BRecordType type = (BRecordType) ((BLangTypeDefinition) topLevelNode).typeNode.type;
-                        if (typesChk.checkStructEquivalency(((BLangRecordLiteral) typeDescriptor).type, type) &&
-                                !type.tsymbol.name.value.startsWith("$")) {
-                            matchingRecordType = type;
-                        }
-                    }
-                }
-            }
-
-            // Matching Record
-            if (matchingRecordType != null) {
-                String recType = FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor, context);
-                types.add(recType);
-            }
+        if (typeDescriptor.typeKind() == TypeDescKind.RECORD) {
+            // Matching Record type
+            // TODO: Disabled due to #26789
+//            if (matchingRecordType != null) {
+//                String recType = FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor, context);
+//                types.add(recType);
+//            }
 
             // Anon Record
             String rType = FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor, context);
-            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) typeDescriptor;
-            types.add((recordLiteral.fields.size() > 0) ? rType : "record {}");
+            RecordTypeSymbol recordLiteral = (RecordTypeSymbol) typeDescriptor;
+            types.add((recordLiteral.fieldDescriptors().size() > 0) ? rType : "record {}");
 
             // JSON
             types.add("json");
 
             // Map
-            BType prevType = null;
+            TypeSymbol prevType = null;
             boolean isConstrainedMap = true;
-            for (RecordLiteralNode.RecordField recordField : recordLiteral.fields) {
-                if (recordField instanceof BLangRecordLiteral.BLangRecordKeyValueField) {
-                    BLangRecordLiteral.BLangRecordKeyValueField kvField =
-                            (BLangRecordLiteral.BLangRecordKeyValueField) recordField;
-                    BType type = kvField.valueExpr.type;
-                    if (prevType != null &&
-                            !prevType.tsymbol.name.getValue().equals(type.tsymbol.name.getValue())) {
-                        isConstrainedMap = false;
-                    }
-                    prevType = type;
+            for (FieldSymbol recordField : recordLiteral.fieldDescriptors()) {
+                TypeDescKind typeDescKind = recordField.typeDescriptor().typeKind();
+                if (prevType != null && typeDescKind != prevType.typeKind()) {
+                    isConstrainedMap = false;
                 }
+                prevType = recordField.typeDescriptor();
             }
             if (isConstrainedMap && prevType != null) {
-                String type = FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor,
-                                                                       context);
+                String type = FunctionGenerator.generateTypeDefinition(importsAcceptor, prevType, context);
                 types.add("map<" + type + ">");
             } else {
                 types.add("map<any>");
             }
-        } else if (typeDescriptor instanceof BLangListConstructorExpr) {
-            BLangListConstructorExpr listExpr = (BLangListConstructorExpr) typeDescriptor;
-            if (listExpr.expectedType instanceof BTupleType) {
-                BTupleType tupleType = (BTupleType) listExpr.expectedType;
-                String arrayType = null;
-//                String prevType = null;
-//                String prevInnerType = null;
-                boolean isArrayCandidate = !tupleType.tupleTypes.isEmpty();
-                StringJoiner tupleJoiner = new StringJoiner(", ");
-                for (BType type : tupleType.tupleTypes) {
-                    String newType = FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor,
-                                                                              context);
-                    // TODO: Fix this
-//                    if (prevType != null && !prevType.equals(newType)) {
-//                        isArrayCandidate = false;
-//                    }
-//                    if (type instanceof BTupleType && prevInnerType == null) {
+        } else if (typeDescriptor.typeKind() == TypeDescKind.TUPLE) {
+            TupleTypeSymbol tupleType = (TupleTypeSymbol) typeDescriptor;
+            String arrayType = null;
+            TypeSymbol prevType = null;
+            TypeSymbol prevInnerType = null;
+            boolean isArrayCandidate = tupleType.restTypeDescriptor().isEmpty();
+            StringJoiner tupleJoiner = new StringJoiner(", ");
+            for (TypeSymbol memberType : tupleType.memberTypeDescriptors()) {
+                // Here we check previous member-type with current member-type for equality
+                // 1. Check type-kind is differs Tuple vs int
+                // 2. Check signature differs Tuple(int,string,int) vs Tuple(boolean, string)
+                if (prevType != null &&
+                        (prevType.typeKind() != memberType.typeKind() ||
+                                !prevType.signature().equals(memberType.signature()))) {
+                    isArrayCandidate = false;
+                }
+                if (memberType.typeKind() == TypeDescKind.TUPLE && prevInnerType == null) {
                     // Checks inner element's type equality
-//                        BTupleType nType = (BTupleType) type;
-//                        boolean isSameInnerType = true;
-//                        for (BType innerType : nType.tupleTypes) {
-//                            String newInnerType = FunctionGenerator.generateTypeDefinition(importsAcceptor,
-//                                                                                           typeDescriptor,
-//                                                                                           context);
-//                            if (prevInnerType != null && !prevInnerType.equals(newInnerType)) {
-//                                isSameInnerType = false;
-//                            }
-//                            prevInnerType = newInnerType;
-//                        }
-//                        if (isSameInnerType) {
-//                        arrayType = prevInnerType + "[]";
-//                        }
-//                    }
-                    tupleJoiner.add(newType);
-//                    prevType = newType;
-                    if (arrayType == null) {
-                        arrayType = newType;
+                    TupleTypeSymbol nType = (TupleTypeSymbol) memberType;
+                    boolean isSameInnerType = true;
+                    // Here we check previous inner-member-type with current inner-member-type for equality
+                    // 1. Check type-kind is differs Tuple vs int
+                    // 2. Check signature differs Tuple(int,string,int) vs Tuple(boolean, string)
+                    for (TypeSymbol innerType : nType.memberTypeDescriptors()) {
+                        if (prevInnerType != null &&
+                                (prevInnerType.typeKind() != innerType.typeKind() ||
+                                        !prevInnerType.signature().equals(innerType.signature()))) {
+                            isSameInnerType = false;
+                        }
+                        prevInnerType = innerType;
+                    }
+                    if (isSameInnerType && prevInnerType != null) {
+                        String type = FunctionGenerator.generateTypeDefinition(importsAcceptor, prevInnerType, context);
+                        arrayType = type + "[]";
                     }
                 }
-                // Array
-                if (isArrayCandidate) {
-                    types.add(arrayType + "[]");
+                String type = FunctionGenerator.generateTypeDefinition(importsAcceptor, memberType, context);
+                tupleJoiner.add(type);
+                prevType = memberType;
+                if (arrayType == null) {
+                    arrayType = type;
                 }
-                // Tuple
-                types.add("[" + tupleJoiner.toString() + "]");
             }
+            // Array
+            if (isArrayCandidate) {
+                types.add(arrayType + "[]");
+            }
+            // Tuple
+            types.add("[" + tupleJoiner.toString() + "]");
         } else if (typeDescriptor instanceof BLangQueryExpr) {
             BLangQueryExpr queryExpr = (BLangQueryExpr) typeDescriptor;
             ExpressionNode expression = queryExpr.getSelectClause().getExpression();
@@ -328,11 +292,6 @@ public class CodeActionUtil {
             } else {
                 types.add("var");
             }
-        } else if (typeDescriptor instanceof BLangBinaryExpr) {
-//            BLangBinaryExpr binaryExpr = (BLangBinaryExpr) typeDescriptor;
-            variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor,
-                                                                    context);
-            types.add(variableType);
         } else {
             types.add(variableType);
         }
@@ -354,34 +313,26 @@ public class CodeActionUtil {
     public static PositionDetails findCursorDetails(Range range, SyntaxTree syntaxTree, LSContext context) {
         // Find Cursor node
         NonTerminalNode cursorNode = CommonUtil.findNode(range.getStart(), syntaxTree);
-        Symbol matchedSymbol = null;
-        NonTerminalNode matchedNode = null;
-        Optional<TypeSymbol> optTypeDesc = Optional.empty();
 
         BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         String relPath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         SemanticModel semanticModel = new BallerinaSemanticModel(bLangPackage, compilerContext);
 
-        //TODO: Remove this when #26382 is implemented
-        Optional<TypeSymbol> type = semanticModel.getType(relPath, cursorNode.lineRange());
-//        Optional<TypeSymbol> literalTypeDesc = checkForLiteralTypeDesc(cursorNode, semanticModel, relPath);
-        if (type.isPresent()) {
-            // If it is a Literal, use the temp type-descriptor
-            matchedNode = cursorNode;
-            optTypeDesc = type;
+        Optional<Pair<NonTerminalNode, Symbol>> nodeAndSymbol = getMatchedNodeAndSymbol(cursorNode,
+                                                                                        range,
+                                                                                        semanticModel, relPath);
+        Symbol matchedSymbol;
+        NonTerminalNode matchedNode;
+        if (nodeAndSymbol.isPresent()) {
+            matchedNode = nodeAndSymbol.get().getLeft();
+            matchedSymbol = nodeAndSymbol.get().getRight();
         } else {
-            // Or else, use the scoped-symbol's type-descriptor
-            Optional<Pair<NonTerminalNode, Symbol>> nodeAndSymbol = getMatchedNodeAndSymbol(cursorNode,
-                                                                                            range,
-                                                                                            semanticModel, relPath);
-            if (nodeAndSymbol.isPresent()) {
-                matchedNode = nodeAndSymbol.get().getLeft();
-                matchedSymbol = nodeAndSymbol.get().getRight();
-                optTypeDesc = getTypeDescriptor(matchedSymbol);
-            }
+            matchedNode = cursorNode;
+            matchedSymbol = null;
         }
-        return PositionDetailsImpl.from(matchedNode, matchedSymbol, optTypeDesc.orElse(null));
+        Optional<TypeSymbol> typeSymbol = semanticModel.getType(relPath, cursorNode.lineRange());
+        return PositionDetailsImpl.from(matchedNode, matchedSymbol, typeSymbol.orElse(null));
     }
 
     private static Optional<Pair<NonTerminalNode, Symbol>> getMatchedNodeAndSymbol(NonTerminalNode cursorNode,
@@ -401,31 +352,8 @@ public class CodeActionUtil {
         if (optMatchedSymbol.isEmpty()) {
             return Optional.empty();
         }
-        // Get TypeDesc of the symbol
         Symbol matchedSymbol = optMatchedSymbol.get();
         NonTerminalNode matchedNode = scopedSymbolFinder.node().get();
         return Optional.of(new ImmutablePair<>(matchedNode, matchedSymbol));
-    }
-
-    private static Optional<TypeSymbol> getTypeDescriptor(Symbol matchedSymbol) {
-        switch (matchedSymbol.kind()) {
-            case FUNCTION: {
-                FunctionSymbol functionSymbol = (FunctionSymbol) matchedSymbol;
-                FunctionTypeSymbol funTypeDesc = functionSymbol.typeDescriptor();
-                return funTypeDesc.returnTypeDescriptor();
-            }
-            case METHOD: {
-                MethodSymbol methodSymbol = (MethodSymbol) matchedSymbol;
-                FunctionTypeSymbol funTypeDesc = methodSymbol.typeDescriptor();
-                return funTypeDesc.returnTypeDescriptor();
-            }
-            case VARIABLE: {
-                return Optional.of(((VariableSymbol) matchedSymbol).typeDescriptor());
-            }
-            case TYPE: {
-                return Optional.of(((TypeSymbol) matchedSymbol));
-            }
-        }
-        return Optional.empty();
     }
 }

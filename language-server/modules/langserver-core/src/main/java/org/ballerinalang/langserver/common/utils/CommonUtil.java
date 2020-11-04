@@ -96,7 +96,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -172,17 +171,23 @@ public class CommonUtil {
     }
 
     /**
-     * Convert the diagnostic range to a zero based positioning diagnostic range.
+     * Convert the syntax-node line range into a lsp4j range.
      *
-     * @param lineRange - diagnostic position to be cloned
-     * @return {@link Range} converted diagnostic position
+     * @param lineRange - line range
+     * @return {@link Range} converted range
      */
     public static Range toRange(LineRange lineRange) {
-        int startLine = lineRange.startLine().line();
-        int endLine = lineRange.endLine().line();
-        int startColumn = lineRange.startLine().offset();
-        int endColumn = lineRange.endLine().offset();
-        return new Range(new Position(startLine, startColumn), new Position(endLine, endColumn));
+        return new Range(toPosition(lineRange.startLine()), toPosition(lineRange.endLine()));
+    }
+
+    /**
+     * Converts syntax-node line position into a lsp4j position.
+     *
+     * @param linePosition - line position
+     * @return {@link Position} converted position
+     */
+    public static Position toPosition(LinePosition linePosition) {
+        return new Position(linePosition.line(), linePosition.offset());
     }
 
     /**
@@ -736,6 +741,39 @@ public class CommonUtil {
     }
 
     /**
+     * Generates a variable name.
+     *
+     * @param symbol {@link Symbol}
+     * @return random argument name
+     */
+    public static String generateVariableName(Symbol symbol, TypeSymbol typeSymbol, Set<String> names) {
+        String name;
+        if (symbol != null) {
+            // Start naming with symbol-name
+            name = symbol.name();
+        } else {
+            // If symbol is null, try typeSymbol
+            if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE && !typeSymbol.name().startsWith("$")) {
+                name = typeSymbol.name();
+            } else {
+                TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
+                switch (rawType.typeKind()) {
+                    case RECORD:
+                        name = "mappingResult";
+                        break;
+                    case TUPLE:
+                        name = "listResult";
+                        break;
+                    default:
+                        name = rawType.typeKind().getName() + "Result";
+                        break;
+                }
+            }
+        }
+        return generateVariableName(1, name, names);
+    }
+
+    /**
      * Whether the given module is a langlib module.
      *
      * @param moduleID Module ID to evaluate
@@ -747,8 +785,7 @@ public class CommonUtil {
     }
 
     private static String generateVariableName(int suffix, String name, Set<String> names) {
-        name = name.replaceAll(".+[\\:\\.]", "");
-        String newName = generateName(suffix, names);
+        String newName = name.replaceAll(".+[\\:\\.]", "");
         if (suffix == 1 && !name.isEmpty()) {
             newName = name;
             BiFunction<String, String, String> replacer = (search, text) ->
@@ -774,33 +811,51 @@ public class CommonUtil {
             }
             // Lower first letter
             newName = newName.substring(0, 1).toLowerCase(Locale.getDefault()) + newName.substring(1);
-            // if already available, try appending 'Result'
-            Iterator<String> iterator = names.iterator();
+            // if already available, try appending 'Result', 'Out', 'Value'
             boolean alreadyExists = false;
-            boolean appendResult = true;
-            boolean appendOut = true;
-            String suffixResult = "Result";
-            String suffixOut = "Out";
-            while (iterator.hasNext()) {
-                String next = iterator.next();
-                if (next.equals(newName)) {
+            String[] specialSuffixes = new String[]{"Result", "Out", "Value"};
+            boolean[] flagSpecialSuffixes = new boolean[specialSuffixes.length];
+            boolean addNoSpecialSuffix = false;
+            // If any of special suffix already found in new-name, don't use any special suffix
+            for (String currentSuffix : specialSuffixes) {
+                if (newName.endsWith(currentSuffix)) {
+                    addNoSpecialSuffix = true;
+                    break;
+                }
+            }
+            for (String nextName : names) {
+                if (nextName.equals(newName)) {
+                    // If new-name already exists
                     alreadyExists = true;
-                } else if (next.equals(newName + suffixResult)) {
-                    appendResult = false;
-                } else if (next.equals(newName + suffixOut)) {
-                    appendOut = false;
+                } else if (!addNoSpecialSuffix) {
+                    // Check a particular special suffix and new-name combination already exists
+                    for (int i = 0; i < specialSuffixes.length; i++) {
+                        String currentSuffix = specialSuffixes[i];
+                        if (nextName.equals(newName + currentSuffix)) {
+                            flagSpecialSuffixes[i] = true;
+                        }
+                    }
                 }
             }
             // if already available, try appending 'Result' or 'Out'
-            if (alreadyExists && appendResult) {
-                newName = newName + suffixResult;
-            } else if (alreadyExists && appendOut) {
-                newName = newName + suffixOut;
+            if (alreadyExists) {
+                if (!addNoSpecialSuffix) {
+                    for (int i = 0; i < flagSpecialSuffixes.length; i++) {
+                        if (!flagSpecialSuffixes[i]) {
+                            newName = newName + specialSuffixes[i];
+                            break;
+                        }
+                    }
+                } else {
+                    return generateVariableName(++suffix, newName, names);
+                }
             }
-            // if still already available, try a random letter
-            while (names.contains(newName)) {
-                newName = generateVariableName(++suffix, name, names);
-            }
+        } else {
+            newName = newName + suffix;
+        }
+        // if still already available, try a random letter
+        while (names.contains(newName)) {
+            newName = generateName(++suffix, names);
         }
         return newName;
     }
@@ -1026,6 +1081,26 @@ public class CommonUtil {
         int sCol = lineRange.startLine().offset();
         int eLine = lineRange.endLine().line();
         int eCol = lineRange.endLine().offset();
+        return ((sLine == eLine && pos.getLine() == sLine) &&
+                (pos.getCharacter() >= sCol && pos.getCharacter() <= eCol)
+        ) || ((sLine != eLine) && (pos.getLine() > sLine && pos.getLine() < eLine ||
+                pos.getLine() == eLine && pos.getCharacter() <= eCol ||
+                pos.getLine() == sLine && pos.getCharacter() >= sCol
+        ));
+    }
+
+    /**
+     * Returns whether the position is within the range.
+     *
+     * @param pos   position
+     * @param range range
+     * @return True if within range, False otherwise
+     */
+    public static boolean isWithinRange(Position pos, Range range) {
+        int sLine = range.getStart().getLine();
+        int sCol = range.getStart().getCharacter();
+        int eLine = range.getEnd().getLine();
+        int eCol = range.getEnd().getCharacter();
         return ((sLine == eLine && pos.getLine() == sLine) &&
                 (pos.getCharacter() >= sCol && pos.getCharacter() <= eCol)
         ) || ((sLine != eLine) && (pos.getLine() > sLine && pos.getLine() < eLine ||

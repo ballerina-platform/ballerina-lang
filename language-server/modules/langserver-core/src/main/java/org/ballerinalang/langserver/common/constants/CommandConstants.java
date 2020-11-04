@@ -74,7 +74,7 @@ public class CommandConstants {
     // Command Titles
     public static final String IMPORT_MODULE_TITLE = "Import Module '%s'";
 
-    public static final String CREATE_VARIABLE_TITLE = "Create Local Variable";
+    public static final String CREATE_VARIABLE_TITLE = "Create Variable";
 
     public static final String IGNORE_RETURN_TITLE = "Ignore Return Value";
 
@@ -100,7 +100,9 @@ public class CommandConstants {
 
     public static final String MAKE_OBJ_NON_ABSTRACT_TITLE = "Make '%s' an Non-Abstract Object";
 
-    public static final String TYPE_GUARD_TITLE = "Type Guard '%s'";
+    public static final String TYPE_GUARD_TITLE = "Create Variable and Handle Error Inside";
+
+    public static final String ADD_CHECK_TITLE = "Create Variable and Handle Error Outside";
 
     public static final String CREATE_SERVICE_RESOURCE = "Create service resource for the path '%s'";
 

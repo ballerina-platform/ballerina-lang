@@ -59,8 +59,7 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
     private static final String UNDEFINED_MODULE = "undefined module";
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    PositionDetails positionDetails,
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, PositionDetails positionDetails,
                                                     List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
                                                     LSContext context) {
         List<CodeAction> actions = new ArrayList<>();

@@ -69,7 +69,6 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
                                                     List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
                                                     LSContext context) {
         List<CodeAction> actions = new ArrayList<>();
-        Diagnostic diagnostic = positionDetails.diagnostic();
         if (diagnostic.getMessage().toLowerCase(Locale.ROOT).contains(CommandConstants.INCOMPATIBLE_TYPES)) {
             return actions;
         }
