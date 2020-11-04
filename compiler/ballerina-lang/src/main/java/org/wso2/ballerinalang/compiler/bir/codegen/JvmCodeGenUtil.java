@@ -68,6 +68,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FILE_NAME_PERIOD_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
@@ -278,7 +279,7 @@ public class JvmCodeGenUtil {
         String packageName = "";
         orgName = IdentifierUtils.encodeNonFunctionIdentifier(orgName);
         moduleName = IdentifierUtils.encodeNonFunctionIdentifier(moduleName);
-        if (!moduleName.equals("$0046")) {
+        if (!moduleName.equals(ENCODED_DOT_CHARACTER)) {
             if (!version.equals("")) {
                 packageName = getVersionDirectoryName(version) + separator;
             }

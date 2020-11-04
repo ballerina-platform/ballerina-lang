@@ -96,6 +96,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isExter
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_THREAD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
@@ -226,7 +227,7 @@ public class JvmPackageGen {
         if (!BALLERINA.equals(moduleId.org.value)) {
             return false;
         }
-        return moduleId.name.value.indexOf("lang$0046") == 0 || moduleId.name.equals(Names.JAVA);
+        return moduleId.name.value.indexOf("lang" + ENCODED_DOT_CHARACTER) == 0 || moduleId.name.equals(Names.JAVA);
     }
 
     private static void generatePackageVariable(BIRGlobalVariableDcl globalVar, ClassWriter cw) {

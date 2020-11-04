@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.ballerinalang.compiler.bir.codegen.internal;
 
 import io.ballerina.runtime.IdentifierUtils;
@@ -25,7 +26,7 @@ import java.util.Comparator;
 /**
  * BIR Param name comparator to sort according its hash code.
  *
- * @since 1.2.0
+ * @since 2.0.0
  */
 public class FieldNameHashComparator implements Comparator<NamedNode> {
 

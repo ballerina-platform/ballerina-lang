@@ -36,6 +36,7 @@ import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
@@ -106,7 +107,7 @@ public class MethodGenUtils {
         String version = id.version.value;
 
         String funcName;
-        if (moduleName.equals("$0046")) {
+        if (moduleName.equals(ENCODED_DOT_CHARACTER)) {
             funcName = ".." + funcSuffix;
         } else if (version.equals("")) {
             funcName = moduleName + "." + funcSuffix;
