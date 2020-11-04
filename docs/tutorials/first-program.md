@@ -59,14 +59,14 @@ Let's rename the service and resource.
 
 The base path for a service is the context portion of the URL that clients will use to send requests to this service. For example, if we set the base path to `/myecho`, clients will be able to send requests to this service using the URL http://localhost:9090/myecho. Let's do this now.
 
-1. Click the add annotation textbox at the left top corner of service
+1. Click the add annotation textbox at the left top corner of the service
 1. Select ballerina.net.http from the dropdown that appears.
 1. Select config. You can see a little + sign within curly braces. Click that and select basePath.
 1. Add the basePath and in front of it, edit the value. 
 
 > Make sure you add the base path with the /.
 
-The base path is now set, so that when you deploy this service, clients will be able to send requests to it using http://localhost:9090/myecho.
+The base path is now set so that when you deploy this service, clients will be able to send requests to it using http://localhost:9090/myecho.
 
 ### Change GET to POST
 
