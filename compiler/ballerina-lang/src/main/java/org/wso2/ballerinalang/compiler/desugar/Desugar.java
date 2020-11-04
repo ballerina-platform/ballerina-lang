@@ -3227,8 +3227,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangStatementExpression createOnFailInvocation(BLangSimpleVariableDef onFailCallFuncDef,
-                                                            BLangOnFailClause onFailClause, BLangExpression failExpr,
-                                                            BLangNode stmt) {
+                                                            BLangOnFailClause onFailClause, BLangFail fail) {
         BLangStatementExpression expression;
         BLangSimpleVarRef onFailFuncRef = new BLangSimpleVarRef.BLangLocalVarRef(onFailCallFuncDef.var.symbol);
         onFailFuncRef.type = onFailCallFuncDef.var.type;
@@ -3237,7 +3236,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangInvocation onFailLambdaInvocation = new BLangInvocation.BFunctionPointerInvocation(onFailClause.pos,
                 onFailFuncRef, onFailFuncRef.symbol, symTable.anyOrErrorType);
-        onFailLambdaInvocation.argExprs = Lists.of(rewrite(failExpr, env));
+        onFailLambdaInvocation.argExprs = Lists.of(rewrite(fail.expr, env));
         onFailLambdaInvocation.requiredArgs = onFailLambdaInvocation.argExprs;
 
         BVarSymbol resultSymbol = new BVarSymbol(0, new Name("$onFailResult$"),
@@ -3247,8 +3246,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariableDef trxFuncVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos,
                 resultVariable);
         onFailFuncBlock.stmts.add(trxFuncVarDef);
-        if (stmt != null) {
-            onFailFuncBlock.stmts.add((BLangStatement) stmt);
+        if (fail.exprStmt != null) {
+            onFailFuncBlock.stmts.add((BLangStatement) fail.exprStmt);
         }
 
         BLangSimpleVarRef resultRef = ASTBuilderUtil.createVariableRef(onFailClause.pos, resultSymbol);
@@ -5248,7 +5247,7 @@ public class Desugar extends BLangNodeVisitor {
                 result = rewriteNestedOnFail(this.onFailClause, failNode.expr);
             } else {
                 BLangStatementExpression expression = createOnFailInvocation(onFailCallFuncDef, onFailClause,
-                        failNode.expr, failNode.exprStmt);
+                        failNode);
                 failNode.exprStmt = createExpressionStatement(failNode.pos, expression,
                         onFailClause.statementBlockReturns, env);
                 result = failNode;

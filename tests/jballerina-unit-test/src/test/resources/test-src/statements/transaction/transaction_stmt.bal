@@ -17,8 +17,10 @@ function testCommit() {
 
 function testPanic() {
     string|error x =  trap actualCode(1, false);
-    if(x is string) {
-        assertEquality("start fc-1 inTrx blowUp", x);
+    if(x is error) {
+        assertEquality("TransactionError", x.message());
+    } else {
+        panic error("Expected a panic to be trapped");
     }
 }
 
@@ -398,4 +400,32 @@ function testAsyncReturn() returns int {
 
 transactional function getInt() returns int {
     return 10;
+}
+
+function testPanicAfterRollback() {
+    string|error x =  trap panicTrx();
+    if(x is error) {
+        assertEquality("TransactionError", x.message());
+    } else {
+        panic error("Expected a panic to be trapped");
+    }
+}
+
+function panicTrx() returns (string) {
+    string a = "";
+    a = a + "start";
+    var onRollbackFunc = function(transactions:Info? info, error? cause, boolean willTry) {
+        a = a + " trxAborted";
+        io:println("Transaction Aborted");
+    };
+
+    transaction {
+        transactions:onRollback(onRollbackFunc);
+        a = a + " -> within Transaction";
+        int bV = blowUp();
+        var i = commit;
+    }
+
+    io:println("## Transaction execution completed ##");
+    return a;
 }

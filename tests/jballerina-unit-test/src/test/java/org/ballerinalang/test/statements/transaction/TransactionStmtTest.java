@@ -229,4 +229,9 @@ public class TransactionStmtTest {
         Assert.assertTrue(result[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) result[0]).intValue(), 10);
     }
+
+    @Test
+    public void testPanicAfterRollback() {
+        BRunUtil.invoke(programFile, "testPanicAfterRollback");
+    }
 }
