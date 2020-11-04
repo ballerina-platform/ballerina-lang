@@ -572,7 +572,7 @@ public class BTestRunner {
             testStart.invoke();
         }
         // Once the start function finish we will re start the scheduler with immortal true
-        initScheduler.immortal = true;
+        initScheduler.setImmortal(true);
         Thread immortalThread = new Thread(initScheduler::start, "module-start");
         immortalThread.setDaemon(true);
         immortalThread.start();

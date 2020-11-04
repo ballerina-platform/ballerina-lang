@@ -287,13 +287,18 @@ public class BIRGen extends BLangNodeVisitor {
 
     private void setEntryPoints(BLangPackage pkgNode) {
         BLangFunction mainFunc = getMainFunction(pkgNode);
-        if (mainFunc != null) {
+        if (mainFunc != null || listenerDeclarationFound(pkgNode.getGlobalVariables())) {
             pkgNode.symbol.entryPointExists = true;
         }
+    }
 
-        if (pkgNode.services.size() != 0) {
-            pkgNode.symbol.entryPointExists = true;
+    private boolean listenerDeclarationFound(List<BLangSimpleVariable> globalVars) {
+        for (BLangSimpleVariable globalVar : globalVars) {
+            if (Symbols.isFlagOn(globalVar.symbol.flags, Flags.LISTENER)) {
+                return true;
+            }
         }
+        return false;
     }
 
     private BLangFunction getMainFunction(BLangPackage pkgNode) {

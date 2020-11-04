@@ -60,6 +60,7 @@ import static org.ballerinalang.model.elements.PackageID.JAVA;
 import static org.ballerinalang.model.elements.PackageID.MAP;
 import static org.ballerinalang.model.elements.PackageID.OBJECT;
 import static org.ballerinalang.model.elements.PackageID.QUERY;
+import static org.ballerinalang.model.elements.PackageID.RUNTIME;
 import static org.ballerinalang.model.elements.PackageID.STREAM;
 import static org.ballerinalang.model.elements.PackageID.STRING;
 import static org.ballerinalang.model.elements.PackageID.TABLE;
@@ -166,6 +167,7 @@ public class CompilerDriver {
             symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
             symbolTable.langBooleanModuleSymbol = pkgLoader.loadPackageSymbol(BOOLEAN, null, null);
             symbolTable.langQueryModuleSymbol = pkgLoader.loadPackageSymbol(QUERY, null, null);
+            symbolTable.langRuntimeModuleSymbol = pkgLoader.loadPackageSymbol(RUNTIME, null, null);
             symbolTable.langTransactionModuleSymbol = pkgLoader.loadPackageSymbol(TRANSACTION, null, null);
             symbolTable.loadPredeclaredModules();
             return;
@@ -242,8 +244,7 @@ public class CompilerDriver {
             return;
         }
 
-        HashSet<BLangImportPackage> importPkgList = new HashSet<>();
-        importPkgList.addAll(pkgNode.imports);
+        HashSet<BLangImportPackage> importPkgList = new HashSet<>(pkgNode.imports);
         // If tests are enabled then get the imports of the testable package as well.
         String testsEnabled = this.options.get(CompilerOptionName.SKIP_TESTS);
         if (testsEnabled != null && testsEnabled.equals(Constants.SKIP_TESTS)) {
