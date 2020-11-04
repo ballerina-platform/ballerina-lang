@@ -27,4 +27,6 @@ import java.util.Collection;
  */
 public abstract class CompilerBackend {
     public abstract Collection<PlatformLibrary> platformLibraries(PackageId packageId);
+
+    public abstract PlatformLibrary runtimeLibrary();
 }
