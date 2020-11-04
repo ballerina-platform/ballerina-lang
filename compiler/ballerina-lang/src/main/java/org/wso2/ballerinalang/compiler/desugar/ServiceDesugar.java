@@ -117,8 +117,8 @@ public class ServiceDesugar {
         BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, variable.symbol);
 
         // Create method invocation
-        addMethodInvocation(pos, varRef, methodInvocationSymbol, Collections.emptyList(), Collections.emptyList(),
-                            (BLangBlockFunctionBody) lifeCycleFunction.body);
+        addMethodInvocation(pos, varRef, methodInvocationSymbol, Collections.emptyList(),
+                (BLangBlockFunctionBody) lifeCycleFunction.body);
     }
 
     BLangBlockStmt rewriteServiceVariables(List<BLangService> services, SymbolEnv env) {
@@ -128,16 +128,15 @@ public class ServiceDesugar {
     }
 
     void rewriteServiceVariable(BLangService service, SymbolEnv env, BLangBlockStmt attachments) {
-        // service x on y { ... }
+        // service x [/abs/Path] on y { ... }
         //
         // after desugar :
-        //      if y is anonymous (globalVar)   ->      y = y(expr)
         //      (init)                          ->      y.__attach(x, {});
 
-        if (service.isAnonymousService()) {
-            return;
-        }
         final DiagnosticPos pos = service.pos;
+
+        ASTBuilderUtil.defineVariable(service.serviceVariable, env.enclPkg.symbol, names);
+        env.enclPkg.globalVars.add(service.serviceVariable);
 
         int count = 0;
         for (BLangExpression attachExpr : service.attachedExprs) {
@@ -167,18 +166,14 @@ public class ServiceDesugar {
 
             // Create method invocation
             List<BLangExpression> args = new ArrayList<>();
-            args.add(ASTBuilderUtil.createVariableRef(pos, service.variableNode.symbol));
+            args.add(ASTBuilderUtil.createVariableRef(pos, service.serviceVariable.symbol));
 
-            BLangLiteral serviceName = ASTBuilderUtil.createLiteral(pos, symTable.stringType, service.name.value);
-            List<BLangNamedArgsExpression> namedArgs = Collections.singletonList(
-                    ASTBuilderUtil.createNamedArg("name", serviceName));
-
-            addMethodInvocation(pos, listenerVarRef, methodRef, args, namedArgs, attachments);
+            addMethodInvocation(pos, listenerVarRef, methodRef, args, attachments);
         }
     }
 
     private void addMethodInvocation(DiagnosticPos pos, BLangSimpleVarRef varRef, BInvokableSymbol methodRefSymbol,
-                                     List<BLangExpression> args, List<BLangNamedArgsExpression> namedArgs,
+                                     List<BLangExpression> args,
                                      BlockNode body) {
         // Create method invocation
         final BLangInvocation methodInvocation =

@@ -55,6 +55,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -1345,21 +1346,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-//        BServiceSymbol serviceSymbol = Symbols.createServiceSymbol(Flags.asMask(serviceNode.flagSet),
-//                                                                   names.fromIdNode(serviceNode.name),
-//                                                                   env.enclPkg.symbol.pkgID, serviceNode.type,
-//                                                                   env.scope.owner, serviceNode.name.pos, SOURCE);
-//        serviceSymbol.markdownDocumentation = getMarkdownDocAttachment(serviceNode.markdownDocumentationAttachment);
-//
-//        BType serviceObjectType = serviceNode.serviceClass.symbol.type;
-//        serviceNode.symbol = serviceSymbol;
-//        serviceNode.symbol.type = new BServiceType(serviceObjectType.tsymbol);
-//        serviceSymbol.scope = new Scope(serviceSymbol);
-//
-//        // Caching values future validation.
-//        serviceNode.serviceClass.functions.stream().filter(func -> func.flagSet.contains(Flag.RESOURCE))
-//                .forEach(func -> serviceNode.resourceFunctions.add(func));
-        throw new AssertionError();
+        defineNode(serviceNode.serviceVariable, env);
     }
 
     @Override

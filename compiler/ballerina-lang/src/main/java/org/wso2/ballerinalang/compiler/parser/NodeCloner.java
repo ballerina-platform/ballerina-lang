@@ -457,6 +457,8 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.name = source.name;
         clone.serviceClass = clone(source.serviceClass);
         clone.attachedExprs = cloneList(source.attachedExprs);
+        clone.serviceVariable = clone(source.serviceVariable);
+        clone.absoluteResourcePath = new ArrayList<>(source.absoluteResourcePath);
 
         clone.variableNode = clone(source.variableNode);
         clone.isAnonymousServiceValue = source.isAnonymousServiceValue;

@@ -2574,17 +2574,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        BServiceSymbol serviceSymbol = (BServiceSymbol) serviceNode.symbol;
-        SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceSymbol.scope, env);
-        serviceNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachPoints.add(AttachPoint.Point.SERVICE);
-            this.analyzeDef(annotationAttachment, serviceEnv);
-        });
-        validateAnnotationAttachmentCount(serviceNode.annAttachments);
-
-        if (serviceNode.isAnonymousServiceValue) {
-            return;
-        }
+        analyzeDef(serviceNode.serviceVariable, env);
 
         for (BLangExpression attachExpr : serviceNode.attachedExprs) {
             final BType exprType = typeChecker.checkExpr(attachExpr, env);

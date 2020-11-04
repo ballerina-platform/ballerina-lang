@@ -19,6 +19,7 @@ package org.ballerinalang.nativeimpl.jvm.servicetests;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.values.FutureValue;
 import io.ballerina.runtime.values.MapValueImpl;
@@ -30,10 +31,43 @@ import io.ballerina.runtime.values.ObjectValue;
  * @since 2.0
  */
 public class ServiceValue {
+    private static BObject service;
+    private static BObject listener;
+    private static boolean started;
+
     public static FutureValue callMethod(Environment env, ObjectValue l, BString name) {
         FutureValue k = env.getRuntime().invokeMethodAsync(l, name.getValue(), null, null, null, new MapValueImpl<>(),
                 PredefinedTypes.TYPE_ANY);
 
         return k;
+    }
+
+    public static Object attach(BObject servObj) {
+        ServiceValue.service = servObj;
+        return null;
+    }
+
+    public static Object start(BObject listener) {
+        ServiceValue.started = true;
+        return null;
+    }
+
+    public static Object listenerInit(BObject listener) {
+        ServiceValue.listener = listener;
+        return null;
+    }
+
+    public static void reset() {
+        ServiceValue.service = null;
+        ServiceValue.listener = null;
+        ServiceValue.started = false;
+    }
+
+    public static BObject getListener() {
+        return ServiceValue.listener;
+    }
+
+    public static BObject getService() {
+        return ServiceValue.service;
     }
 }

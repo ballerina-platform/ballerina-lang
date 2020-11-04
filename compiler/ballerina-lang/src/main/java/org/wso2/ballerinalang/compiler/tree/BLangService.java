@@ -35,7 +35,6 @@ import java.util.Set;
 /**
  * @since 0.94
  *
- *  TODO : Fix me.
  */
 public class BLangService extends BLangNode implements ServiceNode {
 
@@ -55,6 +54,10 @@ public class BLangService extends BLangNode implements ServiceNode {
     // Cached values.
     public BType listenerType;
     public List<BLangFunction> resourceFunctions;
+
+
+    public BLangSimpleVariable serviceVariable;
+    public List<String> absoluteResourcePath;
 
     public BLangService() {
         this.flagSet = EnumSet.noneOf(Flag.class);

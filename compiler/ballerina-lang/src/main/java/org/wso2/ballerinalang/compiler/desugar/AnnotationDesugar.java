@@ -153,7 +153,6 @@ public class AnnotationDesugar {
 
         defineTypeAnnotations(pkgNode, env, initFunction);
         defineClassAnnotations(pkgNode, env, initFunction);
-        defineServiceAnnotations(pkgNode, env, initFunction);
         defineFunctionAnnotations(pkgNode, env, initFunction);
     }
 
@@ -238,28 +237,6 @@ public class AnnotationDesugar {
 
             if (lambdaFunction != null) {
                 addInvocationToGlobalAnnotMap(typeDef.name.value, lambdaFunction, initFunction.body);
-            }
-        }
-    }
-
-    private void defineServiceAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
-        BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) initFunction.body;
-        for (BLangService service : pkgNode.services) {
-            SymbolEnv funcEnv = SymbolEnv.createServiceEnv(service, initFunction.symbol.scope, env);
-            BLangLambdaFunction lambdaFunction = defineAnnotations(service, service.pos, pkgNode,
-                                                                   funcEnv, service.symbol.pkgID, service.symbol.owner);
-            if (lambdaFunction != null) {
-                // Add the lambda in a temporary block.
-                BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
-                target.pos = initFnBody.pos;
-
-                addLambdaToGlobalAnnotMap(service.serviceClass.name.value, lambdaFunction, target);
-
-                // Add the annotation assignment to immediately before the service init.
-                int index = calculateIndex(initFnBody.stmts, service);
-                for (BLangStatement stmt : target.stmts) {
-                    initFnBody.stmts.add(index++, stmt);
-                }
             }
         }
     }

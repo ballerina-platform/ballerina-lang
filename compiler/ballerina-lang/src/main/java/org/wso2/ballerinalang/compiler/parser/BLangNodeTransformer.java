@@ -419,6 +419,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.elements.Flag.ISOLATED;
 import static org.ballerinalang.model.elements.Flag.SERVICE;
@@ -3555,9 +3556,83 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(ServiceDeclarationNode serviceDeclarationNode) {
-        // Add support for service declaration here
+        DiagnosticPos pos = getPositionWithoutMetadata(serviceDeclarationNode);
+        BLangClassDefinition annonClassDef = createObjectExpressionBody(serviceDeclarationNode.members());
+        annonClassDef.pos = pos;
+        annonClassDef.flagSet.add(SERVICE);
+
+        List<String> absResourcePathPath = new ArrayList<>();
+        for (Token token : serviceDeclarationNode.absoluteResourcePath()) {
+            absResourcePathPath.add(token.text());
+        }
+
+        // Generate a name for the anonymous class
+        String genName = anonymousModelHelper.getNextAnonymousTypeKey(diagnosticSource.pkgID);
+        IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
+        annonClassDef.setName(anonTypeGenName);
+        annonClassDef.flagSet.add(Flag.PUBLIC);
+
+        Optional<TypeDescriptorNode> typeReference = serviceDeclarationNode.typeDescriptor();
+        typeReference.ifPresent(typeReferenceNode -> {
+            BLangType typeNode = createTypeNode(typeReferenceNode);
+            annonClassDef.typeRefs.add(typeNode);
+        });
+
+        annonClassDef.annAttachments = applyAll(getAnnotations(serviceDeclarationNode.metadata()));
+        annonClassDef.markdownDocumentationAttachment =
+                createMarkdownDocumentationAttachment(getDocumentationString(serviceDeclarationNode.metadata()));
+
+        addToTop(annonClassDef);
+
+        BLangIdentifier identifier = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        BLangUserDefinedType userDefinedType = createUserDefinedType(pos, identifier, annonClassDef.name);
+
+        BLangTypeInit initNode = (BLangTypeInit) TreeBuilder.createInitNode();
+        initNode.pos = pos;
+        initNode.userDefinedType = userDefinedType;
+
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.pos = pos;
+        BLangIdentifier pkgAlias = createIdentifier(pos, "");
+        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, annonClassDef.name);
+
+        invocationNode.name = (BLangIdentifier) nameReference.name;
+        invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+
+        initNode.argsExpr.addAll(invocationNode.argExprs);
+        initNode.initInvocation = invocationNode;
+
+        BLangSimpleVariable serviceVariable = createServiceVariable(pos, annonClassDef, initNode);
+
+        List<BLangExpression> exprs = new ArrayList<>();
+        for (var exp : serviceDeclarationNode.expressions()) {
+            exprs.add(createExpression(exp));
+        }
+
         BLangService service = (BLangService) TreeBuilder.createServiceNode();
+        service.serviceVariable = serviceVariable;
+        service.attachedExprs = exprs;
+        service.serviceClass = annonClassDef;
+        service.absoluteResourcePath = absResourcePathPath;
+        service.pos = pos;
         return service;
+    }
+
+    private BLangSimpleVariable createServiceVariable(DiagnosticPos pos, BLangClassDefinition annonClassDef,
+                                                         BLangTypeInit initNode) {
+        BLangUserDefinedType typeName = createUserDefinedType(pos,
+                (BLangIdentifier) TreeBuilder.createIdentifierNode(), annonClassDef.name);
+
+        BLangSimpleVariable serviceInstance =
+                (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+        serviceInstance.typeNode = typeName;
+
+        String serviceVarName = anonymousModelHelper.getNextAnonymousServiceVarKey(diagnosticSource.pkgID);
+        serviceInstance.name =  createIdentifier(pos, serviceVarName);
+
+        serviceInstance.expr = initNode;
+
+        return serviceInstance;
     }
 
     @Override
