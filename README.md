@@ -7,7 +7,7 @@
 
 # The Ballerina Programming Language
 
-Ballerina is an open source programming language and platform for cloud-era application programmers to easily write software that just works.
+Ballerina is an open-source programming language and platform for cloud-era application programmers to easily write software that just works.
 
 #### Providing and consuming services
 It has inherently concurrent first-class language constructs for providing and consuming services.
@@ -50,7 +50,7 @@ Report an issue in the relevant repo out of the GitHub repos listed below.
 
 ## Contributing to Ballerina
 
-As an open source project, Ballerina welcomes contributions from the community. To start contributing, read these [contribution guidelines](https://github.com/ballerina-platform/ballerina-lang/blob/master/CONTRIBUTING.md) for information on how you should go about contributing to our project.
+As an open-source project, Ballerina welcomes contributions from the community. To start contributing, read these [contribution guidelines](https://github.com/ballerina-platform/ballerina-lang/blob/master/CONTRIBUTING.md) for information on how you should go about contributing to our project.
 
 Check the issue tracker for open issues that interest you. We look forward to receiving your contributions.
 
