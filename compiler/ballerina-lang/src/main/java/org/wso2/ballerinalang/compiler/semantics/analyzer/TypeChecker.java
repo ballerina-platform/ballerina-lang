@@ -1708,6 +1708,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         recordType.fields = newFields;
+        recordType.flags = recordSymbol.flags;
         recordSymbol.type = recordType;
         recordType.tsymbol = recordSymbol;
 
@@ -7245,7 +7246,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private BRecordTypeSymbol createRecordTypeSymbol(PackageID pkgID, Location location,
                                                      SymbolOrigin origin) {
         BRecordTypeSymbol recordSymbol =
-                Symbols.createRecordSymbol(0, names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(pkgID)),
+                Symbols.createRecordSymbol(Flags.ANONYMOUS,
+                                           names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(pkgID)),
                                            pkgID, null, env.scope.owner, location, origin);
 
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
