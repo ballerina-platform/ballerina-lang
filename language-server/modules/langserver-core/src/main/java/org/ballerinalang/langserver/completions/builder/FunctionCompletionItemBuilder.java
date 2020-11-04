@@ -97,9 +97,8 @@ public final class FunctionCompletionItemBuilder {
 
     public static CompletionItem build(ObjectTypeSymbol typeDesc, InitializerBuildMode mode, LSContext ctx) {
         MethodSymbol initMethod = null;
-        if (typeDesc.kind() == SymbolKind.CLASS) {
-            ClassSymbol classSymbol = (ClassSymbol) typeDesc;
-            initMethod = classSymbol.initMethod().isPresent() ? classSymbol.initMethod().get() : null;
+        if (typeDesc.kind() == SymbolKind.CLASS && ((ClassSymbol) typeDesc).initMethod().isPresent()) {
+            initMethod = ((ClassSymbol) typeDesc).initMethod().get();
         }
 
         CompletionItem item = new CompletionItem();
