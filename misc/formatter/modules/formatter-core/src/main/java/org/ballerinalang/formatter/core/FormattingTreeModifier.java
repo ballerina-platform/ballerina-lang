@@ -84,7 +84,6 @@ import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
-import io.ballerina.compiler.syntax.tree.ImportVersionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.IntermediateClauseNode;
 import io.ballerina.compiler.syntax.tree.InterpolationNode;
@@ -553,12 +552,10 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ImportDeclarationNode transform(ImportDeclarationNode importDeclarationNode) {
         Token importKeyword = formatToken(importDeclarationNode.importKeyword(), 1, 0);
-        boolean hasVersion = importDeclarationNode.version().isPresent();
         boolean hasPrefix = importDeclarationNode.prefix().isPresent();
         ImportOrgNameNode orgName = formatNode(importDeclarationNode.orgName().orElse(null), 0, 0);
         SeparatedNodeList<IdentifierToken> moduleNames = formatSeparatedNodeList(importDeclarationNode.moduleName(),
-                0, 0, 0, 0, (hasVersion || hasPrefix) ? 1 : 0, 0);
-        ImportVersionNode version = formatNode(importDeclarationNode.version().orElse(null), hasPrefix ? 1 : 0, 0);
+                0, 0, 0, 0, hasPrefix ? 1 : 0, 0);
         ImportPrefixNode prefix = formatNode(importDeclarationNode.prefix().orElse(null), 0, 0);
         Token semicolon = formatToken(importDeclarationNode.semicolon(), env.trailingWS, env.trailingNL);
 
@@ -566,7 +563,6 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withImportKeyword(importKeyword)
                 .withOrgName(orgName)
                 .withModuleName(moduleNames)
-                .withVersion(version)
                 .withPrefix(prefix)
                 .withSemicolon(semicolon)
                 .apply();
@@ -591,18 +587,6 @@ public class FormattingTreeModifier extends TreeModifier {
         return importPrefixNode.modify()
                 .withAsKeyword(asKeyword)
                 .withPrefix(prefix)
-                .apply();
-    }
-
-    @Override
-    public ImportVersionNode transform(ImportVersionNode importVersionNode) {
-        Token versionKeyword = formatToken(importVersionNode.versionKeyword(), 1, 0);
-        SeparatedNodeList<Token> versionNumber = formatSeparatedNodeList(importVersionNode.versionNumber(),
-                0, 0, 0, 0, env.trailingWS, env.trailingNL);
-
-        return importVersionNode.modify()
-                .withVersionKeyword(versionKeyword)
-                .withVersionNumber(versionNumber)
                 .apply();
     }
 
