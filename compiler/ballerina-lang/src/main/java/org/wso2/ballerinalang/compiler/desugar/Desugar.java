@@ -3507,11 +3507,14 @@ public class Desugar extends BLangNodeVisitor {
         if (transactionNode.onFailClause != null) {
             BSymbol onErrorSymbol =
                     ((BLangSimpleVariableDef) transactionNode.onFailClause.variableDefinitionNode).var.symbol;
-            createRollbackIfFailed(transactionNode.onFailClause.pos, transactionNode.onFailClause.body, onErrorSymbol);
+            transactionDesugar.createRollbackIfFailed(transactionNode.onFailClause.pos, env,
+                    transactionNode.onFailClause.body,
+                    onErrorSymbol);
         } else if (this.onFailClause != null) {
             BSymbol onErrorSymbol =
                     ((BLangSimpleVariableDef) this.onFailClause.variableDefinitionNode).var.symbol;
-            createRollbackIfFailed(this.onFailClause.pos, this.onFailClause.body, onErrorSymbol);
+            transactionDesugar.createRollbackIfFailed(this.onFailClause.pos, env, this.onFailClause.body,
+                    onErrorSymbol);
         } else {
             BLangOnFailClause trxOnFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
             trxOnFailClause.pos = transactionNode.pos;
@@ -3522,10 +3525,10 @@ public class Desugar extends BLangNodeVisitor {
                     "$trxError$", symTable.errorType, null, trxOnFailErrorSym);
             trxOnFailClause.variableDefinitionNode = ASTBuilderUtil.createVariableDef(transactionNode.pos,
                     trxOnFailError);
-//            trxOnFailClause.body.scope = env.scope;
             trxOnFailClause.body.scope = new Scope(env.scope.owner);
             trxOnFailClause.body.scope.define(trxOnFailErrorSym.name, trxOnFailErrorSym);
-            createRollbackIfFailed(transactionNode.pos, trxOnFailClause.body, trxOnFailErrorSym);
+            transactionDesugar.createRollbackIfFailed(transactionNode.pos, env, trxOnFailClause.body,
+                    trxOnFailErrorSym);
             transactionNode.onFailClause = trxOnFailClause;
             //todo @chiran check onfail.returns should be set to true when trx has a return
         }
@@ -3534,47 +3537,46 @@ public class Desugar extends BLangNodeVisitor {
                 onFailClause != null);
         transactionStmtBlock.isBreakable = true;
         result = rewrite(transactionStmtBlock, env);
-//        result = transactionStmtBlock;
         swapAndResetEnclosingOnFail(currentOnFailClause, currentOnFailCallDef);
         this.visitngTrx = currentVisitingTrx;
         this.trxBlockId = currentTrxBlockId;
     }
 
-    //  commit or rollback was not executed and fail(e) or panic(e) returned, so rollback
-    //    if ((result is error) && !(result is TransactionError)) {
-    //        rollback result;
-    //    }
-    void createRollbackIfFailed(DiagnosticPos pos, BLangBlockStmt onFailBodyBlock,
-                                BSymbol trxFuncResultSymbol) {
-        BLangIf rollbackCheck = (BLangIf) TreeBuilder.createIfElseStatementNode();
-        rollbackCheck.pos = pos;
-        int stmtIndex = onFailBodyBlock.stmts.isEmpty() ? 0 : 1;
-        onFailBodyBlock.stmts.add(stmtIndex, rollbackCheck);
-
-        BConstructorSymbol transactionErrorSymbol = (BConstructorSymbol) symTable.langTransactionModuleSymbol
-                .scope.lookup(names.fromString("TransactionError")).symbol;
-        BType errorType = transactionErrorSymbol.type;
-        BLangErrorType trxErrorTypeNode = (BLangErrorType) TreeBuilder.createErrorTypeNode();
-        trxErrorTypeNode.type = errorType;
-        BLangSimpleVarRef result = ASTBuilderUtil.createVariableRef(pos, trxFuncResultSymbol);
-        BLangTypeTestExpr testExpr = ASTBuilderUtil.createTypeTestExpr(pos, result, trxErrorTypeNode);
-        testExpr.type = symTable.booleanType;
-        BLangGroupExpr transactionErrorCheckGroupExpr = new BLangGroupExpr();
-        transactionErrorCheckGroupExpr.type = symTable.booleanType;
-        BOperatorSymbol notOperatorSymbol = new BOperatorSymbol(names.fromString(OperatorKind.NOT.value()),
-                symTable.rootPkgSymbol.pkgID, errorType,
-                symTable.rootPkgSymbol, symTable.builtinPos, VIRTUAL);
-        transactionErrorCheckGroupExpr.expression = ASTBuilderUtil.createUnaryExpr(pos, testExpr,
-                symTable.booleanType, OperatorKind.NOT, notOperatorSymbol);
-
-        BLangTypeTestExpr errorCheck = createTypeCheckExpr(pos, result, getErrorTypeNode());
-        rollbackCheck.expr = ASTBuilderUtil.createBinaryExpr(pos, errorCheck, transactionErrorCheckGroupExpr,
-                symTable.booleanType, OperatorKind.AND, null);
-        BLangRollback rollbackStmt = (BLangRollback) TreeBuilder.createRollbackNode();
-        rollbackStmt.expr = addConversionExprIfRequired(result, symTable.errorOrNilType);
-        rollbackCheck.body = ASTBuilderUtil.createBlockStmt(pos);
-        rollbackCheck.body.stmts.add(rewrite(rollbackStmt, env));
-    }
+//    //  commit or rollback was not executed and fail(e) or panic(e) returned, so rollback
+//    //    if ((result is error) && !(result is TransactionError)) {
+//    //        rollback result;
+//    //    }
+//    void createRollbackIfFailed(DiagnosticPos pos, BLangBlockStmt onFailBodyBlock,
+//                                BSymbol trxFuncResultSymbol) {
+//        BLangIf rollbackCheck = (BLangIf) TreeBuilder.createIfElseStatementNode();
+//        rollbackCheck.pos = pos;
+//        int stmtIndex = onFailBodyBlock.stmts.isEmpty() ? 0 : 1;
+//        onFailBodyBlock.stmts.add(stmtIndex, rollbackCheck);
+//
+//        BConstructorSymbol transactionErrorSymbol = (BConstructorSymbol) symTable.langTransactionModuleSymbol
+//                .scope.lookup(names.fromString("TransactionError")).symbol;
+//        BType errorType = transactionErrorSymbol.type;
+//        BLangErrorType trxErrorTypeNode = (BLangErrorType) TreeBuilder.createErrorTypeNode();
+//        trxErrorTypeNode.type = errorType;
+//        BLangSimpleVarRef result = ASTBuilderUtil.createVariableRef(pos, trxFuncResultSymbol);
+//        BLangTypeTestExpr testExpr = ASTBuilderUtil.createTypeTestExpr(pos, result, trxErrorTypeNode);
+//        testExpr.type = symTable.booleanType;
+//        BLangGroupExpr transactionErrorCheckGroupExpr = new BLangGroupExpr();
+//        transactionErrorCheckGroupExpr.type = symTable.booleanType;
+//        BOperatorSymbol notOperatorSymbol = new BOperatorSymbol(names.fromString(OperatorKind.NOT.value()),
+//                symTable.rootPkgSymbol.pkgID, errorType,
+//                symTable.rootPkgSymbol, symTable.builtinPos, VIRTUAL);
+//        transactionErrorCheckGroupExpr.expression = ASTBuilderUtil.createUnaryExpr(pos, testExpr,
+//                symTable.booleanType, OperatorKind.NOT, notOperatorSymbol);
+//
+//        BLangTypeTestExpr errorCheck = createTypeCheckExpr(pos, result, getErrorTypeNode());
+//        rollbackCheck.expr = ASTBuilderUtil.createBinaryExpr(pos, errorCheck, transactionErrorCheckGroupExpr,
+//                symTable.booleanType, OperatorKind.AND, null);
+//        BLangRollback rollbackStmt = (BLangRollback) TreeBuilder.createRollbackNode();
+//        rollbackStmt.expr = addConversionExprIfRequired(result, symTable.errorOrNilType);
+//        rollbackCheck.body = ASTBuilderUtil.createBlockStmt(pos);
+//        rollbackCheck.body.stmts.add(rewrite(rollbackStmt, env));
+//    }
 
     @Override
     public void visit(BLangRollback rollbackNode) {

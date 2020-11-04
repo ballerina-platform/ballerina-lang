@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -321,7 +322,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         cleanValidationIf.expr = cleanValidationGroupExpr;
         cleanValidationIf.body = ASTBuilderUtil.createBlockStmt(pos);
         BLangExpressionStmt stmt = ASTBuilderUtil.createExpressionStmt(pos, cleanValidationIf.body);
-        stmt.expr = createCleanupTrxStmt(pos);
+        stmt.expr = createCleanupTrxStmt(pos, this.trxBlockId);
 
         //if ((result is error) && !(result is TransactionError)) {
         //   rollbackTransaction(transactionBlockId1, <error?> result1);
@@ -377,9 +378,13 @@ public class TransactionDesugar extends BLangNodeVisitor {
     //    if ((result is error) && !(result is TransactionError)) {
     //        rollback result;
     //    }
-    private void createRollbackIfFailed(DiagnosticPos pos, BLangBlockStmt transactionBlockStmt,
-                                        BSymbol trxFuncResultSymbol) {
-        BLangIf rollbackCheck = ASTBuilderUtil.createIfStmt(pos, transactionBlockStmt);
+    void createRollbackIfFailed(DiagnosticPos pos, SymbolEnv env, BLangBlockStmt onFailBodyBlock,
+                                BSymbol trxFuncResultSymbol) {
+        BLangIf rollbackCheck = (BLangIf) TreeBuilder.createIfElseStatementNode();
+        rollbackCheck.pos = pos;
+        int stmtIndex = onFailBodyBlock.stmts.isEmpty() ? 0 : 1;
+        onFailBodyBlock.stmts.add(stmtIndex, rollbackCheck);
+
         BConstructorSymbol transactionErrorSymbol = (BConstructorSymbol) symTable.langTransactionModuleSymbol
                 .scope.lookup(names.fromString("TransactionError")).symbol;
         BType errorType = transactionErrorSymbol.type;
@@ -391,8 +396,8 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangGroupExpr transactionErrorCheckGroupExpr = new BLangGroupExpr();
         transactionErrorCheckGroupExpr.type = symTable.booleanType;
         BOperatorSymbol notOperatorSymbol = new BOperatorSymbol(names.fromString(OperatorKind.NOT.value()),
-                                                                symTable.rootPkgSymbol.pkgID, errorType,
-                                                                symTable.rootPkgSymbol, symTable.builtinPos, VIRTUAL);
+                symTable.rootPkgSymbol.pkgID, errorType,
+                symTable.rootPkgSymbol, symTable.builtinPos, VIRTUAL);
         transactionErrorCheckGroupExpr.expression = ASTBuilderUtil.createUnaryExpr(pos, testExpr,
                 symTable.booleanType, OperatorKind.NOT, notOperatorSymbol);
 
@@ -405,7 +410,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         rollbackCheck.body.stmts.add(desugar.rewrite(rollbackStmt, env));
     }
 
-    private BLangInvocation createCleanupTrxStmt(DiagnosticPos pos) {
+    private BLangInvocation createCleanupTrxStmt(DiagnosticPos pos, BLangLiteral trxBlockId) {
         List<BLangExpression> args;
         BInvokableSymbol cleanupTrxInvokableSymbol =
                 (BInvokableSymbol) getTransactionLibInvokableSymbol(CLEAN_UP_TRANSACTION);
@@ -438,6 +443,8 @@ public class TransactionDesugar extends BLangNodeVisitor {
 //        BLangStatement shouldCleanUpStmt = ASTBuilderUtil.createAssignmentStmt(pos, shouldCleanUpVariableRef,
 //                ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true));
 //        rollbackBlockStmt.addStatement(shouldCleanUpStmt);
+        BLangExpressionStmt cleanUpTrx = ASTBuilderUtil.createExpressionStmt(pos, rollbackBlockStmt);
+        cleanUpTrx.expr = createCleanupTrxStmt(pos, trxBlockId);
         BLangStatementExpression rollbackStmtExpr = ASTBuilderUtil.createStatementExpression(rollbackBlockStmt,
                 ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE));
         rollbackStmtExpr.type = symTable.nilType;
@@ -585,7 +592,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         ifStmt.body.stmts.add(retryMgrDef);
         BLangWhile retryWhileLoop = desugar.createRetryWhileLoop(retryTrxBlock.pos, retryMgrDef, retryStmt,
                 resultRef);
-        createRollbackIfFailed(retryTrxBlock.pos, retryWhileLoop.body, resultRef.symbol);
+        createRollbackIfFailed(retryTrxBlock.pos, env, retryWhileLoop.body, resultRef.symbol);
         ifStmt.body.stmts.add(retryWhileLoop);
         desugar.createErrorReturn(retryTrxBlock.pos, blockStmt, resultRef);
         result = blockStmt;
