@@ -32,8 +32,18 @@ import java.util.List;
 public interface LSCodeActionProvider {
 
     /**
+     * Returns priority to be listed the code-action.
+     *
+     * @return lower the number higher the priority
+     */
+    default int priority() {
+        return 1000;
+    }
+
+    /**
      * Returns True if code action is enabled.
-     * @return  True if code action is enabled, False otherwise
+     *
+     * @return True if code action is enabled, False otherwise
      */
     boolean isEnabled();
 

@@ -20,6 +20,7 @@ import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +103,7 @@ public class CodeActionProvidersHolder {
         if (nodeBasedProviders.containsKey(nodeType)) {
             return nodeBasedProviders.get(nodeType).stream()
                     .filter(LSCodeActionProvider::isEnabled)
+                    .sorted(Comparator.comparingInt(LSCodeActionProvider::priority))
                     .collect(Collectors.toList());
         }
         return Collections.emptyList();
@@ -115,6 +117,7 @@ public class CodeActionProvidersHolder {
     List<LSCodeActionProvider> getActiveDiagnosticsBasedProviders() {
         return diagnosticsBasedProviders.stream()
                 .filter(LSCodeActionProvider::isEnabled)
+                .sorted(Comparator.comparingInt(LSCodeActionProvider::priority))
                 .collect(Collectors.toList());
     }
 }
