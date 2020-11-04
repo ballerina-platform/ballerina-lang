@@ -130,6 +130,10 @@ public class RunExecutableTask implements Task {
             ProcessBuilder pb = new ProcessBuilder(commands).inheritIO();
             Process process = pb.start();
             process.waitFor();
+            int exitValue = process.exitValue();
+            if (exitValue != 0) {
+                Runtime.getRuntime().exit(exitValue);
+            }
         } catch (IOException | InterruptedException e) {
             throw createLauncherException("Error occurred while running the executable ", e.getCause());
         }
