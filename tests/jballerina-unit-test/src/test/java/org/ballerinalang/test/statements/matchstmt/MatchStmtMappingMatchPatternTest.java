@@ -31,9 +31,9 @@ import org.testng.annotations.Test;
 @Test(groups = { "disableOnOldParser" })
 public class MatchStmtMappingMatchPatternTest {
 
-    private CompileResult result;
-    private CompileResult resultNegative;
-    private CompileResult resultRestPattern;
+    private CompileResult result, resultNegative, resultRestPattern;
+    private String patternNotMatched = "pattern will not be matched";
+    private String unreachablePattern = "unreachable pattern";
 
     @BeforeClass
     public void setup() {
@@ -175,11 +175,9 @@ public class MatchStmtMappingMatchPatternTest {
 
     @Test
     public void testMappingMatchPatternNegative() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 7);
+        Assert.assertEquals(resultNegative.getErrorCount(), 16);
 
         int i = -1;
-        String patternNotMatched = "pattern will not be matched";
-
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 7, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 14, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 17, 9);
@@ -187,5 +185,14 @@ public class MatchStmtMappingMatchPatternTest {
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 20, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 27, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 30, 9);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 44, 32);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 48, 9);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 50, 30);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 52, 28);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 56, 9);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 60, 9);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 68, 9);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 75, 9);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 82, 9);
     }
 }

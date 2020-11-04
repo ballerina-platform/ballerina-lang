@@ -16,10 +16,10 @@
 
 function mappingMatchPattern1(any v) returns anydata {
     match v {
-        { x : 2, y : 3, ...var a } => {
+        { w : 1, x : 2, y : 3,  ...var a } => {
             return a["z"];
         }
-        { w : 1, x : 2, y : 3,  ...var a } => {
+        { x : 2, y : 3, ...var a } => {
             return a["z"];
         }
         _ => {

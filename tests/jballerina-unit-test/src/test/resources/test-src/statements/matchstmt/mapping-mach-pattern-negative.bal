@@ -35,3 +35,50 @@ function testMappingMatchPatternNegative() returns string {
     return "No match";
 
 }
+
+const X = 2;
+const Y = 4;
+function testSameMatchPatternsNegative1() {
+    map<int> v = { x : 1, y : 2 };
+    match v {
+        { x : var a, y : 2 } | { x : var a, y : 2 } => { // unreachable pattern
+        }
+        { x : var a, y : 3 } => {
+        }
+        { x : var a, y : 3 } => { // unreachable pattern
+        }
+        { x : 31, y : 21 } | { x : 31, y : 21 } => { // unreachable pattern
+        }
+        { x : 1, y : X } | { x : 1, y : X } => { // unreachable pattern
+        }
+        { x : 11, y : Y } => {
+        }
+        { x : 11, y : Y } => { // unreachable pattern
+        }
+        { x : var a, y : 21 } if a is int => {
+        }
+        { x : var a, y : 21 } if a is int => { // unreachable pattern
+        }
+    }
+}
+
+function testSameMatchPatternsNegative2(any v) {
+    match v {
+        { x : var a, y : var b } => {}
+        { x : var c, y : var d } => {} // unreachable pattern
+    }
+}
+
+function testSameMatchPatternsNegative3(any v) {
+    match v {
+        { x : var a, ...var b } => {}
+        { x : var c, ...var d } => {} // unreachable pattern
+    }
+}
+
+function testSameMatchPatternsNegative4(any v) {
+    match v {
+        { x : var a, ...var b } => {}
+        { x : var a, y : var b, ...var c } => {} // unreachable pattern
+    }
+}

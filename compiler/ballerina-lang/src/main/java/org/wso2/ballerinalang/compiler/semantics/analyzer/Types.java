@@ -410,9 +410,31 @@ public class Types {
         return false;
     }
 
+    private boolean containsAnyDataType(BType type) {
+        if (type.tag != TypeTags.UNION) {
+            return type.tag == TypeTags.ANYDATA;
+        }
+
+        for (BType memberTypes : ((BUnionType) type).getMemberTypes()) {
+            if (memberTypes.tag == TypeTags.ANYDATA) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public BType mergeTypes(BType typeFirst, BType typeSecond) {
         if (containsAnyType(typeFirst)) {
             return typeSecond;
+        }
+        if (containsAnyType(typeSecond)) {
+            return typeFirst;
+        }
+        if (containsAnyDataType(typeFirst)) {
+            return typeSecond;
+        }
+        if (containsAnyDataType(typeSecond)) {
+            return typeFirst;
         }
         if (isSameBasicType(typeFirst, typeSecond)) {
             return typeFirst;
@@ -2904,6 +2926,7 @@ public class Types {
                 fields.put(key, field);
             }
             BRecordType intersectionRecordType = new BRecordType(recordSymbol);
+            recordSymbol.type = intersectionRecordType;
             intersectionRecordType.fields = fields;
 
             if (recordType.restFieldType != null) {
@@ -2913,6 +2936,8 @@ public class Types {
                     intersectionRecordType.sealed = true;
                 }
                 intersectionRecordType.restFieldType = intersectionRestType;
+            } else {
+                intersectionRecordType.sealed = recordType.sealed;
             }
             return intersectionRecordType;
         }

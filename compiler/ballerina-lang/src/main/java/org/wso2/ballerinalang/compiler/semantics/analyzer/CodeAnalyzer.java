@@ -865,7 +865,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMappingMatchPattern mappingMatchPattern) {}
+    public void visit(BLangMappingMatchPattern mappingMatchPattern) {
+    }
 
     @Override
     public void visit(BLangFieldMatchPattern fieldMatchPattern) {}
@@ -888,6 +889,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         switch (firstPatternKind) {
+            case WILDCARD_MATCH_PATTERN:
+            case REST_MATCH_PATTERN:
+                return true;
             case CONST_MATCH_PATTERN:
                 return checkSimilarConstMatchPattern((BLangConstPattern) firstPattern,
                         (BLangConstPattern) secondPattern);
@@ -898,8 +902,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             case LIST_MATCH_PATTERN:
                 return checkSimilarListMatchPattern((BLangListMatchPattern) firstPattern,
                         (BLangListMatchPattern) secondPattern);
-            case REST_MATCH_PATTERN:
-                return true;
+            case MAPPING_MATCH_PATTERN:
+                return checkSimilarMappingMatchPattern((BLangMappingMatchPattern) firstPattern,
+                        (BLangMappingMatchPattern) secondPattern);
             default:
                 return false;
         }
@@ -963,6 +968,55 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
         return true;
+    }
+
+    private boolean checkSimilarMappingMatchPattern(BLangMappingMatchPattern firstMappingMatchPattern,
+                                                    BLangMappingMatchPattern secondMappingMatchPattern) {
+        if (firstMappingMatchPattern.restMatchPattern != null && secondMappingMatchPattern.restMatchPattern == null) {
+            return false;
+        }
+        if (firstMappingMatchPattern.restMatchPattern == null && secondMappingMatchPattern.restMatchPattern != null) {
+            return false;
+        }
+        List<BLangFieldMatchPattern> firstFieldMatchPatterns = firstMappingMatchPattern.fieldMatchPatterns;
+        List<BLangFieldMatchPattern> secondFieldMatchPatterns = secondMappingMatchPattern.fieldMatchPatterns;
+        if (firstMappingMatchPattern.restMatchPattern == null) {
+            if (firstFieldMatchPatterns.size() != secondFieldMatchPatterns.size()) {
+                return false;
+            }
+            return checkSimilarFieldMatchPatterns(firstFieldMatchPatterns, secondFieldMatchPatterns);
+        }
+        if (firstFieldMatchPatterns.size() > secondFieldMatchPatterns.size()) {
+            return false;
+        }
+        if (firstFieldMatchPatterns.size() == secondFieldMatchPatterns.size()) {
+            return checkSimilarFieldMatchPatterns(firstFieldMatchPatterns, secondFieldMatchPatterns);
+        }
+        return checkSimilarMatchPatterns(firstMappingMatchPattern.restMatchPattern,
+                secondMappingMatchPattern.restMatchPattern);
+    }
+
+    private boolean checkSimilarFieldMatchPatterns(List<BLangFieldMatchPattern> firstFieldMatchPatterns,
+                                                   List<BLangFieldMatchPattern> secondFieldMatchPatterns) {
+        for (BLangFieldMatchPattern firstFieldMatchPattern : firstFieldMatchPatterns) {
+            boolean isSamePattern = false;
+            for (BLangFieldMatchPattern secondFieldMatchPattern : secondFieldMatchPatterns) {
+                if (checkSimilarFieldMatchPattern(firstFieldMatchPattern, secondFieldMatchPattern)) {
+                    isSamePattern = true;
+                    break;
+                }
+            }
+            if (!isSamePattern) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean checkSimilarFieldMatchPattern(BLangFieldMatchPattern firstFieldMatchPattern,
+                                                  BLangFieldMatchPattern secondFieldMatchPattern) {
+        return firstFieldMatchPattern.fieldName.value.equals(secondFieldMatchPattern.fieldName.value) &&
+                checkSimilarMatchPatterns(firstFieldMatchPattern.matchPattern, secondFieldMatchPattern.matchPattern);
     }
 
     private boolean checkSimilarBindingPatterns(BLangBindingPattern firstBidingPattern,
@@ -1055,15 +1109,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isConstMatchPatternExist(BLangMatchPattern matchPattern) {
-        if (matchPattern.getKind() != NodeKind.LIST_MATCH_PATTERN) {
-            return matchPattern.getKind() == NodeKind.CONST_MATCH_PATTERN;
-        }
-        for (BLangMatchPattern memberMatchPattern : ((BLangListMatchPattern) matchPattern).matchPatterns) {
-            if (isConstMatchPatternExist(memberMatchPattern)) {
+        switch (matchPattern.getKind()) {
+            case CONST_MATCH_PATTERN:
                 return true;
-            }
+            case LIST_MATCH_PATTERN:
+                for (BLangMatchPattern memberMatchPattern : ((BLangListMatchPattern) matchPattern).matchPatterns) {
+                    if (isConstMatchPatternExist(memberMatchPattern)) {
+                        return true;
+                    }
+                }
+                return false;
+            case MAPPING_MATCH_PATTERN:
+                for (BLangFieldMatchPattern fieldMatchPattern :
+                        ((BLangMappingMatchPattern) matchPattern).fieldMatchPatterns) {
+                    if (isConstMatchPatternExist(fieldMatchPattern.matchPattern)) {
+                        return true;
+                    }
+                }
+                return false;
+            default:
+                return false;
         }
-        return false;
     }
 
     @Override
