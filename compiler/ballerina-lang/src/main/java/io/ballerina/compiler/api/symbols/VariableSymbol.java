@@ -17,8 +17,6 @@
  */
 package io.ballerina.compiler.api.symbols;
 
-import io.ballerina.compiler.api.types.TypeSymbol;
-
 /**
  * Represents a ballerina variable.
  *
