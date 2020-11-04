@@ -100,7 +100,8 @@ public class SignatureHelpUtil {
         labelBuilder.append("(");
         // Join the function parameters to generate the function's signature
         List<ParameterInfoModel> parameterInfoModels = signatureInfoModel.getParameterInfoModels();
-        for (ParameterInfoModel paramModel : parameterInfoModels) {
+        for (int i = 0; i < parameterInfoModels.size(); i++) {
+            ParameterInfoModel paramModel = parameterInfoModels.get(i);
             int labelOffset = labelBuilder.toString().length();
             labelBuilder.append(paramModel.parameter.getType());
             ParameterInformation paramInfo = new ParameterInformation();
@@ -112,7 +113,7 @@ public class SignatureHelpUtil {
                 paramEnd += (paramModel.parameter.getName().get() + " ").length();
                 labelBuilder.append(" ").append(paramModel.parameter.getName().get());
             }
-            if (parameterInfoModels.indexOf(paramModel) < parameterInfoModels.size() - 1) {
+            if (i < parameterInfoModels.size() - 1) {
                 labelBuilder.append(", ");
             }
             paramInfo.setLabel(Tuple.two(paramStart, paramEnd));
