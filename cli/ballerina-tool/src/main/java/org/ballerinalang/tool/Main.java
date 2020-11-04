@@ -68,6 +68,9 @@ public class Main {
         } catch (BLauncherException e) {
             LauncherUtils.printLauncherException(e, errStream);
             Runtime.getRuntime().exit(1);
+        } catch (BLangPanicException e) {
+            errStream.println(e.getMessage());
+            Runtime.getRuntime().exit(1);
         } catch (Throwable e) {
             errStream.println(getMessageForInternalErrors());
             RuntimeUtils.silentlyLogBadSad(e);
