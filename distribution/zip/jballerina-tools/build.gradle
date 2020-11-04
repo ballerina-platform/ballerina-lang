@@ -114,7 +114,6 @@ dependencies {
     dist project(':ballerina-cli-module')
     dist project(':central-client')
     dist project(':ballerina-cli')
-    dist project(':ballerina-projects')
     dist project(':ballerina-rt')
     dist project(':ballerina-choreo-extension-rt')
 
@@ -151,7 +150,7 @@ dependencies {
     composerDistribution project(path: ':composer-library', configuration: 'composer')
     composerFonts project(path: ':composer-library', configuration: 'fonts')
 
-    distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
+    distBal project(path: ':testerina:testerina-core', configuration: 'distributionBalo')
     balSource project(path: ':testerina:testerina-core', configuration: 'balSource')
 
     // ballerinax module cache

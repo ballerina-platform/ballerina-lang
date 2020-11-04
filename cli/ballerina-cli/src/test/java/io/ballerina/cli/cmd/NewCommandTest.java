@@ -18,7 +18,7 @@
 
 package io.ballerina.cli.cmd;
 
-import io.ballerina.projects.utils.ProjectConstants;
+import io.ballerina.projects.util.ProjectConstants;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import picocli.CommandLine;
@@ -35,7 +35,7 @@ import java.nio.file.Path;
  */
 public class NewCommandTest extends BaseCommandTest {
 
-    @Test(description = "Initialize a new empty project")
+    @Test(description = "Create a new project")
     public void testNewCommand() throws IOException {
         String[] args = {"project_name"};
         NewCommand newCommand = new NewCommand(tmpDir, printStream);
@@ -44,30 +44,31 @@ public class NewCommandTest extends BaseCommandTest {
         // Check with spec
         // project_name/
         // - Ballerina.toml
-        // - Package.md
-        // - Module.md
         // - main.bal
-        // - resources
-        // - tests
-        //      - main_test.bal
-        //      - resources/
-        // - .gitignore       <- git ignore file
 
         Path packageDir = tmpDir.resolve("project_name");
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
-        Path testPath = packageDir.resolve(ProjectConstants.TEST_DIR_NAME);
-        Assert.assertTrue(Files.exists(testPath));
-        Assert.assertTrue(Files.isDirectory(testPath));
-        Assert.assertTrue(Files.exists(testPath.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
-        Assert.assertTrue(Files.isDirectory(testPath.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
-        Path resourcePath = packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME);
-        Assert.assertTrue(Files.exists(resourcePath));
-        Assert.assertTrue(Files.isDirectory(resourcePath));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.MODULE_MD_FILE_NAME)));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+
+        Assert.assertTrue(readOutput().contains("Created new Ballerina project at "));
+    }
+
+    @Test(description = "Test new command with main template")
+    public void testNewCommandWithMain() throws IOException {
+        String[] args = {"main_sample", "-t", "main"};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream);
+        new CommandLine(newCommand).parse(args);
+        newCommand.execute();
+        // Check with spec
+        // project_name/
+        // - Ballerina.toml
+        // - main.bal
+
+        Path packageDir = tmpDir.resolve("main_sample");
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
 
         Assert.assertTrue(readOutput().contains("Created new Ballerina project at "));
     }

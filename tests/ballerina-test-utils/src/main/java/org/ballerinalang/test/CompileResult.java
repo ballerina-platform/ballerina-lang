@@ -25,7 +25,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageId;
 import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.utils.ProjectConstants;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.model.tree.PackageNode;
@@ -148,11 +148,11 @@ public class CompileResult {
     private URLClassLoader jarCacheClassLoader() throws IOException {
         List<URL> jarFiles = new ArrayList<>();
 
-        Path distCachePath = Paths.get(System.getProperty(ProjectConstants.BALLERINA_INSTALL_DIR_PROP))
+        Path distCachePath = Paths.get(System.getProperty(ProjectConstants.BALLERINA_HOME))
                 .resolve(ProjectConstants.DIST_CACHE_DIRECTORY);
 
         List<PackageId> sortedPackageIds = packageCompilation.packageDependencyGraph().toTopologicallySortedList();
-        PackageResolver packageResolver = pkg.project().environmentContext().getService(PackageResolver.class);
+        PackageResolver packageResolver = pkg.project().projectEnvironmentContext().getService(PackageResolver.class);
 
         // Add the thin jars of all the dependent packages to the classpath
         for (PackageId packageId : sortedPackageIds) {

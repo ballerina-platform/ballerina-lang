@@ -19,7 +19,7 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 
 dependencies {
-    implementation project(':ballerina-projects')
+    implementation project(':ballerina-lang')
 }
 
 configurations {
@@ -87,22 +87,31 @@ task createDistributionCache() {
     }
 }
 
+ext {
+    if (project.projectDir.name != "testerina-core") {
+        modName = project.projectDir.name
+    } else {
+        modName = "test"
+    }
+}
+
+
 task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
-    projectDir = project.buildDir.toString() + "/new-project/" + project.projectDir.name
+    projectDir = project.buildDir.toString() + "/new-project/" + modName
     distCache = project.buildDir.toString()
     classpath = project.configurations.baloCreat
     dependsOn moduleTopackage
     dependsOn createDistributionCache
-    outputs.files("$buildDir/new-project/" + project.projectDir.name + "/target/" + project.projectDir.name + ".zip")
+    outputs.files("$buildDir/new-project/" + modName + "/target/" + modName + ".zip")
     classpath += files(jar.archivePath)
 }
 
 artifacts {
-    distributionBalo file("$buildDir/new-project/" + project.projectDir.name + "/target/" + project.projectDir.name + ".zip"), {
+    distributionBalo file("$buildDir/new-project/" + modName + "/target/" + modName + ".zip"), {
         builtBy(ballerinaLangLibBuild)
     }
-    distributionBirJar file("$buildDir/new-project/" + project.projectDir.name + "/target/" +
-            project.projectDir.name + ".jar"), { builtBy(ballerinaLangLibBuild) }
+    distributionBirJar file("$buildDir/new-project/" + modName + "/target/" +
+            modName + ".jar"), { builtBy(ballerinaLangLibBuild) }
 }
 
 build.dependsOn ballerinaLangLibBuild

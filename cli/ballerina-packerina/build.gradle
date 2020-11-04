@@ -19,7 +19,7 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 configurations {
     birJar
-    bir
+    distributionBirJar
     birJarCompile { transitive false }
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
@@ -28,8 +28,8 @@ configurations {
 
 dependencies {
 
-    bir project(path: ':ballerina-io',  configuration: 'bir')
-    bir project(path: ':testerina:testerina-core',  configuration: 'bir')
+    distributionBirJar project(path: ':ballerina-io',  configuration: 'distributionBirJar')
+    distributionBirJar project(path: ':testerina:testerina-core',  configuration: 'distributionBirJar')
 
     testCompile project(':ballerina-io')
 
@@ -44,7 +44,6 @@ dependencies {
     implementation project(':docerina')
     implementation project(':ballerina-cli-module')
     implementation project(':maven-resolver')
-    implementation project(':ballerina-projects')
     implementation 'com.moandjiezana.toml:toml4j'
     implementation 'info.picocli:picocli'
     implementation 'org.apache.commons:commons-compress:1.18'
@@ -58,10 +57,10 @@ dependencies {
 }
 
 task createBirCache {
-    dependsOn configurations.bir
+    dependsOn configurations.distributionBirJar
 
     doLast {
-        configurations.bir.each { artifact ->
+        configurations.distributionBirJar.each { artifact ->
             copy {
                 from artifact
                 into "$buildDir/bir-cache/"
@@ -69,7 +68,7 @@ task createBirCache {
         }
     }
 
-    inputs.files configurations.bir
+    inputs.files configurations.distributionBirJar
     outputs.dir "$buildDir/bir-cache"
     outputs.cacheIf { false }
 }

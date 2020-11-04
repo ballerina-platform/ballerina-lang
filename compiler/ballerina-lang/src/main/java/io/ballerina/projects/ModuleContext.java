@@ -20,19 +20,23 @@ package io.ballerina.projects;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.ModuleLoadResponse;
 import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.environment.ProjectEnvironmentContext;
-import io.ballerina.projects.environment.Repository;
+import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
+import io.ballerina.projects.testsuite.TestSuite;
+import io.ballerina.projects.testsuite.TesterinaRegistry;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.wso2.ballerinalang.compiler.BIRPackageSymbolEnter;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
@@ -45,6 +49,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -63,7 +68,7 @@ class ModuleContext {
     private final Collection<DocumentId> testSrcDocIds;
     private final Map<DocumentId, DocumentContext> testDocContextMap;
     private final Project project;
-    private final Repository repository;
+    private final CompilationCache compilationCache;
 
     private Set<ModuleDependency> moduleDependencies;
     private BLangPackage bLangPackage;
@@ -89,9 +94,9 @@ class ModuleContext {
         this.testSrcDocIds = Collections.unmodifiableCollection(testDocContextMap.keySet());
         this.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
 
-        ProjectEnvironmentContext projectEnvironmentContext = project.environmentContext();
-        this.bootstrap = new Bootstrap(projectEnvironmentContext.getService(PackageResolver.class));
-        this.repository = projectEnvironmentContext.getService(Repository.class);
+        ProjectEnvironment projectEnvironment = project.projectEnvironmentContext();
+        this.bootstrap = new Bootstrap(projectEnvironment.getService(PackageResolver.class));
+        this.compilationCache = projectEnvironment.getService(CompilationCache.class);
     }
 
     private ModuleContext(Project project,
@@ -182,6 +187,21 @@ class ModuleContext {
         return packageSymbol.compiledJarFile;
     }
 
+    Optional<CompiledJarFile> compiledTestJarEntries() {
+        BPackageSymbol packageSymbol;
+        if (bLangPackage != null) {
+            if (bLangPackage.hasTestablePackage()) {
+                packageSymbol = bLangPackage.getTestablePkg().symbol;
+                return Optional.ofNullable(packageSymbol.compiledJarFile);
+            }
+        } else {
+            throw new IllegalStateException("Compile the module first!");
+        }
+        return Optional.empty();
+    }
+
+
+
     CompiledBinaryFile.BIRPackageFile bir() {
         BPackageSymbol packageSymbol;
         if (bLangPackage != null) {
@@ -237,7 +257,7 @@ class ModuleContext {
         }
 
         // TODO This logic needs to be updated. We need a proper way to decide on the initial state
-        if (repository.getCachedBir(moduleDescriptor.name()).length == 0) {
+        if (compilationCache.getBir(moduleDescriptor.name()).length == 0) {
             moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
         } else {
             moduleCompState = ModuleCompilationState.LOADED_FROM_CACHE;
@@ -287,7 +307,7 @@ class ModuleContext {
         }
 
         // 2) Resolve all the dependencies of this module
-        PackageResolver packageResolver = moduleContext.project.environmentContext().
+        PackageResolver packageResolver = moduleContext.project.projectEnvironmentContext().
                 getService(PackageResolver.class);
         Collection<ModuleLoadResponse> moduleLoadResponses = packageResolver.loadPackages(moduleLoadRequests);
 
@@ -353,7 +373,7 @@ class ModuleContext {
     }
 
     static void loadBirBytesInternal(ModuleContext moduleContext) {
-        moduleContext.birBytes = moduleContext.repository.getCachedBir(moduleContext.moduleName());
+        moduleContext.birBytes = moduleContext.compilationCache.getBir(moduleContext.moduleName());
     }
 
     static void resolveDependenciesFromBALOInternal(ModuleContext moduleContext) {
@@ -372,5 +392,56 @@ class ModuleContext {
 
     static void loadPlatformSpecificCodeInternal(ModuleContext moduleContext, CompilerBackend compilerBackend) {
         // TODO implement
+    }
+
+    /**
+     * Generate testsuite.
+     */
+    TestSuite generateTestSuite(CompilerContext compilerContext) {
+        TestSuite testSuite = new TestSuite(bLangPackage.getTestablePkg().packageID.name.value,
+                bLangPackage.getTestablePkg().packageID.toString(),
+                bLangPackage.getTestablePkg().packageID.orgName.value,
+                bLangPackage.getTestablePkg().packageID.version.value);
+        TesterinaRegistry.getInstance().getTestSuites().put(moduleDescriptor.name().toString(), testSuite);
+
+        // set data
+        testSuite.setInitFunctionName(bLangPackage.initFunction.name.value);
+        testSuite.setStartFunctionName(bLangPackage.startFunction.name.value);
+        testSuite.setStopFunctionName(bLangPackage.stopFunction.name.value);
+        testSuite.setPackageName(bLangPackage.packageID.toString());
+        testSuite.setSourceRootPath(this.project.sourceRoot().toString());
+        // add module functions
+        bLangPackage.functions.forEach(function -> {
+            // Remove the duplicated annotations.
+            String className = function.pos.src.cUnitName.replace(".bal", "").replace("/", ".");
+            String functionClassName = ProjectUtils.getQualifiedClassName(
+                    bLangPackage.packageID.orgName.value,
+                    bLangPackage.packageID.name.value,
+                    bLangPackage.packageID.version.value,
+                    className);
+            testSuite.addTestUtilityFunction(function.name.value, functionClassName);
+        });
+        // add test functions
+        TestAnnotationProcessor testAnnotationProcessor = new TestAnnotationProcessor();
+        testAnnotationProcessor.init(compilerContext, bLangPackage.getTestablePkg());
+
+        testSuite.setTestInitFunctionName(bLangPackage.getTestablePkg().initFunction.name.value);
+        testSuite.setTestStartFunctionName(bLangPackage.getTestablePkg().startFunction.name.value);
+        testSuite.setTestStopFunctionName(bLangPackage.getTestablePkg().stopFunction.name.value);
+        bLangPackage.getTestablePkg().functions.forEach(function -> {
+            String className = function.pos.src.cUnitName.replace(".bal", "").replace("/", ".");
+            String functionClassName = ProjectUtils.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                    bLangPackage.packageID.name.value,
+                    bLangPackage.packageID.version.value,
+                    className);
+            testSuite.addTestUtilityFunction(function.name.value, functionClassName);
+
+            // process annotations
+            testAnnotationProcessor.processFunction(function);
+        });
+        bLangPackage.getTestablePkg().topLevelNodes.stream().filter(topLevelNode ->
+                topLevelNode instanceof BLangSimpleVariable).map(topLevelNode ->
+                (SimpleVariableNode) topLevelNode).forEach(testAnnotationProcessor::processMockFunction);
+        return testSuite;
     }
 }

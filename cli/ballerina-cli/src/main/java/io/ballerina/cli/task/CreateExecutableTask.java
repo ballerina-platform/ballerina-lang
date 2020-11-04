@@ -35,7 +35,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
-import static io.ballerina.projects.utils.ProjectConstants.USER_DIR;
+import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**

@@ -15,6 +15,7 @@
  *
  */
 apply plugin: 'base'
+apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 description = 'Ballerina - Testerina Test'
@@ -27,14 +28,12 @@ dependencies {
     testImplementation 'org.powermock:powermock-module-testng-common'
 
     testCompile project(':ballerina-test-utils')
-    testCompile project(':ballerina-projects')
     testCompile project(':ballerina-lang')
-
     testRuntime project(':ballerina-runtime')
 }
 
 test {
-    dependsOn ':ballerina-projects:build'
+    dependsOn ':ballerina-lang:build'
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

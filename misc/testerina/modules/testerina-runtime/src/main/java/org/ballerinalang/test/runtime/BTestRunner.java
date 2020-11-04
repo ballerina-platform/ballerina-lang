@@ -19,6 +19,8 @@
 package org.ballerinalang.test.runtime;
 
 import com.google.gson.Gson;
+import io.ballerina.projects.testsuite.Test;
+import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.BooleanType;
 import io.ballerina.runtime.api.types.ByteType;
@@ -43,8 +45,6 @@ import io.ballerina.runtime.values.DecimalValue;
 import io.ballerina.runtime.values.MapValue;
 import io.ballerina.runtime.values.ObjectValue;
 import io.ballerina.runtime.values.XMLValue;
-import org.ballerinalang.test.runtime.entity.Test;
-import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.entity.TesterinaFunction;
 import org.ballerinalang.test.runtime.entity.TesterinaReport;
 import org.ballerinalang.test.runtime.entity.TesterinaResult;

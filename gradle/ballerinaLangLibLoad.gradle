@@ -15,8 +15,6 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-
 description = 'Lang Library Load Project'
 
 configurations {
@@ -94,7 +92,7 @@ dependencies {
     testRuntime project(path: ':ballerina-lang:transaction', configuration: 'distributionBirJar')
 }
 
-task createDistributionCache() {
+task loadDistributionCache() {
     dependsOn configurations.distributionBalo
     doLast {
         configurations.distributionBalo.each { artifact ->
@@ -107,7 +105,7 @@ task createDistributionCache() {
 }
 
 test {
-    dependsOn createDistributionCache
+    dependsOn loadDistributionCache
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
     systemProperty "enableJBallerinaTests", "true"
