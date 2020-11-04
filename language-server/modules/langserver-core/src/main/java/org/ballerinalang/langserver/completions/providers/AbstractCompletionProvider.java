@@ -22,13 +22,13 @@ import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.symbols.WorkerSymbol;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -164,7 +164,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                 completionItems.add(new SymbolCompletionItem(context, symbol, constantCItem));
             } else if (symbol.kind() == SymbolKind.VARIABLE) {
                 VariableSymbol varSymbol = (VariableSymbol) symbol;
-                BallerinaTypeDescriptor typeDesc = (varSymbol).typeDescriptor();
+                TypeSymbol typeDesc = (varSymbol).typeDescriptor();
                 String typeName = typeDesc.signature();
                 CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, symbol.name(), typeName);
                 completionItems.add(new SymbolCompletionItem(context, symbol, variableCItem));
@@ -219,7 +219,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @return {@link List} list of filtered type entries
      */
     @Deprecated
-    protected List<TypeSymbol> filterTypesInModule(ModuleSymbol moduleSymbol) {
+    protected List<TypeDefinitionSymbol> filterTypesInModule(ModuleSymbol moduleSymbol) {
         return moduleSymbol.typeDefinitions();
     }
 
@@ -415,7 +415,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @param context    Language server operation context
      * @return {@link LSCompletionItem} generated
      */
-    protected LSCompletionItem getImplicitNewCompletionItem(ObjectTypeDescriptor objectType, LSContext context) {
+    protected LSCompletionItem getImplicitNewCompletionItem(ObjectTypeSymbol objectType, LSContext context) {
         CompletionItem cItem = FunctionCompletionItemBuilder.build(objectType,
                 FunctionCompletionItemBuilder.InitializerBuildMode.IMPLICIT, context);
         MethodSymbol initMethod = objectType.initMethod().isPresent() ? objectType.initMethod().get() : null;
@@ -423,7 +423,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         return new SymbolCompletionItem(context, initMethod, cItem);
     }
 
-    protected LSCompletionItem getExplicitNewCompletionItem(ObjectTypeDescriptor objectType, LSContext context) {
+    protected LSCompletionItem getExplicitNewCompletionItem(ObjectTypeSymbol objectType, LSContext context) {
         CompletionItem cItem = FunctionCompletionItemBuilder.build(objectType,
                 FunctionCompletionItemBuilder.InitializerBuildMode.EXPLICIT, context);
         MethodSymbol initMethod = objectType.initMethod().isPresent() ? objectType.initMethod().get() : null;

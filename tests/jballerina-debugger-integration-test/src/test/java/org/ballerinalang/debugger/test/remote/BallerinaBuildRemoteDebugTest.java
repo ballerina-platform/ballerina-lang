@@ -31,7 +31,6 @@ import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 /**
  * Test class to test positive and negative scenarios of remote debugging ballerina build command.
  */
-@Test(enabled = false)
 public class BallerinaBuildRemoteDebugTest extends BaseTestCase {
 
     private BMainInstance balClient;
@@ -47,7 +46,7 @@ public class BallerinaBuildRemoteDebugTest extends BaseTestCase {
         singleFilePath = testSingleFileBaseDir.toString();
     }
 
-    @Test(enabled = false)
+    @Test
     public void testSuspendOnBallerinaModuleBuild() throws BallerinaTestException {
         int port = findFreePort();
         String msg = "Listening for transport dt_socket at address: " + port;
@@ -57,7 +56,7 @@ public class BallerinaBuildRemoteDebugTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testSuspendOnBallerinaProjectBuild() throws BallerinaTestException {
         int port = findFreePort();
         String msg = "Listening for transport dt_socket at address: " + port;
@@ -74,7 +73,7 @@ public class BallerinaBuildRemoteDebugTest extends BaseTestCase {
      * @throws BallerinaTestException if the tests runs in remote debug mode, even when the  "--skip-tests" flag is
      *                                present.
      */
-    @Test(enabled = false)
+    @Test
     public void negativeTestSuspendOnBallerinaModuleBuildWithSkipFlag() throws BallerinaTestException {
         int port = findFreePort();
         String msg = "Listening for transport dt_socket at address: " + port;

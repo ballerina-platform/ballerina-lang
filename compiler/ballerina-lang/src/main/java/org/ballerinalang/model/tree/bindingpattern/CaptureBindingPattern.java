@@ -24,7 +24,7 @@ import org.ballerinalang.model.tree.Node;
 /**
  * The interface with the APIs to implement the capture-binding-pattern.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public interface CaptureBindingPattern extends Node {
 

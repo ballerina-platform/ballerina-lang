@@ -47,54 +47,76 @@ public class LanguageConstructDebugTest extends DebugAdapterBaseTestCase {
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
     }
 
-    @Test(enabled = false)
+    @Test
     public void testLanguageConstructDebugScenarios() throws BallerinaTestException {
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 12));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 18));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 30));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 25));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 31));
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 35));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 48));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 46));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 52));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 56));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 70));
         initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
-        // Test for debug engage in object init method
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(10000);
+        // Test for debug engage in object's init method
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(25000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(0));
 
-        // Test for debug engage in object method
+        // Test for debug engage in object's method
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(1));
 
-        // Test for debug engage in remote object
+        // Test for debug engage in object's remote function
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(2));
 
-        // Test for debug engage in remote function
+        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = waitForDebugHit(10000);
+
+        // Test for debug engage in mock object's init method
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(3));
+
+        // Test for debug engage in mock object's method
+        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(4));
+
+        // Test for debug engage in mock object's remote function
+        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(5));
 
         // Prepare variables for visibility test by adding a debug point at the end of the .bal file.
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = waitForDebugHit(10000);
 
         Map<String, Variable> variables = fetchVariables(debugHitInfo.getRight(), VariableScope.LOCAL);
-        // Variable visibility test for object method
-        assertVariable(variables, "v02_fullName", "John Doe", "string");
-        // Variable visibility test for remote object function
-        assertVariable(variables, "v04_statusCode", "500", "int");
+        // Variable visibility test for object
+        assertVariable(variables, "person", "Person", "object");
+        // Variable visibility test for object's method
+        assertVariable(variables, "fullName", "John Doe", "string");
+        // Variable visibility test for object's remote function
+        assertVariable(variables, "name", "John", "string");
+        // Variable visibility test for mock object
+        assertVariable(variables, "person2", "Person", "object");
+        // Variable visibility test for mock object's method
+        assertVariable(variables, "person2FullName", "Praveen Nada", "string");
+        // Variable visibility test for mock object's remote function
+        assertVariable(variables, "person2Name", "Praveen", "string");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testWorkerScenarios() throws BallerinaTestException {
         testModuleName = "languageConstruct";
         testModuleFileName = "mainLangConstruct.bal";
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
 
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 7));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 13));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 18));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 19));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 25));
         initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
         // Test for debug engage when worker `w1`
@@ -105,11 +127,6 @@ public class LanguageConstructDebugTest extends DebugAdapterBaseTestCase {
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(1));
-
-        // Test for debug engage when worker `w3`
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
-        debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(2));
     }
 
     @AfterMethod(alwaysRun = true)

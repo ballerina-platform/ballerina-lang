@@ -19,6 +19,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocumentChange;
 import io.ballerina.tools.text.TextDocuments;
@@ -35,9 +36,7 @@ import org.ballerinalang.langserver.compiler.format.FormattingVisitorEntry;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
-import org.ballerinalang.langserver.extensions.ballerina.document.visitor.DeleteRange;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedNodeVisitor;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -138,22 +137,16 @@ public class BallerinaTreeModifyUtil {
         return mapping;
     }
 
-    public static String getImport(JsonObject config) {
-        JsonElement value = config.get("TYPE");
-        if (value != null) {
-            return value.getAsString();
-        }
-        return null;
-    }
-
     public static List<TextEdit> getUnusedImportRanges(
             Collection<BLangImportPackage> unusedImports, TextDocument textDocument) {
         List<TextEdit> edits = new ArrayList<>();
         for (BLangImportPackage importPackage : unusedImports) {
-            LinePosition startLinePos = LinePosition.from(importPackage.getPosition().getStartLine() - 1,
-                    importPackage.getPosition().getStartColumn() - 1);
-            LinePosition endLinePos = LinePosition.from(importPackage.getPosition().getEndLine() - 1,
-                    importPackage.getPosition().getEndColumn() - 1);
+            LinePosition startLinePos = LinePosition.from(importPackage.getPosition()
+                            .lineRange().startLine().line() - 1,
+                    importPackage.getPosition().lineRange().startLine().offset() - 1);
+            LinePosition endLinePos = LinePosition.from(importPackage.getPosition()
+                            .lineRange().endLine().line() - 1,
+                    importPackage.getPosition().lineRange().endLine().offset() - 1);
             int startOffset = textDocument.textPositionFrom(startLinePos);
             int endOffset = textDocument.textPositionFrom(endLinePos) + 1;
             edits.add(TextEdit.from(
@@ -181,6 +174,13 @@ public class BallerinaTreeModifyUtil {
                         theEndOffset - theStartOffset), mainStartMapping);
     }
 
+    public static String getImport(JsonObject config) {
+        JsonElement value = config.get("TYPE");
+        if (value != null) {
+            return value.getAsString();
+        }
+        return null;
+    }
 
     public static LSContext modifyTree(ASTModification[] astModifications, String fileUri, Path compilationPath,
                                        WorkspaceDocumentManager documentManager)
@@ -193,14 +193,15 @@ public class BallerinaTreeModifyUtil {
         BLangPackage oldTree = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         String fileName = compilationPath.toFile().getName();
 
-        Map<Diagnostic.DiagnosticPosition, ASTModification> deleteRange = new HashMap<>();
+        Map<LineRange, ASTModification> deleteRange = new HashMap<>();
         for (ASTModification astModification : astModifications) {
             if (DELETE.equalsIgnoreCase(astModification.getType())) {
-                deleteRange.put(new DeleteRange(
-                        astModification.getStartLine(),
-                        astModification.getEndLine(),
-                        astModification.getStartColumn(),
-                        astModification.getEndColumn()), astModification);
+                LinePosition startLine =  LinePosition.from(astModification.getStartLine(),
+                                                            astModification.getStartColumn());
+                LinePosition endLine =  LinePosition.from(astModification.getEndLine(),
+                                                            astModification.getEndColumn());
+                LineRange lineRange = LineRange.from(null, startLine, endLine);
+                deleteRange.put(lineRange, astModification);
             }
         }
         UnusedNodeVisitor unusedNodeVisitor = new UnusedNodeVisitor(fileName, deleteRange);
@@ -223,7 +224,7 @@ public class BallerinaTreeModifyUtil {
             }
         }
         edits.addAll(BallerinaTreeModifyUtil.getUnusedImportRanges(unusedNodeVisitor.unusedImports(),
-                        oldTextDocument));
+                oldTextDocument));
         for (ASTModification astModification : astModifications) {
             if (!IMPORT.equalsIgnoreCase(astModification.getType())) {
                 TextEdit edit = constructEdit(unusedNodeVisitor, oldTextDocument, astModification);
@@ -287,5 +288,4 @@ public class BallerinaTreeModifyUtil {
         }
         return null;
     }
-
 }

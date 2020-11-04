@@ -116,7 +116,6 @@ public class TemplateExpressionNode extends ExpressionNode {
 
         public TemplateExpressionNodeModifier withType(
                 Token type) {
-            Objects.requireNonNull(type, "type must not be null");
             this.type = type;
             return this;
         }

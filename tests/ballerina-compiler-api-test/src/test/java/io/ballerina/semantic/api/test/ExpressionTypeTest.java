@@ -19,12 +19,12 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
-import io.ballerina.compiler.api.types.ArrayTypeDescriptor;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-import io.ballerina.compiler.api.types.MapTypeDescriptor;
-import io.ballerina.compiler.api.types.TupleTypeDescriptor;
-import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.test.util.CompileResult;
@@ -36,23 +36,23 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.List;
 
-import static io.ballerina.compiler.api.types.TypeDescKind.ANYDATA;
-import static io.ballerina.compiler.api.types.TypeDescKind.ARRAY;
-import static io.ballerina.compiler.api.types.TypeDescKind.BOOLEAN;
-import static io.ballerina.compiler.api.types.TypeDescKind.BYTE;
-import static io.ballerina.compiler.api.types.TypeDescKind.DECIMAL;
-import static io.ballerina.compiler.api.types.TypeDescKind.FLOAT;
-import static io.ballerina.compiler.api.types.TypeDescKind.INT;
-import static io.ballerina.compiler.api.types.TypeDescKind.JSON;
-import static io.ballerina.compiler.api.types.TypeDescKind.MAP;
-import static io.ballerina.compiler.api.types.TypeDescKind.NIL;
-import static io.ballerina.compiler.api.types.TypeDescKind.OBJECT;
-import static io.ballerina.compiler.api.types.TypeDescKind.RECORD;
-import static io.ballerina.compiler.api.types.TypeDescKind.STRING;
-import static io.ballerina.compiler.api.types.TypeDescKind.TUPLE;
-import static io.ballerina.compiler.api.types.TypeDescKind.TYPE_REFERENCE;
-import static io.ballerina.compiler.api.types.TypeDescKind.UNION;
-import static io.ballerina.compiler.api.types.TypeDescKind.XML;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.BOOLEAN;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.BYTE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.JSON;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 import static org.ballerinalang.compiler.CompilerPhase.COMPILER_PLUGIN;
 import static org.ballerinalang.test.util.BCompileUtil.compile;
 import static org.testng.Assert.assertEquals;
@@ -94,9 +94,9 @@ public class ExpressionTypeTest {
 
     @Test
     public void testByteLiteral() {
-        BallerinaTypeDescriptor type = getExprType(19, 13, 19, 42);
-        assertEquals(type.kind(), ARRAY);
-        assertEquals(((ArrayTypeDescriptor) type).memberTypeDescriptor().kind(), BYTE);
+        TypeSymbol type = getExprType(19, 13, 19, 42);
+        assertEquals(type.typeKind(), ARRAY);
+        assertEquals(((ArrayTypeSymbol) type).memberTypeDescriptor().typeKind(), BYTE);
     }
 
     @Test(dataProvider = "TemplateExprProvider")
@@ -114,36 +114,36 @@ public class ExpressionTypeTest {
 
     @Test
     public void testRawTemplate() {
-        BallerinaTypeDescriptor type = getExprType(25, 29, 25, 50);
-        assertEquals(type.kind(), TYPE_REFERENCE);
+        TypeSymbol type = getExprType(25, 29, 25, 50);
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
 
-        BallerinaTypeDescriptor objType = ((TypeReferenceTypeDescriptor) type).typeDescriptor();
-        assertEquals(objType.kind(), OBJECT);
+        TypeSymbol objType = ((TypeReferenceTypeSymbol) type).typeDescriptor();
+        assertEquals(objType.typeKind(), OBJECT);
 
         type = getExprType(25, 32, 25, 33);
-        assertEquals(type.kind(), STRING);
+        assertEquals(type.typeKind(), STRING);
     }
 
     @Test
     public void testArrayLiteral() {
-        BallerinaTypeDescriptor type = getExprType(29, 20, 29, 34);
-        assertEquals(type.kind(), ARRAY);
+        TypeSymbol type = getExprType(29, 20, 29, 34);
+        assertEquals(type.typeKind(), ARRAY);
 
-        BallerinaTypeDescriptor memberType = ((ArrayTypeDescriptor) type).memberTypeDescriptor();
-        assertEquals(memberType.kind(), STRING);
+        TypeSymbol memberType = ((ArrayTypeSymbol) type).memberTypeDescriptor();
+        assertEquals(memberType.typeKind(), STRING);
     }
 
     @Test(dataProvider = "TupleLiteralPosProvider")
     public void testTupleLiteral(int sLine, int sCol, int eLine, int eCol, List<TypeDescKind> memberKinds) {
-        BallerinaTypeDescriptor type = getExprType(sLine, sCol, eLine, eCol);
-        assertEquals(type.kind(), TUPLE);
+        TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
+        assertEquals(type.typeKind(), TUPLE);
 
-        List<BallerinaTypeDescriptor> memberTypes = ((TupleTypeDescriptor) type).memberTypeDescriptors();
+        List<TypeSymbol> memberTypes = ((TupleTypeSymbol) type).memberTypeDescriptors();
 
         assertEquals(memberTypes.size(), memberKinds.size());
         for (int i = 0; i < memberTypes.size(); i++) {
-            BallerinaTypeDescriptor memberType = memberTypes.get(i);
-            assertEquals(memberType.kind(), memberKinds.get(i));
+            TypeSymbol memberType = memberTypes.get(i);
+            assertEquals(memberType.typeKind(), memberKinds.get(i));
         }
     }
 
@@ -157,22 +157,22 @@ public class ExpressionTypeTest {
 
     @Test
     public void testMapLiteral() {
-        BallerinaTypeDescriptor type = getExprType(34, 20, 34, 34);
-        assertEquals(type.kind(), MAP);
+        TypeSymbol type = getExprType(34, 20, 34, 34);
+        assertEquals(type.typeKind(), MAP);
 
-        BallerinaTypeDescriptor constraint = ((MapTypeDescriptor) type).typeParameter().get();
-        assertEquals(constraint.kind(), STRING);
+        TypeSymbol constraint = ((MapTypeSymbol) type).typeParameter().get();
+        assertEquals(constraint.typeKind(), STRING);
 
         assertType(34, 28, 34, 33, STRING);
     }
 
     @Test
     public void testInferredMappingConstructorType() {
-        BallerinaTypeDescriptor type = getExprType(35, 13, 35, 43);
-        assertEquals(type.kind(), TYPE_REFERENCE);
+        TypeSymbol type = getExprType(35, 13, 35, 43);
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
 
-        BallerinaTypeDescriptor referredType = ((TypeReferenceTypeDescriptor) type).typeDescriptor();
-        assertEquals(referredType.kind(), RECORD);
+        TypeSymbol referredType = ((TypeReferenceTypeSymbol) type).typeDescriptor();
+        assertEquals(referredType.typeKind(), RECORD);
 
         assertType(35, 14, 35, 20, STRING);
         assertType(35, 22, 35, 31, STRING);
@@ -182,8 +182,8 @@ public class ExpressionTypeTest {
 
     @Test
     public void testRecordLiteral() {
-        BallerinaTypeDescriptor type = getExprType(40, 16, 40, 43);
-        assertEquals(type.kind(), RECORD);
+        TypeSymbol type = getExprType(40, 16, 40, 43);
+        assertEquals(type.typeKind(), RECORD);
 
         // Disabled ones due to #26628
 //        assertType(40, 17, 40, 21, STRING);
@@ -194,11 +194,11 @@ public class ExpressionTypeTest {
 
     @Test
     public void testJSONObject() {
-        BallerinaTypeDescriptor type = getExprType(42, 13, 42, 40);
-        assertEquals(type.kind(), MAP);
+        TypeSymbol type = getExprType(42, 13, 42, 40);
+        assertEquals(type.typeKind(), MAP);
 
-        BallerinaTypeDescriptor constraint = ((MapTypeDescriptor) type).typeParameter().get();
-        assertEquals(constraint.kind(), JSON);
+        TypeSymbol constraint = ((MapTypeSymbol) type).typeParameter().get();
+        assertEquals(constraint.typeKind(), JSON);
 
         // Disabled ones due to #26628
 //        assertType(42, 14, 42, 18, STRING);
@@ -230,10 +230,10 @@ public class ExpressionTypeTest {
 
     @Test(dataProvider = "TypeInitPosProvider")
     public void testObjecTypeInit(int sLine, int sCol, int eLine, int eCol) {
-        BallerinaTypeDescriptor type = getExprType(sLine, sCol, eLine, eCol);
-        assertEquals(type.kind(), TYPE_REFERENCE);
-        assertEquals(((TypeReferenceTypeDescriptor) type).name(), "PersonObj");
-        assertEquals(((TypeReferenceTypeDescriptor) type).typeDescriptor().kind(), OBJECT);
+        TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) type).name(), "PersonObj");
+        assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), OBJECT);
     }
 
     @DataProvider(name = "TypeInitPosProvider")
@@ -305,11 +305,11 @@ public class ExpressionTypeTest {
 
 
     private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
-        BallerinaTypeDescriptor type = getExprType(sLine, sCol, eLine, eCol);
-        assertEquals(type.kind(), kind);
+        TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
+        assertEquals(type.typeKind(), kind);
     }
 
-    private BallerinaTypeDescriptor getExprType(int sLine, int sCol, int eLine, int eCol) {
+    private TypeSymbol getExprType(int sLine, int sCol, int eLine, int eCol) {
         LinePosition start = LinePosition.from(sLine, sCol);
         LinePosition end = LinePosition.from(eLine, eCol);
         return model.getType("expressions_test.bal", LineRange.from("expressions_test.bal", start, end)).get();

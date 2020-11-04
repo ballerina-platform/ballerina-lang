@@ -128,7 +128,6 @@ public class MappingMatchPatternNode extends NonTerminalNode {
 
         public MappingMatchPatternNodeModifier withRestMatchPattern(
                 RestMatchPatternNode restMatchPattern) {
-            Objects.requireNonNull(restMatchPattern, "restMatchPattern must not be null");
             this.restMatchPattern = restMatchPattern;
             return this;
         }

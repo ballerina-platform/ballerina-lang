@@ -18,7 +18,10 @@
                     "parameters": [
                         {
                             "label": {
-                                "left": "any a"
+                                "right": {
+                                    "first": 9,
+                                    "second": 10
+                                }
                             },
                             "documentation": {
                                 "right": {

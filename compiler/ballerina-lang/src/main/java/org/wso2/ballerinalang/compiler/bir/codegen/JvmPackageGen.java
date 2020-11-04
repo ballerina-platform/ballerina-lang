@@ -493,7 +493,7 @@ public class JvmPackageGen {
                 String mainClass = "";
                 if (mainFunc != null) {
                     mainClass = JvmCodeGenUtil.getModuleLevelClassName(module, JvmCodeGenUtil
-                            .cleanupPathSeparators(mainFunc.pos.getSource().cUnitName));
+                            .cleanupPathSeparators(mainFunc.pos.lineRange().filePath()));
                 }
 
                 serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
@@ -673,7 +673,7 @@ public class JvmPackageGen {
         // function.
         BIRFunction initFunc = functions.get(0);
         String functionName = initFunc.name.value;
-        JavaClass klass = new JavaClass(initFunc.pos.src.cUnitName);
+        JavaClass klass = new JavaClass(initFunc.pos.lineRange().filePath());
         klass.functions.add(0, initFunc);
         initMethodGen.addInitAndTypeInitInstructions(module, initFunc);
         jvmClassMap.put(initClass, klass);
@@ -709,7 +709,7 @@ public class JvmPackageGen {
             if (birFunc.pos == null) {
                 balFileName = MODULE_INIT_CLASS_NAME;
             } else {
-                balFileName = birFunc.pos.src.cUnitName;
+                balFileName = birFunc.pos.lineRange().filePath();
             }
             String birModuleClassName = JvmCodeGenUtil.getModuleLevelClassName(
                     orgName, moduleName, version, JvmCodeGenUtil.cleanupPathSeparators(balFileName));
