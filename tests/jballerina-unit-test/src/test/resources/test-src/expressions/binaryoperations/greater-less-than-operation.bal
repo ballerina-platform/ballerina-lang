@@ -1,4 +1,4 @@
-import ballerina/test;
+import ballerina/lang.test as test;
 
 function testIntRanges(int a) returns (int) {
     int retunType = 0;
