@@ -3185,6 +3185,7 @@ public class Types {
 
         intersectionRecordSymbol.type = recordType;
         recordType.tsymbol = intersectionRecordSymbol;
+        recordType.restFieldType = symTable.anydataType;
 
         return recordType;
     }

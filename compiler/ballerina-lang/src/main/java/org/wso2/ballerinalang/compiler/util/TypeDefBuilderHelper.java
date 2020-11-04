@@ -225,6 +225,7 @@ public class TypeDefBuilderHelper {
         detailType.pos = pos;
         detailType.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         detailType.typeName = createIdentifier(pos, detailTypeDef.symbol.name.value);
+        detailType.type = detailTypeDef.type;
         errorType.detailType = detailType;
 
         return errorType;
