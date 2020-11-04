@@ -560,9 +560,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ModuleVariableDeclarationNode modVarDeclrNode) {
         TypedBindingPatternNode typedBindingPattern = modVarDeclrNode.typedBindingPattern();
         CaptureBindingPatternNode bindingPattern = (CaptureBindingPatternNode) typedBindingPattern.bindingPattern();
+
+        boolean isFinal = false;
+        for (Token qualifier : modVarDeclrNode.qualifiers()) {
+            if (qualifier.kind() == SyntaxKind.FINAL_KEYWORD) {
+                isFinal = true;
+            }
+        }
+
         BLangSimpleVariable simpleVar = createSimpleVar(bindingPattern.variableName(),
-                typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer().orElse(null),
-                modVarDeclrNode.finalKeyword().isPresent(), false, null,
+                typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer().orElse(null), isFinal, false, null,
                 getAnnotations(modVarDeclrNode.metadata()));
         simpleVar.pos = getPositionWithoutMetadata(modVarDeclrNode);
         simpleVar.markdownDocumentationAttachment =
