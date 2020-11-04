@@ -28,7 +28,7 @@ import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.model.BallerinaToml;
 import io.ballerina.projects.model.Package;
-import io.ballerina.projects.utils.ProjectUtils;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.toml.exceptions.TomlException;
 
 import java.io.FileInputStream;

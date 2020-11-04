@@ -26,8 +26,8 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.model.Target;
-import io.ballerina.projects.utils.ProjectConstants;
-import io.ballerina.projects.utils.ProjectUtils;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,7 +58,7 @@ public class BuildLangLib {
         if (args.length >= 3 && args[2].equals("true")) {
             skipBootstrap = true;
         }
-        System.setProperty(ProjectConstants.BALLERINA_INSTALL_DIR_PROP, distCache.toString());
+        System.setProperty(ProjectConstants.BALLERINA_HOME, distCache.toString());
         out.println("Building langlib ...");
         out.println("Project Dir: " + projectDir);
 

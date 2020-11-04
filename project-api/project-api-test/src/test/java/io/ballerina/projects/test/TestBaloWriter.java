@@ -27,7 +27,7 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.model.BaloJson;
 import io.ballerina.projects.model.PackageJson;
 import io.ballerina.projects.model.Target;
-import io.ballerina.projects.utils.ProjectUtils;
+import io.ballerina.projects.util.ProjectUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;

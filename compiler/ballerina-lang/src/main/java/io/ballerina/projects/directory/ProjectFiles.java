@@ -18,7 +18,7 @@
 package io.ballerina.projects.directory;
 
 import io.ballerina.projects.PackageDescriptor;
-import io.ballerina.projects.utils.ProjectUtils;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.toml.exceptions.TomlException;
 
 import java.io.IOException;

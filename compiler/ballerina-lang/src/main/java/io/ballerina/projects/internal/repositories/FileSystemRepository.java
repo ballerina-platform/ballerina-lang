@@ -26,8 +26,8 @@ import io.ballerina.projects.balo.BaloProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageLoadRequest;
 import io.ballerina.projects.environment.PackageRepository;
-import io.ballerina.projects.utils.ProjectConstants;
-import io.ballerina.projects.utils.ProjectUtils;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;

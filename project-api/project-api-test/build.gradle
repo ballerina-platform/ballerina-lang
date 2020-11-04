@@ -15,6 +15,7 @@
  *
  */
 apply plugin: 'base'
+apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 description = 'Ballerina - Testerina Test'

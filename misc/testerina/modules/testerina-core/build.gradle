@@ -17,8 +17,9 @@ import org.apache.tools.ant.taskdefs.condition.Os
  *
  */
 
-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
-apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+apply from: "$rootDir/gradle/ballerinaModuleToPackage.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibBuild.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 configurations {
     dist {
@@ -27,7 +28,6 @@ configurations {
 }
 
 dependencies {
-    baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
     implementation project(':testerina:testerina-runtime')
     implementation project(':ballerina-lang')
@@ -43,11 +43,6 @@ dependencies {
     testCompile 'io.swagger.core.v3:swagger-models'
     testCompile 'io.swagger.parser.v3:swagger-parser'
     testCompile 'com.github.jknack:handlebars'
-
-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
-
-    interopImports project(':ballerina-reflect')
 
     compile group: 'io.github.java-diff-utils', name: 'java-diff-utils', version: '4.5'
 }
@@ -67,21 +62,8 @@ task updateVersion {
             replace: "${project.name}-${project.version}.jar"
     )
 }
-createBalo {
-    dependsOn "updateVersion"
-    jvmTarget = 'true'
+ballerinaLangLibBuild {
+    skipBootstrap = 'true'
 }
 
 description = 'Ballerina - Testerina - Core'
-
-//ext.moduleName = 'testerina-core'
-//
-//compileJava {
-//    inputs.property("moduleName", moduleName)
-//    doFirst {
-//        options.compilerArgs = [
-//                '--module-path', classpath.asPath,
-//        ]
-//        classpath = files()
-//    }
-//}

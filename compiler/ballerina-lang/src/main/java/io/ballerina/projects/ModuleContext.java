@@ -22,16 +22,21 @@ import io.ballerina.projects.environment.ModuleLoadResponse;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
+import io.ballerina.projects.testsuite.TestSuite;
+import io.ballerina.projects.testsuite.TesterinaRegistry;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.wso2.ballerinalang.compiler.BIRPackageSymbolEnter;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
@@ -44,6 +49,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -180,6 +186,21 @@ class ModuleContext {
         }
         return packageSymbol.compiledJarFile;
     }
+
+    Optional<CompiledJarFile> compiledTestJarEntries() {
+        BPackageSymbol packageSymbol;
+        if (bLangPackage != null) {
+            if (bLangPackage.hasTestablePackage()) {
+                packageSymbol = bLangPackage.getTestablePkg().symbol;
+                return Optional.ofNullable(packageSymbol.compiledJarFile);
+            }
+        } else {
+            throw new IllegalStateException("Compile the module first!");
+        }
+        return Optional.empty();
+    }
+
+
 
     CompiledBinaryFile.BIRPackageFile bir() {
         BPackageSymbol packageSymbol;
@@ -371,5 +392,56 @@ class ModuleContext {
 
     static void loadPlatformSpecificCodeInternal(ModuleContext moduleContext, CompilerBackend compilerBackend) {
         // TODO implement
+    }
+
+    /**
+     * Generate testsuite.
+     */
+    TestSuite generateTestSuite(CompilerContext compilerContext) {
+        TestSuite testSuite = new TestSuite(bLangPackage.getTestablePkg().packageID.name.value,
+                bLangPackage.getTestablePkg().packageID.toString(),
+                bLangPackage.getTestablePkg().packageID.orgName.value,
+                bLangPackage.getTestablePkg().packageID.version.value);
+        TesterinaRegistry.getInstance().getTestSuites().put(moduleDescriptor.name().toString(), testSuite);
+
+        // set data
+        testSuite.setInitFunctionName(bLangPackage.initFunction.name.value);
+        testSuite.setStartFunctionName(bLangPackage.startFunction.name.value);
+        testSuite.setStopFunctionName(bLangPackage.stopFunction.name.value);
+        testSuite.setPackageName(bLangPackage.packageID.toString());
+        testSuite.setSourceRootPath(this.project.sourceRoot().toString());
+        // add module functions
+        bLangPackage.functions.forEach(function -> {
+            // Remove the duplicated annotations.
+            String className = function.pos.src.cUnitName.replace(".bal", "").replace("/", ".");
+            String functionClassName = ProjectUtils.getQualifiedClassName(
+                    bLangPackage.packageID.orgName.value,
+                    bLangPackage.packageID.name.value,
+                    bLangPackage.packageID.version.value,
+                    className);
+            testSuite.addTestUtilityFunction(function.name.value, functionClassName);
+        });
+        // add test functions
+        TestAnnotationProcessor testAnnotationProcessor = new TestAnnotationProcessor();
+        testAnnotationProcessor.init(compilerContext, bLangPackage.getTestablePkg());
+
+        testSuite.setTestInitFunctionName(bLangPackage.getTestablePkg().initFunction.name.value);
+        testSuite.setTestStartFunctionName(bLangPackage.getTestablePkg().startFunction.name.value);
+        testSuite.setTestStopFunctionName(bLangPackage.getTestablePkg().stopFunction.name.value);
+        bLangPackage.getTestablePkg().functions.forEach(function -> {
+            String className = function.pos.src.cUnitName.replace(".bal", "").replace("/", ".");
+            String functionClassName = ProjectUtils.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                    bLangPackage.packageID.name.value,
+                    bLangPackage.packageID.version.value,
+                    className);
+            testSuite.addTestUtilityFunction(function.name.value, functionClassName);
+
+            // process annotations
+            testAnnotationProcessor.processFunction(function);
+        });
+        bLangPackage.getTestablePkg().topLevelNodes.stream().filter(topLevelNode ->
+                topLevelNode instanceof BLangSimpleVariable).map(topLevelNode ->
+                (SimpleVariableNode) topLevelNode).forEach(testAnnotationProcessor::processMockFunction);
+        return testSuite;
     }
 }

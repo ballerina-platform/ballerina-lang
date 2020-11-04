@@ -18,9 +18,9 @@
 
 package org.ballerinalang.packerina.cmd;
 
-import io.ballerina.projects.utils.FileUtils;
-import io.ballerina.projects.utils.ProjectConstants;
-import io.ballerina.projects.utils.ProjectUtils;
+import io.ballerina.projects.util.FileUtils;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.tool.util.BCompileUtil;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
