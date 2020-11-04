@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.document;
 
-import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
@@ -45,15 +44,6 @@ public interface BallerinaDocumentService {
 
     @JsonRequest
     CompletableFuture<BallerinaASTDidChangeResponse> astDidChange(BallerinaASTDidChange notification);
-
-    @JsonRequest
-    CompletableFuture<BallerinaOASResponse> openApiDefinition(BallerinaOASRequest request);
-
-    @JsonNotification
-    void apiDesignDidChange(ApiDesignDidChangeParams params);
-
-    @JsonRequest
-    CompletableFuture<BallerinaServiceListResponse> serviceList(BallerinaServiceListRequest request);
 
     @JsonRequest
     CompletableFuture<BallerinaProject> project(BallerinaProjectParams params);

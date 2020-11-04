@@ -62,7 +62,7 @@ public class IsolationAnalysisTest {
         result = BCompileUtil.compile("test-src/isolation-analysis/isolation_analysis.bal");
     }
 
-    @Test(dataProvider = "isolatedFunctionTests", enabled = false)
+    @Test(dataProvider = "isolatedFunctionTests")
     public void testIsolatedFunctions(String function) {
         BRunUtil.invoke(result, function);
     }
@@ -105,7 +105,7 @@ public class IsolationAnalysisTest {
         validateError(result, i++, "incompatible types: expected 'Qux', found 'object { int i; function qux () " +
                 "returns (int); }'", 37, 13);
         validateError(result, i++, "incompatible types: expected 'isolated function () returns (int)', found " +
-                "'function () returns (int)'", 42, 40);
+                "'function () returns (int)'", 44, 24);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

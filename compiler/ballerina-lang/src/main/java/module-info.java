@@ -14,7 +14,6 @@ module io.ballerina.lang {
     requires org.apache.commons.io;
     exports io.ballerina.compiler.api;
     exports io.ballerina.compiler.api.symbols;
-    exports io.ballerina.compiler.api.types;
     exports io.ballerina.compiler.api.impl;
     exports org.wso2.ballerinalang.compiler.util;
     exports org.ballerinalang.toml.model;

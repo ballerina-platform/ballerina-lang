@@ -33,14 +33,13 @@ import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.wso2.ballerinalang.compiler.BIRPackageSymbolEnter;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.util.Collection;
@@ -243,8 +242,7 @@ class ModuleContext {
         testablePkg.flagSet.add(Flag.TESTABLE);
         // TODO Why we need two different diagnostic positions. This is how it is done in the current compiler.
         //  So I kept this as is for now.
-        testablePkg.pos = new DiagnosticPos(new BDiagnosticSource(pkgId,
-                this.moduleName().toString()), 1, 1, 1, 1);
+        testablePkg.pos = new BLangDiagnosticLocation(this.moduleName().toString(), 1, 1, 1, 1);
         pkgNode.addTestablePkg(testablePkg);
         for (DocumentContext documentContext : testDocContextMap.values()) {
             testablePkg.addCompilationUnit(documentContext.compilationUnit(compilerContext, pkgId));
@@ -348,8 +346,7 @@ class ModuleContext {
             moduleContext.parseTestSources(pkgNode, moduleCompilationId, compilerContext);
         }
 
-        pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(moduleCompilationId,
-                moduleContext.moduleName().toString()), 0, 0, 0, 0);
+        pkgNode.pos = new BLangDiagnosticLocation(moduleContext.moduleName().toString(), 0, 0, 0, 0);
         symbolEnter.definePackage(pkgNode);
         packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
 
@@ -413,7 +410,7 @@ class ModuleContext {
         // add module functions
         bLangPackage.functions.forEach(function -> {
             // Remove the duplicated annotations.
-            String className = function.pos.src.cUnitName.replace(".bal", "").replace("/", ".");
+            String className = function.pos.lineRange().filePath().replace(".bal", "").replace("/", ".");
             String functionClassName = ProjectUtils.getQualifiedClassName(
                     bLangPackage.packageID.orgName.value,
                     bLangPackage.packageID.name.value,
@@ -429,7 +426,7 @@ class ModuleContext {
         testSuite.setTestStartFunctionName(bLangPackage.getTestablePkg().startFunction.name.value);
         testSuite.setTestStopFunctionName(bLangPackage.getTestablePkg().stopFunction.name.value);
         bLangPackage.getTestablePkg().functions.forEach(function -> {
-            String className = function.pos.src.cUnitName.replace(".bal", "").replace("/", ".");
+            String className = function.pos.lineRange().filePath().replace(".bal", "").replace("/", ".");
             String functionClassName = ProjectUtils.getQualifiedClassName(bLangPackage.packageID.orgName.value,
                     bLangPackage.packageID.name.value,
                     bLangPackage.packageID.version.value,

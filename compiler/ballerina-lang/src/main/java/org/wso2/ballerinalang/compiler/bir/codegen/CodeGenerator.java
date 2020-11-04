@@ -161,6 +161,7 @@ public class CodeGenerator {
 
     private void generate(BPackageSymbol packageSymbol, Set<Path> moduleDependencies) {
 
+        dlog.setCurrentPackageId(packageSymbol.pkgID);
         final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog);
 
         populateExternalMap(jvmPackageGen);

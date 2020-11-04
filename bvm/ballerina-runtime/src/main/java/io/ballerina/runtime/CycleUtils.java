@@ -38,7 +38,6 @@ public class CycleUtils {
         public Node(Object obj, BLink parent) {
             this.obj = obj;
             this.parent = parent;
-            this.index = this.parent.INDEX + 1;
         }
 
         public boolean hasCyclesSoFar() {
@@ -48,6 +47,7 @@ public class CycleUtils {
                     return true;
                 }
                 parent = (Node) parent.parent;
+                index++;
             }
             return false;
         }

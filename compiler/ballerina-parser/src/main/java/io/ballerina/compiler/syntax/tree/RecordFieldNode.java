@@ -134,14 +134,12 @@ public class RecordFieldNode extends NonTerminalNode {
 
         public RecordFieldNodeModifier withMetadata(
                 MetadataNode metadata) {
-            Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
         public RecordFieldNodeModifier withReadonlyKeyword(
                 Token readonlyKeyword) {
-            Objects.requireNonNull(readonlyKeyword, "readonlyKeyword must not be null");
             this.readonlyKeyword = readonlyKeyword;
             return this;
         }
@@ -162,7 +160,6 @@ public class RecordFieldNode extends NonTerminalNode {
 
         public RecordFieldNodeModifier withQuestionMarkToken(
                 Token questionMarkToken) {
-            Objects.requireNonNull(questionMarkToken, "questionMarkToken must not be null");
             this.questionMarkToken = questionMarkToken;
             return this;
         }

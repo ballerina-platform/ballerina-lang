@@ -148,7 +148,7 @@ public class CodeActionUtil {
     /**
      * Translates ballerina diagnostics into lsp4j diagnostics.
      *
-     * @param ballerinaDiags a list of {@link org.ballerinalang.util.diagnostic.Diagnostic}
+     * @param ballerinaDiags a list of {@link Diagnostic}
      * @return a list of {@link Diagnostic}
      */
     public static List<org.eclipse.lsp4j.Diagnostic> toDiagnostics(List<Diagnostic> ballerinaDiags) {

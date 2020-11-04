@@ -17,16 +17,14 @@
  */
 package org.ballerinalang.test.balo.object;
 
-//import org.ballerinalang.core.model.values.BString;
-//import org.ballerinalang.core.model.values.BValue;
-//import org.ballerinalang.test.balo.BaloCreator;
-//import org.ballerinalang.test.BCompileUtil;
-//import org.ballerinalang.test.BRunUtil;
-//import org.ballerinalang.test.CompileResult;
-//import org.testng.Assert;
-//import org.testng.annotations.AfterClass;
-//import org.testng.annotations.BeforeClass;
-//import org.testng.annotations.Test;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
  * Balo test for Endpoints and remote functions.
@@ -35,27 +33,22 @@ package org.ballerinalang.test.balo.object;
  */
 public class RemoteObjectBaloTest {
 
-//    private CompileResult compileResult;
-//
-//    @BeforeClass
-//    public void setup() {
-//        //        BCompileUtil.compile("test-src/balo/test_projects/test_project", "testorg", "foo");
-//        compileResult = BCompileUtil.compile("test-src/balo/test_balo/object/test_client_objects.bal");
-//    }
-//
-//    @Test
-//    public void testRemoteObject() {
-//        BValue[] result = BRunUtil.invoke(compileResult, "testCheck");
-//        Assert.assertEquals(result.length, 1);
-//        Assert.assertEquals(result[0].stringValue(), "i1 {}");
-//
-//        result = BRunUtil.invoke(compileResult, "testNewEP", new BValue[]{new BString("done")});
-//        Assert.assertEquals(result.length, 1);
-//        Assert.assertEquals(result[0].stringValue(), "donedone");
-//    }
-//
-//    @AfterClass
-//    public void tearDown() {
-//        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "foo");
-//    }
+    private CompileResult compileResult;
+
+    @BeforeClass
+    public void setup() {
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project/testorg/foo");
+        compileResult = BCompileUtil.compile("test-src/balo/test_balo/object/test_client_objects.bal");
+    }
+
+    @Test
+    public void testRemoteObject() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testCheck");
+        Assert.assertEquals(result.length, 1);
+        Assert.assertEquals(result[0].stringValue(), "i1 {}");
+
+        result = BRunUtil.invoke(compileResult, "testNewEP", new BValue[]{new BString("done")});
+        Assert.assertEquals(result.length, 1);
+        Assert.assertEquals(result[0].stringValue(), "donedone");
+    }
 }

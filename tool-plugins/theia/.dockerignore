@@ -1,8 +1,0 @@
-# Ignore self
-.dockerignore
-Dockerfile
-pom.xml
-
-node_modules
-lib
-src-gen

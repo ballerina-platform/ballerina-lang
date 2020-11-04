@@ -24,8 +24,6 @@ configurations.testCompileClasspath {
 }
 
 dependencies {
-    distributionBalo project(path: ':ballerina-time', configuration: 'distributionBalo')
-    
 
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')

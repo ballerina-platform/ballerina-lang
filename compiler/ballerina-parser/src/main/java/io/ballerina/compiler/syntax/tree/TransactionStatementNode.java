@@ -118,7 +118,6 @@ public class TransactionStatementNode extends StatementNode {
 
         public TransactionStatementNodeModifier withOnFailClause(
                 OnFailClauseNode onFailClause) {
-            Objects.requireNonNull(onFailClause, "onFailClause must not be null");
             this.onFailClause = onFailClause;
             return this;
         }
