@@ -62,3 +62,35 @@ class NonIsolatedClassWithIsolatedInit {
 isolated function getBooleanArray(int[] arr) returns boolean[] {
     return <boolean[]> arr.'map(intVal => intVal < 0);
 }
+
+function testIsolatedVariableAccessInLock(boolean bool) {
+    int[][] arr;
+    lock {
+        arr = b;
+    }
+
+    if bool {
+        int index = 1;
+        int j = arr[0][0];
+
+        lock {
+            while j != 0 {
+                c.i = [index];
+                j = arr[index][index];
+                index += 1;
+            }
+        }
+    }
+}
+
+isolated function testAccessingIsolatedVariableInIsolatedFunction() {
+    lock {
+        int[][] arr = b;
+    }
+
+    var fn = isolated function (int i) {
+        lock {
+            b.push([i]);
+        }
+    };
+}

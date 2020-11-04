@@ -624,6 +624,7 @@ public enum DiagnosticCode {
     INVALID_COPY_IN_OF_MUTABLE_VALUE_INTO_ISOLATED_OBJECT("invalid.copy.in.of.mutable.value.into.isolated.object"),
     INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_OBJECT_METHOD(
             "invalid.non.isolated.invocation.in.isolated.object.method"),
+    INVALID_ISOLATED_VARIABLE_ACCESS_OUTSIDE_LOCK("invalid.isolated.variable.access.outside.lock"),
 
     COMPILER_PLUGIN_ERROR("compiler.plugin.crashed"),
     ;

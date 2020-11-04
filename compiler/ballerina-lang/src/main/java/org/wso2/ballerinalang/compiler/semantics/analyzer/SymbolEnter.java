@@ -2480,9 +2480,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (safeType.tag == TypeTags.INVOKABLE) {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, varName, env.enclPkg.symbol.pkgID, varType,
                                              env.scope.owner, location, isInternal ? VIRTUAL : getOrigin(varName));
-            if (Symbols.isFlagOn(safeType.flags, Flags.ISOLATED)) {
-                varSymbol.flags |= Flags.ISOLATED;
-            }
             varSymbol.kind = SymbolKind.FUNCTION;
         } else {
             varSymbol = new BVarSymbol(flags, varName, env.enclPkg.symbol.pkgID, varType, env.scope.owner, location,

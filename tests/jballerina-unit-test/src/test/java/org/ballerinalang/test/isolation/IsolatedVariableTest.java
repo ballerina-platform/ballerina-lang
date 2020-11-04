@@ -33,6 +33,8 @@ public class IsolatedVariableTest {
 
     private static final String ERROR_EXPECTED_AN_ISOLATED_EXPRESSION =
             "invalid initial value expression: expected an isolated expression";
+    private static final String ERROR_INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK =
+            "invalid access of an 'isolated' variable outside a 'lock' statement";
 
     @Test
     public void testIsolatedVariablesSemanticNegative() {
@@ -56,6 +58,9 @@ public class IsolatedVariableTest {
         validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 26, 33);
         validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 32, 7);
         validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 41, 69);
+        validateError(result, i++, ERROR_INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK, 67, 19);
+        validateError(result, i++, ERROR_INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK, 74, 13);
+        validateError(result, i++, ERROR_INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK, 81, 24);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

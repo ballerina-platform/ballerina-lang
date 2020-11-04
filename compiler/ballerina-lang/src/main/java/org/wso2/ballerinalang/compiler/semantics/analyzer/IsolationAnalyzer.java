@@ -1014,6 +1014,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         inferredIsolated = false;
 
+        if (isIsolatedModuleVariableSymbol(symbol)) {
+            if (!inLockStatement) {
+                dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_ISOLATED_VARIABLE_ACCESS_OUTSIDE_LOCK);
+            }
+            return;
+        }
+
         if (inIsolatedFunction) {
             dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_MUTABLE_ACCESS_IN_ISOLATED_FUNCTION);
             return;
@@ -1616,7 +1623,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         boolean expectsIsolation =
                 inIsolatedFunction || recordFieldDefaultValue || objectFieldDefaultValueRequiringIsolation;
 
-        if (isIsolated(symbol.flags)) {
+        if (isIsolated(symbol.type.flags)) {
             if (!expectsIsolation) {
                 analyzeArgs(requiredArgs, restArgs);
                 return;
@@ -2573,6 +2580,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         return isInvalidCopyIn(varRefExpr, name, symTag, currentEnv.enclEnv);
+    }
+
+    private boolean isIsolatedModuleVariableSymbol(BSymbol symbol) {
+        return symbol.owner.getKind() == SymbolKind.PACKAGE && isIsolated(symbol.flags);
     }
 
     private static class UniqueInitAndReferenceInfo {
