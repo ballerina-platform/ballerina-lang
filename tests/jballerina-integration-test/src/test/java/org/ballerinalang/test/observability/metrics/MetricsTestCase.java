@@ -409,4 +409,25 @@ public class MetricsTestCase extends ObservabilityBaseTest {
                 Tag.of("action", "respond")
         );
     }
+
+    @Test
+    public void testCustomMetricTags() throws Exception {
+        String fileName = "02_resource_function.bal";
+        String serviceName = "testServiceOne";
+        String resourceName = "resourceThree";
+
+        HttpResponse httpResponse = HttpClientRequest.doPost(
+                "http://localhost:10091/" + serviceName + "/" + resourceName, "15", Collections.emptyMap());
+        Assert.assertEquals(httpResponse.getResponseCode(), 200);
+        Assert.assertEquals(httpResponse.getData(), "Invocation Successful");
+        Thread.sleep(1000);
+
+
+        Metrics metrics = filterByTag(this.getMetrics(), "service", serviceName);
+        metrics = filterByTag(metrics, "resource", resourceName);
+
+        Assert.assertTrue(metrics.getCounters().get(0).getId().getTags().contains(Tag.of("metric", "Metric Value")));;
+
+    }
+
 }

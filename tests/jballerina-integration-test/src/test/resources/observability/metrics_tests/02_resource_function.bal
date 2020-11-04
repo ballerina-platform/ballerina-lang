@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/testobserve;
+import ballerina/observe;
 
 MockClient testClient = new();
 
@@ -33,6 +34,13 @@ service testServiceOne on new testobserve:Listener(10091) {
     # Resource function for testing worker interactions
     resource function resourceTwo(testobserve:Caller caller) {
         testWorkerInteractions(11);
+        checkpanic caller->respond("Invocation Successful");
+    }
+
+    # Resource function for test custom tags
+    resource function resourceThree(testobserve:Caller caller) {
+        // Add a custom to system metrics
+        _ = checkpanic observe:addTagToMetrics("metric", "Metric Value" );
         checkpanic caller->respond("Invocation Successful");
     }
 }
