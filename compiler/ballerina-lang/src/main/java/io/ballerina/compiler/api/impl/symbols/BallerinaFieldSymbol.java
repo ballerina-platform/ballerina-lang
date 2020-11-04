@@ -106,7 +106,7 @@ public class BallerinaFieldSymbol implements FieldSymbol {
      */
     @Override
     public String signature() {
-        StringBuilder signature = new StringBuilder(this.typeDescriptor.signature() + " " + this.name());
+        StringBuilder signature = new StringBuilder(this.typeDescriptor().signature() + " " + this.name());
         if (this.isOptional()) {
             signature.append("?");
         }
