@@ -134,32 +134,24 @@
             },
             {
               "kind": "EQUAL_TOKEN",
-              "isMissing": true,
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_EQUAL_TOKEN"
-              ]
-            },
-            {
-              "kind": "STRING_LITERAL",
-              "children": [
+              "trailingMinutiae": [
                 {
-                  "kind": "DOUBLE_QUOTE_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "value": "value"
-                },
-                {
-                  "kind": "DOUBLE_QUOTE_TOKEN"
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
                 }
               ]
             },
             {
-              "kind": "LIST",
+              "kind": "DEC_INT",
+              "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "NEW_LINE"
+                  "kind": "DECIMAL_INT_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_DECIMAL_INTEGER_LITERAL"
+                  ]
                 }
               ]
             }

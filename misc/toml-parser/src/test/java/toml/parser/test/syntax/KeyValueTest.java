@@ -16,21 +16,30 @@
  * under the License.
  */
 
-package toml.parser.test.tree.core;
+package toml.parser.test.syntax;
 
 import org.testng.annotations.Test;
 
 /***
- * Syntax Tree tests for Tables and Array of tables.
+ * Syntax Tree tests for Key Value pairs.
  */
-public class TableTest extends AbstractCoreTest {
+public class KeyValueTest extends AbstractTomlParserTest {
+
+    public KeyValueTest() {
+        super("key-value");
+    }
     @Test
-    public void testTableJson() {
-        super.testFile("table.toml", "table.json");
+    public void testKeysJson() {
+        super.testFile("keys.toml", "keys.json");
     }
 
     @Test
-    public void testArrayOfTableJson() {
-        super.testFile("array-of-tables.toml", "array-of-tables.json");
+    public void testValuesJson() {
+        super.testFile("values.toml", "values.json");
+    }
+
+    @Test
+    public void testArrayJson() {
+        super.testFile("array.toml", "array.json");
     }
 }

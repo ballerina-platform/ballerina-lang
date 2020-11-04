@@ -37,7 +37,7 @@ public class TableTest {
     public void testMissingTableKey() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("validations/syntax/table/empty-table-key.toml");
+                .getResourceAsStream("syntax/tables/empty-table-key-negative.toml");
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
@@ -52,11 +52,11 @@ public class TableTest {
     public void testMissingTableClose() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("validations/syntax/table/empty-table-close.toml");
+                .getResourceAsStream("syntax/tables/empty-table-close-negative.toml");
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
-        LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 7, 7);
+        LineRange expectedLineRange = ErrorTestUtils.toLineRange(18, 18, 1, 1);
         TomlDiagnostic actualDiag = diagnostics.get(0);
 
         ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange, "missing close bracket token",
@@ -67,11 +67,11 @@ public class TableTest {
     public void testWrongCloseBraceTableArray() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("validations/syntax/table/wrong-closing-brace.toml");
+                .getResourceAsStream("syntax/tables/wrong-closing-brace-negative.toml");
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
-        LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 9, 9);
+        LineRange expectedLineRange = ErrorTestUtils.toLineRange(18, 18, 1, 1);
         TomlDiagnostic actualDiag = diagnostics.get(0);
 
         ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange, "missing close bracket token",

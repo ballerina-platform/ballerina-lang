@@ -19,23 +19,13 @@
 package toml.parser.test;
 
 import io.ballerina.toml.api.Toml;
-import io.ballerina.toml.internal.parser.ParserFactory;
-import io.ballerina.toml.internal.parser.TomlParser;
-import io.ballerina.toml.internal.parser.tree.STNode;
-import io.ballerina.toml.semantic.ast.TomlNode;
 import io.ballerina.toml.semantic.ast.TomlStringValueNode;
-import io.ballerina.toml.semantic.ast.TomlTransformer;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
-import io.ballerina.toml.syntax.tree.DocumentNode;
-import io.ballerina.toml.syntax.tree.Node;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -47,24 +37,7 @@ public class TestToml {
 
     public static void main(String[] args) throws IOException {
         String path = "src/test/resources/basic-toml.toml";
-
-        String content = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
-//        testParser(content);
         testAPI(path);
-    }
-
-    private static void testParser(String content) {
-        long sTime = System.currentTimeMillis();
-        TomlParser parser = ParserFactory.getParser(content);
-        STNode node = parser.parse();
-        OUT.println("__________________________________________________");
-        OUT.println(node);
-        OUT.println("__________________________________________________");
-        OUT.println("Time: " + (System.currentTimeMillis() - sTime) / 1000.0);
-        Node externalNode = node.createUnlinkedFacade();
-        TomlTransformer nodeTransformer = new TomlTransformer();
-        TomlNode transform = nodeTransformer.transform((DocumentNode) externalNode);
-        OUT.println(transform);
     }
 
     private static void testAPI(String path) throws IOException {
@@ -77,15 +50,7 @@ public class TestToml {
             OUT.println(diagnostic.message());
         }
 
-        TomlStringValueNode key1 = read.get("key");
+        TomlStringValueNode key1 = read.getTable("table").get("key");
         OUT.println(key1.getValue());
-//        TomlArrayValueNode key1 = read.get("key");
-//        OUT.println(key1.get(0));
-
-//        TomlLongValueNode key = read.getTable("key").get("hello ooo");
-//        OUT.println(key);
-
-
-
     }
 }

@@ -60,11 +60,6 @@
                     "name": "fields",
                     "type": "KeyValueNode",
                     "occurrences": "MULTIPLE"
-                },
-                {
-                    "name": "newLines",
-                    "type": "Token",
-                    "occurrences": "MULTIPLE"
                 }
             ]
         },
@@ -98,11 +93,6 @@
                     "name": "fields",
                     "type": "KeyValueNode",
                     "occurrences": "MULTIPLE"
-                },
-                {
-                    "name": "newLines",
-                    "type": "Token",
-                    "occurrences": "MULTIPLE"
                 }
             ]
         },
@@ -123,11 +113,6 @@
                 {
                     "name": "value",
                     "type": "ValueNode"
-                },
-                {
-                    "name": "newLines",
-                    "type": "Token",
-                    "occurrences": "MULTIPLE"
                 }
             ]
         },

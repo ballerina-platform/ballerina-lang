@@ -36,7 +36,7 @@ public class KeyValuePairTest {
     @Test
     public void testMissingEquals() throws IOException {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("validations/syntax/key-value/missing-equal.toml");
+                .getResourceAsStream("syntax/key-value/missing-equal-negative.toml");
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 5, 5);
@@ -50,7 +50,7 @@ public class KeyValuePairTest {
     public void testMissingKey() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("validations/syntax/key-value/missing-key.toml");
+                .getResourceAsStream("syntax/key-value/missing-key-negative.toml");
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
@@ -65,7 +65,7 @@ public class KeyValuePairTest {
     public void testMissingValue() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("validations/syntax/key-value/missing-value.toml");
+                .getResourceAsStream("syntax/key-value/missing-value-negative.toml");
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
@@ -80,7 +80,7 @@ public class KeyValuePairTest {
     public void testMultipleMissing() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("validations/syntax/key-value/key-value-multi.toml");
+                .getResourceAsStream("syntax/key-value/key-value-multi-negative.toml");
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
@@ -107,7 +107,7 @@ public class KeyValuePairTest {
     public void testArrayMissingComma() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("validations/syntax/key-value/array/array-missing-comma.toml");
+                .getResourceAsStream("syntax/key-value/array-missing-comma-negative.toml");
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
@@ -122,7 +122,7 @@ public class KeyValuePairTest {
     public void testArrayMissingValue() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("validations/syntax/key-value/array/array-missing-value.toml");
+                .getResourceAsStream("syntax/key-value/array-missing-value-negative.toml");
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 

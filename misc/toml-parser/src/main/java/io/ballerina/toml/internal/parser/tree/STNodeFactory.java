@@ -49,15 +49,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode openBracket,
             STNode identifier,
             STNode closeBracket,
-            STNode fields,
-            STNode newLines) {
+            STNode fields) {
 
         return new STTableNode(
                 openBracket,
                 identifier,
                 closeBracket,
-                fields,
-                newLines);
+                fields);
     }
 
     public static STNode createTableArrayNode(
@@ -66,8 +64,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode identifier,
             STNode firstCloseBracket,
             STNode secondCloseBracket,
-            STNode fields,
-            STNode newLines) {
+            STNode fields) {
 
         return new STTableArrayNode(
                 firstOpenBracket,
@@ -75,21 +72,18 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 identifier,
                 firstCloseBracket,
                 secondCloseBracket,
-                fields,
-                newLines);
+                fields);
     }
 
     public static STNode createKeyValueNode(
             STNode identifier,
             STNode assign,
-            STNode value,
-            STNode newLines) {
+            STNode value) {
 
         return new STKeyValueNode(
                 identifier,
                 assign,
-                value,
-                newLines);
+                value);
     }
 
     public static STNode createArrayNode(

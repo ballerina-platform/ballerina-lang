@@ -33,6 +33,7 @@ import io.ballerina.toml.internal.parser.tree.STNodeList;
 import io.ballerina.toml.internal.parser.tree.STToken;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -57,17 +58,59 @@ public class SyntaxTreeJSONGenerator {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
 
     public static void main(String[] args) throws IOException {
-        // Using a string source as input
-        // generateJSON("a 7", ParserRuleContext.EXPRESSION);
+        Path syntax = RESOURCE_DIRECTORY.resolve(Paths.get("syntax"));
+
+        File[] resourceContents = syntax.toFile().listFiles();
+        if (resourceContents != null) {
+            for (File resourceContent :resourceContents) {
+                Path path = resourceContent.toPath();
+                generateJsonOfDir(path);
+            }
+        }
 
         // Using a file source as input
-        String path = "syntax/core/values.toml";
-        String jsonString = generateJSON(Paths.get(path));
-        STANDARD_OUT.println(jsonString);
+//        String path = "syntax/key-value/values.toml";
+//        String jsonString = generateJSON(Paths.get(path));
+//        STANDARD_OUT.println(jsonString);
+    }
+
+    private static void generateJsonOfDir(Path dirPath) throws IOException {
+        File directory = dirPath.toFile();
+        if (directory.isDirectory()) {
+            File[] directoryListing = directory.listFiles();
+            if (directoryListing != null) {
+                for (File file : directoryListing) {
+                    if (getFileExtension(file).equals("toml")) {
+                        String jsonString = generateJSON(file.toPath());
+                        writeTreeToJson(file, jsonString);
+                    }
+                }
+            }
+        } else {
+            STANDARD_OUT.println("No files generated.");
+        }
+    }
+
+    private static void writeTreeToJson(File file, String content) throws IOException {
+        content = content + System.lineSeparator();
+        String tomlPath = file.getAbsolutePath();
+        String jsonPath = tomlPath.replace(".toml", ".json");
+        Path jsonFile = Paths.get(jsonPath);
+        Files.writeString(jsonFile, content, StandardCharsets.UTF_8);
+
+    }
+
+    private static String getFileExtension(File file) {
+        if (file == null) {
+            return "";
+        }
+        String name = file.getName();
+        int i = name.lastIndexOf('.');
+        return i > 0 ? name.substring(i + 1) : "";
     }
 
     public static String generateJSON(Path sourceFilePath) throws IOException {
-        byte[] bytes = Files.readAllBytes(RESOURCE_DIRECTORY.resolve(sourceFilePath));
+        byte[] bytes = Files.readAllBytes(sourceFilePath);
         String content = new String(bytes, StandardCharsets.UTF_8);
         return generateJSON(content);
     }

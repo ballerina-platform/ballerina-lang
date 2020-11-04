@@ -38,7 +38,8 @@ public class KeyValueTest {
     @Test
     public void testKeys() throws IOException {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("syntax/core/keys.toml");
+                .getResourceAsStream("syntax/key-value/keys.toml");
+
         Toml read = Toml.read(inputStream);
         String basicKey = ((TomlStringValueNode) read.get("key")).getValue();
         String underscoreKey = ((TomlStringValueNode) read.get("underscore_key")).getValue();
@@ -67,7 +68,7 @@ public class KeyValueTest {
     @Test
     public void testBasicValues() throws IOException {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("syntax/core/values.toml");
+                .getResourceAsStream("syntax/key-value/values.toml");
         Toml read = Toml.read(inputStream);
         String stringValue = ((TomlStringValueNode) read.get("key1")).getValue();
         Long longValue = ((TomlLongValueNode) read.get("key2")).getValue();
@@ -89,7 +90,7 @@ public class KeyValueTest {
     @Test
     public void testArrayValues() throws IOException {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("syntax/core/array.toml");
+                .getResourceAsStream("syntax/key-value/array.toml");
         Toml read = Toml.read(inputStream);
 
         TomlArrayValueNode mixedType = read.get("mixed_type");

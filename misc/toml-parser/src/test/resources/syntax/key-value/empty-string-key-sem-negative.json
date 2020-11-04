@@ -7,17 +7,8 @@
       "hasDiagnostics": true,
       "children": [
         {
-          "kind": "TABLE",
-          "hasDiagnostics": true,
+          "kind": "KEY_VALUE",
           "children": [
-            {
-              "kind": "OPEN_BRACKET_TOKEN",
-              "isMissing": true,
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_OPEN_BRACKET_TOKEN"
-              ]
-            },
             {
               "kind": "LIST",
               "children": [
@@ -26,7 +17,7 @@
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "table",
+                      "value": "hello",
                       "leadingMinutiae": [
                         {
                           "kind": "COMMENT_MINUTIAE",
@@ -127,43 +118,19 @@
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
                           "value": "\n"
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "CLOSE_BRACKET_TOKEN"
-            },
-            {
-              "kind": "LIST",
-              "hasDiagnostics": true,
-              "children": [
-                {
-                  "kind": "KEY_VALUE",
-                  "hasDiagnostics": true,
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": [
+                        },
                         {
-                          "kind": "IDENTIFIER_LITERAL",
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_LITERAL",
-                              "value": "key"
-                            }
-                          ]
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "#Fix - While transforming Key."
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
                         }
-                      ]
-                    },
-                    {
-                      "kind": "EQUAL_TOKEN",
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_INVALID_TOKEN"
                       ],
                       "trailingMinutiae": [
                         {
@@ -171,27 +138,72 @@
                           "value": " "
                         }
                       ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_LITERAL",
+                  "value": "hii"
+                },
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "KEY_VALUE",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "LIST",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "DOUBLE_QUOTE_TOKEN"
                     },
                     {
-                      "kind": "STRING_LITERAL",
-                      "children": [
-                        {
-                          "kind": "DOUBLE_QUOTE_TOKEN"
-                        },
-                        {
-                          "kind": "IDENTIFIER_LITERAL",
-                          "value": "value"
-                        },
-                        {
-                          "kind": "DOUBLE_QUOTE_TOKEN"
-                        }
+                      "kind": "IDENTIFIER_LITERAL",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_STRING_LITERAL"
                       ]
                     },
                     {
-                      "kind": "LIST",
-                      "children": [
+                      "kind": "DOUBLE_QUOTE_TOKEN",
+                      "trailingMinutiae": [
                         {
-                          "kind": "NEW_LINE"
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
                         }
                       ]
                     }
@@ -200,13 +212,32 @@
               ]
             },
             {
-              "kind": "LIST",
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "STRING_LITERAL",
               "children": [
                 {
-                  "kind": "NEW_LINE"
+                  "kind": "DOUBLE_QUOTE_TOKEN"
                 },
                 {
-                  "kind": "NEW_LINE"
+                  "kind": "IDENTIFIER_LITERAL",
+                  "value": "value"
+                },
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
                 }
               ]
             }

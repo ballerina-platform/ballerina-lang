@@ -19,6 +19,8 @@ package io.ballerina.toml.internal.parser;
 
 import io.ballerina.toml.internal.diagnostics.DiagnosticCode;
 import io.ballerina.toml.internal.diagnostics.DiagnosticErrorCode;
+import io.ballerina.toml.internal.parser.AbstractParserErrorHandler.Action;
+import io.ballerina.toml.internal.parser.AbstractParserErrorHandler.Solution;
 import io.ballerina.toml.internal.parser.tree.STNode;
 import io.ballerina.toml.internal.parser.tree.STNodeList;
 import io.ballerina.toml.internal.parser.tree.STToken;
@@ -102,12 +104,12 @@ public abstract class AbstractParser {
         return token;
     }
 
-    protected AbstractParserErrorHandler.Solution recover(STToken token, ParserRuleContext currentCtx, Object... args) {
-        AbstractParserErrorHandler.Solution sol = this.errorHandler.recover(currentCtx, token, args);
+    protected Solution recover(STToken token, ParserRuleContext currentCtx, Object... args) {
+        Solution sol = this.errorHandler.recover(currentCtx, token, args);
         // If the action is to remove, then re-parse the same rule.
-        if (sol.action == AbstractParserErrorHandler.Action.REMOVE) {
+        if (sol.action == Action.REMOVE) {
             addInvalidTokenToNextToken(sol.removedToken);
-        } else if (sol.action == AbstractParserErrorHandler.Action.INSERT) {
+        } else if (sol.action == Action.INSERT) {
             this.insertedToken = (STToken) sol.recoveredNode;
         }
 

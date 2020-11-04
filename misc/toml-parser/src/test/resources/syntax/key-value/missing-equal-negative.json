@@ -134,68 +134,30 @@
             },
             {
               "kind": "EQUAL_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_EQUAL_TOKEN"
               ]
             },
             {
-              "kind": "ARRAY",
-              "hasDiagnostics": true,
+              "kind": "STRING_LITERAL",
               "children": [
                 {
-                  "kind": "OPEN_BRACKET_TOKEN"
+                  "kind": "DOUBLE_QUOTE_TOKEN"
                 },
                 {
-                  "kind": "LIST",
-                  "hasDiagnostics": true,
-                  "children": [
+                  "kind": "IDENTIFIER_LITERAL",
+                  "value": "value"
+                },
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN",
+                  "trailingMinutiae": [
                     {
-                      "kind": "DEC_INT",
-                      "children": [
-                        {
-                          "kind": "DECIMAL_INT_TOKEN",
-                          "value": "1",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "COMMA_TOKEN",
-                      "isMissing": true,
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_COMMA_TOKEN"
-                      ]
-                    },
-                    {
-                      "kind": "DEC_INT",
-                      "children": [
-                        {
-                          "kind": "DECIMAL_INT_TOKEN",
-                          "value": "2"
-                        }
-                      ]
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
                     }
                   ]
-                },
-                {
-                  "kind": "CLOSE_BRACKET_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LIST",
-              "children": [
-                {
-                  "kind": "NEW_LINE"
                 }
               ]
             }

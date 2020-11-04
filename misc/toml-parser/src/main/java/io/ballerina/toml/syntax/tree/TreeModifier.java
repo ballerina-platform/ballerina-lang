@@ -54,14 +54,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(tableNode.closeBracket());
         NodeList<KeyValueNode> fields =
                 modifyNodeList(tableNode.fields());
-        NodeList<Token> newLines =
-                modifyNodeList(tableNode.newLines());
         return tableNode.modify(
                 openBracket,
                 identifier,
                 closeBracket,
-                fields,
-                newLines);
+                fields);
     }
 
     @Override
@@ -79,16 +76,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(tableArrayNode.secondCloseBracket());
         NodeList<KeyValueNode> fields =
                 modifyNodeList(tableArrayNode.fields());
-        NodeList<Token> newLines =
-                modifyNodeList(tableArrayNode.newLines());
         return tableArrayNode.modify(
                 firstOpenBracket,
                 secondOpenBracket,
                 identifier,
                 firstCloseBracket,
                 secondCloseBracket,
-                fields,
-                newLines);
+                fields);
     }
 
     @Override
@@ -100,13 +94,10 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(keyValueNode.assign());
         ValueNode value =
                 modifyNode(keyValueNode.value());
-        NodeList<Token> newLines =
-                modifyNodeList(keyValueNode.newLines());
         return keyValueNode.modify(
                 identifier,
                 assign,
-                value,
-                newLines);
+                value);
     }
 
     @Override

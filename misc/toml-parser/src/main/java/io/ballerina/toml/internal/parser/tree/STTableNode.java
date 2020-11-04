@@ -35,20 +35,17 @@ public class STTableNode extends STDocumentMemberDeclarationNode {
     public final STNode identifier;
     public final STNode closeBracket;
     public final STNode fields;
-    public final STNode newLines;
 
     STTableNode(
             STNode openBracket,
             STNode identifier,
             STNode closeBracket,
-            STNode fields,
-            STNode newLines) {
+            STNode fields) {
         this(
                 openBracket,
                 identifier,
                 closeBracket,
                 fields,
-                newLines,
                 Collections.emptyList());
     }
 
@@ -57,21 +54,18 @@ public class STTableNode extends STDocumentMemberDeclarationNode {
             STNode identifier,
             STNode closeBracket,
             STNode fields,
-            STNode newLines,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.TABLE, diagnostics);
         this.openBracket = openBracket;
         this.identifier = identifier;
         this.closeBracket = closeBracket;
         this.fields = fields;
-        this.newLines = newLines;
 
         addChildren(
                 openBracket,
                 identifier,
                 closeBracket,
-                fields,
-                newLines);
+                fields);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -80,7 +74,6 @@ public class STTableNode extends STDocumentMemberDeclarationNode {
                 this.identifier,
                 this.closeBracket,
                 this.fields,
-                this.newLines,
                 diagnostics);
     }
 
@@ -88,14 +81,12 @@ public class STTableNode extends STDocumentMemberDeclarationNode {
             STNode openBracket,
             STNode identifier,
             STNode closeBracket,
-            STNode fields,
-            STNode newLines) {
+            STNode fields) {
         if (checkForReferenceEquality(
                 openBracket,
                 identifier,
                 closeBracket,
-                fields,
-                newLines)) {
+                fields)) {
             return this;
         }
 
@@ -104,7 +95,6 @@ public class STTableNode extends STDocumentMemberDeclarationNode {
                 identifier,
                 closeBracket,
                 fields,
-                newLines,
                 diagnostics);
     }
 

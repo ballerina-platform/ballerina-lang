@@ -56,10 +56,6 @@ public class TableArrayNode extends DocumentMemberDeclarationNode {
         return new NodeList<>(childInBucket(5));
     }
 
-    public NodeList<Token> newLines() {
-        return new NodeList<>(childInBucket(6));
-    }
-
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -78,8 +74,7 @@ public class TableArrayNode extends DocumentMemberDeclarationNode {
                 "identifier",
                 "firstCloseBracket",
                 "secondCloseBracket",
-                "fields",
-                "newLines"};
+                "fields"};
     }
 
     public TableArrayNode modify(
@@ -88,16 +83,14 @@ public class TableArrayNode extends DocumentMemberDeclarationNode {
             SeparatedNodeList<ValueNode> identifier,
             Token firstCloseBracket,
             Token secondCloseBracket,
-            NodeList<KeyValueNode> fields,
-            NodeList<Token> newLines) {
+            NodeList<KeyValueNode> fields) {
         if (checkForReferenceEquality(
                 firstOpenBracket,
                 secondOpenBracket,
                 identifier.underlyingListNode(),
                 firstCloseBracket,
                 secondCloseBracket,
-                fields.underlyingListNode(),
-                newLines.underlyingListNode())) {
+                fields.underlyingListNode())) {
             return this;
         }
 
@@ -107,8 +100,7 @@ public class TableArrayNode extends DocumentMemberDeclarationNode {
                 identifier,
                 firstCloseBracket,
                 secondCloseBracket,
-                fields,
-                newLines);
+                fields);
     }
 
     public TableArrayNodeModifier modify() {
@@ -128,7 +120,6 @@ public class TableArrayNode extends DocumentMemberDeclarationNode {
         private Token firstCloseBracket;
         private Token secondCloseBracket;
         private NodeList<KeyValueNode> fields;
-        private NodeList<Token> newLines;
 
         public TableArrayNodeModifier(TableArrayNode oldNode) {
             this.oldNode = oldNode;
@@ -138,7 +129,6 @@ public class TableArrayNode extends DocumentMemberDeclarationNode {
             this.firstCloseBracket = oldNode.firstCloseBracket();
             this.secondCloseBracket = oldNode.secondCloseBracket();
             this.fields = oldNode.fields();
-            this.newLines = oldNode.newLines();
         }
 
         public TableArrayNodeModifier withFirstOpenBracket(
@@ -183,13 +173,6 @@ public class TableArrayNode extends DocumentMemberDeclarationNode {
             return this;
         }
 
-        public TableArrayNodeModifier withNewLines(
-                NodeList<Token> newLines) {
-            Objects.requireNonNull(newLines, "newLines must not be null");
-            this.newLines = newLines;
-            return this;
-        }
-
         public TableArrayNode apply() {
             return oldNode.modify(
                     firstOpenBracket,
@@ -197,8 +180,7 @@ public class TableArrayNode extends DocumentMemberDeclarationNode {
                     identifier,
                     firstCloseBracket,
                     secondCloseBracket,
-                    fields,
-                    newLines);
+                    fields);
         }
     }
 }

@@ -44,13 +44,11 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode identifier = modifyNode(tableNode.identifier);
         STNode closeBracket = modifyNode(tableNode.closeBracket);
         STNode fields = modifyNode(tableNode.fields);
-        STNode newLines = modifyNode(tableNode.newLines);
         return tableNode.modify(
                 openBracket,
                 identifier,
                 closeBracket,
-                fields,
-                newLines);
+                fields);
     }
 
     @Override
@@ -62,15 +60,13 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode firstCloseBracket = modifyNode(tableArrayNode.firstCloseBracket);
         STNode secondCloseBracket = modifyNode(tableArrayNode.secondCloseBracket);
         STNode fields = modifyNode(tableArrayNode.fields);
-        STNode newLines = modifyNode(tableArrayNode.newLines);
         return tableArrayNode.modify(
                 firstOpenBracket,
                 secondOpenBracket,
                 identifier,
                 firstCloseBracket,
                 secondCloseBracket,
-                fields,
-                newLines);
+                fields);
     }
 
     @Override
@@ -79,12 +75,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode identifier = modifyNode(keyValueNode.identifier);
         STNode assign = modifyNode(keyValueNode.assign);
         STNode value = modifyNode(keyValueNode.value);
-        STNode newLines = modifyNode(keyValueNode.newLines);
         return keyValueNode.modify(
                 identifier,
                 assign,
-                value,
-                newLines);
+                value);
     }
 
     @Override

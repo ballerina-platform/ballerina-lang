@@ -57,7 +57,6 @@ public enum ParserRuleContext {
     COMMA(","),
     DOT("."),
     SIGN_TOKEN("sign-token"),
-
     IDENTIFIER_LITERAL("identifier"),
 
     // Expressions
@@ -77,13 +76,9 @@ public enum ParserRuleContext {
     KEY_VALUE_PAIR ("key-value-pair"),
     TOML_TABLE("toml-table"),
     TOML_TABLE_ARRAY("toml-table-array"),
-//    TABLE_OF_ARRAYS_START("[["),
-//    TABLE_OF_ARRAYS_CLOSE("]]"),
-//    TOML_ARRAY("toml-array-value"),
 
     STRING_START("\""),
     STRING_END("\""),
-
 
     ;
 

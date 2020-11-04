@@ -109,6 +109,18 @@
                 {
                   "kind": "END_OF_LINE_MINUTIAE",
                   "value": "\n"
+                },
+                {
+                  "kind": "COMMENT_MINUTIAE",
+                  "value": "#Fix - //TODO revisit dotted."
+                },
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                },
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
                 }
               ]
             },
@@ -120,14 +132,20 @@
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "products"
+                      "value": "table"
                     }
                   ]
                 }
               ]
             },
             {
-              "kind": "CLOSE_BRACKET_TOKEN"
+              "kind": "CLOSE_BRACKET_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
             },
             {
               "kind": "LIST",
@@ -143,7 +161,7 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_LITERAL",
-                              "value": "hello1",
+                              "value": "key",
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -172,82 +190,21 @@
                         },
                         {
                           "kind": "IDENTIFIER_LITERAL",
-                          "value": "hi"
+                          "value": "value"
                         },
                         {
-                          "kind": "DOUBLE_QUOTE_TOKEN"
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "NEW_LINE"
-                        },
-                        {
-                          "kind": "NEW_LINE"
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
-                }
-              ]
-            },
-            {
-              "kind": "LIST",
-              "children": [
-                {
-                  "kind": "NEW_LINE"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "TABLE_ARRAY",
-          "children": [
-            {
-              "kind": "OPEN_BRACKET_TOKEN"
-            },
-            {
-              "kind": "OPEN_BRACKET_TOKEN"
-            },
-            {
-              "kind": "LIST",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_LITERAL",
-                      "value": "products"
-                    }
-                  ]
                 },
-                {
-                  "kind": "DOT_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_LITERAL",
-                      "value": "hello"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "CLOSE_BRACKET_TOKEN"
-            },
-            {
-              "kind": "CLOSE_BRACKET_TOKEN"
-            },
-            {
-              "kind": "LIST",
-              "children": [
                 {
                   "kind": "KEY_VALUE",
                   "children": [
@@ -259,7 +216,7 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_LITERAL",
-                              "value": "name",
+                              "value": "key1",
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -288,95 +245,28 @@
                         },
                         {
                           "kind": "IDENTIFIER_LITERAL",
-                          "value": "Hammer"
+                          "value": "value1"
                         },
                         {
-                          "kind": "DOUBLE_QUOTE_TOKEN"
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "NEW_LINE"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "KEY_VALUE",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_LITERAL",
-                          "children": [
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
                             {
-                              "kind": "IDENTIFIER_LITERAL",
-                              "value": "sku",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
                             }
                           ]
                         }
                       ]
-                    },
-                    {
-                      "kind": "EQUAL_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "DEC_INT",
-                      "children": [
-                        {
-                          "kind": "DECIMAL_INT_TOKEN",
-                          "value": "738594937"
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "NEW_LINE"
-                        },
-                        {
-                          "kind": "NEW_LINE"
-                        }
-                      ]
                     }
                   ]
-                }
-              ]
-            },
-            {
-              "kind": "LIST",
-              "children": [
-                {
-                  "kind": "NEW_LINE"
                 }
               ]
             }
           ]
         },
         {
-          "kind": "TABLE_ARRAY",
+          "kind": "TABLE",
           "children": [
-            {
-              "kind": "OPEN_BRACKET_TOKEN"
-            },
             {
               "kind": "OPEN_BRACKET_TOKEN"
             },
@@ -388,7 +278,7 @@
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "products"
+                      "value": "table"
                     }
                   ]
                 },
@@ -400,75 +290,20 @@
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "hello"
+                      "value": "key1"
                     }
                   ]
                 }
               ]
             },
             {
-              "kind": "CLOSE_BRACKET_TOKEN"
-            },
-            {
-              "kind": "CLOSE_BRACKET_TOKEN"
-            },
-            {
-              "kind": "LIST",
-              "children": []
-            },
-            {
-              "kind": "LIST",
-              "children": [
+              "kind": "CLOSE_BRACKET_TOKEN",
+              "trailingMinutiae": [
                 {
-                  "kind": "NEW_LINE"
-                },
-                {
-                  "kind": "NEW_LINE"
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
                 }
               ]
-            }
-          ]
-        },
-        {
-          "kind": "TABLE_ARRAY",
-          "children": [
-            {
-              "kind": "OPEN_BRACKET_TOKEN"
-            },
-            {
-              "kind": "OPEN_BRACKET_TOKEN"
-            },
-            {
-              "kind": "LIST",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_LITERAL",
-                      "value": "products"
-                    }
-                  ]
-                },
-                {
-                  "kind": "DOT_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_LITERAL",
-                      "value": "hello"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "CLOSE_BRACKET_TOKEN"
-            },
-            {
-              "kind": "CLOSE_BRACKET_TOKEN"
             },
             {
               "kind": "LIST",
@@ -484,7 +319,7 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_LITERAL",
-                              "value": "name",
+                              "value": "key2",
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -513,81 +348,20 @@
                         },
                         {
                           "kind": "IDENTIFIER_LITERAL",
-                          "value": "Nail"
+                          "value": "value2"
                         },
                         {
-                          "kind": "DOUBLE_QUOTE_TOKEN"
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "NEW_LINE"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "KEY_VALUE",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_LITERAL",
-                          "children": [
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
                             {
-                              "kind": "IDENTIFIER_LITERAL",
-                              "value": "sku",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
                             }
                           ]
                         }
                       ]
-                    },
-                    {
-                      "kind": "EQUAL_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "DEC_INT",
-                      "children": [
-                        {
-                          "kind": "DECIMAL_INT_TOKEN",
-                          "value": "284758393"
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "NEW_LINE"
-                        }
-                      ]
                     }
                   ]
-                }
-              ]
-            },
-            {
-              "kind": "LIST",
-              "children": [
-                {
-                  "kind": "NEW_LINE"
                 }
               ]
             }

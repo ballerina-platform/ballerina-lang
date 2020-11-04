@@ -34,18 +34,15 @@ public class STKeyValueNode extends STDocumentMemberDeclarationNode {
     public final STNode identifier;
     public final STNode assign;
     public final STNode value;
-    public final STNode newLines;
 
     STKeyValueNode(
             STNode identifier,
             STNode assign,
-            STNode value,
-            STNode newLines) {
+            STNode value) {
         this(
                 identifier,
                 assign,
                 value,
-                newLines,
                 Collections.emptyList());
     }
 
@@ -53,19 +50,16 @@ public class STKeyValueNode extends STDocumentMemberDeclarationNode {
             STNode identifier,
             STNode assign,
             STNode value,
-            STNode newLines,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.KEY_VALUE, diagnostics);
         this.identifier = identifier;
         this.assign = assign;
         this.value = value;
-        this.newLines = newLines;
 
         addChildren(
                 identifier,
                 assign,
-                value,
-                newLines);
+                value);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -73,20 +67,17 @@ public class STKeyValueNode extends STDocumentMemberDeclarationNode {
                 this.identifier,
                 this.assign,
                 this.value,
-                this.newLines,
                 diagnostics);
     }
 
     public STKeyValueNode modify(
             STNode identifier,
             STNode assign,
-            STNode value,
-            STNode newLines) {
+            STNode value) {
         if (checkForReferenceEquality(
                 identifier,
                 assign,
-                value,
-                newLines)) {
+                value)) {
             return this;
         }
 
@@ -94,7 +85,6 @@ public class STKeyValueNode extends STDocumentMemberDeclarationNode {
                 identifier,
                 assign,
                 value,
-                newLines,
                 diagnostics);
     }
 

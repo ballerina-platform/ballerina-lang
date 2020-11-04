@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package toml.parser.test.tree.errors;
+package toml.parser.test.syntax;
 
 import toml.parser.test.ParserTestUtils;
 
@@ -25,8 +25,15 @@ import java.nio.file.Paths;
 /**
  * Test util for testing toml.
  */
-public abstract class AbstractErrorTest {
+public abstract class AbstractTomlParserTest {
+    private final String resourceDirectoryName;
+
+    public AbstractTomlParserTest(String resourceDirectoryName) {
+        this.resourceDirectoryName = resourceDirectoryName;
+    }
+
     void testFile(String path, String filePath) {
-        ParserTestUtils.test(Paths.get("validations/syntax/", path), Paths.get("validations/syntax/", filePath));
+        ParserTestUtils.test(Paths.get("syntax", resourceDirectoryName, path), Paths.get("syntax",
+                resourceDirectoryName, filePath));
     }
 }

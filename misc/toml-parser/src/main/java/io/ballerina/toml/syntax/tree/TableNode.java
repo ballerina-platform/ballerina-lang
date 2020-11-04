@@ -48,10 +48,6 @@ public class TableNode extends DocumentMemberDeclarationNode {
         return new NodeList<>(childInBucket(3));
     }
 
-    public NodeList<Token> newLines() {
-        return new NodeList<>(childInBucket(4));
-    }
-
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -68,22 +64,19 @@ public class TableNode extends DocumentMemberDeclarationNode {
                 "openBracket",
                 "identifier",
                 "closeBracket",
-                "fields",
-                "newLines"};
+                "fields"};
     }
 
     public TableNode modify(
             Token openBracket,
             SeparatedNodeList<ValueNode> identifier,
             Token closeBracket,
-            NodeList<KeyValueNode> fields,
-            NodeList<Token> newLines) {
+            NodeList<KeyValueNode> fields) {
         if (checkForReferenceEquality(
                 openBracket,
                 identifier.underlyingListNode(),
                 closeBracket,
-                fields.underlyingListNode(),
-                newLines.underlyingListNode())) {
+                fields.underlyingListNode())) {
             return this;
         }
 
@@ -91,8 +84,7 @@ public class TableNode extends DocumentMemberDeclarationNode {
                 openBracket,
                 identifier,
                 closeBracket,
-                fields,
-                newLines);
+                fields);
     }
 
     public TableNodeModifier modify() {
@@ -110,7 +102,6 @@ public class TableNode extends DocumentMemberDeclarationNode {
         private SeparatedNodeList<ValueNode> identifier;
         private Token closeBracket;
         private NodeList<KeyValueNode> fields;
-        private NodeList<Token> newLines;
 
         public TableNodeModifier(TableNode oldNode) {
             this.oldNode = oldNode;
@@ -118,7 +109,6 @@ public class TableNode extends DocumentMemberDeclarationNode {
             this.identifier = oldNode.identifier();
             this.closeBracket = oldNode.closeBracket();
             this.fields = oldNode.fields();
-            this.newLines = oldNode.newLines();
         }
 
         public TableNodeModifier withOpenBracket(
@@ -149,20 +139,12 @@ public class TableNode extends DocumentMemberDeclarationNode {
             return this;
         }
 
-        public TableNodeModifier withNewLines(
-                NodeList<Token> newLines) {
-            Objects.requireNonNull(newLines, "newLines must not be null");
-            this.newLines = newLines;
-            return this;
-        }
-
         public TableNode apply() {
             return oldNode.modify(
                     openBracket,
                     identifier,
                     closeBracket,
-                    fields,
-                    newLines);
+                    fields);
         }
     }
 }

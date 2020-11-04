@@ -1,14 +1,11 @@
 {
   "kind": "MODULE_PART",
-  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
-      "hasDiagnostics": true,
       "children": [
         {
-          "kind": "TABLE_ARRAY",
-          "hasDiagnostics": true,
+          "kind": "TABLE",
           "children": [
             {
               "kind": "OPEN_BRACKET_TOKEN",
@@ -112,11 +109,16 @@
                 {
                   "kind": "END_OF_LINE_MINUTIAE",
                   "value": "\n"
+                },
+                {
+                  "kind": "COMMENT_MINUTIAE",
+                  "value": "#Fix in semenatic analyser"
+                },
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
                 }
               ]
-            },
-            {
-              "kind": "OPEN_BRACKET_TOKEN"
             },
             {
               "kind": "LIST",
@@ -126,21 +128,31 @@
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "hello"
+                      "value": "table"
+                    }
+                  ]
+                },
+                {
+                  "kind": "DOT_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_LITERAL",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "value": "key1"
                     }
                   ]
                 }
               ]
             },
             {
-              "kind": "CLOSE_BRACKET_TOKEN"
-            },
-            {
               "kind": "CLOSE_BRACKET_TOKEN",
-              "isMissing": true,
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
               ]
             },
             {
@@ -157,7 +169,7 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_LITERAL",
-                              "value": "hello",
+                              "value": "key2",
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -186,22 +198,34 @@
                         },
                         {
                           "kind": "IDENTIFIER_LITERAL",
-                          "value": "hi"
+                          "value": "value2"
                         },
                         {
-                          "kind": "DOUBLE_QUOTE_TOKEN"
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "NEW_LINE"
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "TABLE",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN",
+              "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
                 }
               ]
             },
@@ -209,7 +233,137 @@
               "kind": "LIST",
               "children": [
                 {
-                  "kind": "NEW_LINE"
+                  "kind": "IDENTIFIER_LITERAL",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "value": "table"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "value": "key",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "value"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "value": "key1",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "value1"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }

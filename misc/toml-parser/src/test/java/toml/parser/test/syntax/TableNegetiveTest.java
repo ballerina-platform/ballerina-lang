@@ -16,31 +16,36 @@
  * under the License.
  */
 
-package toml.parser.test.tree.errors;
+package toml.parser.test.syntax;
 
 import org.testng.annotations.Test;
 
 /**
  * Test cases for Table Syntax errors in TOML.
  */
-public class TableErrorTest extends AbstractErrorTest {
+public class TableNegetiveTest extends AbstractTomlParserTest {
+
+    public TableNegetiveTest() {
+        super("tables");
+    }
+
     @Test
     public void testMissingTableKey() {
-        super.testFile("table/empty-table-key.toml", "table/empty-table-key.json");
+        super.testFile("empty-table-key-negative.toml", "empty-table-key-negative.json");
     }
 
     @Test
     public void testMissingTableClose() {
-        super.testFile("table/empty-table-close.toml", "table/empty-table-close.json");
+        super.testFile("empty-table-close-negative.toml", "empty-table-close-negative.json");
     }
 
     @Test
     public void testWrongCloseBraceTableArray() {
-        super.testFile("table/wrong-closing-brace.toml", "table/wrong-closing-brace.json");
+        super.testFile("wrong-closing-brace-negative.toml", "wrong-closing-brace-negative.json");
     }
 
     @Test
     public void testEmptyTableOpen() {
-        super.testFile("table/empty-table-open.toml", "table/empty-table-open.json");
+        super.testFile("empty-table-open-negative.toml", "empty-table-open-negative.json");
     }
 }

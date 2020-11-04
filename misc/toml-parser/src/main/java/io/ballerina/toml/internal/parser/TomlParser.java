@@ -26,6 +26,7 @@ import io.ballerina.toml.syntax.tree.SyntaxKind;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.ballerina.toml.syntax.tree.SyntaxKind.CARRIAGE_RETURN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.CLOSE_BRACKET_TOKEN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.DEC_INT;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.EOF_TOKEN;
@@ -81,6 +82,10 @@ public class TomlParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
                 return null;
+            case NEW_LINE:
+            case CARRIAGE_RETURN:
+                consume(); //New line is only used for validations. Should be ignored
+                return parseTopLevelNode();
             case OPEN_BRACKET_TOKEN:
                 if (peek(2).kind == OPEN_BRACKET_TOKEN) {
                     return parseArrayOfTables();
@@ -113,8 +118,8 @@ public class TomlParser extends AbstractParser {
     }
 
     private boolean isEndOfStatement(STToken nextToken) {
-        return nextToken.kind == SyntaxKind.EQUAL_TOKEN ||
-                nextToken.kind == SyntaxKind.NEW_LINE || nextToken.kind == EOF_TOKEN;
+        return nextToken.kind == SyntaxKind.EQUAL_TOKEN || nextToken.kind == SyntaxKind.NEW_LINE ||
+                nextToken.kind == CARRIAGE_RETURN || nextToken.kind == EOF_TOKEN;
     }
 
     /**
@@ -130,11 +135,14 @@ public class TomlParser extends AbstractParser {
         STNode identifierToken = parseKeys();
         STNode firstCloseBracket = parseCloseBracket(ParserRuleContext.ARRAY_TABLE_FIRST_END);
         STNode secondCloesBracket = parseCloseBracket(ParserRuleContext.ARRAY_TABLE_SECOND_END);
-        STNode newLines = parseNewLines();
+        STNode newLine = parseNewLines();
+        if (newLine.hasDiagnostics()) {
+            secondCloesBracket = SyntaxErrors.addSyntaxDiagnostics(secondCloesBracket, newLine.diagnostics());
+        }
         List<STNode> fields = parseTableEntries();
         endContext();
         return STNodeFactory.createTableArrayNode(firstOpenBracket, secondOpenBracket,
-                identifierToken, firstCloseBracket, secondCloesBracket, STNodeFactory.createNodeList(fields), newLines);
+                identifierToken, firstCloseBracket, secondCloesBracket, STNodeFactory.createNodeList(fields));
     }
 
     /**
@@ -148,11 +156,14 @@ public class TomlParser extends AbstractParser {
         STNode openBracket = parseOpenBracket(ParserRuleContext.TABLE_START);
         STNode identifierToken = parseKeys();
         STNode closedBracket = parseCloseBracket(ParserRuleContext.TABLE_END);
-        STNode newLines = parseNewLines();
+        STNode newLine = parseNewLines();
+        if (newLine.hasDiagnostics()) {
+            closedBracket = SyntaxErrors.addSyntaxDiagnostics(closedBracket, newLine.diagnostics());
+        }
         List<STNode> fields = parseTableEntries();
         endContext();
         return STNodeFactory.createTableNode(openBracket, identifierToken, closedBracket,
-                STNodeFactory.createNodeList(fields), newLines);
+                STNodeFactory.createNodeList(fields));
     }
 
     private List<STNode> parseTableEntries() {
@@ -202,23 +213,34 @@ public class TomlParser extends AbstractParser {
         STNode identifier = parseKeys();
         STNode equals = parseEquals();
         STNode value = parseValue();
-        STNode newLines = parseNewLines();
+        STNode newLine = parseNewLines();
+        if (newLine.hasDiagnostics()) {
+            value = SyntaxErrors.addSyntaxDiagnostics(value, newLine.diagnostics());
+        }
         endContext();
-        return STNodeFactory.createKeyValueNode(identifier, equals, value, newLines);
+        return STNodeFactory.createKeyValueNode(identifier, equals, value);
     }
 
+    /**
+     * Pares new lines.
+     * New lines are appended to trivia from lexer. These tokens are only used for validations purposes.
+     */
     private STNode parseNewLines() {
-        List<STNode> newLineList = new ArrayList<>();
         STToken token = peek();
-        if (token.kind != SyntaxKind.NEW_LINE) {
+        if (!isNewLine(token.kind)) {
             recover(peek(), ParserRuleContext.NEW_LINE);
             return parseNewLines();
         }
-        while (token.kind == SyntaxKind.NEW_LINE) {
-            newLineList.add(consume());
+        STToken recentNewLine = null;
+        while (isNewLine(token.kind)) {
+            recentNewLine = consume();
             token = peek();
         }
-        return STNodeFactory.createNodeList(newLineList);
+        return recentNewLine;
+    }
+
+    private boolean isNewLine(SyntaxKind kind) {
+        return kind == SyntaxKind.NEW_LINE || kind == CARRIAGE_RETURN;
     }
 
     /**
@@ -361,7 +383,7 @@ public class TomlParser extends AbstractParser {
         }
     }
 
-    private STNode parseNumericalNode () {
+    private STNode parseNumericalNode() {
         STNode sign = parseSign();
         STNode token = parseNumericalToken();
         SyntaxKind kind;
@@ -393,7 +415,7 @@ public class TomlParser extends AbstractParser {
         return STNodeFactory.createEmptyNode();
     }
 
-    private STNode parseFloatToken () {
+    private STNode parseFloatToken() {
         STToken token = peek();
         if (token.kind == SyntaxKind.DECIMAL_FLOAT_TOKEN) {
             return consume();
@@ -450,7 +472,6 @@ public class TomlParser extends AbstractParser {
             return parseStringContent();
         }
     }
-
 
     /**
      * Parsing Array Value. Array is surrounded by Single brackets.Array can contains any basic values and other arrays.

@@ -16,31 +16,36 @@
  * under the License.
  */
 
-package toml.parser.test.tree.errors;
+package toml.parser.test.syntax;
 
 import org.testng.annotations.Test;
 
 /**
  * Test cases for Key Value pair Syntax errors in TOML.
  */
-public class KeyValueErrorTest extends AbstractErrorTest {
+public class KeyValueNegetiveTest extends AbstractTomlParserTest {
+
+    public KeyValueNegetiveTest() {
+        super("key-value");
+    }
+
     @Test
     public void testMissingEquals() {
-        super.testFile("key-value/missing-equal.toml", "key-value/missing-equal.json");
+        super.testFile("missing-equal-negative.toml", "missing-equal-negative.json");
     }
 
     @Test
     public void testMissingKey() {
-        super.testFile("key-value/missing-key.toml", "key-value/missing-key.json");
+        super.testFile("missing-key-negative.toml", "missing-key-negative.json");
     }
 
     @Test
     public void testArrayMissingComma() {
-        super.testFile("key-value/array/array-missing-comma.toml", "key-value/array/array-missing-comma.json");
+        super.testFile("array-missing-comma-negative.toml", "array-missing-comma-negative.json");
     }
 
     @Test
     public void testMissingNewLine() {
-        super.testFile("key-value/missing-new-line.toml", "key-value/missing-new-line.json");
+        super.testFile("missing-new-line-negative.toml", "missing-new-line-negative.json");
     }
 }

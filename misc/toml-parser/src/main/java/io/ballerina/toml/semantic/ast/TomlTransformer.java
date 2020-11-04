@@ -63,9 +63,6 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
 
         NodeList<DocumentMemberDeclarationNode> members = modulePartNode.members();
         for (DocumentMemberDeclarationNode rootNode : members) {
-            if (rootNode.kind() == SyntaxKind.INITIAL_TRIVIA) {
-                continue;
-            }
             TomlNode transformedChild = rootNode.apply(this);
             addChildNodeToParent(rootTable, transformedChild);
         }
