@@ -71,7 +71,7 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
             throws LSCodeActionProviderException {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         try {
-            if (typeDescriptor.kind() == TypeDescKind.UNION) {
+            if (typeDescriptor.typeKind() == TypeDescKind.UNION) {
                 UnionTypeSymbol unionType = (UnionTypeSymbol) typeDescriptor;
                 boolean isRemoteInvocation = scopedSymbol instanceof Qualifiable &&
                         ((Qualifiable) scopedSymbol).qualifiers().contains(Qualifier.REMOTE);
@@ -115,10 +115,11 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
             content = content.substring(0, content.length() - 1);
         }
 
-        boolean hasError = unionType.memberTypeDescriptors().stream().anyMatch(s -> s.kind() == TypeDescKind.ERROR);
+        boolean hasError = unionType.memberTypeDescriptors().stream().anyMatch(s -> s.typeKind() == TypeDescKind.ERROR);
 
         List<TypeSymbol> members = new ArrayList<>((unionType).memberTypeDescriptors());
-        long errorTypesCount = unionType.memberTypeDescriptors().stream().filter(t -> t.kind() == TypeDescKind.ERROR)
+        long errorTypesCount = unionType.memberTypeDescriptors().stream()
+                .filter(t -> t.typeKind() == TypeDescKind.ERROR)
                 .count();
         if (members.size() == 1) {
             // Skip type guard
@@ -126,13 +127,13 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
         }
         boolean transitiveBinaryUnion = unionType.memberTypeDescriptors().size() - errorTypesCount == 1;
         if (transitiveBinaryUnion) {
-            members.removeIf(s -> s.kind() == TypeDescKind.ERROR);
+            members.removeIf(s -> s.typeKind() == TypeDescKind.ERROR);
         }
         // Check is binary union type with error type
         if ((unionType.memberTypeDescriptors().size() == 2 || transitiveBinaryUnion) && hasError) {
             String finalContent = content;
             members.forEach(bType -> {
-                if (bType.kind() == TypeDescKind.NIL) {
+                if (bType.typeKind() == TypeDescKind.NIL) {
                     // if (foo() is error) {...}
                     String newText = String.format("if (%s is error) {%s}", finalContent, padding);
                     edits.add(new TextEdit(newTextRange, newText));
@@ -153,7 +154,7 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
 
             List<TypeSymbol> tMembers = new ArrayList<>((unionType).memberTypeDescriptors());
             if (errorTypesCount > 1) {
-                tMembers.removeIf(s -> s.kind() == TypeDescKind.ERROR);
+                tMembers.removeIf(s -> s.typeKind() == TypeDescKind.ERROR);
                 addErrorTypeAtEnd = true;
             } else {
                 addErrorTypeAtEnd = false;

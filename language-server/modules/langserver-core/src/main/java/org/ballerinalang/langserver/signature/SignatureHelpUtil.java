@@ -402,10 +402,10 @@ public class SignatureHelpUtil {
 
         List<FieldSymbol> fieldSymbols = new ArrayList<>();
 
-        if (CommonUtil.getRawType(typeDescriptor.get()).kind() == TypeDescKind.OBJECT) {
+        if (CommonUtil.getRawType(typeDescriptor.get()).typeKind() == TypeDescKind.OBJECT) {
             fieldSymbols.addAll(((ObjectTypeSymbol) CommonUtil
                     .getRawType(typeDescriptor.get())).fieldDescriptors());
-        } else if (CommonUtil.getRawType(typeDescriptor.get()).kind() == TypeDescKind.RECORD) {
+        } else if (CommonUtil.getRawType(typeDescriptor.get()).typeKind() == TypeDescKind.RECORD) {
             fieldSymbols.addAll(((RecordTypeSymbol) CommonUtil
                     .getRawType(typeDescriptor.get())).fieldDescriptors());
         }
@@ -459,7 +459,7 @@ public class SignatureHelpUtil {
         }
 
         List<MethodSymbol> visibleMethods = fieldTypeDesc.get().builtinMethods();
-        if (CommonUtil.getRawType(fieldTypeDesc.get()).kind() == TypeDescKind.OBJECT) {
+        if (CommonUtil.getRawType(fieldTypeDesc.get()).typeKind() == TypeDescKind.OBJECT) {
             visibleMethods.addAll(((ObjectTypeSymbol) CommonUtil.getRawType(fieldTypeDesc.get())).methods());
         }
         Optional<MethodSymbol> filteredMethod = visibleMethods.stream()
@@ -475,7 +475,7 @@ public class SignatureHelpUtil {
 
     private static List<FunctionSymbol> getFunctionSymbolsForTypeDesc(TypeSymbol typeDescriptor) {
         List<FunctionSymbol> functionSymbols = new ArrayList<>();
-        if (CommonUtil.getRawType(typeDescriptor).kind() == TypeDescKind.OBJECT) {
+        if (CommonUtil.getRawType(typeDescriptor).typeKind() == TypeDescKind.OBJECT) {
             ObjectTypeSymbol objTypeDesc = (ObjectTypeSymbol) CommonUtil.getRawType(typeDescriptor);
             functionSymbols.addAll(objTypeDesc.methods());
         }

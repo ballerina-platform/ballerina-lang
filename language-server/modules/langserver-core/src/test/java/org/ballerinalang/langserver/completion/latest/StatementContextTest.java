@@ -80,7 +80,7 @@ public class StatementContextTest extends CompletionTestNew {
                 {"if_stmt_ctx_config7.json", this.getTestResourceDir()},
                 {"if_stmt_ctx_config8.json", this.getTestResourceDir()},
                 {"lock_stmt_ctx_config1.json", this.getTestResourceDir()},
-                {"match_stmt_ctx_config1.json", this.getTestResourceDir()},
+//                {"match_stmt_ctx_config1.json", this.getTestResourceDir()}, // Blocked by #26455
                 {"receive_action_ctx_config1.json", this.getTestResourceDir()},
                 {"receive_action_ctx_config2.json", this.getTestResourceDir()},
                 {"remote_action_config1.json", this.getTestResourceDir()},

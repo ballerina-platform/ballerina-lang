@@ -202,7 +202,7 @@ public class MappingConstructorExpressionNodeContext extends
             TypeSymbol typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
             String symbolName = symbol.name();
             if (fieldTypeMap.containsKey(symbolName)
-                    && fieldTypeMap.get(symbolName).kind() == typeDescriptor.kind()) {
+                    && fieldTypeMap.get(symbolName).typeKind() == typeDescriptor.typeKind()) {
                 String bTypeName = typeDescriptor.signature();
                 CompletionItem cItem = VariableCompletionItemBuilder.build((VariableSymbol) symbol, symbolName,
                         bTypeName);
@@ -233,7 +233,7 @@ public class MappingConstructorExpressionNodeContext extends
         }
 
         Optional<RecordTypeSymbol> record = this.getRecordTypeDesc(context,
-                                                                   (MappingConstructorExpressionNode) evalNode);
+                (MappingConstructorExpressionNode) evalNode);
 
         if (record.isEmpty()) {
             return Optional.empty();
@@ -246,7 +246,7 @@ public class MappingConstructorExpressionNodeContext extends
                     .filter(fieldDescriptor -> fieldDescriptor.name().equals(fieldName))
                     .findAny();
             if (fieldDesc.isEmpty()
-                    || CommonUtil.getRawType(fieldDesc.get().typeDescriptor()).kind() != TypeDescKind.RECORD) {
+                    || CommonUtil.getRawType(fieldDesc.get().typeDescriptor()).typeKind() != TypeDescKind.RECORD) {
                 return Optional.empty();
             }
             recordType = (RecordTypeSymbol) CommonUtil.getRawType(fieldDesc.get().typeDescriptor());
@@ -282,10 +282,10 @@ public class MappingConstructorExpressionNodeContext extends
                 .filter(symbol -> symbol.kind() == SymbolKind.ANNOTATION && symbol.name().equals(annotationName))
                 .map(entry -> ((AnnotationSymbol) entry).typeDescriptor().orElse(null))
                 .findAny();
-        if (bTypeSymbol.isEmpty() || bTypeSymbol.get().kind() != TypeDescKind.RECORD) {
+        if (bTypeSymbol.isEmpty() || CommonUtil.getRawType(bTypeSymbol.get()).typeKind() != TypeDescKind.RECORD) {
             return Optional.empty();
         }
-        return Optional.of((RecordTypeSymbol) bTypeSymbol.get());
+        return Optional.of((RecordTypeSymbol) CommonUtil.getRawType(bTypeSymbol.get()));
     }
 
     private List<LSCompletionItem> getComputedNameCompletions(LSContext context) {

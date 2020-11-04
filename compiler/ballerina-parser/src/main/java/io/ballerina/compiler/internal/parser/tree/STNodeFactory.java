@@ -810,7 +810,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createModuleVariableDeclarationNode(
             STNode metadata,
-            STNode finalKeyword,
+            STNode qualifiers,
             STNode typedBindingPattern,
             STNode equalsToken,
             STNode initializer,
@@ -818,7 +818,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STModuleVariableDeclarationNode(
                 metadata,
-                finalKeyword,
+                qualifiers,
                 typedBindingPattern,
                 equalsToken,
                 initializer,

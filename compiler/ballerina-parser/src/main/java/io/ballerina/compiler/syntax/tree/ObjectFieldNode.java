@@ -154,21 +154,18 @@ public class ObjectFieldNode extends NonTerminalNode {
 
         public ObjectFieldNodeModifier withMetadata(
                 MetadataNode metadata) {
-            Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
         public ObjectFieldNodeModifier withVisibilityQualifier(
                 Token visibilityQualifier) {
-            Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
             this.visibilityQualifier = visibilityQualifier;
             return this;
         }
 
         public ObjectFieldNodeModifier withFinalKeyword(
                 Token finalKeyword) {
-            Objects.requireNonNull(finalKeyword, "finalKeyword must not be null");
             this.finalKeyword = finalKeyword;
             return this;
         }
@@ -189,14 +186,12 @@ public class ObjectFieldNode extends NonTerminalNode {
 
         public ObjectFieldNodeModifier withEqualsToken(
                 Token equalsToken) {
-            Objects.requireNonNull(equalsToken, "equalsToken must not be null");
             this.equalsToken = equalsToken;
             return this;
         }
 
         public ObjectFieldNodeModifier withExpression(
                 ExpressionNode expression) {
-            Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;
         }

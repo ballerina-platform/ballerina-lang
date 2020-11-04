@@ -50,11 +50,11 @@ public class IgnoreReturnCodeAction implements DiagBasedCodeAction {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         Position pos = diagnostic.getRange().getStart();
         boolean hasError = false;
-        if (typeDescriptor.kind() == TypeDescKind.ERROR) {
+        if (typeDescriptor.typeKind() == TypeDescKind.ERROR) {
             hasError = true;
-        } else if (typeDescriptor.kind() == TypeDescKind.UNION) {
+        } else if (typeDescriptor.typeKind() == TypeDescKind.UNION) {
             UnionTypeSymbol unionType = (UnionTypeSymbol) typeDescriptor;
-            hasError = unionType.memberTypeDescriptors().stream().anyMatch(s -> s.kind() == TypeDescKind.ERROR);
+            hasError = unionType.memberTypeDescriptors().stream().anyMatch(s -> s.typeKind() == TypeDescKind.ERROR);
         }
         // Add ignore return value code action
         if (!hasError) {

@@ -45,12 +45,16 @@ public class ImportDeclarationNode extends NonTerminalNode {
         return new SeparatedNodeList<>(childInBucket(2));
     }
 
-    public Optional<ImportPrefixNode> prefix() {
+    public Optional<ImportVersionNode> version() {
         return optionalChildInBucket(3);
     }
 
+    public Optional<ImportPrefixNode> prefix() {
+        return optionalChildInBucket(4);
+    }
+
     public Token semicolon() {
-        return childInBucket(4);
+        return childInBucket(5);
     }
 
     @Override
@@ -69,6 +73,7 @@ public class ImportDeclarationNode extends NonTerminalNode {
                 "importKeyword",
                 "orgName",
                 "moduleName",
+                "version",
                 "prefix",
                 "semicolon"};
     }
@@ -77,12 +82,14 @@ public class ImportDeclarationNode extends NonTerminalNode {
             Token importKeyword,
             ImportOrgNameNode orgName,
             SeparatedNodeList<IdentifierToken> moduleName,
+            ImportVersionNode version,
             ImportPrefixNode prefix,
             Token semicolon) {
         if (checkForReferenceEquality(
                 importKeyword,
                 orgName,
                 moduleName.underlyingListNode(),
+                version,
                 prefix,
                 semicolon)) {
             return this;
@@ -92,6 +99,7 @@ public class ImportDeclarationNode extends NonTerminalNode {
                 importKeyword,
                 orgName,
                 moduleName,
+                version,
                 prefix,
                 semicolon);
     }
@@ -110,6 +118,7 @@ public class ImportDeclarationNode extends NonTerminalNode {
         private Token importKeyword;
         private ImportOrgNameNode orgName;
         private SeparatedNodeList<IdentifierToken> moduleName;
+        private ImportVersionNode version;
         private ImportPrefixNode prefix;
         private Token semicolon;
 
@@ -118,6 +127,7 @@ public class ImportDeclarationNode extends NonTerminalNode {
             this.importKeyword = oldNode.importKeyword();
             this.orgName = oldNode.orgName().orElse(null);
             this.moduleName = oldNode.moduleName();
+            this.version = oldNode.version().orElse(null);
             this.prefix = oldNode.prefix().orElse(null);
             this.semicolon = oldNode.semicolon();
         }
@@ -131,7 +141,6 @@ public class ImportDeclarationNode extends NonTerminalNode {
 
         public ImportDeclarationNodeModifier withOrgName(
                 ImportOrgNameNode orgName) {
-            Objects.requireNonNull(orgName, "orgName must not be null");
             this.orgName = orgName;
             return this;
         }
@@ -143,9 +152,14 @@ public class ImportDeclarationNode extends NonTerminalNode {
             return this;
         }
 
+        public ImportDeclarationNodeModifier withVersion(
+                ImportVersionNode version) {
+            this.version = version;
+            return this;
+        }
+
         public ImportDeclarationNodeModifier withPrefix(
                 ImportPrefixNode prefix) {
-            Objects.requireNonNull(prefix, "prefix must not be null");
             this.prefix = prefix;
             return this;
         }
@@ -162,6 +176,7 @@ public class ImportDeclarationNode extends NonTerminalNode {
                     importKeyword,
                     orgName,
                     moduleName,
+                    version,
                     prefix,
                     semicolon);
         }

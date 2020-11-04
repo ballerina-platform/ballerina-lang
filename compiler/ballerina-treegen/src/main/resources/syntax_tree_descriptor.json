@@ -1458,9 +1458,9 @@
                     "isOptional": true
                 },
                 {
-                    "name": "finalKeyword",
+                    "name": "qualifiers",
                     "type": "Token",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "typedBindingPattern",

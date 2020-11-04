@@ -131,7 +131,6 @@ public class TableConstructorExpressionNode extends ExpressionNode {
 
         public TableConstructorExpressionNodeModifier withKeySpecifier(
                 KeySpecifierNode keySpecifier) {
-            Objects.requireNonNull(keySpecifier, "keySpecifier must not be null");
             this.keySpecifier = keySpecifier;
             return this;
         }
