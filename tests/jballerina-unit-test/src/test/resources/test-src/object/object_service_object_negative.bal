@@ -62,18 +62,12 @@ function testAssignabilityWithRemoteMethods() {
     ServiceWithRemoteMethodTwo p = k;
 }
 
-public type ObjWithResourceField object {
-    public resource string message;
-};
-
 public type DualAccessorService service object {
-    resource string message;
     resource function get resMethod() returns string;
     resource function post resMethod() returns string;
 };
 
 public type SingleAccessorService service object {
-    resource string message;
     resource function get resMethod() returns string;
 };
 

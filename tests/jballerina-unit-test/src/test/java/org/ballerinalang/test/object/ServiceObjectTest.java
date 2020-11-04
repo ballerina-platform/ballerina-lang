@@ -43,9 +43,8 @@ public class ServiceObjectTest {
         validateError(result, 1, "incompatible types: expected 'ServiceWithSingleMethod', found 'ServiceOne'", 36, 44);
         validateError(result, 2, "incompatible types: expected 'ObjWithSingleMethod', found 'ServiceWithRemoteMethod'",
                 61, 29);
-        validateError(result, 3, "resource fields are only allowed in service types", 66, 5);
-        validateError(result, 4, "incompatible types: expected 'DualAccessorService', found 'SingleAccessorService'",
-                83, 32);
-        Assert.assertEquals(result.getErrorCount(), 5);
+        validateError(result, 3, "incompatible types: expected 'DualAccessorService', found 'SingleAccessorService'",
+                77, 32);
+        Assert.assertEquals(result.getErrorCount(), 4);
     }
 }
