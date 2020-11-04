@@ -79,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -115,6 +116,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -225,6 +227,11 @@ public class ConstantPropagation extends BLangNodeVisitor {
         classDefinition.receiver = rewrite(classDefinition.receiver);
         rewrite(classDefinition.annAttachments);
         result = classDefinition;
+    }
+
+    @Override
+    public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
+        result = rewrite(objectConstructorExpression.typeInit);
     }
 
     @Override
@@ -493,6 +500,11 @@ public class ConstantPropagation extends BLangNodeVisitor {
     @Override
     public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
         result = varBindingPattern;
+    }
+
+    @Override
+    public void visit(BLangListMatchPattern listMatchPattern) {
+        result = listMatchPattern;
     }
 
     @Override

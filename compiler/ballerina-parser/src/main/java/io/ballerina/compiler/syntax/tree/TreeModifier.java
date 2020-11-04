@@ -1106,8 +1106,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
         MetadataNode metadata =
                 modifyNode(moduleVariableDeclarationNode.metadata().orElse(null));
-        Token finalKeyword =
-                modifyToken(moduleVariableDeclarationNode.finalKeyword().orElse(null));
+        NodeList<Token> qualifiers =
+                modifyNodeList(moduleVariableDeclarationNode.qualifiers());
         TypedBindingPatternNode typedBindingPattern =
                 modifyNode(moduleVariableDeclarationNode.typedBindingPattern());
         Token equalsToken =
@@ -1118,7 +1118,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(moduleVariableDeclarationNode.semicolonToken());
         return moduleVariableDeclarationNode.modify(
                 metadata,
-                finalKeyword,
+                qualifiers,
                 typedBindingPattern,
                 equalsToken,
                 initializer,
@@ -1425,7 +1425,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(typeCastParamNode.annotations());
         Node type =
-                modifyNode(typeCastParamNode.type());
+                modifyNode(typeCastParamNode.type().orElse(null));
         return typeCastParamNode.modify(
                 annotations,
                 type);
@@ -1612,7 +1612,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(templateExpressionNode.type().orElse(null));
         Token startBacktick =
                 modifyToken(templateExpressionNode.startBacktick());
-        NodeList<TemplateMemberNode> content =
+        NodeList<Node> content =
                 modifyNodeList(templateExpressionNode.content());
         Token endBacktick =
                 modifyToken(templateExpressionNode.endBacktick());

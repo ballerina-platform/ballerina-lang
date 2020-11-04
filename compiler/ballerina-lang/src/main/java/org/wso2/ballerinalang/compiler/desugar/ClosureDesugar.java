@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -148,7 +149,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -392,7 +392,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         result = blockNode;
     }
 
-    private void addClosureMap(List<BLangStatement> stmts, DiagnosticPos pos, BVarSymbol mapSymbol,
+    private void addClosureMap(List<BLangStatement> stmts, Location pos, BVarSymbol mapSymbol,
                                SymbolEnv blockEnv) {
         BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(symTable.builtinPos, mapSymbol.type);
         BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(symTable.builtinPos, mapSymbol.name.value,

@@ -131,14 +131,12 @@ public class RetryStatementNode extends StatementNode {
 
         public RetryStatementNodeModifier withTypeParameter(
                 TypeParameterNode typeParameter) {
-            Objects.requireNonNull(typeParameter, "typeParameter must not be null");
             this.typeParameter = typeParameter;
             return this;
         }
 
         public RetryStatementNodeModifier withArguments(
                 ParenthesizedArgList arguments) {
-            Objects.requireNonNull(arguments, "arguments must not be null");
             this.arguments = arguments;
             return this;
         }
@@ -152,7 +150,6 @@ public class RetryStatementNode extends StatementNode {
 
         public RetryStatementNodeModifier withOnFailClause(
                 OnFailClauseNode onFailClause) {
-            Objects.requireNonNull(onFailClause, "onFailClause must not be null");
             this.onFailClause = onFailClause;
             return this;
         }

@@ -164,7 +164,6 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
 
         public ServiceDeclarationNodeModifier withMetadata(
                 MetadataNode metadata) {
-            Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
@@ -178,7 +177,6 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
 
         public ServiceDeclarationNodeModifier withTypeDescriptor(
                 TypeDescriptorNode typeDescriptor) {
-            Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
             this.typeDescriptor = typeDescriptor;
             return this;
         }

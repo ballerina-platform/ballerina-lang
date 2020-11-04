@@ -1478,9 +1478,9 @@
                     "isOptional": true
                 },
                 {
-                    "name": "finalKeyword",
+                    "name": "qualifiers",
                     "type": "Token",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "typedBindingPattern",
@@ -1917,7 +1917,8 @@
                 },
                 {
                     "name": "type",
-                    "type": "Node"
+                    "type": "Node",
+                    "isOptional": true
                 }
             ]
         },
@@ -2168,7 +2169,7 @@
                 },
                 {
                     "name": "content",
-                    "type": "TemplateMemberNode",
+                    "type": "Node",
                     "occurrences": "MULTIPLE"
                 },
                 {
@@ -2178,13 +2179,8 @@
             ]
         },
         {
-            "name": "TemplateMemberNode",
-            "base": "Node",
-            "isAbstract": true
-        },
-        {
             "name": "XMLItemNode",
-            "base": "TemplateMemberNode",
+            "base": "Node",
             "isAbstract": true
         },
         {
@@ -4107,7 +4103,7 @@
         },
         {
             "name": "OrderByClauseNode",
-            "base": "ClauseNode",
+            "base": "IntermediateClauseNode",
             "kind": "ORDER_BY_CLAUSE",
             "attributes": [
                 {

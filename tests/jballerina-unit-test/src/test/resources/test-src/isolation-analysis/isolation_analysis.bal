@@ -170,7 +170,7 @@ isolated function testIsolatedFunctionPointerInvocation() {
     assertEquality(fn1(101, {first: 123, second: 234}), 226);
 }
 
-isolated function () returns int fn3 = isolated function () returns int {
+IsolatedFunction fn3 = isolated function () returns int {
     return 15;
 };
 
@@ -368,8 +368,8 @@ isolated function testAccessingFinalIsolatedObjectInIsolatedFunction() {
     IsolatedClass cl = isolatedObject;
     int[] arr = isolatedObject.getArray();
 
-    assertEquality(<int[]> [1, 2], arr);
-    assertEquality(<int[]> [1, 2], cl.getArray());
+    assertEquality(<int[]> [1, 2, 5], arr);
+    assertEquality(<int[]> [1, 2, 5], cl.getArray());
 }
 
 isolated function getIntArray() returns int[] => arr;
@@ -387,3 +387,5 @@ isolated function assertEquality(any|error expected, any|error actual) {
 
     panic error(string `expected '${expected.toString()}', found '${actual.toString()}'`);
 }
+
+type IsolatedFunction isolated function () returns int;

@@ -26,7 +26,7 @@ import java.util.Collection;
  *
  * @since 2.0.0
  */
-public abstract class STXMLItemNode extends STTemplateMemberNode {
+public abstract class STXMLItemNode extends STNode {
 
     STXMLItemNode(SyntaxKind kind) {
         super(kind);
