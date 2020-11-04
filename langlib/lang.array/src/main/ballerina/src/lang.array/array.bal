@@ -324,6 +324,6 @@ public isolated function fromBase16(string str) returns byte[]|error = @java:Met
 #
 # + arr - The array from which the stream is created
 # + return - The stream representation of the array `arr`
-public function toStream(Type[] arr) returns stream<Type> {
+public isolated function toStream(Type[] arr) returns stream<Type> {
     return internal:construct(internal:getElementType(typeof arr), iterator(arr));
 }

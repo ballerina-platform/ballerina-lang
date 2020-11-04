@@ -47,12 +47,6 @@ configurations {
     debugAdapterDistribution {
         transitive false
     }
-    composerDistribution {
-        transitive false
-    }
-    composerFonts {
-        transitive false
-    }
     docerina
     bin
     bir
@@ -104,6 +98,7 @@ dependencies {
     // Following dependencies are required for transactions
     dist 'com.atomikos:transactions-jta:5.0.8'
     dist 'com.atomikos:transactions-api:5.0.8'
+    dist 'com.atomikos:atomikos-util:5.0.8'
     dist 'com.atomikos:transactions:5.0.8'
 
     dist project(':ballerina-tools-api')
@@ -146,8 +141,6 @@ dependencies {
     bin project(path: ':jballerina', configuration: 'bin')
     staticFiles project(path: ':jballerina', configuration: 'staticFiles')
     resourceFiles project(path: ':jballerina', configuration: 'resourceFiles')
-    composerDistribution project(path: ':composer-library', configuration: 'composer')
-    composerFonts project(path: ':composer-library', configuration: 'fonts')
 
     distBal project(path: ':testerina:testerina-core', configuration: 'distributionBalo')
     balSource project(path: ':testerina:testerina-core', configuration: 'balSource')
@@ -363,24 +356,6 @@ def copyDataMapperLibsSpec = {
     }
 }
 
-def copyComposerDistributionSpec = {
-    path -> copySpec {
-        from(configurations.composerDistribution)
-        into(path + 'lib/tools/composer-library')
-        exclude('**/*.d.ts')
-        exclude('**/*.map')
-    }
-}
-
-def copyComposerFontsSpec = {
-    path -> copySpec {
-        from configurations.composerFonts
-        into(path + 'lib/tools/composer-library')
-        exclude('**/*.d.ts')
-        exclude('**/*.map')
-    }
-}
-
 def apiDocsSpec = {
     path -> copySpec {
         from generateDocs.outputs.files
@@ -457,8 +432,6 @@ task createZip(type: Zip) {
     with copyLangServerLibsSpec(basePath)
     with copyDataMapperLibsSpec(basePath)
     with copyLangServerBinSpec(basePath)
-    with copyComposerDistributionSpec(basePath)
-    with copyComposerFontsSpec(basePath)
     with copyBallerinaZipSpec(basePath)
     with copydebugAdapterDistributionSpec(basePath)
     with copyDebugAdapterLauncher(basePath)
@@ -483,8 +456,6 @@ task updateBalHome(type: Copy) {
     with copyLangServerLibsSpec(installDir)
     with copyDataMapperLibsSpec(installDir)
     with copyLangServerBinSpec(installDir)
-    with copyComposerDistributionSpec(installDir)
-    with copyComposerFontsSpec(installDir)
     with copyBallerinaZipSpec(installDir)
     with copydebugAdapterDistributionSpec(installDir)
     with copyDebugAdapterLauncher(installDir)
@@ -511,8 +482,6 @@ task createDistribution(type: Copy) {
     with copyLangServerLibsSpec("")
     with copyDataMapperLibsSpec("")
     with copyLangServerBinSpec("")
-    with copyComposerDistributionSpec("")
-    with copyComposerFontsSpec("")
     with copyBallerinaZipSpec("")
     with copydebugAdapterDistributionSpec("")
     with copyDebugAdapterLauncher("")

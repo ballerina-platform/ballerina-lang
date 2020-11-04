@@ -41,14 +41,14 @@ public class PackageImportTest {
         BAssertUtil.validateError(result, 0, "redeclared import module 'ballerina/java'", 2, 1);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testImportSamePkgWithDifferentAlias() {
         CompileResult result =
                 BCompileUtil.compile("test-src/statements/package/imports/import-same-pkg-with-different-alias.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testImportDifferentPkgsWithSameAlias() {
         CompileResult result = BCompileUtil
                 .compile("test-src/statements/package/imports/import-different-pkgs-with-same-alias-negative.bal");
@@ -71,12 +71,12 @@ public class PackageImportTest {
         BAssertUtil.validateError(result, 0, "cannot resolve module 'bar/foo.x as x'", 1, 1);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testImportsPerfile() {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/sample-project-1");
         Assert.assertEquals(result.getErrorCount(), 6);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "redeclared import module 'ballerina/io'", "src/file-negative1.bal", 3,
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'int'", "src/file-negative1.bal", 3,
                 1);
         BAssertUtil.validateError(result, i++, "undefined module 'http'", "src/file-negative2.bal", 3, 5);
         BAssertUtil.validateError(result, i++, "unknown type 'Client'", "src/file-negative2.bal", 3, 5);

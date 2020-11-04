@@ -21,9 +21,11 @@ import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -44,10 +46,14 @@ public class ExplicitAnonymousFunctionExpressionNodeContext
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ExplicitAnonymousFunctionExpressionNode node) {
+    public List<LSCompletionItem> getCompletions(LSContext context, ExplicitAnonymousFunctionExpressionNode node)
+            throws LSCompletionException {
         if (this.onSuggestionsAfterQualifiers(context, node)) {
             // Currently we consider the isolated qualifier only
             return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+        }
+        if (this.onSuggestionsWithinSignature(context, node)) {
+            return CompletionUtil.route(context, node.functionSignature());
         }
 
         return new ArrayList<>();
@@ -64,5 +70,15 @@ public class ExplicitAnonymousFunctionExpressionNodeContext
         Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
         return cursor > lastQualifier.textRange().endOffset()
                 && (functionKeyword.isMissing() || cursor < functionKeyword.textRange().startOffset());
+    }
+    
+    private boolean onSuggestionsWithinSignature(LSContext context, ExplicitAnonymousFunctionExpressionNode node) {
+        Token functionKeyword = node.functionKeyword();
+        if (functionKeyword.isMissing()) {
+            return false;
+        }
+        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        
+        return cursor > functionKeyword.textRange().endOffset();
     }
 }

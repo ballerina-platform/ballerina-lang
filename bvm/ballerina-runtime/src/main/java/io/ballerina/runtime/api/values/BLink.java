@@ -24,7 +24,6 @@ package io.ballerina.runtime.api.values;
  * @since Swan Lake
  */
 public interface BLink {
-    int INDEX = 0;
 
     boolean hasCyclesSoFar();
 }

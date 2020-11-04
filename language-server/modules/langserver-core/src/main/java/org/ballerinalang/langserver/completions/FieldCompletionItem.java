@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langserver.completions;
 
-import io.ballerina.compiler.api.types.FieldDescriptor;
+import io.ballerina.compiler.api.symbols.FieldSymbol;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.AbstractLSCompletionItem;
 import org.eclipse.lsp4j.CompletionItem;
@@ -28,14 +28,14 @@ import org.eclipse.lsp4j.CompletionItem;
  * @since 1.2.0
  */
 public class FieldCompletionItem extends AbstractLSCompletionItem {
-    private final FieldDescriptor fieldDescriptor;
+    private final FieldSymbol fieldSymbol;
 
-    public FieldCompletionItem(LSContext lsContext, FieldDescriptor fieldDescriptor, CompletionItem completionItem) {
+    public FieldCompletionItem(LSContext lsContext, FieldSymbol fieldSymbol, CompletionItem completionItem) {
         super(lsContext, completionItem);
-        this.fieldDescriptor = fieldDescriptor;
+        this.fieldSymbol = fieldSymbol;
     }
 
-    public FieldDescriptor getFieldDescriptor() {
-        return fieldDescriptor;
+    public FieldSymbol getFieldSymbol() {
+        return fieldSymbol;
     }
 }

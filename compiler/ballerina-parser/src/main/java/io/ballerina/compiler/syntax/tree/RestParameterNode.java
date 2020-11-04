@@ -135,7 +135,6 @@ public class RestParameterNode extends ParameterNode {
 
         public RestParameterNodeModifier withParamName(
                 Token paramName) {
-            Objects.requireNonNull(paramName, "paramName must not be null");
             this.paramName = paramName;
             return this;
         }

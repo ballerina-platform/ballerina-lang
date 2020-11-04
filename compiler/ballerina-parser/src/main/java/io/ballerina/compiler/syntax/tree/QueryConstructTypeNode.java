@@ -101,7 +101,6 @@ public class QueryConstructTypeNode extends NonTerminalNode {
 
         public QueryConstructTypeNodeModifier withKeySpecifier(
                 KeySpecifierNode keySpecifier) {
-            Objects.requireNonNull(keySpecifier, "keySpecifier must not be null");
             this.keySpecifier = keySpecifier;
             return this;
         }

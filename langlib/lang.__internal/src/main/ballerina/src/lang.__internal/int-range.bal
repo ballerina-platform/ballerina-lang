@@ -24,7 +24,7 @@ class IntRange {
     private int iEnd;
     private int iCurrent;
 
-    public function init(int s, int e) {
+    public isolated function init(int s, int e) {
         self.iStart = s;
         self.iEnd = e;
         self.iCurrent = s;
@@ -47,7 +47,8 @@ class IntRange {
         return ();
     }
 
-    public function __iterator() returns object {public isolated function next() returns record {|int value;|}?;} {
+    public isolated function __iterator() returns
+        object {public isolated function next() returns record {|int value;|}?;} {
             return new IntRange(self.iStart, self.iEnd);
     }
 }
@@ -58,9 +59,9 @@ class IntRange {
 # + s - The lower bound of the integer range inclusive
 # + e - The upper bound if the integer range inclusive
 # + return - `IntRange` object
-public function createIntRange(int s, int e) returns
+public isolated function createIntRange(int s, int e) returns
         object {
-            public function __iterator() returns
+            public isolated function __iterator() returns
                 object {
                     public isolated function next() returns
                         record {|int value;|}?;

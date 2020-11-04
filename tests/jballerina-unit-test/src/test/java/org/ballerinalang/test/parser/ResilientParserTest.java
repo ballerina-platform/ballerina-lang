@@ -200,11 +200,10 @@ public class ResilientParserTest {
     @Test
     public void testResilientParsingClassDefn() {
         CompileResult result = BCompileUtil.compile("test-src/parser/resilient-parsing-class-defn.bal");
-        Assert.assertEquals(result.getErrorCount(), 4);
-        BAssertUtil.validateError(result, 0, "missing class keyword", 1, 16);
-        BAssertUtil.validateError(result, 1, "missing close brace token", 1, 16);
-        BAssertUtil.validateError(result, 2, "missing identifier", 1, 16);
-        BAssertUtil.validateError(result, 3, "missing open brace token", 1, 16);
+        Assert.assertEquals(result.getErrorCount(), 3);
+        BAssertUtil.validateError(result, 0, "missing close brace token", 1, 22);
+        BAssertUtil.validateError(result, 1, "missing identifier", 1, 22);
+        BAssertUtil.validateError(result, 2, "missing open brace token", 1, 22);
     }
 
     @Test

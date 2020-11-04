@@ -42,7 +42,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -250,7 +249,7 @@ public class ReferencesUtil {
     public static List<Location> getLocations(List<Reference> references, String sourceRoot) {
         return references.stream()
                 .map(reference -> {
-                    DiagnosticPos position = reference.getPosition();
+                    io.ballerina.tools.diagnostics.Location position = reference.getPosition();
                     Path baseRoot = reference.getSourcePkgName().equals(".")
                             ? Paths.get(sourceRoot)
                             : Paths.get(sourceRoot).resolve(ProjectDirConstants.SOURCE_DIR_NAME)
@@ -274,7 +273,7 @@ public class ReferencesUtil {
         LSDocumentIdentifier sourceDoc = context.get(DocumentServiceKeys.LS_DOCUMENT_KEY);
 
         references.forEach(reference -> {
-            DiagnosticPos referencePos = reference.getPosition();
+            io.ballerina.tools.diagnostics.Location referencePos = reference.getPosition();
             String pkgName = reference.getSourcePkgName();
             String cUnitName = reference.getCompilationUnit();
             String uri;
@@ -298,9 +297,11 @@ public class ReferencesUtil {
         return workspaceEdit;
     }
 
-    private static Range getRange(DiagnosticPos referencePos) {
-        Position start = new Position(referencePos.sLine, referencePos.sCol);
-        Position end = new Position(referencePos.eLine, referencePos.eCol);
+    private static Range getRange(io.ballerina.tools.diagnostics.Location referencePos) {
+        Position start = new Position(
+                referencePos.lineRange().startLine().line(), referencePos.lineRange().startLine().offset());
+        Position end = new Position(
+                referencePos.lineRange().endLine().line(), referencePos.lineRange().endLine().offset());
         return new Range(start, end);
     }
 }

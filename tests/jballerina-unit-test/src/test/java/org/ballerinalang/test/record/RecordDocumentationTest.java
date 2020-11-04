@@ -65,7 +65,7 @@ public class RecordDocumentationTest {
         Assert.assertNotNull(dNode);
     }
 
-    @Test(description = "Test doc struct.", groups = { "disableOnOldParser" })
+    @Test(description = "Test doc struct.")
     public void testDocStruct() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_doc_annotation.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
@@ -88,7 +88,7 @@ public class RecordDocumentationTest {
                 EMPTY_STRING), "struct `field c` documentation");
     }
 
-    @Test(description = "Test doc negative cases.", groups = { "disableOnOldParser" }, enabled = false)
+    @Test(description = "Test doc negative cases.", groups = { "disableOnOldParser" })
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_documentation_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0,
@@ -110,13 +110,13 @@ public class RecordDocumentationTest {
         BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'conn'", 79, 5);
         BAssertUtil.validateWarning(compileResult, i++, "parameter 'req' already documented", 85, 9);
         BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'reqest'", 86, 9);
-        BAssertUtil.validateWarning(compileResult, i++, "field 'abc' already documented", 96, 5);
-        BAssertUtil.validateWarning(compileResult, i++, "invalid reference in documentation 'Baz' for type 'type'", 96,
+        BAssertUtil.validateWarning(compileResult, i++, "field 'abc' already documented", 95, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "invalid reference in documentation 'Baz' for type 'type'", 95,
                                     75);
-        BAssertUtil.validateWarning(compileResult, i++, "invalid reference in documentation 'Baz' for type 'type'", 100,
+        BAssertUtil.validateWarning(compileResult, i++, "invalid reference in documentation 'Baz' for type 'type'", 99,
                                     33);
-        BAssertUtil.validateWarning(compileResult, i++, "undocumented field 'def'", 104, 5);
-        BAssertUtil.validateWarning(compileResult, i, "invalid reference in documentation 'Baz' for type 'type'", 107,
+        BAssertUtil.validateWarning(compileResult, i++, "undocumented field 'def'", 103, 5);
+        BAssertUtil.validateWarning(compileResult, i, "invalid reference in documentation 'Baz' for type 'type'", 106,
                                     33);
     }
 

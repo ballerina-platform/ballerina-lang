@@ -19,7 +19,6 @@ package io.ballerina.runtime.observability;
 
 import io.ballerina.runtime.observability.metrics.Tag;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -39,20 +38,8 @@ public class ObserverContext {
     /**
      * {@link Map} of values (with tag as map's key and tag value as map's value),
      * which is required to pass to observers.
-     *
-     * {@link Map} is used here to stop {@link Set} and @{link Tag} objects being instantiated
-     * every-time tags are taken from the observer context to generate metrics.
-     *
-     * These tags are updated before the a service resource function is hit in the runtime.
-     * After that point only additional tags should be used.
      */
-    private final Map<String, Tag> mainTags;
-
-    /**
-     * This is similar to the mainTags.
-     * However, this map contains all the tags added after a service resource function is hit in the runtime.
-     */
-    private final Map<String, Tag> additionalTags;
+    private final Map<String, Tag> tags;
 
     private String serviceName;
 
@@ -74,8 +61,7 @@ public class ObserverContext {
 
     public ObserverContext() {
         this.properties = new HashMap<>();
-        this.mainTags = new HashMap<>();
-        this.additionalTags = new HashMap<>();
+        this.tags = new HashMap<>();
     }
 
     public void addProperty(String key, Object value) {
@@ -86,56 +72,24 @@ public class ObserverContext {
         return properties.get(key);
     }
 
-    /**
-     * Add a main tag.
-     * This method should only be invoked before a service resource function is hit in the runtime.
-     *
-     * @param key The tag key
-     * @param value The tag value
-     */
+    @Deprecated
     public void addMainTag(String key, String value) {
-        if (isStarted()) {
-            throw new IllegalStateException("main tags cannot be added after the observation had been started");
-        }
-        addTag(mainTags, key, value);
+        // TODO: Remove this method once all the usages in the standard libraries had been updated.
+        addTag(key, value);
     }
 
-    /**
-     * Add an additional tag.
-     * This method should only be invoked after a service resource function is hit in the runtime.
-     *
-     * @param key The tag key
-     * @param value The tag value
-     */
     public void addTag(String key, String value) {
-        addTag(additionalTags, key, value);
-    }
-
-    private void addTag(Map<String, Tag> tagsValueMap, String key, String value) {
         String sanitizedValue = value != null ? value : "";
         Tag tag = Tag.of(key, sanitizedValue);
-        tagsValueMap.put(key, tag);
+        tags.put(key, tag);
     }
 
     public Tag getTag(String key) {
-        Tag tag = mainTags.get(key);
-        if (tag == null) {
-            tag = additionalTags.get(key);
-        }
-        return tag;
-    }
-
-    public Set<Tag> getMainTags() {
-        Set<Tag> tagSet = new HashSet<>(mainTags.size());
-        tagSet.addAll(mainTags.values());
-        return Collections.unmodifiableSet(tagSet);
+        return tags.get(key);
     }
 
     public Set<Tag> getAllTags() {
-        Set<Tag> allTags = new HashSet<>(mainTags.size() + additionalTags.size());
-        allTags.addAll(mainTags.values());
-        allTags.addAll(additionalTags.values());
-        return Collections.unmodifiableSet(allTags);
+        return new HashSet<>(tags.values());
     }
 
     public String getServiceName() {
