@@ -304,6 +304,13 @@ class ModuleContext {
             moduleLoadRequests.addAll(docContext.moduleLoadRequests());
         }
 
+        // Combine all the moduleLoadRequests of test documents
+        if (!moduleContext.testSrcDocIds.isEmpty()) {
+            for (DocumentContext docContext : moduleContext.testDocContextMap.values()) {
+                moduleLoadRequests.addAll(docContext.moduleLoadRequests());
+            }
+        }
+
         // 2) Resolve all the dependencies of this module
         PackageResolver packageResolver = moduleContext.project.projectEnvironmentContext().
                 getService(PackageResolver.class);

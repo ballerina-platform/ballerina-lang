@@ -289,10 +289,6 @@ public class BuildCommandTest extends BaseCommandTest {
                 "Creating balos\n" +
                 "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
                 "\n" +
-                "Running Tests\n" +
-                "\twinery\n" +
-                "\tNo tests found\n" +
-                "\n" +
                 "Generating executable\n" +
                 "\ttarget/bin/winery.jar\n");
 
