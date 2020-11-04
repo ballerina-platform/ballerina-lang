@@ -24,16 +24,12 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeConstants;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
-import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.services.ErrorHandlerUtils;
-import io.ballerina.runtime.types.BArrayType;
 import io.ballerina.runtime.types.BErrorType;
 import io.ballerina.runtime.types.BTypeIdSet;
 import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
@@ -46,7 +42,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_RUNTIME_PKG_ID;
 import static io.ballerina.runtime.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 import static io.ballerina.runtime.util.BLangConstants.GENERATE_PKG_INIT;
 import static io.ballerina.runtime.util.BLangConstants.GENERATE_PKG_START;
@@ -290,7 +285,7 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     @Override
-    public BArray getCallStack() {
+    public List<StackTraceElement> getCallStack() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         List<StackTraceElement> filteredStack = new LinkedList<>();
         int index = 0;
@@ -298,12 +293,7 @@ public class ErrorValue extends BError implements RefValue {
             Optional<StackTraceElement> stackTraceElement = filterStackTraceElement(stackFrame, index++);
             stackTraceElement.ifPresent(filteredStack::add);
         }
-        Type recordType = ValueCreator.createRecordValue(BALLERINA_RUNTIME_PKG_ID, CALL_STACK_ELEMENT).getType();
-        ArrayValue callStack = new ArrayValueImpl(new BArrayType(recordType));
-        for (int i = 0; i < filteredStack.size(); i++) {
-            callStack.add(i, getStackFrame(filteredStack.get(i)));
-        }
-        return callStack;
+        return filteredStack;
     }
 
     private void printStackElement(StringBuilder sb, StackTraceElement stackTraceElement, String tab) {
@@ -388,15 +378,13 @@ public class ErrorValue extends BError implements RefValue {
                 new StackTraceElement(cleanupClassName(className), methodName, fileName, stackFrame.getLineNumber()));
     }
 
-    private BMap<BString, Object> getStackFrame(StackTraceElement stackTraceElement) {
+    public static Object[] getStackFrame(StackTraceElement stackTraceElement) {
         Object[] values = new Object[4];
         values[0] = stackTraceElement.getMethodName();
         values[1] = stackTraceElement.getClassName();
         values[2] = stackTraceElement.getFileName();
         values[3] = stackTraceElement.getLineNumber();
-        return ValueCreator.
-                createRecordValue(ValueCreator.createRecordValue(BALLERINA_RUNTIME_PKG_ID, CALL_STACK_ELEMENT),
-                                  values);
+        return values;
     }
 
     private String cleanupClassName(String className) {

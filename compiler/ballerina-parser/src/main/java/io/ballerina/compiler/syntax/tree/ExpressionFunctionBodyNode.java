@@ -118,7 +118,6 @@ public class ExpressionFunctionBodyNode extends FunctionBodyNode {
 
         public ExpressionFunctionBodyNodeModifier withSemicolon(
                 Token semicolon) {
-            Objects.requireNonNull(semicolon, "semicolon must not be null");
             this.semicolon = semicolon;
             return this;
         }

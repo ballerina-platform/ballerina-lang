@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.langserver.completion.latest;
 
 import com.google.gson.Gson;
@@ -51,14 +51,12 @@ public abstract class CompletionTestNew {
     private Endpoint serviceEndpoint;
 
     private final Path testRoot = FileUtils.RES_DIR.resolve("completion").resolve("new");
-    
+
     private final String configDir = "config";
     
-    private final String sourceDir = "source";
+    private final JsonParser parser = new JsonParser();
 
-    private JsonParser parser = new JsonParser();
-
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
 
     @BeforeClass
     public void init() {
@@ -118,22 +116,22 @@ public abstract class CompletionTestNew {
 
     @DataProvider(name = "completion-data-provider")
     public abstract Object[][] dataProvider();
-    
+
     public Object[][] testSubset() {
         return new Object[0][];
     }
-    
+
     public List<String> skipList() {
         return Arrays.asList("config3.json", "config4.json");
     }
-    
+
     public abstract String getTestResourceDir();
 
     @AfterClass
     public void cleanupLanguageServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
-    
+
     protected Object[][] getConfigsList() {
         if (this.testSubset().length != 0) {
             return this.testSubset();
@@ -141,7 +139,7 @@ public abstract class CompletionTestNew {
         List<String> skippedTests = this.skipList();
         try {
             return Files.walk(this.testRoot.resolve(this.getTestResourceDir()).resolve(this.configDir))
-                    .filter(path -> { 
+                    .filter(path -> {
                         File file = path.toFile();
                         return file.isFile() && file.getName().endsWith(".json")
                                 && !skippedTests.contains(file.getName());

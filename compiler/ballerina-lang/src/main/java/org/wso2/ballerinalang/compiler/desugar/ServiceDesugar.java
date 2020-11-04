@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -41,7 +42,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -105,7 +105,7 @@ public class ServiceDesugar {
         //  _ = [check] var.__start/__stop();
         //
 
-        final DiagnosticPos pos = variable.pos;
+        final Location pos = variable.pos;
 
         // Find correct symbol.
         final Name functionName = names
@@ -133,7 +133,7 @@ public class ServiceDesugar {
         // after desugar :
         //      (init)                          ->      y.__attach(x, {});
 
-        final DiagnosticPos pos = service.pos;
+        final Location pos = service.pos;
 
         ASTBuilderUtil.defineVariable(service.serviceVariable, env.enclPkg.symbol, names);
         env.enclPkg.globalVars.add(service.serviceVariable);
@@ -172,7 +172,7 @@ public class ServiceDesugar {
         }
     }
 
-    private void addMethodInvocation(DiagnosticPos pos, BLangSimpleVarRef varRef, BInvokableSymbol methodRefSymbol,
+    private void addMethodInvocation(Location pos, BLangSimpleVarRef varRef, BInvokableSymbol methodRefSymbol,
                                      List<BLangExpression> args,
                                      BlockNode body) {
         // Create method invocation

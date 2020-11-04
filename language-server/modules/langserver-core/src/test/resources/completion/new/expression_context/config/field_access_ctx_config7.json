@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 4,
+    "character": 16
+  },
+  "source": "expression_context/source/field_access_ctx_source7.bal",
+  "items": [
+    {
+      "label": "testField",
+      "detail": "int",
+      "insertText": "testField",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testField2",
+      "detail": "string",
+      "insertText": "testField2",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

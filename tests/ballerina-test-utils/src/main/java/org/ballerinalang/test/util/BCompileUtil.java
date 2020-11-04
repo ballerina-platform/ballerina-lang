@@ -460,6 +460,34 @@ public class BCompileUtil {
         return comResult;
     }
 
+    /**
+     * This method is intended for use in cases where you need control over both the compiler context and the compiler
+     * phase. This will not create an executable Ballerina program.
+     *
+     * @param sourceFilePath Relative path to the test source .bal file
+     * @param context        A CompilerContext instance
+     * @param compilerPhase  The phase up to which the compilation will be done
+     * @return A CompileResult instance
+     */
+    public static CompileResult compile(String sourceFilePath, CompilerContext context, CompilerPhase compilerPhase) {
+        Path sourcePath = Paths.get(sourceFilePath);
+        String packageName = sourcePath.getFileName().toString();
+        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
+
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRoot.toString());
+        options.put(COMPILER_PHASE, compilerPhase.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
+        options.put(OFFLINE, "true");
+
+        // compile
+        Compiler compiler = Compiler.getInstance(context);
+        BLangPackage packageNode = compiler.compile(packageName);
+        CompileResult comResult = new CompileResult(context, packageNode);
+        return comResult;
+    }
+
     private static CompileResult compile(CompilerContext context,
                                          String packageName,
                                          CompilerPhase compilerPhase,
@@ -740,7 +768,7 @@ public class BCompileUtil {
     }
 
     private static String calcFileNameForJar(BLangPackage bLangPackage) {
-        PackageID pkgID = bLangPackage.pos.src.pkgID;
+        PackageID pkgID = bLangPackage.packageID;
         Name sourceFileName = pkgID.sourceFileName;
         if (sourceFileName != null) {
             return sourceFileName.value.replaceAll("\\.bal$", "");

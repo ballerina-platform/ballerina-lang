@@ -146,7 +146,6 @@ public class MethodDeclarationNode extends NonTerminalNode {
 
         public MethodDeclarationNodeModifier withMetadata(
                 MetadataNode metadata) {
-            Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }

@@ -17,7 +17,8 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.api.types.ObjectTypeSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -67,7 +68,8 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
             (2) [module:]TypeName c = module:a<cursor>
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.expression();
-            Predicate<Symbol> filter = symbol -> symbol.kind() == SymbolKind.VARIABLE;
+            Predicate<Symbol> filter = symbol -> symbol instanceof VariableSymbol
+                    || symbol.kind() == SymbolKind.FUNCTION;
             List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, filter);
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
         } else {
@@ -92,7 +94,7 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
     private List<LSCompletionItem> getNewExprCompletionItems(LSContext context, AssignmentStatementNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         ArrayList<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        Optional<ObjectTypeDescriptor> objectType;
+        Optional<ObjectTypeSymbol> objectType;
         Node varRef = node.varRef();
         if (varRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String identifier = ((SimpleNameReferenceNode) varRef).name().text();

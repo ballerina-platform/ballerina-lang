@@ -59,8 +59,12 @@ public abstract class FormatterTest {
         String content = getSourceText(sourceFilePath);
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
-        SyntaxTree newSyntaxTree = Formatter.format(syntaxTree);
-        Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
+        try {
+            SyntaxTree newSyntaxTree = Formatter.format(syntaxTree);
+            Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
+        } catch (FormatterException e) {
+            Assert.fail(e.getMessage(), e);
+        }
     }
 
     /**
@@ -74,8 +78,12 @@ public abstract class FormatterTest {
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
         if (!syntaxTree.hasDiagnostics()) {
-            SyntaxTree newSyntaxTree = Formatter.format(syntaxTree);
-            Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(filePath));
+            try {
+                SyntaxTree newSyntaxTree = Formatter.format(syntaxTree);
+                Assert.assertEquals(newSyntaxTree.toSourceCode(), content);
+            } catch (FormatterException e) {
+                Assert.fail(e.getMessage(), e);
+            }
         }
     }
 

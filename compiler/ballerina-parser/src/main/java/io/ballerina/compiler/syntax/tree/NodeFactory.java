@@ -1071,17 +1071,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ModuleVariableDeclarationNode createModuleVariableDeclarationNode(
             MetadataNode metadata,
-            Token finalKeyword,
+            NodeList<Token> qualifiers,
             TypedBindingPatternNode typedBindingPattern,
             Token equalsToken,
             ExpressionNode initializer,
             Token semicolonToken) {
+        Objects.requireNonNull(qualifiers, "qualifiers must not be null");
         Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
         Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
 
         STNode stModuleVariableDeclarationNode = STNodeFactory.createModuleVariableDeclarationNode(
                 getOptionalSTNode(metadata),
-                getOptionalSTNode(finalKeyword),
+                qualifiers.underlyingListNode().internalNode(),
                 typedBindingPattern.internalNode(),
                 getOptionalSTNode(equalsToken),
                 getOptionalSTNode(initializer),
@@ -1377,11 +1378,10 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             NodeList<AnnotationNode> annotations,
             Node type) {
         Objects.requireNonNull(annotations, "annotations must not be null");
-        Objects.requireNonNull(type, "type must not be null");
 
         STNode stTypeCastParamNode = STNodeFactory.createTypeCastParamNode(
                 annotations.underlyingListNode().internalNode(),
-                type.internalNode());
+                getOptionalSTNode(type));
         return stTypeCastParamNode.createUnlinkedFacade();
     }
 
@@ -1556,7 +1556,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             SyntaxKind kind,
             Token type,
             Token startBacktick,
-            NodeList<TemplateMemberNode> content,
+            NodeList<Node> content,
             Token endBacktick) {
         Objects.requireNonNull(startBacktick, "startBacktick must not be null");
         Objects.requireNonNull(content, "content must not be null");

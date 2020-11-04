@@ -230,10 +230,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     ParserRuleContext.TRANSACTIONAL_KEYWORD };
 
     private static final ParserRuleContext[] OBJECT_TYPE_START =
-            { ParserRuleContext.OBJECT_TYPE_QUALIFIER, ParserRuleContext.OBJECT_KEYWORD };
+            { ParserRuleContext.OBJECT_KEYWORD, ParserRuleContext.OBJECT_TYPE_QUALIFIER };
 
     private static final ParserRuleContext[] OBJECT_CONSTRUCTOR_START =
-            { ParserRuleContext.OBJECT_CONSTRUCTOR_QUALIFIER, ParserRuleContext.OBJECT_KEYWORD };
+            { ParserRuleContext.OBJECT_KEYWORD, ParserRuleContext.OBJECT_CONSTRUCTOR_QUALIFIER };
 
     private static final ParserRuleContext[] OBJECT_CONSTRUCTOR_RHS =
             { ParserRuleContext.OPEN_BRACE, ParserRuleContext.TYPE_REFERENCE };
@@ -272,8 +272,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.STRING_KEYWORD, ParserRuleContext.BASE64_KEYWORD, ParserRuleContext.BASE64_KEYWORD,
             ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.NEW_KEYWORD,
             ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD, ParserRuleContext.LEFT_ARROW_TOKEN,
-            ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD, ParserRuleContext.TRANSACTIONAL_KEYWORD,
-            ParserRuleContext.ISOLATED_KEYWORD, ParserRuleContext.OBJECT_CONSTRUCTOR };
+            ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD,
+            ParserRuleContext.TRANSACTIONAL_KEYWORD, ParserRuleContext.ISOLATED_KEYWORD };
 
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
             { ParserRuleContext.MAPPING_FIELD, ParserRuleContext.CLOSE_BRACE };
@@ -640,7 +640,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.ISOLATED_KEYWORD, ParserRuleContext.FUNCTION_KEYWORD };
 
     private static final ParserRuleContext[] MODULE_CLASS_DEFINITION_START =
-            { ParserRuleContext.CLASS_TYPE_QUALIFIER, ParserRuleContext.CLASS_KEYWORD };
+            { ParserRuleContext.CLASS_KEYWORD, ParserRuleContext.CLASS_TYPE_QUALIFIER };
 
     private static final ParserRuleContext[] REGULAR_COMPOUND_STMT_RHS =
             { ParserRuleContext.STATEMENT, ParserRuleContext.ON_FAIL_CLAUSE };
@@ -2449,8 +2449,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_TYPE_QUALIFIER:
             case OBJECT_CONSTRUCTOR_QUALIFIER:
                 return ParserRuleContext.OBJECT_KEYWORD;
-            case CLASS_TYPE_QUALIFIER:
-                return ParserRuleContext.CLASS_KEYWORD;
             case OPEN_BRACKET:
                 return getNextRuleForOpenBracket();
             case CLOSE_BRACKET:
