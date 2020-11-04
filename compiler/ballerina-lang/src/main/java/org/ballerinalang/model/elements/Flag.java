@@ -136,9 +136,5 @@ public enum Flag {
     /**
      * Indicates flagged node is a class.
      */
-    CLASS,
-    /**
-     * Indicates flagged node is a cyclic union.
-     */
-    CYCLIC
+    CLASS
 }

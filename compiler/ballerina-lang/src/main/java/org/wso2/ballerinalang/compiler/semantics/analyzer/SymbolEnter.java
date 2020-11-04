@@ -926,8 +926,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             for (BLangNode unresolvedType : unresolvedTypes) {
                 Stack<String> references = new Stack<>();
-                if (unresolvedType.getKind() == NodeKind.TYPE_DEFINITION
-                        || unresolvedType.getKind() == NodeKind.CONSTANT) {
+                var unresolvedKind = unresolvedType.getKind();
+                if (unresolvedKind == NodeKind.TYPE_DEFINITION || unresolvedKind == NodeKind.CONSTANT) {
                     TypeDefinition def = (TypeDefinition) unresolvedType;
                     // We need to keep track of all visited types to print cyclic dependency.
                     references.push(def.getName().getValue());
@@ -1117,9 +1117,9 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public boolean isUnknownTypeRef(BLangUserDefinedType bLangUserDefinedType) {
-        LocationData locationData = new LocationData(bLangUserDefinedType.typeName.value,
-                bLangUserDefinedType.pos.lineRange().startLine().line(),
-                bLangUserDefinedType.pos.lineRange().startLine().offset());
+        var startLine = bLangUserDefinedType.pos.lineRange().startLine();
+        LocationData locationData = new LocationData(bLangUserDefinedType.typeName.value, startLine.line(),
+                startLine.offset());
         return unknownTypeRefs.contains(locationData);
     }
 
@@ -1272,78 +1272,25 @@ public class SymbolEnter extends BLangNodeVisitor {
                 typeDefName, env.enclPkg.symbol.pkgID, unionType, env.scope.owner,
                 typeDef.pos, SOURCE);
         typeDef.symbol = typeDefSymbol;
+
+        // We define the unionType in the main scope here
         if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
             typeDefSymbol.origin = BUILTIN;
             handleLangLibTypes(typeDef);
         } else {
             defineSymbol(typeDef.name.pos, typeDefSymbol);
         }
-        BType definedType = symResolver.resolveTypeNode(typeDef.typeNode, env);
-        if (definedType.tag == TypeTags.UNION) {
-            BUnionType definedUnionType = (BUnionType) definedType;
+        BType resolvedUnionWrapper = symResolver.resolveTypeNode(typeDef.typeNode, env);
+        // Transform all members from union wrapper to defined union type
+        if (resolvedUnionWrapper.tag == TypeTags.UNION) {
+            BUnionType definedUnionType = (BUnionType) resolvedUnionWrapper;
             unionType.tsymbol = definedUnionType.tsymbol;
             unionType.tsymbol.name = names.fromIdNode(typeDef.name);
             unionType.flags |= typeDefSymbol.flags;
-            unionType.flags |= Flags.asMask(EnumSet.of(Flag.CYCLIC));
-            unionType.isCyclic = true;
-            definedUnionType.isCyclic = true;
             for (BType member : definedUnionType.getMemberTypes()) {
-//                if (member.tag == TypeTags.ARRAY) {
-//                    var arrayType = (BArrayType) member;
-//                    if (arrayType.eType == unionType) {
-//                        unionType.add(member);
-//                        continue;
-//                    }
-//                    if (arrayType.eType.tsymbol.name.getValue().equals(typeDefNameValue)) {
-//                        arrayType.eType = unionType;
-//                        unionType.add(member);
-//                        continue;
-//                    }
-//                }
-//
-//                if (member.tag == TypeTags.MAP) {
-//                    var mapType = (BMapType) member;
-//                    if (mapType.constraint == unionType) {
-//                        unionType.add(member);
-//                        continue;
-//                    }
-//                    if (mapType.constraint.tsymbol.name.getValue().equals(typeDefNameValue)) {
-//                        mapType.constraint = unionType;
-//                        unionType.add(member);
-//                        continue;
-//                    }
-//                }
-//
-//                if (member.tag == TypeTags.TABLE) {
-//                    var tableType = (BTableType) member;
-//                    if (tableType.constraint == unionType) {
-//                        unionType.add(member);
-//                        continue;
-//                    }
-//                    if (tableType.constraint.tsymbol.name.getValue().equals(typeDefNameValue)) {
-//                        tableType.constraint = unionType;
-//                        unionType.add(member);
-//                        continue;
-//                    }
-//                    if (tableType.constraint.tag == TypeTags.MAP) {
-//                        var mapType = (BMapType) tableType.constraint;
-//                        if (mapType.constraint == unionType) {
-//                            unionType.add(member);
-//                            continue;
-//                        }
-//                        if (mapType.constraint.tsymbol.name.getValue().equals(typeDefNameValue)) {
-//                            mapType.constraint = unionType;
-//                            unionType.add(member);
-//                            continue;
-//                        }
-//                    }
-//                }
-
                 unionType.add(member);
             }
         }
-//        typeDef.typeNode.type = unionType;
-
         return unionType;
     }
 

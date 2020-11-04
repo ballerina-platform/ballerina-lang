@@ -34,18 +34,20 @@ import java.util.LinkedHashSet;
  */
 public class BAnydataType extends BUnionType {
 
+    private static final int INITIAL_CAPACITY = 10;
+
     public BAnydataType(BTypeSymbol tsymbol, Name name, int flags) {
         this(tsymbol, name, flags, true);
     }
 
     public BAnydataType(BTypeSymbol tsymbol, boolean nullable) {
-        super(tsymbol, new LinkedHashSet<>(), nullable, false);
+        super(tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, false);
         this.tag = TypeTags.ANYDATA;
         this.isCyclic = true;
     }
 
     public BAnydataType(BTypeSymbol tsymbol, Name name, int flags, boolean nullable) {
-        super(tsymbol, new LinkedHashSet<>(), nullable, false);
+        super(tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, false);
         this.tag = TypeTags.ANYDATA;
         this.flags = flags;
         this.name = name;
@@ -53,7 +55,7 @@ public class BAnydataType extends BUnionType {
     }
 
     public BAnydataType(BUnionType type) {
-        super(type.tsymbol, new LinkedHashSet<>(), type.isNullable(), Symbols.isFlagOn(type.flags,
+        super(type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), type.isNullable(), Symbols.isFlagOn(type.flags,
                 Flags.READONLY));
         resolveCyclicType(type);
         this.immutableType = type.immutableType;
@@ -62,8 +64,9 @@ public class BAnydataType extends BUnionType {
     }
 
     public BAnydataType(BAnydataType type, boolean nullable) {
-        super(type.tsymbol, new LinkedHashSet<>(), nullable, Symbols.isFlagOn(type.flags, Flags.READONLY));
+        super(type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, Symbols.isFlagOn(type.flags, Flags.READONLY));
         resolveCyclicType(type);
+        this.flags = type.flags;
         this.tag = TypeTags.ANYDATA;
         this.isCyclic = true;
     }

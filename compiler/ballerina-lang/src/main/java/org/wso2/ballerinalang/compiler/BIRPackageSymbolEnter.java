@@ -1147,15 +1147,7 @@ public class BIRPackageSymbolEnter {
                     bArrayType.eType = readTypeFromCp();
                     return bArrayType;
                 case TypeTags.UNION:
-                    BUnionType unionType = createUnionType(flags, cpI);
-                    int unionMemberCount = inputStream.readInt();
-                    for (int i = 0; i < unionMemberCount; i++) {
-                        unionType.add(readTypeFromCp());
-                    }
-                    if (unionType.isCyclic) {
-                        symbolResolver.resolveCyclicUnionType(unionType);
-                    }
-                    return unionType;
+                    return readUnionType(flags, cpI);
                 case TypeTags.INTERSECTION:
                     BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,
                                                                                   Flags.asMask(EnumSet.of(Flag.PUBLIC)),
@@ -1413,8 +1405,19 @@ public class BIRPackageSymbolEnter {
             unionType.isCyclic = isCyclic;
             return unionType;
         }
-    }
 
+        private BUnionType readUnionType(int flags, int cpI) throws IOException {
+            BUnionType unionType = createUnionType(flags, cpI);
+            int unionMemberCount = inputStream.readInt();
+            for (int i = 0; i < unionMemberCount; i++) {
+                unionType.add(readTypeFromCp());
+            }
+            if (unionType.isCyclic) {
+                symbolResolver.resolveCyclicUnionType(unionType);
+            }
+            return unionType;
+        }
+    }
 
 
     private byte[] readDocBytes(DataInputStream inputStream) throws IOException {

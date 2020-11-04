@@ -31,24 +31,25 @@ import java.util.LinkedHashSet;
  */
 public class BJSONType extends BUnionType {
 
+    private static final int INITIAL_CAPACITY = 8;
+
     public BJSONType(BJSONType type, boolean nullable) {
-        super(type.tsymbol, new LinkedHashSet<>(), nullable, Symbols.isFlagOn(type.flags, Flags.READONLY));
+        super(type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, Symbols.isFlagOn(type.flags, Flags.READONLY));
         resolveCyclicType(type);
         this.tag = TypeTags.JSON;
         this.isCyclic = true;
     }
 
     public BJSONType(BUnionType type) {
-        super(type.tsymbol, new LinkedHashSet<>(), type.isNullable(), Symbols.isFlagOn(type.flags,
+        super(type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), type.isNullable(), Symbols.isFlagOn(type.flags,
                 Flags.READONLY));
         resolveCyclicType(type);
         this.immutableType = type.immutableType;
         this.tag = TypeTags.JSON;
-        this.isCyclic = true;
     }
 
     public BJSONType(BTypeSymbol typeSymbol, boolean nullable, int flags) {
-        super(typeSymbol, new LinkedHashSet<>(), nullable, Symbols.isFlagOn(flags, Flags.READONLY));
+        super(typeSymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, Symbols.isFlagOn(flags, Flags.READONLY));
         this.flags = flags;
         this.tag = TypeTags.JSON;
         this.isCyclic = true;

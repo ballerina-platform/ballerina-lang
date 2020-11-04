@@ -734,6 +734,7 @@ public class SymbolTable {
 
     private void defineCloneableCyclicTypeAndDependentTypes() {
         cloneableType = BUnionType.create(null, readonlyType, xmlType);
+        cloneableType.isCyclic = true;
         BArrayType arrayCloneableType = new BArrayType(cloneableType);
         BMapType mapCloneableType = new BMapType(TypeTags.MAP, cloneableType, null);
         BType tableMapCloneableType = new BTableType(TypeTags.TABLE, mapCloneableType, null);
@@ -742,7 +743,6 @@ public class SymbolTable {
         cloneableType.add(mapCloneableType);
         cloneableType.add(tableMapCloneableType);
 
-        cloneableType.isCyclic = true;
 
         cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
                 cloneableType, langValueModuleSymbol, builtinPos, BUILTIN);
@@ -775,6 +775,7 @@ public class SymbolTable {
                 stringType);
         BArrayType arrayJsonTypeInternal = new BArrayType(jsonInternal);
         BMapType mapJsonTypeInternal = new BMapType(TypeTags.MAP, jsonInternal, null);
+        jsonInternal.isCyclic = true;
         jsonInternal.add(arrayJsonTypeInternal);
         jsonInternal.add(mapJsonTypeInternal);
         jsonType = new BJSONType(jsonInternal);

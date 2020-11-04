@@ -65,6 +65,12 @@ public class BUnionType extends BType implements UnionType {
         this.nullable = nullable;
     }
 
+    public BUnionType(BUnionType type) {
+        this(type.tsymbol, new LinkedHashSet<>(), type.isNullable(), Symbols.isFlagOn(type.flags, Flags.READONLY));
+        resolveCyclicType(type);
+        this.flags = type.flags;
+    }
+
     @Override
     public LinkedHashSet<BType> getMemberTypes() {
         return this.memberTypes;
@@ -262,6 +268,7 @@ public class BUnionType extends BType implements UnionType {
                 var arrayType = (BArrayType) member;
                 if (arrayType.eType == unionType) {
                     arrayType.eType = this;
+                    isCyclic = true;
                     continue;
                 }
             }
@@ -270,6 +277,7 @@ public class BUnionType extends BType implements UnionType {
                 var mapType = (BMapType) member;
                 if (mapType.constraint == unionType) {
                     mapType.constraint = this;
+                    isCyclic = true;
                     continue;
                 }
             }
@@ -278,18 +286,21 @@ public class BUnionType extends BType implements UnionType {
                 var tableType = (BTableType) member;
                 if (tableType.constraint == unionType) {
                     tableType.constraint = this;
+                    isCyclic = true;
                     continue;
                 }
                 if (tableType.constraint.tag == TypeTags.MAP) {
                     var mapType = (BMapType) tableType.constraint;
                     if (mapType.constraint == unionType) {
                         mapType.constraint = this;
+                        isCyclic = true;
                         continue;
                     }
                 }
             }
             this.add(member);
         }
+        return isCyclic;
     }
 
     /**
