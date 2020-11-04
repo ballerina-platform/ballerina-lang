@@ -16,57 +16,20 @@
 
 import ballerina/java;
 
-# Get elements matching at least one of `elemNames`
+# Check whether a given key has a configuard value
 #
-# + x - The xml source
-# + elemNames - ualified name of the elements to filter
-# + return - All elements that match elemNames
-public function getElements(xml x, string... elemNames) returns xml = @java:Method {
-    'class: "org.ballerinalang.langlib.internal.GetElements",
-    name: "getElements"
+# + key - The key value
+# + return - Boolean value
+public function hasConfigurableValue(string key) returns boolean = @java:Method {
+    'class: "org.ballerinalang.langlib.internal.Configurable",
+    name: "hasConfigurableValue"
 } external;
 
-# Get childElements matching `elemNames` and childIndex for each children sequence.
-# xml x = xml `<a><a0>x</a0><a0>y</a0></a><b><a0>j</a0><a0>k</a0></b>`;
-# x.getFilteredChildrenFlat(0, "a0") => <a0>x</a0><a0>j</a0>
-# x.getFilteredChildrenFlat(-1) => <a0>x</a0><a0>y</a0><a0>j</a0><a0>k</a0>
+# Get the value of the configurable variable
 #
-# + x - The xml source
-# + index - child index to select from each child sequence, -1 to select all elements
-# + elemNames - Qualified name of the elements to filter,
-# + return - All child elements matching `index` condition and  `elemNames` condition.
-public function getFilteredChildrenFlat(xml x, int index, string... elemNames) returns xml = @java:Method {
-    'class: "org.ballerinalang.langlib.internal.GetFilteredChildrenFlat",
-    name: "getFilteredChildrenFlat"
-} external;
-
-# Searches in children recursively for elements matching the qualified name and returns a sequence containing them
-# all. Does not search within a matched result.
-#
-# + x - The xml source
-# + qname - Qualified name of the element
-# + return - All the descendants that matches the given qualified name, as a sequence
-public function selectDescendants(xml x, string... qname) returns xml = @java:Method {
-    'class: "org.ballerinalang.langlib.internal.SelectDescendants",
-    name: "selectDescendants"
-} external;
-
-# Return attribute matching expanded attribute name
-#
-# + x - The xml value
-# + attributeName - Attribute name in expanded from
-# + isOptionalAccess - Is this a optoinal access expression or not
-# + return - Attribute value
-public function getAttribute(xml x, string attributeName, boolean isOptionalAccess) returns string|error? = @java:Method {
-    'class: "org.ballerinalang.langlib.internal.GetAttribute",
-    name: "getAttribute"
-} external;
-
-# Return name of the element if `x` is a element or nil if element name is not set, else error.
-#
-# + x - The xml value
-# + return - Element name
-public function getElementNameNilLifting(xml x) returns string|error? = @java:Method {
-    'class: "org.ballerinalang.langlib.internal.GetElementNameNilLifting",
-    name: "getElementNameNilLifting"
+# + key - The key value
+# + return - Configured value of the key
+public function getConfigurableValue(string key) returns anydata = @java:Method {
+    'class: "org.ballerinalang.langlib.internal.Configurable",
+    name: "getConfigurableValue"
 } external;

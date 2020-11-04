@@ -776,11 +776,28 @@ public class Desugar extends BLangNodeVisitor {
     }
     
     private BLangTernaryExpr createTernaryExprFromConfigurable(BLangSimpleVariable configurableVar) {
-        BLangInvocation hasValueInvocation = createLangLibInvocationNode();
-        BLangInvocation getValueInvocation = createLangLibInvocationNode();
+
+        // configurableValue = hasValue(key) ? getValue(key) : defaultValue
+        // key = orgName + "." + moduleName + "." + version + "." + configVarName
+        String orgName = env.enclPkg.packageID.orgName.getValue();
+        String moduleName = env.enclPkg.packageID.name.getValue();
+        String version = env.enclPkg.packageID.version.getValue();
+        String configVarName = configurableVar.name.getValue();
+
+        String keyValue = orgName + "." + moduleName + "." + version + "." + configVarName;
+
+        BLangLiteral keyLiteral = ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, keyValue);
+        List<BLangExpression> args = new ArrayList<>() {{ add(keyLiteral); }};
+        // Check if value is configured
+        BLangInvocation hasValueInvocation = createLangLibInvocationNode("hasConfigurableValue",
+                args, symTable.booleanType, configurableVar.pos);
+        // Get value if configured else get default value provided
+        BLangInvocation getValueInvocation = createLangLibInvocationNode("getConfigurableValue",
+                args, symTable.anydataType, configurableVar.pos);
 
         BLangTernaryExpr ternaryExpr = ASTBuilderUtil.createTernaryExpr(configurableVar.pos, hasValueInvocation,
                 getValueInvocation, configurableVar.expr);
+        ternaryExpr.type = configurableVar.type;
 
         return rewrite(ternaryExpr, env);
     }
@@ -5938,6 +5955,31 @@ public class Desugar extends BLangNodeVisitor {
 
         ArrayList<BLangExpression> requiredArgs = new ArrayList<>();
         requiredArgs.add(onExpr);
+        requiredArgs.addAll(args);
+        invocationNode.requiredArgs = requiredArgs;
+
+        invocationNode.type = retType != null ? retType : ((BInvokableSymbol) invocationNode.symbol).retType;
+        invocationNode.langLibInvocation = true;
+        return invocationNode;
+    }
+
+    private BLangInvocation createLangLibInvocationNode(String functionName,
+                                                        List<BLangExpression> args,
+                                                        BType retType,
+                                                        Location pos) {
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.pos = pos;
+        BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        name.setLiteral(false);
+        name.setValue(functionName);
+        name.pos = pos;
+        invocationNode.name = name;
+        invocationNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+
+        invocationNode.symbol = symResolver.lookupLangLibMethodInModule(symTable.langInternalModuleSymbol,
+                names.fromString(functionName));
+
+        ArrayList<BLangExpression> requiredArgs = new ArrayList<>();
         requiredArgs.addAll(args);
         invocationNode.requiredArgs = requiredArgs;
 
