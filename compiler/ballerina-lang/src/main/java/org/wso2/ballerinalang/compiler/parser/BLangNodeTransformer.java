@@ -562,14 +562,19 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         CaptureBindingPatternNode bindingPattern = (CaptureBindingPatternNode) typedBindingPattern.bindingPattern();
 
         boolean isFinal = false;
+        boolean isConfigurable = false;
+        // TODO handle this inside createSimpleVar
         for (Token qualifier : modVarDeclrNode.qualifiers()) {
             if (qualifier.kind() == SyntaxKind.FINAL_KEYWORD) {
                 isFinal = true;
+            } else if (qualifier.kind() == SyntaxKind.CONFIGURABLE_KEYWORD) {
+                isConfigurable = true;
             }
         }
 
         BLangSimpleVariable simpleVar = createSimpleVar(bindingPattern.variableName(),
-                typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer().orElse(null), isFinal, false, null,
+                typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer().orElse(null), isFinal,
+                isConfigurable, false, null,
                 getAnnotations(modVarDeclrNode.metadata()));
         simpleVar.pos = getPositionWithoutMetadata(modVarDeclrNode);
         simpleVar.markdownDocumentationAttachment =
@@ -1058,7 +1063,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ObjectFieldNode objFieldNode) {
         BLangSimpleVariable simpleVar = createSimpleVar(objFieldNode.fieldName(), objFieldNode.typeName(),
                                                         objFieldNode.expression().orElse(null),
-                                                        false, false, objFieldNode.visibilityQualifier().orElse(null),
+                                                        false, false, false, objFieldNode.visibilityQualifier().orElse(null),
                                                         getAnnotations(objFieldNode.metadata()));
         // Transform documentation
         Optional<Node> doc = getDocumentationString(objFieldNode.metadata());
@@ -4351,18 +4356,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private BLangSimpleVariable createSimpleVar(Optional<Token> name, Node type, NodeList<AnnotationNode> annotations) {
         if (name.isPresent()) {
             Token nameToken = name.get();
-            return createSimpleVar(nameToken, type, null, false, false, null, annotations);
+            return createSimpleVar(nameToken, type, null, false, false, false, null, annotations);
         }
 
-        return createSimpleVar(null, type, null, false, false, null, annotations);
+        return createSimpleVar(null, type, null, false, false, false, null, annotations);
     }
 
     private BLangSimpleVariable createSimpleVar(Token name, Node type, NodeList<AnnotationNode> annotations) {
-        return createSimpleVar(name, type, null, false, false, null, annotations);
+        return createSimpleVar(name, type, null, false, false, false, null, annotations);
     }
 
     private BLangSimpleVariable createSimpleVar(Token name, Node typeName, Node initializer, boolean isFinal,
-                                                boolean isListenerVar, Token visibilityQualifier,
+                                                boolean isConfigurable, boolean isListenerVar, Token visibilityQualifier,
                                                 NodeList<AnnotationNode> annotations) {
         BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         bLSimpleVar.setName(this.createIdentifier(name));
@@ -4381,12 +4386,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLSimpleVar.flagSet.add(Flag.PUBLIC);
             }
         }
-        // TODO change this after parser supports configurable
-        bLSimpleVar.flagSet.add(Flag.CONFIGURABLE);
 
+        // TODO use a single method to mark all the flags
+        if (isConfigurable) {
+            markVariableAsConfigurable(bLSimpleVar);
+        }
         if (isFinal) {
             markVariableAsFinal(bLSimpleVar);
         }
+
         if (initializer != null) {
             bLSimpleVar.setInitialExpression(createExpression(initializer));
         }
@@ -5062,6 +5070,43 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 break;
         }
     }
+
+    // TODO use a single method to mark all the flags
+    private void markVariableAsConfigurable(BLangVariable variable) {
+        // Set the configurable flag to the variable.
+        variable.flagSet.add(Flag.CONFIGURABLE);
+
+        switch (variable.getKind()) {
+            case TUPLE_VARIABLE:
+                // If the variable is a tuple variable, we need to set the configurable flag to the all member
+                // variables.
+                BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
+                tupleVariable.memberVariables.forEach(this::markVariableAsConfigurable);
+                if (tupleVariable.restVariable != null) {
+                    markVariableAsConfigurable(tupleVariable.restVariable);
+                }
+                break;
+            case RECORD_VARIABLE:
+                // If the variable is a record variable, we need to set the configurable flag to the all the variables
+                // in the record.
+                BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
+                recordVariable.variableList.stream().map(BLangRecordVariable.BLangRecordVariableKeyValue::getValue)
+                        .forEach(this::markVariableAsConfigurable);
+                if (recordVariable.restParam != null) {
+                    markVariableAsConfigurable((BLangVariable) recordVariable.restParam);
+                }
+                break;
+            case ERROR_VARIABLE:
+                BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
+                markVariableAsFinal(errorVariable.message);
+                errorVariable.detail.forEach(entry -> markVariableAsConfigurable(entry.valueBindingPattern));
+                if (errorVariable.restDetail != null) {
+                    markVariableAsConfigurable(errorVariable.restDetail);
+                }
+                break;
+        }
+    }
+
 
     private boolean isSimpleLiteral(SyntaxKind syntaxKind) {
         switch (syntaxKind) {

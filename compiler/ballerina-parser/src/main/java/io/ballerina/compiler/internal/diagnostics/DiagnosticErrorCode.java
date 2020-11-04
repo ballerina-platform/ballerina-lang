@@ -226,6 +226,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_NAMED_WORKER_DECLARATION_IN_FORK_STMT("BCE0513",
             "error.missing.named.worker.declaration.in.fork.stmt"),
     ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR("BCE0514", "error.missing.key.expr.in.member.access.expr"),
+    ERROR_CONFIGURABLE_VARIABLE_MUST_BE_INITIALIZED("BCE0515",
+            "error.configurable.variable.must.be.initialized"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),
