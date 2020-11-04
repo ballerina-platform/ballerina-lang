@@ -74,7 +74,7 @@ public class Package {
     @SerializedName(JSON_PROPERTY_BALLERINA_VERSION) private String ballerinaVersion;
 
     public static final String JSON_PROPERTY_CREATED_DATE = "createdDate";
-    @SerializedName(JSON_PROPERTY_CREATED_DATE) private Integer createdDate;
+    @SerializedName(JSON_PROPERTY_CREATED_DATE) private Long createdDate;
 
     public static final String JSON_PROPERTY_MODULES = "modules";
     @SerializedName(JSON_PROPERTY_MODULES) private List<Module> modules = new ArrayList<>();
@@ -320,17 +320,17 @@ public class Package {
         this.ballerinaVersion = ballerinaVersion;
     }
 
-    public Package createdDate(Integer createdDate) {
+    public Package createdDate(Long createdDate) {
 
         this.createdDate = createdDate;
         return this;
     }
 
-    public Integer getCreatedDate() {
+    public Long getCreatedDate() {
         return createdDate;
     }
 
-    public void setCreatedDate(Integer createdDate) {
+    public void setCreatedDate(Long createdDate) {
         this.createdDate = createdDate;
     }
 

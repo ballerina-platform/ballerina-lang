@@ -32,8 +32,6 @@ public class ErrorUtil {
      * @return command exception
      */
     public static CommandException createCommandException(String errorMsg) {
-        CommandException launcherException = new CommandException();
-        launcherException.addMessage(errorMsg);
-        return launcherException;
+        return new CommandException(errorMsg);
     }
 }

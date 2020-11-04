@@ -18,7 +18,10 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.projects.PackageDescriptor;
-import io.ballerina.projects.balo.BaloProject;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
@@ -112,14 +115,17 @@ public class PushCommand implements BLauncherCmd {
             sourceRootPath = findRoot;
         }
 
+        // todo: load project and get src path and all other stuff
+        // todo: get target path and balo path using project
+        BuildProject project = BuildProject.loadProject(sourceRootPath);
+
         // Enable remote debugging
         if (null != debugPort) {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
         }
 
         if (argList == null || argList.isEmpty()) {
-            String packageName = ProjectUtils.getPackageNameFromBallerinaToml(sourceRootPath);
-            pushPackage(packageName, sourceRootPath);
+            pushPackage(project);
         } else {
             throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
         }
@@ -148,20 +154,24 @@ public class PushCommand implements BLauncherCmd {
         throw new UnsupportedOperationException();
     }
 
-    private void pushPackage(String packageName, Path sourceRootPath) {
+    private void pushPackage(BuildProject project) {
         try {
-            BaloProject baloProject = validateBaloPathAndGetBaloProject(packageName, sourceRootPath);
-            pushBaloToRemote(baloProject.sourceRoot(), packageName);
+            Path baloFilePath = validateBalo(project);
+            pushBaloToRemote(baloFilePath, project.currentPackage().packageName().toString());
         } catch (IOException e) {
             throw createLauncherException(
                     "unexpected error occurred when trying to push to remote repository: " + getRemoteRepoURL());
         }
     }
 
-    private static BaloProject validateBaloPathAndGetBaloProject(String pkgName, Path sourceRootPath) throws IOException {
+    private static Path validateBalo(BuildProject project) throws IOException {
+        final PackageName pkgName = project.currentPackage().packageName();
+        final PackageOrg orgName = project.currentPackage().packageOrg();
+        final PackageVersion version = project.currentPackage().packageVersion();
+
         // Get balo output path
-        Path baloOutputDir = Paths.get(sourceRootPath.toString(), ProjectConstants.TARGET_DIR_NAME,
-                ProjectConstants.TARGET_BALO_DIR_NAME);
+        Path baloOutputDir = project.currentPackage().project().sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.TARGET_BALO_DIR_NAME);
 
         if (Files.notExists(baloOutputDir)) {
             throw createLauncherException("cannot find balo file for the package: " + pkgName + ". Run "
@@ -180,13 +190,8 @@ public class PushCommand implements BLauncherCmd {
                     + "'ballerina build' to compile and generate the balo.");
         }
 
-        // get the manifest from balo file
-        Path baloFilePath = packageBaloFile.get();
-        final BaloProject baloProject = BaloProject.loadProject(baloFilePath, null);
-        final String orgName = baloProject.currentPackage().packageOrg().toString();
-
         // Validate the org-name
-        if (!RepoUtils.validateOrg(orgName)) {
+        if (!RepoUtils.validateOrg(orgName.toString())) {
             throw createLauncherException(
                     "invalid organization name provided \'" + orgName
                             + "\'. Only lowercase alphanumerics "
@@ -195,7 +200,7 @@ public class PushCommand implements BLauncherCmd {
         }
 
         // Validate the pkg-name
-        if (!RepoUtils.validatePkg(pkgName)) {
+        if (!RepoUtils.validatePkg(pkgName.toString())) {
             throw createLauncherException("invalid package name provided \'" + pkgName + "\'. Only "
                     + "alphanumerics, underscores and periods are allowed in a module name "
                     + "and the maximum length is 256 characters");
@@ -214,10 +219,7 @@ public class PushCommand implements BLauncherCmd {
 //        }
 
         // check if the package is already there in remote repository
-        PackageDescriptor.Dependency pkgAsDependency = new PackageDescriptor.Dependency(
-                baloProject.currentPackage().packageName(),
-                baloProject.currentPackage().packageOrg(),
-                baloProject.currentPackage().packageVersion());
+        PackageDescriptor.Dependency pkgAsDependency = new PackageDescriptor.Dependency(pkgName, orgName, version);
 
         if (isPackageAvailableInRemote(pkgAsDependency)) {
             throw createLauncherException(
@@ -226,7 +228,8 @@ public class PushCommand implements BLauncherCmd {
                             + "updating the version in the Ballerina.toml.");
         }
 
-        return baloProject;
+        // balo file path
+        return packageBaloFile.get();
     }
 
     /**

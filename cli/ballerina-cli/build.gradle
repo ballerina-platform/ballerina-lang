@@ -38,6 +38,7 @@ dependencies {
     implementation 'org.apache.commons:commons-compress:1.18'
 
     testCompile 'org.testng:testng'
+    testCompile 'org.mockito:mockito-all'
 
     distributionBalo project(path: ':ballerina-langlib:test', configuration: 'distributionBalo')
     testRuntime project(":ballerina-lang-test")

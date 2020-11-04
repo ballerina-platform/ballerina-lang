@@ -37,12 +37,8 @@ public class PackageDescriptor {
     // These keys are not part of the Ballerina package specification.
     private final Map<String, Object> otherEntries;
 
-    private PackageDescriptor(PackageName packageName,
-                              PackageOrg packageOrg,
-                              PackageVersion packageVersion,
-                              List<Dependency> dependencies,
-                              Map<String, Platform> platforms,
-                              Map<String, Object> otherEntries) {
+    public PackageDescriptor(PackageName packageName, PackageOrg packageOrg, PackageVersion packageVersion,
+            List<Dependency> dependencies, Map<String, Platform> platforms, Map<String, Object> otherEntries) {
         this.packageName = packageName;
         this.packageOrg = packageOrg;
         this.packageVersion = packageVersion;

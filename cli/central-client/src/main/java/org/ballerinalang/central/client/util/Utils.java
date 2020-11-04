@@ -16,17 +16,18 @@
  *  under the License.
  */
 
-package org.ballerinalang.central.client;
+package org.ballerinalang.central.client.util;
 
+import io.ballerina.projects.utils.ProjectConstants;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
-import org.ballerinalang.central.client.util.ErrorUtil;
-import org.ballerinalang.central.client.util.LogFormatter;
+import org.ballerinalang.central.client.TokenUpdater;
 import org.ballerinalang.toml.model.Settings;
+import org.ballerinalang.toml.parser.SettingsProcessor;
 import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.packaging.converters.URIDryConverter;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-import org.wso2.ballerinalang.util.TomlParserUtils;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -90,8 +91,9 @@ public class Utils {
      *
      * @return access token if its present
      */
-    static String authenticate(PrintStream errStream, String ballerinaCentralCliTokenUrl, Path settingsTomlFilePath) {
-        String accessToken = getAccessTokenOfCLI();
+    public static String authenticate(PrintStream errStream, String ballerinaCentralCliTokenUrl, Settings settings,
+            Path settingsTomlFilePath) {
+        String accessToken = getAccessTokenOfCLI(settings);
 
         if (accessToken.isEmpty()) {
             try {
@@ -112,7 +114,7 @@ public class Utils {
                 pause();
                 long modifiedTimeOfFileAfter = getLastModifiedTimeOfFile(settingsTomlFilePath);
                 if (modifiedTimeOfFileAtStart != modifiedTimeOfFileAfter) {
-                    accessToken = getAccessTokenOfCLI();
+                    accessToken = getAccessTokenOfCLI(settings);
                     if (accessToken.isEmpty()) {
                         throw createLauncherException(
                                 "Access token is missing in " + settingsTomlFilePath.toString() + "\nPlease "
@@ -127,12 +129,26 @@ public class Utils {
     }
 
     /**
+     * Read Settings.toml to populate the configurations.
+     *
+     * @return {@link Settings} settings object
+     */
+    public static Settings readSettings() {
+        Path settingsFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectConstants.SETTINGS_FILE_NAME);
+        try {
+            return SettingsProcessor.parseTomlContentFromFile(settingsFilePath);
+        } catch (IOException e) {
+            return new Settings();
+        }
+    }
+
+    /**
      * initialize proxy if proxy is available in settings.toml.
      *
      * @return proxy
+     * @param proxy
      */
-    static Proxy initializeProxy() {
-        org.ballerinalang.toml.model.Proxy proxy = TomlParserUtils.readSettings().getProxy();
+    public static Proxy initializeProxy(org.ballerinalang.toml.model.Proxy proxy) {
         if (!"".equals(proxy.getHost())) {
             InetSocketAddress proxyInet = new InetSocketAddress(proxy.getHost(), proxy.getPort());
             if (!"".equals(proxy.getUserName()) && "".equals(proxy.getPassword())) {
@@ -150,8 +166,7 @@ public class Utils {
      *
      * @return access token for generated for the CLI
      */
-    private static String getAccessTokenOfCLI() {
-        Settings settings = TomlParserUtils.readSettings();
+    static String getAccessTokenOfCLI(Settings settings) {
         // The access token can be specified as an environment variable or in 'Settings.toml'. First we would check if
         // the access token was specified as an environment variable. If not we would read it from 'Settings.toml'
         String tokenAsEnvVar = System.getenv(ProjectDirConstants.BALLERINA_CENTRAL_ACCESS_TOKEN);
@@ -181,7 +196,7 @@ public class Utils {
      * @param path file path
      * @return last modified time in milliseconds
      */
-    private static long getLastModifiedTimeOfFile(Path path) {
+    static long getLastModifiedTimeOfFile(Path path) {
         if (!Files.isRegularFile(path)) {
             return -1;
         }
@@ -192,7 +207,7 @@ public class Utils {
         }
     }
 
-    static String getBallerinaCentralCliTokenUrl() {
+    public static String getBallerinaCentralCliTokenUrl() {
         if (SET_BALLERINA_STAGE_CENTRAL) {
             return "https://staging-central.ballerina.io/cli-token";
         } else if (SET_BALLERINA_DEV_CENTRAL) {
@@ -214,7 +229,7 @@ public class Utils {
      * @param outStream          Output print stream
      * @param logFormatter       log formatter
      */
-    static void createBaloInHomeRepo(HttpURLConnection conn, Path pkgPathInBaloCache, String pkgNameWithOrg,
+    public static void createBaloInHomeRepo(HttpURLConnection conn, Path pkgPathInBaloCache, String pkgNameWithOrg,
             boolean isNightlyBuild, String newUrl, String contentDisposition, PrintStream outStream,
             LogFormatter logFormatter) {
         long responseContentLength = conn.getContentLengthLong();
@@ -227,7 +242,7 @@ public class Utils {
             resolvedURI = newUrl;
         }
         String[] uriParts = resolvedURI.split("/");
-        String pkgVersion = uriParts[uriParts.length - 3];
+        String pkgVersion = uriParts[uriParts.length - 2];
 
         validatePackageVersion(pkgVersion, logFormatter);
         String baloFile = getBaloFileName(contentDisposition, uriParts[uriParts.length - 1]);
@@ -252,14 +267,14 @@ public class Utils {
      * @param pkgVersion   package version
      * @param logFormatter log formatter
      */
-    private static void validatePackageVersion(String pkgVersion, LogFormatter logFormatter) {
+    static void validatePackageVersion(String pkgVersion, LogFormatter logFormatter) {
         if (!pkgVersion.matches(VERSION_REGEX)) {
             throw ErrorUtil.createCommandException(logFormatter.formatLog("package version could not be detected"));
         }
     }
 
     /**
-     * Get balo file name from content disposition header.
+     * Get balo file name from content disposition header if available.
      *
      * @param contentDisposition content disposition header value
      * @param baloFile           balo file name taken from RESOLVED_REQUESTED_URI
@@ -282,7 +297,7 @@ public class Utils {
      */
     private static void createBaloFileDirectory(Path fullPathToStoreBalo, LogFormatter logFormatter) {
         try {
-            Files.createDirectory(fullPathToStoreBalo);
+            Files.createDirectories(fullPathToStoreBalo);
         } catch (IOException e) {
             throw ErrorUtil.createCommandException(logFormatter.formatLog("error creating directory for balo file"));
         }
@@ -298,8 +313,8 @@ public class Utils {
      * @param outStream        Output print stream
      * @param logFormatter     log formatter
      */
-    private static void writeBaloFile(HttpURLConnection conn, Path baloPath, String fullPkgName, long resContentLength,
-            PrintStream outStream, LogFormatter logFormatter) {
+    static void writeBaloFile(HttpURLConnection conn, Path baloPath, String fullPkgName, long resContentLength,
+             PrintStream outStream, LogFormatter logFormatter) {
         try (InputStream inputStream = conn.getInputStream();
                 FileOutputStream outputStream = new FileOutputStream(baloPath.toString())) {
             writeAndHandleProgress(inputStream, outputStream, resContentLength / 1024, fullPkgName, outStream,
@@ -377,7 +392,7 @@ public class Utils {
      * @param url string URL
      * @return URL
      */
-    static URL convertToUrl(String url) {
+    public static URL convertToUrl(String url) {
         try {
             return new URL(url);
         } catch (MalformedURLException e) {
@@ -388,7 +403,7 @@ public class Utils {
     /**
      * Initialize SSL.
      */
-    static void initializeSsl() {
+    public static void initializeSsl() {
         try {
             SSLContext sc = SSLContext.getInstance(SSL);
             sc.init(null, trustAllCerts, new java.security.SecureRandom());
@@ -399,32 +414,12 @@ public class Utils {
     }
 
     /**
-     * Create http URL connection.
-     *
-     * @param url   connection URL
-     * @param proxy proxy
-     * @return http URL connection
-     */
-    static HttpURLConnection createHttpUrlConnection(URL url, Proxy proxy) {
-        try {
-            // set proxy if exists.
-            if (proxy == null) {
-                return (HttpURLConnection) url.openConnection();
-            } else {
-                return (HttpURLConnection) url.openConnection(proxy);
-            }
-        } catch (IOException e) {
-            throw ErrorUtil.createCommandException(e.getMessage());
-        }
-    }
-
-    /**
      * Set request method of the http connection.
      *
      * @param conn   http connection
      * @param method request method
      */
-    static void setRequestMethod(HttpURLConnection conn, RequestMethod method) {
+    public static void setRequestMethod(HttpURLConnection conn, RequestMethod method) {
         try {
             conn.setRequestMethod(getRequestMethodAsString(method));
         } catch (ProtocolException e) {
@@ -449,7 +444,7 @@ public class Utils {
      * @param conn http connection
      * @return status code
      */
-    static int getStatusCode(HttpURLConnection conn) {
+    public static int getStatusCode(HttpURLConnection conn) {
         try {
             return conn.getResponseCode();
         } catch (IOException e) {
@@ -464,7 +459,7 @@ public class Utils {
      * @param filePath path to the file
      * @return size of the file in kb
      */
-    static long getTotalFileSizeInKB(Path filePath) {
+    public static long getTotalFileSizeInKB(Path filePath) {
         byte[] baloContent;
         try {
             baloContent = Files.readAllBytes(filePath);

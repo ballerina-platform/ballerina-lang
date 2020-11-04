@@ -47,7 +47,8 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
 @CommandLine.Command(name = PULL_COMMAND,
         description = "download the module source and binaries from a remote repository")
 public class PullCommand implements BLauncherCmd {
-    private static PrintStream outStream = System.err;
+    private PrintStream errStream;
+    private CentralAPIClient client;
 
     @CommandLine.Parameters private List<String> argList;
 
@@ -55,11 +56,21 @@ public class PullCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--debug", hidden = true) private String debugPort;
 
+    public PullCommand() {
+        this.errStream = System.err;
+        this.client = new CentralAPIClient();
+    }
+
+    public PullCommand(PrintStream errStream, CentralAPIClient client) {
+        this.errStream = errStream;
+        this.client = client;
+    }
+
     @Override
     public void execute() {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(PULL_COMMAND);
-            outStream.println(commandUsageInfo);
+            errStream.println(commandUsageInfo);
             return;
         }
 
@@ -82,7 +93,7 @@ public class PullCommand implements BLauncherCmd {
         String version;
 
         if (!validPackageName(resourceName)) {
-            CommandUtil.printError(outStream, "invalid package name. Provide the package name with the org name ",
+            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the org name ",
                     "ballerina pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}", false);
             Runtime.getRuntime().exit(1);
             return;
@@ -114,8 +125,7 @@ public class PullCommand implements BLauncherCmd {
         }
 
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
-            CentralAPIClient client = new CentralAPIClient();
-            client.pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform, false);
+            this.client.pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform, false);
         }
     }
 

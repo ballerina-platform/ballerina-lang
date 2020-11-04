@@ -45,6 +45,7 @@ import java.util.stream.Stream;
 import static io.ballerina.projects.directory.ProjectFiles.loadDocuments;
 import static io.ballerina.projects.utils.ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 import static io.ballerina.projects.utils.ProjectConstants.MODULES_ROOT;
+import static io.ballerina.projects.utils.ProjectConstants.PACKAGE_JSON;
 
 /**
  * Contains a set of utility methods that create an in-memory representation of a Ballerina project using a balo.
@@ -163,24 +164,36 @@ public class BaloFiles {
         }
     }
 
-    static PackageDescriptor createPackageDescriptor(Path packageJsonPath) {
-        if (!Files.exists(packageJsonPath)) {
-            throw new RuntimeException("package.json does not exists:" + packageJsonPath);
-        }
-        // Load `package.json`
-        PackageJson packageJson;
-        try {
-            packageJson = gson.fromJson(Files.newBufferedReader(packageJsonPath), PackageJson.class);
+    static PackageDescriptor createPackageDescriptor(String baloPath) {
+        URI zipURI = URI.create("jar:" + Paths.get(baloPath).toAbsolutePath().toUri().toString());
+        try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
+            Path packageJsonPath = zipFileSystem.getPath(PACKAGE_JSON);
+            if (!Files.exists(packageJsonPath)) {
+                throw new RuntimeException("package.json does not exists:" + packageJsonPath);
+            }
+            // Load `package.json`
+            PackageJson packageJson;
+            try {
+                packageJson = gson.fromJson(Files.newBufferedReader(packageJsonPath), PackageJson.class);
+            } catch (IOException e) {
+                throw new RuntimeException("package.json does not exists:" + packageJsonPath);
+            }
+            validatePackageJson(packageJson);
+
+            PackageName packageName = PackageName.from(packageJson.getName());
+            PackageOrg packageOrg = PackageOrg.from(packageJson.getOrganization());
+            PackageVersion packageVersion = PackageVersion.from(packageJson.getVersion());
+            List<PackageDescriptor.Dependency> dependencies;
+            if (packageJson.getDependencies() != null) {
+                dependencies = packageJson.getDependencies();
+            } else {
+                dependencies = Collections.emptyList();
+            }
+
+            return new PackageDescriptor(packageName, packageOrg, packageVersion, dependencies, Collections.emptyMap(),
+                    Collections.emptyMap());
         } catch (IOException e) {
-            throw new RuntimeException("package.json does not exists:" + packageJsonPath);
+            throw new RuntimeException("unable to load balo:" + baloPath);
         }
-        validatePackageJson(packageJson);
-
-        PackageName packageName = PackageName.from(packageJson.getName());
-        PackageOrg packageOrg = PackageOrg.from(packageJson.getOrganization());
-        PackageVersion packageVersion = PackageVersion.from(packageJson.getVersion());
-        List<PackageDescriptor.Dependency> dependencies = packageJson.getDependencies();
-
-        return new PackageDescriptor(packageName, packageOrg, packageVersion, dependencies, Collections.emptyMap());
     }
 }

@@ -25,6 +25,9 @@ dependencies {
     implementation 'com.google.code.findbugs:jsr305'
     implementation 'org.apache.commons:commons-compress:1.18'
     implementation 'commons-io:commons-io'
+
+    testCompile 'org.testng:testng'
+    testCompile 'org.mockito:mockito-all'
 }
 
 checkstyleMain {

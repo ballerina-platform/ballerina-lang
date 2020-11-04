@@ -15,7 +15,8 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+//apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 configurations {
     birJar
@@ -24,6 +25,7 @@ configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    distributionBalo
 }
 
 dependencies {
@@ -36,6 +38,15 @@ dependencies {
     implementation 'com.google.code.gson:gson'
     implementation 'com.google.code.findbugs:jsr305'
     testCompile 'org.testng:testng'
+    testCompile 'org.awaitility:awaitility'
+    testImplementation 'org.powermock:powermock-mockito-release-full'
+    testImplementation 'org.powermock:powermock-module-testng-common'
+}
+
+task createTestDistributionCache(type: Copy) {
+    dependsOn configurations.distributionBalo
+    from configurations.distributionBalo
+    into "$buildDir/distribution-cache"
 }
 
 task createBirCache {
@@ -56,10 +67,12 @@ task createBirCache {
 }
 
 test {
+    dependsOn createTestDistributionCache
     dependsOn createBirCache
     dependsOn configurations.birJar
     dependsOn configurations.birJarCompile
 
+    systemProperty "ballerina.home", "$buildDir"
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
     useTestNG() {
         suites 'src/test/resources/testng.xml'
