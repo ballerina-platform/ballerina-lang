@@ -2698,10 +2698,11 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
-        BLangStatementExpression retryTransactionStmtExpr = transactionDesugar.rewrite(retryTransaction, env,
-                this.onFailClause != null);
-        result = createExpressionStatement(retryTransaction.pos, retryTransactionStmtExpr,
-                retryTransaction.transaction.statementBlockReturns, env);
+        retryTransaction = null;
+//        BLangStatementExpression retryTransactionStmtExpr = transactionDesugar.rewrite(retryTransaction, env,
+//                this.onFailClause != null);
+//        result = createExpressionStatement(retryTransaction.pos, retryTransactionStmtExpr,
+//                retryTransaction.transaction.statementBlockReturns, env);
     }
 
     protected BLangNode createExpressionStatement(DiagnosticPos pos, BLangStatementExpression retryTransactionStmtExpr,
