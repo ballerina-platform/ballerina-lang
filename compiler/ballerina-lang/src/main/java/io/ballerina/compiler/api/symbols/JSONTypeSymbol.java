@@ -14,36 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.ballerina.compiler.api.symbols;
 
-import java.util.List;
-import java.util.Optional;
-
 /**
- * Represents the table type descriptor.
+ * Represents the json type descriptor.
  *
  * @since 2.0.0
  */
-public interface TableTypeSymbol extends TypeSymbol {
-
-    /**
-     * Get the row type parameter.
-     *
-     * @return {@link TypeSymbol}
-     */
-    TypeSymbol rowTypeParameter();
-
-    /**
-     * Get the key type constraint.
-     *
-     * @return {@link Optional} type descriptor
-     */
-    Optional<TypeSymbol> keyConstraintTypeParameter();
-
-    /**
-     * Get the list of key specifiers.
-     *
-     * @return {@link List} of key names
-     */
-    List<String> keySpecifiers();
+public interface JSONTypeSymbol extends TypeSymbol {
 }
