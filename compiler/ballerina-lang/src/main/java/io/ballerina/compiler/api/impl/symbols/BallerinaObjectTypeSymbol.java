@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -46,8 +47,8 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
     private List<MethodSymbol> methods;
     private MethodSymbol initFunction;
 
-    public BallerinaObjectTypeSymbol(ModuleID moduleID, BObjectType objectType) {
-        super(TypeDescKind.OBJECT, moduleID, objectType);
+    public BallerinaObjectTypeSymbol(CompilerContext context, ModuleID moduleID, BObjectType objectType) {
+        super(context, TypeDescKind.OBJECT, moduleID, objectType);
         // TODO: Fix this
         // objectTypeReference = null;
     }

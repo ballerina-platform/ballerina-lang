@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +37,8 @@ public class BallerinaStreamTypeSymbol extends AbstractTypeSymbol implements Str
 
     private List<TypeSymbol> typeParameters;
 
-    public BallerinaStreamTypeSymbol(ModuleID moduleID, BStreamType streamType) {
-        super(TypeDescKind.STREAM, moduleID, streamType);
+    public BallerinaStreamTypeSymbol(CompilerContext context, ModuleID moduleID, BStreamType streamType) {
+        super(context, TypeDescKind.STREAM, moduleID, streamType);
     }
 
     @Override

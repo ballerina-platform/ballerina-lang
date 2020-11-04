@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,15 +32,19 @@ import java.util.Optional;
 
 /**
  * Represents a Ballerina Type Descriptor.
- * 
+ *
  * @since 2.0.0
  */
 public abstract class AbstractTypeSymbol implements TypeSymbol {
+
+    protected final CompilerContext context;
+
     private final TypeDescKind typeDescKind;
     private final ModuleID moduleID;
     private final BType bType;
 
-    public AbstractTypeSymbol(TypeDescKind typeDescKind, ModuleID moduleID, BType bType) {
+    public AbstractTypeSymbol(CompilerContext context, TypeDescKind typeDescKind, ModuleID moduleID, BType bType) {
+        this.context = context;
         this.typeDescKind = typeDescKind;
         this.moduleID = moduleID;
         this.bType = bType;
