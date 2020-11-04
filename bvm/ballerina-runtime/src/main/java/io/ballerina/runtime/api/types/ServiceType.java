@@ -26,6 +26,4 @@ public interface ServiceType extends ObjectType {
     AttachedFunctionType[] getRemoteFunctions();
 
     ResourceFunctionType[] getResourceFunctions();
-
-    String[] getStoredResourceNames();
 }
