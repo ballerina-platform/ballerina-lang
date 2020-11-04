@@ -543,15 +543,13 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse version component of a import declaration.
-     * @deprecated
-     * Version is no longer supported. Hence, parse it and log an error.
      * <p>
      * <code>version-decl := version sem-ver</code>
-     *
-     * @return Parsed node
-     */
+     * @deprecated
+     * Version is no longer supported. Hence, parse it and log an error.
+     **/
     @Deprecated
-    private STNode parseVersion() {
+    private void parseVersion() {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case VERSION_KEYWORD:
@@ -560,20 +558,18 @@ public class BallerinaParser extends AbstractParser {
                 addInvalidNodeToNextToken(versionKeyword,
                         DiagnosticErrorCode.ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED);
                 addInvalidNodeToNextToken(versionNumber, null);
-                break;
+                return;
             case AS_KEYWORD:
             case SEMICOLON_TOKEN:
                 break;
             default:
                 if (isEndOfImportDecl(nextToken)) {
-                    break;
+                    return;
                 }
 
                 recover(peek(), ParserRuleContext.IMPORT_VERSION_DECL);
-                return parseVersion();
+                parseVersion();
         }
-
-        return STNodeFactory.createEmptyNode();
     }
 
     /**
