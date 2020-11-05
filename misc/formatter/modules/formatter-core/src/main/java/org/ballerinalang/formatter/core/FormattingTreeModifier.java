@@ -1267,8 +1267,16 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public TypeCastParamNode transform(TypeCastParamNode typeCastParamNode) {
-        NodeList<AnnotationNode> annotations = formatNodeList(typeCastParamNode.annotations(), 0, 1, 1, 0);
-        Node type = formatNode(typeCastParamNode.type().orElse(null), env.trailingWS, env.trailingNL);
+        NodeList<AnnotationNode> annotations;
+        Node type = null;
+
+        if (typeCastParamNode.type().isPresent()) {
+            annotations = formatNodeList(typeCastParamNode.annotations(), 1, 0, 1, 0);
+            type = formatNode(typeCastParamNode.type().get(), env.trailingWS, env.trailingNL);
+        } else {
+            annotations = formatNodeList(typeCastParamNode.annotations(), 1, 0, env.trailingWS, env.trailingNL);
+        }
+
         return typeCastParamNode.modify()
                 .withAnnotations(annotations)
                 .withType(type)
