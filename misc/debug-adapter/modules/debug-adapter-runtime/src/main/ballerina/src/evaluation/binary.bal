@@ -150,6 +150,70 @@ function modulus(any lhs, any rhs) returns any|error {
     return result;
 }
 
+function lessThan(any lhs, any rhs) returns boolean|error {
+
+    boolean|error result;
+    if (lhs is int && rhs is int) {
+        result = trap (lhs < rhs); // int < int
+    } else if (lhs is float && rhs is float) {
+        result = trap (lhs < rhs); // float < float
+    } else if (lhs is decimal && rhs is decimal) {
+        result = trap (lhs < rhs); // decimal < decimal
+    } else if (lhs is int && rhs is float) {
+        result = trap (lhs < rhs); // int < float
+    } else if (lhs is float && rhs is int) {
+        result = trap (lhs < rhs); // float < int
+    } else if (lhs is int && rhs is decimal) {
+        result = trap (lhs < rhs); // int < decimal
+    } else if (lhs is decimal && rhs is int) {
+        result = trap (lhs < rhs); // decimal < int
+    } else if (lhs is float && rhs is decimal) {
+        result = trap (lhs < rhs); // float < decimal
+    } else if (lhs is decimal && rhs is float) {
+        result = trap (lhs < rhs); // decimal < float
+    } else {
+        result = error("operator '<' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
+    }
+    return result;
+}
+
+function lessThanOrEquals(any lhs, any rhs) returns boolean|error {
+
+    boolean|error result;
+    if (lhs is int && rhs is int) {
+        result = trap (lhs <= rhs); // int <= int
+    } else if (lhs is float && rhs is float) {
+        result = trap (lhs <= rhs); // float <= float
+    } else if (lhs is decimal && rhs is decimal) {
+        result = trap (lhs <= rhs); // decimal <= decimal
+    } else if (lhs is int && rhs is float) {
+        result = trap (lhs <= rhs); // int <= float
+    } else if (lhs is float && rhs is int) {
+        result = trap (lhs <= rhs); // float <= int
+    } else if (lhs is int && rhs is decimal) {
+        result = trap (lhs <= rhs); // int <= decimal
+    } else if (lhs is decimal && rhs is int) {
+        result = trap (lhs <= rhs); // decimal <= int
+    } else if (lhs is float && rhs is decimal) {
+        result = trap (lhs <= rhs); // float <= decimal
+    } else if (lhs is decimal && rhs is float) {
+        result = trap (lhs <= rhs); // decimal <= float
+    } else {
+        result = error("operator '<=' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
+    }
+    return result;
+}
+
+function greaterThan(any lhs, any rhs) returns boolean|error {
+    boolean|error result = lessThanOrEquals(lhs, rhs);
+    return result is boolean ? (!result) : result;
+}
+
+function greaterThanOrEquals(any lhs, any rhs) returns boolean|error {
+    boolean|error result = lessThan(lhs, rhs);
+    return result is boolean ? (!result) : result;
+}
+
 function getType(any value) returns string|error {
     var result = trap (typeof value);
     if(result is typedesc) {

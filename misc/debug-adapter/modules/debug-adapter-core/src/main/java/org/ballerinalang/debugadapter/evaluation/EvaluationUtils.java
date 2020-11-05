@@ -43,7 +43,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.removeRedund
 public class EvaluationUtils {
 
     // Helper classes
-    public static final String B_ARITHMETIC_HELPER_CLASS = "debugger.evaluation.1_0_0.arithmetic";
+    public static final String B_BINARY_EXPR_HELPER_CLASS = "debugger.evaluation.1_0_0.binary";
     public static final String B_TYPE_CHECKER_CLASS = "io.ballerina.runtime.TypeChecker";
     public static final String B_STRING_UTILS_CLASS = "io.ballerina.runtime.api.StringUtils";
     public static final String B_XML_FACTORY_CLASS = "io.ballerina.runtime.XMLFactory";
@@ -64,14 +64,14 @@ public class EvaluationUtils {
     public static final String B_MUL_METHOD = "multiply";
     public static final String B_DIV_METHOD = "divide";
     public static final String B_MOD_METHOD = "modulus";
+    public static final String B_LT_METHOD = "lessThan";
+    public static final String B_LT_EQUALS_METHOD = "lessThanOrEquals";
+    public static final String B_GT_METHOD = "greaterThan";
+    public static final String B_GT_EQUALS_METHOD = "greaterThanOrEquals";
     public static final String GET_TYPEDESC_METHOD = "getTypedesc";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String REF_EQUAL_METHOD = "isReferenceEqual";
     public static final String VALUE_EQUAL_METHOD = "isEqual";
-    public static final String DECIMAL_LT = "checkDecimalLessThan";
-    public static final String DECIMAL_GT = "checkDecimalGreaterThan";
-    public static final String DECIMAL_LT_EQUALS = "checkDecimalLessThanOrEqual";
-    public static final String DECIMAL_GT_EQUALS = "checkDecimalGreaterThanOrEqual";
     public static final String XML_CONCAT_METHOD = "concatenate";
     public static final String XML_FROM_STRING_METHOD = "fromString";
     private static final String B_STRING_CONCAT_METHOD = "concat";

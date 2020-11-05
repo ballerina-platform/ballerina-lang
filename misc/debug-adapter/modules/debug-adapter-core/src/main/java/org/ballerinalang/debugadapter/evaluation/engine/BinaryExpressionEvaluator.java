@@ -32,19 +32,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_ADD_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_ARITHMETIC_HELPER_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_DECIMAL_VALUE_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_BINARY_EXPR_HELPER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_DIV_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_GT_EQUALS_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_GT_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_LT_EQUALS_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_LT_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_MOD_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_MUL_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_SUB_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_TYPE_CHECKER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_XML_FACTORY_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_XML_VALUE_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.DECIMAL_GT;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.DECIMAL_GT_EQUALS;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.DECIMAL_LT;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.DECIMAL_LT_EQUALS;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.JAVA_OBJECT_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.REF_EQUAL_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.VALUE_EQUAL_METHOD;
@@ -170,24 +169,23 @@ public class BinaryExpressionEvaluator extends Evaluator {
             GeneratedStaticMethod genMethod;
             switch (operator) {
                 case PLUS_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_ARITHMETIC_HELPER_CLASS, B_ADD_METHOD);
+                    genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_ADD_METHOD);
                     break;
                 case MINUS_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_ARITHMETIC_HELPER_CLASS, B_SUB_METHOD);
+                    genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_SUB_METHOD);
                     break;
                 case ASTERISK_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_ARITHMETIC_HELPER_CLASS, B_MUL_METHOD);
+                    genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_MUL_METHOD);
                     break;
                 case SLASH_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_ARITHMETIC_HELPER_CLASS, B_DIV_METHOD);
+                    genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_DIV_METHOD);
                     break;
                 case PERCENT_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_ARITHMETIC_HELPER_CLASS, B_MOD_METHOD);
+                    genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_MOD_METHOD);
                     break;
                 default:
                     throw createUnsupportedOperationException(lVar, rVar, operator);
             }
-
             genMethod.setArgValues(argList);
             Value result = genMethod.invoke();
             return new BExpressionValue(context, result);
@@ -195,80 +193,31 @@ public class BinaryExpressionEvaluator extends Evaluator {
     }
 
     private BExpressionValue compare(BVariable lVar, BVariable rVar, SyntaxKind operator) throws EvaluationException {
-        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
-            // int <=> int
-            boolean result;
-            switch (operator) {
-                case LT_TOKEN:
-                    result = Long.parseLong(lVar.computeValue()) < Long.parseLong(rVar.computeValue());
-                    return EvaluationUtils.make(context, result);
-                case GT_TOKEN:
-                    result = Long.parseLong(lVar.computeValue()) > Long.parseLong(rVar.computeValue());
-                    return EvaluationUtils.make(context, result);
-                case LT_EQUAL_TOKEN:
-                    result = Long.parseLong(lVar.computeValue()) <= Long.parseLong(rVar.computeValue());
-                    return EvaluationUtils.make(context, result);
-                case GT_EQUAL_TOKEN:
-                    result = Long.parseLong(lVar.computeValue()) >= Long.parseLong(rVar.computeValue());
-                    return EvaluationUtils.make(context, result);
-            }
-        } else if ((lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.FLOAT)
-                || (lVar.getBType() == BVariableType.FLOAT && rVar.getBType() == BVariableType.INT)
-                || lVar.getBType() == BVariableType.FLOAT && rVar.getBType() == BVariableType.FLOAT) {
-            // int <=> float or float <=> float
-            boolean result;
-            switch (operator) {
-                case LT_TOKEN:
-                    result = Double.parseDouble(lVar.computeValue()) < Double.parseDouble(rVar.computeValue());
-                    return EvaluationUtils.make(context, result);
-                case GT_TOKEN:
-                    result = Double.parseDouble(lVar.computeValue()) > Double.parseDouble(rVar.computeValue());
-                    return EvaluationUtils.make(context, result);
-                case LT_EQUAL_TOKEN:
-                    result = Double.parseDouble(lVar.computeValue()) <= Double.parseDouble(rVar.computeValue());
-                    return EvaluationUtils.make(context, result);
-                case GT_EQUAL_TOKEN:
-                    result = Double.parseDouble(lVar.computeValue()) >= Double.parseDouble(rVar.computeValue());
-                    return EvaluationUtils.make(context, result);
-            }
-        } else if (lVar.getBType() == BVariableType.DECIMAL && rVar.getBType() == BVariableType.DECIMAL) {
-            List<Value> argList = new ArrayList<>();
-            argList.add(getValueAsObject(context, lVar));
-            argList.add(getValueAsObject(context, rVar));
-            List<String> argTypeNames = new ArrayList<>();
-            argTypeNames.add(B_DECIMAL_VALUE_CLASS);
-            argTypeNames.add(B_DECIMAL_VALUE_CLASS);
+        // Prepares to invoke the JVM runtime util function which is responsible for XML concatenation.
+        List<Value> argList = new ArrayList<>();
+        argList.add(getValueAsObject(context, lVar));
+        argList.add(getValueAsObject(context, rVar));
 
-            RuntimeStaticMethod runtimeMethod;
-            switch (operator) {
-                case LT_TOKEN:
-                    runtimeMethod = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, DECIMAL_LT, argTypeNames);
-                    break;
-                case GT_TOKEN:
-                    runtimeMethod = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, DECIMAL_GT, argTypeNames);
-                    break;
-                case LT_EQUAL_TOKEN:
-                    runtimeMethod = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, DECIMAL_LT_EQUALS, argTypeNames);
-                    break;
-                case GT_EQUAL_TOKEN:
-                    runtimeMethod = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, DECIMAL_GT_EQUALS, argTypeNames);
-                    break;
-                default:
-                    throw createUnsupportedOperationException(lVar, rVar, operator);
-            }
-            runtimeMethod.setArgValues(argList);
-            Value result = runtimeMethod.invoke();
-            BVariable variable = VariableFactory.getVariable(context, result);
-            boolean booleanValue = Boolean.parseBoolean(variable.getDapVariable().getValue());
-            return EvaluationUtils.make(context, booleanValue);
-        } else if (lVar.getBType() == BVariableType.DECIMAL || rVar.getBType() == BVariableType.DECIMAL) {
-            // Todo - Add support for
-            // decimal <=> decimal
-            // decimal <=>  int or int <=> decimal
-            // decimal <=> float or float <=> decimal
-            throw createUnsupportedOperationException(lVar, rVar, operator);
+        GeneratedStaticMethod genMethod;
+        switch (operator) {
+            case LT_TOKEN:
+                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_LT_METHOD);
+                break;
+            case LT_EQUAL_TOKEN:
+                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_LT_EQUALS_METHOD);
+                break;
+            case GT_TOKEN:
+                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_GT_METHOD);
+                break;
+            case GT_EQUAL_TOKEN:
+                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_GT_EQUALS_METHOD);
+                break;
+            default:
+                throw createUnsupportedOperationException(lVar, rVar, operator);
         }
-        throw createUnsupportedOperationException(lVar, rVar, operator);
+        genMethod.setArgValues(argList);
+        Value result = genMethod.invoke();
+        return new BExpressionValue(context, result);
     }
 
     private BExpressionValue bitwiseShift(BVariable lVar, BVariable rVar, SyntaxKind operatorType)

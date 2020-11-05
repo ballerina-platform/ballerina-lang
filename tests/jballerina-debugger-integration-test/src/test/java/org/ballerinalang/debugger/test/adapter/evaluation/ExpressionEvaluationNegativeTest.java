@@ -153,13 +153,19 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void multiplicativeExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // semantically incorrect expressions (multiplication between int and string)
+        assertEvaluationError(context, String.format("%s * %s", INT_VAR, STRING_VAR), "operator '*' not defined for "
+                + "'int' and 'string'.");
+        // runtime error (divide by zero)
+        assertEvaluationError(context, String.format("%s / 0", INT_VAR), "{ballerina}DivisionByZero");
     }
 
     @Override
     @Test
     public void additiveExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // semantically incorrect expressions (addition between int and string)
+        assertEvaluationError(context, String.format("%s + %s", INT_VAR, STRING_VAR), "operator '+' not defined for "
+                + "'int' and 'string'.");
     }
 
     @Override
@@ -177,7 +183,9 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void comparisonEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // semantically incorrect expressions (multiplication between int and string)
+        assertEvaluationError(context, String.format("%s < %s", INT_VAR, STRING_VAR), "operator '<' not defined for "
+                + "'int' and 'string'.");
     }
 
     @Override
@@ -244,9 +252,6 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         // syntactically incorrect expressions (additional semi-colon)
         assertEvaluationError(context, "x + 5;;", String.format(EvaluationExceptionKind.SYNTAX_ERROR
                 .getString(), "invalid token ';'"));
-        // semantically incorrect expressions (addition between int + string)
-        assertEvaluationError(context, String.format("%s + %s", INT_VAR, STRING_VAR), "operator '+' not defined for "
-                + "'int' and 'string'.");
         // undefined object methods
         assertEvaluationError(context, OBJECT_VAR + ".undefined()",
                 String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(), "undefined"));
