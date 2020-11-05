@@ -1,8 +1,7 @@
 public function foo() {
-    int a = 
-        service {
-            function foo() {
-                int a c;
-            }
-        };
+    int a = service {
+                function foo() {
+                    int a c;
+                }
+            };
 }
