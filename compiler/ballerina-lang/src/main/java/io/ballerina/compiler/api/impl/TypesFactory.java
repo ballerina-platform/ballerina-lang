@@ -181,12 +181,8 @@ public class TypesFactory {
                 }
 
                 return new BallerinaUnionTypeSymbol(this.context, moduleID, finiteType);
-            case OTHER:
-                if (bType instanceof BInvokableType) {
-                    return new BallerinaFunctionTypeSymbol(this.context, moduleID,
-                                                           (BInvokableTypeSymbol) bType.tsymbol);
-                }
-                // fall through
+            case FUNCTION:
+                return new BallerinaFunctionTypeSymbol(this.context, moduleID, (BInvokableTypeSymbol) bType.tsymbol);
             default:
                 return new BallerinaSimpleTypeSymbol(this.context, moduleID, bType);
         }
