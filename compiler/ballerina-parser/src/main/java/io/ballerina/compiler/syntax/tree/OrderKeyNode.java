@@ -101,7 +101,6 @@ public class OrderKeyNode extends NonTerminalNode {
 
         public OrderKeyNodeModifier withOrderDirection(
                 Token orderDirection) {
-            Objects.requireNonNull(orderDirection, "orderDirection must not be null");
             this.orderDirection = orderDirection;
             return this;
         }

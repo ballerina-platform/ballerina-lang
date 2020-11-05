@@ -1,0 +1,111 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+import org.apache.tools.ant.taskdefs.condition.Os
+
+description = 'Ballerina - Performance Tests'
+
+configurations {
+    ballerinaTools
+    testLibs {
+        transitive false
+    }
+    testCompileClasspath {
+        resolutionStrategy.preferProjectModules()
+    }
+    all {
+        resolutionStrategy.preferProjectModules()
+    }
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+}
+
+dependencies {
+    baloCreat project(':lib-creator')
+    ballerinaTools project(path: ':jballerina-tools', configuration: 'unzipped')
+
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-runtime')
+    implementation 'org.slf4j:slf4j-api'
+    implementation 'com.github.chewiebug:gcviewer'
+
+    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testCompile project(':ballerina-reflect')
+    testCompile project(':ballerina-core')
+    testCompile 'org.testng:testng'
+    testCompile 'org.slf4j:slf4j-jdk14'
+    testLibs 'com.github.chewiebug:gcviewer:1.36'
+}
+
+createBalo {
+    jvmTarget = 'true'
+}
+
+task copyToLib(type: Copy) {
+    into "${buildDir}/libs"
+    from configurations.testLibs
+}
+
+test {
+    dependsOn ':jballerina-tools:build'
+    dependsOn(copyToLib)
+    maxParallelForks = 1
+
+    def warmupIterations = 20000
+    def benchmarkIterations = 200000
+    def ballerinaHome = "${configurations.ballerinaTools.asPath}"
+    def sourceLocation = "${project.projectDir}/src/main/ballerina/"
+    def resultsLocation = "${buildDir}/results"
+    def resultsFileName = "benchmark_ballerina_${project.version}"
+    def gcLogsLocation = "${buildDir}/gc-logs"
+    def gcViewerJar = "${buildDir}/libs/gcviewer-1.36.jar"
+    if (project.hasProperty("warmup.iterations")) {
+        warmupIterations = project.findProperty("warmup.iterations")
+    }
+    if (project.hasProperty("benchmark.iterations")) {
+        benchmarkIterations = project.findProperty("benchmark.iterations")
+    }
+    if (project.hasProperty("ballerina.home")) {
+        ballerinaHome = project.findProperty("ballerina.home")
+    }
+    if (project.hasProperty("results.location")) {
+        resultsLocation = project.findProperty("results.location")
+    }
+    if (project.hasProperty("gc.logs.location")) {
+        gcLogsLocation = project.findProperty("gc.logs.location")
+    }
+    if (project.hasProperty("gcviewer.jar")) {
+        gcViewerJar = project.findProperty("gcviewer.jar")
+    }
+
+    doLast {
+        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+            exec {
+                workingDir project.projectDir
+                environment "JAVA_OPTS", "-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true"
+                commandLine 'sh', 'executor', "${warmupIterations}", "${benchmarkIterations}", 
+                        "${ballerinaHome}", "${sourceLocation}", "${resultsLocation}", 
+                        "${resultsFileName}", "${gcLogsLocation}", "${gcViewerJar}"
+            }
+        }
+    }
+}
+

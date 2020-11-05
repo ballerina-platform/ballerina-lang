@@ -70,7 +70,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode importKeyword,
             STNode orgName,
             STNode moduleName,
-            STNode version,
             STNode prefix,
             STNode semicolon) {
 
@@ -78,7 +77,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 importKeyword,
                 orgName,
                 moduleName,
-                version,
                 prefix,
                 semicolon);
     }
@@ -573,15 +571,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 prefix);
     }
 
-    public static STNode createImportVersionNode(
-            STNode versionKeyword,
-            STNode versionNumber) {
-
-        return new STImportVersionNode(
-                versionKeyword,
-                versionNumber);
-    }
-
     public static STNode createSpecificFieldNode(
             STNode readonlyKeyword,
             STNode fieldName,
@@ -821,7 +810,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createModuleVariableDeclarationNode(
             STNode metadata,
-            STNode finalKeyword,
+            STNode qualifiers,
             STNode typedBindingPattern,
             STNode equalsToken,
             STNode initializer,
@@ -829,7 +818,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STModuleVariableDeclarationNode(
                 metadata,
-                finalKeyword,
+                qualifiers,
                 typedBindingPattern,
                 equalsToken,
                 initializer,

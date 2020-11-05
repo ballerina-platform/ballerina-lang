@@ -128,7 +128,6 @@ public class ByteArrayLiteralNode extends ExpressionNode {
 
         public ByteArrayLiteralNodeModifier withContent(
                 Token content) {
-            Objects.requireNonNull(content, "content must not be null");
             this.content = content;
             return this;
         }

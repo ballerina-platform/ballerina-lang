@@ -16,26 +16,30 @@
 
 import ballerina/test;
 
-(any|error)[] outputs = [];
-int counter = 0;
+# Before Suite Function
 
-// This is the mock function which will replace the real function
-@test:Mock {
-    moduleName: "ballerina/io",
-    functionName: "println"
+@test:BeforeSuite
+function beforeSuiteFunc() {}
+
+# Before test function
+
+function beforeFunc() {}
+
+# Test function
+
+@test:Config {
+    before: "beforeFunc",
+    after: "afterFunc"
 }
-public function mockPrint((any|error)... s) {
-    outputs[counter] = s[0];
-    counter += 1;
+function testFunction() {
+    test:assertTrue(true, msg = "Failed!");
 }
 
-@test:Config {}
-function testFunc() {
-    // Invoking the main function
-    main();
-    if (outputs[0] is anydata) {
-        test:assertEquals(<anydata>outputs[0], "Hello, World!");
-    } else {
-        test:assertExactEquals(outputs[0], "Hello, World!");
-    }
-}
+# After test function
+
+function afterFunc() {}
+
+# After Suite Function
+
+@test:AfterSuite {}
+function afterSuiteFunc() {}

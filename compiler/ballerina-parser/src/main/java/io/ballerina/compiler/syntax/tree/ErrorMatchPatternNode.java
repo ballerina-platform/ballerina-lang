@@ -131,7 +131,6 @@ public class ErrorMatchPatternNode extends NonTerminalNode {
 
         public ErrorMatchPatternNodeModifier withTypeReference(
                 NameReferenceNode typeReference) {
-            Objects.requireNonNull(typeReference, "typeReference must not be null");
             this.typeReference = typeReference;
             return this;
         }

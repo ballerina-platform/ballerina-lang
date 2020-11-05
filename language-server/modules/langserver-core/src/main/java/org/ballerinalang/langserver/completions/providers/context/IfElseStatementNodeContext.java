@@ -17,10 +17,12 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -52,5 +54,15 @@ public class IfElseStatementNodeContext extends AbstractCompletionProvider<IfEls
         completionItems.addAll(this.getModuleCompletionItems(context));
 
         return completionItems;
+    }
+
+    @Override
+    public boolean onPreValidation(LSContext context, IfElseStatementNode node) {
+        BlockStatementNode ifBody = node.ifBody();
+        if (ifBody.openBraceToken().isMissing()) {
+            return true;
+        }
+        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        return cursor <= ifBody.openBraceToken().textRange().startOffset();
     }
 }

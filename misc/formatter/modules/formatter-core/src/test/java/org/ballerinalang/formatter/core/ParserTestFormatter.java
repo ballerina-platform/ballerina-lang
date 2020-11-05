@@ -63,25 +63,30 @@ public class ParserTestFormatter extends FormatterTest {
                 "doc_source_06.bal",
 
                 // the following tests need to be enabled in the future
-                "ambiguity_source_11.bal", // parser issue for indexed expressions
-                "typed_binding_patterns_source_19.bal", // parser issue for binding patterns
-                "typed_binding_patterns_source_04.bal", // parser issue for binding patterns
-                "typed_binding_patterns_source_15.bal", // parser issue for binding patterns
-                "typed_binding_patterns_source_01.bal", // parser issue for binding patterns
-                "typed_binding_patterns_source_14.bal", // parser issue for binding patterns
-                "typed_binding_patterns_source_02.bal", // parser issue for binding patterns
-                "typed_binding_patterns_source_17.bal", // parser issue for binding patterns
-                "typed_binding_patterns_source_03.bal", // parser issue for binding patterns
+                "ambiguity_source_11.bal", // parser issue for indexed expressions #26420
+                "typed_binding_patterns_source_19.bal", // parser issue for binding patterns #26421
+                "typed_binding_patterns_source_04.bal", // parser issue for binding patterns #26421
+                "typed_binding_patterns_source_15.bal", // parser issue for binding patterns #26421
+                "typed_binding_patterns_source_01.bal", // parser issue for binding patterns #26421
+                "typed_binding_patterns_source_14.bal", // parser issue for binding patterns #26421
+                "typed_binding_patterns_source_02.bal", // parser issue for binding patterns #26421
+                "typed_binding_patterns_source_17.bal", // parser issue for binding patterns #26421
+                "typed_binding_patterns_source_03.bal", // parser issue for binding patterns #26421
                 "annotations_source_04.bal", // could be considered an invalid scenario
-                "list_binding_pattern_source_01.bal", // parser issue for binding patterns
-                "mapping_binding_pattern_source_01.bal", // parser issue for binding patterns
-                "forEach_stmt_source_19.bal", // parser issue for binding patterns
-                "forEach_stmt_source_18.bal", // parser issue for binding patterns
-                "forEach_stmt_source_12.bal", // parser issue for binding patterns
-                "match_stmt_source_08.bal", // parser issue for binding patterns & match block
-                "match_stmt_source_05.bal", // parser issue for binding patterns & match block
+                "list_binding_pattern_source_01.bal", // parser issue for binding patterns #26421
+                "mapping_binding_pattern_source_01.bal", // parser issue for binding patterns #26421
+                "forEach_stmt_source_19.bal", // parser issue for binding patterns #26421
+                "forEach_stmt_source_18.bal", // parser issue for binding patterns #26421
+                "forEach_stmt_source_12.bal", // parser issue for binding patterns #26421
+                "match_stmt_source_08.bal", // parser issue for binding patterns & match block #26421
+                "match_stmt_source_05.bal", // parser issue for binding patterns & match block #26421
                 "match_stmt_source_14.bal", // match block
-                "match_stmt_source_01.bal"); // match block
+                "match_stmt_source_01.bal", // match block
+                "receive_action_source_01.bal", // issue #26376
+                "match_stmt_source_10.bal", // issue #26376
+                "match_stmt_source_12.bal", // issue #26376
+                "typed_binding_patterns_source_16.bal", // parser issue for binding patterns #26421
+                "error_binding_pattern_source_02.bal"); // issue #26376
     }
 
     @DataProvider(name = "test-file-provider")

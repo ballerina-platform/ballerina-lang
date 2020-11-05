@@ -1,5 +1,6 @@
 {
   "kind": "IMPORT_DECLARATION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "IMPORT_KEYWORD",
@@ -52,53 +53,94 @@
       ]
     },
     {
-      "kind": "IMPORT_VERSION",
+      "kind": "IMPORT_PREFIX",
+      "hasDiagnostics": true,
       "children": [
         {
-          "kind": "VERSION_KEYWORD",
-          "trailingMinutiae": [
+          "kind": "AS_KEYWORD",
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED"
+          ],
+          "leadingMinutiae": [
+            {
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
+                  {
+                    "kind": "VERSION_KEYWORD"
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            },
+            {
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
+                  {
+                    "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                    "value": "2"
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
+                  {
+                    "kind": "DOT_TOKEN"
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
+                  {
+                    "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                    "value": "4"
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
+                  {
+                    "kind": "DOT_TOKEN"
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
+                  {
+                    "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                    "value": "0"
+                  }
+                ]
+              }
+            },
             {
               "kind": "WHITESPACE_MINUTIAE",
               "value": " "
             }
-          ]
-        },
-        {
-          "kind": "LIST",
-          "children": [
-            {
-              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-              "value": "2"
-            },
-            {
-              "kind": "DOT_TOKEN"
-            },
-            {
-              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-              "value": "4"
-            },
-            {
-              "kind": "DOT_TOKEN"
-            },
-            {
-              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-              "value": "0",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "kind": "IMPORT_PREFIX",
-      "children": [
-        {
-          "kind": "AS_KEYWORD",
+          ],
           "trailingMinutiae": [
             {
               "kind": "WHITESPACE_MINUTIAE",
