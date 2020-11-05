@@ -17,8 +17,6 @@
  */
 package io.ballerina.runtime.api.utils;
 
-import io.ballerina.runtime.JsonGenerator;
-import io.ballerina.runtime.JsonParser;
 import io.ballerina.runtime.api.types.JsonType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.StructureType;
@@ -27,7 +25,9 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.values.ErrorValue;
+import io.ballerina.runtime.internal.JsonGenerator;
+import io.ballerina.runtime.internal.JsonParser;
+import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.io.IOException;
 import java.io.InputStream;

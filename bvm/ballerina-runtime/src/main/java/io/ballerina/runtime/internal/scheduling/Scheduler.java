@@ -24,10 +24,10 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.util.RuntimeUtils;
-import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.values.ChannelDetails;
-import io.ballerina.runtime.values.FutureValue;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.values.ChannelDetails;
+import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.io.PrintStream;
 import java.util.Map;

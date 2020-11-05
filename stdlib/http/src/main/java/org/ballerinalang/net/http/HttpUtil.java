@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http;
 
-import io.ballerina.runtime.JSONGenerator;
+import io.ballerina.runtime.internal.JSONGenerator;
 import io.ballerina.runtime.api.BErrorCreator;
 import io.ballerina.runtime.api.BStringUtils;
 import io.ballerina.runtime.api.runtime.Module;
@@ -32,12 +32,12 @@ import io.ballerina.runtime.api.values.RefValue;
 import io.ballerina.runtime.api.values.StreamingJsonValue;
 import io.ballerina.runtime.api.values.XMLItem;
 import io.ballerina.runtime.api.values.XMLSequence;
+import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.services.ErrorHandlerUtils;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaConnectorException;
 import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.ObserverContext;
-import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.services.ErrorHandlerUtils;
 import io.ballerina.runtime.transactions.TransactionConstants;
-import io.ballerina.runtime.util.exceptions.BallerinaConnectorException;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
@@ -107,7 +107,7 @@ import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
-import static io.ballerina.runtime.runtime.RuntimeConstants.BALLERINA_VERSION;
+import static io.ballerina.runtime.internal.runtime.RuntimeConstants.BALLERINA_VERSION;
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
 import static org.ballerinalang.mime.util.EntityBodyHandler.checkEntityBodyAvailability;
 import static org.ballerinalang.mime.util.MimeConstants.BOUNDARY;

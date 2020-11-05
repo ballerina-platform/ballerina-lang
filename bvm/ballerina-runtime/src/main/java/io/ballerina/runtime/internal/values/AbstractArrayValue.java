@@ -17,13 +17,13 @@
 */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.IteratorUtils;
-import io.ballerina.runtime.JsonGenerator;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.IteratorUtils;
+import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;

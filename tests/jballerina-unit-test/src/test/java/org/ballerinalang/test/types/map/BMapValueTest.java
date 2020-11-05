@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.types.map;
 
-import io.ballerina.runtime.XmlFactory;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.values.MapValue;
-import io.ballerina.runtime.values.MapValueImpl;
+import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.values.MapValue;
+import io.ballerina.runtime.internal.values.MapValueImpl;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BRefType;

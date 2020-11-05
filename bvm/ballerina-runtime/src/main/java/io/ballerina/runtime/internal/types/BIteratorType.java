@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.runtime.types;
+package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.IteratorType;
-import io.ballerina.runtime.values.IteratorValue;
+import io.ballerina.runtime.internal.values.IteratorValue;
 
 /**
  * {@code BIteratorType} represents the type of iterator in ballerina.

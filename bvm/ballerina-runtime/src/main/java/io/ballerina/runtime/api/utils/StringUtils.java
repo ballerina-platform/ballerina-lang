@@ -16,9 +16,6 @@
  */
 package io.ballerina.runtime.api.utils;
 
-import io.ballerina.runtime.BalStringUtils;
-import io.ballerina.runtime.CycleUtils;
-import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.AttachedFunctionType;
@@ -26,15 +23,18 @@ import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.util.exceptions.BallerinaException;
-import io.ballerina.runtime.values.AbstractObjectValue;
-import io.ballerina.runtime.values.ArrayValue;
-import io.ballerina.runtime.values.BmpStringValue;
-import io.ballerina.runtime.values.DecimalValue;
-import io.ballerina.runtime.values.MapValueImpl;
-import io.ballerina.runtime.values.NonBmpStringValue;
-import io.ballerina.runtime.values.RefValue;
+import io.ballerina.runtime.internal.BalStringUtils;
+import io.ballerina.runtime.internal.CycleUtils;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.values.AbstractObjectValue;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.BmpStringValue;
+import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.NonBmpStringValue;
+import io.ballerina.runtime.internal.values.RefValue;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -48,8 +48,8 @@ import java.util.List;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
-import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Common utility methods used for String manipulation.

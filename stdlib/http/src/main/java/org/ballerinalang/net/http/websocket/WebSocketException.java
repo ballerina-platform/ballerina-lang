@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.websocket;
 
-import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.api.BStringUtils;
 import io.ballerina.runtime.api.BValueCreator;
 import io.ballerina.runtime.api.TypeConstants;

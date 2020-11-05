@@ -15,15 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.runtime.types;
+package io.ballerina.runtime.internal.types;
 
-import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.values.ArrayValue;
-import io.ballerina.runtime.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
 
 /**
  * {@code BArrayType} represents a type of an arrays in Ballerina.

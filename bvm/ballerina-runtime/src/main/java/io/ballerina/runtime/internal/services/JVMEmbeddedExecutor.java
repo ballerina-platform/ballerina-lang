@@ -15,22 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.runtime.services;
+package io.ballerina.runtime.internal.services;
 
-import io.ballerina.runtime.internal.annotation.JavaSpiService;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.internal.annotation.JavaSpiService;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.services.spi.EmbeddedExecutor;
-import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.util.ArgumentParser;
-import io.ballerina.runtime.util.RuntimeUtils;
-import io.ballerina.runtime.util.exceptions.BLangRuntimeException;
-import io.ballerina.runtime.util.exceptions.BallerinaException;
-import io.ballerina.runtime.values.ArrayValue;
-import io.ballerina.runtime.values.ErrorValue;
-import io.ballerina.runtime.values.FutureValue;
+import io.ballerina.runtime.internal.services.spi.EmbeddedExecutor;
+import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.util.ArgumentParser;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -42,7 +42,7 @@ import java.util.function.Function;
  *
  * @since 0.964
  */
-@JavaSpiService("io.ballerina.runtime.services.spi.EmbeddedExecutor")
+@JavaSpiService("io.ballerina.runtime.internal.services.spi.EmbeddedExecutor")
 public class JVMEmbeddedExecutor implements EmbeddedExecutor {
 
     private static final String MODULE_INIT_CLASS = ".$_init";
@@ -116,7 +116,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
-                if (t instanceof io.ballerina.runtime.util.exceptions.BLangRuntimeException) {
+                if (t instanceof io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof ErrorValue) {
@@ -172,7 +172,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
-                if (t instanceof io.ballerina.runtime.util.exceptions.BLangRuntimeException) {
+                if (t instanceof io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof ErrorValue) {
@@ -219,7 +219,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
-                if (t instanceof io.ballerina.runtime.util.exceptions.BLangRuntimeException) {
+                if (t instanceof io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof ErrorValue) {

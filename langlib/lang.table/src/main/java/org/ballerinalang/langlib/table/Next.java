@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.table;
 
-import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
@@ -28,12 +27,13 @@ import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.internal.TypeChecker;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.ITERATOR_MUTABILITY_ERROR;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.ITERATOR_MUTABILITY_ERROR;
 
 /**
  * Native implementation of lang.table.TableIterator:next().

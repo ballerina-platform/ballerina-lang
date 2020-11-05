@@ -21,8 +21,8 @@ package io.ballerina.runtime.internal.scheduling;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.types.BFunctionType;
-import io.ballerina.runtime.values.FutureValue;
+import io.ballerina.runtime.internal.types.BFunctionType;
+import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;

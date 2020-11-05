@@ -17,17 +17,17 @@
  */
 package io.ballerina.runtime.internal.scheduling;
 
-import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.values.ChannelDetails;
+import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.FutureValue;
+import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.observability.ObserverContext;
 import io.ballerina.runtime.transactions.TransactionLocalContext;
-import io.ballerina.runtime.values.ChannelDetails;
-import io.ballerina.runtime.values.ErrorValue;
-import io.ballerina.runtime.values.FutureValue;
-import io.ballerina.runtime.values.MapValue;
 
 import java.util.ArrayList;
 import java.util.HashMap;

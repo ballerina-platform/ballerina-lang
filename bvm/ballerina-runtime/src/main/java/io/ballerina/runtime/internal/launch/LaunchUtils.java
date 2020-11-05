@@ -16,9 +16,10 @@
 *  under the License.
 */
 
-package io.ballerina.runtime.launch;
+package io.ballerina.runtime.internal.launch;
 
-import io.ballerina.runtime.util.RuntimeUtils;
+import io.ballerina.runtime.api.launch.LaunchListener;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.logging.BLogManager;
 

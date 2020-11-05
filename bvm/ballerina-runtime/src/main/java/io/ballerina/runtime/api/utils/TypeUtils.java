@@ -17,13 +17,13 @@
  */
 package io.ballerina.runtime.api.utils;
 
-import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.types.BFiniteType;
-import io.ballerina.runtime.types.BType;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BFiniteType;
+import io.ballerina.runtime.internal.types.BType;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANY;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;

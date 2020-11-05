@@ -16,7 +16,6 @@
 
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.CycleUtils;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
@@ -27,6 +26,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
+import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 

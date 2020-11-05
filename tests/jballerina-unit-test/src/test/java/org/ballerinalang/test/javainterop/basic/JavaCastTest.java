@@ -59,7 +59,7 @@ public class JavaCastTest {
         BValue[] returns = BRunUtil.invoke(result, "testJavaCastForInvalidTypedesc3");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0].stringValue().contains("{ballerina/java} Error while initializing the new " +
-               "object from `String4` type: java.lang.ClassCastException: io.ballerina.runtime.values.HandleValue " +
+               "object from `String4` type: java.lang.ClassCastException: io.ballerina.runtime.internal.values.HandleValue " +
                "cannot be cast to io.ballerina.runtime.api.values.BString"));
     }
 

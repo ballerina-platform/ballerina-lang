@@ -18,16 +18,16 @@
 
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.XmlFactory;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.Arrays;
 

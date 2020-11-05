@@ -17,11 +17,11 @@
   */
  package io.ballerina.runtime.internal.scheduling;
 
- import io.ballerina.runtime.TypeChecker;
  import io.ballerina.runtime.api.PredefinedTypes;
- import io.ballerina.runtime.values.ChannelDetails;
- import io.ballerina.runtime.values.ErrorValue;
- import io.ballerina.runtime.values.RefValue;
+ import io.ballerina.runtime.internal.TypeChecker;
+ import io.ballerina.runtime.internal.values.ChannelDetails;
+ import io.ballerina.runtime.internal.values.ErrorValue;
+ import io.ballerina.runtime.internal.values.RefValue;
 
  /**
   * Worker related utility methods for jBallerina runtime.

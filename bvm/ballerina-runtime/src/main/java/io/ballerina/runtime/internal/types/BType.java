@@ -15,15 +15,15 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package io.ballerina.runtime.types;
+package io.ballerina.runtime.internal.types;
 
-import io.ballerina.runtime.IdentifierUtils;
-import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.IdentifierUtils;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import java.util.Objects;
 

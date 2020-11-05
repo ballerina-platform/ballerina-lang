@@ -17,12 +17,12 @@
 */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.JsonDataSource;
-import io.ballerina.runtime.JsonGenerator;
-import io.ballerina.runtime.internal.JsonUtils;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BStreamingJson;
+import io.ballerina.runtime.internal.JsonDataSource;
+import io.ballerina.runtime.internal.JsonGenerator;
+import io.ballerina.runtime.internal.JsonUtils;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BMapType;
 

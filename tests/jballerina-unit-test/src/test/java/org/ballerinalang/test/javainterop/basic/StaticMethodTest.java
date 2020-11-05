@@ -20,7 +20,7 @@ package org.ballerinalang.test.javainterop.basic;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.MapValueImpl;
 import org.ballerinalang.core.model.values.BDecimal;
 import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BHandleValue;

@@ -15,12 +15,12 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.runtime.types;
+package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.HandleType;
-import io.ballerina.runtime.values.RefValue;
+import io.ballerina.runtime.internal.values.RefValue;
 
 /**
  * {@code BAnyType} represents any type in Ballerina. It is the root of the Ballerina type system.

@@ -17,8 +17,8 @@
   */
  package io.ballerina.runtime.internal.scheduling;
 
- import io.ballerina.runtime.TypeChecker;
  import io.ballerina.runtime.api.PredefinedTypes;
+ import io.ballerina.runtime.internal.TypeChecker;
 
  /**
   * WaitContext for Wait for any action.

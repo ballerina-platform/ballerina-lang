@@ -18,8 +18,6 @@
 
 package io.ballerina.runtime.internal;
 
-import io.ballerina.runtime.TableJsonDataSource;
-import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
@@ -35,22 +33,22 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
-import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.types.BJsonType;
-import io.ballerina.runtime.types.BMapType;
-import io.ballerina.runtime.types.BStructureType;
-import io.ballerina.runtime.types.BUnionType;
-import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.util.exceptions.BallerinaException;
-import io.ballerina.runtime.util.exceptions.RuntimeErrors;
-import io.ballerina.runtime.values.ArrayValue;
-import io.ballerina.runtime.values.ArrayValueImpl;
-import io.ballerina.runtime.values.DecimalValue;
-import io.ballerina.runtime.values.ErrorValue;
-import io.ballerina.runtime.values.MapValue;
-import io.ballerina.runtime.values.MapValueImpl;
-import io.ballerina.runtime.values.RefValue;
+import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BJsonType;
+import io.ballerina.runtime.internal.types.BMapType;
+import io.ballerina.runtime.internal.types.BStructureType;
+import io.ballerina.runtime.internal.types.BUnionType;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.MapValue;
+import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.RefValue;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -59,10 +57,10 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
-import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.JSON_OPERATION_ERROR;
-import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
-import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.JSON_OPERATION_ERROR;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Common utility methods used for JSON manipulation.

@@ -21,8 +21,8 @@ package org.ballerinalang.observe.nativeimpl;
 
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.observability.ObservabilityConstants;
-import io.ballerina.runtime.scheduling.Scheduler;
 
 import static org.ballerinalang.observe.nativeimpl.OpenTracerBallerinaWrapper.ROOT_SPAN_INDICATOR;
 

@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.types.xml;
 
-import io.ballerina.runtime.XmlFactory;
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.XmlFactory;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BIterator;
 import org.ballerinalang.core.model.values.BString;

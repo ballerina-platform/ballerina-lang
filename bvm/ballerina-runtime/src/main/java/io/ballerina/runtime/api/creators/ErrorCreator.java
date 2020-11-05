@@ -17,7 +17,6 @@
 */
 package io.ballerina.runtime.api.creators;
 
-import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.constants.TypeConstants;
@@ -26,9 +25,10 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.types.BErrorType;
-import io.ballerina.runtime.values.ErrorValue;
-import io.ballerina.runtime.values.MapValueImpl;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.BErrorType;
+import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.MapValueImpl;
 
 /**
  * Class @{@link ErrorCreator} provides APIs to create ballerina error instances.

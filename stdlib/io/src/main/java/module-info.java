@@ -1,5 +1,5 @@
 module io.ballerina.io {
-    requires io.ballerina.runtime;
+    requires io.ballerina.runtime.internal;
     requires slf4j.api;
     exports org.ballerinalang.stdlib.io.channels.base;
     exports org.ballerinalang.stdlib.io.readers;

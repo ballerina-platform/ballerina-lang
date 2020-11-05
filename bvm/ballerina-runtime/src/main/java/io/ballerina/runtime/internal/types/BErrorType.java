@@ -15,13 +15,13 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.runtime.types;
+package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ErrorType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.values.ErrorValue;
+import io.ballerina.runtime.internal.values.ErrorValue;
 
 /**
  * {@code BErrorType} represents error type in Ballerina.

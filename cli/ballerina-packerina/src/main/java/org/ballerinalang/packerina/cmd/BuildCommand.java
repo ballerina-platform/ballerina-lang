@@ -18,7 +18,7 @@
 package org.ballerinalang.packerina.cmd;
 
 import io.ballerina.runtime.api.constants.RuntimeConstants;
-import io.ballerina.runtime.launch.LaunchUtils;
+import io.ballerina.runtime.internal.launch.LaunchUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.packerina.JarResolverImpl;

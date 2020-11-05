@@ -20,7 +20,7 @@ package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.values.FutureValue;
+import io.ballerina.runtime.internal.values.FutureValue;
 
 /**
  * The callback implementation to handle non-blocking native function behaviour.

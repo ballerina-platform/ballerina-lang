@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package io.ballerina.runtime.types;
+package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
@@ -23,8 +23,8 @@ import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlType;
-import io.ballerina.runtime.values.XmlSequence;
-import io.ballerina.runtime.values.XmlValue;
+import io.ballerina.runtime.internal.values.XmlSequence;
+import io.ballerina.runtime.internal.values.XmlValue;
 
 /**
  * {@code BXMLType} represents an XML Element.

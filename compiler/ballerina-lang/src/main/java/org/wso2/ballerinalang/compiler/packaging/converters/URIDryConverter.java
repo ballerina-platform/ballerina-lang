@@ -18,9 +18,9 @@
 
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
-import io.ballerina.runtime.JsonParser;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.internal.JsonParser;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.toml.model.Manifest;

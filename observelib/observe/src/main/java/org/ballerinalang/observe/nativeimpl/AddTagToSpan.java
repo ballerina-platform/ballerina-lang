@@ -22,7 +22,7 @@ package org.ballerinalang.observe.nativeimpl;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 
 /**
  * This function adds tags to a span.

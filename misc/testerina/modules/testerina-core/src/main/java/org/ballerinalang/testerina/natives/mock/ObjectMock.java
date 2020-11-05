@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.testerina.natives.mock;
 
-import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.Field;
@@ -31,7 +30,8 @@ import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 
 import java.util.List;
 import java.util.Map;

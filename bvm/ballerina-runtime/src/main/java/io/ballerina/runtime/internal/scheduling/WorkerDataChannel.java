@@ -17,7 +17,7 @@
 */
 package io.ballerina.runtime.internal.scheduling;
 
-import io.ballerina.runtime.values.ErrorValue;
+import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.LinkedList;
 import java.util.Queue;

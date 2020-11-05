@@ -43,7 +43,7 @@ public class EvaluationUtils {
 
 
     // Helper classes
-    public static final String B_TYPE_CHECKER_CLASS = "io.ballerina.runtime.TypeChecker";
+    public static final String B_TYPE_CHECKER_CLASS = "io.ballerina.runtime.internal.TypeChecker";
     private static final String B_STRING_UTILS_CLASS = "io.ballerina.runtime.api.utils.StringUtils";
     public static final String JAVA_BOOLEAN_CLASS = "java.lang.Boolean";
     public static final String JAVA_LONG_CLASS = "java.lang.Long";

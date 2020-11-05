@@ -23,8 +23,8 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.observability.ObservabilityConstants;
-import io.ballerina.runtime.scheduling.Scheduler;
 
 /**
  * This function which implements the startSpan method for observe.

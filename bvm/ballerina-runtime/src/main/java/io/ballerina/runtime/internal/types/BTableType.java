@@ -15,15 +15,15 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.runtime.types;
+package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.values.TableValue;
-import io.ballerina.runtime.values.TableValueImpl;
+import io.ballerina.runtime.internal.values.TableValue;
+import io.ballerina.runtime.internal.values.TableValueImpl;
 
 /**
  * {@code BTableType} represents tabular data in Ballerina.

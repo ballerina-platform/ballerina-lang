@@ -18,11 +18,11 @@
 
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.IteratorUtils;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
+import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.types.BStreamType;
 
 import java.util.Map;

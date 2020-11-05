@@ -1,3 +1,3 @@
 module io.ballerina.runtime.api {
-    requires io.ballerina.runtime;
+    requires io.ballerina.runtime.internal;
 }

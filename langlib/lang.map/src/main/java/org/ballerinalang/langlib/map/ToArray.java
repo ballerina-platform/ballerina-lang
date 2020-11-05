@@ -31,7 +31,7 @@ import org.ballerinalang.langlib.map.util.MapLibUtils;
 
 import java.util.Collection;
 
-import static io.ballerina.runtime.MapUtils.createOpNotSupportedError;
+import static io.ballerina.runtime.internal.MapUtils.createOpNotSupportedError;
 
 /**
  * Function for returning the values of the map as an array. T[] vals = m.toArray();

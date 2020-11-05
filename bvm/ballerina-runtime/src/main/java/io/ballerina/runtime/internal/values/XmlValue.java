@@ -16,7 +16,6 @@
 
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.BallerinaXmlSerializer;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
@@ -25,6 +24,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlQName;
+import io.ballerina.runtime.internal.BallerinaXmlSerializer;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import java.io.OutputStream;

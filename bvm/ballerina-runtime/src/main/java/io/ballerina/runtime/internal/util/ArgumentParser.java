@@ -17,15 +17,15 @@
  */
 package io.ballerina.runtime.internal.util;
 
-import io.ballerina.runtime.JsonParser;
-import io.ballerina.runtime.internal.JsonUtils;
-import io.ballerina.runtime.XmlFactory;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.internal.JsonParser;
+import io.ballerina.runtime.internal.JsonUtils;
+import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BStructureType;
@@ -33,11 +33,11 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.RuntimeUtils.ParamInfo;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
-import io.ballerina.runtime.values.ArrayValue;
-import io.ballerina.runtime.values.ArrayValueImpl;
-import io.ballerina.runtime.values.DecimalValue;
-import io.ballerina.runtime.values.ErrorValue;
-import io.ballerina.runtime.values.TupleValueImpl;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;

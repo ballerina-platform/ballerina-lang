@@ -20,8 +20,8 @@ package org.ballerinalang.test.runtime.entity;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
 import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;
 
 import java.lang.reflect.InvocationTargetException;

@@ -17,11 +17,11 @@
  */
 package io.ballerina.runtime.api.utils;
 
-import io.ballerina.runtime.XmlFactory;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.values.TableValueImpl;
+import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.values.TableValueImpl;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -85,9 +85,9 @@ public class XmlUtils {
     }
 
     /**
-     * Converts a {@link io.ballerina.runtime.values.TableValue} to {@link BXml}.
+     * Converts a {@link io.ballerina.runtime.internal.values.TableValue} to {@link BXml}.
      *
-     * @param table {@link io.ballerina.runtime.values.TableValue} to convert
+     * @param table {@link io.ballerina.runtime.internal.values.TableValue} to convert
      * @return converted {@link BXml}
      */
     public static BXml parse(BTable table) {

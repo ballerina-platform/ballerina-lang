@@ -14,14 +14,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package io.ballerina.runtime.types;
+package io.ballerina.runtime.internal.types;
 
-import io.ballerina.runtime.AnnotationUtils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ServiceType;
+import io.ballerina.runtime.internal.AnnotationUtils;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.values.MapValue;
+import io.ballerina.runtime.internal.values.MapValue;
 
 /**
  * {@code BServiceType} represents a service in Ballerina.

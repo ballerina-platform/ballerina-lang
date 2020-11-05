@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.internal;
 
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 
 import java.util.ArrayList;
 import java.util.List;

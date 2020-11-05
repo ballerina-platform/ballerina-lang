@@ -17,9 +17,6 @@
  */
 package org.ballerinalang.test.util;
 
-import io.ballerina.runtime.DecimalValueKind;
-import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.XmlFactory;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
@@ -34,26 +31,29 @@ import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.util.exceptions.BLangRuntimeException;
-import io.ballerina.runtime.values.AbstractObjectValue;
-import io.ballerina.runtime.values.ArrayValue;
-import io.ballerina.runtime.values.ArrayValueImpl;
-import io.ballerina.runtime.values.BmpStringValue;
-import io.ballerina.runtime.values.DecimalValue;
-import io.ballerina.runtime.values.ErrorValue;
-import io.ballerina.runtime.values.FPValue;
-import io.ballerina.runtime.values.FutureValue;
-import io.ballerina.runtime.values.HandleValue;
-import io.ballerina.runtime.values.MapValue;
-import io.ballerina.runtime.values.MapValueImpl;
-import io.ballerina.runtime.values.NonBmpStringValue;
-import io.ballerina.runtime.values.ObjectValue;
-import io.ballerina.runtime.values.StreamValue;
-import io.ballerina.runtime.values.TypedescValue;
-import io.ballerina.runtime.values.XmlSequence;
-import io.ballerina.runtime.values.XmlValue;
+import io.ballerina.runtime.internal.DecimalValueKind;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.values.AbstractObjectValue;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.values.BmpStringValue;
+import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.FPValue;
+import io.ballerina.runtime.internal.values.FutureValue;
+import io.ballerina.runtime.internal.values.HandleValue;
+import io.ballerina.runtime.internal.values.MapValue;
+import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.NonBmpStringValue;
+import io.ballerina.runtime.internal.values.ObjectValue;
+import io.ballerina.runtime.internal.values.StreamValue;
+import io.ballerina.runtime.internal.values.TypedescValue;
+import io.ballerina.runtime.internal.values.XmlSequence;
+import io.ballerina.runtime.internal.values.XmlValue;
 import org.apache.axiom.om.OMNode;
 import org.ballerinalang.core.model.types.BArrayType;
 import org.ballerinalang.core.model.types.BErrorType;
@@ -266,7 +266,7 @@ public class BRunUtil {
                         throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(t.getMessage());
                     }
                     if (t instanceof io.ballerina.runtime.api.values.BError) {
-                        throw new io.ballerina.runtime.util.exceptions
+                        throw new io.ballerina.runtime.internal.util.exceptions
                                 .BLangRuntimeException("error: " +
                                                                ((io.ballerina.runtime.api.values.BError) t)
                                                                        .getPrintableStackTrace());
@@ -402,7 +402,7 @@ public class BRunUtil {
                         throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(t.getMessage());
                     }
                     if (t instanceof io.ballerina.runtime.api.values.BError) {
-                        throw new io.ballerina.runtime.util.exceptions
+                        throw new io.ballerina.runtime.internal.util.exceptions
                                 .BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
                     }
                     if (t instanceof StackOverflowError) {

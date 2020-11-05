@@ -17,9 +17,6 @@
  */
 package io.ballerina.runtime.api.creators;
 
-import io.ballerina.runtime.DecimalValueKind;
-import io.ballerina.runtime.JsonDataSource;
-import io.ballerina.runtime.XmlFactory;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType;
@@ -46,25 +43,28 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlQName;
 import io.ballerina.runtime.api.values.BXmlSequence;
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.scheduling.State;
-import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.types.BRecordType;
-import io.ballerina.runtime.values.ArrayValueImpl;
-import io.ballerina.runtime.values.DecimalValue;
-import io.ballerina.runtime.values.FPValue;
-import io.ballerina.runtime.values.HandleValue;
-import io.ballerina.runtime.values.MapValue;
-import io.ballerina.runtime.values.MapValueImpl;
-import io.ballerina.runtime.values.MappingInitialValueEntry;
-import io.ballerina.runtime.values.StreamValue;
-import io.ballerina.runtime.values.StreamingJsonValue;
-import io.ballerina.runtime.values.TableValueImpl;
-import io.ballerina.runtime.values.TupleValueImpl;
-import io.ballerina.runtime.values.TypedescValueImpl;
-import io.ballerina.runtime.values.XmlItem;
-import io.ballerina.runtime.values.XmlQName;
-import io.ballerina.runtime.values.XmlSequence;
+import io.ballerina.runtime.internal.DecimalValueKind;
+import io.ballerina.runtime.internal.JsonDataSource;
+import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.State;
+import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.types.BRecordType;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.runtime.internal.values.FPValue;
+import io.ballerina.runtime.internal.values.HandleValue;
+import io.ballerina.runtime.internal.values.MapValue;
+import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
+import io.ballerina.runtime.internal.values.StreamValue;
+import io.ballerina.runtime.internal.values.StreamingJsonValue;
+import io.ballerina.runtime.internal.values.TableValueImpl;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
+import io.ballerina.runtime.internal.values.TypedescValueImpl;
+import io.ballerina.runtime.internal.values.XmlItem;
+import io.ballerina.runtime.internal.values.XmlQName;
+import io.ballerina.runtime.internal.values.XmlSequence;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -422,8 +422,8 @@ import javax.xml.namespace.QName;
       * @return value of the record.
       */
      public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName) {
-         io.ballerina.runtime.values.ValueCreator
-                 valueCreator = io.ballerina.runtime.values.ValueCreator.getValueCreator(packageId.toString());
+         io.ballerina.runtime.internal.values.ValueCreator
+                 valueCreator = io.ballerina.runtime.internal.values.ValueCreator.getValueCreator(packageId.toString());
          return valueCreator.createRecordValue(recordTypeName);
      }
 
@@ -484,8 +484,8 @@ import javax.xml.namespace.QName;
      public static BObject createObjectValue(Module packageId, String objectTypeName, Object... fieldValues) {
          Strand currentStrand = getStrand();
          // This method duplicates the createObjectValue with referencing the issue in runtime API getting strand
-         io.ballerina.runtime.values.ValueCreator
-                 valueCreator = io.ballerina.runtime.values.ValueCreator.getValueCreator(packageId.toString());
+         io.ballerina.runtime.internal.values.ValueCreator
+                 valueCreator = io.ballerina.runtime.internal.values.ValueCreator.getValueCreator(packageId.toString());
          Object[] fields = new Object[fieldValues.length * 2];
 
          // Here the variables are initialized with default values

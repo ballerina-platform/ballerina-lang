@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-package io.ballerina.runtime.services.spi;
+package io.ballerina.runtime.internal.services.spi;
 
 import io.ballerina.runtime.api.async.StrandMetadata;
 

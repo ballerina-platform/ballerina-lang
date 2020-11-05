@@ -17,7 +17,7 @@
 */
 package io.ballerina.runtime.api.values;
 
-import io.ballerina.runtime.JsonDataSource;
+import io.ballerina.runtime.internal.JsonDataSource;
 
 import java.io.Writer;
 

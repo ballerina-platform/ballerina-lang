@@ -17,11 +17,11 @@
 */
 package org.ballerinalang.test.statements.arrays;
 
-import io.ballerina.runtime.XmlFactory;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.values.ArrayValue;
-import io.ballerina.runtime.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import org.ballerinalang.core.model.types.BArrayType;
 import org.ballerinalang.core.model.types.BTypes;
 import org.ballerinalang.core.model.values.BInteger;
@@ -136,7 +136,7 @@ public class ArrayTest {
 
         BXml[] xmlArray = { XmlFactory.parse("<foo> </foo>"), XmlFactory.parse("<bar>hello</bar>") };
         ArrayValue bXmlArray = new ArrayValueImpl(xmlArray,
-                new io.ballerina.runtime.types.BArrayType(PredefinedTypes.TYPE_XML));
+                new io.ballerina.runtime.internal.types.BArrayType(PredefinedTypes.TYPE_XML));
         Assert.assertEquals(bXmlArray.stringValue(null), "[`<foo> </foo>`,`<bar>hello</bar>`]");
     }
 

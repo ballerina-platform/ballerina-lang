@@ -18,12 +18,12 @@
 
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.BallerinaXmlSerializer;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.BallerinaXmlSerializer;
 import org.apache.axiom.om.OMNode;
 
 import java.io.ByteArrayOutputStream;

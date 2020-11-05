@@ -19,11 +19,11 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
+import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.ObserverContext;
 import io.ballerina.runtime.observability.TracingUtils;
 import io.ballerina.runtime.observability.tracer.TracersStore;
-import io.ballerina.runtime.scheduling.Strand;
 import io.opentracing.Tracer;
 import org.ballerinalang.config.ConfigRegistry;
 

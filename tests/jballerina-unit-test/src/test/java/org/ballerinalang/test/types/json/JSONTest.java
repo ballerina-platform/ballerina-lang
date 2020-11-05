@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.test.types.json;
 
-import io.ballerina.runtime.JsonDataSource;
-import io.ballerina.runtime.values.StreamingJsonValue;
+import io.ballerina.runtime.internal.JsonDataSource;
+import io.ballerina.runtime.internal.values.StreamingJsonValue;
 import org.ballerinalang.core.model.types.TypeTags;
 import org.ballerinalang.core.model.util.JsonParser;
 import org.ballerinalang.core.model.values.BBoolean;

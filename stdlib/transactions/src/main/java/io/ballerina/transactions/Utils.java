@@ -25,8 +25,8 @@ import io.ballerina.runtime.api.BValueCreator;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.FPValue;
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.transactions.TransactionConstants;
 import io.ballerina.runtime.transactions.TransactionLocalContext;
 import io.ballerina.runtime.transactions.TransactionResourceManager;
@@ -40,8 +40,8 @@ import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.Map;
 
-import static io.ballerina.runtime.runtime.RuntimeConstants.GLOBAL_TRANSACTION_ID;
-import static io.ballerina.runtime.runtime.RuntimeConstants.TRANSACTION_URL;
+import static io.ballerina.runtime.internal.runtime.RuntimeConstants.GLOBAL_TRANSACTION_ID;
+import static io.ballerina.runtime.internal.runtime.RuntimeConstants.TRANSACTION_URL;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
 
 /**

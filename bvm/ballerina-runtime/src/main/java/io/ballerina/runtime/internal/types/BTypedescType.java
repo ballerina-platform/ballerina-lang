@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package io.ballerina.runtime.types;
+package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
@@ -24,8 +24,8 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypedescType;
-import io.ballerina.runtime.values.TypedescValue;
-import io.ballerina.runtime.values.TypedescValueImpl;
+import io.ballerina.runtime.internal.values.TypedescValue;
+import io.ballerina.runtime.internal.values.TypedescValueImpl;
 
 /**
  * {@code BTypeType} represents type of type in Ballerina type system.

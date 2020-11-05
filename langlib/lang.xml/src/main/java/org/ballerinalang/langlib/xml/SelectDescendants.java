@@ -20,8 +20,8 @@ package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import org.wso2.ballerinalang.util.Lists;
 
 /**

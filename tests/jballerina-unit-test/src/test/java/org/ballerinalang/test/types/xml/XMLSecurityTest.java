@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.types.xml;
 
-import io.ballerina.runtime.XmlFactory;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.values.ErrorValue;
+import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.values.ErrorValue;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

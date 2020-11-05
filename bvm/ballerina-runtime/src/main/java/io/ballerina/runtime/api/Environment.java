@@ -18,9 +18,9 @@
 package io.ballerina.runtime.api;
 
 import io.ballerina.runtime.api.async.StrandMetadata;
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.scheduling.State;
-import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.State;
+import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.Optional;
 

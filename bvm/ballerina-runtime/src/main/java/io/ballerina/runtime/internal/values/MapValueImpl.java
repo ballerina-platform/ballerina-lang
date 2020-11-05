@@ -17,12 +17,6 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.CycleUtils;
-import io.ballerina.runtime.IteratorUtils;
-import io.ballerina.runtime.JsonGenerator;
-import io.ballerina.runtime.internal.JsonUtils;
-import io.ballerina.runtime.MapUtils;
-import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
@@ -38,6 +32,12 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
+import io.ballerina.runtime.internal.CycleUtils;
+import io.ballerina.runtime.internal.IteratorUtils;
+import io.ballerina.runtime.internal.JsonGenerator;
+import io.ballerina.runtime.internal.JsonUtils;
+import io.ballerina.runtime.internal.MapUtils;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BField;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
@@ -61,8 +61,8 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-import static io.ballerina.runtime.internal.JsonUtils.mergeJson;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
+import static io.ballerina.runtime.internal.JsonUtils.mergeJson;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;

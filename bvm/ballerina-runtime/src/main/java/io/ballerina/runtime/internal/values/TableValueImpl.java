@@ -17,10 +17,6 @@
 
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.CycleUtils;
-import io.ballerina.runtime.IteratorUtils;
-import io.ballerina.runtime.TableUtils;
-import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -34,6 +30,10 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.CycleUtils;
+import io.ballerina.runtime.internal.IteratorUtils;
+import io.ballerina.runtime.internal.TableUtils;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;

@@ -27,16 +27,16 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.scheduling.AsyncUtils;
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.internal.scheduling.AsyncUtils;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
 import org.ballerinalang.langlib.map.util.MapLibUtils;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.ballerina.runtime.MapUtils.createOpNotSupportedError;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
+import static io.ballerina.runtime.internal.MapUtils.createOpNotSupportedError;
 import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 
 /**

@@ -24,10 +24,10 @@ import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.util.ArgumentParser;
-import io.ballerina.runtime.util.RuntimeUtils;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.util.ArgumentParser;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.core.util.exceptions.BallerinaException;
@@ -117,7 +117,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             scheduler.start();
             final Throwable t = out.getPanic();
             if (t != null) {
-                if (t instanceof io.ballerina.runtime.util.exceptions.BLangRuntimeException) {
+                if (t instanceof io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof BError) {
@@ -173,7 +173,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             scheduler.start();
             final Throwable t = out.getPanic();
             if (t != null) {
-                if (t instanceof io.ballerina.runtime.util.exceptions.BLangRuntimeException) {
+                if (t instanceof io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof BError) {
@@ -220,7 +220,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             scheduler.start();
             final Throwable t = out.getPanic();
             if (t != null) {
-                if (t instanceof io.ballerina.runtime.util.exceptions.BLangRuntimeException) {
+                if (t instanceof io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof BError) {

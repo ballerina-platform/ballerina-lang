@@ -18,7 +18,7 @@
 package org.ballerinalang.test.runtime.util;
 
 import io.ballerina.runtime.api.constants.RuntimeConstants;
-import io.ballerina.runtime.util.RuntimeUtils;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.test.runtime.BTestRunner;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;

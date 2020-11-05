@@ -17,9 +17,9 @@
  */
 package io.ballerina.runtime.observability;
 
+import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.observability.metrics.Tag;
 import io.ballerina.runtime.observability.tracer.BSpan;
-import io.ballerina.runtime.values.ErrorValue;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;

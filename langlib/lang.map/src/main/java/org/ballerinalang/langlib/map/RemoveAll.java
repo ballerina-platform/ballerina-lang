@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 
-import static io.ballerina.runtime.MapUtils.checkIsMapOnlyOperation;
+import static io.ballerina.runtime.internal.MapUtils.checkIsMapOnlyOperation;
 import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRecord;
 
 /**
@@ -37,7 +37,7 @@ public class RemoveAll {
         validateRecord(m);
         try {
             m.clear();
-        } catch (io.ballerina.runtime.util.exceptions.BLangFreezeException e) {
+        } catch (io.ballerina.runtime.internal.util.exceptions.BLangFreezeException e) {
             throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()),
                                            StringUtils.fromString("Failed to clear map: " + e.getDetail()));
         }

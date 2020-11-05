@@ -49,6 +49,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
 import static io.ballerina.runtime.internal.TypeChecker.checkIsLikeType;
 import static io.ballerina.runtime.internal.TypeChecker.isCharLiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned16LiteralValue;
@@ -57,8 +59,6 @@ import static io.ballerina.runtime.internal.TypeChecker.isSigned8LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned16LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned32LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned8LiteralValue;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
 import static io.ballerina.runtime.internal.values.DecimalValue.isDecimalWithinIntRange;
 
 /**

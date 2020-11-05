@@ -24,8 +24,8 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
-import static io.ballerina.runtime.MapUtils.checkIsMapOnlyOperation;
-import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static io.ballerina.runtime.internal.MapUtils.checkIsMapOnlyOperation;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFieldForRecord;
 import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
 
@@ -43,7 +43,7 @@ public class Remove {
         if (m.containsKey(k)) {
             try {
                 return m.remove(k);
-            } catch (io.ballerina.runtime.util.exceptions.BLangFreezeException e) {
+            } catch (io.ballerina.runtime.internal.util.exceptions.BLangFreezeException e) {
                 throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()),
                                                StringUtils.fromString(
                                                         "Failed to remove element from map: " + e.getDetail()));

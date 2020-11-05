@@ -1,7 +1,7 @@
 module io.ballerina.testerina.runtime {
     exports org.ballerinalang.test.runtime.entity;
     exports org.ballerinalang.test.runtime.util;
-    requires io.ballerina.runtime;
+    requires io.ballerina.runtime.internal;
     requires gson;
     requires org.jacoco.core;
 }

@@ -21,8 +21,8 @@ package org.ballerinalang.stdlib.auth.nativeimpl;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_AUTH_PKG_ID;
 

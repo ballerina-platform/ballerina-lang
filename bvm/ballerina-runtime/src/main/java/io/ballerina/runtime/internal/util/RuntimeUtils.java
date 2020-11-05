@@ -17,14 +17,14 @@
  */
 package io.ballerina.runtime.internal.util;
 
-import io.ballerina.runtime.TypeConverter;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.types.BArrayType;
-import io.ballerina.runtime.values.ArrayValue;
-import io.ballerina.runtime.values.ArrayValueImpl;
-import io.ballerina.runtime.values.ErrorValue;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.io.IOException;
 import java.io.PrintStream;

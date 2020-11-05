@@ -18,10 +18,10 @@
 
 package org.ballerinalang.net.http.websocket;
 
-import io.ballerina.runtime.JSONParser;
-import io.ballerina.runtime.JSONUtils;
-import io.ballerina.runtime.XMLFactory;
-import io.ballerina.runtime.XMLNodeType;
+import io.ballerina.runtime.internal.JSONParser;
+import io.ballerina.runtime.internal.JSONUtils;
+import io.ballerina.runtime.internal.XMLFactory;
+import io.ballerina.runtime.internal.XMLNodeType;
 import io.ballerina.runtime.api.BStringUtils;
 import io.ballerina.runtime.api.connector.CallableUnitCallback;
 import io.ballerina.runtime.api.types.ArrayType;
@@ -34,9 +34,9 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.internal.services.ErrorHandlerUtils;
 import io.ballerina.runtime.observability.ObservabilityConstants;
 import io.ballerina.runtime.observability.ObserveUtils;
-import io.ballerina.runtime.services.ErrorHandlerUtils;
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.CorruptedFrameException;
 import org.ballerinalang.net.http.HttpConstants;
