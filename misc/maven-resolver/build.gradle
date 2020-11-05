@@ -46,8 +46,4 @@ dependencies {
     testCompile 'org.testng:testng'
 }
 
-test {
-    useTestNG()
-}
-
 description = 'Ballerina - Maven dependency resolver'
