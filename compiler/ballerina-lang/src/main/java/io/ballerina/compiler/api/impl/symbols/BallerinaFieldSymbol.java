@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.Optional;
@@ -35,11 +36,12 @@ public class BallerinaFieldSymbol implements FieldSymbol {
 
     private final Documentation docAttachment;
     private final BField bField;
-    private final TypeSymbol typeDescriptor;
+    private final CompilerContext context;
+    private TypeSymbol typeDescriptor;
 
-    public BallerinaFieldSymbol(BField bField) {
+    public BallerinaFieldSymbol(CompilerContext context, BField bField) {
+        this.context = context;
         this.bField = bField;
-        this.typeDescriptor = TypesFactory.getTypeDescriptor(bField.getType());
         this.docAttachment = new BallerinaDocumentation(bField.symbol.markdownDocumentation);
     }
 
@@ -69,7 +71,12 @@ public class BallerinaFieldSymbol implements FieldSymbol {
      */
     @Override
     public TypeSymbol typeDescriptor() {
-        return TypesFactory.getTypeDescriptor(this.bField.getType());
+        if (this.typeDescriptor == null) {
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.typeDescriptor = typesFactory.getTypeDescriptor(this.bField.type);
+        }
+
+        return this.typeDescriptor;
     }
 
     /**
@@ -99,7 +106,7 @@ public class BallerinaFieldSymbol implements FieldSymbol {
      */
     @Override
     public String signature() {
-        StringBuilder signature = new StringBuilder(this.typeDescriptor.signature() + " " + this.name());
+        StringBuilder signature = new StringBuilder(this.typeDescriptor().signature() + " " + this.name());
         if (this.isOptional()) {
             signature.append("?");
         }

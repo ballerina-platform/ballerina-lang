@@ -23,8 +23,10 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -39,17 +41,21 @@ public class BallerinaTupleTypeSymbol extends AbstractTypeSymbol implements Tupl
     private List<TypeSymbol> memberTypes;
     private TypeSymbol restTypeDesc;
 
-    public BallerinaTupleTypeSymbol(ModuleID moduleID, BTupleType tupleType) {
-        super(TypeDescKind.TUPLE, moduleID, tupleType);
+    public BallerinaTupleTypeSymbol(CompilerContext context, ModuleID moduleID, BTupleType tupleType) {
+        super(context, TypeDescKind.TUPLE, moduleID, tupleType);
     }
 
     @Override
     public List<TypeSymbol> memberTypeDescriptors() {
         if (this.memberTypes == null) {
-            this.memberTypes = new ArrayList<>();
+            List<TypeSymbol> types = new ArrayList<>();
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+
             for (BType type : ((BTupleType) this.getBType()).tupleTypes) {
-                this.memberTypes.add(TypesFactory.getTypeDescriptor(type));
+                types.add(typesFactory.getTypeDescriptor(type));
             }
+
+            this.memberTypes = Collections.unmodifiableList(types);
         }
 
         return this.memberTypes;
@@ -58,7 +64,8 @@ public class BallerinaTupleTypeSymbol extends AbstractTypeSymbol implements Tupl
     @Override
     public Optional<TypeSymbol> restTypeDescriptor() {
         if (this.restTypeDesc == null) {
-            this.restTypeDesc = TypesFactory.getTypeDescriptor(((BTupleType) this.getBType()).restType);
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.restTypeDesc = typesFactory.getTypeDescriptor(((BTupleType) this.getBType()).restType);
         }
 
         return Optional.ofNullable(this.restTypeDesc);
