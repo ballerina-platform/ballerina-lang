@@ -29,6 +29,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -49,15 +50,17 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     private final Set<Qualifier> qualifiers;
     private final boolean deprecated;
     private final BClassSymbol internalSymbol;
+    private final CompilerContext context;
     private MethodSymbol initMethod;
 
-    protected BallerinaClassSymbol(String name, PackageID moduleID, Set<Qualifier> qualifiers,
+    protected BallerinaClassSymbol(CompilerContext context, String name, PackageID moduleID, Set<Qualifier> qualifiers,
                                    ObjectTypeSymbol typeDescriptor, BClassSymbol classSymbol) {
         super(name, moduleID, SymbolKind.CLASS, classSymbol);
         this.qualifiers = Collections.unmodifiableSet(qualifiers);
         this.typeDescriptor = typeDescriptor;
         this.deprecated = Symbols.isFlagOn(classSymbol.flags, Flags.DEPRECATED);
         this.internalSymbol = classSymbol;
+        this.context = context;
     }
 
     @Override
@@ -72,10 +75,11 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
 
     @Override
     public Optional<MethodSymbol> initMethod() {
-        if (this.initMethod == null) {
-            this.initMethod = this.internalSymbol.initializerFunc == null ? null
-                    : SymbolFactory.createMethodSymbol(internalSymbol.initializerFunc.symbol,
-                                                       internalSymbol.initializerFunc.funcName.value);
+        if (this.initMethod == null && this.internalSymbol.initializerFunc != null) {
+            SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+            this.initMethod = symbolFactory.createMethodSymbol(internalSymbol.initializerFunc.symbol,
+                                                               internalSymbol.initializerFunc.funcName.value);
+
         }
 
         return Optional.ofNullable(this.initMethod);
@@ -123,9 +127,11 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
 
         protected Set<Qualifier> qualifiers = new HashSet<>();
         protected ObjectTypeSymbol typeDescriptor;
+        protected CompilerContext context;
 
-        public ClassSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
+        public ClassSymbolBuilder(CompilerContext context, String name, PackageID moduleID, BSymbol symbol) {
             super(name, moduleID, SymbolKind.CLASS, symbol);
+            this.context = context;
         }
 
         public BallerinaClassSymbol.ClassSymbolBuilder withTypeDescriptor(ObjectTypeSymbol typeDescriptor) {
@@ -140,8 +146,8 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
 
         @Override
         public BallerinaClassSymbol build() {
-            return new BallerinaClassSymbol(this.name, this.moduleID, this.qualifiers, this.typeDescriptor,
-                                            (BClassSymbol) this.bSymbol);
+            return new BallerinaClassSymbol(this.context, this.name, this.moduleID, this.qualifiers,
+                                            this.typeDescriptor, (BClassSymbol) this.bSymbol);
         }
     }
 }

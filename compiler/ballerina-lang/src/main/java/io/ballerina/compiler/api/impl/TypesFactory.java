@@ -74,11 +74,13 @@ public class TypesFactory {
     private static final CompilerContext.Key<TypesFactory> TYPES_FACTORY_KEY = new CompilerContext.Key<>();
 
     private final CompilerContext context;
+    private final SymbolFactory symbolFactory;
 
     private TypesFactory(CompilerContext context) {
         context.put(TYPES_FACTORY_KEY, this);
 
         this.context = context;
+        this.symbolFactory = SymbolFactory.getInstance(context);
     }
 
     public static TypesFactory getInstance(CompilerContext context) {
@@ -115,9 +117,9 @@ public class TypesFactory {
 
         switch (bType.getKind()) {
             case OBJECT:
-                ObjectTypeSymbol objType = new BallerinaObjectTypeSymbol(moduleID, (BObjectType) bType);
+                ObjectTypeSymbol objType = new BallerinaObjectTypeSymbol(this.context, moduleID, (BObjectType) bType);
                 if (Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
-                    return SymbolFactory.createClassSymbol((BClassSymbol) bType.tsymbol, bType.tsymbol.name.value,
+                    return symbolFactory.createClassSymbol((BClassSymbol) bType.tsymbol, bType.tsymbol.name.value,
                                                            objType);
                 }
                 return objType;

@@ -126,13 +126,15 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
             return this.classes;
         }
 
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
         List<ClassSymbol> classes = new ArrayList<>();
+
         for (Map.Entry<Name, ScopeEntry> entry : this.packageSymbol.scope.entries.entrySet()) {
             ScopeEntry scopeEntry = entry.getValue();
             if (scopeEntry.symbol instanceof BClassSymbol &&
                     (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
                 String constName = scopeEntry.symbol.getName().getValue();
-                classes.add(SymbolFactory.createClassSymbol((BClassSymbol) scopeEntry.symbol, constName));
+                classes.add(symbolFactory.createClassSymbol((BClassSymbol) scopeEntry.symbol, constName));
             }
         }
 
