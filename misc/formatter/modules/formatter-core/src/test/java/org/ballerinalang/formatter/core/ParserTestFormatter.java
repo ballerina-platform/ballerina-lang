@@ -175,13 +175,10 @@ public class ParserTestFormatter extends FormatterTest {
                 "explicit-new-with-object-keyword-with-multiple-args-negative01.bal", "trap_action_source_02.bal",
                 "query_action_source_03.bal", "query_action_source_06.bal", "remote_method_call_source_10.bal",
                 "send_action_source_03.bal", "send_action_source_04.bal", "start_action_source_02.bal",
-                "flush_action_source_02.bal",
-
-                // parser tests with invalid syntax throwing exceptions
-                "ambiguity_source_06.bal", "typed_binding_patterns_source_22.bal", "resiliency_source_03.bal",
-                "module_var_decl_source_10.bal", "error_binding_pattern_source_03.bal", "match_stmt_source_06.bal",
-                "match_stmt_source_07.bal", "match_stmt_source_11.bal", "receive_action_source_02.bal",
-                "receive_action_source_03.bal");
+                "flush_action_source_02.bal", "ambiguity_source_06.bal", "typed_binding_patterns_source_22.bal",
+                "resiliency_source_03.bal", "module_var_decl_source_10.bal", "error_binding_pattern_source_03.bal",
+                "match_stmt_source_06.bal", "match_stmt_source_07.bal", "match_stmt_source_11.bal",
+                "receive_action_source_02.bal", "receive_action_source_03.bal");
     }
 
     @DataProvider(name = "test-file-provider")
