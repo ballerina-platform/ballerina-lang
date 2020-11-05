@@ -21,8 +21,6 @@ package org.ballerinalang.central.client;
 import org.awaitility.Duration;
 import org.ballerinalang.central.client.model.Package;
 import org.ballerinalang.central.client.model.PackageSearchResult;
-import org.ballerinalang.central.client.util.CommandException;
-import org.ballerinalang.central.client.util.NoPackageException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,14 +41,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static io.ballerina.projects.utils.ProjectConstants.BALLERINA_INSTALL_DIR_PROP;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.given;
-import static org.ballerinalang.central.client.util.TestUtils.cleanDirectory;
-import static org.ballerinalang.central.client.util.CentralClientConstants.CONTENT_DISPOSITION;
-import static org.ballerinalang.central.client.util.CentralClientConstants.LOCATION;
+import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_DISPOSITION;
+import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
+import static org.ballerinalang.central.client.TestUtils.cleanDirectory;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
 
 /**
  * Test cases to test central api client.
@@ -136,7 +134,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         cleanTmpDir();
     }
 
-    @Test(description = "Test pull non existing package", expectedExceptions = CommandException.class,
+    @Test(description = "Test pull non existing package", expectedExceptions = CentralClientException.class,
             expectedExceptionsMessageRegExp = "error: package not found: foo/sf.*")
     public void testPullNonExistingPackage() throws IOException {
         String resString = "{\"message\": \"package not found: foo/sf:*_any\"}";
@@ -174,7 +172,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         this.getPackage("bar", "winery", "2.0.0", "any");
     }
 
-    @Test(description = "Test get package with bad request", expectedExceptions = CommandException.class,
+    @Test(description = "Test get package with bad request", expectedExceptions = CentralClientException.class,
             expectedExceptionsMessageRegExp = "invalid request received. invaild/unsupported semver version: v2")
     public void testGetPackageWithBadRequest() throws IOException {
         String resString = "{\"message\": \"invalid request received. invaild/unsupported semver version: v2\"}";
@@ -225,7 +223,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         }
     }
 
-    @Test(description = "Test push existing package", expectedExceptions = CommandException.class,
+    @Test(description = "Test push existing package", expectedExceptions = CentralClientException.class,
             expectedExceptionsMessageRegExp = "package already exists: foo/github:1.8.3_2020r2_any")
     public void testPushExistingPackage() throws IOException {
         String resString = "{\"message\": \"package already exists: foo/github:1.8.3_2020r2_any\"}";
@@ -243,7 +241,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         }
     }
 
-    @Test(description = "Test push package request failure", expectedExceptions = CommandException.class,
+    @Test(description = "Test push package request failure", expectedExceptions = CentralClientException.class,
             expectedExceptionsMessageRegExp = "error: failed to push the package: "
                     + "'foo/sf:1.3.5' to the remote repository 'https://api.central.ballerina.io/registry'")
     public void testPushPackageRequestFailure() throws IOException {
@@ -276,7 +274,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         Assert.assertEquals(pkgSearchResult.getPackages().get(0).getOrganization(), "foo");
     }
 
-    @Test(description = "Test search package with bad request", expectedExceptions = CommandException.class,
+    @Test(description = "Test search package with bad request", expectedExceptions = CentralClientException.class,
             expectedExceptionsMessageRegExp = "invalid request received. invaild/unsupported org name: foo-org")
     public void testSearchPackageWithBadRequest() throws IOException {
         String resString = "{\"message\": \"invalid request received. invaild/unsupported org name: foo-org\"}";

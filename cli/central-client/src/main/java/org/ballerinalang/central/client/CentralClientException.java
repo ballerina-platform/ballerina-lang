@@ -16,13 +16,16 @@
  *  under the License.
  */
 
-package org.ballerinalang.central.client.util;
+package org.ballerinalang.central.client;
 
 /**
- * Default log formatter class.
+ * Thrown to indicate that an exception occurred in the central client.
+ *
+ * @since 1.2.0
  */
-public class LogFormatter {
-    public String formatLog(String msg) {
-        return msg;
+public class CentralClientException extends RuntimeException {
+
+    public CentralClientException(String message) {
+        super(message);
     }
 }

@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.central.client.util;
-
-import org.ballerinalang.central.client.util.OsUtils;
+package org.ballerinalang.central.client;
 
 import java.io.IOException;
 

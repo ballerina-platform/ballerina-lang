@@ -22,11 +22,11 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.utils.ProjectConstants;
-import io.ballerina.projects.utils.ProjectUtils;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
-import org.ballerinalang.central.client.util.CommandException;
-import org.ballerinalang.central.client.util.NoPackageException;
+import org.ballerinalang.central.client.CentralClientException;
+import org.ballerinalang.central.client.NoPackageException;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -55,7 +55,7 @@ import static org.wso2.ballerinalang.util.RepoUtils.getRemoteRepoURL;
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = PUSH_COMMAND, description = "push modules and binaries available locally to "
+@CommandLine.Command(name = PUSH_COMMAND, description = "push packages and binaries available locally to "
         + "Ballerina Central")
 public class PushCommand implements BLauncherCmd {
     private static PrintStream outStream = System.err;
@@ -117,7 +117,7 @@ public class PushCommand implements BLauncherCmd {
 
         // todo: load project and get src path and all other stuff
         // todo: get target path and balo path using project
-        BuildProject project = BuildProject.loadProject(sourceRootPath);
+        BuildProject project = BuildProject.load(sourceRootPath);
 
         // Enable remote debugging
         if (null != debugPort) {
@@ -141,12 +141,12 @@ public class PushCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("push modules to Ballerina Central");
+        out.append("push packages to Ballerina Central");
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina push <module-name> \n");
+        out.append("  ballerina push \n");
     }
 
     @Override
@@ -202,7 +202,7 @@ public class PushCommand implements BLauncherCmd {
         // Validate the pkg-name
         if (!RepoUtils.validatePkg(pkgName.toString())) {
             throw createLauncherException("invalid package name provided \'" + pkgName + "\'. Only "
-                    + "alphanumerics, underscores and periods are allowed in a module name "
+                    + "alphanumerics, underscores and periods are allowed in a package name "
                     + "and the maximum length is 256 characters");
         }
 
@@ -243,7 +243,7 @@ public class PushCommand implements BLauncherCmd {
             try {
                 CentralAPIClient client = new CentralAPIClient();
                 client.pushPackage(baloPath);
-            } catch (CommandException e) {
+            } catch (CentralClientException e) {
                 String errorMessage = e.getMessage();
                 if (null != errorMessage && !"".equals(errorMessage.trim())) {
                     // removing the error stack

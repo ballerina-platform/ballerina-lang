@@ -18,7 +18,7 @@
 
 package io.ballerina.cli.cmd;
 
-import io.ballerina.projects.utils.ProjectConstants;
+import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
-import static io.ballerina.projects.utils.ProjectConstants.PKG_NAME_REGEX;
+import static io.ballerina.projects.util.ProjectConstants.PKG_NAME_REGEX;
 import static io.ballerina.runtime.util.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static java.nio.file.Files.createDirectory;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
@@ -125,8 +125,15 @@ public class PullCommand implements BLauncherCmd {
         }
 
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
-            this.client.pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform, false);
+            try {
+                this.client.pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform, false);
+            } catch (Exception e) {
+                errStream.println("unexpected error occurred while pulling package:" + e.getMessage());
+                // Exit status, zero for OK, non-zero for error
+                Runtime.getRuntime().exit(1);
+            }
         }
+        Runtime.getRuntime().exit(0);
     }
 
     @Override
@@ -141,7 +148,7 @@ public class PullCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina pull <module-name> \n");
+        out.append("  ballerina pull\n");
     }
 
     @Override

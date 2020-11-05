@@ -21,7 +21,6 @@ package org.ballerinalang.central.client;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import org.ballerinalang.central.client.util.ErrorUtil;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -34,7 +33,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.Collections;
 
-import static org.ballerinalang.central.client.util.CentralClientConstants.SETTINGS_TOML_FILE;
+import static org.ballerinalang.central.client.CentralClientConstants.SETTINGS_TOML_FILE;
 
 /**
  * This class has a service which updates the access token in the `Settings.toml` file.
@@ -59,7 +58,7 @@ public class TokenUpdater {
         try {
             server = HttpServer.create(new InetSocketAddress(9295), 0);
         } catch (IOException e) {
-            throw ErrorUtil.createCommandException(
+            throw ErrorUtil.createCentralClientException(
                     "error occurred while creating the server: " + e.getMessage() + "Access token is missing in "
                             + settingsTomlFilePath
                             + "\nAuto update failed. Please visit https://central.ballerina.io, get token and add it to the"
@@ -86,9 +85,9 @@ public class TokenUpdater {
                 String str = "[central]\naccesstoken=\"" + token + "\"";
                 outputStream.write(str.getBytes(StandardCharsets.UTF_8));
             } catch (FileNotFoundException e) {
-                throw ErrorUtil.createCommandException("Settings.toml file could not be found: " + settingsTomlPath);
+                throw ErrorUtil.createCentralClientException("Settings.toml file could not be found: " + settingsTomlPath);
             } catch (IOException e) {
-                throw ErrorUtil.createCommandException(
+                throw ErrorUtil.createCentralClientException(
                         "error occurred while writing to the Settings.toml file: " + e.getMessage());
             } finally {
                 try {
@@ -111,7 +110,7 @@ public class TokenUpdater {
                 os.write(response.getBytes(StandardCharsets.UTF_8));
             } catch (IOException e) {
                 throw ErrorUtil
-                        .createCommandException("error occurred while generating the response: " + e.getMessage());
+                        .createCentralClientException("error occurred while generating the response: " + e.getMessage());
             } finally {
                 try {
                     if (os != null) {

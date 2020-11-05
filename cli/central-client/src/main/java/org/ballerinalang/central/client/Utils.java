@@ -16,12 +16,11 @@
  *  under the License.
  */
 
-package org.ballerinalang.central.client.util;
+package org.ballerinalang.central.client;
 
-import io.ballerina.projects.utils.ProjectConstants;
+import io.ballerina.projects.util.ProjectConstants;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
-import org.ballerinalang.central.client.TokenUpdater;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.toml.parser.SettingsProcessor;
 import org.ballerinalang.tool.LauncherUtils;
@@ -50,9 +49,9 @@ import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
-import static org.ballerinalang.central.client.util.CentralClientConstants.RESOLVED_REQUESTED_URI;
-import static org.ballerinalang.central.client.util.CentralClientConstants.SSL;
-import static org.ballerinalang.central.client.util.CentralClientConstants.VERSION_REGEX;
+import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_REQUESTED_URI;
+import static org.ballerinalang.central.client.CentralClientConstants.SSL;
+import static org.ballerinalang.central.client.CentralClientConstants.VERSION_REGEX;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.util.RepoUtils.SET_BALLERINA_DEV_CENTRAL;
 import static org.wso2.ballerinalang.util.RepoUtils.SET_BALLERINA_STAGE_CENTRAL;
@@ -91,7 +90,7 @@ public class Utils {
      *
      * @return access token if its present
      */
-    public static String authenticate(PrintStream errStream, String ballerinaCentralCliTokenUrl, Settings settings,
+    static String authenticate(PrintStream errStream, String ballerinaCentralCliTokenUrl, Settings settings,
             Path settingsTomlFilePath) {
         String accessToken = getAccessTokenOfCLI(settings);
 
@@ -143,10 +142,10 @@ public class Utils {
     }
 
     /**
-     * initialize proxy if proxy is available in settings.toml.
+     * Initialize proxy if proxy is available in settings.toml.
      *
+     * @param proxy toml model proxy
      * @return proxy
-     * @param proxy
      */
     public static Proxy initializeProxy(org.ballerinalang.toml.model.Proxy proxy) {
         if (!"".equals(proxy.getHost())) {
@@ -207,7 +206,7 @@ public class Utils {
         }
     }
 
-    public static String getBallerinaCentralCliTokenUrl() {
+    static String getBallerinaCentralCliTokenUrl() {
         if (SET_BALLERINA_STAGE_CENTRAL) {
             return "https://staging-central.ballerina.io/cli-token";
         } else if (SET_BALLERINA_DEV_CENTRAL) {
@@ -234,7 +233,7 @@ public class Utils {
             LogFormatter logFormatter) {
         long responseContentLength = conn.getContentLengthLong();
         if (responseContentLength <= 0) {
-            throw ErrorUtil.createCommandException(
+            throw ErrorUtil.createCentralClientException(
                     logFormatter.formatLog("invalid response from the server, please try again"));
         }
         String resolvedURI = conn.getHeaderField(RESOLVED_REQUESTED_URI);
@@ -251,7 +250,7 @@ public class Utils {
 
         Path baloPath = Paths.get(baloCacheWithPkgPath.toString(), baloFile);
         if (baloPath.toFile().exists()) {
-            throw ErrorUtil.createCommandException(
+            throw ErrorUtil.createCentralClientException(
                     logFormatter.formatLog("package already exists in the home repository: " + baloPath.toString()));
         }
 
@@ -269,7 +268,7 @@ public class Utils {
      */
     static void validatePackageVersion(String pkgVersion, LogFormatter logFormatter) {
         if (!pkgVersion.matches(VERSION_REGEX)) {
-            throw ErrorUtil.createCommandException(logFormatter.formatLog("package version could not be detected"));
+            throw ErrorUtil.createCentralClientException(logFormatter.formatLog("package version could not be detected"));
         }
     }
 
@@ -299,7 +298,7 @@ public class Utils {
         try {
             Files.createDirectories(fullPathToStoreBalo);
         } catch (IOException e) {
-            throw ErrorUtil.createCommandException(logFormatter.formatLog("error creating directory for balo file"));
+            throw ErrorUtil.createCentralClientException(logFormatter.formatLog("error creating directory for balo file"));
         }
     }
 
@@ -320,7 +319,7 @@ public class Utils {
             writeAndHandleProgress(inputStream, outputStream, resContentLength / 1024, fullPkgName, outStream,
                     logFormatter);
         } catch (IOException e) {
-            throw ErrorUtil.createCommandException(
+            throw ErrorUtil.createCentralClientException(
                     logFormatter.formatLog("error occurred copying the balo file: " + e.getMessage()));
         }
     }
@@ -381,7 +380,7 @@ public class Utils {
         try {
             Files.createFile(nightlyBuildMetaFilePath);
         } catch (Exception e) {
-            throw ErrorUtil.createCommandException(
+            throw ErrorUtil.createCentralClientException(
                     logFormatter.formatLog("error occurred while creating nightly.build file."));
         }
     }
@@ -392,24 +391,24 @@ public class Utils {
      * @param url string URL
      * @return URL
      */
-    public static URL convertToUrl(String url) {
+    static URL convertToUrl(String url) {
         try {
             return new URL(url);
         } catch (MalformedURLException e) {
-            throw ErrorUtil.createCommandException(e.getMessage());
+            throw ErrorUtil.createCentralClientException(e.getMessage());
         }
     }
 
     /**
      * Initialize SSL.
      */
-    public static void initializeSsl() {
+    static void initializeSsl() {
         try {
             SSLContext sc = SSLContext.getInstance(SSL);
             sc.init(null, trustAllCerts, new java.security.SecureRandom());
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            throw ErrorUtil.createCommandException("initializing SSL failed: " + e.getMessage());
+            throw ErrorUtil.createCentralClientException("initializing SSL failed: " + e.getMessage());
         }
     }
 
@@ -419,22 +418,11 @@ public class Utils {
      * @param conn   http connection
      * @param method request method
      */
-    public static void setRequestMethod(HttpURLConnection conn, RequestMethod method) {
+    static void setRequestMethod(HttpURLConnection conn, RequestMethod method) {
         try {
-            conn.setRequestMethod(getRequestMethodAsString(method));
+            conn.setRequestMethod(method.name());
         } catch (ProtocolException e) {
-            throw ErrorUtil.createCommandException(e.getMessage());
-        }
-    }
-
-    private static String getRequestMethodAsString(RequestMethod method) {
-        switch (method) {
-        case GET:
-            return "GET";
-        case POST:
-            return "POST";
-        default:
-            throw ErrorUtil.createCommandException("invalid request method:" + method);
+            throw ErrorUtil.createCentralClientException(e.getMessage());
         }
     }
 
@@ -444,12 +432,12 @@ public class Utils {
      * @param conn http connection
      * @return status code
      */
-    public static int getStatusCode(HttpURLConnection conn) {
+    static int getStatusCode(HttpURLConnection conn) {
         try {
             return conn.getResponseCode();
         } catch (IOException e) {
             throw ErrorUtil
-                    .createCommandException("connection to the remote repository host failed: " + e.getMessage());
+                    .createCentralClientException("connection to the remote repository host failed: " + e.getMessage());
         }
     }
 
@@ -459,13 +447,13 @@ public class Utils {
      * @param filePath path to the file
      * @return size of the file in kb
      */
-    public static long getTotalFileSizeInKB(Path filePath) {
+    static long getTotalFileSizeInKB(Path filePath) {
         byte[] baloContent;
         try {
             baloContent = Files.readAllBytes(filePath);
             return baloContent.length / 1024;
         } catch (IOException e) {
-            throw ErrorUtil.createCommandException("cannot read the balo content");
+            throw ErrorUtil.createCentralClientException("cannot read the balo content");
         }
     }
 }

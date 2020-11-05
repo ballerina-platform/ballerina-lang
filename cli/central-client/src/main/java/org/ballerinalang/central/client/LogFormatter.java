@@ -16,14 +16,13 @@
  *  under the License.
  */
 
-package org.ballerinalang.central.client.util;
+package org.ballerinalang.central.client;
 
 /**
- * Build log formatter class which used to log the message for build command.
+ * Default log formatter class.
  */
-public class BuildLogFormatter extends LogFormatter {
-    @Override
+public class LogFormatter {
     public String formatLog(String msg) {
-        return "\t" + msg;
+        return msg;
     }
 }

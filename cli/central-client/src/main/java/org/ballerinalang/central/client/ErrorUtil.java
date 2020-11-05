@@ -16,16 +16,26 @@
  *  under the License.
  */
 
-package org.ballerinalang.central.client.util;
+package org.ballerinalang.central.client;
+
+import org.ballerinalang.central.client.CentralClientException;
 
 /**
- * Thrown to indicate that package not found in the central for a given package id.
+ * Class contains utility methods for error handling.
  *
- * @since 2.0.0
+ * @since 1.2.0
  */
-public class NoPackageException extends RuntimeException {
+public class ErrorUtil {
+    private ErrorUtil() {
+    }
 
-    public NoPackageException(String message) {
-        super(message);
+    /**
+     * Create a central client exception.
+     *
+     * @param errorMsg error message
+     * @return command exception
+     */
+    public static CentralClientException createCentralClientException(String errorMsg) {
+        return new CentralClientException(errorMsg);
     }
 }

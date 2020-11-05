@@ -11,4 +11,5 @@ module io.ballerina.cli {
     requires org.apache.commons.compress;
     requires gson;
     requires org.jacoco.core;
+    requires io.ballerina.central.client;
 }

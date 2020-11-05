@@ -104,10 +104,10 @@ public class SearchCommand implements BLauncherCmd {
     private static void searchInCentral(String query) {
         try {
             CentralAPIClient client = new CentralAPIClient();
-            PackageSearchResult packageSearchJsonSchema = client.searchPackage(query);
+            PackageSearchResult packageSearchResult = client.searchPackage(query);
 
-            if (packageSearchJsonSchema.getCount() > 0) {
-                printPackages(packageSearchJsonSchema.getPackages(), RepoUtils.getTerminalWidth());
+            if (packageSearchResult.getCount() > 0) {
+                printPackages(packageSearchResult.getPackages(), RepoUtils.getTerminalWidth());
             } else {
                 outStream.println("no modules found");
             }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.central.client.util;
+package org.ballerinalang.central.client;
 
 import java.util.Locale;
 

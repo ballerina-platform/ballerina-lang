@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.central.client.util;
+package org.ballerinalang.central.client;
 
 import org.ballerinalang.toml.model.Settings;
 import org.powermock.api.mockito.PowerMockito;
@@ -41,8 +41,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 
-import static org.ballerinalang.central.client.util.Utils.createBaloInHomeRepo;
-import static org.ballerinalang.central.client.util.Utils.writeBaloFile;
+import static org.ballerinalang.central.client.Utils.createBaloInHomeRepo;
+import static org.ballerinalang.central.client.Utils.writeBaloFile;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.wso2.ballerinalang.util.TomlParserUtils.readSettings;
@@ -141,7 +141,7 @@ public class TestUtils extends PowerMockTestCase {
             boolean exceptionThrown = false;
             try {
                 Utils.validatePackageVersion(version, new LogFormatter());
-            } catch (CommandException e) {
+            } catch (CentralClientException e) {
                 exceptionThrown = true;
                 Assert.assertTrue(e.getMessage().contains("package version could not be detected"));
             }
@@ -188,7 +188,7 @@ public class TestUtils extends PowerMockTestCase {
         try {
             createBaloInHomeRepo(connection, UTILS_TEST_RESOURCES.resolve(TEMP_BALO_CACHE).resolve("wso2").resolve("sf"),
                     "wso2/sf", false, baloUrl, "", System.out, new LogFormatter());
-        } catch (CommandException e) {
+        } catch (CentralClientException e) {
             Assert.assertTrue(e.getMessage().contains("package already exists in the home repository:"));
         } finally {
             cleanBaloCache();
@@ -199,7 +199,7 @@ public class TestUtils extends PowerMockTestCase {
         cleanDirectory(UTILS_TEST_RESOURCES.resolve(TEMP_BALO_CACHE));
     }
 
-    public static void cleanDirectory(Path path) {
+    static void cleanDirectory(Path path) {
         try {
             Files.walk(path)
                     .sorted(Comparator.reverseOrder())
