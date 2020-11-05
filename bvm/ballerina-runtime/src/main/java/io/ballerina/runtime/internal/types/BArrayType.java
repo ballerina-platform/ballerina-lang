@@ -47,7 +47,7 @@ public class BArrayType extends BType implements ArrayType {
     private IntersectionType immutableType;
 
     public BArrayType(Type elementType) {
-       this(elementType, false);
+        this(elementType, false);
     }
 
     public BArrayType(Type elementType, boolean readonly) {

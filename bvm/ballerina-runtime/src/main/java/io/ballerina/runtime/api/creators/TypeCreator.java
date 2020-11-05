@@ -68,6 +68,17 @@ public class TypeCreator {
     }
 
     /**
+     * Creates a new array type with given element type.
+     *
+     * @param elementType array element type
+     * @param readonly    array type is read only or not
+     * @return the new array type
+     */
+    public static ArrayType createArrayType(Type elementType, boolean readonly) {
+        return new BArrayType(elementType, readonly);
+    }
+
+    /**
      * Creates a new array type with given element type and size.
      *
      * @param elementType array element type
