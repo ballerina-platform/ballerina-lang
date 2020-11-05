@@ -398,8 +398,8 @@ public class MimeUtilityFunctionTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testGetJsonDataSource", args);
             Assert.assertEquals(returns.length, 1);
             Assert.assertNotNull(returns[0]);
-            Assert.assertTrue(returns[0].stringValue().contains("Error occurred while extracting json " +
-                                                                        "data from entity: empty JSON document"));
+            org.ballerinalang.core.model.values.BError error = (org.ballerinalang.core.model.values.BError) returns[0];
+            Assert.assertTrue(error.getCause().getMessage().contains("empty JSON document"));
         } catch (IOException e) {
             log.error("Error occurred in testTempFileDeletion", e.getMessage());
         }
