@@ -4129,13 +4129,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 break;
         }
 
-<<<<<<< HEAD
-        DiagnosticPos pos = getPosition(bindingPattern);
-        return createSimpleVariable(pos, varName, getPosition(varName));
-=======
         Location pos = getPosition(bindingPattern);
         return createSimpleVariable(pos, varName.text(), getPosition(varName));
->>>>>>> a70f7ff55019366c654f9735fdc2c597bb3e6a0a
     }
 
     BLangValueType addValueType(Location pos, TypeKind typeKind) {
