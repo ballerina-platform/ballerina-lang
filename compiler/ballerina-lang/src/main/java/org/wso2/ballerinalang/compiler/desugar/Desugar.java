@@ -729,7 +729,7 @@ public class Desugar extends BLangNodeVisitor {
             if (globalVar.expr != null) {
                 // Create ternary expression for configurable variables
                 if (Symbols.isFlagOn(globalVar.symbol.flags, Flags.CONFIGURABLE)) {
-                    globalVar.expr  = createTernaryExprFromConfigurable(globalVar);
+                    globalVar.expr  = rewriteExpr(createTernaryExprFromConfigurable(globalVar));
                 }
                 BLangAssignment assignment = createAssignmentStmt(globalVar);
                 initFnBody.stmts.add(assignment);
@@ -800,7 +800,7 @@ public class Desugar extends BLangNodeVisitor {
                 getValueInvocation, configurableVar.expr);
         ternaryExpr.type = configurableVar.type;
 
-        return rewrite(ternaryExpr, env);
+        return ternaryExpr;
     }
 
     private void desugarClassDefinitions(List<TopLevelNode> topLevelNodes) {
