@@ -126,11 +126,10 @@ public class TransactionResourceManager {
      */
     private void addLogConfigToRegistry() {
         // Path to log directory given for atomikos log path property should exist.
-        // Therefore create a transaction_log_dir in src directory
+        // Therefore create a transaction_log_dir in root directory
         final Path projectRoot = findProjectRoot(Paths.get(System.getProperty("user.dir")));
         if (projectRoot != null) {
-            final Path sourceDirectory = projectRoot.resolve("src");
-            String logPath = sourceDirectory.toAbsolutePath().toString() + "/transaction_log_dir";
+            String logPath = projectRoot.toAbsolutePath().toString() + "/transaction_log_dir";
             Path transactionLogDirectory = Paths.get(logPath);
             try {
                 Files.createDirectory(transactionLogDirectory);
@@ -293,8 +292,10 @@ public class TransactionResourceManager {
             for (BallerinaTransactionContext ctx : txContextList) {
                 try {
                     XAResource xaResource = ctx.getXAResource();
-                    if (transactionManagerEnabled && xaResource == null) {
-                        ctx.commit();
+                    if (transactionManagerEnabled) {
+                        if (xaResource == null) {
+                            ctx.commit();
+                        }
                     } else {
                         if (xaResource != null) {
                             Xid xid = xidRegistry.get(combinedId);
@@ -349,8 +350,10 @@ public class TransactionResourceManager {
             for (BallerinaTransactionContext ctx : txContextList) {
                 try {
                     XAResource xaResource = ctx.getXAResource();
-                    if (transactionManagerEnabled && xaResource == null) {
-                        ctx.rollback();
+                    if (transactionManagerEnabled) {
+                        if (xaResource == null) {
+                            ctx.rollback();
+                        }
                     } else {
                         Xid xid = xidRegistry.get(combinedId);
                         if (xaResource != null) {
@@ -413,8 +416,8 @@ public class TransactionResourceManager {
             try {
                 xaResource.start(xid, TMNOFLAGS);
             } catch (XAException e) {
-                throw new BallerinaException("error in starting the XA transaction: id: " + combinedId + " error:" + e
-                        .getMessage());
+                throw new BallerinaException("error in starting the XA transaction: id: " + combinedId + " error:" +
+                        e.getMessage());
             }
         }
     }
@@ -460,23 +463,6 @@ public class TransactionResourceManager {
                             throw new BallerinaException(
                                "error in ending the XA transaction: id: " + combinedId + " error:" + e.getMessage());
                         }
-                    }
-                }
-            }
-        }
-        Transaction trx = trxRegistry.get(combinedId);
-        if (trx != null) {
-            List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
-            if (txContextList != null) {
-                for (BallerinaTransactionContext ctx : txContextList) {
-                    try {
-                        XAResource xaResource = ctx.getXAResource();
-                        if (xaResource != null) {
-                            trx.delistResource(xaResource, TMSUCCESS);
-                        }
-                    } catch (Throwable e) {
-                        throw new BallerinaException(
-                                "error in ending the XA transaction: id: " + combinedId + " error:" + e.getMessage());
                     }
                 }
             }
