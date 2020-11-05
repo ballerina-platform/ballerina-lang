@@ -15,140 +15,147 @@
 // under the License.
 //
 
-function add(any a, any b) returns any|error {
+function add(any lhs, any rhs) returns any|error {
 
     any|error result;
-    if (a is int && b is int) {
-        result = trap (a + b); // int + int
-    } else if (a is float && b is float) {
-        result = trap (a + b); // float + float
-    } else if (a is decimal && b is decimal) {
-        result = trap (a + b); // decimal + decimal
-    } else if (a is int && b is float) {
-        result = trap (a + b); // int + float
-    } else if (a is float && b is int) {
-        result = trap (a + b); // float + int
-    } else if (a is int && b is decimal) {
-        result = trap (a + b); // int + decimal
-    } else if (a is decimal && b is int) {
-        result = trap (a + b); // decimal + int
-    } else if (a is float && b is decimal) {
-        result = trap (a + b); // float + decimal
-    } else if (a is decimal && b is float) {
-        result = trap (a + b); // decimal + float
-    } else if (a is string && b is string) {
-        result = trap (a + b); // string + string
+    if (lhs is int && rhs is int) {
+        result = trap (lhs + rhs); // int + int
+    } else if (lhs is float && rhs is float) {
+        result = trap (lhs + rhs); // float + float
+    } else if (lhs is decimal && rhs is decimal) {
+        result = trap (lhs + rhs); // decimal + decimal
+    } else if (lhs is int && rhs is float) {
+        result = trap (lhs + rhs); // int + float
+    } else if (lhs is float && rhs is int) {
+        result = trap (lhs + rhs); // float + int
+    } else if (lhs is int && rhs is decimal) {
+        result = trap (lhs + rhs); // int + decimal
+    } else if (lhs is decimal && rhs is int) {
+        result = trap (lhs + rhs); // decimal + int
+    } else if (lhs is float && rhs is decimal) {
+        result = trap (lhs + rhs); // float + decimal
+    } else if (lhs is decimal && rhs is float) {
+        result = trap (lhs + rhs); // decimal + float
+    } else if (lhs is string && rhs is string) {
+        result = trap (lhs + rhs); // string + string
+    } else if (lhs is xml && rhs is xml) {
+        result = trap (lhs + rhs); // xml + xml
     } else {
-        result = error("operator '+' not defined for '" + (typeof a).toBalString() + "' and '" + (typeof a)
-                                        .toBalString() + "'.");
+        result = error("operator '+' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
     }
     return result;
 }
 
-function substract(any a, any b) returns any|error {
+function subtract(any lhs, any rhs) returns any|error {
 
     any|error result;
-    if (a is int && b is int) {
-        result = trap (a - b); // int - int
-    } else if (a is float && b is float) {
-        result = trap (a - b); // float - float
-    } else if (a is decimal && b is decimal) {
-        result = trap (a - b); // decimal - decimal
-    } else if (a is int && b is float) {
-        result = trap (a - b); // int - float
-    } else if (a is float && b is int) {
-        result = trap (a - b); // float - int
-    } else if (a is int && b is decimal) {
-        result = trap (a - b); // int - decimal
-    } else if (a is decimal && b is int) {
-        result = trap (a - b); // decimal - int
-    } else if (a is float && b is decimal) {
-        result = trap (a - b); // float - decimal
-    } else if (a is decimal && b is float) {
-        result = trap (a - b); // decimal - float
+    if (lhs is int && rhs is int) {
+        result = trap (lhs - rhs); // int - int
+    } else if (lhs is float && rhs is float) {
+        result = trap (lhs - rhs); // float - float
+    } else if (lhs is decimal && rhs is decimal) {
+        result = trap (lhs - rhs); // decimal - decimal
+    } else if (lhs is int && rhs is float) {
+        result = trap (lhs - rhs); // int - float
+    } else if (lhs is float && rhs is int) {
+        result = trap (lhs - rhs); // float - int
+    } else if (lhs is int && rhs is decimal) {
+        result = trap (lhs - rhs); // int - decimal
+    } else if (lhs is decimal && rhs is int) {
+        result = trap (lhs - rhs); // decimal - int
+    } else if (lhs is float && rhs is decimal) {
+        result = trap (lhs - rhs); // float - decimal
+    } else if (lhs is decimal && rhs is float) {
+        result = trap (lhs - rhs); // decimal - float
     } else {
-        result = error("operator '-' not defined for '" + (typeof a).toBalString() + "' and '" + (typeof a)
-                                        .toBalString() + "'.");
+        result = error("operator '-' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
     }
     return result;
 }
 
-function multiply(any a, any b) returns any|error {
+function multiply(any lhs, any rhs) returns any|error {
 
     any|error result;
-    if (a is int && b is int) {
-        result = trap (a * b); // int * int
-    } else if (a is float && b is float) {
-        result = trap (a * b); // float * float
-    } else if (a is decimal && b is decimal) {
-        result = trap (a * b); // decimal * decimal
-    } else if (a is int && b is float) {
-        result = trap (a * b); // int * float
-    } else if (a is float && b is int) {
-        result = trap (a * b); // float * int
-    } else if (a is int && b is decimal) {
-        result = trap (a * b); // int * decimal
-    } else if (a is decimal && b is int) {
-        result = trap (a * b); // decimal * int
-    } else if (a is float && b is decimal) {
-        result = trap (a * b); // float * decimal
-    } else if (a is decimal && b is float) {
-        result = trap (a * b); // decimal * float
+    if (lhs is int && rhs is int) {
+        result = trap (lhs * rhs); // int * int
+    } else if (lhs is float && rhs is float) {
+        result = trap (lhs * rhs); // float * float
+    } else if (lhs is decimal && rhs is decimal) {
+        result = trap (lhs * rhs); // decimal * decimal
+    } else if (lhs is int && rhs is float) {
+        result = trap (lhs * rhs); // int * float
+    } else if (lhs is float && rhs is int) {
+        result = trap (lhs * rhs); // float * int
+    } else if (lhs is int && rhs is decimal) {
+        result = trap (lhs * rhs); // int * decimal
+    } else if (lhs is decimal && rhs is int) {
+        result = trap (lhs * rhs); // decimal * int
+    } else if (lhs is float && rhs is decimal) {
+        result = trap (lhs * rhs); // float * decimal
+    } else if (lhs is decimal && rhs is float) {
+        result = trap (lhs * rhs); // decimal * float
     } else {
-        result = error("operator '*' not defined for '" + (typeof a).toBalString() + "' and '" + (typeof a)
-                                        .toBalString() + "'.");
+        result = error("operator '*' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
     }
     return result;
 }
 
-function divide(any a, any b) returns any|error {
+function divide(any lhs, any rhs) returns any|error {
 
     any|error result;
-    if (a is int && b is int) {
-        result = trap (a / b); // int / int
-    } else if (a is float && b is float) {
-        result = trap (a / b); // float / float
-    } else if (a is decimal && b is decimal) {
-        result = trap (a / b); // decimal / decimal
-    } else if (a is int && b is float) {
-        result = trap (a / b); // int / float
-    } else if (a is float && b is int) {
-        result = trap (a / b); // float / int
-    } else if (a is int && b is decimal) {
-        result = trap (a / b); // int / decimal
-    } else if (a is decimal && b is int) {
-        result = trap (a / b); // decimal / int
-    } else if (a is float && b is decimal) {
-        result = trap (a / b); // float / decimal
-    } else if (a is decimal && b is float) {
-        result = trap (a / b); // decimal / float
+    if (lhs is int && rhs is int) {
+        result = trap (lhs / rhs); // int / int
+    } else if (lhs is float && rhs is float) {
+        result = trap (lhs / rhs); // float / float
+    } else if (lhs is decimal && rhs is decimal) {
+        result = trap (lhs / rhs); // decimal / decimal
+    } else if (lhs is int && rhs is float) {
+        result = trap (lhs / rhs); // int / float
+    } else if (lhs is float && rhs is int) {
+        result = trap (lhs / rhs); // float / int
+    } else if (lhs is int && rhs is decimal) {
+        result = trap (lhs / rhs); // int / decimal
+    } else if (lhs is decimal && rhs is int) {
+        result = trap (lhs / rhs); // decimal / int
+    } else if (lhs is float && rhs is decimal) {
+        result = trap (lhs / rhs); // float / decimal
+    } else if (lhs is decimal && rhs is float) {
+        result = trap (lhs / rhs); // decimal / float
     } else {
-        result = error("operator '/' not defined for '" + (typeof a).toBalString() + "' and '" + (typeof a)
-                                        .toBalString() + "'.");
+        result = error("operator '/' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
     }
     return result;
 }
 
-function modulus(any a, any b) returns any|error {
+function modulus(any lhs, any rhs) returns any|error {
 
     any|error result;
-    if (a is int && b is int) {
-        result = trap (a % b); // int % int
-    } else if (a is float && b is float) {
-        result = trap (a % b); // float % float
-    } else if (a is decimal && b is decimal) {
-        result = trap (a % b); // decimal % decimal
-    } else if (a is int && b is float) {
-        result = trap (a % b); // int % float
-    } else if (a is float && b is int) {
-        result = trap (a % b); // float % int
-    } else if (a is int && b is decimal) {
-        result = trap (a % b); // int % decimal
-    } else if (a is decimal && b is int) {
-        result = trap (a % b); // decimal % int
+    if (lhs is int && rhs is int) {
+        result = trap (lhs % rhs); // int % int
+    } else if (lhs is float && rhs is float) {
+        result = trap (lhs % rhs); // float % float
+    } else if (lhs is decimal && rhs is decimal) {
+        result = trap (lhs % rhs); // decimal % decimal
+    } else if (lhs is int && rhs is float) {
+        result = trap (lhs % rhs); // int % float
+    } else if (lhs is float && rhs is int) {
+        result = trap (lhs % rhs); // float % int
+    } else if (lhs is int && rhs is decimal) {
+        result = trap (lhs % rhs); // int % decimal
+    } else if (lhs is decimal && rhs is int) {
+        result = trap (lhs % rhs); // decimal % int
     } else {
-        result = error("operator '%' not defined for '" + (typeof a).toBalString() + "' and '" + (typeof a)
-                                .toBalString() + "'.");
+        result = error("operator '%' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs)+ "'.");
     }
     return result;
+}
+
+function getType(any value) returns string|error {
+    var result = trap (typeof value);
+    if(result is typedesc) {
+        string typeString = result.toString();
+        return typeString.startsWith("typedesc ") ? typeString.substring(9) : typeString;
+    } else {
+        return result;
+    }
 }

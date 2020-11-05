@@ -288,17 +288,16 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         assertExpression(context, String.format("%s * %s", INT_VAR, FLOAT_VAR), "-200.0", "float");
         // float * float
         assertExpression(context, String.format("%s * %s", FLOAT_VAR, FLOAT_VAR), "100.0", "float");
-        // Todo - Enable after adding support
-        //        // decimal * decimal
-        //        assertExpression(context, String.format("%s * %s", decimalVar, decimalVar), "10.0", "decimal");
-        //        // int * decimal
-        //        assertExpression(context, String.format("%s * %s", decimalVar, decimalVar), "70", "decimal");
-        //        // decimal * int
-        //        assertExpression(context, String.format("%s * %s", decimalVar, decimalVar), "70", "decimal");
-        //        // float * decimal
-        //        assertExpression(context, String.format("%s * %s", decimalVar, decimalVar), "-35", "decimal");
-        //        // decimal * float
-        //        assertExpression(context, String.format("%s * %s", decimalVar, decimalVar), "-35", "decimal");
+        // decimal * decimal
+        assertExpression(context, String.format("%s * %s", DECIMAL_VAR, DECIMAL_VAR), "12.25", "decimal");
+        // int * decimal
+        assertExpression(context, String.format("%s * %s", INT_VAR, DECIMAL_VAR), "70.00", "decimal");
+        // decimal * int
+        assertExpression(context, String.format("%s * %s", DECIMAL_VAR, INT_VAR), "70.00", "decimal");
+        // float * decimal
+        assertExpression(context, String.format("%s * %s", FLOAT_VAR, DECIMAL_VAR), "-35.0", "decimal");
+        // decimal * float
+        assertExpression(context, String.format("%s * %s", DECIMAL_VAR, FLOAT_VAR), "-35.0", "decimal");
 
         ///////////////////////////////-------------division--------------------////////////////////////////////////////
         // int / int
@@ -309,17 +308,18 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         assertExpression(context, String.format("%s / %s", INT_VAR, FLOAT_VAR), "-2.0", "float");
         // float / float
         assertExpression(context, String.format("%s / %s", FLOAT_VAR, FLOAT_VAR), "1.0", "float");
-        // Todo - Enable after adding support
-        //        // decimal / decimal
-        //        assertExpression(context, String.format("%s / %s", decimalVar, decimalVar), "10.0", "decimal");
-        //        // int / decimal
-        //        assertExpression(context, String.format("%s / %s", decimalVar, decimalVar), "70", "decimal");
-        //        // decimal / int
-        //        assertExpression(context, String.format("%s / %s", decimalVar, decimalVar), "70", "decimal");
-        //        // float / decimal
-        //        assertExpression(context, String.format("%s / %s", decimalVar, decimalVar), "-35", "decimal");
-        //        // decimal / float
-        //        assertExpression(context, String.format("%s / %s", decimalVar, decimalVar), "-35", "decimal");
+        // decimal / decimal
+        assertExpression(context, String.format("%s / %s", DECIMAL_VAR, DECIMAL_VAR), "1", "decimal");
+        // int / decimal
+        assertExpression(context, String.format("%s / %s", INT_VAR, DECIMAL_VAR), "5.714285714285714285714285714285714",
+                "decimal");
+        // decimal / int
+        assertExpression(context, String.format("%s / %s", DECIMAL_VAR, INT_VAR), "0.175", "decimal");
+        // float / decimal
+        assertExpression(context, String.format("%s / %s", FLOAT_VAR, DECIMAL_VAR),
+                "-2.857142857142857142857142857142857", "decimal");
+        // decimal / float
+        assertExpression(context, String.format("%s / %s", DECIMAL_VAR, FLOAT_VAR), "-0.35", "decimal");
 
         /////////////////////////////////-----------modulus----------------/////////////////////////////////////////////
         // int % int
@@ -330,17 +330,12 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         assertExpression(context, String.format("%s %% %s", INT_VAR, FLOAT_VAR), "0.0", "float");
         // float % float
         assertExpression(context, String.format("%s %% %s", FLOAT_VAR, FLOAT_VAR), "-0.0", "float");
-        // Todo - Enable after adding support
-        //        // decimal % decimal
-        //        assertExpression(context, String.format("%s % %s", decimalVar, decimalVar), "10.0", "decimal");
-        //        // int % decimal
-        //        assertExpression(context, String.format("%s % %s", decimalVar, decimalVar), "70", "decimal");
-        //        // decimal % int
-        //        assertExpression(context, String.format("%s % %s", decimalVar, decimalVar), "70", "decimal");
-        //        // float % decimal
-        //        assertExpression(context, String.format("%s % %s", decimalVar, decimalVar), "-35", "decimal");
-        //        // decimal % float
-        //        assertExpression(context, String.format("%s % %s", decimalVar, decimalVar), "-35", "decimal");
+        // decimal % decimal
+        assertExpression(context, String.format("%s %% %s", DECIMAL_VAR, DECIMAL_VAR), "0.0", "decimal");
+        // int % decimal
+        assertExpression(context, String.format("%s %% %s", INT_VAR, DECIMAL_VAR), "2.5", "decimal");
+        // decimal % int
+        assertExpression(context, String.format("%s %% %s", DECIMAL_VAR, INT_VAR), "3.5", "decimal");
     }
 
     @Override
@@ -355,23 +350,22 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         assertExpression(context, String.format("%s + %s", INT_VAR, FLOAT_VAR), "10.0", "float");
         // float + float
         assertExpression(context, String.format("%s + %s", FLOAT_VAR, FLOAT_VAR), "-20.0", "float");
+        // decimal + decimal
+        assertExpression(context, String.format("%s + %s", DECIMAL_VAR, DECIMAL_VAR), "7.0", "decimal");
+        // int + decimal
+        assertExpression(context, String.format("%s + %s", INT_VAR, DECIMAL_VAR), "23.5", "decimal");
+        // decimal + int
+        assertExpression(context, String.format("%s + %s", DECIMAL_VAR, INT_VAR), "23.5", "decimal");
+        // float + decimal
+        assertExpression(context, String.format("%s + %s", FLOAT_VAR, DECIMAL_VAR), "-6.5", "decimal");
+        // decimal + float
+        assertExpression(context, String.format("%s + %s", DECIMAL_VAR, FLOAT_VAR), "-6.5", "decimal");
         // string + string
         assertExpression(context, String.format("%s + %s", STRING_VAR, STRING_VAR), "foofoo", "string");
         // xml + xml
         assertExpression(context, String.format("%s + %s", XML_VAR, XML_VAR), "<person gender=\"male\">" +
                 "<firstname>Praveen</firstname><lastname>Nada</lastname></person><person gender=\"male\">" +
                 "<firstname>Praveen</firstname><lastname>Nada</lastname></person>", "xml");
-        // Todo - Enable after adding support
-        //        // decimal + decimal
-        //        assertExpression(context, String.format("%s + %s", decimalVar, decimalVar), "7.0", "decimal");
-        //        // int + decimal
-        //        assertExpression(context, String.format("%s + %s", decimalVar, decimalVar), "27.0", "decimal");
-        //        // decimal + int
-        //        assertExpression(context, String.format("%s + %s", decimalVar, decimalVar), "27.0", "decimal");
-        //        // float + decimal
-        //        assertExpression(context, String.format("%s + %s", decimalVar, decimalVar), "-6.5", "decimal");
-        //        // decimal + float
-        //        assertExpression(context, String.format("%s + %s", decimalVar, decimalVar), "-6.5", "decimal");
 
         //////////////////////////////-------------subtraction------------------////////////////////////////////////////
         // int - int
@@ -382,17 +376,16 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         assertExpression(context, String.format("%s - %s", INT_VAR, FLOAT_VAR), "30.0", "float");
         // float - float
         assertExpression(context, String.format("%s - %s", FLOAT_VAR, FLOAT_VAR), "0.0", "float");
-        // Todo - Enable after adding support
-        //        // decimal - decimal
-        //        assertExpression(context, String.format("%s - %s", decimalVar, decimalVar), "0.0", "decimal");
-        //        // int - decimal
-        //        assertExpression(context, String.format("%s - %s", decimalVar, decimalVar), "16.5", "decimal");
-        //        // decimal - int
-        //        assertExpression(context, String.format("%s - %s", decimalVar, decimalVar), "-16.5", "decimal");
-        //        // float - decimal
-        //        assertExpression(context, String.format("%s - %s", decimalVar, decimalVar), "-13.5", "decimal");
-        //        // decimal - float
-        //        assertExpression(context, String.format("%s - %s", decimalVar, decimalVar), "13.5", "decimal");
+        // decimal - decimal
+        assertExpression(context, String.format("%s - %s", DECIMAL_VAR, DECIMAL_VAR), "0.0", "decimal");
+        // int - decimal
+        assertExpression(context, String.format("%s - %s", INT_VAR, DECIMAL_VAR), "16.5", "decimal");
+        // decimal - int
+        assertExpression(context, String.format("%s - %s", DECIMAL_VAR, INT_VAR), "-16.5", "decimal");
+        // float - decimal
+        assertExpression(context, String.format("%s - %s", FLOAT_VAR, DECIMAL_VAR), "-13.5", "decimal");
+        // decimal - float
+        assertExpression(context, String.format("%s - %s", DECIMAL_VAR, FLOAT_VAR), "13.5", "decimal");
     }
 
     @Override
