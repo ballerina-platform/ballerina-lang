@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.scheduling.Strand;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 import org.wso2.ballerinalang.util.Lists;
@@ -41,11 +41,11 @@ public class SelectDescendants {
 
     private static final String OPERATION = "select descendants from xml";
 
-    public static BXML selectDescendants(Strand strand, BXML xml, BArray qnames) {
+    public static BXml selectDescendants(Strand strand, BXml xml, BArray qnames) {
         try {
             // todo: this need to support list of qnames.
             String qname = qnames.getString(0);
-            return (BXML) xml.descendants(Lists.of(qname));
+            return (BXml) xml.descendants(Lists.of(qname));
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }

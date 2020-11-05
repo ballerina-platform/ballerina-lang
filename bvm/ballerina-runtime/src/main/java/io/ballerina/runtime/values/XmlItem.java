@@ -16,19 +16,19 @@
 
 package io.ballerina.runtime.values;
 
-import io.ballerina.runtime.BallerinaXMLSerializer;
-import io.ballerina.runtime.XMLFactory;
-import io.ballerina.runtime.XMLValidator;
-import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.BallerinaXmlSerializer;
+import io.ballerina.runtime.XmlFactory;
+import io.ballerina.runtime.XmlValidator;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.api.values.BXMLItem;
-import io.ballerina.runtime.api.values.BXMLSequence;
+import io.ballerina.runtime.api.values.BXmlItem;
+import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
 import org.apache.axiom.om.OMElement;
@@ -51,10 +51,10 @@ import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_NULL_VALUE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 import static io.ballerina.runtime.api.types.XmlNodeType.ELEMENT;
 import static io.ballerina.runtime.api.types.XmlNodeType.TEXT;
-import static io.ballerina.runtime.util.BLangConstants.STRING_NULL_VALUE;
-import static io.ballerina.runtime.util.BLangConstants.XML_LANG_LIB;
 
 /**
  * {@code XMLItem} represents a single XML element in Ballerina.
@@ -63,17 +63,17 @@ import static io.ballerina.runtime.util.BLangConstants.XML_LANG_LIB;
  * </p>
  * @since 0.995.0
  */
-public final class XMLItem extends XMLValue implements BXMLItem {
+public final class XmlItem extends XmlValue implements BXmlItem {
 
     public static final String XMLNS_URL_PREFIX = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}";
     public static final String XMLNS = "xmlns";
     private QName name;
-    private XMLSequence children;
+    private XmlSequence children;
     private AttributeMapValueImpl attributes;
     // Keep track of probable parents of xml element to detect probable cycles in xml.
-    private List<WeakReference<XMLItem>> probableParents;
+    private List<WeakReference<XmlItem>> probableParents;
 
-    public XMLItem(QName name, XMLSequence children) {
+    public XmlItem(QName name, XmlSequence children) {
         this.name = name;
         this.children = children;
         for (BXml child : children.children) {
@@ -86,17 +86,17 @@ public final class XMLItem extends XMLValue implements BXMLItem {
     }
 
     /**
-     * Initialize a {@link XMLItem}.
+     * Initialize a {@link XmlItem}.
      *
      * @param name element's qualified name
      */
-    public XMLItem(QName name) {
-        this(name, new XMLSequence(new ArrayList<>()));
+    public XmlItem(QName name) {
+        this(name, new XmlSequence(new ArrayList<>()));
         this.type = PredefinedTypes.TYPE_ELEMENT;
     }
 
-    public XMLItem(QName name, boolean readonly) {
-        XMLSequence children = new XMLSequence(new ArrayList<>());
+    public XmlItem(QName name, boolean readonly) {
+        XmlSequence children = new XmlSequence(new ArrayList<>());
         this.name = name;
         this.children = children;
         for (BXml child : children.children) {
@@ -243,37 +243,37 @@ public final class XMLItem extends XMLValue implements BXMLItem {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue elements() {
+    public XmlValue elements() {
         ArrayList<BXml> children = new ArrayList<>();
         children.add(this);
-        return new XMLSequence(children);
+        return new XmlSequence(children);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public XMLValue elements(String qname) {
+    public XmlValue elements(String qname) {
         ArrayList<BXml> children = new ArrayList<>();
         if (getElementName().equals(getQname(qname).toString())) {
             children.add(this);
         }
-        return new XMLSequence(children);
+        return new XmlSequence(children);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public XMLValue children() {
-        return new XMLSequence(new ArrayList<>(children.getChildrenList()));
+    public XmlValue children() {
+        return new XmlSequence(new ArrayList<>(children.getChildrenList()));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public XMLValue children(String qname) {
+    public XmlValue children(String qname) {
         return children.elements(qname);
     }
 
@@ -291,13 +291,13 @@ public final class XMLItem extends XMLValue implements BXMLItem {
         }
 
         if (seq.getNodeType() == XmlNodeType.SEQUENCE) {
-            children = (XMLSequence) seq;
+            children = (XmlSequence) seq;
             for (BXml child : children.children) {
                 addParent(child);
             }
         } else {
             addParent(seq);
-            children = new XMLSequence(seq);
+            children = new XmlSequence(seq);
         }
     }
 
@@ -319,7 +319,7 @@ public final class XMLItem extends XMLValue implements BXMLItem {
         List<BXml> leftList = new ArrayList<>(children.children);
 
         if (seq.getNodeType() == XmlNodeType.SEQUENCE) {
-            List<BXml> appendingList = ((XMLSequence) seq).getChildrenList();
+            List<BXml> appendingList = ((XmlSequence) seq).getChildrenList();
             if (isLastChildIsTextNode(leftList) && !appendingList.isEmpty()
                     && appendingList.get(0).getNodeType() == TEXT) {
                 mergeAdjoiningTextNodesIntoList(leftList, appendingList);
@@ -333,7 +333,7 @@ public final class XMLItem extends XMLValue implements BXMLItem {
             addParent(seq, this);
             leftList.add(seq);
         }
-        this.children = new XMLSequence(leftList);
+        this.children = new XmlSequence(leftList);
     }
 
 
@@ -345,15 +345,15 @@ public final class XMLItem extends XMLValue implements BXMLItem {
     // This method does not ensure acyclicness of tree after adding the children. Hence this method shold only be
     // use in scenarios where cyclic xml construction is impossible, that is only when constructing xml tree from
     // xml literal syntax, or after ensuring the new xml tree is not cyclic.
-    private void addParent(BXml child, XMLItem thisElem) {
+    private void addParent(BXml child, XmlItem thisElem) {
         if (child.getNodeType() == ELEMENT) {
-            ((XMLItem) child).probableParents.add(new WeakReference<>(thisElem));
+            ((XmlItem) child).probableParents.add(new WeakReference<>(thisElem));
         }
     }
 
-    private void ensureAcyclicGraph(BXml newSubTree, XMLItem current) {
-        for (WeakReference<XMLItem> probableParentRef : current.probableParents) {
-            XMLItem parent = probableParentRef.get();
+    private void ensureAcyclicGraph(BXml newSubTree, XmlItem current) {
+        for (WeakReference<XmlItem> probableParentRef : current.probableParents) {
+            XmlItem parent = probableParentRef.get();
             // probable parent is the actual parent.
             if (parent.children.children.contains(current)) {
                 // If new subtree is in the lineage of current node, adding this newSubTree forms a cycle.
@@ -370,10 +370,10 @@ public final class XMLItem extends XMLValue implements BXMLItem {
     }
 
     private void mergeAdjoiningTextNodesIntoList(List leftList, List<BXml> appendingList) {
-        XMLPi lastChild = (XMLPi) leftList.get(leftList.size() - 1);
-        String firstChildContent = ((XMLPi) appendingList.get(0)).getData();
+        XmlPi lastChild = (XmlPi) leftList.get(leftList.size() - 1);
+        String firstChildContent = ((XmlPi) appendingList.get(0)).getData();
         String mergedTextContent = lastChild.getData() + firstChildContent;
-        XMLText text = new XMLText(mergedTextContent);
+        XmlText text = new XmlText(mergedTextContent);
         leftList.set(leftList.size() - 1, text);
         for (int i = 1; i < appendingList.size(); i++) {
             leftList.add(appendingList.get(i));
@@ -388,7 +388,7 @@ public final class XMLItem extends XMLValue implements BXMLItem {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue strip() {
+    public XmlValue strip() {
         children.strip();
         return this;
     }
@@ -397,7 +397,7 @@ public final class XMLItem extends XMLValue implements BXMLItem {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue slice(long startIndex, long endIndex) {
+    public XmlValue slice(long startIndex, long endIndex) {
         return this;
     }
 
@@ -405,11 +405,11 @@ public final class XMLItem extends XMLValue implements BXMLItem {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue descendants(List<String> qnames) {
+    public XmlValue descendants(List<String> qnames) {
         if (qnames.contains(getQName().toString())) {
             List<BXml> descendants = Arrays.asList(this);
             addDescendants(descendants, this, qnames);
-            return new XMLSequence(descendants);
+            return new XmlSequence(descendants);
         }
         return children.descendants(qnames);
     }
@@ -421,7 +421,7 @@ public final class XMLItem extends XMLValue implements BXMLItem {
     public OMNode value() {
         try {
             String xmlStr = this.stringValue(null);
-            OMElement omElement = XMLFactory.stringToOM(xmlStr);
+            OMElement omElement = XmlFactory.stringToOM(xmlStr);
             return omElement;
         } catch (ErrorValue e) {
             throw e;
@@ -450,7 +450,7 @@ public final class XMLItem extends XMLValue implements BXMLItem {
     public String stringValue(BLink parent) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            BallerinaXMLSerializer ballerinaXMLSerializer = new BallerinaXMLSerializer(outputStream);
+            BallerinaXmlSerializer ballerinaXMLSerializer = new BallerinaXmlSerializer(outputStream);
             ballerinaXMLSerializer.write(this);
             ballerinaXMLSerializer.flush();
             String xml = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
@@ -483,7 +483,7 @@ public final class XMLItem extends XMLValue implements BXMLItem {
         }
 
         QName elemName = new QName(this.name.getNamespaceURI(), this.name.getLocalPart(), this.name.getPrefix());
-        XMLItem xmlItem = new XMLItem(elemName, (XMLSequence) children.copy(refs));
+        XmlItem xmlItem = new XmlItem(elemName, (XmlSequence) children.copy(refs));
 
         MapValue<BString, BString> attributesMap = xmlItem.getAttributesMap();
         MapValue<BString, BString> copy = (MapValue<BString, BString>) this.getAttributesMap().copy(refs);
@@ -506,9 +506,9 @@ public final class XMLItem extends XMLValue implements BXMLItem {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue getItem(int index) {
+    public XmlValue getItem(int index) {
         if (index != 0) {
-            return new XMLSequence();
+            return new XmlSequence();
         }
 
         return this;
@@ -564,7 +564,7 @@ public final class XMLItem extends XMLValue implements BXMLItem {
         List<Integer> toRemove = new ArrayList<>();
         for (int i = 0; i < children.size(); i++) {
             BXml child = children.get(i);
-            if (child.getNodeType() == ELEMENT && ((XMLItem) child).getElementName().equals(qname)) {
+            if (child.getNodeType() == ELEMENT && ((XmlItem) child).getElementName().equals(qname)) {
                 toRemove.add(i);
             }
         }
@@ -589,7 +589,7 @@ public final class XMLItem extends XMLValue implements BXMLItem {
 
             // Validate whether the attribute name is an XML supported qualified name,
             // according to the XML recommendation.
-            XMLValidator.validateXMLName(localName);
+            XmlValidator.validateXMLName(localName);
             func.set(localName, uri, STRING_NULL_VALUE, attributes.get(qname).toString());
         }
     }
@@ -599,10 +599,10 @@ public final class XMLItem extends XMLValue implements BXMLItem {
             return;
         }
 
-        XMLItem item = (XMLItem) removedItem;
-        for (Iterator<WeakReference<XMLItem>> iterator = item.probableParents.iterator(); iterator.hasNext();) {
-            WeakReference<XMLItem> probableParent = iterator.next();
-            XMLItem parent = probableParent.get();
+        XmlItem item = (XmlItem) removedItem;
+        for (Iterator<WeakReference<XmlItem>> iterator = item.probableParents.iterator(); iterator.hasNext();) {
+            WeakReference<XmlItem> probableParent = iterator.next();
+            XmlItem parent = probableParent.get();
             if (parent == this) {
                 probableParent.clear();
                 iterator.remove();
@@ -630,13 +630,13 @@ public final class XMLItem extends XMLValue implements BXMLItem {
         }
     }
 
-    public BXMLSequence getChildrenSeq() {
+    public BXmlSequence getChildrenSeq() {
         return children;
     }
 
     @Override
     public IteratorValue getIterator() {
-        XMLItem that = this;
+        XmlItem that = this;
         return new IteratorValue() {
             boolean read = false;
 
@@ -662,8 +662,8 @@ public final class XMLItem extends XMLValue implements BXMLItem {
             return true;
         }
 
-        if (obj instanceof XMLItem) {
-            XMLItem that = (XMLItem) obj;
+        if (obj instanceof XmlItem) {
+            XmlItem that = (XmlItem) obj;
             boolean qNameEquals = that.getQName().equals(this.getQName());
             if (!qNameEquals) {
                 return false;
@@ -676,8 +676,8 @@ public final class XMLItem extends XMLValue implements BXMLItem {
 
             return that.children.equals(this.children);
         }
-        if (obj instanceof XMLSequence) {
-            XMLSequence other = (XMLSequence) obj;
+        if (obj instanceof XmlSequence) {
+            XmlSequence other = (XmlSequence) obj;
             return other.children.size() == 1 && this.equals(other.children.get(0));
         }
         return false;
@@ -692,8 +692,8 @@ public final class XMLItem extends XMLValue implements BXMLItem {
         void set(String localName, String namespace, String prefix, String value);
     }
 
-    public static XMLItem createXMLItemWithDefaultNSAttribute(QName name, boolean readonly, String defaultNsUri) {
-        XMLItem item = new XMLItem(name, readonly);
+    public static XmlItem createXMLItemWithDefaultNSAttribute(QName name, boolean readonly, String defaultNsUri) {
+        XmlItem item = new XmlItem(name, readonly);
 
         if (!defaultNsUri.isEmpty()) {
             item.setAttributeOnInitialization(XMLConstants.XMLNS_ATTRIBUTE, null, null, defaultNsUri);

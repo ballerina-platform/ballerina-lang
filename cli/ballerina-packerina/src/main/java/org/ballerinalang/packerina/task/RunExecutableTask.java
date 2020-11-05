@@ -37,7 +37,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.StringJoiner;
 
-import static io.ballerina.runtime.util.BLangConstants.MODULE_INIT_CLASS_NAME;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.ballerinalang.packerina.utils.DebugUtils.getDebugArgs;
 import static org.ballerinalang.packerina.utils.DebugUtils.isInDebugMode;

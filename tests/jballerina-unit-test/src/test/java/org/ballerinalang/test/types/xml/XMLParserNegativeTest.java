@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.types.xml;
 
-import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.XmlFactory;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -32,7 +32,7 @@ public class XMLParserNegativeTest {
     @Test(dataProvider = "xmlValues")
     public void testXmlArg(String xmlValue, String expectedErrorMessage) {
         try {
-            XMLFactory.parse(xmlValue);
+            XmlFactory.parse(xmlValue);
             Assert.fail("Negative test failed for: `" + xmlValue + "'. Expected exception with message: " +
                     expectedErrorMessage);
         } catch (Exception e) {

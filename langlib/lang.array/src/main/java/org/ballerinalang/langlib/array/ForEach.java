@@ -29,8 +29,8 @@ import org.ballerinalang.langlib.array.utils.GetFunction;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.ballerina.runtime.util.BLangConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.getElementAccessFunction;
 import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 

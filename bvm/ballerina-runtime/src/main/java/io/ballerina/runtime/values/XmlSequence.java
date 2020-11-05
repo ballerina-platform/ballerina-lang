@@ -17,17 +17,17 @@
 package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.CycleUtils;
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.api.values.BXMLSequence;
+import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.util.BLangConstants;
 import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
 
 import java.util.ArrayList;
@@ -36,12 +36,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static io.ballerina.runtime.util.BLangConstants.STRING_EMPTY_VALUE;
-import static io.ballerina.runtime.util.BLangConstants.XML_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_EMPTY_VALUE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 
 /**
  * <p>
- * {@code BXMLSequence} represents a sequence of {@link XMLItem}s in Ballerina.
+ * {@code BXMLSequence} represents a sequence of {@link XmlItem}s in Ballerina.
  * </p>
  * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
@@ -49,22 +49,22 @@ import static io.ballerina.runtime.util.BLangConstants.XML_LANG_LIB;
  * 
  * @since 0.995.0
  */
-public final class XMLSequence extends XMLValue implements BXMLSequence {
+public final class XmlSequence extends XmlValue implements BXmlSequence {
 
     List<BXml> children;
 
     /**
      * Create an empty xml sequence.
      */
-    public XMLSequence() {
+    public XmlSequence() {
         children = new ArrayList<>();
     }
 
-    public XMLSequence(List<BXml> children) {
+    public XmlSequence(List<BXml> children) {
         this.children = children;
     }
 
-    public XMLSequence(BXml child) {
+    public XmlSequence(BXml child) {
         this.children = new ArrayList<>();
         if (!child.isEmpty()) {
             this.children.add(child);
@@ -145,7 +145,7 @@ public final class XMLSequence extends XMLValue implements BXMLSequence {
             return children.get(0).getAttribute(localName, namespace);
         }
 
-        return BLangConstants.BSTRING_NULL_VALUE;
+        return RuntimeConstants.BSTRING_NULL_VALUE;
     }
 
     /**
@@ -157,7 +157,7 @@ public final class XMLSequence extends XMLValue implements BXMLSequence {
             return children.get(0).getAttribute(localName, namespace, prefix);
         }
 
-        return BLangConstants.BSTRING_NULL_VALUE;
+        return RuntimeConstants.BSTRING_NULL_VALUE;
     }
 
     /**
@@ -202,21 +202,21 @@ public final class XMLSequence extends XMLValue implements BXMLSequence {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue elements() {
-        List elementsSeq = new ArrayList<XMLValue>();
+    public XmlValue elements() {
+        List elementsSeq = new ArrayList<XmlValue>();
         for (BXml child : children) {
             if (child.getNodeType() == XmlNodeType.ELEMENT) {
                 elementsSeq.add(child);
             }
         }
-        return new XMLSequence(elementsSeq);
+        return new XmlSequence(elementsSeq);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public XMLValue elements(String qname) {
+    public XmlValue elements(String qname) {
         List<BXml> elementsSeq = new ArrayList<>();
         String qnameStr = getQname(qname).toString();
         for (BXml child : children) {
@@ -224,33 +224,33 @@ public final class XMLSequence extends XMLValue implements BXMLSequence {
                 elementsSeq.add(child);
             }
         }
-        return new XMLSequence(elementsSeq);
+        return new XmlSequence(elementsSeq);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public XMLValue children() {
+    public XmlValue children() {
         if (children.size() == 1) {
-            return (XMLValue) children.get(0).children();
+            return (XmlValue) children.get(0).children();
         }
-        return new XMLSequence(new ArrayList<>(children));
+        return new XmlSequence(new ArrayList<>(children));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public XMLValue children(String qname) {
+    public XmlValue children(String qname) {
         List<BXml> selected = new ArrayList<>();
         if (this.children.size() == 1) {
             BXml bxml = this.children.get(0);
-            return (XMLValue) bxml.children(qname);
+            return (XmlValue) bxml.children(qname);
         }
 
         for (BXml elem : this.children) {
-            XMLSequence elements = (XMLSequence) elem.children().elements(qname);
+            XmlSequence elements = (XmlSequence) elem.children().elements(qname);
             List<BXml> childrenList = elements.getChildrenList();
             if (childrenList.size() == 1) {
                 selected.add(childrenList.get(0));
@@ -260,10 +260,10 @@ public final class XMLSequence extends XMLValue implements BXMLSequence {
         }
 
         if (selected.size() == 1) {
-            return (XMLValue) selected.get(0);
+            return (XmlValue) selected.get(0);
         }
 
-        return new XMLSequence(selected);
+        return new XmlSequence(selected);
     }
 
     /**
@@ -299,13 +299,13 @@ public final class XMLSequence extends XMLValue implements BXMLSequence {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue strip() {
+    public XmlValue strip() {
         List<BXml> elementsSeq = new ArrayList<>();
         boolean prevChildWasATextNode = false;
         String prevConsecutiveText = null;
 
         for (BXml x : children) {
-            XMLValue item = (XMLValue) x;
+            XmlValue item = (XmlValue) x;
             if (item.getNodeType() == XmlNodeType.TEXT) {
                 if (prevChildWasATextNode) {
                     prevConsecutiveText += x.getTextValue();
@@ -316,7 +316,7 @@ public final class XMLSequence extends XMLValue implements BXMLSequence {
             } else if (item.getNodeType() == XmlNodeType.ELEMENT) {
                 // Previous child was a text node and now we see a element node, we need to add last child to the list
                 if (prevChildWasATextNode && !prevConsecutiveText.trim().isEmpty()) {
-                    elementsSeq.add(new XMLText(prevConsecutiveText));
+                    elementsSeq.add(new XmlText(prevConsecutiveText));
                     prevConsecutiveText = null;
                 }
                 prevChildWasATextNode = false;
@@ -324,10 +324,10 @@ public final class XMLSequence extends XMLValue implements BXMLSequence {
             }
         }
         if (prevChildWasATextNode && !prevConsecutiveText.trim().isEmpty()) {
-            elementsSeq.add(new XMLText(prevConsecutiveText));
+            elementsSeq.add(new XmlText(prevConsecutiveText));
         }
 
-        return new XMLSequence(elementsSeq);
+        return new XmlSequence(elementsSeq);
     }
 
     @Override
@@ -339,7 +339,7 @@ public final class XMLSequence extends XMLValue implements BXMLSequence {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue slice(long startIndex, long endIndex) {
+    public XmlValue slice(long startIndex, long endIndex) {
         if (startIndex > this.children.size() || endIndex > this.children.size() || startIndex < -1 || endIndex < -1) {
             throw ErrorCreator
                     .createError(
@@ -355,7 +355,7 @@ public final class XMLSequence extends XMLValue implements BXMLSequence {
         }
 
         if (startIndex == endIndex) {
-            return new XMLSequence();
+            return new XmlSequence();
         }
 
         if (startIndex > endIndex) {
@@ -369,18 +369,18 @@ public final class XMLSequence extends XMLValue implements BXMLSequence {
             elementsSeq.add(j++, children.get(i));
         }
 
-        return new XMLSequence(elementsSeq);
+        return new XmlSequence(elementsSeq);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public XMLValue descendants(List<String> qnames) {
+    public XmlValue descendants(List<String> qnames) {
         List<BXml> descendants = new ArrayList<>();
         for (BXml child : children) {
             if (child.getNodeType() == XmlNodeType.ELEMENT) {
-                XMLItem element = (XMLItem) child;
+                XmlItem element = (XmlItem) child;
                 String name = element.getQName().toString();
                 if (qnames.contains(name)) {
                     descendants.add(element);
@@ -389,7 +389,7 @@ public final class XMLSequence extends XMLValue implements BXMLSequence {
             }
         }
 
-        return new XMLSequence(descendants);
+        return new XmlSequence(descendants);
     }
 
     /**
@@ -411,7 +411,7 @@ public final class XMLSequence extends XMLValue implements BXMLSequence {
         } catch (Throwable t) {
             handleXmlException("failed to get xml as string: ", t);
         }
-        return BLangConstants.STRING_NULL_VALUE;
+        return RuntimeConstants.STRING_NULL_VALUE;
     }
 
     /**
@@ -429,7 +429,7 @@ public final class XMLSequence extends XMLValue implements BXMLSequence {
         } catch (Throwable t) {
             handleXmlException("failed to get xml as string: ", t);
         }
-        return BLangConstants.STRING_NULL_VALUE;
+        return RuntimeConstants.STRING_NULL_VALUE;
     }
 
     @Override
@@ -456,10 +456,10 @@ public final class XMLSequence extends XMLValue implements BXMLSequence {
         }
 
         ArrayList<BXml> copiedChildrenList = new ArrayList<>(children.size());
-        XMLSequence copiedSeq = new XMLSequence(copiedChildrenList);
+        XmlSequence copiedSeq = new XmlSequence(copiedChildrenList);
         refs.put(this, copiedSeq);
         for (BXml child : children) {
-            copiedChildrenList.add((XMLValue) child.copy(refs));
+            copiedChildrenList.add((XmlValue) child.copy(refs));
         }
 
         return copiedSeq;
@@ -470,7 +470,7 @@ public final class XMLSequence extends XMLValue implements BXMLSequence {
      */
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
-        XMLSequence copy = (XMLSequence) copy(refs);
+        XmlSequence copy = (XmlSequence) copy(refs);
         if (!copy.isFrozen()) {
             copy.freezeDirect();
         }
@@ -481,12 +481,12 @@ public final class XMLSequence extends XMLValue implements BXMLSequence {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue getItem(int index) {
+    public XmlValue getItem(int index) {
         try {
             if (index >= this.children.size()) {
-                return new XMLSequence();
+                return new XmlSequence();
             }
-            return (XMLValue) this.children.get(index);
+            return (XmlValue) this.children.get(index);
         } catch (Exception e) {
             throw ErrorCreator.createError(BallerinaErrorReasons.XML_OPERATION_ERROR,
                                            StringUtils.fromString(e.getMessage()));
@@ -514,13 +514,13 @@ public final class XMLSequence extends XMLValue implements BXMLSequence {
     @Override
     protected void setAttributesOnInitialization(BMap<BString, ?> attributes) {
         if (isSingleton()) {
-            ((XMLValue) children.get(0)).setAttributesOnInitialization(attributes);
+            ((XmlValue) children.get(0)).setAttributesOnInitialization(attributes);
         }
     }
 
     @Override
     protected void setAttributeOnInitialization(String localName, String namespace, String prefix, String value) {
-        ((XMLValue) children.get(0)).setAttributeOnInitialization(localName, namespace, prefix, value);
+        ((XmlValue) children.get(0)).setAttributeOnInitialization(localName, namespace, prefix, value);
     }
 
     @Override
@@ -596,11 +596,11 @@ public final class XMLSequence extends XMLValue implements BXMLSequence {
             return true;
         }
 
-        if (obj instanceof XMLSequence) {
-            XMLSequence that = (XMLSequence) obj;
+        if (obj instanceof XmlSequence) {
+            XmlSequence that = (XmlSequence) obj;
             return that.children.equals(this.children);
         }
-        if (obj instanceof XMLItem) {
+        if (obj instanceof XmlItem) {
             return this.children.size() == 1 && this.children.get(0).equals(obj);
         }
         return false;

@@ -17,7 +17,7 @@
   */
  package io.ballerina.runtime.values;
 
- import io.ballerina.runtime.api.StringUtils;
+ import io.ballerina.runtime.api.utils.StringUtils;
  import io.ballerina.runtime.api.values.BLink;
  import io.ballerina.runtime.api.values.BString;
 

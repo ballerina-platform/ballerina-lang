@@ -21,11 +21,11 @@ import io.ballerina.runtime.CycleUtils;
 import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.TypeConstants;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.constants.TypeConstants;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
@@ -46,16 +46,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_RUNTIME_PKG_ID;
-import static io.ballerina.runtime.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
-import static io.ballerina.runtime.util.BLangConstants.GENERATE_PKG_INIT;
-import static io.ballerina.runtime.util.BLangConstants.GENERATE_PKG_START;
-import static io.ballerina.runtime.util.BLangConstants.GENERATE_PKG_STOP;
-import static io.ballerina.runtime.util.BLangConstants.INIT_FUNCTION_SUFFIX;
-import static io.ballerina.runtime.util.BLangConstants.MODULE_INIT_CLASS_NAME;
-import static io.ballerina.runtime.util.BLangConstants.START_FUNCTION_SUFFIX;
-import static io.ballerina.runtime.util.BLangConstants.STOP_FUNCTION_SUFFIX;
-
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_RUNTIME_PKG_ID;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
 /**
  * <p>
  * Represent an error in ballerina.
@@ -74,7 +67,13 @@ public class ErrorValue extends BError implements RefValue {
     private final BError cause;
     private final Object details;
 
-    public static final String GENERATE_OBJECT_CLASS_PREFIX = ".$value$";
+    private static final String GENERATE_OBJECT_CLASS_PREFIX = ".$value$";
+    private static final String GENERATE_PKG_INIT = "___init_";
+    private static final String GENERATE_PKG_START = "___start_";
+    private static final String GENERATE_PKG_STOP = "___stop_";
+    private static final String INIT_FUNCTION_SUFFIX = "..<init>";
+    private static final String START_FUNCTION_SUFFIX = ".<start>";
+    private static final String STOP_FUNCTION_SUFFIX = ".<stop>";
 
     public ErrorValue(BString message, Object details) {
         this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TypeChecker.getType(details)),

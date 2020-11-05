@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.XMLNodeType;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BXML;
-import io.ballerina.runtime.api.values.BXMLItem;
-import io.ballerina.runtime.api.values.BXMLSequence;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlItem;
+import io.ballerina.runtime.api.values.BXmlSequence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,23 +41,23 @@ import java.util.List;
 //)
 public class ElementChildren {
 
-    public static BXML elementChildren(BXML xmlVal, Object nameObj) {
+    public static BXml elementChildren(BXml xmlVal, Object nameObj) {
         boolean namedQuery = nameObj != null;
         String name = namedQuery ? ((BString) nameObj).getValue() : null;
-        if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
+        if (xmlVal.getNodeType() == XmlNodeType.ELEMENT) {
             if (namedQuery) {
                 return (xmlVal).children().elements(name);
             }
             return (xmlVal).children().elements();
-        } else if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE) {
-            List<BXML> items = new ArrayList<>();
-            BXMLSequence sequence = (BXMLSequence) xmlVal.elements();
-            for (BXML bxml : sequence.getChildrenList()) {
-                if (bxml.getNodeType() != XMLNodeType.ELEMENT) {
+        } else if (xmlVal.getNodeType() == XmlNodeType.SEQUENCE) {
+            List<BXml> items = new ArrayList<>();
+            BXmlSequence sequence = (BXmlSequence) xmlVal.elements();
+            for (BXml bxml : sequence.getChildrenList()) {
+                if (bxml.getNodeType() != XmlNodeType.ELEMENT) {
                     continue;
                 }
-                for (BXML childElement : ((BXMLItem) bxml).getChildrenSeq().getChildrenList()) {
-                    if (childElement.getNodeType() != XMLNodeType.ELEMENT) {
+                for (BXml childElement : ((BXmlItem) bxml).getChildrenSeq().getChildrenList()) {
+                    if (childElement.getNodeType() != XmlNodeType.ELEMENT) {
                         continue;
                     }
                     if (namedQuery) {

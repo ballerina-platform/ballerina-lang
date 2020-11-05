@@ -16,7 +16,7 @@
 
 package io.ballerina.runtime.values;
 
-import io.ballerina.runtime.BallerinaXMLSerializer;
+import io.ballerina.runtime.BallerinaXmlSerializer;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.api.values.BXMLQName;
+import io.ballerina.runtime.api.values.BXmlQName;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
 
 import java.io.OutputStream;
@@ -48,7 +48,7 @@ import javax.xml.namespace.QName;
  *
  * @since 0.995.0
  */
-public abstract class XMLValue implements RefValue, BXml, CollectionValue {
+public abstract class XmlValue implements RefValue, BXml, CollectionValue {
 
     Type type = PredefinedTypes.TYPE_XML;
 
@@ -60,7 +60,7 @@ public abstract class XMLValue implements RefValue, BXml, CollectionValue {
      * @param attributeName Qualified name of the attribute
      * @return Value of the attribute
      */
-    public BString getAttribute(BXMLQName attributeName) {
+    public BString getAttribute(BXmlQName attributeName) {
         return getAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix());
     }
 
@@ -72,7 +72,7 @@ public abstract class XMLValue implements RefValue, BXml, CollectionValue {
      * @param value Value of the attribute
      */
     @Deprecated
-    public void setAttribute(BXMLQName attributeName, String value) {
+    public void setAttribute(BXmlQName attributeName, String value) {
         setAttributeOnInitialization(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(),
                                      value);
     }
@@ -85,7 +85,7 @@ public abstract class XMLValue implements RefValue, BXml, CollectionValue {
      * @param value Value of the attribute
      */
     @Deprecated
-    public void setAttribute(BXMLQName attributeName, BString value) {
+    public void setAttribute(BXmlQName attributeName, BString value) {
         setAttributeOnInitialization(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(),
                                      value.getValue());
     }
@@ -174,53 +174,53 @@ public abstract class XMLValue implements RefValue, BXml, CollectionValue {
      * @param currentElement Current node
      * @param qnames Qualified names of the descendants to search
      */
-    protected void addDescendants(List<BXml> descendants, XMLItem currentElement, List<String> qnames) {
+    protected void addDescendants(List<BXml> descendants, XmlItem currentElement, List<String> qnames) {
         for (BXml child : currentElement.getChildrenSeq().getChildrenList()) {
             if (child.getNodeType() == XmlNodeType.ELEMENT) {
-                String elemName = ((XMLItem) child).getQName().toString();
+                String elemName = ((XmlItem) child).getQName().toString();
                 if (qnames.contains(elemName)) {
                     descendants.add(child);
                 }
-                addDescendants(descendants, (XMLItem) child, qnames);
+                addDescendants(descendants, (XmlItem) child, qnames);
             }
         }
     }
 
     // TODO: These are bridge methods to invoke methods in BXML interface
     // Fix in the JVM code gen to directly call overridden BXML methods
-    public void addChildren(XMLValue seq) {
+    public void addChildren(XmlValue seq) {
         addChildren((BXml) seq);
     }
 
-    public void setChildren(XMLValue seq) {
+    public void setChildren(XmlValue seq) {
         setChildren((BXml) seq);
     }
 
-    public abstract XMLValue children();
+    public abstract XmlValue children();
 
-    public abstract XMLValue children(String qname);
+    public abstract XmlValue children(String qname);
 
     /**
      * {@inheritDoc}
      */
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
-        XMLValue copy = (XMLValue) copy(refs);
+        XmlValue copy = (XmlValue) copy(refs);
         if (!copy.isFrozen()) {
             copy.freezeDirect();
         }
         return copy;
     }
 
-    public abstract XMLValue getItem(int index);
+    public abstract XmlValue getItem(int index);
 
     @Override
     public void serialize(OutputStream outputStream) {
         try {
-            if (outputStream instanceof BallerinaXMLSerializer) {
-                ((BallerinaXMLSerializer) outputStream).write(this);
+            if (outputStream instanceof BallerinaXmlSerializer) {
+                ((BallerinaXmlSerializer) outputStream).write(this);
             } else {
-                BallerinaXMLSerializer xmlSerializer = new BallerinaXMLSerializer(outputStream);
+                BallerinaXmlSerializer xmlSerializer = new BallerinaXmlSerializer(outputStream);
                 xmlSerializer.write(this);
                 xmlSerializer.flush();
                 xmlSerializer.close();

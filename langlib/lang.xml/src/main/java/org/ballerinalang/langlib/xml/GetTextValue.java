@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.scheduling.Strand;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 
@@ -37,7 +37,7 @@ public class GetTextValue {
 
     private static final String OPERATION = "get text from xml";
 
-    public static String getTextValue(Strand strand, BXML xml) {
+    public static String getTextValue(Strand strand, BXml xml) {
         try {
             return xml.getTextValue();
         } catch (Throwable e) {

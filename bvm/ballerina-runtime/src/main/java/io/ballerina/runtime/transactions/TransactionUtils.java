@@ -34,12 +34,12 @@ import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.transactions.TransactionConstants.COORDINATOR_ABORT_TRANSACTION;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_BLOCK_CLASS_NAME;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_FQN;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
 /**
  * Utility methods used in transaction handling.

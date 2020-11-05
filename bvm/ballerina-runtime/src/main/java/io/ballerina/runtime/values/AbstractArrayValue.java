@@ -18,9 +18,9 @@
 package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.IteratorUtils;
-import io.ballerina.runtime.JSONGenerator;
-import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.JsonGenerator;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
-import static io.ballerina.runtime.util.BLangConstants.ARRAY_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 import static io.ballerina.runtime.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
@@ -273,7 +273,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
     @Override
     public String getJSONString() {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        JSONGenerator gen = new JSONGenerator(byteOut);
+        JsonGenerator gen = new JsonGenerator(byteOut);
         try {
             gen.serialize(this);
             gen.flush();
@@ -310,6 +310,11 @@ public abstract class AbstractArrayValue implements ArrayValue {
         resizeInternalArray(newLength);
         fillValues(newLength);
         size = newLength;
+    }
+
+    @Override
+    public long getLength() {
+        return size;
     }
 
     protected void initializeIteratorNextReturnType() {

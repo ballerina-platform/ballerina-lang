@@ -17,9 +17,9 @@
 */
 package io.ballerina.runtime.values;
 
-import io.ballerina.runtime.JSONDataSource;
-import io.ballerina.runtime.JSONGenerator;
-import io.ballerina.runtime.JSONUtils;
+import io.ballerina.runtime.JsonDataSource;
+import io.ballerina.runtime.JsonGenerator;
+import io.ballerina.runtime.internal.JsonUtils;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BStreamingJson;
@@ -33,7 +33,7 @@ import java.util.Map;
 
 /**
  * <p>
- * {@link StreamingJsonValue} represent a JSON array generated from a {@link JSONDataSource}.
+ * {@link StreamingJsonValue} represent a JSON array generated from a {@link JsonDataSource}.
  * </p>
  * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
@@ -43,10 +43,10 @@ import java.util.Map;
  */
 public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson {
 
-    JSONDataSource datasource;
+    JsonDataSource datasource;
 
     @Deprecated
-    public StreamingJsonValue(JSONDataSource datasource) {
+    public StreamingJsonValue(JsonDataSource datasource) {
         super(new BArrayType(new BMapType(PredefinedTypes.TYPE_JSON)));
         this.datasource = datasource;
     }
@@ -86,7 +86,7 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
      * Serialize to the given {@code JSONGenerator}.
      * @param gen {@code JSONGenerator} to use
      */
-    public void serialize(JSONGenerator gen) {
+    public void serialize(JsonGenerator gen) {
         /*
          * Below order is important, where if the value is generated from a streaming data source,
          * it should be able to serialize the data out again using the value
@@ -106,7 +106,7 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
             gen.writeEndArray();
             gen.flush();
         } catch (IOException e) {
-            throw JSONUtils.createJsonConversionError(e, "error occurred while serializing data");
+            throw JsonUtils.createJsonConversionError(e, "error occurred while serializing data");
         }
     }
 
@@ -115,12 +115,12 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
      * @param writer {@code Writer} to be used
      */
     public void serialize(Writer writer) {
-        serialize(new JSONGenerator(writer));
+        serialize(new JsonGenerator(writer));
     }
 
     @Override
     public void serialize(OutputStream outputStream) {
-        serialize(new JSONGenerator(outputStream));
+        serialize(new JsonGenerator(outputStream));
     }
 
     @Override
@@ -186,7 +186,7 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
                 appendToCache(datasource.next());
             }
         } catch (Throwable t) {
-            throw JSONUtils.createJsonConversionError(t, "error occurred while building JSON");
+            throw JsonUtils.createJsonConversionError(t, "error occurred while building JSON");
         }
     }
 

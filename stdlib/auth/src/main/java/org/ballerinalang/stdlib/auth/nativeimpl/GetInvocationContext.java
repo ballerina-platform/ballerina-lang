@@ -18,13 +18,13 @@
 
 package org.ballerinalang.stdlib.auth.nativeimpl;
 
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
 
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_AUTH_PKG_ID;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_AUTH_PKG_ID;
 
 /**
  * Extern function to get auth invocation context record.

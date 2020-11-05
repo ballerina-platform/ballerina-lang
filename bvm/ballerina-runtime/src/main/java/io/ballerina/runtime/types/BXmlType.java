@@ -18,13 +18,13 @@
 package io.ballerina.runtime.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlType;
-import io.ballerina.runtime.values.XMLSequence;
-import io.ballerina.runtime.values.XMLValue;
+import io.ballerina.runtime.values.XmlSequence;
+import io.ballerina.runtime.values.XmlValue;
 
 /**
  * {@code BXMLType} represents an XML Element.
@@ -32,7 +32,7 @@ import io.ballerina.runtime.values.XMLValue;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BXMLType extends BType implements XmlType {
+public class BXmlType extends BType implements XmlType {
 
     private final int tag;
     public Type constraint;
@@ -45,21 +45,21 @@ public class BXMLType extends BType implements XmlType {
      * @param typeName string name of the type
      * @param constraint constraint of the xml sequence
      */
-    public BXMLType(String typeName, Type constraint, Module pkg) {
-        super(typeName, pkg, XMLValue.class);
+    public BXmlType(String typeName, Type constraint, Module pkg) {
+        super(typeName, pkg, XmlValue.class);
         this.constraint = constraint;
         this.tag = TypeTags.XML_TAG;
         this.readonly = false;
     }
 
-    public BXMLType(String typeName, Module pkg, int tag, boolean readonly) {
-        super(typeName, pkg, XMLValue.class);
+    public BXmlType(String typeName, Module pkg, int tag, boolean readonly) {
+        super(typeName, pkg, XmlValue.class);
         this.tag = tag;
         this.readonly = readonly;
     }
 
-    public BXMLType(Type constraint, boolean readonly) {
-        super(TypeConstants.XML_TNAME, null, XMLValue.class);
+    public BXmlType(Type constraint, boolean readonly) {
+        super(TypeConstants.XML_TNAME, null, XmlValue.class);
         this.tag = TypeTags.XML_TAG;
         this.constraint = constraint;
         this.readonly = readonly;
@@ -67,12 +67,12 @@ public class BXMLType extends BType implements XmlType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) new XMLSequence();
+        return (V) new XmlSequence();
     }
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        return (V) new XMLSequence();
+        return (V) new XmlSequence();
     }
 
     @Override
@@ -87,11 +87,11 @@ public class BXMLType extends BType implements XmlType {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(this == obj && obj instanceof BXMLType)) {
+        if (!(this == obj && obj instanceof BXmlType)) {
             return false;
         }
 
-        BXMLType other = (BXMLType) obj;
+        BXmlType other = (BXmlType) obj;
         if (constraint == other.constraint) {
             return true;
         }

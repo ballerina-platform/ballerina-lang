@@ -19,13 +19,13 @@
 package io.ballerina.runtime;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.TypeConstants;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.constants.TypeConstants;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.types.BAnyType;
 import io.ballerina.runtime.types.BAnydataType;
 import io.ballerina.runtime.types.BArrayType;
@@ -39,7 +39,7 @@ import io.ballerina.runtime.values.ArrayValueImpl;
 import io.ballerina.runtime.values.MappingInitialValueEntry;
 import io.ballerina.runtime.values.TableValueImpl;
 import io.ballerina.runtime.values.TupleValueImpl;
-import io.ballerina.runtime.values.XMLSequence;
+import io.ballerina.runtime.values.XmlSequence;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -211,39 +211,39 @@ public class BalStringUtils {
     public static Object parseXmlExpressionStringValue(String exprValue) {
         if (exprValue.matches("<[\\!--](.*?)[\\-\\-\\!]>")) {
             String comment = exprValue.substring(exprValue.indexOf("<!--") + 4, exprValue.lastIndexOf("-->"));
-            return XMLFactory.createXMLComment(comment);
+            return XmlFactory.createXMLComment(comment);
         } else if (exprValue.matches("<\\?(.*?)\\?>")) {
             String pi = exprValue.substring(exprValue.indexOf("<?") + 2, exprValue.lastIndexOf("?>"));
             String[] piArgs = pi.split(" ", 2);
-            return XMLFactory.createXMLProcessingInstruction(StringUtils.fromString(piArgs[0]),
-                    StringUtils.fromString(piArgs[1]));
+            return XmlFactory.createXMLProcessingInstruction(StringUtils.fromString(piArgs[0]),
+                                                             StringUtils.fromString(piArgs[1]));
         } else if (exprValue.matches("<(\\S+?)(.*?)>(.*?)</\\1>")) {
-            return XMLFactory.parse(exprValue);
+            return XmlFactory.parse(exprValue);
         } else if (!exprValue.startsWith("<?") && !exprValue.startsWith("<!--") && !exprValue.startsWith("<")) {
-            return XMLFactory.createXMLText(StringUtils.fromString(exprValue));
+            return XmlFactory.createXMLText(StringUtils.fromString(exprValue));
         } else {
             Pattern pattern = Pattern.compile("<(\\S+?)(.*?)>(.*?)</\\1>|<[\\!--](.*?)[\\-\\-\\!]>" +
                     "|<\\?(.*?)\\?>");
             Matcher matcher = pattern.matcher(exprValue);
-            List<BXML> children = new ArrayList<>();
+            List<BXml> children = new ArrayList<>();
             String part = exprValue;
             while (matcher.find()) {
                 String item = matcher.group();
                 String[] splitParts = part.split(item, 2);
                 String splitItem = splitParts[0];
                 if (splitItem.isEmpty()) {
-                    children.add((BXML) parseXmlExpressionStringValue(item));
+                    children.add((BXml) parseXmlExpressionStringValue(item));
                 } else {
-                    children.add((BXML) parseXmlExpressionStringValue(splitItem));
+                    children.add((BXml) parseXmlExpressionStringValue(splitItem));
                     if (!item.equals(splitItem)) {
-                        children.add((BXML) parseXmlExpressionStringValue(item));
+                        children.add((BXml) parseXmlExpressionStringValue(item));
                     }
                 }
                 if (splitParts.length == 2) {
                     part = splitParts[1];
                 }
             }
-            return new XMLSequence(children);
+            return new XmlSequence(children);
         }
     }
 

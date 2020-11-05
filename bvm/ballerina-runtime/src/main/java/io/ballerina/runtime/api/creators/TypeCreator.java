@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ErrorType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FiniteType;
-import io.ballerina.runtime.api.types.JSONType;
+import io.ballerina.runtime.api.types.JsonType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.RecordType;
@@ -31,12 +31,12 @@ import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
-import io.ballerina.runtime.api.types.XMLType;
+import io.ballerina.runtime.api.types.XmlType;
 import io.ballerina.runtime.types.BArrayType;
 import io.ballerina.runtime.types.BErrorType;
 import io.ballerina.runtime.types.BField;
 import io.ballerina.runtime.types.BFiniteType;
-import io.ballerina.runtime.types.BJSONType;
+import io.ballerina.runtime.types.BJsonType;
 import io.ballerina.runtime.types.BMapType;
 import io.ballerina.runtime.types.BObjectType;
 import io.ballerina.runtime.types.BRecordType;
@@ -44,7 +44,7 @@ import io.ballerina.runtime.types.BStreamType;
 import io.ballerina.runtime.types.BTableType;
 import io.ballerina.runtime.types.BTupleType;
 import io.ballerina.runtime.types.BUnionType;
-import io.ballerina.runtime.types.BXMLType;
+import io.ballerina.runtime.types.BXmlType;
 
 import java.util.List;
 import java.util.Map;
@@ -359,8 +359,8 @@ public class TypeCreator {
      * @param module     module
      * @return new xml type
      */
-    public static XMLType createXMLType(String typeName, Type constraint, Module module) {
-        return new BXMLType(typeName, constraint, module);
+    public static XmlType createXMLType(String typeName, Type constraint, Module module) {
+        return new BXmlType(typeName, constraint, module);
     }
 
     /**
@@ -372,8 +372,8 @@ public class TypeCreator {
      * @param readonly whether immutable
      * @return new xml type
      */
-    public static XMLType createXMLType(String typeName, Module module, int tag, boolean readonly) {
-        return new BXMLType(typeName, module, tag, readonly);
+    public static XmlType createXMLType(String typeName, Module module, int tag, boolean readonly) {
+        return new BXmlType(typeName, module, tag, readonly);
     }
 
     /**
@@ -383,8 +383,8 @@ public class TypeCreator {
      * @param readonly   whether immutable
      * @return new xml type
      */
-    public static XMLType createXMLType(Type constraint, boolean readonly) {
-        return new BXMLType(constraint, readonly);
+    public static XmlType createXMLType(Type constraint, boolean readonly) {
+        return new BXmlType(constraint, readonly);
     }
 
     /**
@@ -395,8 +395,8 @@ public class TypeCreator {
      * @param readonly whether immutable
      * @return new xml type
      */
-    public static JSONType createJSONType(String typeName, Module module, boolean readonly) {
-        return new BJSONType(typeName, module, readonly);
+    public static JsonType createJSONType(String typeName, Module module, boolean readonly) {
+        return new BJsonType(typeName, module, readonly);
     }
 
     /**

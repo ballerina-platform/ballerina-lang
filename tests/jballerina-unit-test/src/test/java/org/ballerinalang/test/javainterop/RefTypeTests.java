@@ -18,7 +18,7 @@
 package org.ballerinalang.test.javainterop;
 
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.util.exceptions.BLangRuntimeException;
 import io.ballerina.runtime.values.ErrorValue;
@@ -27,8 +27,8 @@ import io.ballerina.runtime.values.FutureValue;
 import io.ballerina.runtime.values.HandleValue;
 import io.ballerina.runtime.values.TypedescValue;
 import io.ballerina.runtime.values.TypedescValueImpl;
-import io.ballerina.runtime.values.XMLItem;
-import io.ballerina.runtime.values.XMLValue;
+import io.ballerina.runtime.values.XmlItem;
+import io.ballerina.runtime.values.XmlValue;
 import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BHandleValue;
@@ -345,11 +345,11 @@ public class RefTypeTests {
 
     // static methods
 
-    public static XMLValue getXML() {
-        return new XMLItem(new QName("hello"));
+    public static XmlValue getXML() {
+        return new XmlItem(new QName("hello"));
     }
 
-    public static io.ballerina.runtime.api.values.BString getStringFromXML(XMLValue x) {
+    public static io.ballerina.runtime.api.values.BString getStringFromXML(XmlValue x) {
         return StringUtils.fromString(x.toString());
     }
 

@@ -18,13 +18,13 @@
 
 package org.ballerinalang.langlib.bool;
 
-import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 
-import static io.ballerina.runtime.util.BLangConstants.BOOLEAN_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BOOLEAN_LANG_LIB;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.BOOLEAN_PARSING_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 

@@ -19,13 +19,13 @@ package io.ballerina.runtime.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.util.Flags;
 
 import java.util.Map.Entry;
 import java.util.StringJoiner;
@@ -54,7 +54,7 @@ public class BObjectType extends BStructureType implements ObjectType {
      */
     public BObjectType(String typeName, Module pkg, int flags) {
         super(typeName, pkg, flags, Object.class);
-        this.readonly = Flags.isFlagOn(flags, Flags.READONLY);
+        this.readonly = SymbolFlags.isFlagOn(flags, SymbolFlags.READONLY);
     }
 
     @Override

@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.langlib.internal;
 
-import io.ballerina.runtime.XMLNodeType;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BXML;
-import io.ballerina.runtime.api.values.BXMLSequence;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlSequence;
 
 import java.util.ArrayList;
 
@@ -52,7 +52,7 @@ public class GetElements {
      * @param elemNames element names to select
      * @return sequence of elements matching given element names
      */
-    public static BXML getElements(BXML xmlVal, BString[] elemNames) {
+    public static BXml getElements(BXml xmlVal, BString[] elemNames) {
 
         ArrayList<String> nsList = new ArrayList<>();
         ArrayList<String> localNameList = new ArrayList<>();
@@ -66,11 +66,11 @@ public class GetElements {
             return ValueCreator.createXMLSequence();
         }
 
-        ArrayList<BXML> selectedElements = new ArrayList<>();
-        if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE) {
-            BXMLSequence sequence = (BXMLSequence) xmlVal;
-            for (BXML child : sequence.getChildrenList()) {
-                if (child.getNodeType() != XMLNodeType.ELEMENT) {
+        ArrayList<BXml> selectedElements = new ArrayList<>();
+        if (xmlVal.getNodeType() == XmlNodeType.SEQUENCE) {
+            BXmlSequence sequence = (BXmlSequence) xmlVal;
+            for (BXml child : sequence.getChildrenList()) {
+                if (child.getNodeType() != XmlNodeType.ELEMENT) {
                     continue;
                 }
                 if (matchFilters(elemNames, nsList, localNameList, child.getElementName())) {

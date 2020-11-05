@@ -117,7 +117,7 @@ public interface BXml extends BRefValue, BCollection {
      * @param attributeName Qualified name of the attribute
      * @return Value of the attribute
      */
-    BString getAttribute(BXMLQName attributeName);
+    BString getAttribute(BXmlQName attributeName);
 
     /**
      * Set the value of a single attribute. If the attribute already exsists, then the value will be updated.
@@ -137,7 +137,7 @@ public interface BXml extends BRefValue, BCollection {
      * @param attributeName Qualified name of the attribute
      * @param value Value of the attribute
      */
-    void setAttribute(BXMLQName attributeName, String value);
+    void setAttribute(BXmlQName attributeName, String value);
 
     /**
      * Get attributes as a {@link BMap}.

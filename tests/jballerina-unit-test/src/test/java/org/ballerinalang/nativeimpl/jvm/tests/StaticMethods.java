@@ -19,21 +19,21 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.types.BArrayType;
 import io.ballerina.runtime.types.BTupleType;
 import io.ballerina.runtime.types.BUnionType;
@@ -547,7 +547,7 @@ public class StaticMethods {
         return h;
     }
 
-    public static BXML getXmlAsReadOnly(BXML x) {
+    public static BXml getXmlAsReadOnly(BXml x) {
         return x;
     }
 

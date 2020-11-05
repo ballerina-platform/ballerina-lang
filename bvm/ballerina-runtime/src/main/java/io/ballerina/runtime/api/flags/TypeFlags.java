@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.runtime.api;
+package io.ballerina.runtime.api.flags;
 
 /**
  * Class contains types specific flags.

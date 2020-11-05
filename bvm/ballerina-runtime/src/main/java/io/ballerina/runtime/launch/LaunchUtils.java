@@ -34,17 +34,17 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.logging.LogManager;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_ARGS_INIT_PREFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_ARGS_INIT_PREFIX_LENGTH;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.CONFIG_FILE_PROPERTY;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.CONFIG_SEPARATOR;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_CONFIG_CLASS_PROPERTY;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_CONFIG_CLASS_VALUE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_MANAGER_CLASS_PROPERTY;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_MANAGER_CLASS_VALUE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_ENABLED;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_ARGS_INIT_PREFIX;
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_ARGS_INIT_PREFIX_LENGTH;
-import static io.ballerina.runtime.util.BLangConstants.CONFIG_FILE_PROPERTY;
-import static io.ballerina.runtime.util.BLangConstants.CONFIG_SEPARATOR;
-import static io.ballerina.runtime.util.BLangConstants.UTIL_LOGGING_CONFIG_CLASS_PROPERTY;
-import static io.ballerina.runtime.util.BLangConstants.UTIL_LOGGING_CONFIG_CLASS_VALUE;
-import static io.ballerina.runtime.util.BLangConstants.UTIL_LOGGING_MANAGER_CLASS_PROPERTY;
-import static io.ballerina.runtime.util.BLangConstants.UTIL_LOGGING_MANAGER_CLASS_VALUE;
 
 /**
  * Util methods to be used during starting and ending a ballerina program.

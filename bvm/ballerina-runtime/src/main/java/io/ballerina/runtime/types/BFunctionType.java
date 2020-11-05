@@ -19,9 +19,9 @@ package io.ballerina.runtime.types;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.util.Flags;
 
 import java.util.Arrays;
 
@@ -101,7 +101,8 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
 
         BFunctionType that = (BFunctionType) o;
 
-        if (Flags.isFlagOn(that.flags, Flags.ISOLATED) != Flags.isFlagOn(this.flags, Flags.ISOLATED)) {
+        if (SymbolFlags.isFlagOn(that.flags, SymbolFlags.ISOLATED) != SymbolFlags
+                .isFlagOn(this.flags, SymbolFlags.ISOLATED)) {
             return false;
         }
 
@@ -124,7 +125,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         String stringRep = "function (" + (paramTypes != null ? getTypeListAsString(paramTypes) : "") + ")" +
                 (retType != null ? " returns (" + retType + ")" : "");
 
-        if (Flags.isFlagOn(flags, Flags.ISOLATED)) {
+        if (SymbolFlags.isFlagOn(flags, SymbolFlags.ISOLATED)) {
             return "isolated " + stringRep;
         }
         return stringRep;

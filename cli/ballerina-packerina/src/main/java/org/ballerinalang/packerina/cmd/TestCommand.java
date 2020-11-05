@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.packerina.cmd;
 
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.launch.LaunchUtils;
-import io.ballerina.runtime.util.BLangConstants;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.packerina.JarResolverImpl;
@@ -51,7 +51,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 
-import static io.ballerina.runtime.util.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
@@ -217,7 +217,7 @@ public class TestCommand implements BLauncherCmd {
             }
 
             // Cannot rerun failed tests for single bal files
-            if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+            if (this.argList.get(0).endsWith(RuntimeConstants.BLANG_SRC_FILE_SUFFIX)) {
                 CommandUtil.printError(this.errStream,
                                        "--rerun-failed not supported for single bal files",
                                        "ballerina test --rerun-failed <module-name>",
@@ -278,7 +278,7 @@ public class TestCommand implements BLauncherCmd {
 
                 this.sourceRootPath = findRoot;
             }
-        } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+        } else if (this.argList.get(0).endsWith(RuntimeConstants.BLANG_SRC_FILE_SUFFIX)) {
             // TODO: remove this once code cov is implemented to support single bal file
             if (coverage) {
                 coverage = false;

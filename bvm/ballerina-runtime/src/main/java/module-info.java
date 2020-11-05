@@ -16,25 +16,39 @@ module io.ballerina.runtime {
     requires java.transaction;
     requires java.naming;
 
+    // API exports
     exports io.ballerina.runtime.api;
     exports io.ballerina.runtime.api.async;
-    exports io.ballerina.runtime.api.values;
+    exports io.ballerina.runtime.api.constants;
+    exports io.ballerina.runtime.api.creators;
+    exports io.ballerina.runtime.api.flags;
     exports io.ballerina.runtime.api.types;
+    exports io.ballerina.runtime.api.utils;
+    exports io.ballerina.runtime.api.values;
 
-    exports io.ballerina.runtime.util;
-    exports io.ballerina.runtime.util.exceptions;
-    exports io.ballerina.runtime.launch;
-    exports io.ballerina.runtime;
-    exports io.ballerina.runtime.scheduling;
     exports io.ballerina.runtime.observability;
-    exports io.ballerina.runtime.transactions;
-    exports io.ballerina.runtime.services;
     exports io.ballerina.runtime.observability.metrics;
-    exports io.ballerina.runtime.commons;
-    exports io.ballerina.runtime.observability.tracer;
     exports io.ballerina.runtime.observability.metrics.spi;
-    exports io.ballerina.runtime.services.spi;
-    exports io.ballerina.runtime.annotation;
-    exports io.ballerina.runtime.values;
-    exports io.ballerina.runtime.types;
+    exports io.ballerina.runtime.observability.tracer;
+    exports io.ballerina.runtime.scheduling;
+    exports io.ballerina.runtime.transactions;
+
+    // export only for Langlib , Cli and Testerina
+    exports io.ballerina.runtime.values to io.ballerina.testerina.core, io.ballerina.testerina.runtime;
+    exports io.ballerina.runtime to io.ballerina.testerina.core, io.ballerina.testerina.runtime, io.ballerina.lang,
+            io.ballerina.lang.map, io.ballerina.lang.test, io.ballerina.lang.array, io.ballerina.lang.table,
+            io.ballerina.lang.value, io.ballerina.lang.xml, ballerina.debug.adapter.core;
+    exports io.ballerina.runtime.util to io.ballerina.testerina.runtime, io.ballerina.lang, io.ballerina.tool,
+            io.ballerina.lang.integer, io.ballerina.lang.floatingpoint, io.ballerina.lang.array,
+            io.ballerina.lang.table, io.ballerina.java, io.ballerina.lang.map, io.ballerina.lang.string,
+            io.ballerina.lang.xml, io.ballerina.lang.bool, io.ballerina.lang.error, io.ballerina.lang.internal,
+            io.ballerina.auth, io.ballerina.runtime.api, io.ballerina.cli.utils;
+    exports io.ballerina.runtime.launch to io.ballerina.testerina.runtime, io.ballerina.packerina,
+            ballerina.test.listener;
+    exports io.ballerina.runtime.util.exceptions to io.ballerina.lang.value, io.ballerina.lang.integer,
+            io.ballerina.java, io.ballerina.lang.internal, io.ballerina.lang.array, io.ballerina.lang.bool,
+            io.ballerina.lang.floatingpoint, io.ballerina.lang.map, io.ballerina.lang.string, io.ballerina.lang.table,
+            io.ballerina.lang.xml, io.ballerina.testerina.core, io.ballerina.cli.utils;
+    exports io.ballerina.runtime.commons to io.ballerina.lang.value;
+    exports io.ballerina.runtime.internal to io.ballerina.lang.value;
 }

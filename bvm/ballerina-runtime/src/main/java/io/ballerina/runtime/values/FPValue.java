@@ -18,13 +18,13 @@
 package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.scheduling.AsyncUtils;
 import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.util.BLangConstants;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -113,6 +113,6 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
 
     @Override
     public String toString() {
-        return BLangConstants.EMPTY;
+        return RuntimeConstants.EMPTY;
     }
 }

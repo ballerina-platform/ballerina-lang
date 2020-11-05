@@ -17,9 +17,6 @@
  */
 package io.ballerina.runtime.api.types;
 
-import io.ballerina.runtime.api.Module;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**

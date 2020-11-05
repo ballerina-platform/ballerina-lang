@@ -17,8 +17,8 @@
  */
 package io.ballerina.runtime.types;
 
-import io.ballerina.runtime.api.TypeConstants;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;

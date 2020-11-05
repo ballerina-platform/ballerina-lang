@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime.services;
 
-import io.ballerina.runtime.annotation.JavaSPIService;
+import io.ballerina.runtime.annotation.JavaSpiService;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.scheduling.Scheduler;
@@ -42,7 +42,7 @@ import java.util.function.Function;
  *
  * @since 0.964
  */
-@JavaSPIService("io.ballerina.runtime.services.spi.EmbeddedExecutor")
+@JavaSpiService("io.ballerina.runtime.services.spi.EmbeddedExecutor")
 public class JVMEmbeddedExecutor implements EmbeddedExecutor {
 
     private static final String MODULE_INIT_CLASS = ".$_init";
@@ -119,9 +119,6 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 if (t instanceof io.ballerina.runtime.util.exceptions.BLangRuntimeException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
-                if (t instanceof io.ballerina.runtime.util.exceptions.BallerinaConnectorException) {
-                    throw new BLangRuntimeException(t.getMessage());
-                }
                 if (t instanceof ErrorValue) {
                     throw new BLangRuntimeException(
                             "error: " + ((ErrorValue) t).getPrintableStackTrace().replaceAll("\\{}", ""));
@@ -178,9 +175,6 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 if (t instanceof io.ballerina.runtime.util.exceptions.BLangRuntimeException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
-                if (t instanceof io.ballerina.runtime.util.exceptions.BallerinaConnectorException) {
-                    throw new BLangRuntimeException(t.getMessage());
-                }
                 if (t instanceof ErrorValue) {
                     throw new BLangRuntimeException(
                             "error: " + ((ErrorValue) t).getPrintableStackTrace().replaceAll("\\{}", ""));
@@ -226,9 +220,6 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             final Throwable t = out.panic;
             if (t != null) {
                 if (t instanceof io.ballerina.runtime.util.exceptions.BLangRuntimeException) {
-                    throw new BLangRuntimeException(t.getMessage());
-                }
-                if (t instanceof io.ballerina.runtime.util.exceptions.BallerinaConnectorException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof ErrorValue) {

@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
-public @interface JavaSPIService {
+public @interface JavaSpiService {
 
     /**
      * Represents the name of interface this service is exposing.

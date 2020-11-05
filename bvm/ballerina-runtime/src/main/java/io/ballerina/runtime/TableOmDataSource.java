@@ -17,9 +17,9 @@
  */
 package io.ballerina.runtime;
 
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -42,7 +42,7 @@ import javax.xml.stream.XMLStreamWriter;
  *
  * @since 0.8.0
  */
-public class TableOMDataSource extends AbstractPushOMDataSource {
+public class TableOmDataSource extends AbstractPushOMDataSource {
 
     private static final String XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance";
     private static final String XSI_PREFIX = "xsi";
@@ -54,7 +54,7 @@ public class TableOMDataSource extends AbstractPushOMDataSource {
     private String rootWrapper;
     private String rowWrapper;
 
-    public TableOMDataSource(TableValueImpl table, String rootWrapper, String rowWrapper) {
+    public TableOmDataSource(TableValueImpl table, String rootWrapper, String rowWrapper) {
         this.table = table;
         this.rootWrapper = rootWrapper != null ? rootWrapper : DEFAULT_ROOT_WRAPPER;
         this.rowWrapper = rowWrapper != null ? rowWrapper : DEFAULT_ROW_WRAPPER;

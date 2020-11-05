@@ -18,7 +18,7 @@
 
 package io.ballerina.runtime.values;
 
-import io.ballerina.runtime.BallerinaXMLSerializer;
+import io.ballerina.runtime.BallerinaXmlSerializer;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
@@ -31,14 +31,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import static io.ballerina.runtime.util.BLangConstants.STRING_NULL_VALUE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_NULL_VALUE;
 
 /**
  * Functionality common to PI, COMMENT and TEXT nodes.
  *
  * @since 1.2.0
  */
-public abstract class XMLNonElementItem extends XMLValue {
+public abstract class XmlNonElementItem extends XmlValue {
 
     @Override
     public boolean isSingleton() {
@@ -82,7 +82,7 @@ public abstract class XMLNonElementItem extends XMLValue {
 
     @Override
     public BXml elements() {
-        return new XMLSequence();
+        return new XmlSequence();
     }
 
     @Override
@@ -91,13 +91,13 @@ public abstract class XMLNonElementItem extends XMLValue {
     }
 
     @Override
-    public XMLValue children() {
-        return new XMLSequence();
+    public XmlValue children() {
+        return new XmlSequence();
     }
 
     @Override
-    public XMLValue children(String qname) {
-        return new XMLSequence();
+    public XmlValue children(String qname) {
+        return new XmlSequence();
     }
 
     @Override
@@ -111,7 +111,7 @@ public abstract class XMLNonElementItem extends XMLValue {
 
     @Override
     public BXml strip() {
-        return new XMLText("");
+        return new XmlText("");
     }
 
     @Override
@@ -124,15 +124,15 @@ public abstract class XMLNonElementItem extends XMLValue {
 
     @Override
     public BXml descendants(List<String> qnames) {
-        return new XMLSequence();
+        return new XmlSequence();
     }
 
     @Override
-    public XMLValue getItem(int index) {
+    public XmlValue getItem(int index) {
         if (index == 0) {
             return this;
         }
-        return new XMLSequence();
+        return new XmlSequence();
     }
 
     @Override
@@ -178,7 +178,7 @@ public abstract class XMLNonElementItem extends XMLValue {
     public String stringValue(BLink parent) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            BallerinaXMLSerializer ballerinaXMLSerializer = new BallerinaXMLSerializer(outputStream);
+            BallerinaXmlSerializer ballerinaXMLSerializer = new BallerinaXmlSerializer(outputStream);
             ballerinaXMLSerializer.write(this);
             ballerinaXMLSerializer.flush();
             String str = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);

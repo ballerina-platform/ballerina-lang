@@ -18,8 +18,8 @@
 package io.ballerina.runtime.api.creators;
 
 import io.ballerina.runtime.DecimalValueKind;
-import io.ballerina.runtime.JSONDataSource;
-import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.JsonDataSource;
+import io.ballerina.runtime.XmlFactory;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType;
@@ -43,9 +43,9 @@ import io.ballerina.runtime.api.values.BStreamingJson;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.api.values.BXML;
-import io.ballerina.runtime.api.values.BXMLQName;
-import io.ballerina.runtime.api.values.BXMLSequence;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlQName;
+import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.State;
 import io.ballerina.runtime.scheduling.Strand;
@@ -62,9 +62,9 @@ import io.ballerina.runtime.values.StreamingJsonValue;
 import io.ballerina.runtime.values.TableValueImpl;
 import io.ballerina.runtime.values.TupleValueImpl;
 import io.ballerina.runtime.values.TypedescValueImpl;
-import io.ballerina.runtime.values.XMLItem;
-import io.ballerina.runtime.values.XMLQName;
-import io.ballerina.runtime.values.XMLSequence;
+import io.ballerina.runtime.values.XmlItem;
+import io.ballerina.runtime.values.XmlQName;
+import io.ballerina.runtime.values.XmlSequence;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -233,7 +233,7 @@ import javax.xml.namespace.QName;
       * @param datasource {@code JSONDataSource} to be used
       * @return created {@code StreamingJsonValue}
       */
-     public static BStreamingJson createStreamingJsonValue(JSONDataSource datasource) {
+     public static BStreamingJson createStreamingJsonValue(JsonDataSource datasource) {
          return new StreamingJsonValue(datasource);
      }
 
@@ -273,8 +273,8 @@ import javax.xml.namespace.QName;
       *
       * @return {@code XMLItem}
       */
-     public static BXML createXMLItem() {
-         return new XMLItem(new QName(null), new XMLSequence());
+     public static BXml createXMLItem() {
+         return new XmlItem(new QName(null), new XmlSequence());
      }
 
      /**
@@ -283,8 +283,8 @@ import javax.xml.namespace.QName;
       * @param xmlValue A XML string
       * @return {@code XMLItem}
       */
-     public static BXML createXMLItem(String xmlValue) {
-         return XMLFactory.parse(xmlValue);
+     public static BXml createXMLItem(String xmlValue) {
+         return XmlFactory.parse(xmlValue);
      }
 
      /**
@@ -293,8 +293,8 @@ import javax.xml.namespace.QName;
       * @param inputStream Input Stream
       * @return {@code XMLItem}
       */
-     public static BXML createXMLItem(InputStream inputStream) {
-         return XMLFactory.parse(inputStream);
+     public static BXml createXMLItem(InputStream inputStream) {
+         return XmlFactory.parse(inputStream);
      }
 
      /**
@@ -305,8 +305,8 @@ import javax.xml.namespace.QName;
       * @param prefix Namespace prefix
       * @return XML qualified name
       */
-     public static BXMLQName createXMLQName(String localName, String uri, String prefix) {
-         return new XMLQName(localName, uri, prefix);
+     public static BXmlQName createXMLQName(String localName, String uri, String prefix) {
+         return new XmlQName(localName, uri, prefix);
      }
 
      /**
@@ -315,8 +315,8 @@ import javax.xml.namespace.QName;
       * @param qNameStr qualified name string
       * @return  XML qualified name
       */
-     public static BXMLQName createXMLQName(BString qNameStr) {
-         return new XMLQName(qNameStr);
+     public static BXmlQName createXMLQName(BString qNameStr) {
+         return new XmlQName(qNameStr);
      }
 
      /**
@@ -324,8 +324,8 @@ import javax.xml.namespace.QName;
       *
       * @return xml sequence
       */
-     public static BXMLSequence createXMLSequence() {
-         return new XMLSequence();
+     public static BXmlSequence createXMLSequence() {
+         return new XmlSequence();
      }
 
      /**
@@ -334,12 +334,12 @@ import javax.xml.namespace.QName;
       * @param sequence xml sequence array
       * @return xml sequence
       */
-     public static BXML createXMLSequence(BArray sequence) {
-         List<BXML> children = new ArrayList<>();
+     public static BXml createXMLSequence(BArray sequence) {
+         List<BXml> children = new ArrayList<>();
          for (Object value : sequence.getValues()) {
-             children.add((BXML) value);
+             children.add((BXml) value);
          }
-         return new XMLSequence(children);
+         return new XmlSequence(children);
      }
 
      /**
@@ -348,8 +348,8 @@ import javax.xml.namespace.QName;
       * @param sequence xml sequence array
       * @return xml sequence
       */
-     public static BXML createXMLSequence(List<BXML> sequence) {
-         return new XMLSequence(sequence);
+     public static BXml createXMLSequence(List<BXml> sequence) {
+         return new XmlSequence(sequence);
      }
 
      /**
@@ -358,8 +358,8 @@ import javax.xml.namespace.QName;
       * @param child xml content
       * @return xml sequence
       */
-     public static BXML createXMLSequence(BXML child) {
-         return new XMLSequence(child);
+     public static BXml createXMLSequence(BXml child) {
+         return new XmlSequence(child);
      }
 
      /**

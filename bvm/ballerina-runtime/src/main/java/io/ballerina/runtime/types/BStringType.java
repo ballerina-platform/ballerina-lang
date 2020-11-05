@@ -19,8 +19,8 @@ package io.ballerina.runtime.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.StringType;
-import io.ballerina.runtime.util.BLangConstants;
 
 /**
  * {@code BStringType} represents a String type in ballerina.
@@ -48,12 +48,12 @@ public class BStringType extends BType implements StringType {
     }
 
     public <V extends Object> V getZeroValue() {
-        return (V) BLangConstants.STRING_EMPTY_VALUE;
+        return (V) RuntimeConstants.STRING_EMPTY_VALUE;
     }
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        return (V) BLangConstants.STRING_EMPTY_VALUE;
+        return (V) RuntimeConstants.STRING_EMPTY_VALUE;
     }
 
     @Override

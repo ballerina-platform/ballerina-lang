@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.types.XmlAttributesType;
  *
  * @since 0.995.0
  */
-public class BXMLAttributesType extends BType implements XmlAttributesType {
+public class BXmlAttributesType extends BType implements XmlAttributesType {
 
     /**
      * Create a {@code BXMLAttributesType} represents the type an xml-attribute-map in ballerina.
@@ -34,7 +34,7 @@ public class BXMLAttributesType extends BType implements XmlAttributesType {
      * @param typeName string name of the type
      * @param pkg package path
      */
-    public BXMLAttributesType(String typeName, Module pkg) {
+    public BXmlAttributesType(String typeName, Module pkg) {
         super(typeName, pkg, null);
     }
 

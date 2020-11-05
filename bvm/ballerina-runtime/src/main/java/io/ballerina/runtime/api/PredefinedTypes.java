@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api;
 
 import io.ballerina.runtime.IteratorUtils;
-import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.AnyType;
 import io.ballerina.runtime.api.types.AnydataType;
 import io.ballerina.runtime.api.types.ArrayType;
@@ -31,7 +31,7 @@ import io.ballerina.runtime.api.types.FutureType;
 import io.ballerina.runtime.api.types.HandleType;
 import io.ballerina.runtime.api.types.IntegerType;
 import io.ballerina.runtime.api.types.IteratorType;
-import io.ballerina.runtime.api.types.JSONType;
+import io.ballerina.runtime.api.types.JsonType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.NeverType;
 import io.ballerina.runtime.api.types.NullType;
@@ -43,8 +43,8 @@ import io.ballerina.runtime.api.types.StringType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypedescType;
 import io.ballerina.runtime.api.types.UnionType;
-import io.ballerina.runtime.api.types.XMLAttributesType;
-import io.ballerina.runtime.api.types.XMLType;
+import io.ballerina.runtime.api.types.XmlAttributesType;
+import io.ballerina.runtime.api.types.XmlType;
 import io.ballerina.runtime.types.BAnyType;
 import io.ballerina.runtime.types.BAnydataType;
 import io.ballerina.runtime.types.BArrayType;
@@ -52,13 +52,12 @@ import io.ballerina.runtime.types.BBooleanType;
 import io.ballerina.runtime.types.BByteType;
 import io.ballerina.runtime.types.BDecimalType;
 import io.ballerina.runtime.types.BErrorType;
-import io.ballerina.runtime.types.BFiniteType;
 import io.ballerina.runtime.types.BFloatType;
 import io.ballerina.runtime.types.BFutureType;
 import io.ballerina.runtime.types.BHandleType;
 import io.ballerina.runtime.types.BIntegerType;
 import io.ballerina.runtime.types.BIteratorType;
-import io.ballerina.runtime.types.BJSONType;
+import io.ballerina.runtime.types.BJsonType;
 import io.ballerina.runtime.types.BMapType;
 import io.ballerina.runtime.types.BNeverType;
 import io.ballerina.runtime.types.BNullType;
@@ -66,22 +65,21 @@ import io.ballerina.runtime.types.BReadonlyType;
 import io.ballerina.runtime.types.BServiceType;
 import io.ballerina.runtime.types.BStreamType;
 import io.ballerina.runtime.types.BStringType;
-import io.ballerina.runtime.types.BType;
 import io.ballerina.runtime.types.BTypedescType;
 import io.ballerina.runtime.types.BUnionType;
-import io.ballerina.runtime.types.BXMLAttributesType;
-import io.ballerina.runtime.types.BXMLType;
+import io.ballerina.runtime.types.BXmlAttributesType;
+import io.ballerina.runtime.types.BXmlType;
 import io.ballerina.runtime.values.ReadOnlyUtils;
 
 import java.util.Arrays;
 
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.runtime.util.BLangConstants.INT_LANG_LIB;
-import static io.ballerina.runtime.util.BLangConstants.STRING_LANG_LIB;
-import static io.ballerina.runtime.util.BLangConstants.XML_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 
 /**
- * This class contains various methods manipulate {@link BType}s in Ballerina.
+ * This class contains predefined types used in ballerina runtime.
  *
  * @since 2.0.0
  */
@@ -119,34 +117,34 @@ public class PredefinedTypes {
                                                                       TypeTags.CHAR_STRING_TAG);
 
     public static final ReadonlyType TYPE_READONLY = new BReadonlyType(TypeConstants.READONLY_TNAME, EMPTY_MODULE);
-    public static final XMLType TYPE_ELEMENT = new BXMLType(TypeConstants.XML_ELEMENT,
+    public static final XmlType TYPE_ELEMENT = new BXmlType(TypeConstants.XML_ELEMENT,
                                                             new Module(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
                                                                        null), TypeTags.XML_ELEMENT_TAG, false);
     public static final Type TYPE_READONLY_ELEMENT = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_ELEMENT);
 
-    public static final XMLType TYPE_PROCESSING_INSTRUCTION = new BXMLType(TypeConstants.XML_PI,
+    public static final XmlType TYPE_PROCESSING_INSTRUCTION = new BXmlType(TypeConstants.XML_PI,
                                                                            new Module(BALLERINA_BUILTIN_PKG_PREFIX,
                                                                                       XML_LANG_LIB, null),
                                                                            TypeTags.XML_PI_TAG, false);
     public static final Type TYPE_READONLY_PROCESSING_INSTRUCTION =
             ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_PROCESSING_INSTRUCTION);
 
-    public static final XMLType TYPE_COMMENT = new BXMLType(TypeConstants.XML_COMMENT,
+    public static final XmlType TYPE_COMMENT = new BXmlType(TypeConstants.XML_COMMENT,
                                                             new Module(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
                                                                        null), TypeTags.XML_COMMENT_TAG, false);
     public static final Type TYPE_READONLY_COMMENT = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_COMMENT);
 
-    public static final XMLType TYPE_TEXT = new BXMLType(TypeConstants.XML_TEXT,
+    public static final XmlType TYPE_TEXT = new BXmlType(TypeConstants.XML_TEXT,
                                                          new Module(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, null),
                                                          TypeTags.XML_TEXT_TAG, true);
 
-    public static final Type TYPE_XML = new BXMLType(TypeConstants.XML_TNAME,
+    public static final Type TYPE_XML = new BXmlType(TypeConstants.XML_TNAME,
                                                      new BUnionType(Arrays.asList(TYPE_ELEMENT, TYPE_COMMENT,
                                                                                   TYPE_PROCESSING_INSTRUCTION,
                                                                                   TYPE_TEXT)), EMPTY_MODULE);
-    public static final JSONType TYPE_JSON = new BJSONType(TypeConstants.JSON_TNAME, EMPTY_MODULE, false);
+    public static final JsonType TYPE_JSON = new BJsonType(TypeConstants.JSON_TNAME, EMPTY_MODULE, false);
     public static final ArrayType TYPE_JSON_ARRAY = new BArrayType(TYPE_JSON);
-    public static final JSONType TYPE_READONLY_JSON = new BJSONType(TypeConstants.READONLY_JSON_TNAME, EMPTY_MODULE,
+    public static final JsonType TYPE_READONLY_JSON = new BJsonType(TypeConstants.READONLY_JSON_TNAME, EMPTY_MODULE,
                                                                     true);
     public static final AnyType TYPE_ANY = new BAnyType(TypeConstants.ANY_TNAME, EMPTY_MODULE, false);
     public static final AnyType TYPE_READONLY_ANY = new BAnyType(TypeConstants.READONLY_ANY_TNAME, EMPTY_MODULE, true);
@@ -160,8 +158,8 @@ public class PredefinedTypes {
     public static final FutureType TYPE_FUTURE = new BFutureType(TypeConstants.FUTURE_TNAME, EMPTY_MODULE);
     public static final NullType TYPE_NULL = new BNullType(TypeConstants.NULL_TNAME, EMPTY_MODULE);
     public static final NeverType TYPE_NEVER = new BNeverType(EMPTY_MODULE);
-    public static final XMLAttributesType TYPE_XML_ATTRIBUTES =
-            new BXMLAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME, EMPTY_MODULE);
+    public static final XmlAttributesType TYPE_XML_ATTRIBUTES =
+            new BXmlAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME, EMPTY_MODULE);
     public static final IteratorType TYPE_ITERATOR = new BIteratorType(TypeConstants.ITERATOR_TNAME, EMPTY_MODULE);
     public static final ServiceType TYPE_ANY_SERVICE = new BServiceType(TypeConstants.SERVICE, EMPTY_MODULE, 0);
     public static final HandleType TYPE_HANDLE = new BHandleType(TypeConstants.HANDLE_TNAME, EMPTY_MODULE);
@@ -178,77 +176,4 @@ public class PredefinedTypes {
 
     private PredefinedTypes() {
     }
-
-    public static boolean isValueType(Type type) {
-        if (type == PredefinedTypes.TYPE_INT || type == PredefinedTypes.TYPE_BYTE ||
-                type == PredefinedTypes.TYPE_FLOAT ||
-                type == PredefinedTypes.TYPE_DECIMAL || type == PredefinedTypes.TYPE_STRING ||
-                type == PredefinedTypes.TYPE_BOOLEAN) {
-            return true;
-        }
-
-        if (type != null && type.getTag() == TypeTags.FINITE_TYPE_TAG) {
-            // All the types in value space should be value types.
-            for (Object value : ((BFiniteType) type).valueSpace) {
-                if (!isValueType(TypeChecker.getType(value))) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-
-    public static Type getTypeFromName(String typeName) {
-        switch (typeName) {
-            case TypeConstants.INT_TNAME:
-                return TYPE_INT;
-            case TypeConstants.BYTE_TNAME:
-                return TYPE_BYTE;
-            case TypeConstants.FLOAT_TNAME:
-                return TYPE_FLOAT;
-            case TypeConstants.DECIMAL_TNAME:
-                return TYPE_DECIMAL;
-            case TypeConstants.STRING_TNAME:
-                return TYPE_STRING;
-            case TypeConstants.BOOLEAN_TNAME:
-                return TYPE_BOOLEAN;
-            case TypeConstants.JSON_TNAME:
-                return TYPE_JSON;
-            case TypeConstants.XML_TNAME:
-                return TYPE_XML;
-            case TypeConstants.MAP_TNAME:
-                return TYPE_MAP;
-            case TypeConstants.FUTURE_TNAME:
-                return TYPE_FUTURE;
-            case TypeConstants.STREAM_TNAME:
-                return TYPE_STREAM;
-            // case TypeConstants.CHANNEL:
-            // return typeChannel;
-            case TypeConstants.ANY_TNAME:
-                return TYPE_ANY;
-            case TypeConstants.TYPEDESC_TNAME:
-                return TYPE_TYPEDESC;
-            case TypeConstants.NULL_TNAME:
-                return TYPE_NULL;
-            case TypeConstants.XML_ATTRIBUTES_TNAME:
-                return TYPE_XML_ATTRIBUTES;
-            case TypeConstants.ERROR:
-                return TYPE_ERROR;
-            case TypeConstants.ANYDATA_TNAME:
-                return TYPE_ANYDATA;
-            default:
-                throw new IllegalStateException("Unknown type name");
-        }
-    }
-
-    public static Type fromString(String typeName) {
-        if (typeName.endsWith("[]")) {
-            String elementTypeName = typeName.substring(0, typeName.length() - 2);
-            Type elemType = fromString(elementTypeName);
-            return new BArrayType(elemType);
-        }
-        return getTypeFromName(typeName);
-    }
-
 }

@@ -23,7 +23,7 @@ package io.ballerina.runtime.api.types;
  * 
  * @since 0.995.0
  */
-public enum XMLNodeType {
+public enum XmlNodeType {
     SEQUENCE("sequence"),
     ELEMENT("element"),
     TEXT("text"),
@@ -32,7 +32,7 @@ public enum XMLNodeType {
 
     String nodeType;
 
-    XMLNodeType(String value) {
+    XmlNodeType(String value) {
         nodeType = value;
     }
 

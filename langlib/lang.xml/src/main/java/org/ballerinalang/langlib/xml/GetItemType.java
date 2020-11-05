@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.scheduling.Strand;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 
@@ -38,7 +38,7 @@ public class GetItemType {
 
     private static final String OPERATION = "get xml item type";
 
-    public static Object getItemType(Strand strand, BXML xml) {
+    public static Object getItemType(Strand strand, BXml xml) {
         try {
             return xml.getItemType();
         } catch (Throwable e) {

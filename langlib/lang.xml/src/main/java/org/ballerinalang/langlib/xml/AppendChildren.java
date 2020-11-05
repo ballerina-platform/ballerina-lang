@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.scheduling.Strand;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 
@@ -39,7 +39,7 @@ public class AppendChildren {
     private static final String OPERATION = "add children to xml element";
 
     @Deprecated
-    public static void appendChildren(Strand strand, BXML xml, BXML children) {
+    public static void appendChildren(Strand strand, BXml xml, BXml children) {
         try {
             xml.addChildren(children);
         } catch (Throwable e) {

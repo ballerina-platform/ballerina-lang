@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
-import io.ballerina.runtime.util.BLangConstants;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
@@ -280,7 +280,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
 
-import static io.ballerina.runtime.util.BLangConstants.UNDERSCORE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.util.BLangCompilerConstants.RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createBlockStmt;
@@ -4025,7 +4025,7 @@ public class Desugar extends BLangNodeVisitor {
         errorInvocation.type = symTable.errorType;
         ArrayList<BLangExpression> errorCtorArgs = new ArrayList<>();
         errorInvocation.requiredArgs = errorCtorArgs;
-        errorCtorArgs.add(createStringLiteral(pos, "{" + BLangConstants.MAP_LANG_LIB + "}InvalidKey"));
+        errorCtorArgs.add(createStringLiteral(pos, "{" + RuntimeConstants.MAP_LANG_LIB + "}InvalidKey"));
         BLangNamedArgsExpression message = new BLangNamedArgsExpression();
         message.name = ASTBuilderUtil.createIdentifier(pos, "key");
         message.expr = createStringLiteral(pos, fieldAccessExpr.field.value);

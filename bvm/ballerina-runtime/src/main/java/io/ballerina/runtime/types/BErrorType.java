@@ -92,4 +92,9 @@ public class BErrorType extends BAnnotatableType implements ErrorType {
     public boolean isReadOnly() {
         return true;
     }
+
+    @Override
+    public BTypeIdSet getTypeIdSet() {
+        return typeIdSet;
+    }
 }

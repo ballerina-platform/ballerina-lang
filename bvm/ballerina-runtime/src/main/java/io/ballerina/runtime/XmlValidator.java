@@ -18,8 +18,8 @@ package io.ballerina.runtime;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BXMLQName;
-import io.ballerina.runtime.values.XMLQName;
+import io.ballerina.runtime.api.values.BXmlQName;
+import io.ballerina.runtime.values.XmlQName;
 
 /**
  * This class defines the basic set of utility methods to validate XML.
@@ -27,7 +27,7 @@ import io.ballerina.runtime.values.XMLQName;
  * 
  * @since 0.995.0
  */
-public class XMLValidator {
+public class XmlValidator {
 
     /*
      * Constants
@@ -256,7 +256,7 @@ public class XMLValidator {
 
     /**
      * <p>
-     * Validate a {@link XMLQName} against the XSD definition.
+     * Validate a {@link XmlQName} against the XSD definition.
      * </p>
      * 
      * <i>
@@ -264,9 +264,9 @@ public class XMLValidator {
      * NCNameChar ::= Letter | Digit | '.' | '-' | '_' | CombiningChar | Extender
      * </i>
      * 
-     * @param qname {@link XMLQName} to check the validity
+     * @param qname {@link XmlQName} to check the validity
      */
-    public static void validateXMLQName(BXMLQName qname) {
+    public static void validateXMLQName(BXmlQName qname) {
         validateXMLName(qname.getLocalName());
         validateXMLName(qname.getPrefix());
     }

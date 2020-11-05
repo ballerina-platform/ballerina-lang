@@ -17,7 +17,7 @@
 */
 package io.ballerina.runtime.transactions;
 
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.scheduling.Strand;
 

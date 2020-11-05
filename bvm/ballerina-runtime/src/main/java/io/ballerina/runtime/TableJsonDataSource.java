@@ -18,10 +18,10 @@
 package io.ballerina.runtime;
 
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BMap;
@@ -45,26 +45,26 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * {@link JSONDataSource} implementation for table.
+ * {@link JsonDataSource} implementation for table.
  *
  * @since 1.0
  */
-public class TableJSONDataSource implements JSONDataSource {
+public class TableJsonDataSource implements JsonDataSource {
 
     private BTable tableValue;
     private JSONObjectGenerator objGen;
 
-    TableJSONDataSource(BTable tableValue) {
+    public TableJsonDataSource(BTable tableValue) {
         this(tableValue, new DefaultJSONObjectGenerator());
     }
 
-    private TableJSONDataSource(BTable tableValue, JSONObjectGenerator objGen) {
+    private TableJsonDataSource(BTable tableValue, JSONObjectGenerator objGen) {
         this.tableValue = tableValue;
         this.objGen = objGen;
     }
 
     @Override
-    public void serialize(JSONGenerator gen) throws IOException {
+    public void serialize(JsonGenerator gen) throws IOException {
         gen.writeStartArray();
         while (this.hasNext()) {
             gen.serialize(this.next());
@@ -99,7 +99,7 @@ public class TableJSONDataSource implements JSONDataSource {
     }
 
     /**
-     * Default {@link TableJSONDataSource.JSONObjectGenerator} implementation based
+     * Default {@link TableJsonDataSource.JSONObjectGenerator} implementation based
      * on the table's in-built column definition.
      */
     private static class DefaultJSONObjectGenerator implements JSONObjectGenerator {
@@ -155,7 +155,7 @@ public class TableJSONDataSource implements JSONDataSource {
                 break;
             case TypeTags.JSON_TAG:
                 jsonObject.put(StringUtils.fromString(name), record.getStringValue(key) == null ? null :
-                        JSONParser.parse(record.getStringValue(key).toString()));
+                        JsonParser.parse(record.getStringValue(key).toString()));
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:

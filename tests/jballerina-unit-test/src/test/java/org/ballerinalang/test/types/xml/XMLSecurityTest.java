@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.types.xml;
 
-import io.ballerina.runtime.XMLFactory;
-import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.XmlFactory;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.values.ErrorValue;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -36,7 +36,7 @@ public class XMLSecurityTest {
                 "<!ELEMENT foo ANY >" +
                 "<!ENTITY xxe SYSTEM \"https://www.w3schools.com/xml/note.xml\" >]>" +
                 "<foo>&xxe;</foo>";
-        BXML xmlDocument = XMLFactory.parse(xmlString);
+        BXml xmlDocument = XmlFactory.parse(xmlString);
         Assert.assertEquals(xmlDocument.toString(), "<foo></foo>");
     }
 
@@ -55,6 +55,6 @@ public class XMLSecurityTest {
                 "<!ENTITY lol9 \"&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;\">\n" +
                 "]>\n" +
                 "<lolz>&lol9;</lolz>";
-        XMLFactory.parse(xmlString).toString();
+        XmlFactory.parse(xmlString).toString();
     }
 }

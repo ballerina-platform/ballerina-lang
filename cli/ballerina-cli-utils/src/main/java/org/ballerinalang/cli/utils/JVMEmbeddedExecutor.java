@@ -19,8 +19,8 @@
 package org.ballerinalang.cli.utils;
 
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
@@ -120,9 +120,6 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 if (t instanceof io.ballerina.runtime.util.exceptions.BLangRuntimeException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
-                if (t instanceof io.ballerina.runtime.util.exceptions.BallerinaConnectorException) {
-                    throw new BLangRuntimeException(t.getMessage());
-                }
                 if (t instanceof BError) {
                     throw new BLangRuntimeException(
                             "error: " + ((BError) t).getPrintableStackTrace().replaceAll("\\{}", ""));
@@ -179,9 +176,6 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 if (t instanceof io.ballerina.runtime.util.exceptions.BLangRuntimeException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
-                if (t instanceof io.ballerina.runtime.util.exceptions.BallerinaConnectorException) {
-                    throw new BLangRuntimeException(t.getMessage());
-                }
                 if (t instanceof BError) {
                     throw new BLangRuntimeException(
                             "error: " + ((BError) t).getPrintableStackTrace().replaceAll("\\{}", ""));
@@ -227,9 +221,6 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             final Throwable t = out.getPanic();
             if (t != null) {
                 if (t instanceof io.ballerina.runtime.util.exceptions.BLangRuntimeException) {
-                    throw new BLangRuntimeException(t.getMessage());
-                }
-                if (t instanceof io.ballerina.runtime.util.exceptions.BallerinaConnectorException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof BError) {

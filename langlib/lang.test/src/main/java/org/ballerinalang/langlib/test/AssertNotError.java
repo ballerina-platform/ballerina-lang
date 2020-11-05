@@ -19,9 +19,9 @@
 package org.ballerinalang.langlib.test;
 
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.ErrorCreator;
-import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 
 /**
  * Native implementation of assertNotError(anydata|error value).

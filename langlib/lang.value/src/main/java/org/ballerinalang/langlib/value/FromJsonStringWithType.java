@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.langlib.value;
 
-import io.ballerina.runtime.JSONParser;
-import io.ballerina.runtime.api.ErrorCreator;
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.JsonParser;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.util.exceptions.BallerinaException;
 
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 
@@ -41,10 +41,10 @@ public class FromJsonStringWithType {
             if (str.equals("null")) {
                 return FromJsonWithType.fromJsonWithType(null, t);
             } else {
-                Object jsonFromString = JSONParser.parse(str);
+                Object jsonFromString = JsonParser.parse(str);
                 return FromJsonWithType.fromJsonWithType(jsonFromString, t);
             }
-        } catch (BallerinaException e) {
+        } catch (BError e) {
             return ErrorCreator.createError(VALUE_LANG_LIB_CONVERSION_ERROR,
                                             StringUtils.fromString(e.getMessage()));
         }

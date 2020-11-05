@@ -19,18 +19,18 @@ package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.CycleUtils;
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ArrayType.ArrayState;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.util.BLangConstants;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
@@ -45,7 +45,7 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
-import static io.ballerina.runtime.util.BLangConstants.ARRAY_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
@@ -938,7 +938,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
         switch (this.elementType.getTag()) {
             case TypeTags.STRING_TAG:
-                Arrays.fill(bStringValues, size, index, BLangConstants.STRING_EMPTY_VALUE);
+                Arrays.fill(bStringValues, size, index, RuntimeConstants.STRING_EMPTY_VALUE);
                 return;
             case TypeTags.INT_TAG:
             case TypeTags.SIGNED32_INT_TAG:
@@ -1077,7 +1077,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.BOOLEAN_TAG:
                 break;
             case TypeTags.STRING_TAG:
-                Arrays.fill(bStringValues, size, intIndex, BLangConstants.STRING_EMPTY_VALUE);
+                Arrays.fill(bStringValues, size, intIndex, RuntimeConstants.STRING_EMPTY_VALUE);
                 break;
             default:
                 for (int i = size; i <= index; i++) {

@@ -17,10 +17,10 @@
  */
 package io.ballerina.runtime;
 
-import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.scheduling.Strand;
 import io.ballerina.runtime.types.AttachedFunction;

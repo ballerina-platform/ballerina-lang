@@ -17,7 +17,6 @@
  */
 package io.ballerina.runtime;
 
-import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.values.ArrayValue;
@@ -41,7 +40,7 @@ import java.util.Map.Entry;
  * 
  * @since 0.995.0
  */
-public class JSONGenerator {
+public class JsonGenerator {
 
     private static final int DEFAULT_DEPTH = 10;
 
@@ -64,15 +63,15 @@ public class JSONGenerator {
         escChars['\t'] = true;
     }
 
-    public JSONGenerator(OutputStream out) {
+    public JsonGenerator(OutputStream out) {
         this(out, Charset.defaultCharset());
     }
 
-    public JSONGenerator(OutputStream out, Charset charset) {
+    public JsonGenerator(OutputStream out, Charset charset) {
         this(new BufferedWriter(new OutputStreamWriter(out, charset)));
     }
 
-    public JSONGenerator(Writer writer) {
+    public JsonGenerator(Writer writer) {
         this.writer = writer;
     }
 

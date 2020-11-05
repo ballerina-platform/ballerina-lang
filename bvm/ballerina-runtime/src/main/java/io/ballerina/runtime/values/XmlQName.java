@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BXMLQName;
+import io.ballerina.runtime.api.values.BXmlQName;
 
 import java.util.Map;
 import java.util.Objects;
@@ -36,7 +36,7 @@ import java.util.Objects;
  * 
  * @since 0.995.0
  */
-public final class XMLQName implements RefValue, BXMLQName {
+public final class XmlQName implements RefValue, BXmlQName {
 
     private String localName;
     private String uri;
@@ -50,14 +50,14 @@ public final class XMLQName implements RefValue, BXMLQName {
      * @param prefix Namespace prefix
      */
     @Deprecated
-    public XMLQName(String localName, String uri, String prefix) {
+    public XmlQName(String localName, String uri, String prefix) {
         this.localName = localName;
         this.uri = uri;
         this.prefix = prefix;
     }
 
     @Deprecated
-    public XMLQName(String qNameStr) {
+    public XmlQName(String qNameStr) {
         int parenEndIndex = qNameStr.indexOf('}');
         if (qNameStr.startsWith("{") && parenEndIndex > 0) {
             localName = qNameStr.substring(parenEndIndex + 1);
@@ -69,7 +69,7 @@ public final class XMLQName implements RefValue, BXMLQName {
     }
 
     @Deprecated
-    public XMLQName(BString localName, BString uri, BString prefix) {
+    public XmlQName(BString localName, BString uri, BString prefix) {
         this.localName = localName.getValue();
         if (uri != null) {
             this.uri = uri.getValue();
@@ -80,7 +80,7 @@ public final class XMLQName implements RefValue, BXMLQName {
     }
 
     @Deprecated
-    public XMLQName(BString qNameStrVal) {
+    public XmlQName(BString qNameStrVal) {
         this(qNameStrVal.getValue());
     }
 
@@ -111,7 +111,7 @@ public final class XMLQName implements RefValue, BXMLQName {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof XMLQName)) {
+        if (!(obj instanceof XmlQName)) {
             return false;
         }
 
@@ -129,7 +129,7 @@ public final class XMLQName implements RefValue, BXMLQName {
             return this;
         }
 
-        return new XMLQName(localName, uri, prefix);
+        return new XmlQName(localName, uri, prefix);
     }
 
     /**
@@ -137,7 +137,7 @@ public final class XMLQName implements RefValue, BXMLQName {
      */
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
-        XMLQName copy = (XMLQName) copy(refs);
+        XmlQName copy = (XmlQName) copy(refs);
         if (!copy.isFrozen()) {
             copy.freezeDirect();
         }

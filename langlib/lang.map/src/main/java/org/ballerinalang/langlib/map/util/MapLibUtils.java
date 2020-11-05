@@ -18,17 +18,17 @@
 
 package org.ballerinalang.langlib.map.util;
 
-import io.ballerina.runtime.api.ErrorCreator;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,7 +36,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 import static io.ballerina.runtime.MapUtils.createOpNotSupportedError;
-import static io.ballerina.runtime.util.BLangConstants.MAP_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
@@ -90,7 +90,7 @@ public class MapLibUtils {
         Map<String, Field> fields = type.getFields();
         Field field = fields.get(k);
 
-        return (field != null && Flags.isFlagOn(field.getFlags(), Flags.REQUIRED));
+        return (field != null && SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.REQUIRED));
     }
 
     private static BError createOpNotSupportedErrorForRecord(Type type, String field) {

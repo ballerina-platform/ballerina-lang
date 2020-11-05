@@ -23,7 +23,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public interface BXMLSequence extends BXml {
+public interface BXmlSequence extends BXml {
 
     List<BXml> getChildrenList();
 }

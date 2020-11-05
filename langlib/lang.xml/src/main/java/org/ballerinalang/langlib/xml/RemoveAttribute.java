@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.scheduling.Strand;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 
@@ -37,7 +37,7 @@ public class RemoveAttribute {
 
     private static final String OPERATION = "remove attribute";
 
-    public static void removeAttribute(Strand strand, BXML xml, String qname) {
+    public static void removeAttribute(Strand strand, BXml xml, String qname) {
         try {
             xml.removeAttribute(qname);
         } catch (Throwable e) {

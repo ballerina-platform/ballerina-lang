@@ -17,11 +17,11 @@
  */
 package io.ballerina.runtime;
 
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.JsonUtils;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.types.BArrayType;
@@ -48,7 +48,7 @@ import java.util.Deque;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class JSONParser {
+public class JsonParser {
 
     private static ThreadLocal<StateMachine> tlStateMachine = new ThreadLocal<StateMachine>() {
         @Override

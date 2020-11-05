@@ -17,17 +17,17 @@
  */
 package io.ballerina.runtime.util.exceptions;
 
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
-import static io.ballerina.runtime.util.BLangConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.util.BLangConstants.FUTURE_LANG_LIB;
-import static io.ballerina.runtime.util.BLangConstants.MAP_LANG_LIB;
-import static io.ballerina.runtime.util.BLangConstants.STRING_LANG_LIB;
-import static io.ballerina.runtime.util.BLangConstants.TABLE_LANG_LIB;
-import static io.ballerina.runtime.util.BLangConstants.TYPEDESC_LANG_LIB;
-import static io.ballerina.runtime.util.BLangConstants.VALUE_LANG_LIB;
-import static io.ballerina.runtime.util.BLangConstants.XML_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.FUTURE_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.TYPEDESC_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.VALUE_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 
 /**
  * This is a temporary class for reasons for Ballerina errors from the VM either returned or causing panic.

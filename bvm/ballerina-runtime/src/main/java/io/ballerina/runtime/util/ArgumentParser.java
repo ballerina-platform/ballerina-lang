@@ -17,14 +17,15 @@
  */
 package io.ballerina.runtime.util;
 
-import io.ballerina.runtime.JSONParser;
-import io.ballerina.runtime.JSONUtils;
-import io.ballerina.runtime.XMLFactory;
-import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.JsonParser;
+import io.ballerina.runtime.internal.JsonUtils;
+import io.ballerina.runtime.XmlFactory;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.types.BArrayType;
 import io.ballerina.runtime.types.BMapType;
 import io.ballerina.runtime.types.BStructureType;
@@ -200,22 +201,22 @@ public class ArgumentParser {
                 return getByteValue(value);
             case TypeTags.XML_TAG:
                 try {
-                    return XMLFactory.parse(value);
+                    return XmlFactory.parse(value);
                 } catch (RuntimeException e) {
                     throw ErrorCreator.createError(StringUtils.fromString("invalid argument '" + value + "', " +
                                                                                    "expected XML value"));
                 }
             case TypeTags.JSON_TAG:
                 try {
-                    return JSONParser.parse(value);
-                } catch (BallerinaException e) {
+                    return JsonParser.parse(value);
+                } catch (BError e) {
                     throw ErrorCreator.createError(StringUtils.fromString("invalid argument '" + value + "', " +
                                                                                    "expected JSON value"));
                 }
             case TypeTags.RECORD_TYPE_TAG:
                 try {
-                    return JSONUtils.convertJSONToRecord(JSONParser.parse(value), (BStructureType) type);
-                } catch (BallerinaException e) {
+                    return JsonUtils.convertJSONToRecord(JsonParser.parse(value), (BStructureType) type);
+                } catch (BError e) {
                     throw ErrorCreator.createError(StringUtils.fromString("invalid argument '" + value
                             + "', error constructing record of type: " + type + ": "
                             + e.getLocalizedMessage().split(JSON_PARSER_ERROR)[0]));
@@ -228,14 +229,14 @@ public class ArgumentParser {
                 return parseTupleArg((BTupleType) type, value.substring(1, value.length() - 1));
             case TypeTags.ARRAY_TAG:
                 try {
-                    return JSONUtils.convertJSONToBArray(JSONParser.parse(value), (BArrayType) type);
+                    return JsonUtils.convertJSONToBArray(JsonParser.parse(value), (BArrayType) type);
                 } catch (BallerinaException | ErrorValue e) {
                     throw ErrorCreator.createError(StringUtils.fromString("invalid argument '" + value
                             + "', expected array elements of " + "type: " + ((BArrayType) type).getElementType()));
                 }
             case TypeTags.MAP_TAG:
                 try {
-                    return JSONUtils.jsonToMap(JSONParser.parse(value), (BMapType) type);
+                    return JsonUtils.jsonToMap(JsonParser.parse(value), (BMapType) type);
                 } catch (ErrorValue | BallerinaException e) {
                     throw ErrorCreator.createError(StringUtils.fromString("invalid argument '" + value
                             + "', expected map argument of element type: " + ((BMapType) type).getConstrainedType()));

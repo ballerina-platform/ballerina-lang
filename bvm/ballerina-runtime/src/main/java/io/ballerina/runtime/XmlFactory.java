@@ -18,20 +18,20 @@
 package io.ballerina.runtime;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.api.values.BXMLQName;
+import io.ballerina.runtime.api.values.BXmlQName;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
 import io.ballerina.runtime.values.TableValueImpl;
-import io.ballerina.runtime.values.XMLComment;
-import io.ballerina.runtime.values.XMLItem;
-import io.ballerina.runtime.values.XMLPi;
-import io.ballerina.runtime.values.XMLSequence;
-import io.ballerina.runtime.values.XMLText;
-import io.ballerina.runtime.values.XMLValue;
+import io.ballerina.runtime.values.XmlComment;
+import io.ballerina.runtime.values.XmlItem;
+import io.ballerina.runtime.values.XmlPi;
+import io.ballerina.runtime.values.XmlSequence;
+import io.ballerina.runtime.values.XmlText;
+import io.ballerina.runtime.values.XmlValue;
 import org.apache.axiom.om.DeferredParsingException;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
@@ -56,14 +56,14 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import static io.ballerina.runtime.values.XMLItem.createXMLItemWithDefaultNSAttribute;
+import static io.ballerina.runtime.values.XmlItem.createXMLItemWithDefaultNSAttribute;
 
 /**
  * Common utility methods used for XML manipulation.
  * 
  * @since 0.995.0
  */
-public class XMLFactory {
+public class XmlFactory {
     public static final StAXParserConfiguration STAX_PARSER_CONFIGURATION = StAXParserConfiguration.STANDALONE;
     /**
      * Create a XML item from string literal.
@@ -74,10 +74,10 @@ public class XMLFactory {
     public static BXml parse(String xmlStr) {
         try {
             if (xmlStr.isEmpty()) {
-                return new XMLSequence();
+                return new XmlSequence();
             }
 
-            XMLTreeBuilder treeBuilder = new XMLTreeBuilder(xmlStr);
+            XmlTreeBuilder treeBuilder = new XmlTreeBuilder(xmlStr);
             return treeBuilder.parse();
         } catch (BError e) {
             throw e;
@@ -94,7 +94,7 @@ public class XMLFactory {
      */
     public static BXml parse(InputStream xmlStream) {
         try {
-            XMLTreeBuilder treeBuilder = new XMLTreeBuilder(new InputStreamReader(xmlStream));
+            XmlTreeBuilder treeBuilder = new XmlTreeBuilder(new InputStreamReader(xmlStream));
             return treeBuilder.parse();
         } catch (DeferredParsingException e) {
             throw ErrorCreator.createError(StringUtils.fromString((e.getCause().getMessage())));
@@ -112,7 +112,7 @@ public class XMLFactory {
      */
     public static BXml parse(InputStream xmlStream, String charset) {
         try {
-            XMLTreeBuilder xmlTreeBuilder = new XMLTreeBuilder(new InputStreamReader(xmlStream, charset));
+            XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder(new InputStreamReader(xmlStream, charset));
             return xmlTreeBuilder.parse();
         } catch (DeferredParsingException e) {
             throw ErrorCreator.createError(StringUtils.fromString((e.getCause().getMessage())));
@@ -129,7 +129,7 @@ public class XMLFactory {
      */
     public static BXml parse(Reader reader) {
         try {
-            XMLTreeBuilder xmlTreeBuilder = new XMLTreeBuilder(reader);
+            XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder(reader);
             return xmlTreeBuilder.parse();
         } catch (DeferredParsingException e) {
             throw ErrorCreator.createError(StringUtils.fromString(e.getCause().getMessage()));
@@ -145,16 +145,16 @@ public class XMLFactory {
      * @param secondSeq Second XML sequence
      * @return Concatenated XML sequence
      */
-    public static XMLValue concatenate(XMLValue firstSeq, XMLValue secondSeq) {
+    public static XmlValue concatenate(XmlValue firstSeq, XmlValue secondSeq) {
         ArrayList<BXml> concatenatedList = new ArrayList<>();
 
         if (firstSeq.getNodeType() == XmlNodeType.TEXT && secondSeq.getNodeType() == XmlNodeType.TEXT) {
-            return new XMLText(firstSeq.getTextValue() + secondSeq.getTextValue());
+            return new XmlText(firstSeq.getTextValue() + secondSeq.getTextValue());
         }
 
         // Add all the items in the first sequence
         if (firstSeq.getNodeType() == XmlNodeType.SEQUENCE) {
-            concatenatedList.addAll(((XMLSequence) firstSeq).getChildrenList());
+            concatenatedList.addAll(((XmlSequence) firstSeq).getChildrenList());
         } else if (!firstSeq.isEmpty()) {
             concatenatedList.add(firstSeq);
         }
@@ -165,45 +165,45 @@ public class XMLFactory {
             int lastIndexOFLeftChildren = concatenatedList.size() - 1;
             BXml lastItem = concatenatedList.get(lastIndexOFLeftChildren);
             if (lastItem.getNodeType() == XmlNodeType.TEXT && secondSeq.getNodeType() == XmlNodeType.SEQUENCE) {
-                List<BXml> rightChildren = ((XMLSequence) secondSeq).getChildrenList();
+                List<BXml> rightChildren = ((XmlSequence) secondSeq).getChildrenList();
                 if (!rightChildren.isEmpty()) {
                     BXml firsOfRightSeq = rightChildren.get(0);
                     if (firsOfRightSeq.getNodeType() == XmlNodeType.TEXT) {
                         concatenatedList.remove(lastIndexOFLeftChildren); // remove last item, from already copied list
                         concatenatedList.addAll(rightChildren);
-                        String merged = ((XMLText) lastItem).getTextValue() + ((XMLText) firsOfRightSeq).getTextValue();
-                        concatenatedList.set(lastIndexOFLeftChildren, new XMLText(merged));
-                        return new XMLSequence(concatenatedList);
+                        String merged = ((XmlText) lastItem).getTextValue() + ((XmlText) firsOfRightSeq).getTextValue();
+                        concatenatedList.set(lastIndexOFLeftChildren, new XmlText(merged));
+                        return new XmlSequence(concatenatedList);
                     }
                 }
             } else if (lastItem.getNodeType() == XmlNodeType.TEXT && secondSeq.getNodeType() == XmlNodeType.TEXT) {
                 String merged = lastItem.getTextValue() + secondSeq.getTextValue();
-                concatenatedList.set(lastIndexOFLeftChildren, new XMLText(merged));
-                return new XMLSequence(concatenatedList);
+                concatenatedList.set(lastIndexOFLeftChildren, new XmlText(merged));
+                return new XmlSequence(concatenatedList);
             }
         }
 
         // Add all the items in the second sequence
         if (secondSeq.getNodeType() == XmlNodeType.SEQUENCE) {
-            concatenatedList.addAll(((XMLSequence) secondSeq).getChildrenList());
+            concatenatedList.addAll(((XmlSequence) secondSeq).getChildrenList());
         } else if (!secondSeq.isEmpty()) {
             concatenatedList.add(secondSeq);
         }
 
-        return new XMLSequence(concatenatedList);
+        return new XmlSequence(concatenatedList);
     }
 
     /**
-     * Converts a {@link io.ballerina.runtime.values.TableValue} to {@link XMLValue}.
+     * Converts a {@link io.ballerina.runtime.values.TableValue} to {@link XmlValue}.
      *
      * @param table {@link io.ballerina.runtime.values.TableValue} to convert
-     * @return converted {@link XMLValue}
+     * @return converted {@link XmlValue}
      */
     public static BXml tableToXML(TableValueImpl table) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             XMLStreamWriter streamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream);
-            TableOMDataSource tableOMDataSource = new TableOMDataSource(table, null, null);
+            TableOmDataSource tableOMDataSource = new TableOmDataSource(table, null, null);
             tableOMDataSource.serialize(streamWriter);
             streamWriter.flush();
             outputStream.flush();
@@ -223,7 +223,7 @@ public class XMLFactory {
      * @return XMLValue Element type XMLValue
      */
     @Deprecated
-    public static XMLValue createXMLElement(BXMLQName startTagName, BXMLQName endTagName, String defaultNsUri) {
+    public static XmlValue createXMLElement(BXmlQName startTagName, BXmlQName endTagName, String defaultNsUri) {
         if (!isEqual(startTagName.getLocalName(), endTagName.getLocalName()) ||
                 !isEqual(startTagName.getUri(), endTagName.getUri()) ||
                 !isEqual(startTagName.getPrefix(), endTagName.getPrefix())) {
@@ -242,11 +242,11 @@ public class XMLFactory {
      * @return XMLValue Element type XMLValue
      */
     @Deprecated
-    public static XMLValue createXMLElement(BXMLQName startTagName, String defaultNsUri) {
+    public static XmlValue createXMLElement(BXmlQName startTagName, String defaultNsUri) {
         return createXMLElement(startTagName, defaultNsUri, false);
     }
 
-    public static XMLValue createXMLElement(BXMLQName startTagName, BString defaultNsUriVal) {
+    public static XmlValue createXMLElement(BXmlQName startTagName, BString defaultNsUriVal) {
         return createXMLElement(startTagName,
                 defaultNsUriVal == null ? XMLConstants.NULL_NS_URI : defaultNsUriVal.getValue());
     }
@@ -260,9 +260,9 @@ public class XMLFactory {
      * @return XMLValue Element type XMLValue
      */
     @Deprecated
-    public static XMLValue createXMLElement(BXMLQName startTagName, String defaultNsUri, boolean readonly) {
+    public static XmlValue createXMLElement(BXmlQName startTagName, String defaultNsUri, boolean readonly) {
         // Validate whether the tag names are XML supported qualified names, according to the XML recommendation.
-        XMLValidator.validateXMLQName(startTagName);
+        XmlValidator.validateXMLQName(startTagName);
 
         String nsUri = startTagName.getUri();
         if (defaultNsUri == null) {
@@ -272,13 +272,13 @@ public class XMLFactory {
         String prefix = startTagName.getPrefix() == null ? XMLConstants.DEFAULT_NS_PREFIX : startTagName.getPrefix();
 
         if (nsUri == null) {
-            return new XMLItem(new QName(defaultNsUri, startTagName.getLocalName(), prefix), readonly);
+            return new XmlItem(new QName(defaultNsUri, startTagName.getLocalName(), prefix), readonly);
         }
         return createXMLItemWithDefaultNSAttribute(new QName(nsUri, startTagName.getLocalName(), prefix), readonly,
                                                    defaultNsUri);
     }
 
-    public static XMLValue createXMLElement(BXMLQName startTagName, BString defaultNsUriVal, boolean readonly) {
+    public static XmlValue createXMLElement(BXmlQName startTagName, BString defaultNsUriVal, boolean readonly) {
         return createXMLElement(startTagName,
                                 defaultNsUriVal == null ? XMLConstants.NULL_NS_URI : defaultNsUriVal.getValue(),
                                 readonly);
@@ -291,8 +291,8 @@ public class XMLFactory {
      * @return XMLValue Comment type XMLValue
      */
     @Deprecated
-    public static XMLValue createXMLComment(String content) {
-        return new XMLComment(content);
+    public static XmlValue createXMLComment(String content) {
+        return new XmlComment(content);
     }
 
     /**
@@ -301,7 +301,7 @@ public class XMLFactory {
      * @param content Comment content
      * @return XMLValue Comment type XMLValue
      */
-    public static XMLValue createXMLComment(BString content) {
+    public static XmlValue createXMLComment(BString content) {
         return createXMLComment(content.getValue());
     }
 
@@ -313,8 +313,8 @@ public class XMLFactory {
      * @return XMLValue Comment type XMLValue
      */
     @Deprecated
-    public static XMLValue createXMLComment(String content, boolean readonly) {
-        return new XMLComment(content, readonly);
+    public static XmlValue createXMLComment(String content, boolean readonly) {
+        return new XmlComment(content, readonly);
     }
 
     /**
@@ -324,7 +324,7 @@ public class XMLFactory {
      * @param readonly  Whether the comment is immutable
      * @return XMLValue Comment type XMLValue
      */
-    public static XMLValue createXMLComment(BString content, boolean readonly) {
+    public static XmlValue createXMLComment(BString content, boolean readonly) {
         return createXMLComment(content.getValue(), readonly);
     }
 
@@ -335,8 +335,8 @@ public class XMLFactory {
      * @return XMLValue Text type XMLValue
      */
     @Deprecated
-    public static XMLValue createXMLText(String content) {
-        return new XMLText(XMLTextUnescape.unescape(content));
+    public static XmlValue createXMLText(String content) {
+        return new XmlText(XMLTextUnescape.unescape(content));
     }
 
     /**
@@ -345,7 +345,7 @@ public class XMLFactory {
      * @param contentVal Text content
      * @return XMLValue Text type XMLValue
      */
-    public static XMLValue createXMLText(BString contentVal) {
+    public static XmlValue createXMLText(BString contentVal) {
         return createXMLText(contentVal.getValue());
     }
 
@@ -357,8 +357,8 @@ public class XMLFactory {
      * @return XMLValue Processing instruction type XMLValue
      */
     @Deprecated
-    public static XMLValue createXMLProcessingInstruction(String tartget, String data) {
-        return new XMLPi(data, tartget);
+    public static XmlValue createXMLProcessingInstruction(String tartget, String data) {
+        return new XmlPi(data, tartget);
     }
 
     /**
@@ -368,7 +368,7 @@ public class XMLFactory {
      * @param data    PI data
      * @return XMLValue Processing instruction type XMLValue
      */
-    public static XMLValue createXMLProcessingInstruction(BString tartget, BString data) {
+    public static XmlValue createXMLProcessingInstruction(BString tartget, BString data) {
         return createXMLProcessingInstruction(tartget.getValue(), data.getValue());
     }
 
@@ -381,8 +381,8 @@ public class XMLFactory {
      * @return XMLValue Processing instruction type XMLValue
      */
     @Deprecated
-    public static XMLValue createXMLProcessingInstruction(String target, String data, boolean readonly) {
-        return new XMLPi(data, target, readonly);
+    public static XmlValue createXMLProcessingInstruction(String target, String data, boolean readonly) {
+        return new XmlPi(data, target, readonly);
     }
 
     /**
@@ -393,7 +393,7 @@ public class XMLFactory {
      * @param readonly  Whether the PI is immutable
      * @return XMLValue Processing instruction type XMLValue
      */
-    public static XMLValue createXMLProcessingInstruction(BString target, BString data, boolean readonly) {
+    public static XmlValue createXMLProcessingInstruction(BString target, BString data, boolean readonly) {
         return createXMLProcessingInstruction(target.getValue(), data.getValue(), readonly);
     }
 

@@ -18,6 +18,8 @@
 package io.ballerina.runtime.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.types.TypeId;
+import io.ballerina.runtime.api.types.TypeIdSet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +29,7 @@ import java.util.List;
  *
  * @since 2.0
  */
-public class BTypeIdSet {
+public class BTypeIdSet implements TypeIdSet {
     List<TypeId> ids;
 
     public BTypeIdSet() {
@@ -35,7 +37,7 @@ public class BTypeIdSet {
     }
 
     public void add(Module pkg, String name, boolean isPrimary) {
-        ids.add(new TypeId(pkg, name, isPrimary));
+        ids.add(new BTypeId(pkg, name, isPrimary));
     }
 
     public boolean containsAll(BTypeIdSet other) {
@@ -46,7 +48,7 @@ public class BTypeIdSet {
         for (TypeId id : other.ids) {
             boolean found = false;
             for (TypeId otherTypeId : ids) {
-                if (id.name.equals(otherTypeId.name) && id.pkg.equals(otherTypeId.pkg)) {
+                if (id.getName().equals(otherTypeId.getName()) && id.getPkg().equals(otherTypeId.getPkg())) {
                     found = true;
                     break;
                 }
@@ -58,17 +60,22 @@ public class BTypeIdSet {
         return true;
     }
 
+    @Override
+    public List<TypeId> getIds() {
+        return ids;
+    }
+
     /**
      * Represent Ballerina distinct type id.
      *
      * @since 2.0
      */
-    public static class TypeId {
+    public static class BTypeId implements TypeId {
         final Module pkg;
         final String name;
         final boolean isPrimary;
 
-        public TypeId(Module pkg, String name, boolean isPrimary) {
+        public BTypeId(Module pkg, String name, boolean isPrimary) {
             this.pkg = pkg;
             this.name = name;
             this.isPrimary = isPrimary;
@@ -85,11 +92,26 @@ public class BTypeIdSet {
                 return true;
             }
 
-            if (obj instanceof TypeId) {
-                TypeId that = (TypeId) obj;
+            if (obj instanceof BTypeId) {
+                BTypeId that = (BTypeId) obj;
                 return this.name.equals(that.name) && this.pkg.equals(that.pkg);
             }
             return false;
+        }
+
+        @Override
+        public Module getPkg() {
+            return pkg;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public boolean isPrimary() {
+            return isPrimary;
         }
     }
 }

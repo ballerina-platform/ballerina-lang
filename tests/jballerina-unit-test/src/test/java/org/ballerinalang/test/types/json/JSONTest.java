@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.test.types.json;
 
-import io.ballerina.runtime.JSONDataSource;
+import io.ballerina.runtime.JsonDataSource;
 import io.ballerina.runtime.values.StreamingJsonValue;
 import org.ballerinalang.core.model.types.TypeTags;
 import org.ballerinalang.core.model.util.JsonParser;
@@ -197,7 +197,7 @@ public class JSONTest {
 
     @Test
     public void testStreamingJsonType() {
-        StreamingJsonValue jsonValue = new StreamingJsonValue(Mockito.mock(JSONDataSource.class));
+        StreamingJsonValue jsonValue = new StreamingJsonValue(Mockito.mock(JsonDataSource.class));
         Assert.assertEquals(jsonValue.getType().toString(), "map<json>[]");
     }
 }

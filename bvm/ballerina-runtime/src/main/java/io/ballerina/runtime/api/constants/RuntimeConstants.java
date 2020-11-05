@@ -126,4 +126,31 @@ public class RuntimeConstants {
     public static final String DEFAULT_LOG_FILE_HANDLER_PATTERN =
             "org.ballerinalang.logging.handlers.DefaultLogFileHandler.pattern";
 
+
+    // Ballerina version system property name
+    public static final String BALLERINA_VERSION = "ballerina.version";
+
+    // Name of the system property to hold the debug port
+    public static final String SYSTEM_PROP_BAL_DEBUG = "debug";
+
+    // Transaction constants
+    public static final String GLOBAL_TRANSACTION_ID = "globalTransactionId";
+    public static final String TRANSACTION_URL = "transactionUrl";
+
+    // Instance id key
+    public static final String STATE_ID = "b7a.state.id";
+    public static final String IS_INTERRUPTIBLE = "b7a.state.interruptible";
+
+    // Serialization related Constants
+    public static final String TYPE = "type";
+    public static final String DATA = "data";
+    public static final String NULL = "null";
+
+    // Default worker name
+    public static final String DEFAULT = "default";
+
+    public static final String DISTRIBUTED_TRANSACTIONS = "b7a.distributed.transactions.enabled";
+
+    public static final String FALSE = "false";
+
 }

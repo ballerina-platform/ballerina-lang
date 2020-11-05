@@ -18,7 +18,7 @@
 
 package io.ballerina.runtime;
 
-import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.scheduling.Strand;
 import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
 

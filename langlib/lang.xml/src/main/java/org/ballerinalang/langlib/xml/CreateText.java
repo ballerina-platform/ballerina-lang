@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.XmlFactory;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXml;
 
 /**
  * Create XML text value from string.
@@ -28,7 +28,7 @@ import io.ballerina.runtime.api.values.BXML;
  */
 public class CreateText {
 
-    public static BXML createText(BString string) {
-        return XMLFactory.createXMLText(string);
+    public static BXml createText(BString string) {
+        return XmlFactory.createXMLText(string);
     }
 }

@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.packaging;
 
-import io.ballerina.runtime.JSONParser;
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.JsonParser;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.values.MapValue;
 import org.awaitility.Duration;
 import org.ballerinalang.cli.module.util.Utils;
@@ -202,7 +202,7 @@ public class PackagingTestCase extends BaseTest {
                 while ((line = reader.readLine()) != null) {
                     result.append(line);
                 }
-                Object payload = JSONParser.parse(result.toString());
+                Object payload = JsonParser.parse(result.toString());
                 if (payload instanceof MapValue) {
                     long pullCount = ((MapValue) payload).getIntValue(StringUtils.fromString("totalPullCount"));
                     Assert.assertEquals(pullCount, totalPullCount);

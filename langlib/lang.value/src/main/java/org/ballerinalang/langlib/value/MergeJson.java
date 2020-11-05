@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.value;
 
-import io.ballerina.runtime.JSONUtils;
+import io.ballerina.runtime.internal.JsonUtils;
 
 
 /**
@@ -29,7 +29,7 @@ import io.ballerina.runtime.JSONUtils;
 public class MergeJson {
 
     public static Object mergeJson(Object j1, Object j2) {
-        return JSONUtils.mergeJson(j1, j2, true);
+        return JsonUtils.mergeJson(j1, j2, true);
     }
 
 }

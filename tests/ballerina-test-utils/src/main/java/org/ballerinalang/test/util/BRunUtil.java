@@ -19,21 +19,21 @@ package org.ballerinalang.test.util;
 
 import io.ballerina.runtime.DecimalValueKind;
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.XMLFactory;
-import io.ballerina.runtime.XMLNodeType;
+import io.ballerina.runtime.XmlFactory;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.TypeCreator;
-import io.ballerina.runtime.api.TypeFlags;
-import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypedescType;
+import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
 import io.ballerina.runtime.util.exceptions.BLangRuntimeException;
@@ -52,8 +52,8 @@ import io.ballerina.runtime.values.NonBmpStringValue;
 import io.ballerina.runtime.values.ObjectValue;
 import io.ballerina.runtime.values.StreamValue;
 import io.ballerina.runtime.values.TypedescValue;
-import io.ballerina.runtime.values.XMLSequence;
-import io.ballerina.runtime.values.XMLValue;
+import io.ballerina.runtime.values.XmlSequence;
+import io.ballerina.runtime.values.XmlValue;
 import org.apache.axiom.om.OMNode;
 import org.ballerinalang.core.model.types.BArrayType;
 import org.ballerinalang.core.model.types.BErrorType;
@@ -110,8 +110,8 @@ import java.util.Stack;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static io.ballerina.runtime.util.BLangConstants.ANON_ORG;
-import static io.ballerina.runtime.util.BLangConstants.DOT;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
 
 /**
@@ -140,8 +140,8 @@ public class BRunUtil {
 
             if (arg instanceof ObjectValue) {
                 paramTypes[i] = ObjectValue.class;
-            } else if (arg instanceof XMLValue) {
-                paramTypes[i] = XMLValue.class;
+            } else if (arg instanceof XmlValue) {
+                paramTypes[i] = XmlValue.class;
             } else if (arg instanceof BmpStringValue) {
                 paramTypes[i] = BmpStringValue.class;
             } else if (arg instanceof NonBmpStringValue) {
@@ -364,7 +364,7 @@ public class BRunUtil {
                     typeClazz = MapValue.class;
                     break;
                 case TypeTags.XML_TAG:
-                    typeClazz = XMLValue.class;
+                    typeClazz = XmlValue.class;
                     break;
                 case TypeTags.OBJECT_TYPE_TAG:
                     typeClazz = ObjectValue.class;
@@ -548,19 +548,19 @@ public class BRunUtil {
             case TypeTags.XML_TAG:
                 org.ballerinalang.core.model.values.BXML xml = (org.ballerinalang.core.model.values.BXML) value;
                 if (xml.getNodeType() == org.ballerinalang.core.model.util.XMLNodeType.TEXT) {
-                    return XMLFactory.createXMLText(xml.stringValue());
+                    return XmlFactory.createXMLText(xml.stringValue());
                 }
                 if (xml.getNodeType() != org.ballerinalang.core.model.util.XMLNodeType.SEQUENCE) {
-                    return XMLFactory.parse(xml.stringValue());
+                    return XmlFactory.parse(xml.stringValue());
                 } else {
                     BValueArray elements = ((BXMLSequence) xml).value();
                     ArrayValue arrayValue = (ArrayValue) getJVMValue(elements.getType(), elements);
 
-                    List<BXML> list = new ArrayList<>();
+                    List<BXml> list = new ArrayList<>();
                     for (int i = 0; i < arrayValue.size(); i++) {
-                        list.add((BXML) arrayValue.getRefValue(i));
+                        list.add((BXml) arrayValue.getRefValue(i));
                     }
-                    return new XMLSequence(list);
+                    return new XmlSequence(list);
                 }
             case TypeTags.HANDLE_TAG:
                 BHandleValue handleValue = (BHandleValue) value;
@@ -669,16 +669,16 @@ public class BRunUtil {
             case TypeTags.XML_TAG:
                 org.ballerinalang.core.model.values.BXML xml = (org.ballerinalang.core.model.values.BXML) value;
                 if (xml.getNodeType() != org.ballerinalang.core.model.util.XMLNodeType.SEQUENCE) {
-                    return XMLFactory.parse(xml.stringValue());
+                    return XmlFactory.parse(xml.stringValue());
                 }
                 BValueArray elements = ((BXMLSequence) xml).value();
                 ArrayValue jvmValue = (ArrayValue) getJVMValue(elements.getType(), elements);
-                List<BXML> list = new ArrayList<>();
+                List<BXml> list = new ArrayList<>();
                 for (Object v : jvmValue.getValues()) {
-                    list.add((BXML) v);
+                    list.add((BXml) v);
                 }
 
-                return new XMLSequence(list);
+                return new XmlSequence(list);
             case TypeTags.HANDLE_TAG:
                 BHandleValue bHandleValue = (BHandleValue) value;
                 return new HandleValue(bHandleValue.getValue());
@@ -966,15 +966,15 @@ public class BRunUtil {
             case io.ballerina.runtime.api.TypeTags.XML_COMMENT_TAG:
             case io.ballerina.runtime.api.TypeTags.XML_PI_TAG:
             case io.ballerina.runtime.api.TypeTags.XML_TEXT_TAG:
-                if (value instanceof XMLValue) {
-                    if (((XMLValue) value).getNodeType() != XMLNodeType.SEQUENCE) {
-                        BXMLItem bxmlItem = new BXMLItem((OMNode) ((XMLValue) value).value());
+                if (value instanceof XmlValue) {
+                    if (((XmlValue) value).getNodeType() != XmlNodeType.SEQUENCE) {
+                        BXMLItem bxmlItem = new BXMLItem((OMNode) ((XmlValue) value).value());
                         bvmValue = bxmlItem;
                         break;
                     } else {
                         io.ballerina.runtime.api.types.ArrayType bArrayType =
                                 TypeCreator.createArrayType(PredefinedTypes.TYPE_XML);
-                        ArrayValue arrayValue = new ArrayValueImpl(((XMLSequence) value).getChildrenList().toArray(),
+                        ArrayValue arrayValue = new ArrayValueImpl(((XmlSequence) value).getChildrenList().toArray(),
                                 bArrayType);
 
                         bvmValue = new BXMLSequence((BValueArray) getBVMValue(arrayValue));

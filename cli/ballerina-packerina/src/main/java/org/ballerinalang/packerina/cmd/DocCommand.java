@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.packerina.cmd;
 
-import io.ballerina.runtime.util.BLangConstants;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.packerina.JarResolverImpl;
@@ -217,7 +217,7 @@ public class DocCommand implements BLauncherCmd {
             }
         
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
-        } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+        } else if (this.argList.get(0).endsWith(RuntimeConstants.BLANG_SRC_FILE_SUFFIX)) {
             CommandUtil.printError(this.errStream,
                     "generating API Documentation is not supported for a single Ballerina file.",
                     null,

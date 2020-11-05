@@ -16,14 +16,14 @@
  */
 package io.ballerina.runtime.scheduling;
 
-import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.util.BLangConstants;
 import io.ballerina.runtime.util.RuntimeUtils;
 import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.values.ChannelDetails;
@@ -64,7 +64,7 @@ public class Scheduler {
 
     private AtomicInteger totalStrands = new AtomicInteger();
 
-    private static String poolSizeConf = System.getenv(BLangConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
+    private static String poolSizeConf = System.getenv(RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
 
     /**
      * This can be changed by setting the BALLERINA_MAX_POOL_SIZE system variable.
@@ -84,7 +84,7 @@ public class Scheduler {
         } catch (Throwable t) {
             // Log and continue with default
             err.println("ballerina: error occurred in scheduler while reading system variable:" +
-                                BLangConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR + ", " + t.getMessage());
+                                RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR + ", " + t.getMessage());
         }
         this.numThreads = poolSize;
         this.immortal = immortal;

@@ -21,11 +21,11 @@ import com.ctc.wstx.api.WstxOutputProperties;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.values.XMLComment;
-import io.ballerina.runtime.values.XMLItem;
-import io.ballerina.runtime.values.XMLPi;
-import io.ballerina.runtime.values.XMLSequence;
-import io.ballerina.runtime.values.XMLText;
+import io.ballerina.runtime.values.XmlComment;
+import io.ballerina.runtime.values.XmlItem;
+import io.ballerina.runtime.values.XmlPi;
+import io.ballerina.runtime.values.XmlSequence;
+import io.ballerina.runtime.values.XmlText;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -48,7 +48,7 @@ import javax.xml.stream.XMLStreamWriter;
  *
  * @since 1.2.0
  */
-public class BallerinaXMLSerializer extends OutputStream {
+public class BallerinaXmlSerializer extends OutputStream {
     private static final XMLOutputFactory xmlOutputFactory;
     private static final String XMLNS = "xmlns";
     private static final String EMPTY_STR = "";
@@ -67,7 +67,7 @@ public class BallerinaXMLSerializer extends OutputStream {
 
 
 
-    public BallerinaXMLSerializer(OutputStream outputStream) {
+    public BallerinaXmlSerializer(OutputStream outputStream) {
         try {
             xmlStreamWriter = xmlOutputFactory.createXMLStreamWriter(outputStream);
             parentNSSet = new ArrayDeque<>();
@@ -106,19 +106,19 @@ public class BallerinaXMLSerializer extends OutputStream {
         try {
             switch (xmlValue.getNodeType()) {
                 case SEQUENCE:
-                    writeSeq((XMLSequence) xmlValue);
+                    writeSeq((XmlSequence) xmlValue);
                     break;
                 case ELEMENT:
-                    writeElement((XMLItem) xmlValue);
+                    writeElement((XmlItem) xmlValue);
                     break;
                 case TEXT:
-                    writeXMLText((XMLText) xmlValue);
+                    writeXMLText((XmlText) xmlValue);
                     break;
                 case COMMENT:
-                    writeXMLComment((XMLComment) xmlValue);
+                    writeXMLComment((XmlComment) xmlValue);
                     break;
                 case PI:
-                    writeXMLPI((XMLPi) xmlValue);
+                    writeXMLPI((XmlPi) xmlValue);
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + xmlValue.getNodeType());
@@ -128,22 +128,22 @@ public class BallerinaXMLSerializer extends OutputStream {
         }
     }
 
-    private void writeXMLPI(XMLPi xmlValue) throws XMLStreamException {
+    private void writeXMLPI(XmlPi xmlValue) throws XMLStreamException {
         xmlStreamWriter.writeProcessingInstruction(xmlValue.getTarget(), xmlValue.getData());
     }
 
-    private void writeXMLComment(XMLComment xmlValue) throws XMLStreamException {
+    private void writeXMLComment(XmlComment xmlValue) throws XMLStreamException {
         xmlStreamWriter.writeComment(xmlValue.getTextValue());
     }
 
-    private void writeXMLText(XMLText xmlValue) throws XMLStreamException {
+    private void writeXMLText(XmlText xmlValue) throws XMLStreamException {
         String textValue = xmlValue.getTextValue();
         if (!textValue.isEmpty()) {
             xmlStreamWriter.writeCharacters(textValue);
         }
     }
 
-    private void writeElement(XMLItem xmlValue) throws XMLStreamException {
+    private void writeElement(XmlItem xmlValue) throws XMLStreamException {
         // Setup namespace hierarchy
         Set<String> prevNSSet = this.parentNSSet.peek();
         HashSet<String> currentNSLevel = prevNSSet == null ? new HashSet<>() : new HashSet<>(prevNSSet);
@@ -318,13 +318,13 @@ public class BallerinaXMLSerializer extends OutputStream {
         return randStr + "<>" + nsUri;
     }
 
-    private void splitAttributesAndNSPrefixes(XMLItem xmlValue,
+    private void splitAttributesAndNSPrefixes(XmlItem xmlValue,
                                               Map<String, String> nsPrefixMap,
                                               Map<String, String> attributeMap) {
         // Extract namespace entries
         for (Map.Entry<BString, BString> attributeEntry : xmlValue.getAttributesMap().entrySet()) {
             String key = attributeEntry.getKey().getValue();
-            if (key.startsWith(XMLItem.XMLNS_URL_PREFIX)) {
+            if (key.startsWith(XmlItem.XMLNS_URL_PREFIX)) {
                 int closingCurly = key.indexOf('}');
                 String prefix = key.substring(closingCurly + 1);
                 if (prefix.equals(XML)) {
@@ -351,7 +351,7 @@ public class BallerinaXMLSerializer extends OutputStream {
         }
     }
 
-    private void writeSeq(XMLSequence xmlValue) {
+    private void writeSeq(XmlSequence xmlValue) {
         for (BXml value : xmlValue.getChildrenList()) {
             this.write(value);
         }

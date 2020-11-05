@@ -208,9 +208,6 @@ public class BCompileUtil {
                 if (t instanceof io.ballerina.runtime.util.exceptions.BLangRuntimeException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
-                if (t instanceof io.ballerina.runtime.util.exceptions.BallerinaConnectorException) {
-                    throw new BLangRuntimeException(t.getMessage());
-                }
                 if (t instanceof ErrorValue) {
                     throw new BLangRuntimeException(
                             "error: " + ((ErrorValue) t).getPrintableStackTrace());

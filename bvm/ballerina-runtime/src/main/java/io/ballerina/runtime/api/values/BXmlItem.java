@@ -23,9 +23,9 @@ import javax.xml.namespace.QName;
  *
  * @since 2.0.0
  */
-public interface BXMLItem extends BXml {
+public interface BXmlItem extends BXml {
 
     void setQName(QName newQName);
 
-    BXMLSequence getChildrenSeq();
+    BXmlSequence getChildrenSeq();
 }

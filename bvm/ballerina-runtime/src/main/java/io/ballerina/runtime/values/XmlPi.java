@@ -31,18 +31,18 @@ import java.util.Objects;
  *
  * @since 1.2.0
  */
-public class XMLPi extends XMLNonElementItem {
+public class XmlPi extends XmlNonElementItem {
 
     private String data;
     private String target;
 
-    public XMLPi(String data, String target) {
+    public XmlPi(String data, String target) {
         this.data = data;
         this.target = target;
         this.type = PredefinedTypes.TYPE_PROCESSING_INSTRUCTION;
     }
 
-    public XMLPi(String data, String target, boolean readonly) {
+    public XmlPi(String data, String target, boolean readonly) {
         this.data = data;
         this.target = target;
         this.type = readonly ? PredefinedTypes.TYPE_READONLY_PROCESSING_INSTRUCTION :
@@ -83,7 +83,7 @@ public class XMLPi extends XMLNonElementItem {
         if (isFrozen()) {
             return this;
         }
-        return new XMLPi(data, target);
+        return new XmlPi(data, target);
     }
 
     @Override
@@ -100,8 +100,8 @@ public class XMLPi extends XMLNonElementItem {
             return true;
         }
 
-        if (obj instanceof XMLPi) {
-            XMLPi that = (XMLPi) obj;
+        if (obj instanceof XmlPi) {
+            XmlPi that = (XmlPi) obj;
             return data.equals(that.data) && target.equals(that.target);
         }
         return false;

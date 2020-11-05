@@ -18,10 +18,10 @@
 
 package org.ballerinalang.langlib.map;
 
-import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -35,8 +35,8 @@ import org.ballerinalang.langlib.map.util.MapLibUtils;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.ballerina.runtime.MapUtils.createOpNotSupportedError;
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.runtime.util.BLangConstants.MAP_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 
 /**

@@ -19,7 +19,7 @@ package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 
@@ -38,7 +38,7 @@ import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 public class GetAttributes {
 
     @SuppressWarnings("unchecked")
-    public static BMap<BString, BString> getAttributes(BXML xmlVal) {
+    public static BMap<BString, BString> getAttributes(BXml xmlVal) {
         if (!IsElement.isElement(xmlVal)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR,
                     "getAttributes", "element");

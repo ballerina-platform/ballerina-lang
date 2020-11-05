@@ -17,21 +17,21 @@
  */
 package io.ballerina.runtime.api.utils;
 
-import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.XmlFactory;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
-import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.values.TableValueImpl;
 
 import java.io.InputStream;
 import java.io.Reader;
 
 /**
- * Class @{@link XMLUtils} provides APIs to handle xml values.
+ * Class @{@link XmlUtils} provides APIs to handle xml values.
  *
  * @since 2.0.0
  */
-public class XMLUtils {
+public class XmlUtils {
 
     /**
      * Create a XML item from string literal.
@@ -39,8 +39,8 @@ public class XMLUtils {
      * @param xmlStr String representation of the XML
      * @return XML sequence
      */
-    public static BXML parse(String xmlStr) {
-        return XMLFactory.parse(xmlStr);
+    public static BXml parse(String xmlStr) {
+        return XmlFactory.parse(xmlStr);
     }
 
     /**
@@ -49,8 +49,8 @@ public class XMLUtils {
      * @param xmlStr String representation of the XML
      * @return XML sequence
      */
-    public static BXML parse(BString xmlStr) {
-        return XMLFactory.parse(xmlStr.getValue());
+    public static BXml parse(BString xmlStr) {
+        return XmlFactory.parse(xmlStr.getValue());
     }
 
     /**
@@ -59,8 +59,8 @@ public class XMLUtils {
      * @param xmlStream XML input stream
      * @return XML Sequence
      */
-    public static BXML parse(InputStream xmlStream) {
-        return XMLFactory.parse(xmlStream);
+    public static BXml parse(InputStream xmlStream) {
+        return XmlFactory.parse(xmlStream);
     }
 
     /**
@@ -70,8 +70,8 @@ public class XMLUtils {
      * @param charset   Charset to be used for parsing
      * @return XML Sequence
      */
-    public static BXML parse(InputStream xmlStream, String charset) {
-        return XMLFactory.parse(xmlStream, charset);
+    public static BXml parse(InputStream xmlStream, String charset) {
+        return XmlFactory.parse(xmlStream, charset);
     }
 
     /**
@@ -80,17 +80,17 @@ public class XMLUtils {
      * @param reader XML reader
      * @return XML Sequence
      */
-    public static BXML parse(Reader reader) {
-        return XMLFactory.parse(reader);
+    public static BXml parse(Reader reader) {
+        return XmlFactory.parse(reader);
     }
 
     /**
-     * Converts a {@link io.ballerina.runtime.values.TableValue} to {@link BXML}.
+     * Converts a {@link io.ballerina.runtime.values.TableValue} to {@link BXml}.
      *
      * @param table {@link io.ballerina.runtime.values.TableValue} to convert
-     * @return converted {@link BXML}
+     * @return converted {@link BXml}
      */
-    public static BXML parse(BTable table) {
-        return XMLFactory.tableToXML((TableValueImpl) table);
+    public static BXml parse(BTable table) {
+        return XmlFactory.tableToXML((TableValueImpl) table);
     }
 }

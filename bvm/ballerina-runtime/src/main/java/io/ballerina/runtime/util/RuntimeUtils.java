@@ -19,6 +19,7 @@ package io.ballerina.runtime.util;
 
 import io.ballerina.runtime.TypeConverter;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.types.BArrayType;
 import io.ballerina.runtime.values.ArrayValue;
@@ -35,8 +36,8 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import static io.ballerina.runtime.util.BLangConstants.BBYTE_MAX_VALUE;
-import static io.ballerina.runtime.util.BLangConstants.BBYTE_MIN_VALUE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MAX_VALUE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MIN_VALUE;
 
 /**
  * Util methods required for jBallerina runtime.
@@ -136,7 +137,7 @@ public class RuntimeUtils {
             errStream.println("error: " + ((ErrorValue) throwable).getPrintableStackTrace());
         } else {
             // These errors are unhandled errors in JVM, hence logging them to bre log.
-            errStream.println(BLangConstants.INTERNAL_ERROR_MESSAGE);
+            errStream.println(RuntimeConstants.INTERNAL_ERROR_MESSAGE);
             silentlyLogBadSad(throwable);
         }
     }
@@ -190,7 +191,7 @@ public class RuntimeUtils {
     }
 
     private static String initBRELogHandler() {
-        String fileName = LogManager.getLogManager().getProperty(BLangConstants.DEFAULT_LOG_FILE_HANDLER_PATTERN);
+        String fileName = LogManager.getLogManager().getProperty(RuntimeConstants.DEFAULT_LOG_FILE_HANDLER_PATTERN);
         if (fileName == null || fileName.trim().isEmpty()) {
             fileName = DEFAULT_CRASH_LOG_FILE;
         }

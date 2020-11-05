@@ -24,7 +24,7 @@ package io.ballerina.runtime.api.values;
  * 
  * @since 1.1.0
  */
-public interface BXMLQName extends BValue {
+public interface BXmlQName extends BValue {
 
     /**
      * Create attribute map with an XML.

@@ -18,19 +18,19 @@
 package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.types.BObjectType;
-import io.ballerina.runtime.util.Flags;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.util.exceptions.RuntimeErrors;
@@ -39,7 +39,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringJoiner;
 
-import static io.ballerina.runtime.util.BLangConstants.OBJECT_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.OBJECT_LANG_LIB;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
@@ -157,7 +157,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
     public String toString() {
         StringJoiner sj = new StringJoiner(", ", "{", "}");
         for (Map.Entry<String, Field> field : this.type.getFields().entrySet()) {
-            if (!Flags.isFlagOn(field.getValue().getFlags(), Flags.PUBLIC)) {
+            if (!SymbolFlags.isFlagOn(field.getValue().getFlags(), SymbolFlags.PUBLIC)) {
                 continue;
             }
             String fieldName = field.getKey();
@@ -190,7 +190,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
         Field field = type.getFields().get(fieldName);
 
-        if (Flags.isFlagOn(field.getFlags(), Flags.FINAL)) {
+        if (SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.FINAL)) {
             throw ErrorCreator.createError(
                     getModulePrefixedReason(OBJECT_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.OBJECT_INVALID_FINAL_FIELD_UPDATE,

@@ -19,16 +19,16 @@ package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.CycleUtils;
 import io.ballerina.runtime.IteratorUtils;
-import io.ballerina.runtime.JSONGenerator;
-import io.ballerina.runtime.JSONUtils;
+import io.ballerina.runtime.JsonGenerator;
+import io.ballerina.runtime.internal.JsonUtils;
 import io.ballerina.runtime.MapUtils;
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
@@ -61,8 +61,8 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-import static io.ballerina.runtime.JSONUtils.mergeJson;
-import static io.ballerina.runtime.util.BLangConstants.MAP_LANG_LIB;
+import static io.ballerina.runtime.internal.JsonUtils.mergeJson;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
@@ -211,7 +211,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @Override
     public Object merge(BMap v2, boolean checkMergeability) {
         if (checkMergeability) {
-            BError errorIfUnmergeable = JSONUtils.getErrorIfUnmergeable(this, v2, new ArrayList<>());
+            BError errorIfUnmergeable = JsonUtils.getErrorIfUnmergeable(this, v2, new ArrayList<>());
             if (errorIfUnmergeable != null) {
                 return errorIfUnmergeable;
             }
@@ -511,7 +511,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     public String getJSONString() {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        JSONGenerator gen = new JSONGenerator(byteOut);
+        JsonGenerator gen = new JsonGenerator(byteOut);
         try {
             gen.serialize(this);
             gen.flush();

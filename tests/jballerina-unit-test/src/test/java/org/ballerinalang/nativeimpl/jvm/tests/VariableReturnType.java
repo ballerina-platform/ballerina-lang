@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
-import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.types.BMapType;
 import io.ballerina.runtime.types.BRecordType;
 import io.ballerina.runtime.types.BTupleType;
@@ -70,7 +70,7 @@ public class VariableReturnType {
         return value;
     }
 
-    public static BXML getXML(BTypedesc td, BXML value) {
+    public static BXml getXML(BTypedesc td, BXml value) {
         return value;
     }
 

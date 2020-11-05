@@ -20,14 +20,14 @@ package io.ballerina.runtime;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.api.values.BXMLSequence;
+import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
 import io.ballerina.runtime.values.MapValue;
-import io.ballerina.runtime.values.XMLComment;
-import io.ballerina.runtime.values.XMLItem;
-import io.ballerina.runtime.values.XMLPi;
-import io.ballerina.runtime.values.XMLQName;
-import io.ballerina.runtime.values.XMLSequence;
+import io.ballerina.runtime.values.XmlComment;
+import io.ballerina.runtime.values.XmlItem;
+import io.ballerina.runtime.values.XmlPi;
+import io.ballerina.runtime.values.XmlQName;
+import io.ballerina.runtime.values.XmlSequence;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -59,7 +59,7 @@ import static javax.xml.stream.XMLStreamConstants.START_ELEMENT;
  *
  * @since 1.2.0
  */
-public class XMLTreeBuilder {
+public class XmlTreeBuilder {
 
     // XMLInputFactory2
     private static final XMLInputFactory xmlInputFactory;
@@ -71,21 +71,21 @@ public class XMLTreeBuilder {
 
     private XMLStreamReader xmlStreamReader;
     private Map<String, String> namespaces; // xml ns declarations from Bal source [xmlns "http://ns.com" as ns]
-    private Deque<BXMLSequence> seqDeque;
+    private Deque<BXmlSequence> seqDeque;
     private Deque<List<BXml>> siblingDeque;
 
-    public XMLTreeBuilder(String str) {
+    public XmlTreeBuilder(String str) {
         this(new StringReader(str));
     }
 
-    public XMLTreeBuilder(Reader stringReader) {
+    public XmlTreeBuilder(Reader stringReader) {
         namespaces = new HashMap<>();
         seqDeque = new ArrayDeque<>();
         siblingDeque = new ArrayDeque<>();
 
         ArrayList<BXml> siblings = new ArrayList<>();
         siblingDeque.push(siblings);
-        seqDeque.push(new XMLSequence(siblings));
+        seqDeque.push(new XmlSequence(siblings));
 
         try {
             xmlStreamReader = xmlInputFactory.createXMLStreamReader(stringReader);
@@ -141,21 +141,21 @@ public class XMLTreeBuilder {
     }
 
     private void readPI(XMLStreamReader xmlStreamReader) {
-        XMLPi xmlItem = (XMLPi) XMLFactory.createXMLProcessingInstruction(xmlStreamReader.getPITarget(),
-                xmlStreamReader.getPIData());
+        XmlPi xmlItem = (XmlPi) XmlFactory.createXMLProcessingInstruction(xmlStreamReader.getPITarget(),
+                                                                          xmlStreamReader.getPIData());
         siblingDeque.peek().add(xmlItem);
     }
 
     private void readText(XMLStreamReader xmlStreamReader) {
-        siblingDeque.peek().add(XMLFactory.createXMLText(xmlStreamReader.getText()));
+        siblingDeque.peek().add(XmlFactory.createXMLText(xmlStreamReader.getText()));
     }
 
     private void readComment(XMLStreamReader xmlStreamReader) {
-        XMLComment xmlComment = (XMLComment) XMLFactory.createXMLComment(xmlStreamReader.getText());
+        XmlComment xmlComment = (XmlComment) XmlFactory.createXMLComment(xmlStreamReader.getText());
         siblingDeque.peek().add(xmlComment);
     }
 
-    private BXMLSequence buildDocument() {
+    private BXmlSequence buildDocument() {
         this.siblingDeque.pop();
         return this.seqDeque.pop();
     }
@@ -167,9 +167,9 @@ public class XMLTreeBuilder {
 
     private void readElement(XMLStreamReader xmlStreamReader) {
         QName elemName = xmlStreamReader.getName();
-        XMLQName name = new XMLQName(elemName.getLocalPart(),
-                elemName.getNamespaceURI(), elemName.getPrefix());
-        XMLItem xmlItem = (XMLItem) XMLFactory.createXMLElement(name, name, null);
+        XmlQName name = new XmlQName(elemName.getLocalPart(),
+                                     elemName.getNamespaceURI(), elemName.getPrefix());
+        XmlItem xmlItem = (XmlItem) XmlFactory.createXMLElement(name, name, null);
 
         seqDeque.push(xmlItem.getChildrenSeq());
 
@@ -180,7 +180,7 @@ public class XMLTreeBuilder {
     // need to duplicate the same in xmlItem.setAttribute
 
     // todo: need to write a comment explaining each step
-    private void populateAttributeMap(XMLStreamReader xmlStreamReader, XMLItem xmlItem, QName elemName) {
+    private void populateAttributeMap(XMLStreamReader xmlStreamReader, XmlItem xmlItem, QName elemName) {
         MapValue<BString, BString> attributesMap = xmlItem.getAttributesMap();
         Set<QName> usedNS = new HashSet<>(); // Track namespace prefixes found in this element.
 
@@ -204,7 +204,7 @@ public class XMLTreeBuilder {
                 namespaceURI = namespaces.getOrDefault(prefix, "");
             }
 
-            BString xmlnsPrefix = StringUtils.fromString(XMLItem.XMLNS_URL_PREFIX + prefix);
+            BString xmlnsPrefix = StringUtils.fromString(XmlItem.XMLNS_URL_PREFIX + prefix);
             attributesMap.put(xmlnsPrefix, StringUtils.fromString(namespaceURI));
         }
 
@@ -213,10 +213,10 @@ public class XMLTreeBuilder {
             String uri = xmlStreamReader.getNamespaceURI(i);
             String prefix = xmlStreamReader.getNamespacePrefix(i);
             if (prefix == null || prefix.isEmpty()) {
-                attributesMap.put(StringUtils.fromString(XMLItem.XMLNS_URL_PREFIX + "xmlns"),
+                attributesMap.put(StringUtils.fromString(XmlItem.XMLNS_URL_PREFIX + "xmlns"),
                                   StringUtils.fromString(uri));
             } else {
-                attributesMap.put(StringUtils.fromString(XMLItem.XMLNS_URL_PREFIX + prefix),
+                attributesMap.put(StringUtils.fromString(XmlItem.XMLNS_URL_PREFIX + prefix),
                                   StringUtils.fromString(uri));
             }
         }

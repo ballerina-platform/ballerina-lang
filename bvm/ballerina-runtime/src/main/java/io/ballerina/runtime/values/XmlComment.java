@@ -31,16 +31,16 @@ import java.util.Objects;
  *
  * @since 1.2.0
  */
-public class XMLComment extends XMLNonElementItem {
+public class XmlComment extends XmlNonElementItem {
 
     private String data;
 
-    public XMLComment(String data) {
+    public XmlComment(String data) {
         this.data = data;
         this.type = PredefinedTypes.TYPE_COMMENT;
     }
 
-    public XMLComment(String data, boolean readonly) {
+    public XmlComment(String data, boolean readonly) {
         this.data = data;
         this.type = readonly ? PredefinedTypes.TYPE_READONLY_COMMENT : PredefinedTypes.TYPE_COMMENT;
     }
@@ -65,7 +65,7 @@ public class XMLComment extends XMLNonElementItem {
         if (isFrozen()) {
             return this;
         }
-        return new XMLComment(data);
+        return new XmlComment(data);
     }
 
     @Override
@@ -101,8 +101,8 @@ public class XMLComment extends XMLNonElementItem {
             return true;
         }
 
-        if (obj instanceof XMLComment) {
-            XMLComment that = (XMLComment) obj;
+        if (obj instanceof XmlComment) {
+            XmlComment that = (XmlComment) obj;
             return data.equals(that.data);
 
         }

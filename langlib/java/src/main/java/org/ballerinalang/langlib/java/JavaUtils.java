@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.langlib.java;
 
-import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.util.BLangConstants;
 import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
 
 /**
@@ -39,7 +39,7 @@ public class JavaUtils {
     private static final String longTypeName = "long";
     private static final String floatTypeName = "float";
     private static final String doubleTypeName = "double";
-    private static final Module JAVA_PACKAGE_ID = new Module(BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX, "java",
+    private static final Module JAVA_PACKAGE_ID = new Module(RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX, "java",
                                                              "0.9.0");
 
     /**

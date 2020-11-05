@@ -17,9 +17,9 @@
  */
 package io.ballerina.runtime.api.utils;
 
-import io.ballerina.runtime.JSONGenerator;
-import io.ballerina.runtime.JSONParser;
-import io.ballerina.runtime.api.types.JSONType;
+import io.ballerina.runtime.JsonGenerator;
+import io.ballerina.runtime.JsonParser;
+import io.ballerina.runtime.api.types.JsonType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.StructureType;
 import io.ballerina.runtime.api.types.Type;
@@ -37,11 +37,11 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 
 /**
- * Class @{@link JSONParser} provides APIs to handle json values.
+ * Class @{@link JsonParser} provides APIs to handle json values.
  *
  * @since 2.0.0
  */
-public class JSONUtils {
+public class JsonUtils {
 
     /**
      * Parses the contents in the given {@link InputStream} and returns a json.
@@ -51,7 +51,7 @@ public class JSONUtils {
      * @throws BError for any parsing error
      */
     public static Object parse(InputStream in) throws BError {
-        return JSONParser.parse(in);
+        return JsonParser.parse(in);
     }
 
     /**
@@ -63,7 +63,7 @@ public class JSONUtils {
      * @throws BError for any parsing error
      */
     public static Object parse(InputStream in, String charsetName) throws BError {
-        return JSONParser.parse(in, charsetName);
+        return JsonParser.parse(in, charsetName);
     }
 
     /**
@@ -74,7 +74,7 @@ public class JSONUtils {
      * @throws BError for any parsing error
      */
     public static Object parse(BString jsonStr) throws BError {
-        return JSONParser.parse(jsonStr.getValue());
+        return JsonParser.parse(jsonStr.getValue());
     }
 
     /**
@@ -85,8 +85,8 @@ public class JSONUtils {
      * @return JSON   value if parsing is successful
      * @throws BError for any parsing error
      */
-    public static Object parse(BString jsonStr, JSONUtils.NonStringValueProcessingMode mode) throws BError {
-        return JSONParser.parse(jsonStr.getValue(), mode);
+    public static Object parse(BString jsonStr, JsonUtils.NonStringValueProcessingMode mode) throws BError {
+        return JsonParser.parse(jsonStr.getValue(), mode);
     }
 
     /**
@@ -97,7 +97,7 @@ public class JSONUtils {
      * @throws BError for any parsing error
      */
     public static Object parse(String jsonStr) throws BError {
-        return JSONParser.parse(jsonStr);
+        return JsonParser.parse(jsonStr);
     }
 
     /**
@@ -108,8 +108,8 @@ public class JSONUtils {
      * @return JSON   value if parsing is successful
      * @throws BError for any parsing error
      */
-    public static Object parse(String jsonStr, JSONUtils.NonStringValueProcessingMode mode) throws BError {
-        return JSONParser.parse(jsonStr, mode);
+    public static Object parse(String jsonStr, JsonUtils.NonStringValueProcessingMode mode) throws BError {
+        return JsonParser.parse(jsonStr, mode);
     }
 
     /**
@@ -120,8 +120,8 @@ public class JSONUtils {
      * @return JSON structure
      * @throws BError for any parsing error
      */
-    public static Object parse(Reader reader, JSONUtils.NonStringValueProcessingMode mode) throws BError {
-        return JSONParser.parse(reader, mode);
+    public static Object parse(Reader reader, JsonUtils.NonStringValueProcessingMode mode) throws BError {
+        return JsonParser.parse(reader, mode);
     }
 
     /**
@@ -131,7 +131,7 @@ public class JSONUtils {
      * @return JSON representation of the provided bArray
      */
     public static BArray convertArrayToJSON(BArray bArray) {
-        return io.ballerina.runtime.JSONUtils.convertArrayToJSON(bArray);
+        return io.ballerina.runtime.internal.JsonUtils.convertArrayToJSON(bArray);
     }
 
     /**
@@ -141,8 +141,8 @@ public class JSONUtils {
      * @param targetType the target JSON type to be convert to
      * @return JSON representation of the provided array
      */
-    public static Object convertMapToJSON(BMap<BString, ?> map, JSONType targetType) {
-        return io.ballerina.runtime.JSONUtils.convertMapToJSON(map, targetType);
+    public static Object convertMapToJSON(BMap<BString, ?> map, JsonType targetType) {
+        return io.ballerina.runtime.internal.JsonUtils.convertMapToJSON(map, targetType);
     }
 
     /**
@@ -155,32 +155,32 @@ public class JSONUtils {
      * @throws BError If conversion fails.
      */
     public static BMap<BString, ?> convertJSONToMap(Object json, MapType mapType) throws BError {
-        return io.ballerina.runtime.JSONUtils.jsonToMap(json, mapType);
+        return io.ballerina.runtime.internal.JsonUtils.jsonToMap(json, mapType);
     }
 
     /**
      * Convert a BJSON to a user defined record.
      *
-     * @param record       JSON to convert
+     * @param record     JSON to convert
      * @param structType Type (definition) of the target record
      * @return If the provided JSON is of object-type, this method will return a {@link BMap} containing the
      * values of the JSON object. Otherwise the method will throw a {@link BError}.
      * @throws BError If conversion fails.
      */
     public static BMap<BString, Object> convertJSONToRecord(Object record, StructureType structType) throws BError {
-        return io.ballerina.runtime.JSONUtils.convertJSONToRecord(record, structType);
+        return io.ballerina.runtime.internal.JsonUtils.convertJSONToRecord(record, structType);
     }
 
     /**
      * Convert a BJSON to a user given target type.
      *
-     * @param source       JSON to convert
+     * @param source     JSON to convert
      * @param targetType Type (definition) of the target record
      * @return If the conversion is successes this will return JSON object.
      * @throws BError If conversion fails.
      */
     public static Object convertJSON(Object source, Type targetType) throws BError {
-        return io.ballerina.runtime.JSONUtils.convertJSON(source, targetType);
+        return io.ballerina.runtime.internal.JsonUtils.convertJSON(source, targetType);
     }
 
     /**
@@ -191,12 +191,12 @@ public class JSONUtils {
      * @return If the conversion is successes this will return JSON object.
      * @throws BError If conversions fails.
      */
-    public static Object convertUnionTypeToJSON(Object source, JSONType targetType) throws BError {
-        return io.ballerina.runtime.JSONUtils.convertUnionTypeToJSON(source, targetType);
+    public static Object convertUnionTypeToJSON(Object source, JsonType targetType) throws BError {
+        return io.ballerina.runtime.internal.JsonUtils.convertUnionTypeToJSON(source, targetType);
     }
 
     /**
-     * Serialize the JSON constructs to be written out to a given {@link OutputStream}
+     * Serialize the JSON constructs to be written out to a given {@link OutputStream}.
      *
      * @param json JSON construct
      * @param out  Output source
@@ -204,14 +204,14 @@ public class JSONUtils {
      */
     public void serialize(Object json, OutputStream out) throws BError {
         try {
-            new JSONGenerator(out, Charset.defaultCharset()).serialize(json);
+            new JsonGenerator(out, Charset.defaultCharset()).serialize(json);
         } catch (IOException e) {
             throw new ErrorValue(StringUtils.fromString(e.getMessage()), e);
         }
     }
 
     /**
-     * Serialize the JSON constructs to be written out to a given {@link OutputStream}
+     * Serialize the JSON constructs to be written out to a given {@link OutputStream}.
      *
      * @param json    JSON construct
      * @param out     Output source
@@ -220,14 +220,14 @@ public class JSONUtils {
      */
     public void serialize(Object json, OutputStream out, Charset charset) throws BError {
         try {
-            new JSONGenerator(out, charset).serialize(json);
+            new JsonGenerator(out, charset).serialize(json);
         } catch (IOException e) {
             throw new ErrorValue(StringUtils.fromString(e.getMessage()), e);
         }
     }
 
     /**
-     * Serialize the JSON constructs to be written out to a given {@link Writer}
+     * Serialize the JSON constructs to be written out to a given {@link Writer}.
      *
      * @param json   JSON construct
      * @param writer Output writer
@@ -235,7 +235,7 @@ public class JSONUtils {
      */
     public void serialize(Object json, Writer writer) throws BError {
         try {
-            new JSONGenerator(writer).serialize(json);
+            new JsonGenerator(writer).serialize(json);
         } catch (IOException e) {
             throw new ErrorValue(StringUtils.fromString(e.getMessage()), e);
         }

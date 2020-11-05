@@ -26,11 +26,11 @@ import io.ballerina.runtime.util.exceptions.BallerinaException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.ballerina.runtime.util.BLangConstants.ANON_ORG;
-import static io.ballerina.runtime.util.BLangConstants.DOT;
-import static io.ballerina.runtime.util.BLangConstants.EMPTY;
-import static io.ballerina.runtime.util.BLangConstants.ORG_NAME_SEPARATOR;
-import static io.ballerina.runtime.util.BLangConstants.VERSION_SEPARATOR;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.EMPTY;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.ORG_NAME_SEPARATOR;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.VERSION_SEPARATOR;
 
 /**
  * A {@code ValueCreator} is an API that will be implemented by all the module init classed from jvm codegen.

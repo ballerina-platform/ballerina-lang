@@ -19,7 +19,7 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.runtime.util.BLangConstants;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -92,7 +92,7 @@ public class ChangeReturnTypeCodeAction implements DiagBasedCodeAction {
             WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
             try {
                 BLangFunction func = getFunctionNode(line, column, documentManager, context);
-                if (func != null && !BLangConstants.MAIN_FUNCTION_NAME.equals(func.name.value)) {
+                if (func != null && !RuntimeConstants.MAIN_FUNCTION_NAME.equals(func.name.value)) {
                     BLangStatement statement = getStatementByLocation(((BLangBlockFunctionBody) func.body).stmts,
                                                                       line + 1, column + 1);
                     if (statement instanceof BLangReturn) {

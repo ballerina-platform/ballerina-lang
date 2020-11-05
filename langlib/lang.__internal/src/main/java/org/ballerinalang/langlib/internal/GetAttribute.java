@@ -17,14 +17,14 @@
  */
 package org.ballerinalang.langlib.internal;
 
-import io.ballerina.runtime.XMLNodeType;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BXML;
-import io.ballerina.runtime.api.values.BXMLQName;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlQName;
 
-import static io.ballerina.runtime.api.ErrorCreator.createError;
+import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
 
 /**
@@ -34,8 +34,8 @@ import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.XML_OPE
  */
 public class GetAttribute {
 
-    public static Object getAttribute(BXML xmlVal, BString attrName, boolean optionalFiledAccess) {
-        if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE && xmlVal.size() == 0) {
+    public static Object getAttribute(BXml xmlVal, BString attrName, boolean optionalFiledAccess) {
+        if (xmlVal.getNodeType() == XmlNodeType.SEQUENCE && xmlVal.size() == 0) {
             return null;
         }
         if (!IsElement.isElement(xmlVal)) {
@@ -43,7 +43,7 @@ public class GetAttribute {
                                StringUtils.fromString("Invalid xml attribute access on xml " +
                                                                xmlVal.getNodeType().value()));
         }
-        BXMLQName qname = ValueCreator.createXMLQName(attrName);
+        BXmlQName qname = ValueCreator.createXMLQName(attrName);
         BString attrVal = xmlVal.getAttribute(qname.getLocalName(), qname.getUri());
         if (attrVal == null && !optionalFiledAccess) {
             return createError(XML_OPERATION_ERROR, StringUtils.fromString("attribute '" + attrName + "' not found"));

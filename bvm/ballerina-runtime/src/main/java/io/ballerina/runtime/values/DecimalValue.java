@@ -20,11 +20,11 @@ package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.DecimalValueKind;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.internal.ErrorUtils;
-import io.ballerina.runtime.util.BLangConstants;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -173,8 +173,8 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * @return true if the value is in int range
      */
     public static boolean isDecimalWithinIntRange(BigDecimal decimalValue) {
-        return decimalValue.compareTo(BLangConstants.BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX) < 0 &&
-               decimalValue.compareTo(BLangConstants.BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN) > 0;
+        return decimalValue.compareTo(RuntimeConstants.BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX) < 0 &&
+               decimalValue.compareTo(RuntimeConstants.BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN) > 0;
     }
 
     /**
@@ -201,7 +201,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
     }
 
     private static boolean isByteLiteral(long longValue) {
-        return (longValue >= BLangConstants.BBYTE_MIN_VALUE && longValue <= BLangConstants.BBYTE_MAX_VALUE);
+        return (longValue >= RuntimeConstants.BBYTE_MIN_VALUE && longValue <= RuntimeConstants.BBYTE_MAX_VALUE);
     }
 
     /**

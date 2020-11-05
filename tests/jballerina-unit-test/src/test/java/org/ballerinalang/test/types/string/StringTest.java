@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.types.string;
 
-import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.XmlFactory;
 import io.ballerina.runtime.values.ArrayValue;
-import io.ballerina.runtime.values.XMLItem;
+import io.ballerina.runtime.values.XmlItem;
 import org.apache.axiom.om.OMNode;
 import org.ballerinalang.core.model.util.JsonParser;
 import org.ballerinalang.core.model.values.BBoolean;
@@ -206,7 +206,7 @@ public class StringTest {
 
     @Test
     public void testXmlValueOf() {
-        OMNode omNode = ((XMLItem) ((ArrayValue) XMLFactory.parse("<test>name</test>").value()).get(0)).value();
+        OMNode omNode = ((XmlItem) ((ArrayValue) XmlFactory.parse("<test>name</test>").value()).get(0)).value();
         BValue[] args = { new BXMLItem(omNode) };
         BValue[] returns = BRunUtil.invoke(result, "xmlValueOf", args);
         Assert.assertTrue(returns[0] instanceof BString);

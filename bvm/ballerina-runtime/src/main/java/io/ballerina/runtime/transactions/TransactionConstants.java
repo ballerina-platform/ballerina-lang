@@ -18,13 +18,13 @@
 package io.ballerina.runtime.transactions;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.util.BLangConstants;
 
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.runtime.util.BLangConstants.ORG_NAME_SEPARATOR;
-import static io.ballerina.runtime.util.BLangConstants.VERSION_SEPARATOR;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.ORG_NAME_SEPARATOR;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.VERSION_SEPARATOR;
 
 /**
  * {@code TransactionConstants} Define transaction related constants.
@@ -36,7 +36,7 @@ public class TransactionConstants {
     public static final String COORDINATOR_ABORT_TRANSACTION = "abortTransaction";
 
     public static final String TRANSACTION_PACKAGE_NAME = "lang.transaction";
-    public static final String TRANSACTION_PACKAGE_FQN = BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX + "." +
+    public static final String TRANSACTION_PACKAGE_FQN = RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX + "." +
             TRANSACTION_PACKAGE_NAME;
     public static final String TRANSACTION_PACKAGE_VERSION = "0.0.1";
     public static final String TRANSACTION_PACKAGE_PATH =

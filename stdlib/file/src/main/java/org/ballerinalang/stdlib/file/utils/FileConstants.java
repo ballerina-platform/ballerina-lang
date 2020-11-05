@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.file.utils;
 
 import io.ballerina.runtime.api.Module;
 
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
 /**
  * Constants for file package functions.

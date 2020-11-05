@@ -16,8 +16,10 @@
  *  under the License.
  */
 
-package io.ballerina.runtime;
+package io.ballerina.runtime.internal;
 
+import io.ballerina.runtime.TableJsonDataSource;
+import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;

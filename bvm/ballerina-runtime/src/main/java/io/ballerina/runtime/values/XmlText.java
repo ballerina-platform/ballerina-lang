@@ -29,18 +29,18 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-import static io.ballerina.runtime.util.BLangConstants.STRING_NULL_VALUE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_NULL_VALUE;
 
 /**
  * XML nodes containing atomic content such as text, comment and processing instructions.
  *
  * @since 1.2.0
  */
-public class XMLText extends XMLNonElementItem {
+public class XmlText extends XmlNonElementItem {
 
     private String data;
 
-    public XMLText(String data) {
+    public XmlText(String data) {
         // data is the content of xml comment or text node
         this.data = data;
     }
@@ -75,7 +75,7 @@ public class XMLText extends XMLNonElementItem {
         if (!data.trim().isEmpty()) {
             return this;
         }
-        return new XMLText("");
+        return new XmlText("");
     }
 
     @Override
@@ -127,8 +127,8 @@ public class XMLText extends XMLNonElementItem {
             return true;
         }
 
-        if (obj instanceof XMLText) {
-            XMLText that = (XMLText) obj;
+        if (obj instanceof XmlText) {
+            XmlText that = (XmlText) obj;
             return data.equals(that.data);
 
         }

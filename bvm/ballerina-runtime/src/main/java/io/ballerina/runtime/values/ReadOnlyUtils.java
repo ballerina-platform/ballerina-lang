@@ -20,9 +20,10 @@ package io.ballerina.runtime.values;
 import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeConstants;
-import io.ballerina.runtime.api.TypeFlags;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.constants.TypeConstants;
+import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.types.BArrayType;
@@ -34,8 +35,7 @@ import io.ballerina.runtime.types.BRecordType;
 import io.ballerina.runtime.types.BTableType;
 import io.ballerina.runtime.types.BTupleType;
 import io.ballerina.runtime.types.BUnionType;
-import io.ballerina.runtime.types.BXMLType;
-import io.ballerina.runtime.util.Flags;
+import io.ballerina.runtime.types.BXmlType;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.util.exceptions.BLangFreezeException;
 
@@ -46,9 +46,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static io.ballerina.runtime.api.TypeConstants.READONLY_XML_TNAME;
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.runtime.util.BLangConstants.XML_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
+import static io.ballerina.runtime.api.constants.TypeConstants.READONLY_XML_TNAME;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 import static io.ballerina.runtime.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
@@ -105,25 +105,25 @@ public class ReadOnlyUtils {
 
         switch (type.getTag()) {
             case TypeTags.XML_COMMENT_TAG:
-                BXMLType readonlyCommentType = new BXMLType(TypeConstants.READONLY_XML_COMMENT,
+                BXmlType readonlyCommentType = new BXmlType(TypeConstants.READONLY_XML_COMMENT,
                                                             new Module(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
                                                                        null),
                                                             TypeTags.XML_COMMENT_TAG, true);
                 return createAndSetImmutableIntersectionType(type, readonlyCommentType);
             case TypeTags.XML_ELEMENT_TAG:
-                BXMLType readonlyElementType = new BXMLType(TypeConstants.READONLY_XML_ELEMENT,
+                BXmlType readonlyElementType = new BXmlType(TypeConstants.READONLY_XML_ELEMENT,
                                                             new Module(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
                                                                        null),
                                                             TypeTags.XML_ELEMENT_TAG, true);
                 return createAndSetImmutableIntersectionType(type, readonlyElementType);
             case TypeTags.XML_PI_TAG:
-                BXMLType readonlyPI = new BXMLType(TypeConstants.READONLY_XML_PI,
+                BXmlType readonlyPI = new BXmlType(TypeConstants.READONLY_XML_PI,
                                                    new Module(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, null),
                                                    TypeTags.XML_PI_TAG, true);
                 return createAndSetImmutableIntersectionType(type, readonlyPI);
             case TypeTags.XML_TAG:
-                BXMLType origXmlType = (BXMLType) type;
-                BXMLType immutableXmlType = new BXMLType(READONLY_XML_TNAME, origXmlType.getPackage(),
+                BXmlType origXmlType = (BXmlType) type;
+                BXmlType immutableXmlType = new BXmlType(READONLY_XML_TNAME, origXmlType.getPackage(),
                                                          origXmlType.getTag(), true);
                 immutableXmlType.constraint = getImmutableType(origXmlType.constraint, unresolvedTypes);
                 return createAndSetImmutableIntersectionType(origXmlType, immutableXmlType);
@@ -162,7 +162,7 @@ public class ReadOnlyUtils {
                 Map<String, Field> fields = new HashMap<>(originalFields.size());
                 BRecordType immutableRecordType = new BRecordType(origRecordType.getName().concat(" & readonly"),
                                                                   origRecordType.getPackage(),
-                                                                  origRecordType.flags |= Flags.READONLY, fields,
+                                                                  origRecordType.flags |= SymbolFlags.READONLY, fields,
                                                                   null, origRecordType.sealed,
                                                                   origRecordType.typeFlags);
                 BIntersectionType intersectionType = createAndSetImmutableIntersectionType(origRecordType,
@@ -205,7 +205,7 @@ public class ReadOnlyUtils {
                 Map<String, Field> immutableObjectFields = new HashMap<>(originalObjectFields.size());
                 BObjectType immutableObjectType = new BObjectType(origObjectType.getName().concat(" & readonly"),
                                                                   origObjectType.getPackage(),
-                                                                  origObjectType.flags |= Flags.READONLY);
+                                                                  origObjectType.flags |= SymbolFlags.READONLY);
                 immutableObjectType.setFields(immutableObjectFields);
                 immutableObjectType.generatedInitializer = origObjectType.generatedInitializer;
                 immutableObjectType.initializer = origObjectType.initializer;

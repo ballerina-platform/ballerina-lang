@@ -18,16 +18,16 @@
 package io.ballerina.runtime.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.TypeFlags;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.util.Flags;
 import io.ballerina.runtime.values.MapValue;
 import io.ballerina.runtime.values.MapValueImpl;
 
@@ -59,7 +59,7 @@ public class BRecordType extends BStructureType implements RecordType {
         super(typeName, pkg, flags, MapValueImpl.class);
         this.sealed = sealed;
         this.typeFlags = typeFlags;
-        this.readonly = Flags.isFlagOn(flags, Flags.READONLY);
+        this.readonly = SymbolFlags.isFlagOn(flags, SymbolFlags.READONLY);
     }
 
     /**
@@ -79,7 +79,7 @@ public class BRecordType extends BStructureType implements RecordType {
         this.restFieldType = restFieldType;
         this.sealed = sealed;
         this.typeFlags = typeFlags;
-        this.readonly = Flags.isFlagOn(flags, Flags.READONLY);
+        this.readonly = SymbolFlags.isFlagOn(flags, SymbolFlags.READONLY);
     }
 
     @Override
@@ -92,7 +92,7 @@ public class BRecordType extends BStructureType implements RecordType {
     public <V extends Object> V getEmptyValue() {
         MapValue<BString, Object> implicitInitValue = new MapValueImpl<>(this);
         this.fields.entrySet().stream()
-                .filter(entry -> !Flags.isFlagOn(entry.getValue().getFlags(), Flags.OPTIONAL))
+                .filter(entry -> !SymbolFlags.isFlagOn(entry.getValue().getFlags(), SymbolFlags.OPTIONAL))
                 .forEach(entry -> {
                     Object value = entry.getValue().getFieldType().getEmptyValue();
                     implicitInitValue.put(StringUtils.fromString(entry.getKey()), value);

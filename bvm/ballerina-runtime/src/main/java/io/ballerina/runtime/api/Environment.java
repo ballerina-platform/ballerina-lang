@@ -17,9 +17,12 @@
  */
 package io.ballerina.runtime.api;
 
+import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.State;
 import io.ballerina.runtime.scheduling.Strand;
+
+import java.util.Optional;
 
 /**
  * When this class is used as the first argument of an interop method, Ballerina
@@ -52,5 +55,34 @@ public class Environment {
 
     public Runtime getRuntime() {
         return new Runtime(strand.scheduler);
+    }
+
+
+    /**
+     * Gets the strand id. This will be generated on strand initialization.
+     *
+     * @return  Strand id.
+     */
+    public int getStrandId() {
+        return strand.getId();
+    }
+
+    /**
+     * Gets the strand name. This will be optional. Strand name can be either name given in strand annotation or async
+     * call or function pointer variable name.
+     *
+     * @return Optional strand name.
+     */
+    public Optional<String> getStrandName() {
+        return strand.getName();
+    }
+
+    /**
+     * Gets @{@link StrandMetadata}.
+     *
+     * @return metadata of the strand.
+     */
+    public StrandMetadata getStrandMetadata() {
+        return strand.getMetadata();
     }
 }

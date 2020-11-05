@@ -17,12 +17,14 @@
  */
 package io.ballerina.runtime;
 
-import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.commons.TypeValuePair;
@@ -32,7 +34,6 @@ import io.ballerina.runtime.types.BMapType;
 import io.ballerina.runtime.types.BRecordType;
 import io.ballerina.runtime.types.BTableType;
 import io.ballerina.runtime.types.BUnionType;
-import io.ballerina.runtime.util.Flags;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.util.exceptions.RuntimeErrors;
@@ -57,8 +58,8 @@ import static io.ballerina.runtime.TypeChecker.isSigned8LiteralValue;
 import static io.ballerina.runtime.TypeChecker.isUnsigned16LiteralValue;
 import static io.ballerina.runtime.TypeChecker.isUnsigned32LiteralValue;
 import static io.ballerina.runtime.TypeChecker.isUnsigned8LiteralValue;
-import static io.ballerina.runtime.util.BLangConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
-import static io.ballerina.runtime.util.BLangConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
 import static io.ballerina.runtime.values.DecimalValue.isDecimalWithinIntRange;
 
 /**
@@ -329,7 +330,7 @@ public class TypeConverter {
                 continue;
             }
             Field targetField = targetType.getFields().get(fieldName);
-            if (Flags.isFlagOn(targetField.getFlags(), Flags.REQUIRED)) {
+            if (SymbolFlags.isFlagOn(targetField.getFlags(), SymbolFlags.REQUIRED)) {
                 return false;
             }
         }
@@ -846,7 +847,7 @@ public class TypeConverter {
         Type elementType = ((BArrayType) sourceType).getElementType();
 
         if (elementType != null) {
-            if (PredefinedTypes.isValueType(elementType)) {
+            if (TypeUtils.isValueType(elementType)) {
                 return false;
             } else if (elementType instanceof BArrayType) {
                 return isDeepStampingRequiredForArray(elementType);
@@ -860,7 +861,7 @@ public class TypeConverter {
         Type constrainedType = ((BMapType) sourceType).getConstrainedType();
 
         if (constrainedType != null) {
-            if (PredefinedTypes.isValueType(constrainedType)) {
+            if (TypeUtils.isValueType(constrainedType)) {
                 return false;
             } else if (constrainedType instanceof BMapType) {
                 return isDeepStampingRequiredForMap(constrainedType);

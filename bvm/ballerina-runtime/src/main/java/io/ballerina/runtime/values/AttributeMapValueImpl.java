@@ -17,21 +17,21 @@
  */
 package io.ballerina.runtime.values;
 
-import io.ballerina.runtime.XMLValidator;
-import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.XmlValidator;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.types.BMapType;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 
 import javax.xml.XMLConstants;
 
-import static io.ballerina.runtime.util.BLangConstants.XML_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 import static io.ballerina.runtime.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
-import static io.ballerina.runtime.values.XMLItem.XMLNS_URL_PREFIX;
+import static io.ballerina.runtime.values.XmlItem.XMLNS_URL_PREFIX;
 
 /**
  * Validating xml attribute map.
@@ -75,8 +75,8 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
         }
 
         // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.
-        XMLValidator.validateXMLName(localName);
-        XMLValidator.validateXMLName(prefix);
+        XmlValidator.validateXMLName(localName);
+        XmlValidator.validateXMLName(prefix);
 
         // JVM codegen uses prefix == 'xmlns' and namespaceUri == null to denote namespace decl at runtime.
         // 'localName' will contain the namespace name where as 'value' will contain the namespace URI
@@ -128,7 +128,7 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
         }
 
         // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.
-        XMLValidator.validateXMLName(localName);
+        XmlValidator.validateXMLName(localName);
 
         BString keyToInsert = namespaceUri.isEmpty() ? StringUtils.fromString(localName) : keyBStr;
 
