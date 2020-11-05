@@ -95,11 +95,6 @@
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
-                    "name": "version",
-                    "type": "ImportVersionNode",
-                    "isOptional": true
-                },
-                {
                     "name": "prefix",
                     "type": "ImportPrefixNode",
                     "isOptional": true
@@ -1015,22 +1010,6 @@
                 {
                     "name": "prefix",
                     "type": "Token"
-                }
-            ]
-        },
-        {
-            "name": "ImportVersionNode",
-            "base": "Node",
-            "kind": "IMPORT_VERSION",
-            "attributes": [
-                {
-                    "name": "versionKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "versionNumber",
-                    "type": "Token",
-                    "occurrences": "MULTIPLE_SEPARATED"
                 }
             ]
         },
