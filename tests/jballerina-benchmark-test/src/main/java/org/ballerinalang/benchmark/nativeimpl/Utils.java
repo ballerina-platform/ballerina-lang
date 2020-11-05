@@ -96,7 +96,7 @@ public class Utils {
                             if (ref == null) {
                                 throw ErrorCreator.createError(StringUtils.fromString("illegal format conversion ''" +
                                                                                     format.getValue().charAt(j) +
-                                                                                    " != ()''"));
+                                                                                    " != ()'"));
                             }
                             result.append(String.format("%" + padding + formatSpecifier, ref));
                             break;
@@ -104,9 +104,9 @@ public class Utils {
                         case 'X':
                             if (ref == null) {
                                 throw ErrorCreator
-                                        .createError(StringUtils.fromString("illegal format conversion ''" +
+                                        .createError(StringUtils.fromString("illegal format conversion '" +
                                                                                     format.getValue().charAt(j) +
-                                                                                    " != ()''"));
+                                                                                    " != ()'"));
                             }
                             formatHexString(result, k, padding, formatSpecifier, args);
                             break;
@@ -122,13 +122,13 @@ public class Utils {
                         default:
                             // format string not supported
                             throw ErrorCreator
-                                    .createError(StringUtils.fromString("unknown format conversion ''" +
-                                                                                format.getValue().charAt(j) + "''"));
+                                    .createError(StringUtils.fromString("unknown format conversion '" +
+                                                                                format.getValue().charAt(j) + "'"));
                     }
                 } catch (IllegalFormatConversionException e) {
-                    throw ErrorCreator.createError(StringUtils.fromString("illegal format conversion ''" +
+                    throw ErrorCreator.createError(StringUtils.fromString("illegal format conversion '" +
                                                                                   format.getValue().charAt(j) + " != " +
-                                                                                  TypeUtils.getType(args[k]) + "''"));
+                                                                                  TypeUtils.getType(args[k]) + "'"));
                 }
                 if (format.getValue().charAt(j) == '%') {
                     // special case %%, don't count as a format specifier
