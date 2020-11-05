@@ -77,6 +77,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
@@ -126,6 +127,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -2871,6 +2873,75 @@ public class TypeChecker extends BLangNodeVisitor {
         iExpr.type = ((BInvokableSymbol) funcSymbol).retType;
         checkInvocationParamAndReturnType(iExpr);
         iExpr.functionPointerInvocation = true;
+        return true;
+    }
+
+    @Override
+    public void visit(BLangObjectConstructorExpression objectCtorExpression) {
+        if (objectCtorExpression.referenceType == null && objectCtorExpression.expectedType != null) {
+            BObjectType objectType = (BObjectType) objectCtorExpression.classNode.type;
+            if (objectCtorExpression.expectedType.tag == TypeTags.OBJECT) {
+                BObjectType expObjType = (BObjectType) objectCtorExpression.expectedType;
+                objectType.typeIdSet = expObjType.typeIdSet;
+            } else if (objectCtorExpression.expectedType.tag != TypeTags.NONE) {
+                if (!checkAndLoadTypeIdSet(objectCtorExpression.expectedType, objectType)) {
+                    dlog.error(objectCtorExpression.pos, DiagnosticCode.INVALID_TYPE_OBJECT_CONSTRUCTOR,
+                            objectCtorExpression.expectedType);
+                    resultType = symTable.semanticError;
+                    return;
+                }
+            }
+        }
+        visit(objectCtorExpression.typeInit);
+    }
+
+    private boolean isDefiniteObjectType(BType type, Set<BTypeIdSet> typeIdSets) {
+        if (type.tag != TypeTags.OBJECT && type.tag != TypeTags.UNION) {
+            return false;
+        }
+
+        Set<BType> visitedTypes = new HashSet<>();
+        if (!collectObjectTypeIds(type, typeIdSets, visitedTypes)) {
+            return false;
+        }
+        return typeIdSets.size() <= 1;
+    }
+
+    private boolean collectObjectTypeIds(BType type, Set<BTypeIdSet> typeIdSets, Set<BType> visitedTypes) {
+        if (type.tag == TypeTags.OBJECT) {
+            var objectType = (BObjectType) type;
+            typeIdSets.add(objectType.typeIdSet);
+            return true;
+        }
+        if (type.tag == TypeTags.UNION) {
+            if (!visitedTypes.add(type)) {
+                return true;
+            }
+            for (BType member : ((BUnionType) type).getMemberTypes()) {
+                if (!collectObjectTypeIds(member, typeIdSets, visitedTypes)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkAndLoadTypeIdSet(BType type, BObjectType objectType) {
+        Set<BTypeIdSet> typeIdSets = new HashSet<>();
+        if (!isDefiniteObjectType(type, typeIdSets)) {
+            return false;
+        }
+        if (typeIdSets.isEmpty()) {
+            objectType.typeIdSet = BTypeIdSet.emptySet();
+            return true;
+        }
+        var typeIdIterator = typeIdSets.iterator();
+        if (typeIdIterator.hasNext()) {
+            BTypeIdSet typeIdSet = typeIdIterator.next();
+            objectType.typeIdSet = typeIdSet;
+            return true;
+        }
         return true;
     }
 

@@ -194,7 +194,7 @@ public abstract class AbstractParser {
     }
 
     /**
-     * Clones the last node in list with the invalid node as minutiae and update the list.
+     * Clones the last node in list with the invalid node as trailing minutiae and update the list.
      *
      * @param nodeList       node list to be updated
      * @param invalidParam   the invalid node to be attached to the last node in list as minutiae
@@ -215,7 +215,7 @@ public abstract class AbstractParser {
     }
 
     /**
-     * Clones the first node in list with the invalid node as minutiae and update the list.
+     * Clones the first node in list with the invalid node as leading minutiae and update the list.
      *
      * @param nodeList       node list to be updated
      * @param invalidParam   the invalid node to be attached to the first node in list as minutiae
@@ -226,12 +226,29 @@ public abstract class AbstractParser {
                                                         STNode invalidParam,
                                                         DiagnosticCode diagnosticCode,
                                                         Object... args) {
-        STNode firstNode = nodeList.remove(0);
-        STNode newNode = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(firstNode, invalidParam);
+        updateANodeInListWithInvalidNode(nodeList, 0, invalidParam, diagnosticCode, args);
+    }
+
+    /**
+     * Clones the a node in list with the invalid node as leading minutiae and update the list.
+     *
+     * @param nodeList       node list to be updated
+     * @param indexOfTheNode index of the node in list to be updated
+     * @param invalidParam   the invalid node to be attached to the first node in list as minutiae
+     * @param diagnosticCode diagnostic code related to the invalid node
+     * @param args           additional arguments used in diagnostic message
+     */
+    protected void updateANodeInListWithInvalidNode(List<STNode> nodeList,
+                                                    int indexOfTheNode,
+                                                    STNode invalidParam,
+                                                    DiagnosticCode diagnosticCode,
+                                                    Object... args) {
+        STNode node = nodeList.get(indexOfTheNode);
+        STNode newNode = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(node, invalidParam);
         if (diagnosticCode != null) {
             newNode = SyntaxErrors.addDiagnostic(newNode, diagnosticCode, args);
         }
-        nodeList.add(0, newNode);
+        nodeList.set(indexOfTheNode, newNode);
     }
 
     /**
