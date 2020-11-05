@@ -195,9 +195,14 @@ public class ObserveUtils {
         } else {
             String className = typeDef.getClass().getCanonicalName();
             String[] classNameSplit = className.split("\\.");
-            int lastIndexOfDollar = classNameSplit[3].lastIndexOf('$');
-            newObContext.setObjectName(classNameSplit[0] + "/" + classNameSplit[1] + "/"
-                    + classNameSplit[3].substring(lastIndexOfDollar + 1));
+            if (classNameSplit.length == 4) {   // Object from a project module
+                int lastIndexOfDollar = classNameSplit[3].lastIndexOf('$');
+                newObContext.setObjectName(classNameSplit[0] + "/" + classNameSplit[1] + "/"
+                        + classNameSplit[3].substring(lastIndexOfDollar + 1));
+            } else {    // Object from a single file (anonymous module)
+                int lastIndexOfDollar = className.lastIndexOf('$');
+                newObContext.setObjectName(className.substring(lastIndexOfDollar + 1));
+            }
         }
         newObContext.setFunctionName(functionName.getValue());
 
