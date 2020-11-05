@@ -34,7 +34,8 @@ public class BJSONType extends BUnionType {
     private static final int INITIAL_CAPACITY = 8;
 
     public BJSONType(BJSONType type, boolean nullable) {
-        super(type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, Symbols.isFlagOn(type.flags, Flags.READONLY));
+        super(type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable,
+                Symbols.isFlagOn(type.flags, Flags.READONLY));
         resolveCyclicType(type);
         this.tag = TypeTags.JSON;
         this.isCyclic = true;
