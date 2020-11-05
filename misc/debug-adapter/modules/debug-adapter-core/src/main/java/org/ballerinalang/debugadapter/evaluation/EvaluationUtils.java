@@ -44,7 +44,7 @@ public class EvaluationUtils {
 
     // Helper classes
     public static final String B_TYPE_CHECKER_CLASS = "io.ballerina.runtime.internal.TypeChecker";
-    public static final String B_STRING_UTILS_CLASS = "io.ballerina.runtime.api.StringUtils";
+    public static final String B_STRING_UTILS_CLASS = "io.ballerina.runtime.api.utils.StringUtils";
     public static final String B_XML_FACTORY_CLASS = "io.ballerina.runtime.internal.XMLFactory";
     public static final String B_DECIMAL_VALUE_CLASS = "io.ballerina.runtime.internal.values.DecimalValue";
     public static final String B_XML_VALUE_CLASS = "io.ballerina.runtime.internal.values.XMLValue";
