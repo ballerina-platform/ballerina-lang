@@ -429,15 +429,40 @@ public class SymbolEnter extends BLangNodeVisitor {
             BType typeOne = symResolver.resolveTypeNode(bLangTypeOne, env);
             if (typeOne.tag != TypeTags.ERROR && typeOne.tag != TypeTags.READONLY) {
                 // TODO: log error for intersection type with other types.
+                continue;
             }
 
             BLangType bLangTypeTwo = constituentTypes.get(1);
             BType typeTwo = symResolver.resolveTypeNode(bLangTypeTwo, env);
             if (typeTwo.tag != TypeTags.ERROR && typeTwo.tag != TypeTags.READONLY) {
                 // TODO: log error for intersection type with other types.
+                continue;
             }
 
             BType potentialIntersectionType = types.getTypeIntersection(typeOne, typeTwo);
+            boolean isValidIntersection = true;
+
+            for (int i = 2; i < constituentTypes.size(); i++) {
+                BLangType bLangType = constituentTypes.get(i);
+                BType bType = symResolver.resolveTypeNode(bLangType, env);
+
+                if (bType.getKind() != TypeKind.ERROR || bType == symTable.noType) {
+                    // TODO: Log error for invalid intersection
+                    isValidIntersection = false;
+                    break;
+                }
+
+                potentialIntersectionType = types.getTypeIntersection(potentialIntersectionType, bType);
+                if (potentialIntersectionType == symTable.semanticError) {
+                    // TODO: Log invalid intersection
+                    isValidIntersection = false;
+                    break;
+                }
+            }
+
+            if (!isValidIntersection) {
+                continue;
+            }
 
             LinkedHashSet<BType> constituentBTypes = new LinkedHashSet<>() {{
                 add(typeOne);
@@ -466,7 +491,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private BLangTypeDefinition defineErrorDetailRecord(BRecordType detailRecord, Location pos, SymbolEnv env) {
-        BRecordTypeSymbol detailRecordSymbol = (BRecordTypeSymbol) detailRecord.tsymbol; // TODO: need to support map intersection
+        // TODO: need to support map intersection.
+        BRecordTypeSymbol detailRecordSymbol = (BRecordTypeSymbol) detailRecord.tsymbol;
         detailRecordSymbol.scope.define(names.fromString(
                 detailRecordSymbol.name.value + "." + detailRecordSymbol.initializerFunc.funcName.value),
                                         detailRecordSymbol.initializerFunc.symbol);
