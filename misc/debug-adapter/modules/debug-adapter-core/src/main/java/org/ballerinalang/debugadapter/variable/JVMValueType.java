@@ -44,17 +44,17 @@ public enum JVMValueType {
     HANDLE_VALUE("io.ballerina.runtime.internal.values.HandleValue"),
     STREAM_VALUE("io.ballerina.runtime.internal.values.StreamValue"),
     TABLE_VALUE("io.ballerina.runtime.internal.values.TableValue"),
-    XML_COMMENT("io.ballerina.runtime.internal.values.XMLComment"),
-    XML_ITEM("io.ballerina.runtime.internal.values.XMLItem"),
-    XML_PI("io.ballerina.runtime.internal.values.XMLPi"),
-    XML_SEQUENCE("io.ballerina.runtime.internal.values.XMLSequence"),
-    XML_TEXT("io.ballerina.runtime.internal.values.XMLText"),
+    XML_COMMENT("io.ballerina.runtime.internal.values.XmlComment"),
+    XML_ITEM("io.ballerina.runtime.internal.values.XmlItem"),
+    XML_PI("io.ballerina.runtime.internal.values.XmlPi"),
+    XML_SEQUENCE("io.ballerina.runtime.internal.values.XmlSequence"),
+    XML_TEXT("io.ballerina.runtime.internal.values.XmlText"),
     XML_ATTRIB_MAP("io.ballerina.runtime.internal.values.AttributeMapValueImpl"),
     FP_VALUE("io.ballerina.runtime.internal.values.FPValue"),
     ANON_SERVICE("anonService"),
     BTYPE_OBJECT("BObjectType"),
     BTYPE_RECORD("BRecordType"),
-    BTYPE_JSON("BJSONType");
+    BTYPE_JSON("BJsonType");
 
     private final String value;
 
