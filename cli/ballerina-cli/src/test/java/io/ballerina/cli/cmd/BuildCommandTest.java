@@ -207,7 +207,7 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Build bal file containing syntax error", enabled = false)
+    @Test(description = "Build bal file containing syntax error")
     public void testBalFileWithSyntaxError() {
         // valid source root path
         Path balFilePath = this.testResources.resolve("bal-file-with-syntax-error").resolve("hello_world.bal");
@@ -288,10 +288,6 @@ public class BuildCommandTest extends BaseCommandTest {
                 "\n" +
                 "Creating balos\n" +
                 "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
-                "\n" +
-                "Running Tests\n" +
-                "\twinery\n" +
-                "\tNo tests found\n" +
                 "\n" +
                 "Generating executable\n" +
                 "\ttarget/bin/winery.jar\n");
