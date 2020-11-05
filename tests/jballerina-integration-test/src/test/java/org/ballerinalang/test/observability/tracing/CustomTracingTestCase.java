@@ -160,9 +160,9 @@ public class CustomTracingTestCase extends TracingBaseTestCase {
     @Test
     public void testCustomTrace() throws Exception {
         final String resourceName = "resourceTwo";
-        final String span1Position = FILE_NAME + ":51:5";
-        final String span2Position = FILE_NAME + ":70:15";
-        final String span3Position = FILE_NAME + ":59:20";
+        final String span1Position = FILE_NAME + ":55:5";
+        final String span2Position = FILE_NAME + ":74:15";
+        final String span3Position = FILE_NAME + ":63:20";
 
         HttpResponse httpResponse = HttpClientRequest.doGet(BASE_URL + "/" + SERVICE_NAME + "/" + resourceName);
         Assert.assertEquals(httpResponse.getResponseCode(), 200);
