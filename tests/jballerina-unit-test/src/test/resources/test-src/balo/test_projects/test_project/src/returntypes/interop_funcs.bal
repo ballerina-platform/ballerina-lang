@@ -73,7 +73,7 @@ public function getInvalidValue(typedesc<int|Person> td1, typedesc<Person> td2) 
 //public function getXML(typedesc<ItemType> td, xml value) returns xml<td> = @java:Method {
 //    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
 //    name: "getXML",
-//    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BXML"]
+//    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BXml"]
 //} external;
 
 public function getStream(typedesc<anydata> td, stream<anydata> value) returns stream<td> = @java:Method {
