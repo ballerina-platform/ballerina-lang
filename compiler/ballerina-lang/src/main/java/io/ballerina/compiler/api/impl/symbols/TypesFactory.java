@@ -6,40 +6,19 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-package io.ballerina.compiler.api.impl;
+package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.symbols.BallerinaAnyTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaAnydataTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaArrayTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaErrorTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaFutureTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaHandleTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaJSONTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaMapTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaNilTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaObjectTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaReadonlyTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaRecordTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaSimpleTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaSingletonTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaStreamTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaTableTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaTupleTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaTypeDescTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaUnionTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaXMLTypeSymbol;
+import io.ballerina.compiler.api.impl.BallerinaModuleID;
+import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -54,7 +33,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
