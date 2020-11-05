@@ -22,13 +22,26 @@ package org.ballerinalang.tool;
  *
  * @since 1.2.10
  */
-public class BLangPanicException extends RuntimeException {
+public class RuntimePanicException extends RuntimeException {
+
+    private int exitCode;
+
     /**
-     * Constructs a new {@link BLangPanicException} with the specified error message.
+     * Constructs a new {@link RuntimePanicException} with the specified exit code.
      *
-     * @param message Error Reason
+     * @param exitCode Exit code from the ballerina program
      */
-    public BLangPanicException(String message) {
-        super(message);
+    public RuntimePanicException(int exitCode) {
+        super("Ballerina program execution exited with the exit code " + exitCode);
+        this.exitCode = exitCode;
+    }
+
+    /**
+     * Returns the exit code from the Ballerina program.
+     *
+     * @return int
+     */
+    public int getExitCode() {
+        return this.exitCode;
     }
 }
