@@ -512,7 +512,7 @@ public class MethodGen {
     private boolean isModuleTestInitFunction(BIRPackage module, BIRFunction func) {
         return func.name.value.equals(
                 MethodGenUtils
-                        .calculateModuleSpecialFuncName(MethodGenUtils.packageToModuleId(module), "<testinit>"));
+                        .encodeModuleSpecialFuncName(".<testinit>"));
     }
 
     private void generateAnnotLoad(MethodVisitor mv, List<BIRTypeDefinition> typeDefs, String pkgName) {
@@ -548,8 +548,7 @@ public class MethodGen {
 
     private boolean isModuleStartFunction(BIRPackage module, String functionName) {
         return functionName
-                .equals(MethodGenUtils.calculateModuleSpecialFuncName(MethodGenUtils.packageToModuleId(module),
-                        MethodGenUtils.START_FUNCTION_SUFFIX));
+                .equals(MethodGenUtils.encodeModuleSpecialFuncName(MethodGenUtils.START_FUNCTION_SUFFIX));
     }
 
     private void genGetFrameOnResumeIndex(int localVarOffset, MethodVisitor mv, String frameName) {

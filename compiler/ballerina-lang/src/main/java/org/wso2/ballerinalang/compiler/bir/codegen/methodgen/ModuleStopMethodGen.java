@@ -108,8 +108,7 @@ public class ModuleStopMethodGen {
 
         PackageID currentModId = MethodGenUtils.packageToModuleId(module);
         String moduleInitClass = getModuleInitClassName(currentModId);
-        String fullFuncName = MethodGenUtils.calculateModuleSpecialFuncName(currentModId,
-                                                                            MethodGenUtils.STOP_FUNCTION_SUFFIX);
+        String fullFuncName = MethodGenUtils.calculateLambdaStopFuncName(currentModId);
 
         scheduleStopMethod(mv, initClass, fullFuncName, schedulerIndex, futureIndex, moduleInitClass,
                 asyncDataCollector);
@@ -117,7 +116,7 @@ public class ModuleStopMethodGen {
         while (i >= 0) {
             PackageID id = imprtMods.get(i);
             i -= 1;
-            fullFuncName = MethodGenUtils.calculateModuleSpecialFuncName(id, MethodGenUtils.STOP_FUNCTION_SUFFIX);
+            fullFuncName = MethodGenUtils.calculateLambdaStopFuncName(id);
             moduleInitClass = getModuleInitClassName(id);
             scheduleStopMethod(mv, initClass, fullFuncName, schedulerIndex, futureIndex, moduleInitClass,
                     asyncDataCollector);
@@ -138,8 +137,7 @@ public class ModuleStopMethodGen {
         MethodGenUtils.genArgs(mv, schedulerIndex);
 
         // create FP value
-        String lambdaFuncName = "$lambda$" + stopFuncName;
-        JvmCodeGenUtil.createFunctionPointer(mv, initClass, lambdaFuncName);
+        JvmCodeGenUtil.createFunctionPointer(mv, initClass, stopFuncName);
 
         // no parent strand
         mv.visitInsn(ACONST_NULL);

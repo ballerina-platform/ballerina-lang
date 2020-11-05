@@ -579,7 +579,7 @@ public class Desugar extends BLangNodeVisitor {
      * @param env     symbol environment of package
      */
     private void createPackageInitFunctions(BLangPackage pkgNode, SymbolEnv env) {
-        String alias = pkgNode.symbol.pkgID.toString();
+        String alias = "";
         pkgNode.initFunction = ASTBuilderUtil.createInitFunctionWithErrorOrNilReturn(pkgNode.pos, alias,
                                                                                      Names.INIT_FUNCTION_SUFFIX,
                                                                                      symTable);

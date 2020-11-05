@@ -105,15 +105,12 @@ public class InitMethodGen {
         generateLambdaForModuleFunction(cw, MODULE_START, initClass);
 
         PackageID currentModId = MethodGenUtils.packageToModuleId(pkg);
-        String fullFuncName = MethodGenUtils.calculateModuleSpecialFuncName(currentModId,
-                                                                            MethodGenUtils.STOP_FUNCTION_SUFFIX);
 
-        generateLambdaForDepModStopFunc(cw, fullFuncName, initClass);
+        generateLambdaForDepModStopFunc(cw, currentModId, initClass);
 
         for (PackageID id : depMods) {
-            fullFuncName = MethodGenUtils.calculateModuleSpecialFuncName(id, MethodGenUtils.STOP_FUNCTION_SUFFIX);
             String jvmClass = JvmCodeGenUtil.getPackageName(id) + MODULE_INIT_CLASS_NAME;
-            generateLambdaForDepModStopFunc(cw, fullFuncName, jvmClass);
+            generateLambdaForDepModStopFunc(cw, id, jvmClass);
         }
     }
 
@@ -134,11 +131,12 @@ public class InitMethodGen {
         MethodGenUtils.visitReturn(mv);
     }
 
-    private void generateLambdaForDepModStopFunc(ClassWriter cw, String funcName, String initClass) {
+    private void generateLambdaForDepModStopFunc(ClassWriter cw, PackageID pkgID, String initClass) {
         MethodVisitor mv;
-        mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC,
-                            String.format("$lambda$%s", funcName),
-                            String.format("([L%s;)L%s;", OBJECT, OBJECT), null, null);
+        String lambdaName = MethodGenUtils.calculateLambdaStopFuncName(pkgID);
+        String stopFuncName = MethodGenUtils.encodeModuleSpecialFuncName(MethodGenUtils.STOP_FUNCTION_SUFFIX);
+        mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, lambdaName, String.format("([L%s;)L%s;", OBJECT, OBJECT)
+                , null, null);
         mv.visitCode();
 
         //load strand as first arg
@@ -147,7 +145,8 @@ public class InitMethodGen {
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
 
-        mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, String.format("(L%s;)L%s;", STRAND_CLASS, OBJECT), false);
+        mv.visitMethodInsn(INVOKESTATIC, initClass, stopFuncName, String.format("(L%s;)L%s;", STRAND_CLASS, OBJECT),
+                false);
         MethodGenUtils.visitReturn(mv);
     }
 
@@ -239,12 +238,12 @@ public class InitMethodGen {
         BIROperand boolRef = new BIROperand(boolVal);
 
         for (PackageID id : imprtMods) {
-            String initFuncName = MethodGenUtils.calculateModuleSpecialFuncName(id, initName);
+            String initFuncName = MethodGenUtils.encodeModuleSpecialFuncName(initName);
             addCheckedInvocation(modInitFunc, id, initFuncName, retVarRef, boolRef);
         }
 
         PackageID currentModId = MethodGenUtils.packageToModuleId(pkg);
-        String currentInitFuncName = MethodGenUtils.calculateModuleSpecialFuncName(currentModId, initName);
+        String currentInitFuncName = MethodGenUtils.encodeModuleSpecialFuncName(initName);
         BIRNode.BIRBasicBlock lastBB = addCheckedInvocation(modInitFunc, currentModId, currentInitFuncName, retVarRef,
                                                             boolRef);
 
