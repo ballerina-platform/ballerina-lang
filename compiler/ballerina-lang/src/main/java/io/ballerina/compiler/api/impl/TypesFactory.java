@@ -18,21 +18,28 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.impl.symbols.BallerinaAnyTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaAnydataTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaArrayTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaErrorTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaFutureTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaHandleTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaJSONTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaMapTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaNilTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaObjectTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaReadonlyTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaRecordTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaSimpleTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaSingletonTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaStreamTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaTableTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTupleTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeDescTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaUnionTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaXMLTypeSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -40,20 +47,27 @@ import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -116,6 +130,20 @@ public class TypesFactory {
         }
 
         switch (bType.getKind()) {
+            case ANY:
+                return new BallerinaAnyTypeSymbol(this.context, moduleID, (BAnyType) bType);
+            case ANYDATA:
+                return new BallerinaAnydataTypeSymbol(this.context, moduleID, (BAnydataType) bType);
+            case HANDLE:
+                return new BallerinaHandleTypeSymbol(this.context, moduleID, (BHandleType) bType);
+            case JSON:
+                return new BallerinaJSONTypeSymbol(this.context, moduleID, (BJSONType) bType);
+            case READONLY:
+                return new BallerinaReadonlyTypeSymbol(this.context, moduleID, (BReadonlyType) bType);
+            case TABLE:
+                return new BallerinaTableTypeSymbol(this.context, moduleID, (BTableType) bType);
+            case XML:
+                return new BallerinaXMLTypeSymbol(this.context, moduleID, (BXMLType) bType);
             case OBJECT:
                 ObjectTypeSymbol objType = new BallerinaObjectTypeSymbol(this.context, moduleID, (BObjectType) bType);
                 if (Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {

@@ -18,6 +18,7 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
@@ -35,14 +36,17 @@ public class BallerinaXMLTypeSymbol extends AbstractTypeSymbol implements XMLTyp
 
     private TypeSymbol typeParameter;
 
-    public BallerinaXMLTypeSymbol(CompilerContext context, ModuleID moduleID, TypeSymbol typeParameter,
-                                  BXMLType xmlType) {
+    public BallerinaXMLTypeSymbol(CompilerContext context, ModuleID moduleID, BXMLType xmlType) {
         super(context, TypeDescKind.XML, moduleID, xmlType);
-        this.typeParameter = typeParameter;
     }
 
     @Override
     public Optional<TypeSymbol> typeParameter() {
+        if (this.typeParameter == null) {
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.typeParameter = typesFactory.getTypeDescriptor(((BXMLType) this.getBType()).constraint);
+        }
+
         return Optional.ofNullable(this.typeParameter);
     }
 

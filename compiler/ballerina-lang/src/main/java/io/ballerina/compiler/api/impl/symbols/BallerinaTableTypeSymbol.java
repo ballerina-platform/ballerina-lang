@@ -18,6 +18,7 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -38,20 +39,28 @@ public class BallerinaTableTypeSymbol extends AbstractTypeSymbol implements Tabl
     private TypeSymbol rowTypeParameter;
     private TypeSymbol keyConstraintTypeParameter;
 
-    public BallerinaTableTypeSymbol(CompilerContext context, ModuleID moduleID, TypeSymbol rowTypeParameter,
-                                    TypeSymbol keyConstraintTypeParameter, BTableType tableType) {
+    public BallerinaTableTypeSymbol(CompilerContext context, ModuleID moduleID, BTableType tableType) {
         super(context, TypeDescKind.TABLE, moduleID, tableType);
-        this.rowTypeParameter = rowTypeParameter;
-        this.keyConstraintTypeParameter = keyConstraintTypeParameter;
     }
 
     @Override
     public TypeSymbol rowTypeParameter() {
+        if (this.rowTypeParameter == null) {
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.rowTypeParameter = typesFactory.getTypeDescriptor(((BTableType) this.getBType()).constraint);
+        }
+
         return this.rowTypeParameter;
     }
 
     @Override
     public Optional<TypeSymbol> keyConstraintTypeParameter() {
+        if (this.rowTypeParameter == null) {
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.keyConstraintTypeParameter = typesFactory.getTypeDescriptor(
+                    ((BTableType) this.getBType()).keyTypeConstraint);
+        }
+
         return Optional.ofNullable(this.keyConstraintTypeParameter);
     }
 
