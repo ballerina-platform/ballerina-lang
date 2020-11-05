@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.symbols.SingletonTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
  * Represents a singleton type descriptor.
@@ -31,8 +32,9 @@ public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements 
 
     private String typeName;
 
-    public BallerinaSingletonTypeSymbol(ModuleID moduleID, BLangExpression shape, BType bType) {
-        super(TypeDescKind.SINGLETON, moduleID, bType);
+    public BallerinaSingletonTypeSymbol(CompilerContext context, ModuleID moduleID, BLangExpression shape,
+                                        BType bType) {
+        super(context, TypeDescKind.SINGLETON, moduleID, bType);
         this.typeName = shape.toString();
     }
 

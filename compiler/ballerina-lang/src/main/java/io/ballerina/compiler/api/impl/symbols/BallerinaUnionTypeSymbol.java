@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
@@ -41,12 +42,12 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
 
     private List<TypeSymbol> memberTypes;
 
-    public BallerinaUnionTypeSymbol(ModuleID moduleID, BUnionType unionType) {
-        super(TypeDescKind.UNION, moduleID, unionType);
+    public BallerinaUnionTypeSymbol(CompilerContext context, ModuleID moduleID, BUnionType unionType) {
+        super(context, TypeDescKind.UNION, moduleID, unionType);
     }
 
-    public BallerinaUnionTypeSymbol(ModuleID moduleID, BFiniteType finiteType) {
-        super(TypeDescKind.UNION, moduleID, finiteType);
+    public BallerinaUnionTypeSymbol(CompilerContext context, ModuleID moduleID, BFiniteType finiteType) {
+        super(context, TypeDescKind.UNION, moduleID, finiteType);
     }
 
     @Override
@@ -55,12 +56,14 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
             List<TypeSymbol> members = new ArrayList<>();
 
             if (this.getBType().tag == TypeTags.UNION) {
+                TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+
                 for (BType memberType : ((BUnionType) this.getBType()).getMemberTypes()) {
-                    members.add(TypesFactory.getTypeDescriptor(memberType));
+                    members.add(typesFactory.getTypeDescriptor(memberType));
                 }
             } else {
                 for (BLangExpression value : ((BFiniteType) this.getBType()).getValueSpace()) {
-                    members.add(new BallerinaSingletonTypeSymbol(moduleID(), value, value.type));
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID(), value, value.type));
                 }
             }
 

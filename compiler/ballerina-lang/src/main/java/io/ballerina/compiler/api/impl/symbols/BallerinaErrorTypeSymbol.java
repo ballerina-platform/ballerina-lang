@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 /**
@@ -33,8 +34,8 @@ public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements Erro
 
     private TypeSymbol detail;
 
-    public BallerinaErrorTypeSymbol(ModuleID moduleID, BErrorType errorType) {
-        super(TypeDescKind.ERROR, moduleID, errorType);
+    public BallerinaErrorTypeSymbol(CompilerContext context, ModuleID moduleID, BErrorType errorType) {
+        super(context, TypeDescKind.ERROR, moduleID, errorType);
     }
 
     /**
@@ -45,7 +46,8 @@ public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements Erro
     @Override
     public TypeSymbol detailTypeDescriptor() {
         if (this.detail == null) {
-            this.detail = TypesFactory.getTypeDescriptor(((BErrorType) this.getBType()).getDetailType());
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.detail = typesFactory.getTypeDescriptor(((BErrorType) this.getBType()).getDetailType());
         }
         return this.detail;
     }
