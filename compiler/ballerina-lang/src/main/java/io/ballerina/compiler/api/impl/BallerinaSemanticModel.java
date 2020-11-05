@@ -19,7 +19,7 @@ package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.types.TypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -57,6 +57,8 @@ public class BallerinaSemanticModel implements SemanticModel {
     private final BLangPackage bLangPackage;
     private final CompilerContext compilerContext;
     private final EnvironmentResolver envResolver;
+    private final SymbolFactory symbolFactory;
+    private final TypesFactory typesFactory;
 
     public BallerinaSemanticModel(BLangPackage bLangPackage, CompilerContext context) {
         this.compilerContext = context;
@@ -65,6 +67,8 @@ public class BallerinaSemanticModel implements SemanticModel {
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(bLangPackage.symbol);
         this.envResolver = new EnvironmentResolver(pkgEnv);
+        this.symbolFactory = SymbolFactory.getInstance(context);
+        this.typesFactory = TypesFactory.getInstance(context);
     }
 
     /**
@@ -90,7 +94,7 @@ public class BallerinaSemanticModel implements SemanticModel {
                 BSymbol symbol = scopeEntry.symbol;
 
                 if (hasCursorPosPassedSymbolPos(symbol, cursorPos) || isImportedSymbol(symbol)) {
-                    compiledSymbols.add(SymbolFactory.getBCompiledSymbol(symbol, name.getValue()));
+                    compiledSymbols.add(symbolFactory.getBCompiledSymbol(symbol, name.getValue()));
                 }
             }
         }
@@ -111,7 +115,7 @@ public class BallerinaSemanticModel implements SemanticModel {
             return Optional.empty();
         }
 
-        return Optional.ofNullable(SymbolFactory.getBCompiledSymbol(symbolAtCursor, symbolAtCursor.name.value));
+        return Optional.ofNullable(symbolFactory.getBCompiledSymbol(symbolAtCursor, symbolAtCursor.name.value));
     }
 
     /**
@@ -126,7 +130,7 @@ public class BallerinaSemanticModel implements SemanticModel {
             Scope.ScopeEntry value = e.getValue();
 
             if (value.symbol.origin == SOURCE) {
-                compiledSymbols.add(SymbolFactory.getBCompiledSymbol(value.symbol, key.value));
+                compiledSymbols.add(symbolFactory.getBCompiledSymbol(value.symbol, key.value));
             }
         }
 
@@ -146,7 +150,7 @@ public class BallerinaSemanticModel implements SemanticModel {
             return Optional.empty();
         }
 
-        return Optional.ofNullable(TypesFactory.getTypeDescriptor(node.type));
+        return Optional.ofNullable(typesFactory.getTypeDescriptor(node.type));
     }
 
     /**
