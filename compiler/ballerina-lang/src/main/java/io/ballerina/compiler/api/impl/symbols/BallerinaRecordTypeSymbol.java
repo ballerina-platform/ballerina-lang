@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,12 +37,13 @@ import java.util.StringJoiner;
  * @since 2.0.0
  */
 public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements RecordTypeSymbol {
+
     private List<FieldSymbol> fieldSymbols;
     private final boolean isInclusive;
     private TypeSymbol restTypeDesc;
 
-    public BallerinaRecordTypeSymbol(ModuleID moduleID, BRecordType recordType) {
-        super(TypeDescKind.RECORD, moduleID, recordType);
+    public BallerinaRecordTypeSymbol(CompilerContext context, ModuleID moduleID, BRecordType recordType) {
+        super(context, TypeDescKind.RECORD, moduleID, recordType);
         this.isInclusive = !recordType.sealed;
     }
 
@@ -55,7 +57,7 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
         if (this.fieldSymbols == null) {
             this.fieldSymbols = new ArrayList<>();
             for (BField field : ((BRecordType) this.getBType()).fields.values()) {
-                this.fieldSymbols.add(new BallerinaFieldSymbol(field));
+                this.fieldSymbols.add(new BallerinaFieldSymbol(this.context, field));
             }
         }
 
@@ -75,8 +77,10 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
     @Override
     public Optional<TypeSymbol> restTypeDescriptor() {
         if (this.restTypeDesc == null) {
-            this.restTypeDesc = TypesFactory.getTypeDescriptor(((BRecordType) this.getBType()).restFieldType);
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.restTypeDesc = typesFactory.getTypeDescriptor(((BRecordType) this.getBType()).restFieldType);
         }
+
         return Optional.ofNullable(this.restTypeDesc);
     }
 

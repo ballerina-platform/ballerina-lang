@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Optional;
 
@@ -34,15 +35,17 @@ public class BallerinaMapTypeSymbol extends AbstractTypeSymbol implements MapTyp
 
     private TypeSymbol memberTypeDesc;
 
-    public BallerinaMapTypeSymbol(ModuleID moduleID, BMapType mapType) {
-        super(TypeDescKind.MAP, moduleID, mapType);
+    public BallerinaMapTypeSymbol(CompilerContext context, ModuleID moduleID, BMapType mapType) {
+        super(context, TypeDescKind.MAP, moduleID, mapType);
     }
 
     @Override
     public Optional<TypeSymbol> typeParameter() {
         if (this.memberTypeDesc == null) {
-            this.memberTypeDesc = TypesFactory.getTypeDescriptor(((BMapType) this.getBType()).constraint);
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.memberTypeDesc = typesFactory.getTypeDescriptor(((BMapType) this.getBType()).constraint);
         }
+
         return Optional.ofNullable(this.memberTypeDesc);
     }
 
