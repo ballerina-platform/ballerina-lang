@@ -61,6 +61,20 @@ function test() {
     Digit d = 1;
 
     Format fmt = DEFAULT;
+
+    json j = {name: "Pubudu"};
+
+    xml greet1 = xml `<greet>Hello</greet>`;
+    'xml:Element greet2 = xml `<greet>Hola!</greet>`;
+
+    readonly ro = 12;
+
+    any a = "Hello World!";
+    anydata ad = 1234;
+
+    table<Person> key(name) tab = table [];
+    table<Person> tab2 = table [];
+    table<Person> key<int> tab3 = table [];
 }
 
 type Number int|float|decimal;
@@ -72,3 +86,8 @@ public type Format DEFAULT|CSV|TDF;
 public const DEFAULT = "default";
 public const CSV = "csv";
 public const TDF = "tdf";
+
+type Person record {
+  readonly string name;
+  int age;
+};

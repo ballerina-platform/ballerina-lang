@@ -33,6 +33,7 @@ import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -41,6 +42,7 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -48,27 +50,33 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.util.Collections;
 import java.util.List;
 
 import static io.ballerina.compiler.api.symbols.ParameterKind.DEFAULTABLE;
 import static io.ballerina.compiler.api.symbols.ParameterKind.REQUIRED;
 import static io.ballerina.compiler.api.symbols.ParameterKind.REST;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ANY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.JSON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.READONLY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.SINGLETON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TABLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.compile;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
@@ -153,7 +161,7 @@ public class TypedescriptorTest {
     @Test
     public void testNilType() {
         Symbol symbol = getSymbol(38, 9);
-        FunctionTypeSymbol type = (FunctionTypeSymbol) ((FunctionSymbol) symbol).typeDescriptor();
+        FunctionTypeSymbol type = ((FunctionSymbol) symbol).typeDescriptor();
         assertEquals(type.returnTypeDescriptor().get().typeKind(), NIL);
     }
 
@@ -270,6 +278,61 @@ public class TypedescriptorTest {
         return new Object[][]{
                 {60, 10, List.of("0", "1", "2", "3")},
                 {62, 11, List.of("default", "csv", "tdf")}
+        };
+    }
+
+    @Test(dataProvider = "CommonTypesPosProvider")
+    public void testCommonTypes(int line, int column, TypeDescKind kind) {
+        VariableSymbol symbol = (VariableSymbol) getSymbol(line, column);
+        assertEquals(symbol.typeDescriptor().typeKind(), kind);
+    }
+
+    @DataProvider(name = "CommonTypesPosProvider")
+    public Object[][] getTypesPos() {
+        return new Object[][]{
+                {64, 9, JSON},
+                {69, 13, READONLY},
+                {71, 8, ANY},
+                {72, 12, ANYDATA},
+        };
+    }
+
+    @Test(dataProvider = "XMLPosProvider")
+    public void testXML(int line, int column, TypeDescKind kind) {
+        VariableSymbol symbol = (VariableSymbol) getSymbol(line, column);
+        TypeSymbol type = symbol.typeDescriptor();
+        assertEquals(type.typeKind(), XML);
+        assertEquals(((XMLTypeSymbol) type).typeParameter().get().typeKind(), kind);
+    }
+
+    @DataProvider(name = "XMLPosProvider")
+    public Object[][] getXMLTypePos() {
+        return new Object[][]{
+                {66, 8, UNION},
+//                {67, 17, XML}, TODO: https://github.com/ballerina-platform/ballerina-lang/issues/26787
+        };
+    }
+
+    @Test(dataProvider = "TablePosProvider")
+    public void testTable(int line, int column, TypeDescKind rowTypeKind, String rowTypeName,
+                          List<String> keySpecifiers, TypeDescKind keyConstraintTypeKind) {
+        VariableSymbol symbol = (VariableSymbol) getSymbol(line, column);
+        TypeSymbol type = symbol.typeDescriptor();
+        assertEquals(type.typeKind(), TABLE);
+
+        TableTypeSymbol tableType = (TableTypeSymbol) type;
+        assertEquals(tableType.rowTypeParameter().typeKind(), rowTypeKind);
+        assertEquals(tableType.rowTypeParameter().name(), rowTypeName);
+        assertEquals(tableType.keySpecifiers(), keySpecifiers);
+        tableType.keyConstraintTypeParameter().ifPresent(t -> assertEquals(t.typeKind(), keyConstraintTypeKind));
+    }
+
+    @DataProvider(name = "TablePosProvider")
+    public Object[][] getTableTypePos() {
+        return new Object[][]{
+                {74, 28, TYPE_REFERENCE, "Person", List.of("name"), null},
+                {75, 18, TYPE_REFERENCE, "Person", Collections.emptyList(), null},
+                {76, 27, TYPE_REFERENCE, "Person", Collections.emptyList(), INT}
         };
     }
 
