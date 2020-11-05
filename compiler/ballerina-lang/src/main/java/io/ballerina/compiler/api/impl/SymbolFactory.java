@@ -266,7 +266,7 @@ public class SymbolFactory {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
 
-        return symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(typeSymbol.type)).build();
+        return symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(typeSymbol.type, true)).build();
     }
 
     public BallerinaClassSymbol createClassSymbol(BClassSymbol classSymbol, String name) {

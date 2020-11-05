@@ -180,9 +180,7 @@ public class TypedescriptorTest {
     @Test
     public void testRecordType() {
         Symbol symbol = getSymbol(18, 5);
-        TypeReferenceTypeSymbol typeRef =
-                (TypeReferenceTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor();
-        RecordTypeSymbol type = (RecordTypeSymbol) typeRef.typeDescriptor();
+        RecordTypeSymbol type = (RecordTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), RECORD);
         assertFalse(type.inclusive());
         assertFalse(type.restTypeDescriptor().isPresent());
