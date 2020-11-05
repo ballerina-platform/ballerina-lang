@@ -100,14 +100,14 @@ public class BuildCommand implements BLauncherCmd {
                                                                   "'.jar' extension.")
     private String output;
 
-//    @CommandLine.Option(names = {"--offline"}, description = "Build/Compile offline without downloading " +
-//                                                              "dependencies.")
+    @CommandLine.Option(names = {"--offline"}, description = "Build/Compile offline without downloading " +
+                                                              "dependencies.")
     private boolean offline;
-//
-//    @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies.")
+
+    @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies.")
     private boolean skipLock;
-//
-//    @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
+
+    @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
     private boolean skipTests;
 
     @CommandLine.Parameters
@@ -125,15 +125,15 @@ public class BuildCommand implements BLauncherCmd {
     private static final String buildCmd = "ballerina build [-o <output>] [--sourceroot] [--offline] [--skip-tests]\n" +
             "                    [--skip-lock] {<ballerina-file | module-name> | -a | --all} [--] [(--key=value)...]";
 
-//    @CommandLine.Option(names = "--test-report", description = "enable test report generation")
-//    private boolean testReport;
-//
-//    @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
-//    private boolean coverage;
+    @CommandLine.Option(names = "--test-report", description = "enable test report generation")
+    private boolean testReport;
 
-//    @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
-//            "JAR file(s).")
-//    private boolean observabilityIncluded;
+    @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
+    private boolean coverage;
+
+    @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
+            "JAR file(s).")
+    private boolean observabilityIncluded;
 
     public void execute() {
         if (this.helpFlag) {

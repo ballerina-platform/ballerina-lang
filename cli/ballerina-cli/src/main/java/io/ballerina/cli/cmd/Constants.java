@@ -23,8 +23,8 @@ package io.ballerina.cli.cmd;
  * @since 2.0.0
  */
 public class Constants {
-    static final String BUILD_COMMAND = "buildNew";
-    static final String RUN_COMMAND = "runNew";
+    static final String BUILD_COMMAND = "build";
+    static final String RUN_COMMAND = "run";
     static final String COMPILE_COMMAND = "compile";
     static final String DOC_COMMAND = "doc";
     static final String TEST_COMMAND = "test";

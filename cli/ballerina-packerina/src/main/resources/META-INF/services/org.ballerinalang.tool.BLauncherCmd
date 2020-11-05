@@ -1,5 +1,3 @@
-org.ballerinalang.packerina.cmd.RunCommand
-org.ballerinalang.packerina.cmd.BuildCommand
 org.ballerinalang.packerina.cmd.DocCommand
 org.ballerinalang.packerina.cmd.PullCommand
 org.ballerinalang.packerina.cmd.PushCommand
