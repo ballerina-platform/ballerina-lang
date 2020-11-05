@@ -37,7 +37,7 @@ public class RuntimePanicException extends RuntimeException {
     }
 
     /**
-     * Returns the exit code from the Ballerina program.
+     * Returns the exit code from the Ballerina program execution.
      *
      * @return int
      */
