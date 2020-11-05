@@ -695,4 +695,9 @@ public class TypeTestExprTest {
         returns = BRunUtil.invoke(result, "testFutureFalse");
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
+
+    @Test
+    public void testMapAsRecord() {
+        BRunUtil.invoke(result, "testMapAsRecord");
+    }
 }

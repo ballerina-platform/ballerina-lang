@@ -25,6 +25,7 @@ import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -34,7 +35,7 @@ import java.nio.file.Paths;
 /**
  * Test class for tests file related debug scenarios for test command.
  */
-@Test(enabled = false)
+@Test
 public class MultiModuleTestDebugTest extends DebugAdapterBaseTestCase {
 
     @BeforeClass
@@ -46,15 +47,15 @@ public class MultiModuleTestDebugTest extends DebugAdapterBaseTestCase {
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMultiModuleDebugScenarios() throws BallerinaTestException {
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 24));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 29));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 38));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 47));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 54));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 60));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 70));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 22));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 27));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 36));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 44));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 51));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 57));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 64));
         initDebugSession(DebugUtils.DebuggeeExecutionKind.TEST);
 
         // Test for debug engage and break point hit @test:BeforeSuite
@@ -89,7 +90,10 @@ public class MultiModuleTestDebugTest extends DebugAdapterBaseTestCase {
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(5));
+    }
 
+    @AfterClass(alwaysRun = true)
+    private void cleanup() {
         terminateDebugSession();
     }
 }

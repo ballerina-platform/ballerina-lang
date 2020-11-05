@@ -165,7 +165,6 @@ public class ObjectConstructorExpressionNode extends ExpressionNode {
 
         public ObjectConstructorExpressionNodeModifier withTypeReference(
                 TypeDescriptorNode typeReference) {
-            Objects.requireNonNull(typeReference, "typeReference must not be null");
             this.typeReference = typeReference;
             return this;
         }

@@ -224,7 +224,7 @@ public class LangLibValueTest {
         BRunUtil.invokeFunction(compileResult, "testToStringMethodForTable");
     }
 
-    @Test(dataProvider = "mergeJsonFunctions", enabled = false)
+    @Test(dataProvider = "mergeJsonFunctions")
     public void testMergeJson(String function) {
         BValue[] returns = BRunUtil.invoke(compileResult, function);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
@@ -286,7 +286,7 @@ public class LangLibValueTest {
         };
     }
 
-    @Test(dataProvider = "cloneWithTypeFunctions", enabled = false)
+    @Test(dataProvider = "cloneWithTypeFunctions")
     public void testCloneWithType(String function) {
         BValue[] returns = BRunUtil.invoke(compileResult, function);
     }

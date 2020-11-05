@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -24,8 +25,8 @@ import org.ballerinalang.langserver.util.references.SymbolReferenceFindingVisito
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -44,7 +45,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -59,7 +59,7 @@ import java.util.stream.Collectors;
  */
 public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
 
-    private Predicate<DiagnosticPos> isWithinNode;
+    private Predicate<Location> isWithinNode;
 
     public CursorSymbolFindingVisitor(Token tokenAtCursor,
                                       LSContext lsContext, String pkgName, boolean currentCUnitMode) {
@@ -83,19 +83,25 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
         this.pkgName = pkgName;
         this.isWithinNode = pos -> (
                 // if node is single-line
-                ((pos.sLine == pos.eLine && cursorLine == pos.sLine) &&
-                        (cursorCol >= pos.sCol && cursorCol <= pos.eCol)) ||
+                ((pos.lineRange().startLine().line() == pos.lineRange().endLine().line()
+                        && cursorLine == pos.lineRange().startLine().line()) &&
+                        (cursorCol >= pos.lineRange().startLine().offset()
+                                && cursorCol <= pos.lineRange().endLine().offset())) ||
                         // if node is multi-line
-                        ((pos.sLine != pos.eLine) && (
-                                cursorLine > pos.sLine && cursorLine < pos.eLine ||
-                                        cursorLine == pos.eLine && cursorCol <= pos.eCol ||
-                                        cursorLine == pos.sLine && cursorCol >= pos.sCol
+                        ((pos.lineRange().startLine().line() != pos.lineRange().endLine().line()) && (
+                                cursorLine > pos.lineRange().startLine().line()
+                                        && cursorLine < pos.lineRange().endLine().line() ||
+                                        cursorLine == pos.lineRange().endLine().line()
+                                                && cursorCol <= pos.lineRange().endLine().offset() ||
+                                        cursorLine == pos.lineRange().startLine().line()
+                                                && cursorCol >= pos.lineRange().startLine().offset()
                         ))
         );
     }
 
     @Override
-    protected void addSymbol(BLangNode bLangNode, BSymbol bSymbol, boolean isDefinition, DiagnosticPos position) {
+    protected void addSymbol(BLangNode bLangNode, BSymbol bSymbol, boolean isDefinition,
+                             Location location) {
         SymbolReferencesModel.Reference symbolAtCursor = this.symbolReferences.getReferenceAtCursor();
         // Here, tsymbol check has been added in order to support the finite types
         // TODO: Handle finite type. After the fix check if it falsely capture symbols in other files with same name
@@ -105,7 +111,7 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
         if (symbolAtCursor != null) {
             return;
         }
-        DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(position);
+        Location zeroBasedPos = CommonUtil.toZeroBasedPosition(location);
         bSymbol = (bSymbol instanceof BVarSymbol && ((BVarSymbol) bSymbol).originalSymbol != null)
                 ? ((BVarSymbol) bSymbol).originalSymbol
                 : bSymbol;
@@ -129,10 +135,12 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
 
 
         List<TopLevelNode> filteredNodes = topLevelNodes.stream().filter(topLevelNode -> {
-            Diagnostic.DiagnosticPosition position = topLevelNode.getPosition();
-            DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(
-                    new DiagnosticPos(null, position.getStartLine(), position.getEndLine(), position.getStartColumn(),
-                                      position.getEndColumn()));
+            Location position = topLevelNode.getPosition();
+            Location zeroBasedPos = CommonUtil.toZeroBasedPosition(
+                    new BLangDiagnosticLocation(null, position.lineRange().startLine().line(),
+                                                        position.lineRange().endLine().line(),
+                                                        position.lineRange().startLine().offset(),
+                                                        position.lineRange().endLine().offset()));
             boolean isLambda = false;
             if (topLevelNode instanceof BLangFunction) {
                 BLangFunction func = (BLangFunction) topLevelNode;

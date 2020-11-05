@@ -30,6 +30,7 @@ import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorService;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentService;
+import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleService;
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.fragment.BallerinaFragmentService;
@@ -75,7 +76,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     private ExtendedLanguageClient client = null;
     private final TextDocumentService textService;
     private final WorkspaceService workspaceService;
-    //    private final BallerinaDocumentService ballerinaDocumentService;
+    private final BallerinaDocumentService ballerinaDocumentService;
     private final BallerinaConnectorService ballerinaConnectorService;
     private final BallerinaProjectService ballerinaProjectService;
     private final BallerinaExampleService ballerinaExampleService;
@@ -99,7 +100,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 
         this.textService = new BallerinaTextDocumentService(lsGlobalContext);
         this.workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
-//        this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(lsGlobalContext);
+        this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(lsGlobalContext);
         this.ballerinaConnectorService = new BallerinaConnectorServiceImpl(lsGlobalContext);
         this.ballerinaProjectService = new BallerinaProjectServiceImpl(lsGlobalContext);
         this.ballerinaExampleService = new BallerinaExampleServiceImpl();
@@ -203,7 +204,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     }
 
     public BallerinaDocumentService getBallerinaDocumentService() {
-        return null;
+        return this.ballerinaDocumentService;
     }
 
     @Override
