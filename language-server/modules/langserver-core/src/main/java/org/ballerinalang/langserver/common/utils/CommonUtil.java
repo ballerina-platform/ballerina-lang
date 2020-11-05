@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
@@ -376,14 +377,22 @@ public class CommonUtil {
      * @param typeName type name to be filtered against
      * @return {@link Optional} type found
      */
-    public static Optional<TypeDefinitionSymbol> getTypeFromModule(LSContext context, String alias, String typeName) {
+    public static Optional<TypeSymbol> getTypeFromModule(LSContext context, String alias, String typeName) {
         Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, alias);
         if (module.isEmpty()) {
             return Optional.empty();
         }
-        for (TypeDefinitionSymbol typeDefinitionSymbol : module.get().typeDefinitions()) {
+
+        ModuleSymbol moduleSymbol = module.get();
+        for (TypeDefinitionSymbol typeDefinitionSymbol : moduleSymbol.typeDefinitions()) {
             if (typeDefinitionSymbol.name().equals(typeName)) {
-                return Optional.of(typeDefinitionSymbol);
+                return Optional.of(typeDefinitionSymbol.typeDescriptor());
+            }
+        }
+
+        for (ClassSymbol clazz : moduleSymbol.classes()) {
+            if (clazz.name().equals(typeName)) {
+                return Optional.of(clazz);
             }
         }
 
