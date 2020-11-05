@@ -1147,7 +1147,8 @@ public class BIRPackageSymbolEnter {
                     bArrayType.eType = readTypeFromCp();
                     return bArrayType;
                 case TypeTags.UNION:
-                    return readUnionType(flags, cpI);
+                    BUnionType unionType = readUnionType(flags, cpI);
+                    return unionType;
                 case TypeTags.INTERSECTION:
                     BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,
                                                                                   Flags.asMask(EnumSet.of(Flag.PUBLIC)),
@@ -1402,7 +1403,6 @@ public class BIRPackageSymbolEnter {
             }
             unionType.flags = flags;
             unionType.isCyclic = isCyclic;
-
             for (int i = 0; i < unionMemberCount; i++) {
                 unionType.add(readTypeFromCp());
             }

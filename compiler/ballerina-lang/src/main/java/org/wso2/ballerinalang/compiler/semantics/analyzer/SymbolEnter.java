@@ -1060,6 +1060,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         // Check to support valid scenarios such as the following
                         // type A int\A[];
                         // type B A;
+                        // @typeparam type B A;
                         return;
                     }
                     // Add the `currentTypeNodeName` to complete the cycle.

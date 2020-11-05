@@ -227,7 +227,6 @@ public class CompilerDriver {
             symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
             symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null, null);
             symbolTable.langStreamModuleSymbol = pkgLoader.loadPackageSymbol(STREAM, null, null);
-            symResolver.bootstrapCloneableType();
         }
 
         if (langLib.equals(TRANSACTION)) {
@@ -237,13 +236,12 @@ public class CompilerDriver {
             symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null, null);
             symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
-            symResolver.bootstrapCloneableType();
         }
 
         if (langLib.equals(ERROR)) {
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
-            symResolver.bootstrapCloneableType();
         }
+        symResolver.bootstrapCloneableType();
         symResolver.bootstrapIntRangeType();
 
         // Now load each module.

@@ -856,7 +856,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void bootstrapAnydataType() {
-        ScopeEntry entry = symTable.langAnnotationModuleSymbol.scope.lookup(Names.ANYDATA);
+        ScopeEntry entry = symTable.rootPkgSymbol.scope.lookup(Names.ANYDATA);
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
                 entry = entry.next;
@@ -876,7 +876,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void bootstrapJsonType() {
-        ScopeEntry entry = symTable.langAnnotationModuleSymbol.scope.lookup(Names.JSON);
+        ScopeEntry entry = symTable.rootPkgSymbol.scope.lookup(Names.JSON);
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
                 entry = entry.next;
@@ -939,6 +939,16 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
             entry.symbol.type = symTable.cloneableType;
             symTable.detailType.constraint = symTable.cloneableType;
+            break;
+        }
+
+        entry = symTable.rootPkgSymbol.scope.lookup(Names.CLONEABLE);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
+                entry = entry.next;
+                continue;
+            }
+            entry.symbol.type = symTable.cloneableType;
             break;
         }
 
@@ -1254,12 +1264,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
 
             memberTypes.add(type);
-        }
-
-        // If at least one member is undefined, return noType as the type.
-        if (memberTypes.contains(symTable.noType)) {
-            resultType = symTable.noType;
-            return;
         }
 
         BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),

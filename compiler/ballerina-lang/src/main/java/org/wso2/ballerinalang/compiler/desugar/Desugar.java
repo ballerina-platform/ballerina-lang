@@ -4432,13 +4432,16 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
+    /* This function is a workaround and need improvement
+    *  Notes for improvement :
+    *    1. Both arguments are same.
+    *    2. Due to current type param logic we put type param flag on the original type.
+    *    3. Error type having Cloneable type with type param flag, change expression type by this code.
+    *
+    */
     private void fixTypeCastInTypeParamInvocation(BLangInvocation iExpr, BLangInvocation genIExpr) {
         var returnTypeOfInvokable = ((BInvokableSymbol) iExpr.symbol).retType;
-        if (iExpr.langLibInvocation || TypeParamAnalyzer.containsTypeParam(returnTypeOfInvokable)) { // false in master
-//            if (genIExpr.type != null && genIExpr.expectedType != null && types.isSameType(genIExpr.type,
-//                    genIExpr.expectedType)) {
-//                return;
-//            }
+        if (iExpr.langLibInvocation && TypeParamAnalyzer.containsTypeParam(returnTypeOfInvokable)) { // false in master
             // why we dont consider whole action invocation
             BType originalInvType = genIExpr.type;
             if (!genIExpr.async) {

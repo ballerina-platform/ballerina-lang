@@ -247,7 +247,7 @@ public class TypeParamAnalyzer {
         }
     }
 
-    private BType createBuiltInType(BType type, Name name, int flag) {
+    private BType createBuiltInType(BType type, Name name, int flags) {
         // Handle built-in types.
         switch (type.tag) {
             case TypeTags.INT:
@@ -256,13 +256,21 @@ public class TypeParamAnalyzer {
             case TypeTags.DECIMAL:
             case TypeTags.STRING:
             case TypeTags.BOOLEAN:
-                return new BType(type.tag, null, name, flag);
+                return new BType(type.tag, null, name, flags);
             case TypeTags.ANY:
-                return new BAnyType(type.tag, null, name, flag);
+                return new BAnyType(type.tag, null, name, flags);
             case TypeTags.ANYDATA:
-                return new BAnydataType(null, name, flag);
+                BAnydataType anydataType = new BAnydataType((BUnionType) type);
+                anydataType.name = name;
+                anydataType.flags = flags;
+                return anydataType;
             case TypeTags.READONLY:
-                return new BReadonlyType(type.tag, null, name, flag);
+                return new BReadonlyType(type.tag, null, name, flags);
+            case TypeTags.UNION:
+                BUnionType unionType = new BUnionType((BUnionType) type);
+                unionType.flags = flags;
+                unionType.name = name;
+                return unionType;
 
         }
         // For others, we will use TSymbol.

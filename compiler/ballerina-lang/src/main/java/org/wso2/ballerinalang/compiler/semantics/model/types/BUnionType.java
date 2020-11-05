@@ -66,9 +66,13 @@ public class BUnionType extends BType implements UnionType {
     }
 
     public BUnionType(BUnionType type) {
-        this(type.tsymbol, new LinkedHashSet<>(), type.isNullable(), Symbols.isFlagOn(type.flags, Flags.READONLY));
+        this(type.tsymbol, new LinkedHashSet<>(type.memberTypes.size()), type.isNullable(), Symbols.isFlagOn(type.flags,
+                Flags.READONLY));
         resolveCyclicType(type);
+        this.isCyclic = type.isCyclic;
         this.flags = type.flags;
+//        this.immutableType = type.immutableType;
+//        this.tag = type.tag;
     }
 
     @Override
@@ -300,7 +304,6 @@ public class BUnionType extends BType implements UnionType {
             }
             this.add(member);
         }
-        return isCyclic;
     }
 
     /**
