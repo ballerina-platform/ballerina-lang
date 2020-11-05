@@ -155,7 +155,7 @@ public class CompilerPhaseRunner {
             return;
         }
 
-        generateObservabilityData(pkgNode);
+//        generateObservabilityData(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.DESUGAR)) {
             return;
         }

@@ -136,7 +136,7 @@ dependencies {
     balSource project(path: ':jballerina', configuration: 'source')
 
     balxSource project(path: ':jballerina', configuration: 'sourceBalx')
-    distBal project(path: ':jballerina', configuration: 'balo')
+//    distBal project(path: ':jballerina', configuration: 'balo')
     dist project(path: ':jballerina', configuration: 'jar')
     bin project(path: ':jballerina', configuration: 'bin')
     staticFiles project(path: ':jballerina', configuration: 'staticFiles')
@@ -209,8 +209,8 @@ dependencies {
 task configured {
     configurations.distBal.allDependencies.withType(ProjectDependency) {
         def path = it.getDependencyProject().path
-        dependencies.add("bir", dependencies.project(path: path, configuration: 'bir'))
-        dependencies.add("birJar", dependencies.project(path: path, configuration: 'birJar'))
+//        dependencies.add("bir", dependencies.project(path: path, configuration: 'bir'))
+//        dependencies.add("birJar", dependencies.project(path: path, configuration: 'birJar'))
     }
 
 }
@@ -425,7 +425,7 @@ task createZip(type: Zip) {
     def basePath = '/' + project.name + '-' + project.version + '/'
     with copyJarSpec(basePath)
     with copyBirSpec(basePath)
-    with copyBirJarSpec(basePath)
+//    with copyBirJarSpec(basePath)
     with copyBaloSpec(basePath)
     with copyBalxSpec(basePath)
     with copyBinSpec(basePath)
@@ -449,7 +449,7 @@ task updateBalHome(type: Copy) {
     def installDir = ""
     with copyJarSpec(installDir)
     with copyBirSpec(installDir)
-    with copyBirJarSpec(installDir)
+//    with copyBirJarSpec(installDir)
     with copyBaloSpec(installDir)
     with copyBalxSpec(installDir)
     with copyBinSpec(installDir)
@@ -475,7 +475,7 @@ task createDistribution(type: Copy) {
     file(filePath).mkdirs()
     with copyJarSpec("")
     with copyBirSpec("")
-    with copyBirJarSpec("")
+//    with copyBirJarSpec("")
     with copyBaloSpec("")
     with copyBalxSpec("")
     with copyBinSpec("")
