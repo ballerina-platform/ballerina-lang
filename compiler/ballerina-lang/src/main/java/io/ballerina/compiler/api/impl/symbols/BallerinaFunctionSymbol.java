@@ -18,9 +18,9 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -38,7 +38,7 @@ import java.util.Set;
  */
 public class BallerinaFunctionSymbol extends BallerinaSymbol implements FunctionSymbol {
 
-    private final FunctionTypeDescriptor typeDescriptor;
+    private final FunctionTypeSymbol typeDescriptor;
     private final Set<Qualifier> qualifiers;
     private final boolean isExternal;
     private final boolean deprecated;
@@ -46,7 +46,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
     protected BallerinaFunctionSymbol(String name,
                                       PackageID moduleID,
                                       Set<Qualifier> qualifiers,
-                                      FunctionTypeDescriptor typeDescriptor,
+                                      FunctionTypeSymbol typeDescriptor,
                                       BInvokableSymbol invokableSymbol) {
         super(name, moduleID, SymbolKind.FUNCTION, invokableSymbol);
         this.qualifiers = Collections.unmodifiableSet(qualifiers);
@@ -66,7 +66,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
     }
 
     @Override
-    public FunctionTypeDescriptor typeDescriptor() {
+    public FunctionTypeSymbol typeDescriptor() {
         return this.typeDescriptor;
     }
 
@@ -86,7 +86,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
     public static class FunctionSymbolBuilder extends SymbolBuilder<FunctionSymbolBuilder> {
 
         protected Set<Qualifier> qualifiers = new HashSet<>();
-        protected FunctionTypeDescriptor typeDescriptor;
+        protected FunctionTypeSymbol typeDescriptor;
 
         public FunctionSymbolBuilder(String name, PackageID moduleID, BInvokableSymbol bSymbol) {
             this(name, moduleID, SymbolKind.FUNCTION, bSymbol);
@@ -97,7 +97,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
             super(name, moduleID, kind, bSymbol);
         }
 
-        public FunctionSymbolBuilder withTypeDescriptor(FunctionTypeDescriptor typeDescriptor) {
+        public FunctionSymbolBuilder withTypeDescriptor(FunctionTypeSymbol typeDescriptor) {
             this.typeDescriptor = typeDescriptor;
             return this;
         }

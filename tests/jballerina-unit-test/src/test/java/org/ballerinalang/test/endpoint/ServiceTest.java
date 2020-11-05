@@ -72,7 +72,7 @@ public class ServiceTest {
 
     @Test
     public void testUsingListenerFromDepModule() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/proj1");
+        CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/TestListenerProject");
         final BValue[] result = BRunUtil.invoke(compileResult, "getStartAndAttachCount");
         Assert.assertEquals(result.length, 1, "expected one return type");
         Assert.assertNotNull(result[0]);

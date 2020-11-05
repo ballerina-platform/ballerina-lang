@@ -8,6 +8,9 @@ target = "java11"
     [[platform.libraries]]
     artifactId = "system"
     version = "0.6.0"
-    path = "./lib/ballerina-system-0.6.0-java.jar"
+    path = "<PATH>/ballerina-system-<VERSION>.jar"
     groupId = "ballerina"
     modules = ["system"]
+
+    [[platform.libraries]]
+    path = "../../../../io/build/libs/ballerina-io-<VERSION>.jar"

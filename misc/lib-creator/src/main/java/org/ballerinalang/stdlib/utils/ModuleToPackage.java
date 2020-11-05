@@ -29,6 +29,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -114,7 +115,30 @@ public class ModuleToPackage {
         pkg.put("org", toml.getTable("project").getString("org-name"));
         pkg.put("version", toml.getTable("project").getString("version"));
         map.put("package", pkg);
+
+        Toml oldPlatform = toml.getTable("platform");
+        if (oldPlatform != null) {
+            // populate platform libs
+            Map<String, Object> platform = new HashMap<>();
+            Map<String, Object> java11 = new HashMap<>();
+            List<Object> dependencies = new ArrayList<>();
+            java11.put("dependency", dependencies);
+            platform.put("java11", java11);
+            map.put("platform", platform);
+
+            List<HashMap<String, String>> libs = oldPlatform.getList("libraries");
+            for (HashMap<String, String> lib : libs) {
+                lib.remove("modules");
+                String newPath = lib.get("path").replace("<PATH>", "../../libs")
+                    .replace("<VERSION>", "2.0.0-Preview6-SNAPSHOT");
+                lib.put("path", newPath);
+                dependencies.add(lib);
+            }
+        }
         String tomlString = tomlWriter.write(map);
+        //add a space above dependencies.
+        tomlString = tomlString.replace("[[platform", "\n[[platform");
+
         Files.writeString(newToml, tomlString);
     }
 

@@ -19,10 +19,13 @@ package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -30,11 +33,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -76,9 +78,9 @@ public class BallerinaSemanticModel implements SemanticModel {
         Map<Name, List<Scope.ScopeEntry>> scopeSymbols =
                 symbolResolver.getAllVisibleInScopeSymbols(this.envResolver.lookUp(compilationUnit, linePosition));
 
-        DiagnosticPos cursorPos = new DiagnosticPos(new BDiagnosticSource(bLangPackage.packageID, compilationUnit.name),
-                linePosition.line(), linePosition.line(),
-                linePosition.offset(), linePosition.offset());
+        Location cursorPos = new BLangDiagnosticLocation(compilationUnit.name,
+                                                    linePosition.line(), linePosition.line(),
+                                                    linePosition.offset(), linePosition.offset());
 
         for (Map.Entry<Name, List<Scope.ScopeEntry>> entry : scopeSymbols.entrySet()) {
             Name name = entry.getKey();
@@ -87,7 +89,7 @@ public class BallerinaSemanticModel implements SemanticModel {
             for (Scope.ScopeEntry scopeEntry : scopeEntries) {
                 BSymbol symbol = scopeEntry.symbol;
 
-                if (isSymbolInUserProject(symbol, cursorPos) || isImportedSymbol(symbol)) {
+                if (hasCursorPosPassedSymbolPos(symbol, cursorPos) || isImportedSymbol(symbol)) {
                     compiledSymbols.add(SymbolFactory.getBCompiledSymbol(symbol, name.getValue()));
                 }
             }
@@ -135,6 +137,22 @@ public class BallerinaSemanticModel implements SemanticModel {
      * {@inheritDoc}
      */
     @Override
+    public Optional<TypeSymbol> getType(String fileName, LineRange range) {
+        BLangCompilationUnit compilationUnit = getCompilationUnit(fileName);
+        NodeFinder nodeFinder = new NodeFinder();
+        BLangNode node = nodeFinder.lookup(compilationUnit, range);
+
+        if (node == null) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(TypesFactory.getTypeDescriptor(node.type));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public List<Diagnostic> diagnostics(LineRange range) {
         List<Diagnostic> allDiagnostics = this.bLangPackage.getDiagnostics();
         List<Diagnostic> filteredDiagnostics = new ArrayList<>();
@@ -160,11 +178,32 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     // Private helper methods for the public APIs above.
 
-    private boolean isSymbolInUserProject(BSymbol symbol, DiagnosticPos cursorPos) {
-        return symbol.origin == SOURCE &&
-                (cursorPos.compareTo(symbol.pos) > 0
-                        || symbol.owner.getKind() == SymbolKind.PACKAGE
-                        || Symbols.isFlagOn(symbol.flags, Flags.WORKER));
+    private boolean hasCursorPosPassedSymbolPos(BSymbol symbol, Location cursorPos) {
+        if (symbol.origin != SOURCE) {
+            return false;
+        }
+
+        if (symbol.owner.getKind() == SymbolKind.PACKAGE || Symbols.isFlagOn(symbol.flags, Flags.WORKER)) {
+            return true;
+        }
+
+        if (!bLangPackage.packageID.equals(symbol.pkgID)) {
+            return false;
+        }
+
+        // These checks whether the cursor position has passed the symbol position or not
+        LinePosition cursorPosStartLine = cursorPos.lineRange().startLine();
+        LinePosition symbolStartLine = symbol.pos.lineRange().startLine();
+
+        if (cursorPosStartLine.line() < symbolStartLine.line()) {
+            return false;
+        }
+
+        if (cursorPosStartLine.line() > symbolStartLine.line()) {
+            return true;
+        }
+
+        return cursorPosStartLine.offset() > symbolStartLine.offset();
     }
 
     private boolean isImportedSymbol(BSymbol symbol) {

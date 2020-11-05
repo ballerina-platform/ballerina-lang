@@ -35,8 +35,6 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-tool')
     implementation project(':ballerina-tools-api')
-    implementation project(':ballerina-projects')
-    implementation project(':ballerina-cli-module')
     implementation project(':central-client')
     implementation 'info.picocli:picocli'
     implementation 'org.apache.commons:commons-compress:1.18'

@@ -1,4 +1,4 @@
-import ballerina/http;
+import ballerina/lang.test;
 
 # Documentation for Tst struct
 # + a - `field a` documentation
@@ -38,21 +38,19 @@ type Employee record {
 };
 
 # PizzaService HTTP Service
-service PizzaService on new http:MockListener(9090){
+service PizzaService on new test:MockListener(9090){
 
     # Check orderPizza resource.
-    # + conn - HTTP connection.
+    # + conn - connection.
     # + req - In request.
-    resource function orderPizza(http:Caller conn, http:Request req) {
-        http:Response res = new;
-        checkpanic conn->respond(res);
+    resource function orderPizza(string conn, string req) {
+
     }
 
     # Check status resource.
-    # + conn - HTTP connection.
+    # + conn - connection.
     # + req - In request.
-    resource function checkStatus(http:Caller conn, http:Request req) {
-        http:Response res = new;
-        checkpanic conn->respond(res);
+    resource function checkStatus(string conn, string req) {
+
     }
 }

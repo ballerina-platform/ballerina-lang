@@ -154,14 +154,12 @@ public class ConstantDeclarationNode extends ModuleMemberDeclarationNode {
 
         public ConstantDeclarationNodeModifier withMetadata(
                 MetadataNode metadata) {
-            Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
         public ConstantDeclarationNodeModifier withVisibilityQualifier(
                 Token visibilityQualifier) {
-            Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
             this.visibilityQualifier = visibilityQualifier;
             return this;
         }
@@ -175,7 +173,6 @@ public class ConstantDeclarationNode extends ModuleMemberDeclarationNode {
 
         public ConstantDeclarationNodeModifier withTypeDescriptor(
                 TypeDescriptorNode typeDescriptor) {
-            Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
             this.typeDescriptor = typeDescriptor;
             return this;
         }

@@ -15,7 +15,7 @@
  *
  */
 
-//apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 configurations {
@@ -32,7 +32,6 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-tool')
-    implementation project(':ballerina-projects')
     implementation 'javax.ws.rs:javax.ws.rs-api'
     implementation 'me.tongfei:progressbar:0.7.4'
     implementation 'com.google.code.gson:gson'

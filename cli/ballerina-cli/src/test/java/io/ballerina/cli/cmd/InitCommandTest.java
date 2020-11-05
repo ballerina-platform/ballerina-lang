@@ -82,18 +82,7 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.isDirectory(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.MODULE_MD_FILE_NAME)));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
-        Assert.assertTrue(Files.isDirectory(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
-
-        Path moduleTests = packageDir.resolve(ProjectConstants.TEST_DIR_NAME);
-        Assert.assertTrue(Files.exists(moduleTests));
-        Assert.assertTrue(Files.isDirectory(moduleTests));
-        Assert.assertTrue(Files.exists(moduleTests.resolve("main_test.bal")));
-        Assert.assertTrue(Files.exists(moduleTests.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
-        Assert.assertTrue(Files.isDirectory(moduleTests.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
 
         Assert.assertTrue(readOutput().contains("Ballerina project initialised "));
     }

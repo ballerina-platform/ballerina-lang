@@ -9,5 +9,5 @@ module io.ballerina.central.client {
     requires jdk.httpserver;
     requires io.ballerina.runtime;
     requires io.ballerina.tool;
-    requires io.ballerina.projects;
+//    requires io.ballerina.projects;
 }

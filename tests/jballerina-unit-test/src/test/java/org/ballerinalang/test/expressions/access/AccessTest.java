@@ -56,7 +56,7 @@ public class AccessTest {
         validateError(negativeResult, i, "invalid operation: type 'Delta?' does not support indexing", 70, 17);
     }
 
-    @Test(dataProvider = "fieldAndOptionalFieldAccessFunctions", enabled = false)
+    @Test(dataProvider = "fieldAndOptionalFieldAccessFunctions")
     public void testFieldAndOptionalFieldAccess(String function) {
         BValue[] returns = BRunUtil.invoke(result, function);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());

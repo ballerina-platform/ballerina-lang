@@ -19,8 +19,8 @@
 package io.ballerina.cli.cmd;
 
 import org.ballerinalang.central.client.CentralAPIClient;
+import org.ballerinalang.central.client.CentralClientException;
 import org.ballerinalang.central.client.model.PackageSearchResult;
-import org.ballerinalang.cli.module.exeptions.CommandException;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -38,7 +38,7 @@ import static org.ballerinalang.tool.LauncherUtils.createUsageExceptionWithHelp;
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = SEARCH_COMMAND, description = "search for modules within Ballerina Central")
+@CommandLine.Command(name = SEARCH_COMMAND, description = "search for packages within Ballerina Central")
 public class SearchCommand implements BLauncherCmd {
     private static PrintStream outStream = System.err;
 
@@ -111,7 +111,7 @@ public class SearchCommand implements BLauncherCmd {
             } else {
                 outStream.println("no modules found");
             }
-        } catch (CommandException e) {
+        } catch (CentralClientException e) {
             String errorMessage = e.getMessage();
             if (null != errorMessage && !"".equals(errorMessage.trim())) {
                 // removing the error stack

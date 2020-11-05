@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.commons.completion;
 
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -53,7 +54,7 @@ public class CompletionKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<NonTerminalNode> NODE_AT_CURSOR_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<List<Class<?>>> RESOLVER_CHAIN
+    public static final LSContext.Key<List<Node>> RESOLVER_CHAIN
             = new LSContext.Key<>();
 
     // Following key is used for the completion within the if else/ while condition context

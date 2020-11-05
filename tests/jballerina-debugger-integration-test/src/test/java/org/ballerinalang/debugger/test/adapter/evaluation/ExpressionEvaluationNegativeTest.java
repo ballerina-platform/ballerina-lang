@@ -57,7 +57,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         // incompatible result types from expressions.
         assertEvaluationError(context, "string `json: ${" + JSON_VAR + "}`",
                 String.format(EvaluationExceptionKind.TYPE_MISMATCH.getString(), "(int|float|decimal|string|boolean)",
-                        "json", "${v24_jsonVar}"));
+                        "json", "${jsonVar}"));
     }
 
     @Override
@@ -258,7 +258,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         // Todo - Add negative tests for function invocations related errors. (invalid argument validation, etc.).
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     private void cleanup() {
         terminateDebugSession();
         this.context = null;

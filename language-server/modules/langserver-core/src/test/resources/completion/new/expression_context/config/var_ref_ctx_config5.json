@@ -217,13 +217,13 @@
       }
     },
     {
-      "label": "fromString(string s)(int|)",
+      "label": "fromString(string s)(int|error)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the integer that `s` represents in decimal.\nReturns error if `s` is not the decimal representation of an integer.\nThe first character may be `+` or `-`.\nThis is the inverse of `value:toString` applied to an `int`.\n  \n**Params**  \n- `string` s: string representation of a integer value  \n  \n**Returns** `int|`   \n- int representation of the argument or error  \n  \n"
+          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the integer that `s` represents in decimal.\nReturns error if `s` is not the decimal representation of an integer.\nThe first character may be `+` or `-`.\nThis is the inverse of `value:toString` applied to an `int`.\n  \n**Params**  \n- `string` s: string representation of a integer value  \n  \n**Returns** `int|error`   \n- int representation of the argument or error  \n  \n"
         }
       },
       "insertText": "fromString(${1})",
@@ -251,13 +251,13 @@
       }
     },
     {
-      "label": "fromHexString(string s)(int|)",
+      "label": "fromHexString(string s)(int|error)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the integer that `s` represents in hexadecimal.\nBoth uppercase A-F and lowercase a-f are allowed.\nIt may start with an optional `+` or `-` sign.\nNo `0x` or `0X` prefix is allowed.\nReturns an error if the `s` is not in an allowed format.\n  \n**Params**  \n- `string` s: hexadecimal string representation of int value  \n  \n**Returns** `int|`   \n- int value or error  \n  \n"
+          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the integer that `s` represents in hexadecimal.\nBoth uppercase A-F and lowercase a-f are allowed.\nIt may start with an optional `+` or `-` sign.\nNo `0x` or `0X` prefix is allowed.\nReturns an error if the `s` is not in an allowed format.\n  \n**Params**  \n- `string` s: hexadecimal string representation of int value  \n  \n**Returns** `int|error`   \n- int value or error  \n  \n"
         }
       },
       "insertText": "fromHexString(${1})",

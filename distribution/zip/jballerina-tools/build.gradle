@@ -47,12 +47,6 @@ configurations {
     debugAdapterDistribution {
         transitive false
     }
-    composerDistribution {
-        transitive false
-    }
-    composerFonts {
-        transitive false
-    }
     docerina
     bin
     bir
@@ -104,6 +98,7 @@ dependencies {
     // Following dependencies are required for transactions
     dist 'com.atomikos:transactions-jta:5.0.8'
     dist 'com.atomikos:transactions-api:5.0.8'
+    dist 'com.atomikos:atomikos-util:5.0.8'
     dist 'com.atomikos:transactions:5.0.8'
 
     dist project(':ballerina-tools-api')
@@ -142,13 +137,11 @@ dependencies {
     balSource project(path: ':jballerina', configuration: 'source')
 
     balxSource project(path: ':jballerina', configuration: 'sourceBalx')
-    distBal project(path: ':jballerina', configuration: 'balo')
+//    distBal project(path: ':jballerina', configuration: 'balo')
     dist project(path: ':jballerina', configuration: 'jar')
     bin project(path: ':jballerina', configuration: 'bin')
     staticFiles project(path: ':jballerina', configuration: 'staticFiles')
     resourceFiles project(path: ':jballerina', configuration: 'resourceFiles')
-    composerDistribution project(path: ':composer-library', configuration: 'composer')
-    composerFonts project(path: ':composer-library', configuration: 'fonts')
 
     distBal project(path: ':testerina:testerina-core', configuration: 'distributionBalo')
     balSource project(path: ':testerina:testerina-core', configuration: 'balSource')
@@ -217,8 +210,8 @@ dependencies {
 task configured {
     configurations.distBal.allDependencies.withType(ProjectDependency) {
         def path = it.getDependencyProject().path
-        dependencies.add("bir", dependencies.project(path: path, configuration: 'bir'))
-        dependencies.add("birJar", dependencies.project(path: path, configuration: 'birJar'))
+//        dependencies.add("bir", dependencies.project(path: path, configuration: 'bir'))
+//        dependencies.add("birJar", dependencies.project(path: path, configuration: 'birJar'))
     }
 
 }
@@ -261,7 +254,7 @@ def copyBalxSpec = {
 
 def copyToDistCache = {
     path -> copySpec {
-        from configurations.distributionBalo
+        from configurations.distributionBalo.collect { zipTree(it) }
         into(path + 'distribution-cache')
     }
 }
@@ -364,24 +357,6 @@ def copyDataMapperLibsSpec = {
     }
 }
 
-def copyComposerDistributionSpec = {
-    path -> copySpec {
-        from(configurations.composerDistribution)
-        into(path + 'lib/tools/composer-library')
-        exclude('**/*.d.ts')
-        exclude('**/*.map')
-    }
-}
-
-def copyComposerFontsSpec = {
-    path -> copySpec {
-        from configurations.composerFonts
-        into(path + 'lib/tools/composer-library')
-        exclude('**/*.d.ts')
-        exclude('**/*.map')
-    }
-}
-
 def apiDocsSpec = {
     path -> copySpec {
         from generateDocs.outputs.files
@@ -451,15 +426,13 @@ task createZip(type: Zip) {
     def basePath = '/' + project.name + '-' + project.version + '/'
     with copyJarSpec(basePath)
     with copyBirSpec(basePath)
-    with copyBirJarSpec(basePath)
+//    with copyBirJarSpec(basePath)
     with copyBaloSpec(basePath)
     with copyBalxSpec(basePath)
     with copyBinSpec(basePath)
     with copyLangServerLibsSpec(basePath)
     with copyDataMapperLibsSpec(basePath)
     with copyLangServerBinSpec(basePath)
-    with copyComposerDistributionSpec(basePath)
-    with copyComposerFontsSpec(basePath)
     with copyBallerinaZipSpec(basePath)
     with copydebugAdapterDistributionSpec(basePath)
     with copyDebugAdapterLauncher(basePath)
@@ -477,15 +450,13 @@ task updateBalHome(type: Copy) {
     def installDir = ""
     with copyJarSpec(installDir)
     with copyBirSpec(installDir)
-    with copyBirJarSpec(installDir)
+//    with copyBirJarSpec(installDir)
     with copyBaloSpec(installDir)
     with copyBalxSpec(installDir)
     with copyBinSpec(installDir)
     with copyLangServerLibsSpec(installDir)
     with copyDataMapperLibsSpec(installDir)
     with copyLangServerBinSpec(installDir)
-    with copyComposerDistributionSpec(installDir)
-    with copyComposerFontsSpec(installDir)
     with copyBallerinaZipSpec(installDir)
     with copydebugAdapterDistributionSpec(installDir)
     with copyDebugAdapterLauncher(installDir)
@@ -505,15 +476,13 @@ task createDistribution(type: Copy) {
     file(filePath).mkdirs()
     with copyJarSpec("")
     with copyBirSpec("")
-    with copyBirJarSpec("")
+//    with copyBirJarSpec("")
     with copyBaloSpec("")
     with copyBalxSpec("")
     with copyBinSpec("")
     with copyLangServerLibsSpec("")
     with copyDataMapperLibsSpec("")
     with copyLangServerBinSpec("")
-    with copyComposerDistributionSpec("")
-    with copyComposerFontsSpec("")
     with copyBallerinaZipSpec("")
     with copydebugAdapterDistributionSpec("")
     with copyDebugAdapterLauncher("")

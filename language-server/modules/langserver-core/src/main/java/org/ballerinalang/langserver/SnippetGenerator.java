@@ -1059,7 +1059,7 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get {@code class}  Definition Snippet Block.
+     * Get {@code class} Definition Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
@@ -1067,6 +1067,18 @@ public class SnippetGenerator {
         String snippet = "class ${1:className} {" + CommonUtil.LINE_SEPARATOR + "\t${2}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.CLASS, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
+     * Get {@code enum} Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getEnumDefSnippet() {
+        String snippet = "enum ${1:enumName} {" + CommonUtil.LINE_SEPARATOR + "\t${2}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.ENUM, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
     }
 

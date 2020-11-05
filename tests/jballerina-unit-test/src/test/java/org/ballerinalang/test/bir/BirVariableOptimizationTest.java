@@ -49,12 +49,12 @@ public class BirVariableOptimizationTest {
         result = BCompileUtil.compile("test-src/bir/biroptimizer.bal");
     }
 
-    @Test(description = "Test the liveness analysis on functions", enabled = false)
+    @Test(description = "Test the liveness analysis on functions")
     public void testFunctions() {
         ((BLangPackage) result.getAST()).symbol.bir.functions.forEach(this::assertFunctions);
     }
 
-    @Test(description = "Test the liveness analysis on attached functions", enabled = false)
+    @Test(description = "Test the liveness analysis on attached functions")
     public void testAttachedFunctions() {
         ((BLangPackage) result.getAST()).symbol.bir.typeDefs.forEach(
                 typeDefinition -> typeDefinition.attachedFuncs.forEach(this::assertFunctions));

@@ -389,8 +389,14 @@ public class CompilerDriver {
 
     private BPackageSymbol getLangModuleFromSource(PackageID modID) {
 
-        BLangPackage pkg = taintAnalyze(
-                documentationAnalyzer.analyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(modID)))));
+        BLangPackage pkg =
+                propagateConstants(
+                        taintAnalyze(
+                            isolationAnalyze(
+                                        documentationAnalyze(
+                                                dataflowAnalyze(
+                                                        codeAnalyze(
+                                                                typeCheck(pkgLoader.loadAndDefinePackage(modID))))))));
         if (dlog.errorCount() > 0) {
             return null;
         }

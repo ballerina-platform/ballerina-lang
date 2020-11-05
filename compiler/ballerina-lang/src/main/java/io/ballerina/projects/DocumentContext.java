@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.parser.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -101,9 +100,8 @@ class DocumentContext {
         BLangDiagnosticLog dlog = BLangDiagnosticLog.getInstance(compilerContext);
 
         SyntaxTree syntaxTree = syntaxTree();
-        BDiagnosticSource diagnosticSource = new BDiagnosticSource(pkgID, this.name);
-        reportSyntaxDiagnostics(diagnosticSource, syntaxTree, dlog);
-        BLangNodeTransformer bLangNodeTransformer = new BLangNodeTransformer(compilerContext, diagnosticSource);
+        reportSyntaxDiagnostics(pkgID, syntaxTree, dlog);
+        BLangNodeTransformer bLangNodeTransformer = new BLangNodeTransformer(compilerContext, pkgID, this.name);
         compilationUnit = (BLangCompilationUnit) bLangNodeTransformer.accept(syntaxTree.rootNode()).get(0);
         return nodeCloner.clone(compilationUnit);
     }
@@ -166,11 +164,9 @@ class DocumentContext {
         return new ModuleLoadRequest(orgName, packageName, moduleName, null);
     }
 
-    private void reportSyntaxDiagnostics(BDiagnosticSource diagnosticSource,
-                                         SyntaxTree tree,
-                                         BLangDiagnosticLog dlog) {
+    private void reportSyntaxDiagnostics(PackageID pkgID, SyntaxTree tree, BLangDiagnosticLog dlog) {
         for (Diagnostic syntaxDiagnostic : tree.diagnostics()) {
-            dlog.logDiagnostic(diagnosticSource.pkgID, syntaxDiagnostic);
+            dlog.logDiagnostic(pkgID, syntaxDiagnostic);
         }
     }
 }

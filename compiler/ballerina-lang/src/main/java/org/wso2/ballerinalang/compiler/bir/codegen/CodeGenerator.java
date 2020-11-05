@@ -128,6 +128,13 @@ public class CodeGenerator {
         // TODO Implement the scope support properly
         Set<Path> moduleDependencies = getPlatformDependencyPaths(moduleId, compilerBackend, null);
 
+        // Add runtime library
+        Path runtimeJar = compilerBackend.runtimeLibrary().path();
+        // We check if the runtime jar exist to support bootstrap
+        if (Files.exists(runtimeJar)) {
+            moduleDependencies.add(runtimeJar);
+        }
+
         // generate module
         generate(bLangPackage.symbol, moduleDependencies);
         if (skipTests || !bLangPackage.hasTestablePackage()) {
@@ -147,12 +154,14 @@ public class CodeGenerator {
                                                  CompilerBackend compilerBackend,
                                                  String scope) {
         Collection<PlatformLibrary> platformLibraries = compilerBackend.platformLibraries(moduleId.packageId());
+        // Add the runtime jar to the platforms
         return platformLibraries.stream().map(PlatformLibrary::path)
                 .collect(Collectors.toSet());
     }
 
     private void generate(BPackageSymbol packageSymbol, Set<Path> moduleDependencies) {
 
+        dlog.setCurrentPackageId(packageSymbol.pkgID);
         final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog);
 
         populateExternalMap(jvmPackageGen);

@@ -1353,7 +1353,7 @@ public class JvmCastGen {
         checkCast(mv, targetType);
     }
 
-    static void addBoxInsn(MethodVisitor mv, BType bType) {
+    public static void addBoxInsn(MethodVisitor mv, BType bType) {
         if (bType != null) {
             generateCast(mv, bType, JvmInstructionGen.anyType);
         }

@@ -222,7 +222,7 @@ public class MappingConstructorExprTest {
         validateError(result, 1, "tainted value passed to global variable 'bn'", 37, 5);
     }
 
-    @Test(dataProvider = "spreadOpFieldTests", enabled = false)
+    @Test(dataProvider = "spreadOpFieldTests")
     public void testSpreadOpField(String test) {
         BRunUtil.invoke(spreadOpFieldResult, test);
     }
@@ -275,7 +275,7 @@ public class MappingConstructorExprTest {
         validateError(compileResult, index, "ambiguous type '(map<map<json>>|readonly)'", 157, 34);
     }
 
-    @Test(dataProvider = "inferRecordTypeTests", enabled = false)
+    @Test(dataProvider = "inferRecordTypeTests")
     public void testInferRecordTypeTests(String test) {
         BRunUtil.invoke(inferRecordResult, test);
     }
@@ -298,7 +298,7 @@ public class MappingConstructorExprTest {
         };
     }
 
-    @Test(dataProvider = "readOnlyFieldTests", groups = "disableOnOldParser", enabled = false)
+    @Test(dataProvider = "readOnlyFieldTests")
     public void testReadOnlyFields(String test) {
         BRunUtil.invoke(readOnlyFieldResult, test);
     }

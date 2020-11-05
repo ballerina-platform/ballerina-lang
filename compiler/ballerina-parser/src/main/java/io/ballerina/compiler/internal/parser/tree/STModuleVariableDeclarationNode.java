@@ -32,7 +32,7 @@ import java.util.Collections;
  */
 public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNode {
     public final STNode metadata;
-    public final STNode finalKeyword;
+    public final STNode qualifiers;
     public final STNode typedBindingPattern;
     public final STNode equalsToken;
     public final STNode initializer;
@@ -40,14 +40,14 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
 
     STModuleVariableDeclarationNode(
             STNode metadata,
-            STNode finalKeyword,
+            STNode qualifiers,
             STNode typedBindingPattern,
             STNode equalsToken,
             STNode initializer,
             STNode semicolonToken) {
         this(
                 metadata,
-                finalKeyword,
+                qualifiers,
                 typedBindingPattern,
                 equalsToken,
                 initializer,
@@ -57,7 +57,7 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
 
     STModuleVariableDeclarationNode(
             STNode metadata,
-            STNode finalKeyword,
+            STNode qualifiers,
             STNode typedBindingPattern,
             STNode equalsToken,
             STNode initializer,
@@ -65,7 +65,7 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.MODULE_VAR_DECL, diagnostics);
         this.metadata = metadata;
-        this.finalKeyword = finalKeyword;
+        this.qualifiers = qualifiers;
         this.typedBindingPattern = typedBindingPattern;
         this.equalsToken = equalsToken;
         this.initializer = initializer;
@@ -73,7 +73,7 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
 
         addChildren(
                 metadata,
-                finalKeyword,
+                qualifiers,
                 typedBindingPattern,
                 equalsToken,
                 initializer,
@@ -83,7 +83,7 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STModuleVariableDeclarationNode(
                 this.metadata,
-                this.finalKeyword,
+                this.qualifiers,
                 this.typedBindingPattern,
                 this.equalsToken,
                 this.initializer,
@@ -93,14 +93,14 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
 
     public STModuleVariableDeclarationNode modify(
             STNode metadata,
-            STNode finalKeyword,
+            STNode qualifiers,
             STNode typedBindingPattern,
             STNode equalsToken,
             STNode initializer,
             STNode semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,
-                finalKeyword,
+                qualifiers,
                 typedBindingPattern,
                 equalsToken,
                 initializer,
@@ -110,7 +110,7 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
 
         return new STModuleVariableDeclarationNode(
                 metadata,
-                finalKeyword,
+                qualifiers,
                 typedBindingPattern,
                 equalsToken,
                 initializer,

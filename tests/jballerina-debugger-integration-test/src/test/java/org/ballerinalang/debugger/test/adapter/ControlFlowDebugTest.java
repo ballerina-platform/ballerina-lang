@@ -47,27 +47,27 @@ public class ControlFlowDebugTest extends DebugAdapterBaseTestCase {
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
     }
 
-    @Test(enabled = false)
+    @Test
     public void testControlFlowDebugScenarios() throws BallerinaTestException {
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 9));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 17));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 23));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 31));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 38));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 46));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 56));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 65));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 62));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 8));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 16));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 22));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 30));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 36));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 44));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 54));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 59));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 60));
         initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
         // Test for debug engage in 'if' statement
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(10000);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(25000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(0));
 
         // Test for debug engage inside 'if' statement when condition is true.
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
         debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 10));
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 9));
 
         // Test for debug engage in 'else' statement
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
@@ -82,7 +82,7 @@ public class ControlFlowDebugTest extends DebugAdapterBaseTestCase {
         // Test for debug engage inside 'else-if' statement when condition is true.
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
         debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 24));
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 23));
 
         // Test for debug engage in 'while' loop
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
@@ -92,7 +92,7 @@ public class ControlFlowDebugTest extends DebugAdapterBaseTestCase {
         // Test for debug engage inside 'while' loop when condition is true.
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
         debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 32));
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 31));
 
         // Test for debug engage in 'foreach' loop
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
@@ -102,7 +102,7 @@ public class ControlFlowDebugTest extends DebugAdapterBaseTestCase {
         // Test for debug engage inside 'foreach' loop when condition is true.
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
         debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 39));
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 37));
 
         // Test for debug engage in 'match' statement
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
@@ -112,11 +112,11 @@ public class ControlFlowDebugTest extends DebugAdapterBaseTestCase {
         // Test for debug engage inside 'match' statement when condition is true.
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
         debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 47));
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 45));
 
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
         debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 48));
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 46));
 
         // Test for debug engage in lambda - iterable arrow operation
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);

@@ -6,44 +6,52 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.ballerina.compiler.api.symbols;
 
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.ModuleID;
+
+import java.util.List;
 
 /**
- * Represents a ballerina type definition.
+ * Represents a Ballerina Type Descriptor.
  *
  * @since 2.0.0
  */
-public interface TypeSymbol extends Symbol, Qualifiable, Deprecatable {
+public interface TypeSymbol extends Symbol {
 
     /**
-     * Get the module qualified name.
+     * Get the Type Kind.
      *
-     * @return {@link String} name
+     * @return {@link TypeDescKind} represented by the model
      */
-    String moduleQualifiedName();
+    TypeDescKind typeKind();
 
     /**
-     * Type descriptor of the definition.
+     * Get the module ID.
      *
-     * @return {@link BallerinaTypeDescriptor} attached
+     * @return {@link ModuleID} of the Type
      */
-    BallerinaTypeDescriptor typeDescriptor();
+    ModuleID moduleID();
 
     /**
-     * Checks whether the type is a readonly type.
+     * Get the signature of the type descriptor.
      *
-     * @return True if the type is readonly
+     * @return {@link String} signature.
      */
-    boolean readonly();
+    String signature();
+
+    /**
+     * List of members that are visible to a value of this type.
+     * 
+     * @return {@link List} of visible member symbols
+     */
+    List<MethodSymbol> builtinMethods();
 }

@@ -20,6 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.projects.testsuite.Test;
 import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.projects.testsuite.TesterinaRegistry;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
@@ -27,7 +28,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -340,7 +340,7 @@ public class TestAnnotationProcessor {
 
                     // Check if Function in annotation is empty
                     if (vals[1].isEmpty()) {
-                        diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
+                        diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
                                 "function name cannot be empty");
                         break;
                     }
@@ -348,7 +348,7 @@ public class TestAnnotationProcessor {
                     // Find functionToMock in the packageID
                     PackageID functionToMockID = getPackageID(vals[0]);
                     if (functionToMockID == null) {
-                        diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
+                        diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
                                 "could not find module specified ");
                     }
 
@@ -367,13 +367,13 @@ public class TestAnnotationProcessor {
 
                     if (functionToMockType != null && mockFunctionType != null) {
                         if (!typeChecker.isAssignable(mockFunctionType, functionToMockType)) {
-                            diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, bLangFunction.pos,
+                            diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, functionToMockID, bLangFunction.pos,
                                     "incompatible types: expected " + functionToMockType.toString()
                                             + " but found " + mockFunctionType.toString());
                         }
                     } else {
-                        diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
-                                "could not find functions in module");
+                        diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, functionToMockID,
+                                attachmentNode.getPosition(), "could not find functions in module");
                     }
 
                     //Creating a bLangTestablePackage to add a mock function
@@ -394,6 +394,7 @@ public class TestAnnotationProcessor {
         List<BLangAnnotationAttachment> annotations =
                 ((BLangSimpleVariable) simpleVariableNode).getAnnotationAttachments();
         String packageName = getPackageName(parent);
+        PackageID packageID = getPackageID(packageName);
 
         annotations = annotations.stream().distinct().collect(Collectors.toList());
         // Iterate through all the annotations
@@ -430,7 +431,7 @@ public class TestAnnotationProcessor {
                     }
                 } else {
                     // Throw an error saying its not a MockFunction object
-                    diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
+                    diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, packageID, attachmentNode.getPosition(),
                             "Annotation can only be attached to a test:MockFunction object");
                 }
             }
@@ -461,7 +462,7 @@ public class TestAnnotationProcessor {
                 }
 
             } else {
-                diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
+                diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
                         "Annotation fields must be key-value pairs");
             }
         });
@@ -512,11 +513,11 @@ public class TestAnnotationProcessor {
                                       AnnotationAttachmentNode attachmentNode) {
 
         if (functionToMockID == null) {
-            diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
+            diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
                     "could not find module specified ");
         } else {
             if (functionName == null) {
-                diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
+                diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, functionToMockID, attachmentNode.getPosition(),
                         "Function name cannot be empty");
             } else {
                 // Iterate through package map entries
@@ -531,7 +532,7 @@ public class TestAnnotationProcessor {
                 }
 
                 // If it reaches this part, then the function has'nt been found in both packages
-                diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
+                diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, functionToMockID, attachmentNode.getPosition(),
                         "Function \'" + functionName + "\' cannot be found in the package \'"
                                 + functionToMockID.toString());
             }
