@@ -58,8 +58,7 @@ public class RuntimeConstants {
     public static final String BALLERINA_PACKAGE_PREFIX = "ballerina" + ORG_NAME_SEPARATOR;
     public static final String BALLERINA_MAX_POOL_SIZE_ENV_VAR = "BALLERINA_MAX_POOL_SIZE";
 
-    public static final Module BALLERINA_RUNTIME_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX,
-                                                                     "runtime", "0.5.1");
+    public static final Module BALLERINA_BUILTIN_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "builtin");
     public static final Module BALLERINA_LANG_ERROR_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX,
                                                                         "lang.error", "1.0.0");
     public static final Module BALLERINA_AUTH_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "auth", "1.0.0");

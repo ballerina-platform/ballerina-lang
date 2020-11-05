@@ -974,6 +974,84 @@ function name() returns string {
     return "em";
 }
 
+type MarksWithOptionalPhysics record {|
+    int physics?;
+    int...;
+|};
+
+type MarksWithOptionalPhysicsAndFloatRestField record {|
+    int physics?;
+    float...;
+|};
+
+type MarksWithRequiredPhysics record {|
+    int physics;
+    int|float...;
+|};
+
+type OpenMarks record {|
+    int|float...;
+|};
+
+type NoRestFieldMarks record {|
+    int physics?;
+|};
+
+public function testMapAsRecord() {
+    map<int> mp1 = {
+        physics: 65,
+        chemistry: 75
+    };
+
+    map<int> mp2 = {
+        chemistry: 75,
+        biology: 80
+    };
+
+    map<anydata> mp3 = {
+        chemistry: 75,
+        biology: 80
+    };
+
+    map<int|float> mp4 = {
+        physics: 75,
+        biology: 80.5
+    };
+
+    assertTrue(<any> mp1 is MarksWithOptionalPhysics);
+    assertTrue(<any> mp1 is OpenMarks);
+    assertFalse(<any> mp1 is MarksWithRequiredPhysics);
+    assertFalse(<any> mp1 is NoRestFieldMarks);
+    assertFalse(<any> mp1 is MarksWithOptionalPhysicsAndFloatRestField);
+
+    assertTrue(<any> mp2 is MarksWithOptionalPhysics);
+    assertTrue(<any> mp2 is OpenMarks);
+    assertFalse(<any> mp2 is MarksWithRequiredPhysics);
+    assertFalse(<any> mp2 is NoRestFieldMarks);
+    assertFalse(<any> mp2 is MarksWithOptionalPhysicsAndFloatRestField);
+
+    assertFalse(<any> mp3 is MarksWithOptionalPhysics);
+    assertFalse(<any> mp3 is OpenMarks);
+    assertFalse(<any> mp3 is MarksWithRequiredPhysics);
+    assertFalse(<any> mp3 is NoRestFieldMarks);
+    assertFalse(<any> mp3 is MarksWithOptionalPhysicsAndFloatRestField);
+
+    assertFalse(<any> mp4 is MarksWithOptionalPhysics);
+    assertTrue(<any> mp4 is OpenMarks);
+    assertFalse(<any> mp4 is MarksWithRequiredPhysics);
+    assertFalse(<any> mp4 is NoRestFieldMarks);
+    assertFalse(<any> mp4 is MarksWithOptionalPhysicsAndFloatRestField);
+
+    int|error x = 'int:fromString("foo");
+    any det = ();
+    if x is error {
+        det = x.detail();
+    }
+    assertTrue(det is map<anydata|readonly>);
+    assertTrue(det is 'error:Detail);
+    assertTrue(det is record {| string message; |});
+}
+
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
 }

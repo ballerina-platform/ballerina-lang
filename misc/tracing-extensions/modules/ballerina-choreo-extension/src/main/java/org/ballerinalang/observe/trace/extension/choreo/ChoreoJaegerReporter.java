@@ -51,9 +51,8 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
 
     private final ScheduledExecutorService executorService;
     private final Task task;
-    private final int maxQueueSize;
 
-    public ChoreoJaegerReporter(int maxQueueSize) {
+    public ChoreoJaegerReporter() {
         ChoreoClient choreoClient;
         try {
             choreoClient = ChoreoClientHolder.getChoreoClient(this);
@@ -67,7 +66,6 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
             throw new IllegalStateException("Choreo client is not initialized");
         }
 
-        this.maxQueueSize = maxQueueSize;
         executorService = new ScheduledThreadPoolExecutor(1);
         task = new Task(choreoClient);
         executorService.scheduleAtFixedRate(task, PUBLISH_INTERVAL_SECS, PUBLISH_INTERVAL_SECS, TimeUnit.SECONDS);
@@ -77,9 +75,6 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
     @Override
     public void report(JaegerSpan jaegerSpan) {
         task.append(jaegerSpan);
-        if (task.getSpanCount() >= maxQueueSize) {
-            executorService.execute(task);
-        }
     }
 
     @Override

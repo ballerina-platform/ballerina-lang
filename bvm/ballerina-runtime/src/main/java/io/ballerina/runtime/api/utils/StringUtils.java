@@ -22,7 +22,9 @@ import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.BalStringUtils;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
@@ -59,6 +61,7 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
 public class StringUtils {
 
     private static final String STR_CYCLE = "...";
+    public static final String TO_STRING = "toString";
 
     /**
      * Convert input stream to String.
@@ -200,23 +203,18 @@ public class StringUtils {
         }
 
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            AbstractObjectValue objectValue = (AbstractObjectValue) value;
+            BObject objectValue = (BObject) value;
             ObjectType objectType = objectValue.getType();
             for (AttachedFunctionType func : objectType.getAttachedFunctions()) {
-                if (func.getName().equals("toString") && func.getParameterTypes().length == 0 &&
+                if (func.getName().equals(TO_STRING) && func.getParameterTypes().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
-                    return objectValue.call(Scheduler.getStrand(), "toString").toString();
+                    return objectValue.call(Scheduler.getStrand(), TO_STRING).toString();
                 }
             }
         }
 
-        if (type.getTag() == TypeTags.ERROR_TAG) {
-            RefValue errorValue = (RefValue) value;
-            return errorValue.stringValue(parent);
-        }
-
-        RefValue refValue = (RefValue) value;
-        return refValue.stringValue(parent);
+        BValue bValue = (BValue) value;
+        return bValue.stringValue(parent);
     }
 
     /**
@@ -245,10 +243,10 @@ public class StringUtils {
 
         if (type.getTag() == TypeTags.FLOAT_TAG) {
             if (Double.isNaN((Double) value)) {
-                return "float:" + Double.toString((Double) value);
+                return "float:" + value;
             }
             if (Double.isInfinite((Double) value)) {
-                return "float:" + Double.toString((Double) value);
+                return "float:" + value;
             }
         }
 
@@ -280,9 +278,9 @@ public class StringUtils {
             AbstractObjectValue objectValue = (AbstractObjectValue) value;
             ObjectType objectType = objectValue.getType();
             for (AttachedFunctionType func : objectType.getAttachedFunctions()) {
-                if (func.getName().equals("toString") && func.getParameterTypes().length == 0 &&
+                if (func.getName().equals(TO_STRING) && func.getParameterTypes().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
-                    return "object " + objectValue.call(Scheduler.getStrand(), "toString").toString();
+                    return "object " + objectValue.call(Scheduler.getStrand(), TO_STRING).toString();
                 }
             }
         }
@@ -302,7 +300,7 @@ public class StringUtils {
      * @param value The value on which the function is invoked
      * @return Ballerina value represented by Ballerina expression syntax
      */
-    public static Object parseExpressionStringValue(String value) {
+    public static Object parseExpressionStringValue(String value, BLink parent) {
         String exprValue = value.trim();
         int endIndex = exprValue.length() - 1;
         if (exprValue.equals("()")) {
@@ -327,23 +325,26 @@ public class StringUtils {
             return Boolean.parseBoolean(exprValue);
         }
         if (exprValue.startsWith("[") && exprValue.endsWith("]")) {
-            return BalStringUtils.parseArrayExpressionStringValue(exprValue);
+            return BalStringUtils.parseArrayExpressionStringValue(exprValue, parent);
         }
         if (exprValue.startsWith("{") && exprValue.endsWith("}")) {
-            return BalStringUtils.parseMapExpressionStringValue(exprValue);
+            return BalStringUtils.parseMapExpressionStringValue(exprValue, parent);
         }
         if (exprValue.startsWith("table key")) {
-            return BalStringUtils.parseTableExpressionStringValue(exprValue);
+            return BalStringUtils.parseTableExpressionStringValue(exprValue, parent);
         }
         if (exprValue.startsWith("xml")) {
             String xml = exprValue.substring(exprValue.indexOf('`') + 1,
                     exprValue.lastIndexOf('`')).trim();
-            return BalStringUtils.parseXmlExpressionStringValue(xml);
+            return BalStringUtils.parseXmlExpressionStringValue(xml, parent);
         }
-        if (!exprValue.startsWith("error") && !exprValue.startsWith("object") && !exprValue.startsWith("...")) {
-            return BalStringUtils.parseTupleExpressionStringValue(exprValue);
+        if (exprValue.startsWith("...")) {
+            return BalStringUtils.parseCycleDetectedExpressionStringValue(exprValue, parent);
         }
-        return ErrorCreator.createError(fromString("Cannot parse Ballerina expression syntax"),
+        if (!exprValue.startsWith("error") && !exprValue.startsWith("object")) {
+            return BalStringUtils.parseTupleExpressionStringValue(exprValue, parent);
+        }
+        return ErrorCreator.createError(fromString("{ballerina/lang.value}FromBalStringError"),
                 fromString("fromBalString supported only for Ballerina expression syntax of anydata value"));
     }
 

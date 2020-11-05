@@ -23,7 +23,8 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.evaluation.engine.JvmStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.engine.GeneratedStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.engine.RuntimeInstanceMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
@@ -41,23 +42,35 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.removeRedund
  */
 public class EvaluationUtils {
 
-
     // Helper classes
     public static final String B_TYPE_CHECKER_CLASS = "io.ballerina.runtime.internal.TypeChecker";
-    private static final String B_STRING_UTILS_CLASS = "io.ballerina.runtime.api.utils.StringUtils";
-    public static final String JAVA_BOOLEAN_CLASS = "java.lang.Boolean";
-    public static final String JAVA_LONG_CLASS = "java.lang.Long";
-    public static final String JAVA_DOUBLE_CLASS = "java.lang.Double";
-    public static final String JAVA_LANG_CLASS = "java.lang.Class";
+    public static final String B_STRING_UTILS_CLASS = "io.ballerina.runtime.api.StringUtils";
+    public static final String B_XML_FACTORY_CLASS = "io.ballerina.runtime.internal.XMLFactory";
+    public static final String B_DECIMAL_VALUE_CLASS = "io.ballerina.runtime.internal.values.DecimalValue";
+    public static final String B_XML_VALUE_CLASS = "io.ballerina.runtime.internal.values.XMLValue";
+    public static final String B_STRING_CLASS = "io.ballerina.runtime.api.values.BString";
+    public static final String FROM_STRING_CLASS = "org.ballerinalang.langlib.xml.FromString";
+    private static final String B_LINK_CLASS = "io.ballerina.runtime.api.values.BLink";
     public static final String JAVA_OBJECT_CLASS = "java.lang.Object";
+    private static final String JAVA_BOOLEAN_CLASS = "java.lang.Boolean";
+    private static final String JAVA_LONG_CLASS = "java.lang.Long";
+    private static final String JAVA_DOUBLE_CLASS = "java.lang.Double";
+    private static final String JAVA_LANG_CLASS = "java.lang.Class";
     // Helper methods
     public static final String GET_TYPEDESC_METHOD = "getTypedesc";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String REF_EQUAL_METHOD = "isReferenceEqual";
     public static final String VALUE_EQUAL_METHOD = "isEqual";
+    public static final String DECIMAL_LT = "checkDecimalLessThan";
+    public static final String DECIMAL_GT = "checkDecimalGreaterThan";
+    public static final String DECIMAL_LT_EQUALS = "checkDecimalLessThanOrEqual";
+    public static final String DECIMAL_GT_EQUALS = "checkDecimalGreaterThanOrEqual";
+    public static final String XML_CONCAT_METHOD = "concatenate";
+    public static final String XML_FROM_STRING_METHOD = "fromString";
+    private static final String B_STRING_CONCAT_METHOD = "concat";
     private static final String FROM_STRING_METHOD = "fromString";
     private static final String FOR_NAME_METHOD = "forName";
-
+    private static final String GET_STRING_VALUE_METHOD = "getStringValue";
     // Misc
     public static final String STRAND_VAR_NAME = "__strand";
 
@@ -208,6 +221,47 @@ public class EvaluationUtils {
     }
 
     /**
+     * Concatenates multiple BString values and returns the result an instance of BString.
+     *
+     * @param bStrings input BString instances.
+     * @return concatenated string result.
+     */
+    public static Value concatBStrings(SuspendedContext context, Value... bStrings) throws EvaluationException {
+        Value result = bStrings[0];
+        List<Method> method = ((ObjectReference) result).referenceType().methodsByName(B_STRING_CONCAT_METHOD);
+        for (int i = 1; i < bStrings.length; i++) {
+            if (method.size() != 1) {
+                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
+                        "occurred when trying to load required methods to execute BString concatenation"));
+            }
+            RuntimeInstanceMethod concatMethod = new RuntimeInstanceMethod(context, result, method.get(0), null,
+                    Collections.singletonList(bStrings[i]));
+            result = concatMethod.invoke();
+            method = ((ObjectReference) result).referenceType().methodsByName("concat");
+        }
+        return result;
+    }
+
+    /**
+     * Returns the human-readable string value of a given Ballerina value in direct style.
+     *
+     * @param value Ballerina value instance.
+     * @return human-readable string value of Ballerina values with direct style.
+     */
+    public static Value getStringValue(SuspendedContext context, Value value) throws EvaluationException {
+        List<String> argTypeNames = new ArrayList<>();
+        argTypeNames.add(JAVA_OBJECT_CLASS);
+        argTypeNames.add(B_LINK_CLASS);
+        RuntimeStaticMethod runtimeMethod = getRuntimeMethod(context, B_STRING_UTILS_CLASS, GET_STRING_VALUE_METHOD,
+                argTypeNames);
+        List<Value> args = new ArrayList<>();
+        args.add(EvaluationUtils.getValueAsObject(context, value));
+        args.add(null);
+        runtimeMethod.setArgValues(args);
+        return runtimeMethod.invoke();
+    }
+
+    /**
      * Converts the user given string literal into an {@link io.ballerina.runtime.api.values.BString} instance.
      *
      * @param context suspended debug context
@@ -224,9 +278,9 @@ public class EvaluationUtils {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
                     "occurred when trying to load required methods to execute the function: " + FROM_STRING_METHOD));
         }
-        JvmStaticMethod jvmStaticMethod = new JvmStaticMethod(context, cls.get(0), methods.get(0), null,
-                Collections.singletonList(context.getAttachedVm().mirrorOf(val)));
-        return jvmStaticMethod.invoke();
+        GeneratedStaticMethod generatedStaticMethod = new GeneratedStaticMethod(context, cls.get(0), methods.get(0),
+                null, Collections.singletonList(context.getAttachedVm().mirrorOf(val)));
+        return generatedStaticMethod.invoke();
     }
 
     private static boolean compare(List<String> list1, List<String> list2) {

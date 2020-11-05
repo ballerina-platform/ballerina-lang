@@ -21,7 +21,7 @@ class XMLIterator {
 
     private xml m;
 
-    public function init(xml m) {
+    public isolated function init(xml m) {
         self.m = m;
     }
 
@@ -32,7 +32,7 @@ class XMLIterator {
     }
 }
 
-function externNext(XMLIterator iterator) returns record {| (xml|string) value; |}? = @java:Method {
+isolated function externNext(XMLIterator iterator) returns record {| (xml|string) value; |}? = @java:Method {
     'class: "org.ballerinalang.langlib.xml.Next",
     name: "next"
 } external;

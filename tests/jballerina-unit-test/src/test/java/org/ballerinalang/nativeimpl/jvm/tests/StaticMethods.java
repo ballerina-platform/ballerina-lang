@@ -301,6 +301,11 @@ public class StaticMethods {
         return apiDefinitions;
     }
 
+    public static Object returnObjectOrError() {
+        return ErrorCreator.createError(StringUtils.fromString("some reason"),
+                                        new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+    }
+
     public static TupleValueImpl getArrayValue() throws BallerinaException {
         String name = null;
         String type = null;
@@ -475,6 +480,10 @@ public class StaticMethods {
         return -282619;
     }
 
+    public static Object returnNullString(boolean nullVal) {
+        return nullVal ? null : StringUtils.fromString("NotNull");
+    }
+
     public static void addTwoNumbersBuggy(Environment env, long a, long b) {
         // Buggy because env.markAsync() is not called
         // TODO: see if we can verify this
@@ -561,5 +570,9 @@ public class StaticMethods {
 
     public static TableValue getTableAsReadOnly(TableValue tb) {
         return tb;
+    }
+
+    public static Object getValue() {
+        return StringUtils.fromString("Ballerina");
     }
 }

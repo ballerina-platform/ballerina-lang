@@ -92,7 +92,7 @@ public class LSAnnotationCache {
             CompilerContext context = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
             new Thread(() -> {
                 Map<String, BPackageSymbol> packages = loadPackagesMap(context);
-                loadAnnotations(new ArrayList<>(packages.values()));
+                loadAnnotations(new ArrayList<>(packages.values()), context);
             }).start();
         }
     }
@@ -116,7 +116,7 @@ public class LSAnnotationCache {
                             && !importPackage.symbol.pkgID.getName().getValue().equals("runtime")) {
                         Optional<BPackageSymbol> pkgSymbol = LSPackageLoader.getPackageSymbolById(compilerCtx,
                                 importPackage.symbol.pkgID);
-                        pkgSymbol.ifPresent(LSAnnotationCache::loadAnnotationsFromPackage);
+                        pkgSymbol.ifPresent(bPackageSymbol -> loadAnnotationsFromPackage(bPackageSymbol, compilerCtx));
                     }
                 });
         switch (attachmentPoint) {
@@ -223,8 +223,9 @@ public class LSAnnotationCache {
      * Load annotations from the package.
      *
      * @param bPackageSymbol BLang Package Symbol to load annotations
+     * @param context        The compiler context used to compile the modules
      */
-    private static void loadAnnotationsFromPackage(BPackageSymbol bPackageSymbol) {
+    private static void loadAnnotationsFromPackage(BPackageSymbol bPackageSymbol, CompilerContext context) {
         List<Scope.ScopeEntry> scopeEntries = extractAnnotationDefinitions(bPackageSymbol.scope.entries);
 
         scopeEntries.forEach(annotationEntry -> {
@@ -234,61 +235,61 @@ public class LSAnnotationCache {
                 int attachPoints = ((BAnnotationSymbol) annotationEntry.symbol).maskedPoints;
 
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.TYPE)) {
-                    addAttachment(annotationSymbol, typeAnnotations);
-                    addAttachment(annotationSymbol, objectAnnotations);
+                    addAttachment(annotationSymbol, typeAnnotations, context);
+                    addAttachment(annotationSymbol, objectAnnotations, context);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.OBJECT)) {
-                    addAttachment(annotationSymbol, objectAnnotations);
+                    addAttachment(annotationSymbol, objectAnnotations, context);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.FUNCTION)) {
-                    addAttachment(annotationSymbol, functionAnnotations);
-                    addAttachment(annotationSymbol, objectMethodAnnotations);
-                    addAttachment(annotationSymbol, resourceAnnotations);
+                    addAttachment(annotationSymbol, functionAnnotations, context);
+                    addAttachment(annotationSymbol, objectMethodAnnotations, context);
+                    addAttachment(annotationSymbol, resourceAnnotations, context);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.OBJECT_METHOD)) {
-                    addAttachment(annotationSymbol, objectMethodAnnotations);
+                    addAttachment(annotationSymbol, objectMethodAnnotations, context);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.RESOURCE)) {
-                    addAttachment(annotationSymbol, resourceAnnotations);
+                    addAttachment(annotationSymbol, resourceAnnotations, context);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.PARAMETER)) {
-                    addAttachment(annotationSymbol, parameterAnnotations);
+                    addAttachment(annotationSymbol, parameterAnnotations, context);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.RETURN)) {
-                    addAttachment(annotationSymbol, returnAnnotations);
+                    addAttachment(annotationSymbol, returnAnnotations, context);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.SERVICE)) {
-                    addAttachment(annotationSymbol, serviceAnnotations);
+                    addAttachment(annotationSymbol, serviceAnnotations, context);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.LISTENER)) {
-                    addAttachment(annotationSymbol, listenerAnnotations);
+                    addAttachment(annotationSymbol, listenerAnnotations, context);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.ANNOTATION)) {
-                    addAttachment(annotationSymbol, annotationAnnotations);
+                    addAttachment(annotationSymbol, annotationAnnotations, context);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.EXTERNAL)) {
-                    addAttachment(annotationSymbol, externalAnnotations);
+                    addAttachment(annotationSymbol, externalAnnotations, context);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.VAR)) {
-                    addAttachment(annotationSymbol, varAnnotations);
+                    addAttachment(annotationSymbol, varAnnotations, context);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.CONST)) {
-                    addAttachment(annotationSymbol, constAnnotations);
+                    addAttachment(annotationSymbol, constAnnotations, context);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.WORKER)) {
-                    addAttachment(annotationSymbol, workerAnnotations);
+                    addAttachment(annotationSymbol, workerAnnotations, context);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.FIELD)) {
-                    addAttachment(annotationSymbol, fieldAnnotations);
+                    addAttachment(annotationSymbol, fieldAnnotations, context);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.OBJECT_FIELD)) {
-                    addAttachment(annotationSymbol, objectFieldAnnotations);
+                    addAttachment(annotationSymbol, objectFieldAnnotations, context);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.RECORD_FIELD)) {
-                    addAttachment(annotationSymbol, recordFieldAnnotations);
+                    addAttachment(annotationSymbol, recordFieldAnnotations, context);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.CLASS)) {
-                    addAttachment(annotationSymbol, classAnnotations);
+                    addAttachment(annotationSymbol, classAnnotations, context);
                 }
             }
         });
@@ -331,13 +332,14 @@ public class LSAnnotationCache {
         return staticPackages;
     }
 
-    private static void loadAnnotations(List<BPackageSymbol> packageList) {
-        packageList.forEach(LSAnnotationCache::loadAnnotationsFromPackage);
+    private static void loadAnnotations(List<BPackageSymbol> packageList, CompilerContext context) {
+        packageList.forEach(bPackageSymbol -> loadAnnotationsFromPackage(bPackageSymbol, context));
     }
 
-    private static void addAttachment(BAnnotationSymbol bAnnotationSymbol,
-                                      Map<ModuleID, List<AnnotationSymbol>> map) {
-        AnnotationSymbol annotationSymbol = SymbolFactory.createAnnotationSymbol(bAnnotationSymbol);
+    private static void addAttachment(BAnnotationSymbol bAnnotationSymbol, Map<ModuleID, List<AnnotationSymbol>> map,
+                                      CompilerContext context) {
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(context);
+        AnnotationSymbol annotationSymbol = symbolFactory.createAnnotationSymbol(bAnnotationSymbol);
         // TODO: Check the map contains is valid
         if (map.containsKey(annotationSymbol.moduleID())) {
             map.get(annotationSymbol.moduleID()).add(annotationSymbol);

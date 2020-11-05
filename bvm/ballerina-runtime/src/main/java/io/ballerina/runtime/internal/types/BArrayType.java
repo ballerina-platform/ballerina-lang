@@ -47,13 +47,17 @@ public class BArrayType extends BType implements ArrayType {
     private IntersectionType immutableType;
 
     public BArrayType(Type elementType) {
+       this(elementType, false);
+    }
+
+    public BArrayType(Type elementType, boolean readonly) {
         super(null, null, ArrayValue.class);
         this.elementType = elementType;
         if (elementType instanceof BArrayType) {
             dimensions = ((BArrayType) elementType).getDimensions() + 1;
         }
         hasFillerValue = TypeChecker.hasFillerValue(this.elementType);
-        this.readonly = false;
+        this.readonly = readonly;
     }
 
     public BArrayType(Type elemType, int size) {

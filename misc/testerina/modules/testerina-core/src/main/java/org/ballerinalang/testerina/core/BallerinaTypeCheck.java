@@ -27,11 +27,24 @@ import io.ballerina.runtime.internal.TypeChecker;
  * Type check function ballerina/test#getBallerinaType.
  */
 public class BallerinaTypeCheck {
+
+    /**
+     * Mark the constructor as private.
+     */
     private BallerinaTypeCheck() {
     }
 
+    /**
+     * Get the Ballerina type of an object.
+     * @param value Object
+     * @return BString
+     */
     public static BString getBallerinaType(Object value) {
         Type bType = TypeChecker.getType(value);
-        return StringUtils.fromString(bType.getName());
+        String typeName = bType.getName();
+        if (typeName == null) {
+            typeName = "";
+        }
+        return StringUtils.fromString(typeName);
     }
 }

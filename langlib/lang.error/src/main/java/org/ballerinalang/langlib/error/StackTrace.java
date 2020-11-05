@@ -111,7 +111,7 @@ public class StackTrace {
 
         @Override
         public String stringValue(BLink parent) {
-            return null;
+            return "object " + type.toString();
         }
 
         @Override

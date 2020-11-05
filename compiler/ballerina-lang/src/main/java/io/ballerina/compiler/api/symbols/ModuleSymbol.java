@@ -38,7 +38,7 @@ public interface ModuleSymbol extends Symbol {
      *
      * @return {@link List} of type definitions
      */
-    List<TypeSymbol> typeDefinitions();
+    List<TypeDefinitionSymbol> typeDefinitions();
 
     /**
      * Get the public constants defined within the module.
@@ -52,7 +52,7 @@ public interface ModuleSymbol extends Symbol {
      *
      * @return {@link List} of listeners
      */
-    List<TypeSymbol> listeners();
+    List<TypeDefinitionSymbol> listeners();
 
     /**
      * Get the module service definitions.
