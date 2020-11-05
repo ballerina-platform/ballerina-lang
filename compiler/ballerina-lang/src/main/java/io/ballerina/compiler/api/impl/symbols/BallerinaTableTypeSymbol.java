@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +38,7 @@ public class BallerinaTableTypeSymbol extends AbstractTypeSymbol implements Tabl
 
     private TypeSymbol rowTypeParameter;
     private TypeSymbol keyConstraintTypeParameter;
+    private List<String> keySpecifiers;
 
     public BallerinaTableTypeSymbol(CompilerContext context, ModuleID moduleID, BTableType tableType) {
         super(context, TypeDescKind.TABLE, moduleID, tableType);
@@ -65,7 +67,17 @@ public class BallerinaTableTypeSymbol extends AbstractTypeSymbol implements Tabl
 
     @Override
     public List<String> keySpecifiers() {
-        return Collections.emptyList();
+        if (this.keySpecifiers == null) {
+            List<String> specifiers = ((BTableType) this.getBType()).fieldNameList;
+
+            if (specifiers == null) {
+                specifiers = new ArrayList<>();
+            }
+
+            this.keySpecifiers = Collections.unmodifiableList(specifiers);
+        }
+
+        return this.keySpecifiers;
     }
 
     @Override
