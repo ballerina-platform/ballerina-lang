@@ -22,6 +22,7 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
+import org.ballerinalang.tool.RuntimePanicException;
 import org.ballerinalang.tool.util.BFileUtil;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -130,6 +131,10 @@ public class RunExecutableTask implements Task {
             ProcessBuilder pb = new ProcessBuilder(commands).inheritIO();
             Process process = pb.start();
             process.waitFor();
+            int exitValue = process.exitValue();
+            if (exitValue != 0) {
+                throw new RuntimePanicException(exitValue);
+            }
         } catch (IOException | InterruptedException e) {
             throw createLauncherException("Error occurred while running the executable ", e.getCause());
         }
