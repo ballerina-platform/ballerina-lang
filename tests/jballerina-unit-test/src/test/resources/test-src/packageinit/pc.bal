@@ -1,6 +1,6 @@
 
-import expressions.invocations.pkg.a;
-import expressions.invocations.pkg.b as _;
+import testorg/packageinit.expressions.invocations.pkg.a;
+import testorg/packageinit.expressions.invocations.pkg.b as _;
 
 function testInitInvocation() returns (int) {
     return a:getA1();

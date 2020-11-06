@@ -1170,41 +1170,6 @@
                     <exclude name="updateReturnedConstantStringMapWithExistingKey"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.object.ObjectInitializerTest">
-                <methods>
-                    <exclude name="testAssigningToVar"/>
-                    <exclude name="testCheckPanicInObjectInitArg"/>
-                    <exclude name="testCheckPanicObjectInit"/>
-                    <exclude name="testConstRefsAsDefaultValue"/>
-                    <exclude name="testErrorReturnWithInitialization"/>
-                    <exclude name="testErrorReturningInitializer"/>
-                    <exclude name="testFunctionPointerAsDefaultableParam1"/>
-                    <exclude name="testFunctionPointerAsDefaultableParam2"/>
-                    <exclude name="testInitActionInsideObjectDescriptor"/>
-                    <exclude name="testInitInvocationInsideObject"/>
-                    <exclude name="testInitInvocationInsideObjectWithArgs"/>
-                    <exclude name="testInitInvocationWithCheckAndRestParams1"/>
-                    <exclude name="testInitInvocationWithCheckAndRestParams2"/>
-                    <exclude name="testInitInvocationWithDefaultError"/>
-                    <exclude name="testInitInvocationWithDefaultParams1"/>
-                    <exclude name="testInitInvocationWithDefaultParams2"/>
-                    <exclude name="testInitInvocationWithFiniteType"/>
-                    <exclude name="testInitInvocationWithReferenceToDefaultValue1"/>
-                    <exclude name="testInitInvocationWithReferenceToDefaultValue2"/>
-                    <exclude name="testInitInvocationWithRestArgs"/>
-                    <exclude name="testInitializerWithRestArgs"/>
-                    <exclude name="testInvalidStructLiteralKey"/>
-                    <exclude name="testMultipleErrorReturn"/>
-                    <exclude name="testObjInitWithCheck1"/>
-                    <exclude name="testObjInitWithCheck2"/>
-                    <exclude name="testObjectInitPanic"/>
-                    <exclude name="testObjectInitializerNegatives"/>
-                    <exclude name="testReturnedValWithTypeGuard"/>
-                    <exclude name="testStructInitializerInAnotherPackage"/>
-                    <exclude name="testStructInitializerInSamePackage1"/>
-                    <exclude name="testStructInitializerOrder"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest">
                 <methods>
                     <exclude name="testCreatingRecordWithOverriddenFields"/>
@@ -1226,12 +1191,6 @@
             <class name="org.ballerinalang.test.balo.record.RecordInBaloTest">
                 <methods>
                     <exclude name="testRestFieldTypeDefAfterRecordDef"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.expressions.invocations.PackageInitInvocationTest">
-                <methods>
-                    <exclude name="invokeFunctionWithParams"/>
-                    <exclude name="testGetValueFromPackageLevelAsyncInvocation"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.balo.globalvar.GlobalVarFunctionInBaloTest">
@@ -1473,45 +1432,6 @@
                     <exclude name="testInvokeFunctionWithRequiredArgsOnly"/>
                     <exclude name="testInvokeFunctionWithoutRestArgs"/>
                     <exclude name="testInvokeFunctionWithoutSomeNamedArgs"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest">
-                <methods>
-                    <exclude name="testAnyToFuncPointerConversion_1"/>
-                    <exclude name="testAnyToFuncPointerConversion_2"/>
-                    <exclude name="testAnyToFunctionPointer"/>
-                    <exclude name="testClassTypeAsParamtype"/>
-                    <exclude name="testDefaultParams"/>
-                    <exclude name="testFPWithStruct"/>
-                    <exclude name="testFuncPointerConversion"/>
-                    <exclude name="testFuncWithArrayParams"/>
-                    <exclude name="testFunctionPointerAsFuncParam"/>
-                    <exclude name="testFunctionPointerAsLambda"/>
-                    <exclude name="testFunctionPointerAsParameter"/>
-                    <exclude name="testFunctionPointerAsReturnParameter"/>
-                    <exclude name="testFunctionPointerAsVariable"/>
-                    <exclude name="testFunctionPointerNative"/>
-                    <exclude name="testFunctionPointerWithAClosure"/>
-                    <exclude name="testGlobalFP"/>
-                    <exclude name="testGlobalFPAsLambda"/>
-                    <exclude name="testGlobalFPAssignment"/>
-                    <exclude name="testGlobalFPByAssigningLocalFP"/>
-                    <exclude name="testGlobalFPWithLocalFP"/>
-                    <exclude name="testGlobalFunctionPointerTyped"/>
-                    <exclude name="testGlobalFunctionPointerVar"/>
-                    <exclude name="testGlobalFunctionTypeDefWithClosures"/>
-                    <exclude name="testInTypeGuard"/>
-                    <exclude name="testInvoke"/>
-                    <exclude name="testInvokingLambdasWithSameName"/>
-                    <exclude name="testLambdaAsReturnParameter"/>
-                    <exclude name="testMemberTakenAsAFieldWithRestArgs"/>
-                    <exclude name="testNestedFunctionPointersAsParameters"/>
-                    <exclude name="testPrivateFunctionPointerTest1"/>
-                    <exclude name="testPrivateFunctionPointerTest2"/>
-                    <exclude name="testStructFP"/>
-                    <exclude name="testStructFPNullReference"/>
-                    <exclude name="testSubTypingWithAny"/>
-                    <exclude name="testVoidFunctionAsUnionReturnFunction"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.worker.NotSoBasicWorkerTest">
