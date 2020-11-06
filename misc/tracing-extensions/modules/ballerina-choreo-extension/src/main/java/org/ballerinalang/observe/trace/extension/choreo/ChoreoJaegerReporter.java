@@ -49,6 +49,7 @@ import java.util.concurrent.TimeUnit;
 public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
     private static final int PUBLISH_INTERVAL_SECS = 10;
     private static final int SPAN_LIST_BOUND = 50000;
+    private static final int SPANS_TO_REMOVE = 5000; // 10% of the SPAN_LIST_BOUND
     private static final Logger LOGGER = LogFactory.getLogger();
 
     private final ScheduledExecutorService executorService;
@@ -97,7 +98,6 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
     private static class Task implements Runnable {
         private final ChoreoClient choreoClient;
         private List<ChoreoTraceSpan> traceSpans;
-        private List<ChoreoTraceSpan> swappedTraceSpans;
 
         private Task(ChoreoClient choreoClient) {
             this.choreoClient = choreoClient;
@@ -132,6 +132,7 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
 
         @Override
         public void run() {
+            List<ChoreoTraceSpan> swappedTraceSpans;
 
             synchronized (this) {
                 if (traceSpans.size() > 0) {
@@ -147,19 +148,20 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
                         choreoClient.publishTraceSpans(swappedTraceSpans);
                     } catch (Throwable t) {
                         synchronized (this) {
+                            int spanCount = 0;
                             if (swappedTraceSpans.size() > SPAN_LIST_BOUND) {
                                 Random random = new Random();
-                                //remove 10% of the trace spans
-                                int spansToRemove = (int) (swappedTraceSpans.size() * (10.0f / 100.0f));
-                                for (int i = 0; i < spansToRemove; i++) {
+                                // Remove 10% of the SPAN_LIST_BOUND
+                                while (spanCount < SPANS_TO_REMOVE) {
                                     if (swappedTraceSpans.size() > 0) {
                                         int randomSpanPos = random.nextInt(swappedTraceSpans.size());
                                         long traceID = swappedTraceSpans.get(randomSpanPos).getTraceId();
                                         for (int j = 0; j < swappedTraceSpans.size(); j++) {
                                             if (swappedTraceSpans.get(j).getTraceId() == traceID) {
                                                 swappedTraceSpans.remove(j);
-                                                //reduce the count as well since the size of the arryList shrink
+                                                // Reduce the count as well since the size of the arrayList shrink
                                                 j--;
+                                                spanCount++;
                                             }
                                         }
                                     }
@@ -167,15 +169,13 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
                             }
 
                             traceSpans.addAll(swappedTraceSpans);
+                            LOGGER.error("failed to publish traces to Choreo due to " + t.getMessage() +
+                                    " : Removed " + spanCount + " spans");
                         }
-                        LOGGER.error("failed to publish traces to Choreo due to " + t.getMessage());
                     }
                 }
             }
         }
 
-        private int getSpanCount() {
-            return traceSpans.size();
-        }
     }
 }
