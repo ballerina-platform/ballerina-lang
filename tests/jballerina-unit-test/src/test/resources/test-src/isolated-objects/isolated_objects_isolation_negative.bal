@@ -411,3 +411,35 @@ isolated class InvalidIsolatedClassWithInvalidCopyyingWithClone {
 
     }
 }
+
+decimal globDecimal = 0;
+
+isolated class CurrentConfig {
+    private decimal[2] x = [1, 2.0];
+    private record {
+        int[] a;
+        decimal b;
+        boolean c;
+    } y = {a: [1, 2], b: 1.0, c: true};
+
+    function foo(decimal arr) {
+        decimal a = 0;
+        decimal a2 = 0;
+
+        lock {
+            [a, globDecimal] = self.x.clone();
+            [a2, globDecimal] = self.x;
+        }
+    }
+
+    function bar() {
+        int[] a;
+        decimal b;
+
+        lock {
+            boolean c;
+            {a, b, c} = self.y;
+            {a, b, c} = self.y.cloneReadOnly();
+        }
+    }
+}

@@ -33,6 +33,9 @@ public class IsolatedObjectTest {
 
     private static final String ERROR_EXPECTED_AN_ISOLATED_EXPRESSION =
             "invalid initial value expression: expected an isolated expression";
+    private static final String ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE =
+            "cannot assign to a variable outside the 'lock' statement with restricted variable usage, " +
+                    "if not just a variable name";
 
     @Test
     public void testIsolatedObjectSemanticNegative() {
@@ -140,6 +143,16 @@ public class IsolatedObjectTest {
         validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 396, 35);
         validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 401, 31);
         validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 404, 35);
+        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 430, 14);
+        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 430, 17);
+        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 431, 14);
+        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 431, 18);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 431, 33);
+        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 441, 14);
+        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 441, 17);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 441, 25);
+        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 442, 14);
+        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 442, 17);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
