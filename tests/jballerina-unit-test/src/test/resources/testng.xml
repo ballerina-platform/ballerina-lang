@@ -806,8 +806,8 @@
             </class>
             <class name="org.ballerinalang.test.expressions.literals.IdentifierLiteralPackageTest">
                 <methods>
-                    <exclude name="testAccessStructGlobalVarWithIdentifierLiteralInOtherPackage"/>
-                    <exclude name="testAccessingVarsInOtherPackage"/>
+<!--                    <exclude name="testAccessStructGlobalVarWithIdentifierLiteralInOtherPackage"/>-->
+<!--                    <exclude name="testAccessingVarsInOtherPackage"/>-->
                 </methods>
             </class>
             <class name="org.ballerinalang.test.balo.types.NeverTypeBaloTest">
