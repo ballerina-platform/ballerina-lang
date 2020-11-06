@@ -59,9 +59,9 @@ public class BCompileUtil {
         Package currentPackage = project.currentPackage();
         PackageCompilation packageCompilation = currentPackage.getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
-        long errorCount = jBallerinaBackend.diagnostics().stream().filter(diagnostic ->
-                diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR).count();
-        if (errorCount > 0) {
+        boolean containErrors = jBallerinaBackend.diagnostics().stream()
+                .anyMatch(diagnostic -> diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR);
+        if (containErrors) {
             return new CompileResult(currentPackage, jBallerinaBackend.diagnostics());
         }
 
@@ -88,9 +88,9 @@ public class BCompileUtil {
         Package currentPackage = project.currentPackage();
         PackageCompilation packageCompilation = currentPackage.getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
-        long errorCount = jBallerinaBackend.diagnostics().stream().filter(diagnostic ->
-                diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR).count();
-        if (errorCount > 0) {
+        boolean containErrors = jBallerinaBackend.diagnostics().stream()
+                .anyMatch(diagnostic -> diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR);
+        if (containErrors) {
             return new CompileResult(currentPackage, jBallerinaBackend.diagnostics());
         }
 
