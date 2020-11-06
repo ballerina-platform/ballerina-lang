@@ -28,6 +28,7 @@ import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.model.Target;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.packerina.utils.FileUtils;
 
 import java.io.IOException;
@@ -58,7 +59,9 @@ public class BCompileUtil {
         Package currentPackage = project.currentPackage();
         PackageCompilation packageCompilation = currentPackage.getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
-        if (jBallerinaBackend.hasDiagnostics()) {
+        boolean containErrors = jBallerinaBackend.diagnostics().stream()
+                .anyMatch(diagnostic -> diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR);
+        if (containErrors) {
             return new CompileResult(currentPackage, jBallerinaBackend.diagnostics());
         }
 
@@ -85,7 +88,9 @@ public class BCompileUtil {
         Package currentPackage = project.currentPackage();
         PackageCompilation packageCompilation = currentPackage.getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
-        if (jBallerinaBackend.hasDiagnostics()) {
+        boolean containErrors = jBallerinaBackend.diagnostics().stream()
+                .anyMatch(diagnostic -> diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR);
+        if (containErrors) {
             return new CompileResult(currentPackage, jBallerinaBackend.diagnostics());
         }
 
