@@ -15,9 +15,8 @@
  *
  */
 
-apply from: "$rootDir/gradle/ballerinaModuleToPackage.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibBuild.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
+
 
 configurations {
     dist {
@@ -36,7 +35,7 @@ dependencies {
     implementation 'org.testng:testng'
     implementation 'com.google.guava:guava:23.0'
 
-    dist 'io.github.java-diff-utils:java-diff-utils:4.5'
+    interopImports 'io.github.java-diff-utils:java-diff-utils:4.5'
 
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'io.swagger.core.v3:swagger-models'
@@ -47,12 +46,6 @@ dependencies {
 }
 
 jar.archiveName("${project.name}-${project.version}.jar")
-
-jar {
-    from {
-        configurations.dist.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-}
 
 task updateVersion {
     ant.replaceregexp(
