@@ -298,24 +298,6 @@
                     <exclude name="testSyncSendAfterSend"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.javainterop.basic.InstanceMethodTest">
-                <methods>
-<!--                    <exclude name="handleOrErrorReturn"/>-->
-<!--                    <exclude name="handleOrErrorWithObjectReturn"/>-->
-<!--                    <exclude name="testAcceptNothingAndReturnNothing"/>-->
-<!--                    <exclude name="testAcceptNothingButReturnSomething"/>-->
-<!--                    <exclude name="testAcceptSomethingAndReturnSomething"/>-->
-<!--                    <exclude name="testAcceptSomethingButReturnNothing"/>-->
-<!--                    <exclude name="testAcceptTwoParamsAndReturnSomething"/>-->
-<!--                    <exclude name="testErrorDetail"/>-->
-<!--                    <exclude name="testInstanceResolve"/>-->
-<!--                    <exclude name="testInteropFunctionWithDifferentName"/>-->
-<!--                    <exclude name="testPrimitiveOrErrorReturn"/>-->
-<!--                    <exclude name="testUncheckedErrorDetail"/>-->
-<!--                    <exclude name="testUnionWithErrorReturn"/>-->
-<!--                    <exclude name="testVoidWithThrows"/>-->
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.functions.FunctionSignatureTest">
                 <methods>
                     <exclude name="defaultValueForObjectFunctionParam"/>
@@ -804,12 +786,6 @@
                     <exclude name="testUsingParamValuesInAttachedFunc"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.expressions.literals.IdentifierLiteralPackageTest">
-                <methods>
-<!--                    <exclude name="testAccessStructGlobalVarWithIdentifierLiteralInOtherPackage"/>-->
-<!--                    <exclude name="testAccessingVarsInOtherPackage"/>-->
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.types.NeverTypeBaloTest">
                 <methods>
                     <exclude name="testExclusiveRecordTypeWithNeverTypedField"/>
@@ -993,11 +969,6 @@
                     <exclude name="testErrorDetailDefinedAfterErrorDef"/>
                     <exclude name="testPerformInvalidCastWithDistinctErrorType"/>
                     <exclude name="testUsageOfDistinctTypeFromAnotherPackage"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.services.ErrorReturnTest">
-                <methods>
-<!--                    <exclude name="testErrorReturnFunction"/>-->
                 </methods>
             </class>
             <class name="org.ballerinalang.test.statements.variabledef.ForwardReferencingGlobalDefinitionTest">
