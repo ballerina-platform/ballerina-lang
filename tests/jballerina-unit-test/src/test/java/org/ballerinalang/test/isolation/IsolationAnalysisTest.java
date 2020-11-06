@@ -106,15 +106,15 @@ public class IsolationAnalysisTest {
         validateError(result, i++, "incompatible types: expected 'Qux', found 'object { int i; function qux () " +
                 "returns (int); }'", 37, 13);
         validateError(result, i++, "incompatible types: expected 'isolated function () returns (int)', found " +
-                "'function () returns (int)'", 42, 40);
+                "'function () returns (int)'", 44, 24);
         validateError(result, i++, "incompatible types: expected 'isolated function (int) returns (int)', found " +
-                "'function (int) returns (int)'", 64, 51);
+                "'function (int) returns (int)'", 66, 51);
         validateError(result, i++, "incompatible types: expected 'isolated function () returns (int)', found " +
-                "'function () returns (int)'", 67, 48);
+                "'function () returns (int)'", 69, 48);
         validateError(result, i++, "incompatible types: expected 'isolated function () returns (int)', found " +
-                "'function () returns (int)'", 70, 48);
+                "'function () returns (int)'", 72, 48);
         validateError(result, i++, "incompatible types: expected 'isolated function (int) returns (int)', found " +
-                "'function (int) returns (int)'", 73, 57);
+                "'function (int) returns (int)'", 75, 57);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

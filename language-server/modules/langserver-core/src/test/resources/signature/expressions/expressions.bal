@@ -390,3 +390,11 @@ public class MockListener {
 }
 
 listener MockListener ep = new MockListener();
+
+function testConcat() {
+    function (string, string) returns string concat = function (string x, string y) returns string {
+        returns x + y;
+    };
+    
+    concat();
+}

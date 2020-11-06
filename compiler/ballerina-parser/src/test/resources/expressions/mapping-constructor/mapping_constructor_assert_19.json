@@ -96,13 +96,7 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "OPEN_BRACE_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "OPEN_BRACE_TOKEN"
                     },
                     {
                       "kind": "LIST",
@@ -148,7 +142,13 @@
                               "value": "a"
                             },
                             {
-                              "kind": "COLON_TOKEN"
+                              "kind": "COLON_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "SIMPLE_NAME_REFERENCE",
@@ -218,13 +218,7 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "OPEN_BRACE_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "OPEN_BRACE_TOKEN"
                     },
                     {
                       "kind": "LIST",
@@ -270,7 +264,13 @@
                               ]
                             },
                             {
-                              "kind": "COLON_TOKEN"
+                              "kind": "COLON_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "SIMPLE_NAME_REFERENCE",

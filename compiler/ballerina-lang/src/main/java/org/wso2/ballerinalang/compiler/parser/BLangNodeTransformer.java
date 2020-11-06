@@ -81,7 +81,6 @@ import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
-import io.ballerina.compiler.syntax.tree.ImportVersionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.InterpolationNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
@@ -560,9 +559,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ModuleVariableDeclarationNode modVarDeclrNode) {
         TypedBindingPatternNode typedBindingPattern = modVarDeclrNode.typedBindingPattern();
         CaptureBindingPatternNode bindingPattern = (CaptureBindingPatternNode) typedBindingPattern.bindingPattern();
+
+        boolean isFinal = false;
+        for (Token qualifier : modVarDeclrNode.qualifiers()) {
+            if (qualifier.kind() == SyntaxKind.FINAL_KEYWORD) {
+                isFinal = true;
+            }
+        }
+
         BLangSimpleVariable simpleVar = createSimpleVar(bindingPattern.variableName(),
-                typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer().orElse(null),
-                modVarDeclrNode.finalKeyword().isPresent(), false, null,
+                typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer().orElse(null), isFinal, false, null,
                 getAnnotations(modVarDeclrNode.metadata()));
         simpleVar.pos = getPositionWithoutMetadata(modVarDeclrNode);
         simpleVar.markdownDocumentationAttachment =
@@ -573,7 +579,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ImportDeclarationNode importDeclaration) {
         ImportOrgNameNode orgNameNode = importDeclaration.orgName().orElse(null);
-        ImportVersionNode versionNode = importDeclaration.version().orElse(null);
         ImportPrefixNode prefixNode = importDeclaration.prefix().orElse(null);
 
         Token orgName = null;
@@ -582,13 +587,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         String version = null;
-        if (versionNode != null) {
-            if (versionNode.isMissing()) {
-                version = missingNodesHelper.getNextMissingNodeName(packageID);
-            } else {
-                version = extractVersion(versionNode.versionNumber());
-            }
-        }
 
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
         NodeList<IdentifierToken> names = importDeclaration.moduleName();
@@ -599,7 +597,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         importDcl.pos = position;
         importDcl.pkgNameComps = pkgNameComps;
         importDcl.orgName = this.createIdentifier(getPosition(orgNameNode), orgName);
-        importDcl.version = this.createIdentifier(getPosition(versionNode), version);
+        importDcl.version = this.createIdentifier(null, version);
         importDcl.alias = (prefixNode != null) ? this.createIdentifier(getPosition(prefixNode), prefixNode.prefix())
                                                : pkgNameComps.get(pkgNameComps.size() - 1);
 

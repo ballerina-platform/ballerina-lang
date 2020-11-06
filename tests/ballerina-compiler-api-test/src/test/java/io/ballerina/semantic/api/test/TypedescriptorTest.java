@@ -20,27 +20,27 @@ package io.ballerina.semantic.api.test;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
+import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
+import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ParameterKind;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.api.types.ArrayTypeSymbol;
-import io.ballerina.compiler.api.types.FieldSymbol;
-import io.ballerina.compiler.api.types.FunctionTypeSymbol;
-import io.ballerina.compiler.api.types.FutureTypeSymbol;
-import io.ballerina.compiler.api.types.MapTypeSymbol;
-import io.ballerina.compiler.api.types.ObjectTypeSymbol;
-import io.ballerina.compiler.api.types.ParameterKind;
-import io.ballerina.compiler.api.types.ParameterSymbol;
-import io.ballerina.compiler.api.types.RecordTypeSymbol;
-import io.ballerina.compiler.api.types.TupleTypeSymbol;
-import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.TypeDescTypeSymbol;
-import io.ballerina.compiler.api.types.TypeReferenceTypeSymbol;
-import io.ballerina.compiler.api.types.TypeSymbol;
-import io.ballerina.compiler.api.types.UnionTypeSymbol;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -50,25 +50,25 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.List;
 
-import static io.ballerina.compiler.api.types.ParameterKind.DEFAULTABLE;
-import static io.ballerina.compiler.api.types.ParameterKind.REQUIRED;
-import static io.ballerina.compiler.api.types.ParameterKind.REST;
-import static io.ballerina.compiler.api.types.TypeDescKind.ANYDATA;
-import static io.ballerina.compiler.api.types.TypeDescKind.ARRAY;
-import static io.ballerina.compiler.api.types.TypeDescKind.DECIMAL;
-import static io.ballerina.compiler.api.types.TypeDescKind.FLOAT;
-import static io.ballerina.compiler.api.types.TypeDescKind.FUTURE;
-import static io.ballerina.compiler.api.types.TypeDescKind.INT;
-import static io.ballerina.compiler.api.types.TypeDescKind.MAP;
-import static io.ballerina.compiler.api.types.TypeDescKind.NIL;
-import static io.ballerina.compiler.api.types.TypeDescKind.OBJECT;
-import static io.ballerina.compiler.api.types.TypeDescKind.RECORD;
-import static io.ballerina.compiler.api.types.TypeDescKind.SINGLETON;
-import static io.ballerina.compiler.api.types.TypeDescKind.STRING;
-import static io.ballerina.compiler.api.types.TypeDescKind.TUPLE;
-import static io.ballerina.compiler.api.types.TypeDescKind.TYPEDESC;
-import static io.ballerina.compiler.api.types.TypeDescKind.TYPE_REFERENCE;
-import static io.ballerina.compiler.api.types.TypeDescKind.UNION;
+import static io.ballerina.compiler.api.symbols.ParameterKind.DEFAULTABLE;
+import static io.ballerina.compiler.api.symbols.ParameterKind.REQUIRED;
+import static io.ballerina.compiler.api.symbols.ParameterKind.REST;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.SINGLETON;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.compile;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
@@ -160,23 +160,21 @@ public class TypedescriptorTest {
     @Test
     public void testObjectType() {
         Symbol symbol = getSymbol(28, 6);
-        TypeReferenceTypeSymbol typeRef =
-                (TypeReferenceTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor();
-        ObjectTypeSymbol type = (ObjectTypeSymbol) typeRef.typeDescriptor();
-        assertEquals(type.typeKind(), OBJECT);
+        ClassSymbol clazz = (ClassSymbol) symbol;
+        assertEquals(clazz.typeKind(), OBJECT);
 
-        List<FieldSymbol> fields = type.fieldDescriptors();
+        List<FieldSymbol> fields = clazz.fieldDescriptors();
         FieldSymbol field = fields.get(0);
         assertEquals(fields.size(), 1);
         assertEquals(field.name(), "name");
         assertEquals(field.typeDescriptor().typeKind(), STRING);
 
-        List<MethodSymbol> methods = type.methods();
+        List<MethodSymbol> methods = clazz.methods();
         MethodSymbol method = methods.get(0);
         assertEquals(fields.size(), 1);
         assertEquals(method.name(), "getName");
 
-        assertEquals(type.initMethod().get().name(), "init");
+        assertEquals(clazz.initMethod().get().name(), "init");
     }
 
     @Test

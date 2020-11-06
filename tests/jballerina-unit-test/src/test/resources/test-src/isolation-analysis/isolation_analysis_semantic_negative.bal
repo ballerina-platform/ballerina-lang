@@ -39,7 +39,9 @@ function testNonIsolatedMethodAsIsolatedMethodNegative() {
 
 function () returns int foo = () => 1;
 
-isolated function () returns int bar = foo;
+type IsolatedFunction isolated function () returns int;
+
+IsolatedFunction bar = foo;
 
 int val = 2;
 

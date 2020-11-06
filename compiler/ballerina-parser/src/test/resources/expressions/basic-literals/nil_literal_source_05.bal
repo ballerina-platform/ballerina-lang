@@ -1,3 +1,3 @@
-function foo(int a=)){
-    int a = (a+b+));
+function foo(int a = )) {
+    int a = (a + b + ));
 }

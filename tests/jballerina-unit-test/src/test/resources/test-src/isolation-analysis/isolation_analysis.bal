@@ -170,7 +170,7 @@ isolated function testIsolatedFunctionPointerInvocation() {
     assertEquality(fn1(101, {first: 123, second: 234}), 226);
 }
 
-isolated function () returns int fn3 = isolated function () returns int {
+IsolatedFunction fn3 = isolated function () returns int {
     return 15;
 };
 
@@ -449,3 +449,5 @@ isolated function assertEquality(any|error expected, any|error actual) {
 
     panic error(string `expected '${expected.toString()}', found '${actual.toString()}'`);
 }
+
+type IsolatedFunction isolated function () returns int;
