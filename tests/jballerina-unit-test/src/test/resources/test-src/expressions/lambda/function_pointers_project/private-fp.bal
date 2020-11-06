@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import a.b;
-import foo;
-import bar;
+import ab/function_pointers_project.a.b;
+import ab/function_pointers_project.foo;
+import ab/function_pointers_project.bar;
 
 function test1() returns (int){
     function (int, int) returns (int) addFunction = b:Fn1();

@@ -1470,45 +1470,6 @@
                     <exclude name="testInvokeFunctionWithoutSomeNamedArgs"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest">
-                <methods>
-                    <exclude name="testAnyToFuncPointerConversion_1"/>
-                    <exclude name="testAnyToFuncPointerConversion_2"/>
-                    <exclude name="testAnyToFunctionPointer"/>
-                    <exclude name="testClassTypeAsParamtype"/>
-                    <exclude name="testDefaultParams"/>
-                    <exclude name="testFPWithStruct"/>
-                    <exclude name="testFuncPointerConversion"/>
-                    <exclude name="testFuncWithArrayParams"/>
-                    <exclude name="testFunctionPointerAsFuncParam"/>
-                    <exclude name="testFunctionPointerAsLambda"/>
-                    <exclude name="testFunctionPointerAsParameter"/>
-                    <exclude name="testFunctionPointerAsReturnParameter"/>
-                    <exclude name="testFunctionPointerAsVariable"/>
-                    <exclude name="testFunctionPointerNative"/>
-                    <exclude name="testFunctionPointerWithAClosure"/>
-                    <exclude name="testGlobalFP"/>
-                    <exclude name="testGlobalFPAsLambda"/>
-                    <exclude name="testGlobalFPAssignment"/>
-                    <exclude name="testGlobalFPByAssigningLocalFP"/>
-                    <exclude name="testGlobalFPWithLocalFP"/>
-                    <exclude name="testGlobalFunctionPointerTyped"/>
-                    <exclude name="testGlobalFunctionPointerVar"/>
-                    <exclude name="testGlobalFunctionTypeDefWithClosures"/>
-                    <exclude name="testInTypeGuard"/>
-                    <exclude name="testInvoke"/>
-                    <exclude name="testInvokingLambdasWithSameName"/>
-                    <exclude name="testLambdaAsReturnParameter"/>
-                    <exclude name="testMemberTakenAsAFieldWithRestArgs"/>
-                    <exclude name="testNestedFunctionPointersAsParameters"/>
-                    <exclude name="testPrivateFunctionPointerTest1"/>
-                    <exclude name="testPrivateFunctionPointerTest2"/>
-                    <exclude name="testStructFP"/>
-                    <exclude name="testStructFPNullReference"/>
-                    <exclude name="testSubTypingWithAny"/>
-                    <exclude name="testVoidFunctionAsUnionReturnFunction"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.worker.NotSoBasicWorkerTest">
                 <methods>
                     <exclude name="chainedWorkerSendReceive"/>
