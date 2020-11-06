@@ -17,9 +17,9 @@ package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
-import io.ballerina.compiler.api.types.Parameter;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -137,7 +137,7 @@ public class FunctionGenerator {
      * @return return type signature
      */
     public static String generateTypeDefinition(ImportsAcceptor importsAcceptor,
-                                                BallerinaTypeDescriptor typeDescriptor, LSContext context) {
+                                                TypeSymbol typeDescriptor, LSContext context) {
         PackageID packageID = context.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
         String signature = typeDescriptor.signature();
         return (packageID != null) ? processModuleIDsInText(importsAcceptor, context, packageID, signature) : signature;
@@ -179,14 +179,14 @@ public class FunctionGenerator {
     public static List<String> getFuncArguments(FunctionSymbol symbol, LSContext ctx) {
         List<String> args = new ArrayList<>();
         boolean skipFirstParam = CommonUtil.skipFirstParam(ctx, symbol);
-        FunctionTypeDescriptor functionTypeDesc = symbol.typeDescriptor();
-        Optional<Parameter> restParam = functionTypeDesc.restParam();
-        List<Parameter> parameterDefs = new ArrayList<>(functionTypeDesc.parameters());
+        FunctionTypeSymbol functionTypeDesc = symbol.typeDescriptor();
+        Optional<ParameterSymbol> restParam = functionTypeDesc.restParam();
+        List<ParameterSymbol> parameterDefs = new ArrayList<>(functionTypeDesc.parameters());
         for (int i = 0; i < parameterDefs.size(); i++) {
             if (i == 0 && skipFirstParam) {
                 continue;
             }
-            Parameter param = parameterDefs.get(i);
+            ParameterSymbol param = parameterDefs.get(i);
             args.add(param.typeDescriptor().signature() + (param.name().isEmpty() ? "" : " " + param.name().get()));
         }
         restParam.ifPresent(param ->

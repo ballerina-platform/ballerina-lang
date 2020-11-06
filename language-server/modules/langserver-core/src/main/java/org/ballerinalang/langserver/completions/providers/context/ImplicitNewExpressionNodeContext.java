@@ -18,8 +18,8 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
@@ -59,14 +59,14 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
         Supports the following
         (1) lhs = new <cursor>
         */
-        Optional<ObjectTypeDescriptor> objectTypeSymbol = getObjectTypeDescriptor(context, node);
+        Optional<ObjectTypeSymbol> objectTypeSymbol = getObjectTypeDescriptor(context, node);
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
         objectTypeSymbol.ifPresent(bSymbol -> completionItems.add(this.getExplicitNewCompletionItem(bSymbol, context)));
 
         return completionItems;
     }
 
-    private Optional<ObjectTypeDescriptor> getObjectTypeDescriptor(LSContext context, Node node) {
+    private Optional<ObjectTypeSymbol> getObjectTypeDescriptor(LSContext context, Node node) {
         Node typeDescriptor;
 
         switch (node.parent().kind()) {
@@ -110,7 +110,7 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
         return Optional.of(SymbolUtil.getTypeDescForObjectSymbol(nameReferenceSymbol.get()));
     }
 
-    private Optional<ObjectTypeDescriptor> getObjectTypeForVarRef(LSContext context, Node varRefNode) {
+    private Optional<ObjectTypeSymbol> getObjectTypeForVarRef(LSContext context, Node varRefNode) {
         List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         if (varRefNode.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
             return Optional.empty();

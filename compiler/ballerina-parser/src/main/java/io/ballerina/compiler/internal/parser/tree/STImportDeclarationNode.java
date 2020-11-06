@@ -34,7 +34,6 @@ public class STImportDeclarationNode extends STNode {
     public final STNode importKeyword;
     public final STNode orgName;
     public final STNode moduleName;
-    public final STNode version;
     public final STNode prefix;
     public final STNode semicolon;
 
@@ -42,14 +41,12 @@ public class STImportDeclarationNode extends STNode {
             STNode importKeyword,
             STNode orgName,
             STNode moduleName,
-            STNode version,
             STNode prefix,
             STNode semicolon) {
         this(
                 importKeyword,
                 orgName,
                 moduleName,
-                version,
                 prefix,
                 semicolon,
                 Collections.emptyList());
@@ -59,7 +56,6 @@ public class STImportDeclarationNode extends STNode {
             STNode importKeyword,
             STNode orgName,
             STNode moduleName,
-            STNode version,
             STNode prefix,
             STNode semicolon,
             Collection<STNodeDiagnostic> diagnostics) {
@@ -67,7 +63,6 @@ public class STImportDeclarationNode extends STNode {
         this.importKeyword = importKeyword;
         this.orgName = orgName;
         this.moduleName = moduleName;
-        this.version = version;
         this.prefix = prefix;
         this.semicolon = semicolon;
 
@@ -75,7 +70,6 @@ public class STImportDeclarationNode extends STNode {
                 importKeyword,
                 orgName,
                 moduleName,
-                version,
                 prefix,
                 semicolon);
     }
@@ -85,7 +79,6 @@ public class STImportDeclarationNode extends STNode {
                 this.importKeyword,
                 this.orgName,
                 this.moduleName,
-                this.version,
                 this.prefix,
                 this.semicolon,
                 diagnostics);
@@ -95,14 +88,12 @@ public class STImportDeclarationNode extends STNode {
             STNode importKeyword,
             STNode orgName,
             STNode moduleName,
-            STNode version,
             STNode prefix,
             STNode semicolon) {
         if (checkForReferenceEquality(
                 importKeyword,
                 orgName,
                 moduleName,
-                version,
                 prefix,
                 semicolon)) {
             return this;
@@ -112,7 +103,6 @@ public class STImportDeclarationNode extends STNode {
                 importKeyword,
                 orgName,
                 moduleName,
-                version,
                 prefix,
                 semicolon,
                 diagnostics);

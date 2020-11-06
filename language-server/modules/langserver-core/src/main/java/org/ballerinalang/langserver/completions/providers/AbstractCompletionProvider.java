@@ -17,17 +17,18 @@
  */
 package org.ballerinalang.langserver.completions.providers;
 
+import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.symbols.WorkerSymbol;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -75,6 +76,7 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 
 /**
  * Interface for completion item providers.
@@ -162,11 +164,11 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                 completionItems.add(new SymbolCompletionItem(context, symbol, constantCItem));
             } else if (symbol.kind() == SymbolKind.VARIABLE) {
                 VariableSymbol varSymbol = (VariableSymbol) symbol;
-                BallerinaTypeDescriptor typeDesc = (varSymbol).typeDescriptor();
+                TypeSymbol typeDesc = (varSymbol).typeDescriptor();
                 String typeName = typeDesc.signature();
                 CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, symbol.name(), typeName);
                 completionItems.add(new SymbolCompletionItem(context, symbol, variableCItem));
-            } else if (symbol.kind() == SymbolKind.TYPE) {
+            } else if (symbol.kind() == SymbolKind.TYPE || symbol.kind() == SymbolKind.CLASS) {
                 // Here skip all the package symbols since the package is added separately
                 CompletionItem typeCItem = TypeCompletionItemBuilder.build(symbol, symbol.name());
                 completionItems.add(new SymbolCompletionItem(context, symbol, typeCItem));
@@ -189,7 +191,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         List<LSCompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.forEach(bSymbol -> {
-            if (bSymbol.kind() == SymbolKind.TYPE) {
+            if (bSymbol.kind() == SymbolKind.TYPE || bSymbol.kind() == SymbolKind.CLASS) {
                 CompletionItem cItem = TypeCompletionItemBuilder.build(bSymbol, bSymbol.name());
                 completionItems.add(new SymbolCompletionItem(context, bSymbol, cItem));
             }
@@ -217,8 +219,11 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @return {@link List} list of filtered type entries
      */
     @Deprecated
-    protected List<TypeSymbol> filterTypesInModule(ModuleSymbol moduleSymbol) {
-        return moduleSymbol.typeDefinitions();
+    protected List<Symbol> filterTypesInModule(ModuleSymbol moduleSymbol) {
+        List<Symbol> typeDefs = new ArrayList<>();
+        typeDefs.addAll(moduleSymbol.typeDefinitions());
+        typeDefs.addAll(moduleSymbol.classes());
+        return typeDefs;
     }
 
     /**
@@ -265,8 +270,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
             boolean pkgAlreadyImported = currentModuleImports.stream()
                     .anyMatch(importPkg -> importPkg.orgName.value.equals(orgName)
                             && importPkg.alias.value.equals(name));
-            if (!pkgAlreadyImported && !populatedList.contains(orgName + "/" + name) &&
-                    !("ballerina".equals(orgName) && name.startsWith("lang.annotations"))) {
+            if (!pkgAlreadyImported && !populatedList.contains(orgName + "/" + name)
+                    && !this.isPreDeclaredLangLib(pkg)) {
                 CompletionItem item = new CompletionItem();
                 item.setLabel(pkg.getFullPackageNameAlias());
                 String[] pkgNameComps = name.split("\\.");
@@ -289,6 +294,17 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                 completionItems.add(new StaticCompletionItem(ctx, item, kind));
             }
         });
+
+        List<LSCompletionItem> langlibModules = ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY).stream()
+                .filter(symbol -> {
+                    ModuleID moduleID = symbol.moduleID();
+                    return symbol.kind() == MODULE && moduleID.orgName().equals("ballerina")
+                            && moduleID.moduleName().startsWith("lang.")
+                            && CommonUtil.PRE_DECLARED_LANG_LIBS.contains(moduleID.moduleName());
+                })
+                .map(symbol -> this.getLangLibCompletionItem(symbol.moduleID(), ctx))
+                .collect(Collectors.toList());
+        completionItems.addAll(langlibModules);
 
         return completionItems;
     }
@@ -402,18 +418,28 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @param context    Language server operation context
      * @return {@link LSCompletionItem} generated
      */
-    protected LSCompletionItem getImplicitNewCompletionItem(ObjectTypeDescriptor objectType, LSContext context) {
+    protected LSCompletionItem getImplicitNewCompletionItem(ObjectTypeSymbol objectType, LSContext context) {
         CompletionItem cItem = FunctionCompletionItemBuilder.build(objectType,
                 FunctionCompletionItemBuilder.InitializerBuildMode.IMPLICIT, context);
-        MethodSymbol initMethod = objectType.initMethod().isPresent() ? objectType.initMethod().get() : null;
+
+        MethodSymbol initMethod = null;
+        if (objectType.kind() == SymbolKind.CLASS) {
+            ClassSymbol classSymbol = (ClassSymbol) objectType;
+            initMethod = classSymbol.initMethod().isPresent() ? classSymbol.initMethod().get() : null;
+        }
 
         return new SymbolCompletionItem(context, initMethod, cItem);
     }
 
-    protected LSCompletionItem getExplicitNewCompletionItem(ObjectTypeDescriptor objectType, LSContext context) {
+    protected LSCompletionItem getExplicitNewCompletionItem(ObjectTypeSymbol objectType, LSContext context) {
         CompletionItem cItem = FunctionCompletionItemBuilder.build(objectType,
                 FunctionCompletionItemBuilder.InitializerBuildMode.EXPLICIT, context);
-        MethodSymbol initMethod = objectType.initMethod().isPresent() ? objectType.initMethod().get() : null;
+
+        MethodSymbol initMethod = null;
+        if (objectType.kind() == SymbolKind.CLASS) {
+            ClassSymbol classSymbol = (ClassSymbol) objectType;
+            initMethod = classSymbol.initMethod().isPresent() ? classSymbol.initMethod().get() : null;
+        }
 
         return new SymbolCompletionItem(context, initMethod, cItem);
     }
@@ -498,7 +524,12 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         // TODO: anon function expressions, 
         return completionItems;
     }
-    
+
+    protected boolean isPreDeclaredLangLib(BallerinaPackage ballerinaPackage) {
+        return "ballerina".equals(ballerinaPackage.getOrgName())
+                && CommonUtil.PRE_DECLARED_LANG_LIBS.contains(ballerinaPackage.getPackageName());
+    }
+
     private List<LSCompletionItem> getBasicAndOtherTypeCompletions(LSContext context) {
         List<String> types = Arrays.asList("float", "xml", "readonly", "handle", "never", "decimal", "string", "stream",
                 "json", "table", "anydata", "any", "int", "boolean", "future", "service", "typedesc", "byte");
@@ -508,7 +539,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
             CompletionItem cItem = TypeCompletionItemBuilder.build(null, type);
             completionItems.add(new SymbolCompletionItem(context, null, cItem));
         });
-        
+
         return completionItems;
     }
 
@@ -578,5 +609,16 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         if (!found) {
             items.add(new SnippetCompletionItem(ctx, snippet));
         }
+    }
+
+    private LSCompletionItem getLangLibCompletionItem(ModuleID moduleID, LSContext context) {
+        CompletionItem item = new CompletionItem();
+        item.setLabel(moduleID.orgName() + "/" + moduleID.moduleName());
+        String insertText = "'" + moduleID.modulePrefix();
+        item.setInsertText(insertText);
+        item.setDetail(ItemResolverConstants.MODULE_TYPE);
+        item.setKind(CompletionItemKind.Module);
+
+        return new StaticCompletionItem(context, item, StaticCompletionItem.Kind.LANG_LIB_MODULE);
     }
 }

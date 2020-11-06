@@ -18,8 +18,9 @@ package org.ballerinalang.langserver.completions.util;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -242,8 +243,8 @@ public class SortingUtil {
             String nameRef = ((SimpleNameReferenceNode) typeDesc.get()).name().text();
             for (Symbol symbol : visibleSymbols) {
                 if (symbol.kind() == SymbolKind.TYPE && symbol.name().equals(nameRef)) {
-                    TypeSymbol typeSymbol = (TypeSymbol) symbol;
-                    return Optional.of(typeSymbol);
+                    TypeDefinitionSymbol typeDefinitionSymbol = (TypeDefinitionSymbol) symbol;
+                    return Optional.of(typeDefinitionSymbol.typeDescriptor());
                 }
             }
             return Optional.empty();

@@ -21,6 +21,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.ballerinalang.datamapper.config.LSClientExtendedConfig;
 import org.ballerinalang.datamapper.utils.HttpClientRequest;
 import org.ballerinalang.datamapper.utils.HttpResponse;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -100,8 +101,10 @@ class AIDataMapperCodeActionUtil {
 
         // Insert function call in the code where error is found
         BLangNode bLangNode = refAtCursor.getbLangNode();
-        Position startPos = new Position(bLangNode.pos.sLine - 1, bLangNode.pos.sCol - 1);
-        Position endPosWithSemiColon = new Position(bLangNode.pos.eLine - 1, bLangNode.pos.eCol);
+        Position startPos = new Position(bLangNode.pos.lineRange().startLine().line() - 1,
+                bLangNode.pos.lineRange().startLine().offset() - 1);
+        Position endPosWithSemiColon = new Position(bLangNode.pos.lineRange().endLine().line() - 1,
+                bLangNode.pos.lineRange().endLine().offset());
         Range newTextRange = new Range(startPos, endPosWithSemiColon);
 
         BSymbol symbolAtCursor = refAtCursor.getSymbol();
@@ -225,7 +228,8 @@ class AIDataMapperCodeActionUtil {
             Map<String, String> headers = new HashMap<>();
             headers.put("Content-Type", "application/json; utf-8");
             headers.put("Accept", "application/json");
-            String url = LSClientConfigHolder.getInstance().getConfig().getDataMapper().getUrl() + "/map/1.0.0";
+            String url = LSClientConfigHolder.getInstance().getConfigAs(LSClientExtendedConfig.class).getDataMapper()
+                    .getUrl() + "/map/1.0.0";
             HttpResponse response = HttpClientRequest.doPost(url, dataToSend.toString(), headers);
             int responseCode = response.getResponseCode();
             if (responseCode != HTTP_200_OK) {

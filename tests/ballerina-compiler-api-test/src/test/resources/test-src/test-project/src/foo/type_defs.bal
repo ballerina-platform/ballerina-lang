@@ -47,3 +47,10 @@ public type FileNotFoundError distinct error;
 public type EofError distinct error;
 
 public type Error FileNotFoundError|EofError;
+
+public type Address object {
+    string city;
+    string country;
+
+    function getAddress() returns string;
+};

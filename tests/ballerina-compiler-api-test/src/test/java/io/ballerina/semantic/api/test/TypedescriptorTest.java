@@ -20,27 +20,27 @@ package io.ballerina.semantic.api.test;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
+import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
+import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ParameterKind;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.api.types.ArrayTypeDescriptor;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-import io.ballerina.compiler.api.types.FieldDescriptor;
-import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
-import io.ballerina.compiler.api.types.FutureTypeDescriptor;
-import io.ballerina.compiler.api.types.MapTypeDescriptor;
-import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
-import io.ballerina.compiler.api.types.Parameter;
-import io.ballerina.compiler.api.types.ParameterKind;
-import io.ballerina.compiler.api.types.RecordTypeDescriptor;
-import io.ballerina.compiler.api.types.TupleTypeDescriptor;
-import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.TypeDescTypeDescriptor;
-import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
-import io.ballerina.compiler.api.types.UnionTypeDescriptor;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -50,25 +50,25 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.List;
 
-import static io.ballerina.compiler.api.types.ParameterKind.DEFAULTABLE;
-import static io.ballerina.compiler.api.types.ParameterKind.REQUIRED;
-import static io.ballerina.compiler.api.types.ParameterKind.REST;
-import static io.ballerina.compiler.api.types.TypeDescKind.ANYDATA;
-import static io.ballerina.compiler.api.types.TypeDescKind.ARRAY;
-import static io.ballerina.compiler.api.types.TypeDescKind.DECIMAL;
-import static io.ballerina.compiler.api.types.TypeDescKind.FLOAT;
-import static io.ballerina.compiler.api.types.TypeDescKind.FUTURE;
-import static io.ballerina.compiler.api.types.TypeDescKind.INT;
-import static io.ballerina.compiler.api.types.TypeDescKind.MAP;
-import static io.ballerina.compiler.api.types.TypeDescKind.NIL;
-import static io.ballerina.compiler.api.types.TypeDescKind.OBJECT;
-import static io.ballerina.compiler.api.types.TypeDescKind.RECORD;
-import static io.ballerina.compiler.api.types.TypeDescKind.SINGLETON;
-import static io.ballerina.compiler.api.types.TypeDescKind.STRING;
-import static io.ballerina.compiler.api.types.TypeDescKind.TUPLE;
-import static io.ballerina.compiler.api.types.TypeDescKind.TYPEDESC;
-import static io.ballerina.compiler.api.types.TypeDescKind.TYPE_REFERENCE;
-import static io.ballerina.compiler.api.types.TypeDescKind.UNION;
+import static io.ballerina.compiler.api.symbols.ParameterKind.DEFAULTABLE;
+import static io.ballerina.compiler.api.symbols.ParameterKind.REQUIRED;
+import static io.ballerina.compiler.api.symbols.ParameterKind.REST;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.SINGLETON;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.compile;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
@@ -95,129 +95,127 @@ public class TypedescriptorTest {
     @Test
     public void testAnnotationType() {
         Symbol symbol = getSymbol(22, 37);
-        TypeReferenceTypeDescriptor type =
-                (TypeReferenceTypeDescriptor) ((AnnotationSymbol) symbol).typeDescriptor().get();
-        assertEquals(type.typeDescriptor().kind(), TypeDescKind.RECORD);
+        TypeReferenceTypeSymbol type =
+                (TypeReferenceTypeSymbol) ((AnnotationSymbol) symbol).typeDescriptor().get();
+        assertEquals(type.typeDescriptor().typeKind(), TypeDescKind.RECORD);
     }
 
     @Test
     public void testConstantType() {
         Symbol symbol = getSymbol(16, 7);
-        BallerinaTypeDescriptor type = ((ConstantSymbol) symbol).typeDescriptor();
-        assertEquals(type.kind(), FLOAT);
+        TypeSymbol type = ((ConstantSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), FLOAT);
     }
 
     @Test
     public void testFunctionType() {
         Symbol symbol = getSymbol(43, 12);
-        FunctionTypeDescriptor type = ((FunctionSymbol) symbol).typeDescriptor();
-        assertEquals(type.kind(), TypeDescKind.FUNCTION);
+        FunctionTypeSymbol type = ((FunctionSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), TypeDescKind.FUNCTION);
 
-        List<Parameter> parameters = type.parameters();
+        List<ParameterSymbol> parameters = type.parameters();
         assertEquals(parameters.size(), 2);
         validateParam(parameters.get(0), "x", REQUIRED, INT);
 
         validateParam(parameters.get(1), "y", DEFAULTABLE, FLOAT);
 
-        Parameter restParam = type.restParam().get();
+        ParameterSymbol restParam = type.restParam().get();
         validateParam(restParam, "rest", REST, ARRAY);
 
-        BallerinaTypeDescriptor returnType = type.returnTypeDescriptor().get();
-        assertEquals(returnType.kind(), INT);
+        TypeSymbol returnType = type.returnTypeDescriptor().get();
+        assertEquals(returnType.typeKind(), INT);
     }
 
     @Test
     public void testFutureType() {
         Symbol symbol = getSymbol(45, 16);
-        FutureTypeDescriptor type = (FutureTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
-        assertEquals(type.kind(), FUTURE);
-        assertEquals(type.typeParameter().get().kind(), INT);
+        FutureTypeSymbol type = (FutureTypeSymbol) ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), FUTURE);
+        assertEquals(type.typeParameter().get().typeKind(), INT);
     }
 
     @Test
     public void testArrayType() {
         Symbol symbol = getSymbol(47, 18);
-        ArrayTypeDescriptor type = (ArrayTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
-        assertEquals(type.kind(), ARRAY);
-        assertEquals(((TypeReferenceTypeDescriptor) type.memberTypeDescriptor()).typeDescriptor().kind(), OBJECT);
+        ArrayTypeSymbol type = (ArrayTypeSymbol) ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), ARRAY);
+        assertEquals(((TypeReferenceTypeSymbol) type.memberTypeDescriptor()).typeDescriptor().typeKind(), OBJECT);
     }
 
     @Test
     public void testMapType() {
         Symbol symbol = getSymbol(49, 16);
-        MapTypeDescriptor type = (MapTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
-        assertEquals(type.kind(), MAP);
-        assertEquals(type.typeParameter().get().kind(), STRING);
+        MapTypeSymbol type = (MapTypeSymbol) ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), MAP);
+        assertEquals(type.typeParameter().get().typeKind(), STRING);
     }
 
     @Test
     public void testNilType() {
         Symbol symbol = getSymbol(38, 9);
-        FunctionTypeDescriptor type = (FunctionTypeDescriptor) ((FunctionSymbol) symbol).typeDescriptor();
-        assertEquals(type.returnTypeDescriptor().get().kind(), NIL);
+        FunctionTypeSymbol type = (FunctionTypeSymbol) ((FunctionSymbol) symbol).typeDescriptor();
+        assertEquals(type.returnTypeDescriptor().get().typeKind(), NIL);
     }
 
     @Test
     public void testObjectType() {
         Symbol symbol = getSymbol(28, 6);
-        TypeReferenceTypeDescriptor typeRef =
-                (TypeReferenceTypeDescriptor) ((TypeSymbol) symbol).typeDescriptor();
-        ObjectTypeDescriptor type = (ObjectTypeDescriptor) typeRef.typeDescriptor();
-        assertEquals(type.kind(), OBJECT);
+        ClassSymbol clazz = (ClassSymbol) symbol;
+        assertEquals(clazz.typeKind(), OBJECT);
 
-        List<FieldDescriptor> fields = type.fieldDescriptors();
-        FieldDescriptor field = fields.get(0);
+        List<FieldSymbol> fields = clazz.fieldDescriptors();
+        FieldSymbol field = fields.get(0);
         assertEquals(fields.size(), 1);
         assertEquals(field.name(), "name");
-        assertEquals(field.typeDescriptor().kind(), STRING);
+        assertEquals(field.typeDescriptor().typeKind(), STRING);
 
-        List<MethodSymbol> methods = type.methods();
+        List<MethodSymbol> methods = clazz.methods();
         MethodSymbol method = methods.get(0);
         assertEquals(fields.size(), 1);
         assertEquals(method.name(), "getName");
 
-        assertEquals(type.initMethod().get().name(), "init");
+        assertEquals(clazz.initMethod().get().name(), "init");
     }
 
     @Test
     public void testRecordType() {
         Symbol symbol = getSymbol(18, 5);
-        TypeReferenceTypeDescriptor typeRef =
-                (TypeReferenceTypeDescriptor) ((TypeSymbol) symbol).typeDescriptor();
-        RecordTypeDescriptor type = (RecordTypeDescriptor) typeRef.typeDescriptor();
-        assertEquals(type.kind(), RECORD);
+        TypeReferenceTypeSymbol typeRef =
+                (TypeReferenceTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor();
+        RecordTypeSymbol type = (RecordTypeSymbol) typeRef.typeDescriptor();
+        assertEquals(type.typeKind(), RECORD);
         assertFalse(type.inclusive());
         assertFalse(type.restTypeDescriptor().isPresent());
 
-        List<FieldDescriptor> fields = type.fieldDescriptors();
-        FieldDescriptor field = fields.get(0);
+        List<FieldSymbol> fields = type.fieldDescriptors();
+        FieldSymbol field = fields.get(0);
         assertEquals(fields.size(), 1);
         assertEquals(field.name(), "path");
-        assertEquals(field.typeDescriptor().kind(), STRING);
+        assertEquals(field.typeDescriptor().typeKind(), STRING);
     }
 
     @Test
     public void testTupleType() {
         Symbol symbol = getSymbol(51, 28);
-        TupleTypeDescriptor type = (TupleTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
-        assertEquals(type.kind(), TUPLE);
+        TupleTypeSymbol type = (TupleTypeSymbol) ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), TUPLE);
 
-        List<BallerinaTypeDescriptor> members = type.memberTypeDescriptors();
+        List<TypeSymbol> members = type.memberTypeDescriptors();
         assertEquals(members.size(), 2);
-        assertEquals(members.get(0).kind(), INT);
-        assertEquals(members.get(1).kind(), STRING);
+        assertEquals(members.get(0).typeKind(), INT);
+        assertEquals(members.get(1).typeKind(), STRING);
 
         assertTrue(type.restTypeDescriptor().isPresent());
-        assertEquals(type.restTypeDescriptor().get().kind(), FLOAT);
+        assertEquals(type.restTypeDescriptor().get().typeKind(), FLOAT);
     }
 
     @Test(dataProvider = "TypedescDataProvider")
     public void testTypedescType(int line, int col, TypeDescKind kind) {
         Symbol symbol = getSymbol(line, col);
-        TypeDescTypeDescriptor type = (TypeDescTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
-        assertEquals(type.kind(), TYPEDESC);
+        TypeDescTypeSymbol type = (TypeDescTypeSymbol) ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), TYPEDESC);
         assertTrue(type.typeParameter().isPresent());
-        assertEquals(type.typeParameter().get().kind(), kind);
+        assertEquals(type.typeParameter().get().typeKind(), kind);
     }
 
     @DataProvider(name = "TypedescDataProvider")
@@ -231,40 +229,40 @@ public class TypedescriptorTest {
     @Test
     public void testUnionType() {
         Symbol symbol = getSymbol(56, 21);
-        UnionTypeDescriptor type = (UnionTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
-        assertEquals(type.kind(), UNION);
+        UnionTypeSymbol type = (UnionTypeSymbol) ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), UNION);
 
-        List<BallerinaTypeDescriptor> members = type.memberTypeDescriptors();
-        assertEquals(members.get(0).kind(), INT);
-        assertEquals(members.get(1).kind(), STRING);
-        assertEquals(members.get(2).kind(), FLOAT);
+        List<TypeSymbol> members = type.memberTypeDescriptors();
+        assertEquals(members.get(0).typeKind(), INT);
+        assertEquals(members.get(1).typeKind(), STRING);
+        assertEquals(members.get(2).typeKind(), FLOAT);
     }
 
     @Test(enabled = false)
     public void testNamedUnion() {
         Symbol symbol = getSymbol(58, 11);
-        TypeReferenceTypeDescriptor typeRef =
-                (TypeReferenceTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
-        assertEquals(typeRef.kind(), TYPE_REFERENCE);
+        TypeReferenceTypeSymbol typeRef =
+                (TypeReferenceTypeSymbol) ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(typeRef.typeKind(), TYPE_REFERENCE);
 
-        UnionTypeDescriptor type = (UnionTypeDescriptor) typeRef.typeDescriptor();
+        UnionTypeSymbol type = (UnionTypeSymbol) typeRef.typeDescriptor();
 
-        List<BallerinaTypeDescriptor> members = type.memberTypeDescriptors();
-        assertEquals(members.get(0).kind(), INT);
-        assertEquals(members.get(1).kind(), FLOAT);
-        assertEquals(members.get(2).kind(), DECIMAL);
+        List<TypeSymbol> members = type.memberTypeDescriptors();
+        assertEquals(members.get(0).typeKind(), INT);
+        assertEquals(members.get(1).typeKind(), FLOAT);
+        assertEquals(members.get(2).typeKind(), DECIMAL);
     }
 
     @Test(dataProvider = "FiniteTypeDataProvider")
     public void testFiniteType(int line, int column, List<String> expSignatures) {
         Symbol symbol = getSymbol(line, column);
-        UnionTypeDescriptor union = (UnionTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
-        assertEquals(union.kind(), UNION);
+        UnionTypeSymbol union = (UnionTypeSymbol) ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(union.typeKind(), UNION);
 
-        List<BallerinaTypeDescriptor> members = union.memberTypeDescriptors();
+        List<TypeSymbol> members = union.memberTypeDescriptors();
         for (int i = 0; i < members.size(); i++) {
-            BallerinaTypeDescriptor member = members.get(i);
-            assertEquals(member.kind(), SINGLETON);
+            TypeSymbol member = members.get(i);
+            assertEquals(member.typeKind(), SINGLETON);
             assertEquals(member.signature(), expSignatures.get(i));
         }
     }
@@ -281,9 +279,9 @@ public class TypedescriptorTest {
         return model.symbol("typedesc_test.bal", from(line, column)).get();
     }
 
-    private void validateParam(Parameter param, String name, ParameterKind kind, TypeDescKind typeKind) {
+    private void validateParam(ParameterSymbol param, String name, ParameterKind kind, TypeDescKind typeKind) {
         assertEquals(param.name().get(), name);
         assertEquals(param.kind(), kind);
-        assertEquals(param.typeDescriptor().kind(), typeKind);
+        assertEquals(param.typeDescriptor().typeKind(), typeKind);
     }
 }

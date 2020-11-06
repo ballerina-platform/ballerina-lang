@@ -293,6 +293,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_CHARACTER_IN_XML_ATTRIBUTE_VALUE("BCE0653", "error.invalid.character.in.xml.attribute.value"),
     ERROR_INVALID_ENTITY_REFERENCE_NAME_START("BCE0654", "error.invalid.entity.reference.name.start"),
     ERROR_DOUBLE_HYPHEN_NOT_ALLOWED_WITHIN_XML_COMMENT("BCE0655", "error.double.hyphen.not.allowed.within.xml.comment"),
+    ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED("BCE0656",
+            "error.version.in.import.declaration.no.longer.supported"),
     ERROR_REST_ARG_IN_ERROR_CONSTRUCTOR("BCE0656", "error.rest.arg.in.error.constructor"),
     ERROR_MORE_THAN_ONE_POSITIONAL_ARGS_IN_ERROR_CONSTRUCTOR("BCE0657",
             "error.more.than.one.positional.args.in.error.constructor"),

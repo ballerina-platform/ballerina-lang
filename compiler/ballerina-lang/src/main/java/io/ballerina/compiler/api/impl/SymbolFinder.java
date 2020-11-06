@@ -18,6 +18,7 @@
 
 package io.ballerina.compiler.api.impl;
 
+import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
@@ -171,7 +172,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 
@@ -662,8 +662,8 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeInit typeInit) {
-        lookupNode(typeInit.userDefinedType);
         lookupNodes(typeInit.argsExpr);
+        setEnclosingNode(typeInit.type.tsymbol, typeInit.pos);
     }
 
     @Override
@@ -1322,7 +1322,7 @@ class SymbolFinder extends BLangNodeVisitor {
         lookupNodes(xmlNavigation.filters);
     }
 
-    private boolean setEnclosingNode(BSymbol symbol, DiagnosticPos pos) {
+    private boolean setEnclosingNode(BSymbol symbol, Location pos) {
         if (PositionUtil.withinBlock(this.cursorPos, pos)) {
             this.symbolAtCursor = symbol;
             return true;

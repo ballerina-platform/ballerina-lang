@@ -171,13 +171,7 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "INTERPOLATION_START_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "INTERPOLATION_START_TOKEN"
                                     },
                                     {
                                       "kind": "BINARY_EXPRESSION",
@@ -387,13 +381,7 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "INTERPOLATION_START_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "INTERPOLATION_START_TOKEN"
                                     },
                                     {
                                       "kind": "BINARY_EXPRESSION",
@@ -480,13 +468,7 @@
                                                           "hasDiagnostics": true,
                                                           "children": [
                                                             {
-                                                              "kind": "INTERPOLATION_START_TOKEN",
-                                                              "trailingMinutiae": [
-                                                                {
-                                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                                  "value": " "
-                                                                }
-                                                              ]
+                                                              "kind": "INTERPOLATION_START_TOKEN"
                                                             },
                                                             {
                                                               "kind": "BINARY_EXPRESSION",
@@ -567,13 +549,7 @@
                                               ]
                                             },
                                             {
-                                              "kind": "BACKTICK_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
+                                              "kind": "BACKTICK_TOKEN"
                                             }
                                           ]
                                         }

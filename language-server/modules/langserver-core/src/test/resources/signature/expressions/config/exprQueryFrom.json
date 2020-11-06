@@ -18,7 +18,10 @@
                     "parameters": [
                         {
                             "label": {
-                                "left": "float a"
+                                "right": {
+                                    "first": 14,
+                                    "second": 15
+                                }
                             },
                             "documentation": {
                                 "right": {
@@ -29,7 +32,10 @@
                         },
                         {
                             "label": {
-                                "left": "boolean b"
+                                "right": {
+                                    "first": 25,
+                                    "second": 26
+                                }
                             },
                             "documentation": {
                                 "right": {

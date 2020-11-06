@@ -20,7 +20,6 @@ package org.ballerinalang.test.javainterop;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.util.exceptions.BLangRuntimeException;
 import io.ballerina.runtime.values.ErrorValue;
 import io.ballerina.runtime.values.FPValue;
 import io.ballerina.runtime.values.FutureValue;
@@ -40,6 +39,7 @@ import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.core.model.values.BValueType;
 import org.ballerinalang.core.model.values.BXML;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -57,7 +57,6 @@ import javax.xml.namespace.QName;
  *
  * @since 1.0.0
  */
-@Test(groups = { "brokenOnOldParser" })
 public class RefTypeTests {
 
     private CompileResult result;
@@ -227,7 +226,7 @@ public class RefTypeTests {
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'int' cannot be cast to 'MIX_TYPE'.*", enabled = false)
+                    "types: 'int' cannot be cast to 'MIX_TYPE'.*")
     public void testGetInvalidIntegerAsMixType() {
         BValue[] returns = BRunUtil.invoke(result, "getInvalidIntegerAsMixType");
         Assert.assertTrue(returns[0] instanceof BValueType);

@@ -174,8 +174,8 @@
                                           "value": "b",
                                           "trailingMinutiae": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "END_OF_LINE_MINUTIAE",
+                                              "value": "\n"
                                             }
                                           ]
                                         }
@@ -193,6 +193,12 @@
                                       "children": [
                                         {
                                           "kind": "LET_KEYWORD",
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "        "
+                                            }
+                                          ],
                                           "trailingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
@@ -332,7 +338,7 @@
                                                                   "trailingMinutiae": [
                                                                     {
                                                                       "kind": "WHITESPACE_MINUTIAE",
-                                                                      "value": "  "
+                                                                      "value": " "
                                                                     }
                                                                   ]
                                                                 }
@@ -369,8 +375,8 @@
                                                       "value": "d",
                                                       "trailingMinutiae": [
                                                         {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": " "
+                                                          "kind": "END_OF_LINE_MINUTIAE",
+                                                          "value": "\n"
                                                         }
                                                       ]
                                                     }
@@ -391,6 +397,12 @@
                               "children": [
                                 {
                                   "kind": "SELECT_KEYWORD",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "        "
+                                    }
+                                  ],
                                   "trailingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
@@ -527,8 +539,8 @@
                                           "value": "b",
                                           "trailingMinutiae": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "END_OF_LINE_MINUTIAE",
+                                              "value": "\n"
                                             }
                                           ]
                                         }
@@ -546,6 +558,12 @@
                                       "children": [
                                         {
                                           "kind": "LET_KEYWORD",
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "        "
+                                            }
+                                          ],
                                           "trailingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
@@ -686,7 +704,7 @@
                                                                   "trailingMinutiae": [
                                                                     {
                                                                       "kind": "WHITESPACE_MINUTIAE",
-                                                                      "value": "  "
+                                                                      "value": " "
                                                                     }
                                                                   ]
                                                                 }
@@ -723,8 +741,8 @@
                                                       "value": "d",
                                                       "trailingMinutiae": [
                                                         {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": " "
+                                                          "kind": "END_OF_LINE_MINUTIAE",
+                                                          "value": "\n"
                                                         }
                                                       ]
                                                     }
@@ -745,6 +763,12 @@
                               "children": [
                                 {
                                   "kind": "SELECT_KEYWORD",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "        "
+                                    }
+                                  ],
                                   "trailingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
@@ -881,8 +905,8 @@
                                           "value": "b",
                                           "trailingMinutiae": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "END_OF_LINE_MINUTIAE",
+                                              "value": "\n"
                                             }
                                           ]
                                         }
@@ -900,6 +924,12 @@
                                       "children": [
                                         {
                                           "kind": "LET_KEYWORD",
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "        "
+                                            }
+                                          ],
                                           "trailingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
@@ -1034,8 +1064,8 @@
                                                       "value": "d",
                                                       "trailingMinutiae": [
                                                         {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": " "
+                                                          "kind": "END_OF_LINE_MINUTIAE",
+                                                          "value": "\n"
                                                         }
                                                       ]
                                                     }
@@ -1056,6 +1086,12 @@
                               "children": [
                                 {
                                   "kind": "SELECT_KEYWORD",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "        "
+                                    }
+                                  ],
                                   "trailingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
