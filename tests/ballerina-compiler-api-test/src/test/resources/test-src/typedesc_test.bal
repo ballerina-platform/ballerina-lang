@@ -65,7 +65,6 @@ function test() {
     json j = {name: "Pubudu"};
 
     xml greet1 = xml `<greet>Hello</greet>`;
-    'xml:Element greet2 = xml `<greet>Hola!</greet>`;
 
     readonly ro = 12;
 
@@ -75,6 +74,22 @@ function test() {
     table<Person> key(name) tab = table [];
     table<Person> tab2 = table [];
     table<Person> key<int> tab3 = table [];
+
+    'int:Unsigned32 uInt32 = 1000;
+    'int:Signed32 sInt32 = -1000;
+    'int:Unsigned8 uInt8 = 10;
+    'int:Signed8 sInt8 = -10;
+    'int:Unsigned16 uInt16 = 100;
+    'int:Signed16 sInt16 = -100;
+
+    'string:Char ch = "A";
+
+    'xml:Element greet2 = xml `<greet>Hola!</greet>`;
+    'xml:ProcessingInstruction pi = xml `<?xml-stylesheet type="text/xsl" href="style.xsl"?>`;
+    'xml:Comment comment = xml `<!-- hello from comment -->`;
+    'xml:Text txt = xml `hello text`;
+
+    xml<'xml:Element> greet3 = xml `<greet>Ciao!</greet>`;
 }
 
 type Number int|float|decimal;

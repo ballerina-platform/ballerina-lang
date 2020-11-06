@@ -291,25 +291,26 @@ public class TypedescriptorTest {
     public Object[][] getTypesPos() {
         return new Object[][]{
                 {64, 9, JSON},
-                {69, 13, READONLY},
-                {71, 8, ANY},
-                {72, 12, ANYDATA},
+                {68, 13, READONLY},
+                {70, 8, ANY},
+                {71, 12, ANYDATA},
         };
     }
 
     @Test(dataProvider = "XMLPosProvider")
-    public void testXML(int line, int column, TypeDescKind kind) {
+    public void testXML(int line, int column, TypeDescKind kind, String name) {
         VariableSymbol symbol = (VariableSymbol) getSymbol(line, column);
         TypeSymbol type = symbol.typeDescriptor();
         assertEquals(type.typeKind(), XML);
         assertEquals(((XMLTypeSymbol) type).typeParameter().get().typeKind(), kind);
+        assertEquals(type.name(), name);
     }
 
     @DataProvider(name = "XMLPosProvider")
     public Object[][] getXMLTypePos() {
         return new Object[][]{
-                {66, 8, UNION},
-//                {67, 17, XML}, TODO: https://github.com/ballerina-platform/ballerina-lang/issues/26787
+                {66, 8, UNION, "xml"},
+                {91, 22, TYPE_REFERENCE, "xml<Element>"},
         };
     }
 
@@ -330,9 +331,37 @@ public class TypedescriptorTest {
     @DataProvider(name = "TablePosProvider")
     public Object[][] getTableTypePos() {
         return new Object[][]{
-                {74, 28, TYPE_REFERENCE, "Person", List.of("name"), null},
-                {75, 18, TYPE_REFERENCE, "Person", Collections.emptyList(), null},
-                {76, 27, TYPE_REFERENCE, "Person", Collections.emptyList(), INT}
+                {73, 28, TYPE_REFERENCE, "Person", List.of("name"), null},
+                {74, 18, TYPE_REFERENCE, "Person", Collections.emptyList(), null},
+                {75, 27, TYPE_REFERENCE, "Person", Collections.emptyList(), INT}
+        };
+    }
+
+    @Test(dataProvider = "BuiltinTypePosProvider")
+    public void testBuiltinSubtypes(int line, int column, TypeDescKind kind, String name) {
+        Symbol symbol = getSymbol(line, column);
+        TypeSymbol typeRef = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(typeRef.typeKind(), TYPE_REFERENCE);
+
+        TypeSymbol type = ((TypeReferenceTypeSymbol) typeRef).typeDescriptor();
+        assertEquals(type.typeKind(), kind);
+        assertEquals(type.name(), name);
+    }
+
+    @DataProvider(name = "BuiltinTypePosProvider")
+    public Object[][] getBuiltinTypePos() {
+        return new Object[][]{
+                {77, 20, INT, "Unsigned32"},
+                {78, 18, INT, "Signed32"},
+                {79, 19, INT, "Unsigned8"},
+                {80, 17, INT, "Signed8"},
+                {81, 20, INT, "Unsigned16"},
+                {82, 18, INT, "Signed16"},
+                {84, 17, STRING, "Char"},
+                {86, 17, XML, "Element"},
+                {87, 31, XML, "ProcessingInstruction"},
+                {88, 17, XML, "Comment"},
+                {89, 14, XML, "Text"},
         };
     }
 
