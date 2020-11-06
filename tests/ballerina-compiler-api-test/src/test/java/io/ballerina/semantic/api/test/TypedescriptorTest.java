@@ -32,6 +32,7 @@ import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
@@ -60,6 +61,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.ANY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
@@ -70,6 +72,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.READONLY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.SINGLETON;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.STREAM;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TABLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
@@ -81,6 +84,7 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.compile;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -363,6 +367,31 @@ public class TypedescriptorTest {
                 {87, 31, XML, "ProcessingInstruction"},
                 {88, 17, XML, "Comment"},
                 {89, 14, XML, "Text"},
+        };
+    }
+
+    @Test(dataProvider = "StreamTypePosProvider")
+    public void testStreamType(int line, int column, TypeDescKind typeParamKind, TypeDescKind completionValueTypeKind) {
+        Symbol symbol = getSymbol(line, column);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), STREAM);
+
+        StreamTypeSymbol streamType = (StreamTypeSymbol) type;
+        assertEquals(streamType.typeParameter().typeKind(), typeParamKind);
+
+        if (streamType.completionValueTypeParameter().isPresent()) {
+            assertEquals(streamType.completionValueTypeParameter().get().typeKind(), completionValueTypeKind);
+        } else {
+            assertNull(completionValueTypeKind);
+        }
+    }
+
+    @DataProvider(name = "StreamTypePosProvider")
+    public Object[][] getStreamTypePos() {
+        return new Object[][]{
+                {93, 19, TYPE_REFERENCE, null},
+                {94, 23, TYPE_REFERENCE, NIL},
+                {95, 45, RECORD, ERROR}
         };
     }
 

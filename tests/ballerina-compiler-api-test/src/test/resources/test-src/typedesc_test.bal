@@ -90,6 +90,10 @@ function test() {
     'xml:Text txt = xml `hello text`;
 
     xml<'xml:Element> greet3 = xml `<greet>Ciao!</greet>`;
+
+    stream<Person> st1;
+    stream<Person, ()> st2;
+    stream<record {| string name; |}, error> st3;
 }
 
 type Number int|float|decimal;
