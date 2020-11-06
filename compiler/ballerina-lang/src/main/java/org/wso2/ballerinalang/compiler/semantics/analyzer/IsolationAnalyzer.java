@@ -2478,7 +2478,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         // `expression` is an argument to a function
-        return !isCloneOrCloneReadOnlyInvocation(invocation);
+        return expression.getKind() != NodeKind.INVOCATION ||
+                !isCloneOrCloneReadOnlyInvocation((BLangInvocation) expression);
     }
 
     private boolean hasRefDefinedOutsideLock(BLangExpression variableReference) {
@@ -2571,7 +2572,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isInvalidCopyIn(BLangSimpleVarRef varRefExpr, Name name, int symTag, SymbolEnv currentEnv) {
-        if (symResolver.lookupSymbolInGivenScope(currentEnv, name, symTag) != symTable.notFoundSymbol) {
+        BSymbol symbol = symResolver.lookupSymbolInGivenScope(currentEnv, name, symTag);
+        if (symbol != symTable.notFoundSymbol &&
+                (!(symbol instanceof BVarSymbol) || ((BVarSymbol) symbol).originalSymbol == null)) {
             return false;
         }
 

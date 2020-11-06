@@ -281,3 +281,25 @@ isolated class IsolatedClassWithValidCopyInInsideBlock {
         }
     }
 }
+
+isolated class IsolatedClassWithValidCopyyingWithClone {
+    private anydata[] arr = [];
+    private anydata[] arr2 = [];
+
+    isolated function add(anydata val) {
+        lock {
+            self.arr.push(val.clone());
+
+            self.addAgain(val.clone());
+            anydata clonedVal = val.cloneReadOnly();
+            self.addAgain(clonedVal.clone());
+        }
+    }
+
+    isolated function addAgain(anydata val) {
+        lock {
+            self.arr2.push(val.clone());
+            self.arr2.push(val.cloneReadOnly());
+        }
+    }
+}

@@ -376,3 +376,38 @@ isolated class InvalidIsolatedClassWithCopyInInsideBlock {
         }
     }
 }
+
+isolated class InvalidIsolatedClassWithInvalidCopyyingWithClone {
+    private anydata[] arr = [];
+    private anydata[] arr2 = [];
+
+    isolated function add(anydata val) {
+        lock {
+            self.arr.push(val);
+
+            self.addAgain(val);
+            anydata clonedVal = val;
+            self.addAgain(clonedVal);
+
+            if val is anydata[] {
+                self.arr.push(val.pop());
+
+                lock {
+                    self.arr.push(val.pop());
+                }
+            }
+
+            if clonedVal is anydata[] {
+                self.arr.push(clonedVal.pop());
+
+                lock {
+                    self.arr.push(clonedVal.pop());
+                }
+            }
+        }
+    }
+
+    isolated function addAgain(anydata val) {
+
+    }
+}
