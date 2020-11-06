@@ -134,6 +134,9 @@ public class TypesFactory {
             case TABLE:
                 return new BallerinaTableTypeSymbol(this.context, moduleID, (BTableType) bType);
             case XML:
+                if (bType instanceof BXMLSubType) {
+                    return new BallerinaXMLTypeSymbol(this.context, moduleID, (BXMLSubType) bType);
+                }
                 return new BallerinaXMLTypeSymbol(this.context, moduleID, (BXMLType) bType);
             case OBJECT:
                 ObjectTypeSymbol objType = new BallerinaObjectTypeSymbol(this.context, moduleID, (BObjectType) bType);
@@ -194,7 +197,7 @@ public class TypesFactory {
 
         final TypeKind kind = bType.getKind();
         return kind == RECORD || kind == OBJECT || bType.tsymbol.isLabel
-                || bType instanceof BIntSubType || bType instanceof BStringSubType;
+                || bType instanceof BIntSubType || bType instanceof BStringSubType || bType instanceof BXMLSubType;
     }
 
     public static TypeDescKind getTypeDescKind(TypeKind bTypeKind) {
