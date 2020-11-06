@@ -16,17 +16,18 @@
 package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
-import io.ballerina.compiler.api.types.FieldSymbol;
-import io.ballerina.compiler.api.types.FunctionTypeSymbol;
-import io.ballerina.compiler.api.types.RecordTypeSymbol;
-import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.TypeReferenceTypeSymbol;
-import io.ballerina.compiler.api.types.TypeSymbol;
-import io.ballerina.compiler.api.types.UnionTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -376,14 +377,22 @@ public class CommonUtil {
      * @param typeName type name to be filtered against
      * @return {@link Optional} type found
      */
-    public static Optional<TypeDefinitionSymbol> getTypeFromModule(LSContext context, String alias, String typeName) {
+    public static Optional<TypeSymbol> getTypeFromModule(LSContext context, String alias, String typeName) {
         Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, alias);
         if (module.isEmpty()) {
             return Optional.empty();
         }
-        for (TypeDefinitionSymbol typeDefinitionSymbol : module.get().typeDefinitions()) {
+
+        ModuleSymbol moduleSymbol = module.get();
+        for (TypeDefinitionSymbol typeDefinitionSymbol : moduleSymbol.typeDefinitions()) {
             if (typeDefinitionSymbol.name().equals(typeName)) {
-                return Optional.of(typeDefinitionSymbol);
+                return Optional.of(typeDefinitionSymbol.typeDescriptor());
+            }
+        }
+
+        for (ClassSymbol clazz : moduleSymbol.classes()) {
+            if (clazz.name().equals(typeName)) {
+                return Optional.of(clazz);
             }
         }
 

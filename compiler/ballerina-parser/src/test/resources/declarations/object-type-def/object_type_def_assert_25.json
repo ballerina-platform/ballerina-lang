@@ -63,23 +63,7 @@
               "children": [
                 {
                   "kind": "LIST",
-                  "children": [
-                    {
-                      "kind": "RESOURCE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
+                  "children": []
                 },
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -87,6 +71,12 @@
                     {
                       "kind": "IDENTIFIER_TOKEN",
                       "value": "Person",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",

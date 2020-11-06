@@ -121,7 +121,13 @@
                                     },
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "annot1"
+                                      "value": "annot1",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
@@ -354,7 +360,13 @@
                                     },
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "annot1"
+                                      "value": "annot1",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     }
                                   ]
                                 },

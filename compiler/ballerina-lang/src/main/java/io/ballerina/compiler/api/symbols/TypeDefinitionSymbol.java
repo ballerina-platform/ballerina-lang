@@ -17,8 +17,6 @@
  */
 package io.ballerina.compiler.api.symbols;
 
-import io.ballerina.compiler.api.types.TypeSymbol;
-
 /**
  * Represents a ballerina type definition.
  *
@@ -36,7 +34,7 @@ public interface TypeDefinitionSymbol extends Symbol, Qualifiable, Deprecatable 
     /**
      * Type descriptor of the definition.
      *
-     * @return {@link io.ballerina.compiler.api.types.TypeSymbol} attached
+     * @return {@link TypeSymbol} attached
      */
     TypeSymbol typeDescriptor();
 

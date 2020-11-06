@@ -71,6 +71,38 @@
                 },
                 {
                   "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "EXTERNAL_KEYWORD",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_EXTERNAL_KEYWORD"
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_SEMICOLON_TOKEN"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "SERVICE_DECLARATION",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "METADATA",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "LIST",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -103,30 +135,9 @@
                       ]
                     }
                   ]
-                },
-                {
-                  "kind": "EXTERNAL_KEYWORD",
-                  "isMissing": true,
-                  "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_EXTERNAL_KEYWORD"
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "isMissing": true,
-                  "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_SEMICOLON_TOKEN"
-                  ]
                 }
               ]
-            }
-          ]
-        },
-        {
-          "kind": "SERVICE_DECLARATION",
-          "children": [
+            },
             {
               "kind": "SERVICE_KEYWORD",
               "leadingMinutiae": [
