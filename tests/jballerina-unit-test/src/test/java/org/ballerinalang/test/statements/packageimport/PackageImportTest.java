@@ -56,7 +56,6 @@ public class PackageImportTest {
         BAssertUtil.validateError(result, 0, "redeclared symbol 'x'", 2, 1);
     }
 
-
     @Test()
     public void testInvalidImport1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/imports/invalid-import-negative1.bal");
@@ -73,16 +72,16 @@ public class PackageImportTest {
 
     @Test
     public void testImportsPerfile() {
-        CompileResult result = BCompileUtil.compile("test-src/statements/package/sample-project-1");
+        CompileResult result = BCompileUtil.compile("test-src/statements/package/sample_project_1");
         Assert.assertEquals(result.getErrorCount(), 6);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "redeclared symbol 'int'", "src/file-negative1.bal", 3,
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'int'", "file-negative1.bal", 3,
                 1);
-        BAssertUtil.validateError(result, i++, "undefined module 'http'", "src/file-negative2.bal", 3, 5);
-        BAssertUtil.validateError(result, i++, "unknown type 'Client'", "src/file-negative2.bal", 3, 5);
-        BAssertUtil.validateError(result, i++, "undefined function 'println'", "src/file-negative2.bal", 4, 5);
-        BAssertUtil.validateError(result, i++, "undefined module 'io'", "src/file-negative2.bal", 4, 5);
-        BAssertUtil.validateError(result, i, "undefined module 'io'", "src/file-negative2.bal", 5, 18);
+        BAssertUtil.validateError(result, i++, "undefined module 'http'", "file-negative2.bal", 3, 5);
+        BAssertUtil.validateError(result, i++, "unknown type 'Client'", "file-negative2.bal", 3, 5);
+        BAssertUtil.validateError(result, i++, "undefined function 'println'", "file-negative2.bal", 4, 5);
+        BAssertUtil.validateError(result, i++, "undefined module 'io'", "file-negative2.bal", 4, 5);
+        BAssertUtil.validateError(result, i, "undefined module 'io'", "file-negative2.bal", 5, 18);
     }
 
     @Test

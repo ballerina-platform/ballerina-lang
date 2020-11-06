@@ -1501,11 +1501,11 @@
                     <exclude name="testUnorderedFieldRecordsInAMatch"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.statements.packageimport.PackageImportTest">
-                <methods>
-                    <exclude name="testImportsPerfile"/>
-                </methods>
-            </class>
+<!--            <class name="org.ballerinalang.test.statements.packageimport.PackageImportTest">-->
+<!--                <methods>-->
+<!--                    <exclude name="testImportsPerfile"/>-->
+<!--                </methods>-->
+<!--            </class>-->
             <!--            <class name="org.ballerinalang.test.expressions.typecast.TypeCastExprTest">-->
             <!--                <methods>-->
             <!--                    <exclude name="testCastToStructInDifferentPkg"/>-->
