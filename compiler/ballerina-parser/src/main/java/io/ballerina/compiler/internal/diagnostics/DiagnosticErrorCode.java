@@ -221,16 +221,15 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_XML_ATOMIC_NAME_PATTERN("BCE0508", "error.missing.xml.atomic.name.pattern"),
     ERROR_MISSING_TUPLE_MEMBER("BCE0509", "error.missing.tuple.member"),
     ERROR_MISSING_ORDER_KEY("BCE0510", "error.missing.order.key"),
-    ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DEFINITION("BCE111",
-            "error.missing.resource.path.in.resource.accessor.definition"),
-    ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DECLARATION("BCE112",
-            "error.missing.resource.path.in.resource.accessor.declaration"),
-
     ERROR_MISSING_ANNOTATION_ATTACH_POINT("BCE0511", "error.missing.annotation.attach.point"),
     ERROR_MISSING_LET_VARIABLE_DECLARATION("BCE0512", "error.missing.let.variable.declaration"),
     ERROR_MISSING_NAMED_WORKER_DECLARATION_IN_FORK_STMT("BCE0513",
             "error.missing.named.worker.declaration.in.fork.stmt"),
     ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR("BCE0514", "error.missing.key.expr.in.member.access.expr"),
+    ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DEFINITION("BCE0515",
+            "error.missing.resource.path.in.resource.accessor.definition"),
+    ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DECLARATION("BCE0516",
+            "error.missing.resource.path.in.resource.accessor.declaration"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),
@@ -297,11 +296,13 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_CHARACTER_IN_XML_ATTRIBUTE_VALUE("BCE0653", "error.invalid.character.in.xml.attribute.value"),
     ERROR_INVALID_ENTITY_REFERENCE_NAME_START("BCE0654", "error.invalid.entity.reference.name.start"),
     ERROR_DOUBLE_HYPHEN_NOT_ALLOWED_WITHIN_XML_COMMENT("BCE0655", "error.double.hyphen.not.allowed.within.xml.comment"),
-    ERROR_MORE_THAN_ONE_OBJECT_NETWORK_QUALIFIERS("BCE656", "error.more.than.one.object.network.qualifiers"),
-    ERROR_REMOTE_METHOD_HAS_A_VISIBILITY_QUALIFIER("BCE657", "error.remote.method.has.a.visibility.qualifier"),
-    ERROR_PRIVATE_QUALIFIER_IN_OBJECT_MEMBER_DESCRIPTOR("BCE658",
+    ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED("BCE0656",
+            "error.version.in.import.declaration.no.longer.supported"),
+    ERROR_MORE_THAN_ONE_OBJECT_NETWORK_QUALIFIERS("BCE657", "error.more.than.one.object.network.qualifiers"),
+    ERROR_REMOTE_METHOD_HAS_A_VISIBILITY_QUALIFIER("BCE658", "error.remote.method.has.a.visibility.qualifier"),
+    ERROR_PRIVATE_QUALIFIER_IN_OBJECT_MEMBER_DESCRIPTOR("BCE659",
             "error.private.qualifier.in.object.member.descriptor"),
-    ERROR_RESOURCE_PATH_IN_FUNCTION_DEFINITION("BCE659", "error.resource.path.in.function.definition"),
+    ERROR_RESOURCE_PATH_IN_FUNCTION_DEFINITION("BCE660", "error.resource.path.in.function.definition"),
     ;
 
     String diagnosticId;
