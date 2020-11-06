@@ -27,52 +27,92 @@ import org.testng.annotations.Test;
 public class ErrorConstructorExprTest extends AbstractExpressionsTest {
 
     // Valid syntax
+
+    @Test
+    public void testWithoutTypeReference() {
+        test("error(\"ERROR_REASON\", message = \"error message\")",
+                "error-constructor-expr/error_constructor_expr_assert_08.json");
+        test("error(\"ERROR_REASON\", \"error message\");",
+                "error-constructor-expr/error_constructor_expr_assert_09.json");
+        test("error(\"error message\");", "error-constructor-expr/error_constructor_expr_assert_05.json");
+        test("error(\"ERROR_REASON\", \"error message\", code = errorCode, count = 10);",
+                "error-constructor-expr/error_constructor_expr_assert_06.json");
+    }
+
+    @Test
+    public void testWithTypeReference() {
+        test("error errorType(\"ERROR_REASON\", message = \"error message\")",
+                "error-constructor-expr/error_constructor_expr_assert_07.json");
+        test("error Foo:errorType(\"ERROR_REASON\", message = \"error message\")",
+                "error-constructor-expr/error_constructor_expr_assert_03.json");
+    }
+
+    @Test
+    public void testWithAssignment() {
+        testFile("error-constructor-expr/error_constructor_expr_source_01.bal",
+                "error-constructor-expr/error_constructor_expr_assert_01.json");
+    }
+
+    // Recovery test
+
+    @Test
+    public void testWrongAssignment() {
+        testFile("error-constructor-expr/error_constructor_expr_source_02.bal",
+                "error-constructor-expr/error_constructor_expr_assert_02.json");
+    }
+
+    @Test
+    public void testMissingCloseParen() {
+        test("error(\"Test\";", "error-constructor-expr/error_constructor_expr_with_missing_elements_01.json");
+        test("error(\"ERROR_REASON\", message = \"error message\";",
+                "error-constructor-expr/error_constructor_expr_with_missing_elements_02.json");
+    }
+
+    @Test
+    public void testMissingOpenParen() {
+        test("error\"ERROR_REASON\", message = \"error message\");",
+                "error-constructor-expr/error_constructor_expr_with_missing_elements_03.json");
+    }
+
+    @Test
+    public void testMissingParenthesis() {
+        test("error\"ERROR_REASON\", message = \"error message\";",
+                "error-constructor-expr/error_constructor_expr_with_missing_elements_04.json");
+    }
+
+    @Test
+    public void testRecoveryForErrorKeywordOnly() {
+        test("error", "error-constructor-expr/error_constructor_expr_with_missing_elements_05.json");
+    }
+
+    @Test
+    public void testExtraElements() {
+        test("error type(\"message\")",
+                "error-constructor-expr/error_constructor_expr_with_extra_elements_01.json");
+        test("error(, message = \"error message\",)",
+                "error-constructor-expr/error_constructor_expr_with_extra_elements_02.json");
+    }
+
     @Test
     public void testWithOutArgs() {
         test("error()", "error-constructor-expr/error_constructor_expr_without_args.json");
     }
 
     @Test
-    public void testWithArgs() {
-        test("error(\"ERROR_REASON\", message = \"error message\")", "error-constructor-expr" +
-                "/error_constructor_expr_with_args_01.json");
-        test("error(\"ERROR_REASON\", \"error message\");", "error-constructor-expr" +
-                "/error_constructor_expr_with_args_02.json");
+    public void testWithNoPositionalArgs() {
+        test("error(message = \"error message\")",
+                "error-constructor-expr/error_constructor_expr_assert_04.json");
     }
 
     @Test
-    public void testWithAssignment() {
-        testFile("error-constructor-expr/error_constructor_expr_source_01.bal", "error-constructor-expr" +
-                "/error_constructor_expr_assert_01.json");
-    }
-
-    //Invalid syntax
-    @Test
-    public void testWrongAssignment() {
-        testFile("error-constructor-expr/error_constructor_expr_source_02.bal", "error-constructor-expr" +
-                "/error_constructor_expr_assert_02.json");
-        testFile("error-constructor-expr/error_constructor_expr_source_03.bal", "error-constructor-expr" +
-                "/error_constructor_expr_assert_03.json");
-        testFile("error-constructor-expr/error_constructor_expr_source_04.bal", "error-constructor-expr" +
-                "/error_constructor_expr_assert_04.json");
+    public void testWithMoreThanTwoPositionalArgs() {
+        test("error(\"msg1\", \"msg2\", \"msg3\", count = 3)",
+                "error-constructor-expr/error_constructor_expr_assert_10.json");
     }
 
     @Test
-    public void testMissingElements() {
-        test("error(\"Test\";", "error-constructor-expr/error_constructor_expr_with_missing_elements_01.json");
-        test("error(\"ERROR_REASON\", message = \"error message\";", "error-constructor-expr" +
-                "/error_constructor_expr_with_missing_elements_02.json");
-        test("error\"ERROR_REASON\", message = \"error message\");", "error-constructor-expr" +
-                "/error_constructor_expr_with_missing_elements_03.json");
-        test("error\"ERROR_REASON\", message = \"error message\";", "error-constructor-expr" +
-                "/error_constructor_expr_with_missing_elements_04.json");
-        test("error", "error-constructor-expr/error_constructor_expr_with_missing_elements_05.json");
-    }
-
-    @Test
-    public void testExtraElements() {
-        test("errorr(\"message\")", "error-constructor-expr/error_constructor_expr_with_extra_elements_01.json");
-        test("error((\"message\")", "error-constructor-expr/error_constructor_expr_with_extra_elements_02.json");
-        test("error&(\"message\")", "error-constructor-expr/error_constructor_expr_with_extra_elements_03.json");
+    public void testWithRestArgs() {
+        test("error(\"ERROR_REASON\", message = \"error message\", ... messages)",
+                "error-constructor-expr/error_constructor_expr_assert_11.json");
     }
 }

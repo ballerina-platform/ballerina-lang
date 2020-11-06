@@ -181,7 +181,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] ARG_START =
             { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.ELLIPSIS, ParserRuleContext.EXPRESSION };
 
-    private static final ParserRuleContext[] ARG_END = { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.COMMA };
+    private static final ParserRuleContext[] ARG_END =
+            { ParserRuleContext.ARG_LIST_END, ParserRuleContext.COMMA };
 
     private static final ParserRuleContext[] NAMED_OR_POSITIONAL_ARG_RHS =
             { ParserRuleContext.ARG_END, ParserRuleContext.ASSIGN_OP };
@@ -498,7 +499,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.WORKER_NAME_OR_METHOD_NAME, ParserRuleContext.DEFAULT_WORKER_NAME_IN_ASYNC_SEND };
 
     private static final ParserRuleContext[] REMOTE_CALL_OR_ASYNC_SEND_END =
-            { ParserRuleContext.ARG_LIST_START, ParserRuleContext.SEMICOLON };
+            { ParserRuleContext.ARG_LIST_OPEN_PAREN, ParserRuleContext.SEMICOLON };
 
     private static final ParserRuleContext[] RECEIVE_WORKERS =
             { ParserRuleContext.PEER_WORKER_NAME, ParserRuleContext.MULTI_RECEIVE_WORKERS };
@@ -540,7 +541,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.LT, ParserRuleContext.RETRY_TYPE_PARAM_RHS };
 
     private static final ParserRuleContext[] RETRY_TYPE_PARAM_RHS =
-            { ParserRuleContext.ARG_LIST_START, ParserRuleContext.RETRY_BODY };
+            { ParserRuleContext.ARG_LIST_OPEN_PAREN, ParserRuleContext.RETRY_BODY };
 
     private static final ParserRuleContext[] RETRY_BODY =
             { ParserRuleContext.BLOCK_STMT, ParserRuleContext.TRANSACTION_STMT };
@@ -663,7 +664,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.WORKER_KEYWORD, ParserRuleContext.TRANSACTIONAL_KEYWORD };
 
     private static final ParserRuleContext[] ERROR_CONSTRUCTOR_RHS =
-            { ParserRuleContext.ARG_LIST_START, ParserRuleContext.TYPE_REFERENCE };
+            { ParserRuleContext.ARG_LIST_OPEN_PAREN, ParserRuleContext.TYPE_REFERENCE };
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -921,10 +922,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case QUESTION_MARK:
                     hasMatch = nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN;
                     break;
-                case ARG_LIST_START:
+                case ARG_LIST_OPEN_PAREN:
                     hasMatch = nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN;
                     break;
-                case ARG_LIST_END:
+                case ARG_LIST_CLOSE_PAREN:
                     hasMatch = nextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN;
                     break;
                 case OBJECT_CONSTRUCTOR_QUALIFIER:
@@ -2286,7 +2287,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private ParserRuleContext[] modifyAlternativesWithArgListStart(ParserRuleContext[] alternatives) {
         ParserRuleContext[] newAlternatives = new ParserRuleContext[alternatives.length + 1];
         System.arraycopy(alternatives, 0, newAlternatives, 0, alternatives.length);
-        newAlternatives[alternatives.length] = ParserRuleContext.ARG_LIST_START;
+        newAlternatives[alternatives.length] = ParserRuleContext.ARG_LIST_OPEN_PAREN;
         return newAlternatives;
     }
 
@@ -2666,10 +2667,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TEMPLATE_STRING_RHS;
             case INTERPOLATION_START_TOKEN:
                 return ParserRuleContext.EXPRESSION;
-            case ARG_LIST_START:
+            case ARG_LIST_OPEN_PAREN:
                 return ParserRuleContext.ARG_LIST;
             case ARG_LIST_END:
                 endContext(); // end arg-list
+                return ParserRuleContext.ARG_LIST_CLOSE_PAREN;
+            case ARG_LIST_CLOSE_PAREN:
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.ERROR_CONSTRUCTOR) {
                     endContext();
@@ -3688,7 +3691,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 if (isInTypeDescContext()) {
                     return ParserRuleContext.TYPEDESC_RHS;
                 }
-                return ParserRuleContext.ARG_LIST_START;
+                return ParserRuleContext.ARG_LIST_OPEN_PAREN;
             case TYPE_DESC_IN_TUPLE:
             case STMT_START_BRACKETED_LIST:
                 return ParserRuleContext.TYPE_DESC_IN_TUPLE_RHS;
@@ -4484,7 +4487,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         ParserRuleContext parentCtx = getParentContext();
         switch (parentCtx) {
             case ERROR_CONSTRUCTOR:
-                return ParserRuleContext.ARG_LIST_START;
+                return ParserRuleContext.ARG_LIST_OPEN_PAREN;
             case OBJECT_CONSTRUCTOR:
                 return ParserRuleContext.OPEN_BRACE;
             case ERROR_MATCH_PATTERN:
@@ -4515,7 +4518,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ERROR_CONSTRUCTOR_RHS;
         }
 
-        return ParserRuleContext.ARG_LIST_START;
+        return ParserRuleContext.ARG_LIST_OPEN_PAREN;
     }
 
     /**
@@ -4762,7 +4765,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CLOSE_BRACE:
                 return SyntaxKind.CLOSE_BRACE_TOKEN;
             case CLOSE_PARENTHESIS:
-            case ARG_LIST_END:
+            case ARG_LIST_CLOSE_PAREN:
                 return SyntaxKind.CLOSE_PAREN_TOKEN;
             case COMMA:
             case ERROR_MESSAGE_BINDING_PATTERN_END_COMMA:
@@ -4770,7 +4773,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OPEN_BRACE:
                 return SyntaxKind.OPEN_BRACE_TOKEN;
             case OPEN_PARENTHESIS:
-            case ARG_LIST_START:
+            case ARG_LIST_OPEN_PAREN:
             case PARENTHESISED_TYPE_DESC_START:
                 return SyntaxKind.OPEN_PAREN_TOKEN;
             case SEMICOLON:

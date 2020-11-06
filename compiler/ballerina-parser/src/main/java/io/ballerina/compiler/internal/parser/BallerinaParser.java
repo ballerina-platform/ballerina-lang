@@ -1172,7 +1172,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseFuncSignature(boolean isParamNameOptional) {
         STNode openParenthesis = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
         STNode parameters = parseParamList(isParamNameOptional);
-        STNode closeParenthesis = parseCloseParenthesis();
+        STNode closeParenthesis = parseCloseParenthesis(ParserRuleContext.CLOSE_PARENTHESIS);
         endContext(); // end param-list
         STNode returnTypeDesc = parseFuncReturnTypeDescriptor();
         return STNodeFactory.createFunctionSignatureNode(openParenthesis, parameters, closeParenthesis, returnTypeDesc);
@@ -1451,15 +1451,16 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse close parenthesis.
      *
+     * @param ctx Context of the parenthesis
      * @return Parsed node
      */
-    private STNode parseCloseParenthesis() {
+    private STNode parseCloseParenthesis(ParserRuleContext ctx) {
         STToken token = peek();
         if (token.kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
             return consume();
         } else {
-            recover(token, ParserRuleContext.CLOSE_PARENTHESIS);
-            return parseCloseParenthesis();
+            recover(token, ctx);
+            return parseCloseParenthesis(ctx);
         }
     }
 
@@ -2005,12 +2006,12 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case CLOSE_PAREN_TOKEN:
-                closeParen = parseCloseParenthesis();
+                closeParen = parseCloseParenthesis(ParserRuleContext.CLOSE_PARENTHESIS);
                 return STNodeFactory.createNilTypeDescriptorNode(openParen, closeParen);
             default:
                 if (isTypeStartingToken(nextToken.kind)) {
                     STNode typedesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_PARENTHESIS);
-                    closeParen = parseCloseParenthesis();
+                    closeParen = parseCloseParenthesis(ParserRuleContext.CLOSE_PARENTHESIS);
                     return STNodeFactory.createParenthesisedTypeDescriptorNode(openParen, typedesc, closeParen);
                 }
 
@@ -4163,9 +4164,9 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed parenthesized rhs of <code>new-expr</code>.
      */
     private STNode parseParenthesizedArgList() {
-        STNode openParan = parseOpenParenthesis(ParserRuleContext.ARG_LIST_START);
+        STNode openParan = parseOpenParenthesis(ParserRuleContext.ARG_LIST_OPEN_PAREN);
         STNode arguments = parseArgsList();
-        STNode closeParan = parseCloseParenthesis();
+        STNode closeParan = parseCloseParenthesis(ParserRuleContext.ARG_LIST_CLOSE_PAREN);
         return STNodeFactory.createParenthesizedArgList(openParan, arguments, closeParan);
     }
 
@@ -4595,9 +4596,9 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         if (token.kind == SyntaxKind.MAP_KEYWORD || token.kind == SyntaxKind.START_KEYWORD) {
             STNode methodName = getKeywordAsSimpleNameRef();
-            STNode openParen = parseOpenParenthesis(ParserRuleContext.ARG_LIST_START);
+            STNode openParen = parseOpenParenthesis(ParserRuleContext.ARG_LIST_OPEN_PAREN);
             STNode args = parseArgsList();
-            STNode closeParen = parseCloseParenthesis();
+            STNode closeParen = parseCloseParenthesis(ParserRuleContext.ARG_LIST_CLOSE_PAREN);
             return STNodeFactory.createMethodCallExpressionNode(lhsExpr, dotToken, methodName, openParen, args,
                     closeParen);
         }
@@ -4610,9 +4611,9 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
             // function invocation
-            STNode openParen = parseOpenParenthesis(ParserRuleContext.ARG_LIST_START);
+            STNode openParen = parseOpenParenthesis(ParserRuleContext.ARG_LIST_OPEN_PAREN);
             STNode args = parseArgsList();
-            STNode closeParen = parseCloseParenthesis();
+            STNode closeParen = parseCloseParenthesis(ParserRuleContext.ARG_LIST_CLOSE_PAREN);
             return STNodeFactory.createMethodCallExpressionNode(lhsExpr, dotToken, fieldOrMethodName, openParen, args,
                     closeParen);
         }
@@ -4659,7 +4660,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseNilLiteralOrEmptyAnonFuncParamRhs(STNode openParen) {
-        STNode closeParen = parseCloseParenthesis();
+        STNode closeParen = parseCloseParenthesis(ParserRuleContext.CLOSE_PARENTHESIS);
         STToken nextToken = peek();
         if (nextToken.kind != SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN) {
             return STNodeFactory.createNilLiteralNode(openParen, closeParen);
@@ -4687,7 +4688,7 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
-        STNode closeParen = parseCloseParenthesis();
+        STNode closeParen = parseCloseParenthesis(ParserRuleContext.CLOSE_PARENTHESIS);
         endContext();
         if (isAction(expr)) {
             return STNodeFactory.createBracedExpressionNode(SyntaxKind.BRACED_ACTION, openParen, expr, closeParen);
@@ -4831,9 +4832,9 @@ public class BallerinaParser extends AbstractParser {
      * @return Function call expression
      */
     private STNode parseFuncCall(STNode identifier) {
-        STNode openParen = parseOpenParenthesis(ParserRuleContext.ARG_LIST_START);
+        STNode openParen = parseOpenParenthesis(ParserRuleContext.ARG_LIST_OPEN_PAREN);
         STNode args = parseArgsList();
-        STNode closeParen = parseCloseParenthesis();
+        STNode closeParen = parseCloseParenthesis(ParserRuleContext.ARG_LIST_CLOSE_PAREN);
         return STNodeFactory.createFunctionCallExpressionNode(identifier, openParen, args, closeParen);
     }
 
@@ -4871,10 +4872,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseErrorConstructorRhs(errorKeyword);
         }
 
-        STNode openParen = parseOpenParenthesis(ParserRuleContext.ARG_LIST_START);
+        STNode openParen = parseOpenParenthesis(ParserRuleContext.ARG_LIST_OPEN_PAREN);
         STNode functionArgs = parseArgsList();
         STNode errorArgs = getErrorArgList(functionArgs);
-        STNode closeParen = parseCloseParenthesis();
+        STNode closeParen = parseCloseParenthesis(ParserRuleContext.ARG_LIST_CLOSE_PAREN);
 
         openParen = cloneWithDiagnosticIfListEmpty(errorArgs, openParen,
                 DiagnosticErrorCode.ERROR_MISSING_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR);
@@ -4890,46 +4891,57 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode getErrorArgList(STNode functionArgs) {
         STNodeList argList = (STNodeList) functionArgs;
+        if (argList.isEmpty()) {
+            return argList;
+        }
+
         List<STNode> errorArgList = new ArrayList<>();
-        int noOfPositionalArgs = 0;
+        // Validate first arg
+        STNode arg = argList.get(0);
+        switch (arg.kind) {
+            case POSITIONAL_ARG:
+                errorArgList.add(arg);
+                break;
+            case NAMED_ARG:
+                arg = SyntaxErrors.addDiagnostic(arg,
+                        DiagnosticErrorCode.ERROR_MISSING_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR);
+                errorArgList.add(arg);
+                break;
+            default: // rest arg
+                arg = SyntaxErrors.addDiagnostic(arg,
+                        DiagnosticErrorCode.ERROR_MISSING_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR);
+                arg = SyntaxErrors.addDiagnostic(arg, DiagnosticErrorCode.ERROR_REST_ARG_IN_ERROR_CONSTRUCTOR);
+                errorArgList.add(arg);
+                break;
+        }
+
+        // Validate remaining args
         DiagnosticErrorCode diagnosticErrorCode = DiagnosticErrorCode.ERROR_REST_ARG_IN_ERROR_CONSTRUCTOR;
-
-        for (int i = 0; i < argList.size(); i++) {
-
-            STNode arg = argList.get(i);
-            int nextIndex = i + 1;
+        boolean hasPositionalArg = false;
+        STNode leadingComma;
+        for (int i = 1; i < argList.size(); i = i + 2) {
+            leadingComma = argList.get(i);
+            arg = argList.get(i + 1);
 
             if (arg.kind == SyntaxKind.NAMED_ARG) {
+                errorArgList.add(leadingComma);
                 errorArgList.add(arg);
                 continue;
             }
 
             if (arg.kind == SyntaxKind.POSITIONAL_ARG) {
-                if (noOfPositionalArgs < 2) {
+                if (!hasPositionalArg) {
+                    errorArgList.add(leadingComma);
                     errorArgList.add(arg);
-                    noOfPositionalArgs++;
+                    hasPositionalArg = true;
                     continue;
                 }
-                diagnosticErrorCode = DiagnosticErrorCode.ERROR_MORE_THAN_ONE_POSITIONAL_ARGS_IN_ERROR_CONSTRUCTOR;
+                diagnosticErrorCode = DiagnosticErrorCode.ERROR_ADDITIONAL_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR;
             }
 
             // We only reach here for invalid args
-            if (argList.size() == nextIndex) {
-                addInvalidNodeToNextToken(arg, diagnosticErrorCode);
-            } else {
-                STNode nextArg = argList.get(nextIndex);
-                nextArg = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(nextArg, arg, diagnosticErrorCode);
-                argList = argList.set(nextIndex, nextArg);
-            }
-        }
-
-        if (!errorArgList.isEmpty()) {
-            STNode firstArg = errorArgList.get(0);
-            if (firstArg.kind != SyntaxKind.POSITIONAL_ARG) {
-                diagnosticErrorCode = DiagnosticErrorCode.ERROR_MISSING_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR;
-                firstArg = SyntaxErrors.addDiagnostic(firstArg, diagnosticErrorCode);
-                errorArgList.set(0, firstArg);
-            }
+            updateLastNodeInListWithInvalidNode(errorArgList, leadingComma, null);
+            updateLastNodeInListWithInvalidNode(errorArgList, arg, diagnosticErrorCode);
         }
 
         return STNodeFactory.createNodeList(errorArgList);
@@ -7357,9 +7369,9 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseRemoteMethodCallAction(STNode expression, STNode rightArrow, STNode name) {
-        STNode openParenToken = parseOpenParenthesis(ParserRuleContext.ARG_LIST_START);
+        STNode openParenToken = parseOpenParenthesis(ParserRuleContext.ARG_LIST_OPEN_PAREN);
         STNode arguments = parseArgsList();
-        STNode closeParenToken = parseCloseParenthesis();
+        STNode closeParenToken = parseCloseParenthesis(ParserRuleContext.ARG_LIST_CLOSE_PAREN);
         return STNodeFactory.createRemoteMethodCallActionNode(expression, rightArrow, name, openParenToken, arguments,
                 closeParenToken);
     }
@@ -7446,7 +7458,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseNilLiteral() {
         startContext(ParserRuleContext.NIL_LITERAL);
         STNode openParenthesisToken = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
-        STNode closeParenthesisToken = parseCloseParenthesis();
+        STNode closeParenthesisToken = parseCloseParenthesis(ParserRuleContext.CLOSE_PARENTHESIS);
         endContext();
         return STNodeFactory.createNilLiteralNode(openParenthesisToken, closeParenthesisToken);
     }
@@ -8692,7 +8704,7 @@ public class BallerinaParser extends AbstractParser {
         STNode keyKeyword = parseKeyKeyword();
         STNode openParen = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
         STNode fieldNames = parseFieldNames();
-        STNode closeParen = parseCloseParenthesis();
+        STNode closeParen = parseCloseParenthesis(ParserRuleContext.CLOSE_PARENTHESIS);
         endContext();
         return STNodeFactory.createKeySpecifierNode(keyKeyword, openParen, fieldNames, closeParen);
     }
@@ -9355,7 +9367,7 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.KEY_SPECIFIER);
         STNode openParenToken = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
         STNode fieldNamesNode = parseFieldNames();
-        STNode closeParenToken = parseCloseParenthesis();
+        STNode closeParenToken = parseCloseParenthesis(ParserRuleContext.CLOSE_PARENTHESIS);
         endContext();
         return STNodeFactory.createKeySpecifierNode(keyKeywordToken, openParenToken, fieldNamesNode, closeParenToken);
     }
@@ -9576,7 +9588,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode params = STNodeFactory.createNodeList(paramList);
-        STNode closeParen = parseCloseParenthesis();
+        STNode closeParen = parseCloseParenthesis(ParserRuleContext.CLOSE_PARENTHESIS);
         endContext(); // end arg list context
 
         STNode inferedParams = STNodeFactory.createImplicitAnonymousFunctionParameters(openParen, params, closeParen);
@@ -12824,7 +12836,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseErrorMatchPattern(STNode errorKeyword, STNode typeRef) {
         STNode openParenthesisToken = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
         STNode argListMatchPatternNode = parseErrorArgListMatchPatterns();
-        STNode closeParenthesisToken = parseCloseParenthesis();
+        STNode closeParenthesisToken = parseCloseParenthesis(ParserRuleContext.CLOSE_PARENTHESIS);
         endContext();
         return STNodeFactory.createErrorMatchPatternNode(errorKeyword, typeRef, openParenthesisToken,
                 argListMatchPatternNode, closeParenthesisToken);
@@ -13297,13 +13309,13 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
 
         if (nextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
-            STNode closeParen = parseCloseParenthesis();
+            STNode closeParen = parseCloseParenthesis(ParserRuleContext.CLOSE_PARENTHESIS);
             return parseTypeOrExprStartWithEmptyParenthesis(openParen, closeParen);
         }
 
         STNode typeOrExpr = parseTypeDescOrExpr();
         if (isAction(typeOrExpr)) {
-            STNode closeParen = parseCloseParenthesis();
+            STNode closeParen = parseCloseParenthesis(ParserRuleContext.CLOSE_PARENTHESIS);
             return STNodeFactory.createBracedExpressionNode(SyntaxKind.BRACED_ACTION, openParen, typeOrExpr,
                     closeParen);
         }
@@ -13313,7 +13325,7 @@ public class BallerinaParser extends AbstractParser {
             return parseBracedExprOrAnonFuncParamRhs(openParen, typeOrExpr, false);
         }
 
-        STNode closeParen = parseCloseParenthesis();
+        STNode closeParen = parseCloseParenthesis(ParserRuleContext.CLOSE_PARENTHESIS);
         return STNodeFactory.createParenthesisedTypeDescriptorNode(openParen, typeOrExpr, closeParen);
     }
 
@@ -14136,7 +14148,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseErrorBindingPattern(STNode errorKeyword, STNode typeRef) {
         STNode openParenthesis = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
         STNode argListBindingPatterns = parseErrorArgListBindingPatterns();
-        STNode closeParenthesis = parseCloseParenthesis();
+        STNode closeParenthesis = parseCloseParenthesis(ParserRuleContext.CLOSE_PARENTHESIS);
         endContext();
         return STNodeFactory.createErrorBindingPatternNode(errorKeyword, typeRef, openParenthesis,
                 argListBindingPatterns, closeParenthesis);
