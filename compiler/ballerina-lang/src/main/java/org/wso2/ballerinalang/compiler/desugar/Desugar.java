@@ -3492,6 +3492,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
+        boolean ff = false;
         BLangLiteral currentTrxBlockId = this.trxBlockId;
         boolean currentVisitingTrx = this.visitngTrx;
         this.visitngTrx = true;
@@ -3509,11 +3510,15 @@ public class Desugar extends BLangNodeVisitor {
             transactionDesugar.createRollbackIfFailed(transactionNode.onFailClause.pos, env,
                     transactionNode.onFailClause.body,
                     onErrorSymbol);
-        } else if (this.onFailClause != null) {
-            BSymbol onErrorSymbol =
-                    ((BLangSimpleVariableDef) this.onFailClause.variableDefinitionNode).var.symbol;
-            transactionDesugar.createRollbackIfFailed(this.onFailClause.pos, env, this.onFailClause.body,
-                    onErrorSymbol);
+//        }
+//        else if (this.onFailClause != null) {
+//            BSymbol onErrorSymbol =
+//                    ((BLangSimpleVariableDef) this.onFailClause.variableDefinitionNode).var.symbol;
+//            transactionDesugar.createRollbackIfFailed(this.onFailClause.pos, env, this.onFailClause.body,
+//                    onErrorSymbol);
+//            this.onFailClause.body.stmts.remove(0);
+//            this.onFailClause.desugared = false;
+//            rewrite(this.onFailClause, env);
         } else {
             BLangOnFailClause trxOnFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
             trxOnFailClause.pos = transactionNode.pos;
@@ -3529,12 +3534,23 @@ public class Desugar extends BLangNodeVisitor {
             transactionDesugar.createRollbackIfFailed(transactionNode.pos, env, trxOnFailClause.body,
                     trxOnFailErrorSym);
             transactionNode.onFailClause = trxOnFailClause;
+            if(this.onFailClause != null) {
+                BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
+                failStmt.pos = transactionNode.pos;
+                BLangSimpleVarRef result =  new BLangSimpleVarRef.BLangLocalVarRef(trxOnFailErrorSym);
+                result.type = symTable.errorType;
+                failStmt.expr = rewrite(addConversionExprIfRequired(result, symTable.errorType), env);
+                transactionNode.onFailClause.body.stmts.add(failStmt);
+                transactionNode.onFailClause.bodyContainsFail = true;
+            }
             //todo @chiran check onfail.returns should be set to true when trx has a return
         }
+
+        ff = this.onFailClause != null;
         analyzeOnFailClause(transactionNode.onFailClause, transactionNode.transactionBody);
         BLangBlockStmt transactionStmtBlock = transactionDesugar.rewrite(transactionNode, trxBlockId, env, uniqueId,
                 onFailClause != null);
-        transactionStmtBlock.isBreakable = true;
+        transactionStmtBlock.isBreakable = !ff;
         result = rewrite(transactionStmtBlock, env);
         swapAndResetEnclosingOnFail(currentOnFailClause, currentOnFailCallDef);
         this.visitngTrx = currentVisitingTrx;
@@ -5244,7 +5260,11 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangFail failNode) {
         if (this.onFailClause != null && !skipFailDesugaring) {
             if (this.onFailClause.bodyContainsFail) {
-                result = rewriteNestedOnFail(this.onFailClause, failNode.expr);
+                if(!this.onFailClause.body.desugared) {
+                    result = rewriteNestedOnFail(this.onFailClause, failNode.expr);
+                } else {
+                    result = this.onFailClause.body;
+                }
             } else {
                 BLangStatementExpression expression = createOnFailInvocation(onFailCallFuncDef, onFailClause,
                         failNode);

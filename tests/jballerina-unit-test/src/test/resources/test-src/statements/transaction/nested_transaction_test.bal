@@ -1,3 +1,4 @@
+import ballerina/io;
 import ballerina/lang.'transaction as transactions;
 
 function testRollback() {
@@ -377,4 +378,33 @@ function testNestedMiddleReturn() returns string {
             }
         }
     }
+}
+
+function testNestedRollback () {
+   error? res = trap nestedTrxWithRollbackHandlers();
+   if(res is error) {
+       assertEquality("TransactionError", res.message());
+   } else {
+       panic error("Expected a panic.");
+   }
+}
+
+function nestedTrxWithRollbackHandlers() {
+     var onRollbackFunc1 = function(transactions:Info? info, error? cause, boolean willTry) {
+          io:println("Rollback 1 executed");
+     };
+
+     var onRollbackFunc2 = function(transactions:Info? info, error? cause, boolean willTry) {
+          io:println("Rollback 2 executed");
+     };
+
+     transaction {
+         transactions:onRollback(onRollbackFunc1);
+            var commitRes1 = commit;
+            transaction {
+                transactions:onRollback(onRollbackFunc2);
+                int bV = blowUp();
+                var commitRes2 = commit;
+            }
+     }
 }

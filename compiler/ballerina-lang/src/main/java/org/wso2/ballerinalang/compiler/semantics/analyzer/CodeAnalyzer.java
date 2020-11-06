@@ -609,7 +609,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.returnWithinTransactionCheckStack.pop();
         this.loopWithinTransactionCheckStack.pop();
         this.doneWithinTransactionCheckStack.pop();
-        transactionNode.transactionBody.isBreakable = transactionNode.onFailClause != null;
+//        transactionNode.transactionBody.isBreakable = transactionNode.onFailClause != null;
         analyzeOnFailClause(transactionNode.onFailClause);
         this.errorTypes.pop();
     }

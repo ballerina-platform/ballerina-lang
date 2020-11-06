@@ -129,4 +129,9 @@ public class NestedTransactionTest {
     public void testNestedReturns() {
         BRunUtil.invoke(programFile, "testNestedReturns");
     }
+
+    @Test
+    public void testNestedRollback() {
+        BRunUtil.invoke(programFile, "testNestedRollback");
+    }
 }
