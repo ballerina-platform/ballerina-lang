@@ -638,21 +638,6 @@
                     <exclude name="testTupleConversion2"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.record.OpenRecordEquivalencyTest">
-                <methods>
-                    <exclude name="testEqOfPrivateStructsInSamePackage"/>
-                    <exclude name="testEqOfPublicStructs"/>
-                    <exclude name="testEqOfPublicStructs1"/>
-                    <exclude name="testEqOfPublicStructs2"/>
-                    <exclude name="testEqOfPublicStructsInSamePackage"/>
-                    <exclude name="testRecordEquivalence"/>
-                    <exclude name="testRuntimeEqPrivateStructsInSamePackage"/>
-                    <exclude name="testRuntimeEqPublicStructs"/>
-                    <exclude name="testRuntimeEqPublicStructs1"/>
-                    <exclude name="testRuntimeEqPublicStructsInSamePackage"/>
-                    <exclude name="testUnorderedFieldRecordsInAMatch"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.documentation.DocumentationTest">
                 <methods>
                     <exclude name="testAnnotationDoc"/>
@@ -1265,12 +1250,6 @@
                     <exclude name="testStructInitializerOrder"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.record.RecordFieldsAccessNegativeTest">
-                <methods>
-                    <exclude name="testRecordPrivateFieldsAccess1"/>
-                    <exclude name="testRecordPrivateFieldsAccess2"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest">
                 <methods>
                     <exclude name="testCreatingRecordWithOverriddenFields"/>
@@ -1485,20 +1464,6 @@
                     <exclude name="testSimpleStringMapValueEqualityUsingDifferentReferenceInMap"/>
                     <exclude name="testSimpleStringMapValueEqualityUsingSameReference"/>
                     <exclude name="testSimpleStringMapValueEqualityUsingSameReferenceInMap"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.record.ClosedRecordEquivalencyTest">
-                <methods>
-                    <exclude name="testEqOfPrivateStructsInSamePackage"/>
-                    <exclude name="testEqOfPublicStructs1"/>
-                    <exclude name="testEqOfPublicStructs2"/>
-                    <exclude name="testEqOfPublicStructsInSamePackage"/>
-                    <exclude name="testRecordEquivalence"/>
-                    <exclude name="testRuntimeEqPrivateStructsInSamePackage"/>
-                    <exclude name="testRuntimeEqPublicStructs"/>
-                    <exclude name="testRuntimeEqPublicStructs1"/>
-                    <exclude name="testRuntimeEqPublicStructsInSamePackage"/>
-                    <exclude name="testUnorderedFieldRecordsInAMatch"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.statements.packageimport.PackageImportTest">

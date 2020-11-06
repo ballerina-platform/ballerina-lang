@@ -1,4 +1,4 @@
-import org.foo.baz;
+import recordproject.org.foo.baz;
 
 function textPrivateRecordAccess1() {
     baz:ParentFoo ps = {i:12, c:{name:"Mad"}};
