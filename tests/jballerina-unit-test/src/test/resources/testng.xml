@@ -638,21 +638,6 @@
                     <exclude name="testTupleConversion2"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.record.OpenRecordEquivalencyTest">
-                <methods>
-                    <exclude name="testEqOfPrivateStructsInSamePackage"/>
-                    <exclude name="testEqOfPublicStructs"/>
-                    <exclude name="testEqOfPublicStructs1"/>
-                    <exclude name="testEqOfPublicStructs2"/>
-                    <exclude name="testEqOfPublicStructsInSamePackage"/>
-                    <exclude name="testRecordEquivalence"/>
-                    <exclude name="testRuntimeEqPrivateStructsInSamePackage"/>
-                    <exclude name="testRuntimeEqPublicStructs"/>
-                    <exclude name="testRuntimeEqPublicStructs1"/>
-                    <exclude name="testRuntimeEqPublicStructsInSamePackage"/>
-                    <exclude name="testUnorderedFieldRecordsInAMatch"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.documentation.DocumentationTest">
                 <methods>
                     <exclude name="testAnnotationDoc"/>
@@ -804,10 +789,6 @@
             <class name="org.ballerinalang.test.types.constant.ConstantAssignmentTest">
                 <methods>
                     <exclude name="testConstantAssignmentExpression"/>
-                    <exclude name="testConstantAssignmentViaConstant"/>
-                    <exclude name="testConstantAssignmentViaFunction"/>
-                    <exclude name="testConstantAssignmentViaIntegerAddition"/>
-                    <exclude name="testConstantAssignmentViaNativeFunction"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.lock.LocksInMainTest">
@@ -1181,11 +1162,6 @@
                     <exclude name="testFunctionParams"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.functions.InitFunctionTest">
-                <methods>
-                    <exclude name="testMainFunctionWithImportsWithUserDefinedInit"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.constant.MapConstantPanicInBaloTest">
                 <methods>
                     <exclude name="updateConstantBooleanMapValueInArrayWithExistingKey"/>
@@ -1263,12 +1239,6 @@
                     <exclude name="testStructInitializerInAnotherPackage"/>
                     <exclude name="testStructInitializerInSamePackage1"/>
                     <exclude name="testStructInitializerOrder"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.record.RecordFieldsAccessNegativeTest">
-                <methods>
-                    <exclude name="testRecordPrivateFieldsAccess1"/>
-                    <exclude name="testRecordPrivateFieldsAccess2"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest">
@@ -1485,20 +1455,6 @@
                     <exclude name="testSimpleStringMapValueEqualityUsingDifferentReferenceInMap"/>
                     <exclude name="testSimpleStringMapValueEqualityUsingSameReference"/>
                     <exclude name="testSimpleStringMapValueEqualityUsingSameReferenceInMap"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.record.ClosedRecordEquivalencyTest">
-                <methods>
-                    <exclude name="testEqOfPrivateStructsInSamePackage"/>
-                    <exclude name="testEqOfPublicStructs1"/>
-                    <exclude name="testEqOfPublicStructs2"/>
-                    <exclude name="testEqOfPublicStructsInSamePackage"/>
-                    <exclude name="testRecordEquivalence"/>
-                    <exclude name="testRuntimeEqPrivateStructsInSamePackage"/>
-                    <exclude name="testRuntimeEqPublicStructs"/>
-                    <exclude name="testRuntimeEqPublicStructs1"/>
-                    <exclude name="testRuntimeEqPublicStructsInSamePackage"/>
-                    <exclude name="testUnorderedFieldRecordsInAMatch"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.statements.packageimport.PackageImportTest">

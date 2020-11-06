@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import c.d;
+import testorg/test_proj_with_init_funcs.c_d;
 
 int i = 10;
 
@@ -23,7 +23,7 @@ string? sFromInit = ();
 
 function init() {
     iFromInit = i + 100;
-    sFromInit = d:getS();
+    sFromInit = c_d:getS();
 }
 
 public function main() returns error? {
