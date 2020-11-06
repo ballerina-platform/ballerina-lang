@@ -33,20 +33,39 @@ type Movie record {
 
 @test:Config {}
 function testAssertStringValues() {
-    error? err = trap test:assertEquals("hello dilhasha","hello dilhashaaa");
+    error? err = trap test:assertEquals("hello user","hello userr");
     error result = <error>err;
-    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ actual \n \n @@ -1,1 +1,1 @@ \n \n -hello dilhasha\n+hello dilhashaaa\n \n"));
+    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ " +
+    "actual \n \n @@ -1,1 +1,1 @@ \n \n -hello" +
+    " user\n+hello userr\n \n"));
 }
 
 @test:Config {}
 function testAssertLongStringValues() {
-    string value1 = "Ballerina is an open source programming language and platform for cloud-era application " + "programmers.\nSequence diagrams have been everyone’s favorite tool to describe how distributed & conccurrent " + "programs work.";
-    string value2 = "Ballerina is an open source programming language and platform for cloud-era application " + "programmersss.\nSequence diagrams have been everyone’s favorite tool to describe how distributed & concurrent " + "programs work.";
+    string value1 = "Ballerina is an open source programming language and platform for cloud-era application " +
+    "programmers.\nSequence diagrams " + "have been everyone’s favorite tool to describe how distributed & " +
+    "conccurrent programs work.";
+    string value2 = "Ballerina is an open source programming language and platform for cloud-era application " +
+    "programmersss.\nSequence diagrams " + "have been everyone’s favorite tool to describe how distributed & " +
+    "concurrent programs work.";
     error? err = trap test:assertEquals(value1, value2);
     error result = <error>err;
-    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ actual \n \n @@ -1,4 +1,4 @@ \n \n  Ballerina is an open source programming language and platform for cloud-era appl\n-ication programmers.\n+ication programmersss.\n Sequence diagrams have been everyone’s favorite tool to describe how distributed\n- & conccurrent programs work.\n+ & concurrent programs work.\n \n"));
+    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ " +
+    "actual \n \n @@ -1,4 +1,4 @@ \n \n  Ballerina is an open source " +
+    "programming language and platform for cloud-era appl\n-ication programmers." +
+    "\n+ication programmersss.\n Sequence diagrams have been everyone’s " +
+    "favorite tool to describe how distributed\n- & conccurrent programs work.\n" +
+    "+ & concurrent programs work.\n \n"));
 }
 
+@test:Config {}
+function testAssertMultipleLinesString() {
+    error? err = trap test:assertEquals("hello user\nWelcome to Ballerina","hello userr\nWelcome to Ballerina");
+    error result = <error>err;
+    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ " +
+    "actual \n \n @@ -1,2 +1,2 @@ \n \n -hello user\n+hello userr\n Welcome to " +
+    "Ballerina\n \n"));
+}
 
 @test:Config {}
 function testAssertIntValues() {
@@ -70,7 +89,12 @@ function testAssertJsonValues() {
     json bioData2 = {name:"John Doe New", age:25, address:{city:"Colombo", country:"Sri Lanka"}};
     error? err = trap test:assertEquals(bioData, bioData2);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '{\"name\":\"John Doe New\",\"age\":25,\"address\":{\"city\":\"Colombo\"," + "\"country\":\"Sri Lanka...'\nactual\t: '{\"name\":\"John Doe\",\"age\":25,\"address\":{\"city\":\"Colombo\"," + "\"country\":\"Sri Lanka\"}}'\n \nDiff\t:\n \n\n \nkey: name\nexpected value\t: John Doe New\nactual value\t: John Doe \n \n");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n " +
+    "\nexpected: '{\"name\":\"John Doe New\",\"age\":25,\"address\":" +
+    "{\"city\":\"Colombo\"," + "\"country\":\"Sri Lanka...'\nactual\t: '" +
+    "{\"name\":\"John Doe\",\"age\":25,\"address\":{\"city\":\"Colombo\"," +
+    "\"country\":\"Sri Lanka\"}}'\n \nDiff\t:\n \n\n \nkey: name\nexpected " +
+    "value\t: John Doe New\nactual value\t: John Doe \n \n");
 }
 
 @test:Config {}
@@ -79,7 +103,13 @@ function testAssertJsonInJson() {
     json j2 = {name: "Anne", age: 21, marks: {maths: 100, physics: 90, status: {pass:false}}};
     error? err = trap test:assertEquals(j1, j2);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '{\"name\":\"Anne\",\"age\":21,\"marks\":{\"maths\":100,\"physics\":90,\"status\":{\"pass\":false...'\nactual\t: '{\"name\":\"Anne\",\"age\":\"21\",\"marks\":{\"maths\":100,\"physics\":90,\"status\":{\"pass\":tru...'\n \nDiff\t:\n \n\n \nkey: age\nexpected value\t: <int> 21\nactual value\t: <string> 21 \n\n \nkey: marks.status.pass\nexpected value\t: false\nactual value\t: true \n \n");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n " +
+    "\nexpected: '{\"name\":\"Anne\",\"age\":21,\"marks\":{\"maths\":100," +
+    "\"physics\":90,\"status\":{\"pass\":false...'\nactual\t: '" +
+    "{\"name\":\"Anne\",\"age\":\"21\",\"marks\":{\"maths\":100,\"physics\":90," +
+    "\"status\":{\"pass\":tru...'\n \nDiff\t:\n \n\n \nkey: age\nexpected " +
+    "value\t: <int> 21\nactual value\t: <string> 21 \n\n \nkey: marks.status." +
+    "pass\nexpected value\t: false\nactual value\t: true \n \n");
 }
 
 @test:Config {}
@@ -88,8 +118,11 @@ function testAssertLongJsonValues() {
     json bioData2 = {name:"John Doe New", age:25, designation: "SSE", address:{city:"Colombo", country:"Sri Lanka"}};
     error? err = trap test:assertEquals(bioData, bioData2);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '{\"name\":\"John Doe New\"," + "\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",...'\nactual\t: '{\"name\":" + 
-    "\"John Doe Old\",\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",...'\n \nDiff\t:\n \n\n \nkey: name\nexpected value\t: John Doe New\nactual value\t: John Doe Old \n\n \nkey: address.country\nexpected value\t: Sri Lanka\nactual value\t: Sri Lankaa \n \n");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '{\"name\":\"John Doe New\"," +
+    "\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",...'\nactual\t: '{\"name\":" +
+    "\"John Doe Old\",\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",...'\n \n" +
+    "Diff\t:\n \n\n \nkey: name\nexpected value\t: John Doe New\nactual value\t: John Doe Old \n\n \n" +
+    "key: address.country\nexpected value\t: Sri Lanka\nactual value\t: Sri Lankaa \n \n");
 }
 
 @test:Config {}
@@ -98,16 +131,31 @@ function testAssertJsonWithKeyDiff() {
     json j2 = {name2: "Anne", age: 21, marks: {maths: 100, physics: 90, status: {pass2:false}}};
     error? err = trap test:assertEquals(j1, j2);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '{\"name2\":\"Anne\",\"age\":21,\"marks\":{\"maths\":100,\"physics\":90,\"status\":{\"pass2\":fal...'\nactual\t: '{\"name\":\"Anne\",\"age\":\"21\",\"marks\":{\"maths\":100,\"physics\":90,\"status\":{\"pass\":tru...'\n \nDiff\t:\n \nexpected keys\t: name2, marks.status.pass2\nactual keys\t: name, marks.status.pass\n\n\n \n\n \nkey: age\nexpected value\t: <int> 21\nactual value\t: <string> 21 \n \n");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n " +
+    "\nexpected: '{\"name2\":\"Anne\",\"age\":21,\"marks\":{\"maths\":100," +
+    "\"physics\":90,\"status\":{\"pass2\":fal...'\nactual\t: '" +
+    "{\"name\":\"Anne\",\"age\":\"21\",\"marks\":{\"maths\":100,\"physics\":90," +
+    "\"status\":{\"pass\":tru...'\n \nDiff\t:\n \nexpected keys\t: name2, " +
+    "marks.status.pass2\nactual keys\t: name, marks.status.pass\n\n\n \n\n " +
+    "\nkey: age\nexpected value\t: <int> 21\nactual value\t: <string> 21 \n \n");
 }
 
 @test:Config {}
 function testAssertJsonWithCount() {
-    json j1 = {name: "Anne", age: "21", marks: {maths: 99, physics: 80, chemistry: 70, english: 95, status: {pass:true}}};
-    json j2 = {name2: "Anne", age: 21, marks: {maths: 10, physics: 40, chemistry: 50, english: 55, status: {pass:false}}};
+    json j1 = {name: "Anne", age: "21",
+    marks: {maths: 99, physics: 80, chemistry: 70, english: 95, status: {pass:true}}};
+    json j2 = {name2: "Anne", age: 21,
+    marks: {maths: 10, physics: 40, chemistry: 50, english: 55, status: {pass:false}}};
     error? err = trap test:assertEquals(j1, j2);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '{\"name2\":\"Anne\",\"age\":21,\"marks\":{\"maths\":10,\"physics\":40,\"chemistry\":50,\"englis...'\nactual\t: '{\"name\":\"Anne\",\"age\":\"21\",\"marks\":{\"maths\":99,\"physics\":80,\"chemistry\":70,\"engli...'\n \nDiff\t:\n \nexpected keys\t: name2\nactual keys\t: name\n\n\n \n\n \nkey: age\nexpected value\t: <int> 21\nactual value\t: <string> 21 \n\n \nkey: marks.maths\nexpected value\t: 10\nactual value\t: 99 \n\n \nkey: marks.physics\nexpected value\t: 40\nactual value\t: 80 \n\n \nkey: marks.chemistry\nexpected value\t: 50\nactual value\t: 70 \n\n \nkey: marks.english\nexpected value\t: 55\nactual value\t: 95 \n\n \nkey: marks.status.pass\nexpected value\t: false\nactual value\t: true \n\n \nTotal value mismatches: 6\n \n \n");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '{\"name2\":\"Anne\",\"age\":21," +
+    "\"marks\":{\"maths\":10,\"physics\":40,\"chemistry\":50,\"englis...'\nactual\t: '{\"name\":\"Anne\",\"age\":" +
+    "\"21\",\"marks\":{\"maths\":99,\"physics\":80,\"chemistry\":70,\"engli...'\n \nDiff\t:\n \nexpected keys\t: " +
+    "name2\nactual keys\t: name\n\n\n \n\n \nkey: age\nexpected value\t: <int> 21\nactual value\t: <string> 21 \n\n " +
+    "\nkey: marks.maths\nexpected value\t: 10\nactual value\t: 99 \n\n \nkey: marks.physics\nexpected value\t: 40\n" +
+    "actual value\t: 80 \n\n \nkey: marks.chemistry\nexpected value\t: 50\nactual value\t: 70 \n\n \nkey: " +
+    "marks.english\nexpected value\t: 55\nactual value\t: 95 \n\n \nkey: marks.status.pass\nexpected value\t: false\n" +
+    "actual value\t: true \n\n \nTotal value mismatches: 6\n \n \n");
 }
 
 @test:Config {}
@@ -126,7 +174,8 @@ function testAssertObjects() {
     person.name = "dilhasha";
     error? err = trap test:assertExactEquals(person, person2);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: 'object assertions-error-messages:Person'\nactual\t: 'object assertions-error-messages:Person'");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n \n" +
+    "expected: 'object assertions-error-messages:Person'\nactual\t: 'object assertions-error-messages:Person'");
 }
 
 @test:Config {}
@@ -135,7 +184,9 @@ function testAssertJsonArray() {
         json j2 = [2, false, null, "foo", {first: "John", last: "Pala"}];
         error? err = trap test:assertEquals(j1, j2);
         error result = <error>err;
-        test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '[2,false,null,\"foo\",{\"first\":\"John\",\"last\":\"Pala\"}]'\nactual\t: '[1,false,null,\"foo\",{\"first\":\"John\",\"last\":\"Pala\"}]'");
+        test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '[2,false,null,\"foo\"," +
+        "{\"first\":\"John\",\"last\":\"Pala\"}]'\nactual\t: '[1,false,null,\"foo\"," +
+        "{\"first\":\"John\",\"last\":\"Pala\"}]'");
 }
 
 @test:Config {}
@@ -162,5 +213,10 @@ function testAssertRecords() {
     };
     error? err = trap test:assertEquals(theRevenant, theRevenantNew);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '{\"title\":\"The Revenant\",\"year\":\"2020\",\"released\":\"08 Jan 2020\",\"writer\":{\"fname\"...'\nactual\t: '{\"title\":\"The Revenant\",\"year\":\"2015\",\"released\":\"08 Jan 2016\",\"writer\":{\"fname\"...'\n \nDiff\t:\n \n\n \nkey: year\nexpected value\t: 2020\nactual value\t: 2015 \n\n \nkey: released\nexpected value\t: 08 Jan 2020\nactual value\t: 08 Jan 2016 \n\n \nkey: writer.age\nexpected value\t: 35\nactual value\t: 30 \n \n");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n \n" +
+    "expected: '{\"title\":\"The Revenant\",\"year\":\"2020\",\"released\":\"08 Jan 2020\",\"writer\":{\"fname\"...'" +
+    "\nactual\t: '{\"title\":\"The Revenant\",\"year\":\"2015\",\"released\":\"08 Jan 2016\",\"writer\":{\"fname\"" +
+    "...'\n \nDiff\t:\n \n\n \nkey: year\nexpected value\t: 2020\nactual value\t: 2015 \n\n \nkey: released\n" +
+    "expected value\t: 08 Jan 2020\nactual value\t: 08 Jan 2016 \n\n \nkey: writer.age\nexpected value\t: 35\n" +
+    "actual value\t: 30 \n \n");
 }

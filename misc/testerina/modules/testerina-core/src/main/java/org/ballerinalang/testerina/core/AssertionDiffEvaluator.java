@@ -51,6 +51,8 @@ public class AssertionDiffEvaluator {
                 if (valueArray[i].length() > MAX_ARG_LENGTH) {
                     String[] partitions = valueArray[i].split(PARTITION_REGEX);
                     valueList.addAll(Arrays.asList(partitions));
+                } else {
+                    valueList.add(valueArray[i]);
                 }
             }
         } else {
