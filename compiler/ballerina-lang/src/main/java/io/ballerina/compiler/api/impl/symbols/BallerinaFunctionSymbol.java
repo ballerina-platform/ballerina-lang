@@ -107,13 +107,15 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
             return this;
         }
 
+        public FunctionSymbolBuilder withQualifiers(Set<Qualifier> qualifiers) {
+            this.qualifiers.addAll(qualifiers);
+            return this;
+        }
+
         @Override
         public BallerinaFunctionSymbol build() {
-            return new BallerinaFunctionSymbol(this.name,
-                    this.moduleID,
-                    this.qualifiers,
-                    this.typeDescriptor,
-                    (BInvokableSymbol) this.bSymbol);
+            return new BallerinaFunctionSymbol(this.name, this.moduleID, this.qualifiers, this.typeDescriptor,
+                                               (BInvokableSymbol) this.bSymbol);
         }
     }
 }
