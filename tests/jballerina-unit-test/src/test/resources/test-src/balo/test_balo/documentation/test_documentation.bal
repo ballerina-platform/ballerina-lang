@@ -1,10 +1,10 @@
-import testDocOrg/test;
+import testdocorg/test_documentation;
 
 
 function testDocDummy() returns (boolean) {
-    return test:open("testt");
+    return test_documentation:open("testt");
 }
 
-@test:Test{}
+@test_documentation:Test{}
 function testAnnotation() {
 }
