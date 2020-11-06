@@ -1162,11 +1162,6 @@
                     <exclude name="testFunctionParams"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.functions.InitFunctionTest">
-                <methods>
-                    <exclude name="testMainFunctionWithImportsWithUserDefinedInit"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.constant.MapConstantPanicInBaloTest">
                 <methods>
                     <exclude name="updateConstantBooleanMapValueInArrayWithExistingKey"/>
