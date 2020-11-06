@@ -18,29 +18,6 @@
               "children": [
                 {
                   "kind": "STRING_LITERAL_TOKEN",
-                  "value": "ERROR_REASON"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "COMMA_TOKEN",
-          "trailingMinutiae": [
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
-            }
-          ]
-        },
-        {
-          "kind": "POSITIONAL_ARG",
-          "children": [
-            {
-              "kind": "STRING_LITERAL",
-              "children": [
-                {
-                  "kind": "STRING_LITERAL_TOKEN",
                   "value": "error message"
                 }
               ]
