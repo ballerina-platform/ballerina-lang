@@ -789,10 +789,6 @@
             <class name="org.ballerinalang.test.types.constant.ConstantAssignmentTest">
                 <methods>
                     <exclude name="testConstantAssignmentExpression"/>
-                    <exclude name="testConstantAssignmentViaConstant"/>
-                    <exclude name="testConstantAssignmentViaFunction"/>
-                    <exclude name="testConstantAssignmentViaIntegerAddition"/>
-                    <exclude name="testConstantAssignmentViaNativeFunction"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.lock.LocksInMainTest">
