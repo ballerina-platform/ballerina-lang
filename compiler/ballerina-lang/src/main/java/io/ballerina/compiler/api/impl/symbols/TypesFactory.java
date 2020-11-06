@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
@@ -108,6 +109,11 @@ public class TypesFactory {
         }
 
         switch (bType.getKind()) {
+            case INT:
+                if (bType instanceof BIntSubType) {
+                    return new BallerinaSimpleTypeSymbol(this.context, moduleID, bType.name.getValue(), bType);
+                }
+                return new BallerinaSimpleTypeSymbol(this.context, moduleID, bType);
             case ANY:
                 return new BallerinaAnyTypeSymbol(this.context, moduleID, (BAnyType) bType);
             case ANYDATA:
@@ -176,7 +182,7 @@ public class TypesFactory {
         }
 
         final TypeKind kind = bType.getKind();
-        return kind == RECORD || kind == OBJECT || bType.tsymbol.isLabel;
+        return kind == RECORD || kind == OBJECT || bType.tsymbol.isLabel || bType instanceof BIntSubType;
     }
 
     public static TypeDescKind getTypeDescKind(TypeKind bTypeKind) {

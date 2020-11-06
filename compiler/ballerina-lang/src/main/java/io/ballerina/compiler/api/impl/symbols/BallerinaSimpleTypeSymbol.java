@@ -28,11 +28,21 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  */
 public class BallerinaSimpleTypeSymbol extends AbstractTypeSymbol implements SimpleTypeSymbol {
 
-    private String typeName;
+    private final String typeName;
 
     public BallerinaSimpleTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType) {
         super(context, TypesFactory.getTypeDescKind(bType.getKind()), moduleID, bType);
         this.typeName = bType.getKind().typeName();
+    }
+
+    public BallerinaSimpleTypeSymbol(CompilerContext context, ModuleID moduleID, String name, BType bType) {
+        super(context, TypesFactory.getTypeDescKind(bType.getKind()), moduleID, bType);
+        this.typeName = name;
+    }
+
+    @Override
+    public String name() {
+        return this.typeName;
     }
 
     @Override
