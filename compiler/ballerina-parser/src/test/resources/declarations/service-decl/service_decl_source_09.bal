@@ -3,7 +3,7 @@ service echoService on someListner
 
     }
 
-    resource Person person;
+    Person person;
 
     function baz() {
         int a = 10;

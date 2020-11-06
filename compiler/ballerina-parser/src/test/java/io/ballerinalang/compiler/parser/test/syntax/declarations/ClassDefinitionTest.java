@@ -61,12 +61,6 @@ public class ClassDefinitionTest extends AbstractDeclarationTest {
         testFile("class-def/class_def_source_38.bal", "class-def/class_def_assert_38.json");
     }
 
-    @Test
-    public void testIsolatedMethods() {
-        test("class-def/isolated_object_method_source_01.bal",
-                "class-def/isolated_object_method_assert_01.json");
-    }
-
     // Test class type qualifiers
 
      @Test
@@ -157,23 +151,5 @@ public class ClassDefinitionTest extends AbstractDeclarationTest {
     public void testObjectFieldsWithReadonlyQualifier() {
         testFile("class-def/class_def_source_37.bal", "class-def/class_def_assert_37.json");
         testFile("class-def/class_def_source_39.bal", "class-def/class_def_assert_39.json");
-    }
-
-    @Test
-    public void testMissingFunctionKeywordWithQualifiers() {
-        testFile("class-def/isolated_object_method_source_02.bal",
-                "class-def/isolated_object_method_assert_02.json");
-    }
-
-    @Test
-    public void testMissingFunctionNameWithQualifiers() {
-        testFile("class-def/isolated_object_method_source_03.bal",
-                "class-def/isolated_object_method_assert_03.json");
-    }
-
-    @Test
-    public void testMissingTokensWithQualifiers() {
-        testFile("class-def/isolated_object_method_source_04.bal",
-                "class-def/isolated_object_method_assert_04.json");
     }
 }

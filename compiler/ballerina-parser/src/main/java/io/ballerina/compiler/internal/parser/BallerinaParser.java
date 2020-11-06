@@ -2878,7 +2878,7 @@ public class BallerinaParser extends AbstractParser {
             case ISOLATED_KEYWORD:
                 return true;
             default:
-                return isObjectTypeQual(tokenKind);
+                return isObjectNetworkQual(tokenKind);
         }
     }
 

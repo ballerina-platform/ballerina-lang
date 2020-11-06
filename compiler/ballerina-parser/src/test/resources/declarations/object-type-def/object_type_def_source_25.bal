@@ -1,4 +1,4 @@
 type foo service object {
-    resource Person person;
+    Person person;
     function get() returns Person;
 };

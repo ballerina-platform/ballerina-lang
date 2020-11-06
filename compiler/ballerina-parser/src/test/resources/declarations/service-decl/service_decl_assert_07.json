@@ -28,7 +28,28 @@
     },
     {
       "kind": "LIST",
-      "children": []
+      "children": [
+        {
+          "kind": "SLASH_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "foo"
+        },
+        {
+          "kind": "SLASH_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "bar",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
     },
     {
       "kind": "ON_KEYWORD",
