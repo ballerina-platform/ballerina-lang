@@ -20,7 +20,7 @@ package org.ballerinalang.tool;
 /**
  * Thrown to indicate a non zero exit code from Ballerina executable.
  *
- * @since 1.2.10
+ * @since 2.0.0
  */
 public class RuntimePanicException extends RuntimeException {
 
@@ -36,6 +36,11 @@ public class RuntimePanicException extends RuntimeException {
         this.exitCode = exitCode;
     }
 
+    /**
+     * Returns the exit code from the Ballerina program execution.
+     *
+     * @return int
+     */
     public int getExitCode() {
         return this.exitCode;
     }
