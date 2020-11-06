@@ -64,15 +64,6 @@ function testAnonRecWithExplicitRestField() returns boolean {
     return animal["legs"] == 4;
 }
 
-function testCodeAnalyzerRunningOnAnonymousRecordsForDeprecatedFunctionAnnotation() {
-    record {
-        int b = Test();
-        } rec = {};
-}
-
-@deprecated
-isolated function Test() returns int { return 0;}
-
 function testAnonRecordAsRestFieldOfAnonRecord() {
     record {|
         string s;

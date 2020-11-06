@@ -47,7 +47,7 @@ public class NativeConversionTest {
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/expressions/conversion/native-conversion.bal");
 //        packageResult = BCompileUtil.compile("test-src/expressions/conversion/TestProj", "a.b");
-        packageResult = BCompileUtil.compile("test-src/expressions/conversion/TestProj/a.b");
+        packageResult = BCompileUtil.compile("test-src/expressions/conversion/test_project");
     }
 
     @Test

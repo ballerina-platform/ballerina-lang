@@ -86,7 +86,7 @@ function getCustomer(record {| Customer value; |}? returnedVal) returns Customer
     }
 }
 
-# functions to test query-construct-type --> stream
+// functions to test query-construct-type --> stream
 
 function testSimpleQueryReturnStream() returns boolean {
     boolean testPassed = true;
@@ -226,7 +226,7 @@ function testInnerJoinAndLimitReturnStream() returns boolean {
     return testPassed;
 }
 
-# functions to test query-construct-type --> table
+// functions to test query-construct-type --> table
 
 function testSimpleQueryExprReturnTable() returns boolean {
     boolean testPassed = true;

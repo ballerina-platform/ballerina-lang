@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.execution;
 
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.BRunUtil.ExitDetails;
@@ -81,7 +82,8 @@ public class ModuleExecutionFlowTests {
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
-    @Test
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: panicked while initializing module B.*")
     public void testModuleInitPanic() {
         CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj4");
         ExitDetails output = run(compileResult, new String[]{});
@@ -94,7 +96,8 @@ public class ModuleExecutionFlowTests {
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
-    @Test
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: panicked while starting module B.*")
     public void testModuleStartPanic() {
         CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj5");
         ExitDetails output = run(compileResult, new String[]{});
@@ -157,7 +160,7 @@ public class ModuleExecutionFlowTests {
                 "Initializing module c\n" +
                 "Module c main function invoked";
         String expectedErrorString = "error: panicked while executing main method\n" +
-                "\tat unit-tests.c.0_1_0:main(main.bal:12)";
+                "\tat unit_tests.proj8.0_1_0:main(main.bal:12)";
         Assert.assertEquals(output.consoleOutput, expectedString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
@@ -165,7 +168,7 @@ public class ModuleExecutionFlowTests {
     @Test
     public void testModuleStartAndStopPanic() {
         CompileResult compileResult =
-                BCompileUtil.compile("test-src/execution/StartStopFailingProject");
+                BCompileUtil.compile("test-src/execution/start_stop_failing_project");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module 'basic'\n" +
@@ -188,7 +191,7 @@ public class ModuleExecutionFlowTests {
     @Test
     public void testModuleStopPanic() {
         CompileResult compileResult =
-                BCompileUtil.compile("test-src/execution/ModuleStopFailingProject");
+                BCompileUtil.compile("test-src/execution/module_stop_failing_project");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module 'basic'\n" +
@@ -203,7 +206,7 @@ public class ModuleExecutionFlowTests {
                 "listener __gracefulStop panicked, service name - dependent\n" +
                 "basic:TestListener listener __gracefulStop called, service name - basic";
         String expectedErrorString = "error: panicked while stopping module 'dependent'\n" +
-                "\tat test.basic.0_1_0.TestListener:__gracefulStop(main.bal:44)";
+                "\tat testorg.module_stop_failing_project_basic.0_1_0.TestListener:__gracefulStop(main.bal:44)";
 
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
@@ -212,7 +215,7 @@ public class ModuleExecutionFlowTests {
     @Test(description = "Test 'init' is called only once for each module at runtime")
     public void testModuleDependencyChainForInit() {
         CompileResult compileResult =
-                BCompileUtil.compile("test-src/execution/ModuleInitInvocationProject");
+                BCompileUtil.compile("test-src/execution/module_invocation_project");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module 'basic'\n" +
@@ -235,7 +238,7 @@ public class ModuleExecutionFlowTests {
     @Test(description = "Test 'start' is called only once for each module at runtime")
     public void testModuleDependencyChainForStart() {
         CompileResult compileResult =
-                BCompileUtil.compile("test-src/execution/ModuleStartInvocationProject");
+                BCompileUtil.compile("test-src/execution/module_start_invocation_project");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module 'basic'\n" +

@@ -1,0 +1,5 @@
+[package]
+org = "testorg"
+name = "module_stop_failing_project"
+version= "0.1.0"
+

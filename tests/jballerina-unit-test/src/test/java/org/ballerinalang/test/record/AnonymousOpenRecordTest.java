@@ -36,11 +36,12 @@ import org.testng.annotations.Test;
  */
 public class AnonymousOpenRecordTest {
 
-    private CompileResult compileResult;
+    private CompileResult compileResult, result;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/record/anon_record.bal");
+        result = BCompileUtil.compile("test-src/record/anon_record_code_analysis.bal");
     }
 
     @Test(description = "Test Anonymous record in a function parameter declaration")
@@ -91,6 +92,6 @@ public class AnonymousOpenRecordTest {
 
     @Test(description = "Test Code analyzer execution on Anonymous records")
     public void testCodeAnalyzerRunningOnAnonymousRecordsForDeprecatedFunctionAnnotation() {
-        BAssertUtil.validateWarning(compileResult, 0, "usage of construct 'Test()' is deprecated", 69, 17);
+        BAssertUtil.validateWarning(result, 0, "usage of construct 'Test()' is deprecated", 3, 17);
     }
 }
