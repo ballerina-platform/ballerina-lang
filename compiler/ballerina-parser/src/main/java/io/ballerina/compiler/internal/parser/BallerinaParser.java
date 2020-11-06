@@ -2953,7 +2953,7 @@ public class BallerinaParser extends AbstractParser {
                 // record-type-reference
                 startContext(ParserRuleContext.RECORD_FIELD);
                 STNode asterisk = consume();
-                STNode type = parseTypeReference();
+                STNode type = parseTypeReferenceInTypeInclusion();
                 STNode semicolonToken = parseSemicolon();
                 endContext();
                 return STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
@@ -3050,13 +3050,14 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse type reference.
+     * Parse type reference in type inclusion.
+     * <p>
      * <code>type-reference := identifier | qualified-identifier</code>
      *
      * @return Type reference node
      */
-    private STNode parseTypeReference() {
-        STNode typeReference = parseTypeDescriptor(ParserRuleContext.TYPE_REFERENCE);
+    private STNode parseTypeReferenceInTypeInclusion() {
+        STNode typeReference = parseTypeDescriptor(ParserRuleContext.TYPE_REFERENCE_IN_TYPE_INCLUSION);
         if (typeReference.kind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             if (typeReference.hasDiagnostics()) {
                 // When a missing type desc is recovered, diagnostic code will be missing type desc.
@@ -3079,6 +3080,18 @@ public class BallerinaParser extends AbstractParser {
         return emptyNameReference;
     }
 
+    private STNode parseTypeReference() {
+        return parseTypeReference(false);
+    }
+
+    /**
+     * Parse type reference.
+     * <p>
+     * <code>type-reference := identifier | qualified-identifier</code>
+     *
+     * @param isInConditionalExpr Whether in the conditional expression or not
+     * @return Type reference node
+     */
     private STNode parseTypeReference(boolean isInConditionalExpr) {
         return parseQualifiedIdentifier(ParserRuleContext.TYPE_REFERENCE, isInConditionalExpr);
     }
@@ -3773,9 +3786,6 @@ public class BallerinaParser extends AbstractParser {
             case FROM_KEYWORD:
                 return parseTableConstructorOrQuery(isRhsExpr);
             case ERROR_KEYWORD:
-                if (peek(2).kind == SyntaxKind.IDENTIFIER_TOKEN) {
-                    return parseErrorBindingPattern();
-                }
                 return parseErrorConstructorExpr();
             case LET_KEYWORD:
                 return parseLetExpression(isRhsExpr);
@@ -4701,15 +4711,97 @@ public class BallerinaParser extends AbstractParser {
      * Parse error constructor expression.
      * </p>
      * <code>
-     * error-constructor-expr := error ( arg-list )
+     * error-constructor-expr := error [error-type-reference] ( error-arg-list )
+     * error-arg-list := positional-arg [, positional-arg] (, named-arg)*
      * </code>
      *
      * @return Error constructor expression
      */
     private STNode parseErrorConstructorExpr() {
+        startContext(ParserRuleContext.ERROR_CONSTRUCTOR);
         STNode errorKeyword = parseErrorKeyword();
-        errorKeyword = createBuiltinSimpleNameReference(errorKeyword);
-        return parseFuncCall(errorKeyword);
+        STNode errorConstructor = parseErrorConstructorRhs(errorKeyword);
+        endContext();
+        return errorConstructor;
+    }
+
+    private STNode parseErrorConstructorRhs(STNode errorKeyword) {
+        STNode typeReference;
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case IDENTIFIER_TOKEN:
+                typeReference = parseTypeReference();
+                break;
+            case OPEN_PAREN_TOKEN:
+                typeReference = STNodeFactory.createEmptyNode();
+                break;
+            default:
+                recover(nextToken, ParserRuleContext.ERROR_CONSTRUCTOR_RHS, errorKeyword);
+                return parseErrorConstructorRhs(errorKeyword);
+        }
+
+        STNode openParen = parseOpenParenthesis(ParserRuleContext.ARG_LIST_START);
+        STNode functionArgs = parseArgsList();
+        STNode errorArgs = getErrorArgList(functionArgs);
+        STNode closeParen = parseCloseParenthesis();
+
+        openParen = cloneWithDiagnosticIfListEmpty(errorArgs, openParen,
+                DiagnosticErrorCode.ERROR_MISSING_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR);
+        return STNodeFactory.createErrorConstructorExpressionNode(errorKeyword, typeReference, openParen, errorArgs,
+                closeParen);
+    }
+
+    /**
+     * Validate function args and return error arg node list.
+     *
+     * @param functionArgs function args to be validated
+     * @return Error arg list
+     */
+    private STNode getErrorArgList(STNode functionArgs) {
+        STNodeList argList = (STNodeList) functionArgs;
+        List<STNode> errorArgList = new ArrayList<>();
+        int noOfPositionalArgs = 0;
+        DiagnosticErrorCode diagnosticErrorCode = DiagnosticErrorCode.ERROR_REST_ARG_IN_ERROR_CONSTRUCTOR;
+
+        for (int i = 0; i < argList.size(); i++) {
+
+            STNode arg = argList.get(i);
+            int nextIndex = i + 1;
+
+            if (arg.kind == SyntaxKind.NAMED_ARG) {
+                errorArgList.add(arg);
+                continue;
+            }
+
+            if (arg.kind == SyntaxKind.POSITIONAL_ARG) {
+                if (noOfPositionalArgs < 2) {
+                    errorArgList.add(arg);
+                    noOfPositionalArgs++;
+                    continue;
+                }
+                diagnosticErrorCode = DiagnosticErrorCode.ERROR_MORE_THAN_ONE_POSITIONAL_ARGS_IN_ERROR_CONSTRUCTOR;
+            }
+
+            // We only reach here for invalid args
+            if (argList.size() == nextIndex) {
+                addInvalidNodeToNextToken(arg, diagnosticErrorCode);
+            } else {
+                STNode nextArg = argList.get(nextIndex);
+                nextArg = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(nextArg, arg, diagnosticErrorCode);
+                argList = argList.set(nextIndex, nextArg);
+            }
+        }
+
+        if (!errorArgList.isEmpty()) {
+            STNode firstArg = errorArgList.get(0);
+            if (firstArg.kind != SyntaxKind.POSITIONAL_ARG) {
+                diagnosticErrorCode = DiagnosticErrorCode.ERROR_MISSING_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR;
+                firstArg = SyntaxErrors.addDiagnostic(firstArg, diagnosticErrorCode);
+                errorArgList.set(0, firstArg);
+            }
+        }
+
+        return STNodeFactory.createNodeList(errorArgList);
     }
 
     /**
@@ -5142,7 +5234,7 @@ public class BallerinaParser extends AbstractParser {
                 reportInvalidMetaData(metadata);
                 reportInvalidQualifierList(qualifiers);
                 STNode asterisk = consume();
-                STNode type = parseTypeReference();
+                STNode type = parseTypeReferenceInTypeInclusion();
                 STNode semicolonToken = parseSemicolon();
                 member = STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
                 break;

@@ -65,6 +65,7 @@ public enum ParserRuleContext {
     TYPE_DESCRIPTOR("type-descriptor"),
     RECORD_TYPE_DESCRIPTOR("record-type-desc"),
     TYPE_REFERENCE("type-reference"),
+    TYPE_REFERENCE_IN_TYPE_INCLUSION("type-reference-in-type-inclusion"),
     ARG_LIST("arguments"),
     ARG_START("argument-start"),
     ARG_LIST_START("("),
@@ -554,6 +555,8 @@ public enum ParserRuleContext {
     ORDER_CLAUSE_END("order-clause-end"),
     OBJECT_CONSTRUCTOR("object-constructor"),
     OBJECT_CONSTRUCTOR_TYPE_REF("object-constructor-type-ref"),
+    ERROR_CONSTRUCTOR("error-constructor"),
+    ERROR_CONSTRUCTOR_RHS("error-constructor-rhs"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),

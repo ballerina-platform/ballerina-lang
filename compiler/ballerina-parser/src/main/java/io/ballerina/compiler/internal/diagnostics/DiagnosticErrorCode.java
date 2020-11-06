@@ -226,6 +226,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_NAMED_WORKER_DECLARATION_IN_FORK_STMT("BCE0513",
             "error.missing.named.worker.declaration.in.fork.stmt"),
     ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR("BCE0514", "error.missing.key.expr.in.member.access.expr"),
+    ERROR_MISSING_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR("BCE0515", "error.missing.positional.arg.in.error.constructor"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),
@@ -292,6 +293,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_CHARACTER_IN_XML_ATTRIBUTE_VALUE("BCE0653", "error.invalid.character.in.xml.attribute.value"),
     ERROR_INVALID_ENTITY_REFERENCE_NAME_START("BCE0654", "error.invalid.entity.reference.name.start"),
     ERROR_DOUBLE_HYPHEN_NOT_ALLOWED_WITHIN_XML_COMMENT("BCE0655", "error.double.hyphen.not.allowed.within.xml.comment"),
+    ERROR_REST_ARG_IN_ERROR_CONSTRUCTOR("BCE0656", "error.rest.arg.in.error.constructor"),
+    ERROR_MORE_THAN_ONE_POSITIONAL_ARGS_IN_ERROR_CONSTRUCTOR("BCE0657",
+            "error.more.than.one.positional.args.in.error.constructor"),
     ;
 
     String diagnosticId;

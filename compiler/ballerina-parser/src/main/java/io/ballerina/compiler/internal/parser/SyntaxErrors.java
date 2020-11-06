@@ -121,7 +121,7 @@ public class SyntaxErrors {
             case ARRAY_TYPE_DESCRIPTOR:
                 return DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC;
             case TYPE_NAME:
-            case TYPE_REFERENCE:
+            case TYPE_REFERENCE_IN_TYPE_INCLUSION:
             case FIELD_ACCESS_IDENTIFIER:
             case CLASS_NAME:
             case FUNC_NAME:
