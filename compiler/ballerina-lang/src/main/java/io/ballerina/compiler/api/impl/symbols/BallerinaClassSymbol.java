@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -106,7 +105,7 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
 
     @Override
     public List<FunctionSymbol> langLibMethods() {
-        return new ArrayList<>();
+        return this.typeDescriptor.langLibMethods();
     }
 
     @Override

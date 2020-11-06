@@ -17,12 +17,15 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.impl.LangLibrary;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -42,6 +45,7 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     private final TypeDescKind typeDescKind;
     private final ModuleID moduleID;
     private final BType bType;
+    private List<FunctionSymbol> langLibFunctions;
 
     public AbstractTypeSymbol(CompilerContext context, TypeDescKind typeDescKind, ModuleID moduleID, BType bType) {
         this.context = context;
@@ -85,15 +89,38 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
 
     @Override
     public List<FunctionSymbol> langLibMethods() {
-        return new ArrayList<>();
+        if (this.langLibFunctions == null) {
+            LangLibrary langLibrary = LangLibrary.getInstance(this.context);
+            List<FunctionSymbol> functions = langLibrary.getMethods(this.typeKind());
+            this.langLibFunctions = filterLangLibMethods(functions, this.getBType());
+        }
+
+        return this.langLibFunctions;
     }
 
     /**
      * Get the BType.
-     * 
+     *
      * @return {@link BType} associated with the type desc
      */
     protected BType getBType() {
         return bType;
+    }
+
+    // Private util methods
+    private List<FunctionSymbol> filterLangLibMethods(List<FunctionSymbol> functions, BType internalType) {
+        Types types = Types.getInstance(this.context);
+        List<FunctionSymbol> filteredFunctions = new ArrayList<>();
+
+        for (FunctionSymbol function : functions) {
+            ParameterSymbol firstParam = function.typeDescriptor().parameters().get(0);
+            BType firstParamType = ((AbstractTypeSymbol) firstParam.typeDescriptor()).getBType();
+
+            if (types.isAssignable(internalType, firstParamType)) {
+                filteredFunctions.add(function);
+            }
+        }
+
+        return filteredFunctions;
     }
 }

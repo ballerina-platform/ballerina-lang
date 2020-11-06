@@ -18,11 +18,7 @@
 
 package io.ballerina.compiler.api.impl;
 
-import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionSymbol.FunctionSymbolBuilder;
-import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.MethodSymbol;
-import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -42,7 +38,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.BOOLEAN;
@@ -65,17 +60,19 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
  *
  * @since 2.0.0
  */
-class LangLibrary {
+public class LangLibrary {
 
     private static final CompilerContext.Key<LangLibrary> LANG_LIB_KEY = new CompilerContext.Key<>();
     private static final String LANG_VALUE = "value";
 
     private final Map<String, Map<String, BInvokableSymbol>> langLibMethods;
-    private final Map<String, List<MethodSymbol>> wrappedLangLibMethods;
+    private final Map<String, List<FunctionSymbol>> wrappedLangLibMethods;
+    private final SymbolFactory symbolFactory;
 
     private LangLibrary(CompilerContext context) {
         context.put(LANG_LIB_KEY, this);
 
+        symbolFactory = SymbolFactory.getInstance(context);
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         Map<String, BPackageSymbol> langLibs = new HashMap<>();
         wrappedLangLibMethods = new HashMap<>();
@@ -109,7 +106,7 @@ class LangLibrary {
      * @param typeDescKind A type descriptor kind
      * @return The associated list of lang library functions
      */
-    public List<MethodSymbol> getMethods(TypeDescKind typeDescKind) {
+    public List<FunctionSymbol> getMethods(TypeDescKind typeDescKind) {
         String langLibName = getAssociatedLangLibName(typeDescKind);
 
         if (wrappedLangLibMethods.containsKey(langLibName)) {
@@ -118,7 +115,7 @@ class LangLibrary {
 
         Map<String, BInvokableSymbol> methods = langLibMethods.get(langLibName);
 
-        List<MethodSymbol> wrappedMethods = new ArrayList<>();
+        List<FunctionSymbol> wrappedMethods = new ArrayList<>();
         wrappedLangLibMethods.put(langLibName, wrappedMethods);
         populateMethodList(wrappedMethods, methods);
 
@@ -132,20 +129,11 @@ class LangLibrary {
 
     // Private Methods
 
-    private void populateMethodList(List<MethodSymbol> list, Map<String, BInvokableSymbol> langLib) {
+    private void populateMethodList(List<FunctionSymbol> list, Map<String, BInvokableSymbol> langLib) {
         for (Map.Entry<String, BInvokableSymbol> entry : langLib.entrySet()) {
-            MethodSymbol method = createMethodSymbol(entry.getValue());
+            FunctionSymbol method = symbolFactory.createFunctionSymbol(entry.getValue(), entry.getKey());
             list.add(method);
         }
-    }
-
-    private MethodSymbol createMethodSymbol(BInvokableSymbol internalSymbol) {
-        Set<Qualifier> qualifiers = Qualifiers.getMethodQualifiers(internalSymbol.flags);
-        FunctionSymbolBuilder funcBuilder = new FunctionSymbolBuilder(internalSymbol.name.value, internalSymbol.pkgID,
-                                                                      internalSymbol);
-
-        FunctionSymbol funcSymbol = funcBuilder.withQualifiers(qualifiers).build();
-        return new BallerinaMethodSymbol(funcSymbol);
     }
 
     private String getAssociatedLangLibName(TypeDescKind typeDescKind) {
