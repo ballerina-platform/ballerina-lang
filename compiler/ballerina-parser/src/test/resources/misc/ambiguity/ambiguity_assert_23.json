@@ -90,12 +90,24 @@
                                       "kind": "WHITESPACE_MINUTIAE",
                                       "value": "    "
                                     }
+                                  ],
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
                                   ]
                                 }
                               ]
                             },
                             {
-                              "kind": "PIPE_TOKEN"
+                              "kind": "PIPE_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "STRING_LITERAL",
