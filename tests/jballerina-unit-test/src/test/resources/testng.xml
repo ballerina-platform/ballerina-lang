@@ -997,7 +997,7 @@
             </class>
             <class name="org.ballerinalang.test.services.ErrorReturnTest">
                 <methods>
-                    <exclude name="testErrorReturnFunction"/>
+<!--                    <exclude name="testErrorReturnFunction"/>-->
                 </methods>
             </class>
             <class name="org.ballerinalang.test.statements.variabledef.ForwardReferencingGlobalDefinitionTest">
