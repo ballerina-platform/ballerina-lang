@@ -4226,6 +4226,17 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "RequiredExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "REQUIRED_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "questionMarkToken",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }

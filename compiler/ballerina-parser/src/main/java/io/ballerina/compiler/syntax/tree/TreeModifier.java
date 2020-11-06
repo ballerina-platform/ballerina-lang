@@ -3144,6 +3144,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 closeBrace);
     }
 
+    @Override
+    public RequiredExpressionNode transform(
+            RequiredExpressionNode requiredExpressionNode) {
+        Token questionMarkToken =
+                modifyToken(requiredExpressionNode.questionMarkToken());
+        return requiredExpressionNode.modify(
+                questionMarkToken);
+    }
+
     // Tokens
 
     @Override

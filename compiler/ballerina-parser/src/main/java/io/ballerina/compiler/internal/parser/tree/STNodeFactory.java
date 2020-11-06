@@ -2317,5 +2317,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 members,
                 closeBrace);
     }
+
+    public static STNode createRequiredExpressionNode(
+            STNode questionMarkToken) {
+
+        return new STRequiredExpressionNode(
+                questionMarkToken);
+    }
 }
 
