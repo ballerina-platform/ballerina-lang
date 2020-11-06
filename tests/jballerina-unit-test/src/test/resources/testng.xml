@@ -252,7 +252,6 @@
                     <exclude name="testAnonStructAsStructField"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.object.ObjectTypeReferenceTest"/>
             <class name="org.ballerinalang.test.balo.object.RemoteObjectBaloTest">
                 <methods>
                     <exclude name="testRemoteObject"/>
@@ -776,7 +775,6 @@
                     <exclude name="testListenerObjectDefinedInDifferentPackage"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.object.ObjectEquivalencyTest"/>
             <class name="org.ballerinalang.test.types.constant.ConstantAssignmentTest">
                 <methods>
                     <exclude name="testConstantAssignmentExpression"/>
@@ -1037,16 +1035,6 @@
                     <exclude name="flushReturnNilTest"/>
                     <exclude name="panicBeforeFlush"/>
                     <exclude name="simpleFlushTest"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.object.ObjectWithPrivateFieldsNegativeTest">
-                <methods>
-                    <exclude name="testPrivateFieldAccess"/>
-                    <exclude name="testPrivateObjAccess1"/>
-                    <exclude name="testPrivateObjAccess1SemanticsNegative"/>
-                    <exclude name="testPrivateObjAccess2"/>
-                    <exclude name="testPrivateObjAccess2SemanticsNegative"/>
-                    <exclude name="testRuntimeObjEqNegative"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.worker.WorkerInActionTest">

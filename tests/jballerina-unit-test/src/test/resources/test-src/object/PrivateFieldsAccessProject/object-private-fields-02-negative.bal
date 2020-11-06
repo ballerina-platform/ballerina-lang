@@ -1,4 +1,4 @@
-import testorg/objectpkg.org_foo as foo;
+import test/pkg.org_foo as foo;
 
 public function testPrivateFieldAccess() {
     foo:person p = foo:newPerson();

@@ -1,4 +1,4 @@
-import testorg/objectpkg.org_foo as foo;
+import pkg.org_foo as foo;
 
 public class userA {
     public int age = 0;
@@ -22,4 +22,7 @@ public function testRuntimeObjEqNegative() returns (string|error) {
     // This is a unsafe cast
     userB uB = check trap <userB> a;
     return uB.zipcode;
+}
+
+public function main() {
 }
