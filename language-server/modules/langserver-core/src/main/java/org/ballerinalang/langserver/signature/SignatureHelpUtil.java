@@ -489,7 +489,7 @@ public class SignatureHelpUtil {
             return Optional.empty();
         }
 
-        List<MethodSymbol> visibleMethods = fieldTypeDesc.get().builtinMethods();
+        List<MethodSymbol> visibleMethods = fieldTypeDesc.get().langLibMethods();
         if (CommonUtil.getRawType(fieldTypeDesc.get()).typeKind() == TypeDescKind.OBJECT) {
             visibleMethods.addAll(((ObjectTypeSymbol) CommonUtil.getRawType(fieldTypeDesc.get())).methods());
         }
@@ -510,7 +510,7 @@ public class SignatureHelpUtil {
             ObjectTypeSymbol objTypeDesc = (ObjectTypeSymbol) CommonUtil.getRawType(typeDescriptor);
             functionSymbols.addAll(objTypeDesc.methods());
         }
-        functionSymbols.addAll(typeDescriptor.builtinMethods());
+        functionSymbols.addAll(typeDescriptor.langLibMethods());
 
         return functionSymbols;
     }

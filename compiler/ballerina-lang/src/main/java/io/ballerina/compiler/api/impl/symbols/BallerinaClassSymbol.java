@@ -20,6 +20,7 @@ package io.ballerina.compiler.api.impl.symbols;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
@@ -104,7 +105,7 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     }
 
     @Override
-    public List<MethodSymbol> builtinMethods() {
+    public List<FunctionSymbol> langLibMethods() {
         return new ArrayList<>();
     }
 

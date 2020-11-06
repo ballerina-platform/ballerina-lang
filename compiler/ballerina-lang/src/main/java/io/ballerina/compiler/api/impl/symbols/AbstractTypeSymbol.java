@@ -18,7 +18,7 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.Documentation;
-import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -84,7 +84,7 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     }
 
     @Override
-    public List<MethodSymbol> builtinMethods() {
+    public List<FunctionSymbol> langLibMethods() {
         return new ArrayList<>();
     }
 

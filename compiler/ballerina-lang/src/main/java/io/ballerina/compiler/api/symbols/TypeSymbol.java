@@ -49,9 +49,9 @@ public interface TypeSymbol extends Symbol {
     String signature();
 
     /**
-     * List of members that are visible to a value of this type.
-     * 
-     * @return {@link List} of visible member symbols
+     * List of lang library functions that can be called using a method call expression.
+     *
+     * @return {@link List} of lang library functions of the type
      */
-    List<MethodSymbol> builtinMethods();
+    List<FunctionSymbol> langLibMethods();
 }

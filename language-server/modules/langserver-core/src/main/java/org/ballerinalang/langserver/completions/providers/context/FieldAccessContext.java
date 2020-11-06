@@ -197,7 +197,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
             return Optional.empty();
         }
         TypeSymbol rawType = CommonUtil.getRawType(fieldTypeDesc.get());
-        List<MethodSymbol> visibleMethods = rawType.builtinMethods();
+        List<MethodSymbol> visibleMethods = rawType.langLibMethods();
         if (rawType.typeKind() == TypeDescKind.OBJECT) {
             visibleMethods.addAll(((ObjectTypeSymbol) rawType).methods());
         }
@@ -250,7 +250,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
             default:
                 break;
         }
-        completionItems.addAll(this.getCompletionItemList(typeDescriptor.builtinMethods(), context));
+        completionItems.addAll(this.getCompletionItemList(typeDescriptor.langLibMethods(), context));
 
         return completionItems;
     }
