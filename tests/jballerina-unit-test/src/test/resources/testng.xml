@@ -764,11 +764,11 @@
                     <exclude name="testStringConstKeyReferenceInLocalVar"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.execution.LargeInitBuildTest">
-                <methods>
-                    <exclude name="testFileWithLargeInitMethod"/>
-                </methods>
-            </class>
+<!--            <class name="org.ballerinalang.test.execution.LargeInitBuildTest">-->
+<!--                <methods>-->
+<!--                    <exclude name="testFileWithLargeInitMethod"/>-->
+<!--                </methods>-->
+<!--            </class>-->
             <!-- ########################## END ############################# -->
 
         </classes>
