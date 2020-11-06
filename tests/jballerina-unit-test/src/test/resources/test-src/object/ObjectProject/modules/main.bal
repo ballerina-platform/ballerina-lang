@@ -14,10 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import abstract_objects_with_non_public_symbols as abc;
+public type Foo object {
+    int a;
 
-class Bar {
-    *abc:Foo;
-    *abc:Bar;
-    *abc:Baz;
-}
+    function m();
+};
+
+public type Bar object {
+    public int b;
+
+    function n();
+};
+
+public type Baz object {
+    int c;
+
+    public function o();
+};

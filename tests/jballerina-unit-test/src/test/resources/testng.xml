@@ -252,11 +252,7 @@
                     <exclude name="testAnonStructAsStructField"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.object.ObjectTypeReferenceTest">
-                <methods>
-                    <exclude name="testInvalidTypeReferenceAcrossModules"/>
-                </methods>
-            </class>
+            <class name="org.ballerinalang.test.object.ObjectTypeReferenceTest"/>
             <class name="org.ballerinalang.test.balo.object.RemoteObjectBaloTest">
                 <methods>
                     <exclude name="testRemoteObject"/>
@@ -780,27 +776,7 @@
                     <exclude name="testListenerObjectDefinedInDifferentPackage"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.object.ObjectEquivalencyTest">
-                <methods>
-                    <exclude name="testEqOfPublicObjects"/>
-                    <exclude name="testEqOfPublicObjects2"/>
-                    <exclude name="testEqOfPublicObjectsInBalo"/>
-                    <exclude name="testEqOfPublicObjectsInSamePackage"/>
-                    <exclude name="testInherentTypeViolationWithNilType"/>
-                    <exclude name="testNonPublicTypedescEq"/>
-                    <exclude name="testObjectAssignabilityBetweenNonClientAndClientObject"/>
-                    <exclude name="testObjectEqualityWithDefaultConstructor"/>
-                    <exclude name="testObjectEqualityWithRecursiveTypes"/>
-                    <exclude name="testObjectEquivalenceWhenFieldsHaveModuleVisibility"/>
-                    <exclude name="testObjectEquivalenceWhenFieldsHavePublicVisibility"/>
-                    <exclude name="testObjectEquivalencyWithArguments"/>
-                    <exclude name="testObjectMemberOrder"/>
-                    <exclude name="testRuntimeEqPublicObjects"/>
-                    <exclude name="testRuntimeEqPublicObjects1"/>
-                    <exclude name="testSubtypingBetweenNonClientAndClientObject"/>
-                    <exclude name="testTupleMatchWithObjectEquivalency"/>
-                </methods>
-            </class>
+            <class name="org.ballerinalang.test.object.ObjectEquivalencyTest"/>
             <class name="org.ballerinalang.test.types.constant.ConstantAssignmentTest">
                 <methods>
                     <exclude name="testConstantAssignmentExpression"/>

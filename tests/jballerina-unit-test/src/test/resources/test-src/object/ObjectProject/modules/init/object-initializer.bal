@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import initializers as inp;
+import testorg/objectpkg.initializers as inp;
 
 public class person {
 

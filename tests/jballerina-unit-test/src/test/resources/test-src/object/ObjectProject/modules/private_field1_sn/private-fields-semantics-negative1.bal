@@ -1,4 +1,4 @@
-import org.foo.baz;
+import testorg/objectpkg.org_foo_baz_sn as baz;
 
 function textPrivateObjAccess1() {
     baz:ParentFoo ps = new(12, new("Mad"));

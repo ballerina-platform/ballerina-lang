@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import eq;
-import eq2;
-import req;
+import test/pkg.eq as eq;
+import test/pkg.eq2 as eq2;
+import test/pkg.req as req;
 
 public class person1 {
     public int age = 0;
@@ -727,14 +727,14 @@ function testSubtypingBetweenNonClientAndClientObject() {
     error e3 = <error> err3;
     error e4 = <error> err4;
 
-    assertEquality("incompatible types: 'ObjectEquivalencyTest:FakeEmail' cannot be cast to " +
-    "'ObjectEquivalencyTest:Email'", e1.detail()["message"]);
-    assertEquality("invalid value for record field 'f': expected value of type 'ObjectEquivalencyTest:Email', " +
-    "found 'ObjectEquivalencyTest:FakeEmail'", e2.detail()["message"]);
-    assertEquality("incompatible types: 'ObjectEquivalencyTest:Email' cannot be cast to " +
-    "'ObjectEquivalencyTest:FakeEmail'", e3.detail()["message"]);
-    assertEquality("invalid value for record field 'f': expected value of type 'ObjectEquivalencyTest:FakeEmail', " +
-    "found 'ObjectEquivalencyTest:Email'", e4.detail()["message"]);
+    assertEquality("incompatible types: 'pkg:FakeEmail' cannot be cast to " +
+    "'pkg:Email'", e1.detail()["message"]);
+    assertEquality("invalid value for record field 'f': expected value of type 'pkg:Email', " +
+    "found 'pkg:FakeEmail'", e2.detail()["message"]);
+    assertEquality("incompatible types: 'pkg:Email' cannot be cast to " +
+    "'pkg:FakeEmail'", e3.detail()["message"]);
+    assertEquality("invalid value for record field 'f': expected value of type 'pkg:FakeEmail', " +
+    "found 'pkg:Email'", e4.detail()["message"]);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
@@ -750,4 +750,7 @@ function assertEquality(any|error expected, any|error actual) {
 
     panic error(ASSERTION_ERROR_REASON,
                  message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}
+
+public function main() {
 }

@@ -1,4 +1,4 @@
-import org.foo.baz;
+import testorg/objectpkg.org_foo_baz as baz;
 
 function textPrivateObjAccess1() {
     baz:FooPerson fooP = baz:createObj();

@@ -1,4 +1,4 @@
-import org.foo;
+import testorg/objectpkg.org_foo as foo;
 
 public class userA {
     public int age = 0;
