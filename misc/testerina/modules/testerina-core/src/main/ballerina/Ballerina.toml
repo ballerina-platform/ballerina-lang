@@ -8,5 +8,12 @@ target = "java11"
     [[platform.libraries]]
         artifactId = "mock"
         version = "0.0.0"
-        path = "./lib/testerina-core-2.0.0-Preview6-SNAPSHOT.jar"
+        path = "<PATH>/testerina-core-2.0.0-Preview6-SNAPSHOT.jar"
         groupId = "ballerina"
+
+    [[platform.libraries]]
+        artifactId = "java-diff-utils"
+        version = "4.5.0"
+        path = "<PATH>/java-diff-utils-4.5.jar"
+        groupId = "io.github.java-diff-utils"
+
