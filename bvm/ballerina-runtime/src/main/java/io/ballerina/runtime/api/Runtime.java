@@ -21,9 +21,6 @@ import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.observability.ObservabilityConstants;
-import io.ballerina.runtime.observability.ObserveUtils;
-import io.ballerina.runtime.observability.ObserverContext;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -86,15 +83,10 @@ public class Runtime {
      */
     public void invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
                                   Callback callback, Map<String, Object> properties, Object... args) {
-        Function<Object[], Object> func = objects -> {
-            Strand strand = (Strand) objects[0];
-            if (ObserveUtils.isObservabilityEnabled() && properties != null &&
-                    properties.containsKey(ObservabilityConstants.KEY_OBSERVER_CONTEXT)) {
-                strand.observerContext =
-                        (ObserverContext) properties.remove(ObservabilityConstants.KEY_OBSERVER_CONTEXT);
-            }
-            return object.call(strand, methodName, args);
-        };
+        if (object == null) {
+            throw new NullPointerException();
+        }
+        Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
         scheduler.schedule(new Object[1], func, null, callback, properties, PredefinedTypes.TYPE_NULL, strandName,
                            metadata);
     }

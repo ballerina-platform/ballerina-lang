@@ -455,9 +455,6 @@ public class Scheduler {
     }
 
     private FutureValue createFuture(Strand parent, Callback callback, Type constraint, Strand newStrand) {
-        if (parent != null) {
-            newStrand.observerContext = parent.observerContext;
-        }
         FutureValue future = new FutureValue(newStrand, callback, constraint);
         future.strand.frames = new Object[100];
         return future;

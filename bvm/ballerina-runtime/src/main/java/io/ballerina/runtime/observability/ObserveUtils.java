@@ -18,10 +18,10 @@
 
 package io.ballerina.runtime.observability;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.observability.tracer.BSpan;
 import org.apache.commons.lang3.StringUtils;
@@ -31,12 +31,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
+import static io.ballerina.runtime.observability.ObservabilityConstants.KEY_OBSERVER_CONTEXT;
 import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ACTION;
@@ -93,19 +93,16 @@ public class ObserveUtils {
      * @param pkg The package the resource belongs to
      * @param position The source code position the resource in defined in
      */
-    public static void startResourceObservation(BString serviceName, BString resourceName, BString pkg,
+    public static void startResourceObservation(Environment env, BString serviceName, BString resourceName, BString pkg,
                                                 BString position) {
         if (!enabled) {
             return;
         }
 
-        ObserverContext observerContext;
-        Strand strand = Scheduler.getStrand();
-        if (strand.observerContext != null) {
-            observerContext = strand.observerContext;
-        } else {
+        ObserverContext observerContext = getObserverContextOfCurrentFrame(env);
+        if (observerContext == null) {
             observerContext = new ObserverContext();
-            setObserverContextToCurrentFrame(strand, observerContext);
+            setObserverContextToCurrentFrame(env, observerContext);
         }
         String service = serviceName.getValue() == null ? UNKNOWN_SERVICE : serviceName.getValue();
         observerContext.setServiceName(service);
@@ -120,22 +117,22 @@ public class ObserveUtils {
         observerContext.addTag(TAG_KEY_CONNECTOR_NAME, observerContext.getObjectName());
 
         observerContext.setStarted();
-        observers.forEach(observer -> observer.startServerObservation(strand.observerContext));
-        strand.setProperty(ObservabilityConstants.SERVICE_NAME, service);
+        ObserverContext copyOfObserverContext = observerContext;
+        observers.forEach(observer -> observer.startServerObservation(copyOfObserverContext));
+        env.setStrandLocal(ObservabilityConstants.SERVICE_NAME, service);
     }
 
     /**
      * Stop observation of an observer context.
      */
-    public static void stopObservation() {
+    public static void stopObservation(Environment env) {
         if (!enabled) {
             return;
         }
-        Strand strand = Scheduler.getStrand();
-        if (strand.observerContext == null) {
+        ObserverContext observerContext = getObserverContextOfCurrentFrame(env);
+        if (observerContext == null) {
             return;
         }
-        ObserverContext observerContext = strand.observerContext;
 
         Integer statusCode = (Integer) observerContext.getProperty(PROPERTY_KEY_HTTP_STATUS_CODE);
         if (statusCode != null && statusCode >= 100) {
@@ -147,7 +144,7 @@ public class ObserveUtils {
         } else {
             observers.forEach(observer -> observer.stopClientObservation(observerContext));
         }
-        setObserverContextToCurrentFrame(strand, observerContext.getParent());
+        setObserverContextToCurrentFrame(env, observerContext.getParent());
         observerContext.setFinished();
     }
 
@@ -156,15 +153,14 @@ public class ObserveUtils {
      *
      * @param errorValue the error value to be attached to the observer context
      */
-    public static void reportError(ErrorValue errorValue) {
+    public static void reportError(Environment env, ErrorValue errorValue) {
         if (!enabled) {
             return;
         }
-        Strand strand = Scheduler.getStrand();
-        if (strand.observerContext == null) {
+        ObserverContext observerContext = getObserverContextOfCurrentFrame(env);
+        if (observerContext == null) {
             return;
         }
-        ObserverContext observerContext = strand.observerContext;
         observers.forEach(observer -> {
             observerContext.addTag(ObservabilityConstants.TAG_KEY_ERROR, TAG_TRUE_VALUE);
             observerContext.addProperty(ObservabilityConstants.PROPERTY_BSTRUCT_ERROR, errorValue);
@@ -182,14 +178,13 @@ public class ObserveUtils {
      * @param pkg The package the resource belongs to
      * @param position The source code position the resource in defined in
      */
-    public static void startCallableObservation(boolean isRemote, boolean isMainEntryPoint, boolean isWorker,
-                                                BObject typeDef, BString functionName, BString pkg,
+    public static void startCallableObservation(Environment env, boolean isRemote, boolean isMainEntryPoint,
+                                                boolean isWorker, BObject typeDef, BString functionName, BString pkg,
                                                 BString position) {
         if (!enabled) {
             return;
         }
-        Strand strand = Scheduler.getStrand();
-        ObserverContext observerCtx = strand.observerContext;
+        ObserverContext observerCtx = getObserverContextOfCurrentFrame(env);
 
         ObserverContext newObContext = new ObserverContext();
         newObContext.setParent(observerCtx);
@@ -232,7 +227,7 @@ public class ObserveUtils {
         }
 
         newObContext.setStarted();
-        setObserverContextToCurrentFrame(strand, newObContext);
+        setObserverContextToCurrentFrame(env, newObContext);
         observers.forEach(observer -> observer.startClientObservation(newObContext));
     }
 
@@ -262,12 +257,12 @@ public class ObserveUtils {
         if (!tracingEnabled) {
             return;
         }
-        Strand strand = Scheduler.getStrand();
-        Optional<ObserverContext> observerContext = getObserverContextOfCurrentFrame(strand);
-        if (!observerContext.isPresent()) {
+        Environment balEnv = new Environment(Scheduler.getStrand());
+        ObserverContext observerContext = (ObserverContext) balEnv.getStrandLocal(KEY_OBSERVER_CONTEXT);
+        if (observerContext == null) {
             return;
         }
-        BSpan span = (BSpan) observerContext.get().getProperty(KEY_SPAN);
+        BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
         if (span == null) {
             return;
         }
@@ -310,26 +305,27 @@ public class ObserveUtils {
     /**
      * Get observer context of the current frame.
      *
-     * @param strand current context
+     * @param env current env
      * @return observer context of the current frame
      */
-    public static Optional<ObserverContext> getObserverContextOfCurrentFrame(Strand strand) {
-        if (!enabled || strand.observerContext == null) {
-            return Optional.empty();
+    public static ObserverContext getObserverContextOfCurrentFrame(Environment env) {
+        if (!enabled) {
+            return null;
         }
-        return Optional.of(strand.observerContext);
+
+        return (ObserverContext) env.getStrandLocal(KEY_OBSERVER_CONTEXT);
     }
 
     /**
      * Set the observer context to the current frame.
      *
-     * @param strand current strand
+     * @param env current env
      * @param observerContext observer context to be set
      */
-    public static void setObserverContextToCurrentFrame(Strand strand, ObserverContext observerContext) {
+    public static void setObserverContextToCurrentFrame(Environment env, ObserverContext observerContext) {
         if (!enabled) {
             return;
         }
-        strand.observerContext = observerContext;
+        env.setStrandLocal(KEY_OBSERVER_CONTEXT, observerContext);
     }
 }

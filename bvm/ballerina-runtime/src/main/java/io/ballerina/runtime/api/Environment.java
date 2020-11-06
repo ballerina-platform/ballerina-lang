@@ -18,7 +18,6 @@
 package io.ballerina.runtime.api;
 
 import io.ballerina.runtime.api.async.StrandMetadata;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.State;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
@@ -32,6 +31,7 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class Environment {
+
     private Strand strand;
 
     public Environment(Strand strand) {
@@ -47,7 +47,6 @@ public class Environment {
      * @return BalFuture which will resume the current strand when completed.
      */
     public Future markAsync() {
-        Strand strand = Scheduler.getStrand();
         strand.blockedOnExtern = true;
         strand.setState(State.BLOCK_AND_YIELD);
         return new Future(this.strand);
@@ -57,11 +56,10 @@ public class Environment {
         return new Runtime(strand.scheduler);
     }
 
-
     /**
      * Gets the strand id. This will be generated on strand initialization.
      *
-     * @return  Strand id.
+     * @return Strand id.
      */
     public int getStrandId() {
         return strand.getId();
@@ -84,5 +82,25 @@ public class Environment {
      */
     public StrandMetadata getStrandMetadata() {
         return strand.getMetadata();
+    }
+
+    /**
+     * Sets given local key value pair in strand.
+     *
+     * @param key   string key
+     * @param value value to be store in the strand
+     */
+    public void setStrandLocal(String key, Object value) {
+        strand.setProperty(key, value);
+    }
+
+    /**
+     * Gets the value stored in the strand on given key.
+     *
+     * @param key key
+     * @return value stored in the strand.
+     */
+    public Object getStrandLocal(String key) {
+        return strand.getProperty(key);
     }
 }

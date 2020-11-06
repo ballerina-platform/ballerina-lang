@@ -18,11 +18,10 @@
 
 package org.ballerinalang.stdlib.auth.nativeimpl;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_AUTH_PKG_ID;
 
@@ -32,19 +31,19 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_AUTH
  */
 public class GetInvocationContext {
 
-    public static BMap<BString, Object> getInvocationContext() {
-        return getInvocationContextRecord(Scheduler.getStrand());
+    public static BMap<BString, Object> getInvocationContext(Environment env) {
+        return getInvocationContextRecord(env);
     }
 
     private static final String AUTH_INVOCATION_CONTEXT_PROPERTY = "AuthInvocationContext";
     private static final String RECORD_TYPE_INVOCATION_CONTEXT = "InvocationContext";
 
-    private static BMap<BString, Object> getInvocationContextRecord(Strand strand) {
+    private static BMap<BString, Object> getInvocationContextRecord(Environment env) {
         BMap<BString, Object> invocationContext =
-                (BMap<BString, Object>) strand.getProperty(AUTH_INVOCATION_CONTEXT_PROPERTY);
+                (BMap<BString, Object>) env.getStrandLocal(AUTH_INVOCATION_CONTEXT_PROPERTY);
         if (invocationContext == null) {
             invocationContext = ValueCreator.createRecordValue(BALLERINA_AUTH_PKG_ID, RECORD_TYPE_INVOCATION_CONTEXT);
-            strand.setProperty(AUTH_INVOCATION_CONTEXT_PROPERTY, invocationContext);
+            env.setStrandLocal(AUTH_INVOCATION_CONTEXT_PROPERTY, invocationContext);
         }
         return invocationContext;
     }
