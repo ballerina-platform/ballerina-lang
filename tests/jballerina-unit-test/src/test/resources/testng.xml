@@ -1028,36 +1028,6 @@
                     <exclude name="testMultilineDocsWithDeprecation"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtListMatchPatternTest">
-                <methods>
-                    <exclude name="testListMatchPattern1"/>
-                    <exclude name="testListMatchPattern10"/>
-                    <exclude name="testListMatchPattern11"/>
-                    <exclude name="testListMatchPattern12"/>
-                    <exclude name="testListMatchPattern13"/>
-                    <exclude name="testListMatchPattern14"/>
-                    <exclude name="testListMatchPattern15"/>
-                    <exclude name="testListMatchPattern16"/>
-                    <exclude name="testListMatchPattern17"/>
-                    <exclude name="testListMatchPattern18"/>
-                    <exclude name="testListMatchPattern19"/>
-                    <exclude name="testListMatchPattern2"/>
-                    <exclude name="testListMatchPattern3"/>
-                    <exclude name="testListMatchPattern4"/>
-                    <exclude name="testListMatchPattern5"/>
-                    <exclude name="testListMatchPattern6"/>
-                    <exclude name="testListMatchPattern7"/>
-                    <exclude name="testListMatchPattern8"/>
-                    <exclude name="testListMatchPattern9"/>
-                    <exclude name="testListMatchPatternNegative"/>
-                    <exclude name="testNegativeSemantics"/>
-                    <exclude name="testRestMatchPattern1"/>
-                    <exclude name="testRestMatchPattern2"/>
-                    <exclude name="testRestMatchPattern3"/>
-                    <exclude name="testRestMatchPattern4"/>
-                    <exclude name="testRestMatchPattern5"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.worker.WorkerTest">
                 <methods>
                     <exclude name="innerWorkerPanicTest"/>
