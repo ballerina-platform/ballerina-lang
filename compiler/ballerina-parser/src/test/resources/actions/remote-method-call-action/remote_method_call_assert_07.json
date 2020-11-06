@@ -78,7 +78,7 @@
                           "leadingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
-                              "value": "   "
+                              "value": "    "
                             }
                           ]
                         }
@@ -107,24 +107,12 @@
                                   "children": [
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "y",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "value": "y"
                                     }
                                   ]
                                 },
                                 {
-                                  "kind": "RIGHT_ARROW_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "kind": "RIGHT_ARROW_TOKEN"
                                 },
                                 {
                                   "kind": "SIMPLE_NAME_REFERENCE",

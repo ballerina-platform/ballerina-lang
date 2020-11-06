@@ -662,8 +662,8 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeInit typeInit) {
-        lookupNode(typeInit.userDefinedType);
         lookupNodes(typeInit.argsExpr);
+        setEnclosingNode(typeInit.type.tsymbol, typeInit.pos);
     }
 
     @Override

@@ -93,12 +93,6 @@
                           "hasDiagnostics": true,
                           "diagnostics": [
                             "ERROR_MISSING_WAIT_FIELD_IN_WAIT_ACTION"
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
                           ]
                         },
                         {
@@ -151,13 +145,7 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "OPEN_BRACE_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "OPEN_BRACE_TOKEN"
                         },
                         {
                           "kind": "LIST",
@@ -249,13 +237,7 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "OPEN_BRACE_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "OPEN_BRACE_TOKEN"
                         },
                         {
                           "kind": "LIST",
@@ -297,7 +279,13 @@
                                   ]
                                 },
                                 {
-                                  "kind": "COLON_TOKEN"
+                                  "kind": "COLON_TOKEN",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "QUALIFIED_NAME_REFERENCE",
@@ -311,13 +299,7 @@
                                     },
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "e",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "value": "e"
                                     }
                                   ]
                                 }
@@ -371,13 +353,7 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "OPEN_BRACE_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "OPEN_BRACE_TOKEN"
                         },
                         {
                           "kind": "LIST",
@@ -402,7 +378,13 @@
                                   ]
                                 },
                                 {
-                                  "kind": "COLON_TOKEN"
+                                  "kind": "COLON_TOKEN",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "QUALIFIED_NAME_REFERENCE",
@@ -416,13 +398,7 @@
                                     },
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "b",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "value": "b"
                                     }
                                   ]
                                 }
@@ -476,13 +452,7 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "OPEN_BRACE_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "OPEN_BRACE_TOKEN"
                         },
                         {
                           "kind": "LIST",
@@ -510,13 +480,7 @@
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "value": "b",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "value": "b"
                                 }
                               ]
                             }
@@ -605,12 +569,6 @@
                           "hasDiagnostics": true,
                           "diagnostics": [
                             "ERROR_MISSING_WAIT_FIELD_IN_WAIT_ACTION"
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
                           ]
                         },
                         {
@@ -687,13 +645,7 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "OPEN_BRACE_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "OPEN_BRACE_TOKEN"
                         },
                         {
                           "kind": "LIST",
@@ -809,13 +761,7 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "OPEN_BRACE_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "OPEN_BRACE_TOKEN"
                         },
                         {
                           "kind": "LIST",
@@ -857,7 +803,13 @@
                                   ]
                                 },
                                 {
-                                  "kind": "COLON_TOKEN"
+                                  "kind": "COLON_TOKEN",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "QUALIFIED_NAME_REFERENCE",
@@ -871,13 +823,7 @@
                                     },
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "e",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "value": "e"
                                     }
                                   ]
                                 }
@@ -955,13 +901,7 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "OPEN_BRACE_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "OPEN_BRACE_TOKEN"
                         },
                         {
                           "kind": "LIST",
@@ -986,7 +926,13 @@
                                   ]
                                 },
                                 {
-                                  "kind": "COLON_TOKEN"
+                                  "kind": "COLON_TOKEN",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "QUALIFIED_NAME_REFERENCE",
@@ -1000,13 +946,7 @@
                                     },
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "b",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "value": "b"
                                     }
                                   ]
                                 }
@@ -1084,13 +1024,7 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "OPEN_BRACE_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "OPEN_BRACE_TOKEN"
                         },
                         {
                           "kind": "LIST",
@@ -1118,13 +1052,7 @@
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "value": "b",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "value": "b"
                                 }
                               ]
                             }
