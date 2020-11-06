@@ -1229,12 +1229,6 @@
                     <exclude name="testRestFieldTypeDefAfterRecordDef"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.expressions.invocations.PackageInitInvocationTest">
-                <methods>
-                    <exclude name="invokeFunctionWithParams"/>
-                    <exclude name="testGetValueFromPackageLevelAsyncInvocation"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.globalvar.GlobalVarFunctionInBaloTest">
                 <methods>
                     <exclude name="testAccessGlobalVarWithinFunctions"/>
