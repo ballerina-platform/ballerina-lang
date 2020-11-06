@@ -238,11 +238,11 @@ public class BTestRunner {
      *
      */
     private void execute(TestSuite suite) {
-        // Check if there are tests in the test suite
-        if (suite.getTests().size() == 0) {
-            outStream.println("\tNo tests found\n");
-            return;
-        }
+//        // Check if there are tests in the test suite
+//        if (suite.getTests().size() == 0) {
+//            outStream.println("\tNo tests found\n");
+//            return;
+//        }
         AtomicBoolean shouldSkip = new AtomicBoolean();
         AtomicBoolean shouldSkipAfterSuite = new AtomicBoolean();
         AtomicBoolean shouldSkipAfterGroups = new AtomicBoolean();
@@ -273,10 +273,10 @@ public class BTestRunner {
             } catch (Throwable e) {
                 throw new BallerinaException("failed to load Test init class :" + testClassName);
             }
-            outStream.println("\t" + packageName);
+//            outStream.println("\t" + packageName);
         } else {
             // If there is a source file name print it and then execute the tests
-            outStream.println("\t" + suite.getSourceFileName());
+//            outStream.println("\t" + suite.getSourceFileName());
         }
         shouldSkip.set(false);
         shouldSkipAfterSuite.set(false);
@@ -758,7 +758,7 @@ public class BTestRunner {
             writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
             errorMsg = "Could not write to Rerun Test json. Rerunning tests will not work";
-            errStream.println(errorMsg);
+            errStream.println(errorMsg + ":" + e.getMessage());
         }
 
     }

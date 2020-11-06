@@ -79,5 +79,5 @@ public class ProjectConstants {
     public static final String REPO_JAR_CACHE_NAME = "jar";
     public static final String REPO_BIR_CACHE_NAME = "bir";
 
-    public static final String TEST_SUITE = "test_suite.json";
+    public static final String TEST_SUITE = "test_suit.json";
 }

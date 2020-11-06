@@ -203,6 +203,8 @@ dependencies {
     distributionBalo project(path: ':ballerina-lang:typedesc', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:value', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:xml', configuration: 'distributionBalo')
+
+    distributionBalo project(path: ':testerina:testerina-core', configuration: 'distributionBalo')
 }
 
 
