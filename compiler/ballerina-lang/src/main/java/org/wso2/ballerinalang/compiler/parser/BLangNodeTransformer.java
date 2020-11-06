@@ -4028,7 +4028,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private BLangVariable createSimpleVariable(Location location,
-                                               String identifier,
+                                               Token identifier,
                                                Location identifierPos) {
         BLangSimpleVariable memberVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         memberVar.pos = location;
@@ -4130,7 +4130,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         Location pos = getPosition(bindingPattern);
-        return createSimpleVariable(pos, varName.text(), getPosition(varName));
+        return createSimpleVariable(pos, varName, getPosition(varName));
     }
 
     BLangValueType addValueType(Location pos, TypeKind typeKind) {
