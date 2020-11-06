@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -427,6 +428,11 @@ public class TupleValueImpl extends AbstractArrayValue {
 
     @Override
     public BArray slice(long startIndex, long endIndex) {
+        return null;
+    }
+
+    @Override
+    public BArray checkAndSetReadonly(ArrayType type) {
         return null;
     }
 

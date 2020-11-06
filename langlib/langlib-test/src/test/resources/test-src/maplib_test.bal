@@ -242,6 +242,10 @@ function testRecordWithSameTypeFieldsToArray() {
 
 // Util functions
 
+function assertTrue(boolean actual) {
+    assert(true, actual);
+}
+
 function assert(anydata expected, anydata actual) {
     if (expected == actual) {
         return;
@@ -297,4 +301,17 @@ function testAsyncFpArgsWithMaps() returns [int, map<int>] {
 
 function getRandomNumber(int i) returns int {
     return i + 2;
+}
+
+function testReadOnlyMapFilter() {
+    map<int> & readonly marks = {
+        science: 75,
+        maths: 45,
+        english: 85
+    };
+    map<int> passed = marks.filter(val => val > 50);
+    assert(passed.length(), 2);
+    passed.forEach(function(int value) {
+        assertTrue(value > 50);
+    });
 }

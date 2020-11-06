@@ -188,6 +188,14 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     @Override
+    public Object checkAndSetReadonly(BTableType tableType) {
+        if (tableType.isReadOnly()) {
+            this.type = TypeCreator.createTableType(tableType.getConstrainedType(), tableType.getFieldNames(), true);
+        }
+        return this;
+    }
+
+    @Override
     public V put(K key, V value) {
         handleFrozenTableValue();
         return valueHolder.putData(key, value);

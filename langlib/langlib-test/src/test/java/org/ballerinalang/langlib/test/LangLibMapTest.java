@@ -226,4 +226,9 @@ public class LangLibMapTest {
                 {new BString("invalid"), false}
         };
     }
+
+    @Test
+    public void testReadOnlyMapFilter() {
+        BRunUtil.invoke(compileResult, "testReadOnlyMapFilter");
+    }
 }

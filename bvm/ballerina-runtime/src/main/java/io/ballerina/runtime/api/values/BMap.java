@@ -195,4 +195,10 @@ public interface BMap<K, V> extends BRefValue, BCollection {
     BTypedesc getTypedesc();
 
     void populateInitialValue(K key, V value);
+
+    /**
+     * Check and and set the map type as readonly.
+     * @param mapType original map type
+     */
+    BMap<K, V> checkAndSetReadonly(Type mapType);
 }

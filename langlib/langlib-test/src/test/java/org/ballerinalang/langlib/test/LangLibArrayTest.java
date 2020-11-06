@@ -551,4 +551,9 @@ public class LangLibArrayTest {
     public void testSort10() {
         BRunUtil.invoke(compileResult, "testSort10");
     }
+
+    @Test
+    public void testReadOnlyArrayFilter() {
+        BRunUtil.invoke(compileResult, "testReadOnlyArrayFilter");
+    }
 }
