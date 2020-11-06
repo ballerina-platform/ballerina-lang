@@ -41,11 +41,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStringSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -113,7 +115,12 @@ public class TypesFactory {
                 if (bType instanceof BIntSubType) {
                     return new BallerinaSimpleTypeSymbol(this.context, moduleID, bType.name.getValue(), bType);
                 }
-                return new BallerinaSimpleTypeSymbol(this.context, moduleID, bType);
+                return createSimpleTypedesc(moduleID, bType);
+            case STRING:
+                if (bType instanceof BStringSubType) {
+                    return new BallerinaSimpleTypeSymbol(this.context, moduleID, bType.name.getValue(), bType);
+                }
+                return createSimpleTypedesc(moduleID, bType);
             case ANY:
                 return new BallerinaAnyTypeSymbol(this.context, moduleID, (BAnyType) bType);
             case ANYDATA:
@@ -172,6 +179,10 @@ public class TypesFactory {
         }
     }
 
+    private BallerinaSimpleTypeSymbol createSimpleTypedesc(ModuleID moduleID, BType internalType) {
+        return new BallerinaSimpleTypeSymbol(this.context, moduleID, internalType);
+    }
+
     private static boolean isTypeReference(BType bType, boolean rawTypeOnly) {
         if (rawTypeOnly || bType.tsymbol == null) {
             return false;
@@ -182,7 +193,8 @@ public class TypesFactory {
         }
 
         final TypeKind kind = bType.getKind();
-        return kind == RECORD || kind == OBJECT || bType.tsymbol.isLabel || bType instanceof BIntSubType;
+        return kind == RECORD || kind == OBJECT || bType.tsymbol.isLabel
+                || bType instanceof BIntSubType || bType instanceof BStringSubType;
     }
 
     public static TypeDescKind getTypeDescKind(TypeKind bTypeKind) {
