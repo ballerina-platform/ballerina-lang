@@ -169,9 +169,9 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
                             }
 
                             traceSpans.addAll(swappedTraceSpans);
-                            LOGGER.error("failed to publish traces to Choreo due to " + t.getMessage() +
-                                    " : Removed " + spanCount + " spans");
+                            LOGGER.error("dropped " + spanCount + " spans");
                         }
+                        LOGGER.error("failed to publish traces to Choreo due to " + t.getMessage());
                     }
                 }
             }
