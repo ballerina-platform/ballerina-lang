@@ -32,9 +32,20 @@ function testAssertStringEquals() {
 // Compares values of the type `json`.
 @test:Config {}
 function testAssertJsonEquals() {
-    json a = {"name": "Ballerina"};
-    json b = {"name": "Ballerina"};
+    json a = {name:"John Doe", age:25, address:{city:"Colombo", country:"Sri Lanka"}};
+    json b = {name:"John Doe", age:25, address:{city:"Colombo", country:"Sri Lanka"}};
     test:assertEquals(a, b, msg = "JSON values not equal");
+}
+
+// Compares values of the type `xml`.
+@test:Config {}
+function testAssertXmlEquals() {
+    xml x1 = xml `<book>The Lost World</book>`;
+    xml x2 = xml `Hello, world!`;
+    xml x3 = xml `<!--I am a comment-->`;
+    xml x4 = x1 + x2 + x3;
+    xml x5 = xml `<book>The Lost World</book>` + xml `Hello, world!` + xml `<!--I am a comment-->`;
+    test:assertEquals(x4, x5, msg = "XML values not equal");
 }
 
 // Compares values of the type `boolean`.
@@ -80,9 +91,19 @@ function testAssertNotEqualsString() {
 // Compares distinct values of the type `json`.
 @test:Config {}
 function testAssertNotEqualsJson() {
-    json s1 = {"a": "b"};
-    json s2 = {"a": "c"};
-    test:assertNotEquals(s1, s2, msg = "JSON values are equal");
+    json a = {name:"John Doe", age:25, address:{city:"Colombo", country:"Sri Lanka"}};
+    json b = {name:"John Doe New", age:25, address:{city:"Colombo", country:"Sri Lanka"}};
+    test:assertNotEquals(a, b, msg = "JSON values are equal");
+}
+
+// Compares distinct values of the type `xml`.
+@test:Config {}
+function testAssertNotEqualsXml() {
+    xml x1 = xml `<book>The Lost World</book>`;
+    xml x2 = xml `Hello, world!`;
+    xml x3 = x1 + x2;
+    xml x4 = xml `<book>The Lost World</book>` + xml `Hello, world!` + xml `<!--I am a comment-->`;
+    test:assertNotEquals(x3, x4, msg = "XML values are equal");
 }
 
 // Asserts `true`.
