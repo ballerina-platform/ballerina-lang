@@ -244,12 +244,12 @@
 
             <class name="org.ballerinalang.test.record.AnonymousOpenRecordTest">
                 <methods>
-<!--                    <exclude name="testAnonRecordAsRestFieldOfAnonRecord"/>-->
-<!--                    <exclude name="testAnonRecordWithRestField"/>-->
-<!--                    <exclude name="testAnonStructAsFuncParam"/>-->
-<!--                    <exclude name="testAnonStructAsLocalVar"/>-->
-<!--                    <exclude name="testAnonStructAsPkgVar"/>-->
-<!--                    <exclude name="testAnonStructAsStructField"/>-->
+                    <exclude name="testAnonRecordAsRestFieldOfAnonRecord"/>
+                    <exclude name="testAnonRecordWithRestField"/>
+                    <exclude name="testAnonStructAsFuncParam"/>
+                    <exclude name="testAnonStructAsLocalVar"/>
+                    <exclude name="testAnonStructAsPkgVar"/>
+                    <exclude name="testAnonStructAsStructField"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.object.ObjectTypeReferenceTest">
@@ -699,13 +699,13 @@
             </class>
             <class name="org.ballerinalang.test.balo.record.ClosedRecordTypeReferenceTest">
                 <methods>
-<!--                    <exclude name="testDefaultValueInit"/>-->
-<!--                    <exclude name="testDefaultValueInitInBALOs"/>-->
-<!--                    <exclude name="testOrdering"/>-->
-<!--                    <exclude name="testRefTypes"/>-->
-<!--                    <exclude name="testReferenceChains"/>-->
-<!--                    <exclude name="testTypeReferencingInBALOs"/>-->
-<!--                    <exclude name="testValRefType"/>-->
+                    <exclude name="testDefaultValueInit"/>
+                    <exclude name="testDefaultValueInitInBALOs"/>
+                    <exclude name="testOrdering"/>
+                    <exclude name="testRefTypes"/>
+                    <exclude name="testReferenceChains"/>
+                    <exclude name="testTypeReferencingInBALOs"/>
+                    <exclude name="testValRefType"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.balo.constant.SimpleConstantInBaloTest">

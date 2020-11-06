@@ -34,7 +34,7 @@ public class ListenerBaloTestExtPackage {
 
     @BeforeClass
     public void setup() {
-//        BCompileUtil.compile("test-src/balo/test_projects/test_listener", "listenerProject", "ext");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_listener");
         compileResult = BCompileUtil.compile("test-src/balo/test_balo/listener/external_packaged_listener_access.bal");
     }
 
