@@ -51,6 +51,6 @@ public class BallerinaMapTypeSymbol extends AbstractTypeSymbol implements MapTyp
     @Override
     public String signature() {
         Optional<TypeSymbol> memberTypeDescriptor = this.typeParameter();
-        return memberTypeDescriptor.map(typeDescriptor -> "map<" + typeDescriptor.signature() + ">").orElse("map<>");
+        return memberTypeDescriptor.map(typeDescriptor -> "map<" + typeDescriptor.signature() + ">").orElse("map");
     }
 }

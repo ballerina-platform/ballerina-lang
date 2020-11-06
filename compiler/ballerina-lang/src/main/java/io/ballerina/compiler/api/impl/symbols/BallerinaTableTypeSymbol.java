@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 /**
  * Represents a table type descriptor.
@@ -39,6 +40,7 @@ public class BallerinaTableTypeSymbol extends AbstractTypeSymbol implements Tabl
     private TypeSymbol rowTypeParameter;
     private TypeSymbol keyConstraintTypeParameter;
     private List<String> keySpecifiers;
+    private String signature;
 
     public BallerinaTableTypeSymbol(CompilerContext context, ModuleID moduleID, BTableType tableType) {
         super(context, TypeDescKind.TABLE, moduleID, tableType);
@@ -56,7 +58,7 @@ public class BallerinaTableTypeSymbol extends AbstractTypeSymbol implements Tabl
 
     @Override
     public Optional<TypeSymbol> keyConstraintTypeParameter() {
-        if (this.rowTypeParameter == null) {
+        if (this.keyConstraintTypeParameter == null) {
             TypesFactory typesFactory = TypesFactory.getInstance(this.context);
             this.keyConstraintTypeParameter = typesFactory.getTypeDescriptor(
                     ((BTableType) this.getBType()).keyTypeConstraint);
@@ -82,7 +84,28 @@ public class BallerinaTableTypeSymbol extends AbstractTypeSymbol implements Tabl
 
     @Override
     public String signature() {
-        // TODO: Implement the correct signature
-        return "table";
+        if (this.signature == null) {
+            StringBuilder sigBuilder = new StringBuilder("table");
+            Optional<TypeSymbol> keyConstraint = this.keyConstraintTypeParameter();
+            List<String> keySpecifiers = this.keySpecifiers();
+
+            sigBuilder.append('<').append(this.rowTypeParameter().signature()).append('>');
+
+            keyConstraint.ifPresent(t -> sigBuilder.append(" key<").append(t.signature()).append(">"));
+
+            if (!keySpecifiers.isEmpty()) {
+                StringJoiner specifiersBuilder = new StringJoiner(",", "(", ")");
+
+                for (String keySpecifier : keySpecifiers) {
+                    specifiersBuilder.add(keySpecifier);
+                }
+
+                sigBuilder.append(" key").append(specifiersBuilder.toString());
+            }
+
+            this.signature = sigBuilder.toString();
+        }
+
+        return this.signature;
     }
 }

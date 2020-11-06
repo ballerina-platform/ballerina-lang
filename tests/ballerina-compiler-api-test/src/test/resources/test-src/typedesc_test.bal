@@ -73,7 +73,7 @@ function test() {
 
     table<Person> key(name) tab = table [];
     table<Person> tab2 = table [];
-    table<Person> key<int> tab3 = table [];
+    table<Person> key<string> tab3 = table key(name) [];
 
     'int:Unsigned32 uInt32 = 1000;
     'int:Signed32 sInt32 = -1000;

@@ -316,7 +316,7 @@ public class TypedescriptorTest {
 
     @Test(dataProvider = "TablePosProvider")
     public void testTable(int line, int column, TypeDescKind rowTypeKind, String rowTypeName,
-                          List<String> keySpecifiers, TypeDescKind keyConstraintTypeKind) {
+                          List<String> keySpecifiers, TypeDescKind keyConstraintTypeKind, String signature) {
         VariableSymbol symbol = (VariableSymbol) getSymbol(line, column);
         TypeSymbol type = symbol.typeDescriptor();
         assertEquals(type.typeKind(), TABLE);
@@ -326,14 +326,15 @@ public class TypedescriptorTest {
         assertEquals(tableType.rowTypeParameter().name(), rowTypeName);
         assertEquals(tableType.keySpecifiers(), keySpecifiers);
         tableType.keyConstraintTypeParameter().ifPresent(t -> assertEquals(t.typeKind(), keyConstraintTypeKind));
+        assertEquals(type.signature(), signature);
     }
 
     @DataProvider(name = "TablePosProvider")
     public Object[][] getTableTypePos() {
         return new Object[][]{
-                {73, 28, TYPE_REFERENCE, "Person", List.of("name"), null},
-                {74, 18, TYPE_REFERENCE, "Person", Collections.emptyList(), null},
-                {75, 27, TYPE_REFERENCE, "Person", Collections.emptyList(), INT}
+                {73, 28, TYPE_REFERENCE, "Person", List.of("name"), null, "table<Person> key(name)"},
+                {74, 18, TYPE_REFERENCE, "Person", Collections.emptyList(), null, "table<Person>"},
+                {75, 30, TYPE_REFERENCE, "Person", Collections.emptyList(), STRING, "table<Person> key<string>"}
         };
     }
 
