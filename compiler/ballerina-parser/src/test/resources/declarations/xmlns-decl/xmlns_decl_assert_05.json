@@ -31,12 +31,6 @@
                         {
                           "kind": "STRING_LITERAL_TOKEN",
                           "value": "http://ballerinalang.org/ns1",
-                          "leadingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ],
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",

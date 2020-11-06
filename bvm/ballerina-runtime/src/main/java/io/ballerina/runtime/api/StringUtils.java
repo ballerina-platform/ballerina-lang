@@ -14,6 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package io.ballerina.runtime.api;
 
 import io.ballerina.runtime.BalStringUtils;
@@ -23,7 +24,9 @@ import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
 import io.ballerina.runtime.values.AbstractObjectValue;
@@ -57,6 +60,7 @@ import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModu
 public class StringUtils {
 
     private static final String STR_CYCLE = "...";
+    public static final String TO_STRING = "toString";
 
     /**
      * Convert input stream to String.
@@ -198,23 +202,18 @@ public class StringUtils {
         }
 
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            AbstractObjectValue objectValue = (AbstractObjectValue) value;
+            BObject objectValue = (BObject) value;
             ObjectType objectType = objectValue.getType();
             for (AttachedFunctionType func : objectType.getAttachedFunctions()) {
-                if (func.getName().equals("toString") && func.getParameterTypes().length == 0 &&
+                if (func.getName().equals(TO_STRING) && func.getParameterTypes().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
-                    return objectValue.call(Scheduler.getStrand(), "toString").toString();
+                    return objectValue.call(Scheduler.getStrand(), TO_STRING).toString();
                 }
             }
         }
 
-        if (type.getTag() == TypeTags.ERROR_TAG) {
-            RefValue errorValue = (RefValue) value;
-            return errorValue.stringValue(parent);
-        }
-
-        RefValue refValue = (RefValue) value;
-        return refValue.stringValue(parent);
+        BValue bValue = (BValue) value;
+        return bValue.stringValue(parent);
     }
 
     /**
@@ -243,10 +242,10 @@ public class StringUtils {
 
         if (type.getTag() == TypeTags.FLOAT_TAG) {
             if (Double.isNaN((Double) value)) {
-                return "float:" + Double.toString((Double) value);
+                return "float:" + value;
             }
             if (Double.isInfinite((Double) value)) {
-                return "float:" + Double.toString((Double) value);
+                return "float:" + value;
             }
         }
 
@@ -278,9 +277,9 @@ public class StringUtils {
             AbstractObjectValue objectValue = (AbstractObjectValue) value;
             ObjectType objectType = objectValue.getType();
             for (AttachedFunctionType func : objectType.getAttachedFunctions()) {
-                if (func.getName().equals("toString") && func.getParameterTypes().length == 0 &&
+                if (func.getName().equals(TO_STRING) && func.getParameterTypes().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
-                    return "object " + objectValue.call(Scheduler.getStrand(), "toString").toString();
+                    return "object " + objectValue.call(Scheduler.getStrand(), TO_STRING).toString();
                 }
             }
         }
