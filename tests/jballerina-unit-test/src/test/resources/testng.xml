@@ -300,20 +300,20 @@
             </class>
             <class name="org.ballerinalang.test.javainterop.basic.InstanceMethodTest">
                 <methods>
-                    <exclude name="handleOrErrorReturn"/>
-                    <exclude name="handleOrErrorWithObjectReturn"/>
-                    <exclude name="testAcceptNothingAndReturnNothing"/>
-                    <exclude name="testAcceptNothingButReturnSomething"/>
-                    <exclude name="testAcceptSomethingAndReturnSomething"/>
-                    <exclude name="testAcceptSomethingButReturnNothing"/>
-                    <exclude name="testAcceptTwoParamsAndReturnSomething"/>
-                    <exclude name="testErrorDetail"/>
-                    <exclude name="testInstanceResolve"/>
-                    <exclude name="testInteropFunctionWithDifferentName"/>
-                    <exclude name="testPrimitiveOrErrorReturn"/>
-                    <exclude name="testUncheckedErrorDetail"/>
-                    <exclude name="testUnionWithErrorReturn"/>
-                    <exclude name="testVoidWithThrows"/>
+<!--                    <exclude name="handleOrErrorReturn"/>-->
+<!--                    <exclude name="handleOrErrorWithObjectReturn"/>-->
+<!--                    <exclude name="testAcceptNothingAndReturnNothing"/>-->
+<!--                    <exclude name="testAcceptNothingButReturnSomething"/>-->
+<!--                    <exclude name="testAcceptSomethingAndReturnSomething"/>-->
+<!--                    <exclude name="testAcceptSomethingButReturnNothing"/>-->
+<!--                    <exclude name="testAcceptTwoParamsAndReturnSomething"/>-->
+<!--                    <exclude name="testErrorDetail"/>-->
+<!--                    <exclude name="testInstanceResolve"/>-->
+<!--                    <exclude name="testInteropFunctionWithDifferentName"/>-->
+<!--                    <exclude name="testPrimitiveOrErrorReturn"/>-->
+<!--                    <exclude name="testUncheckedErrorDetail"/>-->
+<!--                    <exclude name="testUnionWithErrorReturn"/>-->
+<!--                    <exclude name="testVoidWithThrows"/>-->
                 </methods>
             </class>
             <class name="org.ballerinalang.test.functions.FunctionSignatureTest">
