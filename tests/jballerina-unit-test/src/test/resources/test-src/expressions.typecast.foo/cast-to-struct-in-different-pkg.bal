@@ -1,5 +1,5 @@
 
-import expressions.typecast.foo.bar;
+import test_org/typecast.foo;
 
 public type Person record {
     string name;
@@ -10,7 +10,7 @@ public type Person record {
     int[] marks = [];
 };
 
-function testCastToStructInDifferentPkg() returns (bar:Student|error) {
+function testCastToStructInDifferentPkg() returns (foo:Student|error) {
     Person p1 = { name:"aaa",
                   age:25, 
                   parent:{ name:"bbb",

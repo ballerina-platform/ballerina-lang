@@ -1506,11 +1506,11 @@
                     <exclude name="testImportsPerfile"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.expressions.typecast.TypeCastExprTest">
-                <methods>
-                    <exclude name="testCastToStructInDifferentPkg"/>
-                </methods>
-            </class>
+            <!--            <class name="org.ballerinalang.test.expressions.typecast.TypeCastExprTest">-->
+            <!--                <methods>-->
+            <!--                    <exclude name="testCastToStructInDifferentPkg"/>-->
+            <!--                </methods>-->
+            <!--            </class>-->
             <class name="org.ballerinalang.test.documentation.ErrorsTest">
                 <methods>
                     <exclude name="testErrorAsAType"/>
