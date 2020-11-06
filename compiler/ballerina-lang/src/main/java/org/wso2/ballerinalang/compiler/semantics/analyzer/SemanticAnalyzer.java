@@ -3008,8 +3008,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case CONST_MATCH_PATTERN:
                 return;
             case VAR_BINDING_PATTERN_MATCH_PATTERN:
-                assignTypesToMemberPatterns(((BLangVarBindingPatternMatchPattern) matchPattern).getBindingPattern(),
-                        patternType);
+                BLangVarBindingPatternMatchPattern varBindingPatternMatchPattern =
+                        (BLangVarBindingPatternMatchPattern) matchPattern;
+                assignTypesToMemberPatterns(varBindingPatternMatchPattern.getBindingPattern(), patternType);
+                varBindingPatternMatchPattern.type = varBindingPatternMatchPattern.getBindingPattern().type;
                 return;
             case LIST_MATCH_PATTERN:
                 BLangListMatchPattern listMatchPattern = (BLangListMatchPattern) matchPattern;
@@ -3017,6 +3019,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     for (BType type : ((BUnionType) patternType).getMemberTypes()) {
                         assignTypesToMemberPatterns(listMatchPattern, type);
                     }
+                    listMatchPattern.type = patternType;
                     return;
                 }
                 if (patternType.tag != TypeTags.TUPLE) {
@@ -3024,11 +3027,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
                 List<BType> types = ((BTupleType) patternType).tupleTypes;
                 List<BLangMatchPattern> matchPatterns = listMatchPattern.matchPatterns;
+                List<BType> memberTypes = new ArrayList<>();
                 for (int i = 0; i < matchPatterns.size(); i++) {
                     assignTypesToMemberPatterns(matchPatterns.get(i), types.get(i));
+                    memberTypes.add(matchPatterns.get(i).type);
                 }
+                BTupleType tupleType = new BTupleType(memberTypes);
 
                 if (listMatchPattern.restMatchPattern == null) {
+                    listMatchPattern.type = tupleType;
                     return;
                 }
                 BType restType = ((BArrayType) listMatchPattern.restMatchPattern.type).eType;
@@ -3036,11 +3043,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     restType = this.types.mergeTypes(restType, types.get(i));
                 }
                 ((BArrayType) listMatchPattern.restMatchPattern.type).eType = restType;
+                tupleType.restType = restType;
+                listMatchPattern.type = tupleType;
         }
     }
 
     private void assignTypesToMemberPatterns(BLangBindingPattern bindingPattern, BType bindingPatternType) {
-
         NodeKind patternKind = bindingPattern.getKind();
         switch (patternKind) {
             case WILDCARD_BINDING_PATTERN:
@@ -3060,6 +3068,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     for (BType type : ((BUnionType) bindingPatternType).getMemberTypes()) {
                         assignTypesToMemberPatterns(bindingPattern, type);
                     }
+                    listBindingPattern.type = bindingPatternType;
                     return;
                 }
                 if (bindingPatternType.tag != TypeTags.TUPLE) {
@@ -3067,11 +3076,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
                 List<BType> types = ((BTupleType) bindingPatternType).getTupleTypes();
                 List<BLangBindingPattern> bindingPatterns = listBindingPattern.bindingPatterns;
+                List<BType> memberTypes = new ArrayList<>();
                 for (int i = 0; i < bindingPatterns.size(); i++) {
                     assignTypesToMemberPatterns(bindingPatterns.get(i), types.get(i));
+                    memberTypes.add(bindingPatterns.get(i).type);
                 }
+                BTupleType tupleType = new BTupleType(memberTypes);
 
                 if (listBindingPattern.restBindingPattern == null) {
+                    bindingPattern.type = tupleType;
                     return;
                 }
                 BType restType = ((BArrayType) listBindingPattern.restBindingPattern.type).eType;
@@ -3079,6 +3092,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     restType = this.types.mergeTypes(restType, types.get(i));
                 }
                 ((BArrayType) listBindingPattern.restBindingPattern.type).eType = restType;
+                tupleType.restType = restType;
+                bindingPattern.type = tupleType;
         }
     }
 

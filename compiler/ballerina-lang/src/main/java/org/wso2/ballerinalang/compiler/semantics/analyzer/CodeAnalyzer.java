@@ -1310,8 +1310,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 if (varBindingPattern.matchExpr == null) {
                     return;
                 }
-                this.hasLastPatternInClause = types.isSameType(varBindingPattern.type,
-                        varBindingPattern.matchExpr.type);
+                this.hasLastPatternInClause = types.isSameType(varBindingPattern.matchExpr.type,
+                        varBindingPattern.type) || types.isAssignable(varBindingPattern.matchExpr.type,
+                        varBindingPattern.type);
         }
     }
 

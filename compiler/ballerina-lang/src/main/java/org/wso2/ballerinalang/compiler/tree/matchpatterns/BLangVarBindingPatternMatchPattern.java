@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
  * @since 2.0.0
  */
 public class BLangVarBindingPatternMatchPattern extends BLangMatchPattern implements VarBindingPatternMatchPatternNode {
-
     BLangBindingPattern bindingPattern;
     public boolean matchesAll;
 
