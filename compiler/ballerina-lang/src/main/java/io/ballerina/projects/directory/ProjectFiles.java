@@ -101,6 +101,15 @@ public class ProjectFiles {
             return pathStream
                     .filter(path -> !path.equals(modulesDirPath))
                     .filter(Files::isDirectory)
+                    .filter(path -> {
+                        // validate moduleName
+                        if (!ProjectUtils.validateModuleName(path.toFile().getName())) {
+                            throw new RuntimeException("Invalid module name : '" + path.getFileName() + "' :\n" +
+                                    "Module name can only contain alphanumerics, underscores and periods " +
+                                    "and the maximum length is 256 characters");
+                        }
+                        return true;
+                    })
                     .map(ProjectFiles::loadModule)
                     .collect(Collectors.toList());
         } catch (IOException e) {
@@ -109,12 +118,6 @@ public class ProjectFiles {
     }
 
     private static ModuleData loadModule(Path moduleDirPath) {
-        // validate moduleName
-        if (!ProjectUtils.validateModuleName(moduleDirPath.toFile().getName())) {
-            throw new RuntimeException("Invalid module name : '" + moduleDirPath.getFileName() + "' :\n" +
-                    "Module name can only contain alphanumerics, underscores and periods " +
-                    "and the maximum length is 256 characters");
-        }
         List<DocumentData> srcDocs = loadDocuments(moduleDirPath);
         List<DocumentData> testSrcDocs;
         Path testDirPath = moduleDirPath.resolve("tests");
