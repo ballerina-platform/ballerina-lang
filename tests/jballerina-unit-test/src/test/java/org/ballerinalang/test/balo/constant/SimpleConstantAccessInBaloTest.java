@@ -41,7 +41,7 @@ public class SimpleConstantAccessInBaloTest {
 
     @BeforeClass
     public void setup() {
-//        BCompileUtil.compile("test-src/balo/test_projects/test_project", "testorg", "foo");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project/testorg");
         compileResult = BCompileUtil.compile("test-src/balo/test_balo/constant/constant-access.bal");
     }
 
