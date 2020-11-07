@@ -1410,30 +1410,6 @@
                     <exclude name="testDocNativeFunction"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.functions.FunctionSignatureInBaloTest">
-                <methods>
-                    <exclude name="defaultValueForObjectFunctionParam"/>
-                    <exclude name="defaultValueForObjectOuterFunctionParam"/>
-                    <exclude name="funcInvocAsRestArgs"/>
-                    <exclude name="testAttachedFunction"/>
-                    <exclude name="testFuncWithNilDefaultParamExpr"/>
-                    <exclude name="testFuncWithUnionTypedDefaultParam"/>
-                    <exclude name="testInvocationWithArgVarargMix"/>
-                    <exclude name="testInvokeFuncWithAnyRestParam1"/>
-                    <exclude name="testInvokeFuncWithOnlyNamedParams1"/>
-                    <exclude name="testInvokeFuncWithOnlyNamedParams2"/>
-                    <exclude name="testInvokeFuncWithOnlyNamedParams3"/>
-                    <exclude name="testInvokeFuncWithOnlyRestParam1"/>
-                    <exclude name="testInvokeFuncWithOnlyRestParam2"/>
-                    <exclude name="testInvokeFuncWithOnlyRestParam3"/>
-                    <exclude name="testInvokeFuncWithoutRestParams"/>
-                    <exclude name="testInvokeFunctionInOrder1"/>
-                    <exclude name="testInvokeFunctionInOrder2"/>
-                    <exclude name="testInvokeFunctionWithRequiredArgsOnly"/>
-                    <exclude name="testInvokeFunctionWithoutRestArgs"/>
-                    <exclude name="testInvokeFunctionWithoutSomeNamedArgs"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.worker.NotSoBasicWorkerTest">
                 <methods>
                     <exclude name="chainedWorkerSendReceive"/>
