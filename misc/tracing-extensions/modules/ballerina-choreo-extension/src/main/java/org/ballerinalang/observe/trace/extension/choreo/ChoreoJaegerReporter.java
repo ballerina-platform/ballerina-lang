@@ -148,8 +148,8 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
                         choreoClient.publishTraceSpans(swappedTraceSpans);
                     } catch (Throwable t) {
                         synchronized (this) {
-                            int spanCount = 0;
                             if (swappedTraceSpans.size() > SPAN_LIST_BOUND) {
+                                int spanCount = 0;
                                 Random random = new Random();
                                 // Remove 10% of the SPAN_LIST_BOUND
                                 while (spanCount < SPANS_TO_REMOVE) {
@@ -166,10 +166,9 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
                                         }
                                     }
                                 }
+                                LOGGER.info("span buffer is full : " + "dropped " + spanCount + " spans");
                             }
-
                             traceSpans.addAll(swappedTraceSpans);
-                            LOGGER.error("dropped " + spanCount + " spans");
                         }
                         LOGGER.error("failed to publish traces to Choreo due to " + t.getMessage());
                     }
