@@ -422,6 +422,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangNode typeDescriptor : this.errorIntersectionTypes) {
             BLangTypeDefinition typeDefinition = (BLangTypeDefinition) typeDescriptor;
 
+            boolean isDistinctType = isDistinctFlagPresent(typeDefinition);
+            boolean isPublicType = typeDefinition.flagSet.contains(Flag.PUBLIC);
+            Set<BTypeIdSet.BTypeId> secondaryTypeIds = new HashSet<>();
+
             BLangIntersectionTypeNode intersectionTypeNode = (BLangIntersectionTypeNode) typeDefinition.typeNode;
             List<BLangType> constituentTypes = intersectionTypeNode.constituentTypeNodes;
 
@@ -439,17 +443,29 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            BType potentialIntersectionType = types.getTypeIntersection(typeOne, typeTwo);
-            boolean isValidIntersection = true;
+            // Collecting typeIds.
+            if (typeOne.tag != TypeTags.READONLY) {
+                populateSecondaryTypeIdSet(secondaryTypeIds, (BErrorType) typeOne);
+            }
+            if (typeTwo.tag != TypeTags.READONLY) {
+                populateSecondaryTypeIdSet(secondaryTypeIds, (BErrorType) typeTwo);
+            }
 
+            BType potentialIntersectionType = types.getTypeIntersection(typeOne, typeTwo);
+
+            boolean isValidIntersection = true;
             for (int i = 2; i < constituentTypes.size(); i++) {
                 BLangType bLangType = constituentTypes.get(i);
                 BType bType = symResolver.resolveTypeNode(bLangType, env);
 
-                if (bType.getKind() != TypeKind.ERROR || bType == symTable.noType) {
+                if (bType.getKind() != TypeKind.ERROR && typeTwo.tag != TypeTags.READONLY) {
                     // TODO: Log error for invalid intersection
                     isValidIntersection = false;
                     break;
+                }
+
+                if (bType.tag != TypeTags.READONLY) {
+                    populateSecondaryTypeIdSet(secondaryTypeIds, (BErrorType) bType);
                 }
 
                 potentialIntersectionType = types.getTypeIntersection(potentialIntersectionType, bType);
@@ -464,6 +480,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
+            if (isDistinctType) {
+                ((BErrorType) potentialIntersectionType).typeIdSet = BTypeIdSet.from(
+                        potentialIntersectionType.tsymbol.pkgID, typeDefinition.name.value, isPublicType,
+                        secondaryTypeIds);
+            }
+
             LinkedHashSet<BType> constituentBTypes = new LinkedHashSet<>() {{
                 add(typeOne);
                 add(typeTwo);
@@ -473,6 +495,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             typeDefinition.symbol = intersectionType.tsymbol;
             typeDefinition.typeNode.type = intersectionType;
         }
+    }
+
+    private void populateSecondaryTypeIdSet(Set<BTypeIdSet.BTypeId> secondaryTypeIds, BErrorType typeOne) {
+        secondaryTypeIds.addAll(typeOne.typeIdSet.primary);
+        secondaryTypeIds.addAll(typeOne.typeIdSet.secondary);
     }
 
     private BIntersectionType definePotentialIntersectionType(BErrorType potentialIntersectionType,
