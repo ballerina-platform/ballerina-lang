@@ -131,7 +131,14 @@ task copyInteropImports(type: Copy) {
     from configurations.interopImports
 }
 
-project.ext.moduleName = project.projectDir.name.replaceAll("-.*\$","")
+ext {
+    if (project.projectDir.name != "testerina-core") {
+        moduleName = project.projectDir.name.replaceAll("-.*\$","")
+    } else {
+        moduleName = "test"
+    }
+}
+
 
 task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
     projectDir = project.buildDir.toString() + "/new-project/" + project.moduleName

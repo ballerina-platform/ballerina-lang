@@ -252,11 +252,6 @@
                     <exclude name="testAnonStructAsStructField"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.object.ObjectTypeReferenceTest">
-                <methods>
-                    <exclude name="testInvalidTypeReferenceAcrossModules"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.object.RemoteObjectBaloTest">
                 <methods>
                     <exclude name="testRemoteObject"/>
@@ -638,21 +633,6 @@
                     <exclude name="testTupleConversion2"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.record.OpenRecordEquivalencyTest">
-                <methods>
-                    <exclude name="testEqOfPrivateStructsInSamePackage"/>
-                    <exclude name="testEqOfPublicStructs"/>
-                    <exclude name="testEqOfPublicStructs1"/>
-                    <exclude name="testEqOfPublicStructs2"/>
-                    <exclude name="testEqOfPublicStructsInSamePackage"/>
-                    <exclude name="testRecordEquivalence"/>
-                    <exclude name="testRuntimeEqPrivateStructsInSamePackage"/>
-                    <exclude name="testRuntimeEqPublicStructs"/>
-                    <exclude name="testRuntimeEqPublicStructs1"/>
-                    <exclude name="testRuntimeEqPublicStructsInSamePackage"/>
-                    <exclude name="testUnorderedFieldRecordsInAMatch"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.documentation.DocumentationTest">
                 <methods>
                     <exclude name="testAnnotationDoc"/>
@@ -780,34 +760,9 @@
                     <exclude name="testListenerObjectDefinedInDifferentPackage"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.object.ObjectEquivalencyTest">
-                <methods>
-                    <exclude name="testEqOfPublicObjects"/>
-                    <exclude name="testEqOfPublicObjects2"/>
-                    <exclude name="testEqOfPublicObjectsInBalo"/>
-                    <exclude name="testEqOfPublicObjectsInSamePackage"/>
-                    <exclude name="testInherentTypeViolationWithNilType"/>
-                    <exclude name="testNonPublicTypedescEq"/>
-                    <exclude name="testObjectAssignabilityBetweenNonClientAndClientObject"/>
-                    <exclude name="testObjectEqualityWithDefaultConstructor"/>
-                    <exclude name="testObjectEqualityWithRecursiveTypes"/>
-                    <exclude name="testObjectEquivalenceWhenFieldsHaveModuleVisibility"/>
-                    <exclude name="testObjectEquivalenceWhenFieldsHavePublicVisibility"/>
-                    <exclude name="testObjectEquivalencyWithArguments"/>
-                    <exclude name="testObjectMemberOrder"/>
-                    <exclude name="testRuntimeEqPublicObjects"/>
-                    <exclude name="testRuntimeEqPublicObjects1"/>
-                    <exclude name="testSubtypingBetweenNonClientAndClientObject"/>
-                    <exclude name="testTupleMatchWithObjectEquivalency"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.types.constant.ConstantAssignmentTest">
                 <methods>
                     <exclude name="testConstantAssignmentExpression"/>
-                    <exclude name="testConstantAssignmentViaConstant"/>
-                    <exclude name="testConstantAssignmentViaFunction"/>
-                    <exclude name="testConstantAssignmentViaIntegerAddition"/>
-                    <exclude name="testConstantAssignmentViaNativeFunction"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.lock.LocksInMainTest">
@@ -1063,16 +1018,6 @@
                     <exclude name="simpleFlushTest"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.object.ObjectWithPrivateFieldsNegativeTest">
-                <methods>
-                    <exclude name="testPrivateFieldAccess"/>
-                    <exclude name="testPrivateObjAccess1"/>
-                    <exclude name="testPrivateObjAccess1SemanticsNegative"/>
-                    <exclude name="testPrivateObjAccess2"/>
-                    <exclude name="testPrivateObjAccess2SemanticsNegative"/>
-                    <exclude name="testRuntimeObjEqNegative"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.worker.WorkerInActionTest">
                 <methods>
                     <exclude name="testConnectorAction1"/>
@@ -1181,11 +1126,6 @@
                     <exclude name="testFunctionParams"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.functions.InitFunctionTest">
-                <methods>
-                    <exclude name="testMainFunctionWithImportsWithUserDefinedInit"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.constant.MapConstantPanicInBaloTest">
                 <methods>
                     <exclude name="updateConstantBooleanMapValueInArrayWithExistingKey"/>
@@ -1230,47 +1170,6 @@
                     <exclude name="updateReturnedConstantStringMapWithExistingKey"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.object.ObjectInitializerTest">
-                <methods>
-                    <exclude name="testAssigningToVar"/>
-                    <exclude name="testCheckPanicInObjectInitArg"/>
-                    <exclude name="testCheckPanicObjectInit"/>
-                    <exclude name="testConstRefsAsDefaultValue"/>
-                    <exclude name="testErrorReturnWithInitialization"/>
-                    <exclude name="testErrorReturningInitializer"/>
-                    <exclude name="testFunctionPointerAsDefaultableParam1"/>
-                    <exclude name="testFunctionPointerAsDefaultableParam2"/>
-                    <exclude name="testInitActionInsideObjectDescriptor"/>
-                    <exclude name="testInitInvocationInsideObject"/>
-                    <exclude name="testInitInvocationInsideObjectWithArgs"/>
-                    <exclude name="testInitInvocationWithCheckAndRestParams1"/>
-                    <exclude name="testInitInvocationWithCheckAndRestParams2"/>
-                    <exclude name="testInitInvocationWithDefaultError"/>
-                    <exclude name="testInitInvocationWithDefaultParams1"/>
-                    <exclude name="testInitInvocationWithDefaultParams2"/>
-                    <exclude name="testInitInvocationWithFiniteType"/>
-                    <exclude name="testInitInvocationWithReferenceToDefaultValue1"/>
-                    <exclude name="testInitInvocationWithReferenceToDefaultValue2"/>
-                    <exclude name="testInitInvocationWithRestArgs"/>
-                    <exclude name="testInitializerWithRestArgs"/>
-                    <exclude name="testInvalidStructLiteralKey"/>
-                    <exclude name="testMultipleErrorReturn"/>
-                    <exclude name="testObjInitWithCheck1"/>
-                    <exclude name="testObjInitWithCheck2"/>
-                    <exclude name="testObjectInitPanic"/>
-                    <exclude name="testObjectInitializerNegatives"/>
-                    <exclude name="testReturnedValWithTypeGuard"/>
-                    <exclude name="testStructInitializerInAnotherPackage"/>
-                    <exclude name="testStructInitializerInSamePackage1"/>
-                    <exclude name="testStructInitializerOrder"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.record.RecordFieldsAccessNegativeTest">
-                <methods>
-                    <exclude name="testRecordPrivateFieldsAccess1"/>
-                    <exclude name="testRecordPrivateFieldsAccess2"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest">
                 <methods>
                     <exclude name="testCreatingRecordWithOverriddenFields"/>
@@ -1292,12 +1191,6 @@
             <class name="org.ballerinalang.test.balo.record.RecordInBaloTest">
                 <methods>
                     <exclude name="testRestFieldTypeDefAfterRecordDef"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.expressions.invocations.PackageInitInvocationTest">
-                <methods>
-                    <exclude name="invokeFunctionWithParams"/>
-                    <exclude name="testGetValueFromPackageLevelAsyncInvocation"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.balo.globalvar.GlobalVarFunctionInBaloTest">
@@ -1487,20 +1380,6 @@
                     <exclude name="testSimpleStringMapValueEqualityUsingSameReferenceInMap"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.record.ClosedRecordEquivalencyTest">
-                <methods>
-                    <exclude name="testEqOfPrivateStructsInSamePackage"/>
-                    <exclude name="testEqOfPublicStructs1"/>
-                    <exclude name="testEqOfPublicStructs2"/>
-                    <exclude name="testEqOfPublicStructsInSamePackage"/>
-                    <exclude name="testRecordEquivalence"/>
-                    <exclude name="testRuntimeEqPrivateStructsInSamePackage"/>
-                    <exclude name="testRuntimeEqPublicStructs"/>
-                    <exclude name="testRuntimeEqPublicStructs1"/>
-                    <exclude name="testRuntimeEqPublicStructsInSamePackage"/>
-                    <exclude name="testUnorderedFieldRecordsInAMatch"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.statements.packageimport.PackageImportTest">
                 <methods>
                     <exclude name="testImportsPerfile"/>
@@ -1553,45 +1432,6 @@
                     <exclude name="testInvokeFunctionWithRequiredArgsOnly"/>
                     <exclude name="testInvokeFunctionWithoutRestArgs"/>
                     <exclude name="testInvokeFunctionWithoutSomeNamedArgs"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest">
-                <methods>
-                    <exclude name="testAnyToFuncPointerConversion_1"/>
-                    <exclude name="testAnyToFuncPointerConversion_2"/>
-                    <exclude name="testAnyToFunctionPointer"/>
-                    <exclude name="testClassTypeAsParamtype"/>
-                    <exclude name="testDefaultParams"/>
-                    <exclude name="testFPWithStruct"/>
-                    <exclude name="testFuncPointerConversion"/>
-                    <exclude name="testFuncWithArrayParams"/>
-                    <exclude name="testFunctionPointerAsFuncParam"/>
-                    <exclude name="testFunctionPointerAsLambda"/>
-                    <exclude name="testFunctionPointerAsParameter"/>
-                    <exclude name="testFunctionPointerAsReturnParameter"/>
-                    <exclude name="testFunctionPointerAsVariable"/>
-                    <exclude name="testFunctionPointerNative"/>
-                    <exclude name="testFunctionPointerWithAClosure"/>
-                    <exclude name="testGlobalFP"/>
-                    <exclude name="testGlobalFPAsLambda"/>
-                    <exclude name="testGlobalFPAssignment"/>
-                    <exclude name="testGlobalFPByAssigningLocalFP"/>
-                    <exclude name="testGlobalFPWithLocalFP"/>
-                    <exclude name="testGlobalFunctionPointerTyped"/>
-                    <exclude name="testGlobalFunctionPointerVar"/>
-                    <exclude name="testGlobalFunctionTypeDefWithClosures"/>
-                    <exclude name="testInTypeGuard"/>
-                    <exclude name="testInvoke"/>
-                    <exclude name="testInvokingLambdasWithSameName"/>
-                    <exclude name="testLambdaAsReturnParameter"/>
-                    <exclude name="testMemberTakenAsAFieldWithRestArgs"/>
-                    <exclude name="testNestedFunctionPointersAsParameters"/>
-                    <exclude name="testPrivateFunctionPointerTest1"/>
-                    <exclude name="testPrivateFunctionPointerTest2"/>
-                    <exclude name="testStructFP"/>
-                    <exclude name="testStructFPNullReference"/>
-                    <exclude name="testSubTypingWithAny"/>
-                    <exclude name="testVoidFunctionAsUnionReturnFunction"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.worker.NotSoBasicWorkerTest">
