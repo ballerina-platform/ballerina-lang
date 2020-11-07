@@ -2092,7 +2092,7 @@ public class Types {
             case TypeTags.MAP:
                 return isAssignable(detailType, symTable.detailType);
             case TypeTags.RECORD: {
-                if (isSealed((BRecordType) detailType)) {
+                if (isSealedRecord((BRecordType) detailType)) {
                     return false;
                 }
                 return isAssignable(detailType, symTable.detailType);
@@ -2103,8 +2103,8 @@ public class Types {
 
     // private methods
 
-    private boolean isSealed(BRecordType recordType) {
-        return recordType.sealed;
+    private boolean isSealedRecord(BType recordType) {
+        return recordType.getKind() == TypeKind.RECORD && ((BRecordType) recordType).sealed;
     }
 
     private boolean isNullable(BType fieldType) {
@@ -3145,25 +3145,24 @@ public class Types {
 
     private BType getIntersectionForErrorTypes(BType lhsType, BType rhsType) {
 
-        BRecordType detailTypeOne = (BRecordType) ((BErrorType) lhsType).detailType;
-        BRecordType detailTypeTwo = (BRecordType) ((BErrorType) rhsType).detailType;
+        BType detailTypeOne = ((BErrorType) lhsType).detailType;
+        BType detailTypeTwo = ((BErrorType) rhsType).detailType;
 
-        if (detailTypeOne.sealed || detailTypeTwo.sealed) {
+        if (isSealedRecord(detailTypeOne) || isSealedRecord(detailTypeTwo)) {
             return null;
             // TODO: Log error for sealed detail type
         }
 
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(lhsType.tsymbol.owner);
 
-        BRecordType detailIntersectionType = createRecordIntersection(detailTypeOne, detailTypeTwo, pkgEnv);
+        BRecordType detailIntersectionType = createDetailIntersection(detailTypeOne, detailTypeTwo, pkgEnv);
 
         BErrorType intersectionErrorType = createErrorType(lhsType, rhsType, detailIntersectionType, pkgEnv);
 
         return intersectionErrorType;
     }
 
-    private BRecordType createRecordIntersection(BRecordType detailTypeOne, BRecordType detailTypeTwo,
-                                                 SymbolEnv pkgEnv) {
+    private BRecordType createDetailIntersection(BType detailTypeOne, BType detailTypeTwo, SymbolEnv pkgEnv) {
         EnumSet<Flag> flags = EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS);
         BRecordTypeSymbol intersectionRecordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
                                                                                 pkgEnv.enclPkg.packageID, null,
@@ -3204,8 +3203,13 @@ public class Types {
         return errorType;
     }
 
-    private void populateRecordFields(BRecordType recordType, SymbolEnv pkgEnv, BRecordType originalRecordType) {
+    private void populateRecordFields(BRecordType recordType, SymbolEnv pkgEnv, BType originalType) {
         BTypeSymbol intersectionRecordSymbol = recordType.tsymbol;
+        // If the detail type is BMapType simply ignore since the resulting detail type has `anydata` as rest type.
+        if (originalType.getKind() != TypeKind.RECORD) {
+            return;
+        }
+        BRecordType originalRecordType = (BRecordType) originalType;
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
         for (BField origField : originalRecordType.fields.values()) {
             org.wso2.ballerinalang.compiler.util.Name origFieldName = origField.name;
