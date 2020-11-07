@@ -163,7 +163,6 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CreateTargetDirTask()) // create target directory.
                 //.addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
-                .addTask(new CreateBirTask(), isSingleFileBuild)   // create the bir
                 .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO (build projects only)
 //                .addTask(new CopyResourcesTask(), isSingleFileBuild)
 //                .addTask(new CopyObservabilitySymbolsTask(), isSingleFileBuild)
