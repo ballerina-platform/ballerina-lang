@@ -1229,13 +1229,6 @@
                     <exclude name="testPackageInitsInDependantPackages"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.object.ObjectIncludeOverrideBaloTest">
-                <methods>
-                    <exclude name="testObjectOverrideInterfaceWithInterface"/>
-                    <exclude name="testObjectWithOverriddenFieldsAndMethods"/>
-                    <exclude name="testSimpleObjectOverridingSimilarObject"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.constant.MapConstantEqualityInBaloTest">
                 <methods>
                     <exclude name="testComplexBooleanMapReferenceEquality"/>
