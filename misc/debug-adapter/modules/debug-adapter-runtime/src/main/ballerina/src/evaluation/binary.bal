@@ -214,6 +214,66 @@ function greaterThanOrEquals(any lhs, any rhs) returns boolean|error {
     return result is boolean ? (!result) : result;
 }
 
+function bitwiseAND(any lhs, any rhs) returns int|error {
+    int|error result;
+    if (lhs is int && rhs is int) {
+        result = lhs & rhs;
+    } else {
+        result = error("operator '&' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
+    }
+    return result;
+}
+
+function bitwiseOR(any lhs, any rhs) returns int|error {
+    int|error result;
+    if (lhs is int && rhs is int) {
+        result = lhs | rhs;
+    } else {
+        result = error("operator '|' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
+    }
+    return result;
+}
+
+function bitwiseXOR(any lhs, any rhs) returns int|error {
+    int|error result;
+    if (lhs is int && rhs is int) {
+        result = lhs ^ rhs;
+    } else {
+        result = error("operator '^' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
+    }
+    return result;
+}
+
+function leftShift(any lhs, any rhs) returns int|error {
+    int|error result;
+    if (lhs is int && rhs is int) {
+        result = lhs << rhs;
+    } else {
+        result = error("operator '<<' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
+    }
+    return result;
+}
+
+function signedRightShift(any lhs, any rhs) returns int|error {
+    int|error result;
+    if (lhs is int && rhs is int) {
+        result = lhs >> rhs;
+    } else {
+        result = error("operator '>>' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
+    }
+    return result;
+}
+
+function unsignedRightShift(any lhs, any rhs) returns int|error {
+    int|error result;
+    if (lhs is int && rhs is int) {
+        result = lhs >>> rhs;
+    } else {
+        result = error("operator '>>>' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
+    }
+    return result;
+}
+
 function getType(any value) returns string|error {
     var result = trap (typeof value);
     if(result is typedesc) {

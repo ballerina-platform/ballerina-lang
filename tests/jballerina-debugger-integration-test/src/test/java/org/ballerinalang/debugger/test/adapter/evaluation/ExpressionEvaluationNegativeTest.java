@@ -171,7 +171,15 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void shiftExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // left shift
+        assertEvaluationError(context, String.format("%s << %s", INT_VAR, STRING_VAR), "operator '<<' not defined for "
+                + "'int' and 'string'.");
+        // signed right shift
+        assertEvaluationError(context, String.format("%s >> %s", INT_VAR, STRING_VAR), "operator '>>' not defined for "
+                + "'int' and 'string'.");
+        // unsigned right shift
+        assertEvaluationError(context, String.format("%s >>> %s", INT_VAR, STRING_VAR), "operator '>>>' not defined " +
+                "for 'int' and 'string'.");
     }
 
     @Override
@@ -203,7 +211,15 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void binaryBitwiseEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // bitwise AND
+        assertEvaluationError(context, String.format("%s & %s", INT_VAR, STRING_VAR), "operator '&' not defined for "
+                + "'int' and 'string'.");
+        // bitwise OR
+        assertEvaluationError(context, String.format("%s | %s", INT_VAR, STRING_VAR), "operator '|' not defined for "
+                + "'int' and 'string'.");
+        // bitwise XOR
+        assertEvaluationError(context, String.format("%s ^ %s", INT_VAR, STRING_VAR), "operator '^' not defined for "
+                + "'int' and 'string'.");
     }
 
     @Override

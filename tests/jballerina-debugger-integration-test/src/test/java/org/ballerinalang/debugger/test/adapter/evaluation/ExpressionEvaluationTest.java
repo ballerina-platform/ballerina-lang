@@ -529,7 +529,12 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void binaryBitwiseEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // bitwise AND
+        assertExpression(context, String.format("%s & %s", INT_VAR, INT_VAR), "20", "int");
+        // bitwise OR
+        assertExpression(context, String.format("%s | %s", INT_VAR, INT_VAR), "20", "int");
+        // bitwise XOR
+        assertExpression(context, String.format("%s ^ %s", INT_VAR, INT_VAR), "0", "int");
     }
 
     @Override

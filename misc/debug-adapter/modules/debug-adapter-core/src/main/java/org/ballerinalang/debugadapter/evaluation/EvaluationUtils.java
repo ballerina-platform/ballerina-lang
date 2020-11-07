@@ -68,6 +68,12 @@ public class EvaluationUtils {
     public static final String B_LT_EQUALS_METHOD = "lessThanOrEquals";
     public static final String B_GT_METHOD = "greaterThan";
     public static final String B_GT_EQUALS_METHOD = "greaterThanOrEquals";
+    public static final String B_BITWISE_AND_METHOD = "bitwiseAND";
+    public static final String B_BITWISE_OR_METHOD = "bitwiseOR";
+    public static final String B_BITWISE_XOR_METHOD = "bitwiseXOR";
+    public static final String B_LEFT_SHIFT_METHOD = "leftShift";
+    public static final String B_SIGNED_RIGHT_SHIFT_METHOD = "signedRightShift";
+    public static final String B_UNSIGNED_RIGHT_SHIFT_METHOD = "unsignedRightShift";
     public static final String GET_TYPEDESC_METHOD = "getTypedesc";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String REF_EQUAL_METHOD = "isReferenceEqual";
