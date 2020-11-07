@@ -17,18 +17,14 @@
  */
 package org.ballerinalang.test;
 
-import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JdkVersion;
-import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.projects.model.Target;
 import io.ballerina.projects.util.ProjectUtils;
-import org.ballerinalang.packerina.utils.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -58,14 +54,11 @@ public class BCompileUtil {
         Package currentPackage = project.currentPackage();
         PackageCompilation packageCompilation = currentPackage.getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
-        if (jBallerinaBackend.hasDiagnostics()) {
-            return new CompileResult(currentPackage, jBallerinaBackend.diagnostics());
+        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
+            return new CompileResult(currentPackage, jBallerinaBackend);
         }
 
-        Path jarTargetPath = jarTargetPath(currentPackage);
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR, jarTargetPath);
-
-        CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend.diagnostics(), jarTargetPath);
+        CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
         invokeModuleInit(compileResult);
         return compileResult;
     }
@@ -85,20 +78,14 @@ public class BCompileUtil {
         Package currentPackage = project.currentPackage();
         PackageCompilation packageCompilation = currentPackage.getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
-        if (jBallerinaBackend.hasDiagnostics()) {
-            return new CompileResult(currentPackage, jBallerinaBackend.diagnostics());
+        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
+            return new CompileResult(currentPackage, jBallerinaBackend);
         }
-
-        Path jarCachePath = jarCachePath(currentPackage);
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR, jarCachePath);
-
-        Path birCachePath = birCachePath(currentPackage);
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BIR, birCachePath);
 
         Path baloCachePath = baloCachePath(currentPackage);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloCachePath);
 
-        CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend.diagnostics(), jarCachePath);
+        CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
         invokeModuleInit(compileResult);
         return compileResult;
     }
@@ -115,68 +102,8 @@ public class BCompileUtil {
         }
     }
 
-    private static Path jarTargetPath(Package pkg) {
-        try {
-            Target target = new Target(testBuildDirectory);
-            Path jarTargetPath = target.getJarCachePath();
-
-            if (isSingleFileProject(pkg.project())) {
-                Module defaultModule = pkg.getDefaultModule();
-                DocumentId documentId = defaultModule.documentIds().iterator().next();
-                String documentName = defaultModule.document(documentId).name();
-                String executableName = FileUtils.geFileNameWithoutExtension(Paths.get(documentName));
-                if (executableName == null) {
-                    throw new RuntimeException("cannot identify executable name for " + defaultModule.moduleName());
-                }
-                jarTargetPath = jarTargetPath.resolve(executableName).toAbsolutePath().normalize();
-            } else {
-                jarTargetPath = jarTargetPath.resolve(pkg.packageOrg().toString()).resolve(pkg.packageName().value()).
-                        resolve(pkg.packageVersion().version().toString());
-            }
-
-            Files.createDirectories(jarTargetPath);
-            return jarTargetPath;
-        } catch (IOException e) {
-            throw new RuntimeException("error while creating the jar cache directory at " + testBuildDirectory, e);
-        }
-    }
-
     private static boolean isSingleFileProject(Project project) {
         return project instanceof SingleFileProject;
-    }
-
-    private static Path jarCachePath(Package pkg) {
-        try {
-            Path cache = cachePathForPackage(pkg);
-            Path jarCache = cache.resolve("jar");
-            Files.createDirectories(jarCache);
-            return jarCache;
-        } catch (IOException e) {
-            throw new RuntimeException("error while creating the jar cache directory at " + testBuildDirectory, e);
-        }
-    }
-
-    private static Path birCachePath(Package pkg) {
-        try {
-            Path cache = cachePathForPackage(pkg);
-            Path birCache = cache.resolve("bir");
-            Files.createDirectories(birCache);
-
-            return birCache;
-        } catch (IOException e) {
-            throw new RuntimeException("error while creating the bir cache directory at " + testBuildDirectory, e);
-        }
-    }
-
-    private static Path cachePathForPackage(Package pkg) throws IOException {
-        Path distributionCache = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
-        Path cache = distributionCache.resolve("cache")
-                .resolve(pkg.packageOrg().toString())
-                .resolve(pkg.packageName().value())
-                .resolve(pkg.packageVersion().version().toString());
-        Files.createDirectories(cache);
-
-        return cache;
     }
 
     private static Path baloCachePath(Package pkg) {
@@ -188,7 +115,7 @@ public class BCompileUtil {
                     .resolve(pkg.packageVersion().version().toString());
             Files.createDirectories(balos);
 
-            String baloName = ProjectUtils.getBaloName(pkg);
+            String baloName = ProjectUtils.getBaloName(pkg.packageDescriptor());
             return balos.resolve(baloName);
         } catch (IOException e) {
             throw new RuntimeException("error while creating the balo distribution cache directory at " +

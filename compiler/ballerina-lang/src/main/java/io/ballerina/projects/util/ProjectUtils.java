@@ -21,7 +21,7 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
-import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.projects.PackageDescriptor;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -161,10 +161,10 @@ public class ProjectUtils {
         return packageName;
     }
 
-    public static String getBaloName(Package pkg) {
-        return ProjectUtils.getBaloName(pkg.packageOrg().toString(),
-                pkg.packageName().toString(),
-                pkg.packageVersion().toString(),
+    public static String getBaloName(PackageDescriptor pkgDesc) {
+        return ProjectUtils.getBaloName(pkgDesc.org().toString(),
+                pkgDesc.name().toString(),
+                pkgDesc.version().toString(),
                 null
         );
     }
@@ -453,11 +453,5 @@ public class ProjectUtils {
         }
 
         return className;
-    }
-
-    public static boolean hasErrors(List<Diagnostic> diagnostics) {
-        return diagnostics.stream().anyMatch(d -> {
-            return !d.diagnosticInfo().severity().name().equals("WARNING");
-        });
     }
 }
