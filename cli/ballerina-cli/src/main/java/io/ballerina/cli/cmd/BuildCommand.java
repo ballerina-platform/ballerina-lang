@@ -21,9 +21,7 @@ import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateBaloTask;
-import io.ballerina.cli.task.CreateBirTask;
 import io.ballerina.cli.task.CreateExecutableTask;
-import io.ballerina.cli.task.CreateJarTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.Project;
@@ -217,11 +215,9 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateTargetDirTask()) // create target directory
 //                .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
-                .addTask(new CreateBirTask(), isSingleFileBuild)   // create the bir
 //                .addTask(new CreateLockFileTask(), this.skipLock || isSingleFileBuild)  // create a lock file if
                                                             // the given skipLock flag does not exist(projects only)
                 .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO ( build projects only)
-                .addTask(new CreateJarTask(), isSingleFileBuild)   // create the jar
 //                .addTask(new CopyResourcesTask()) // merged with CreateJarTask
 //                .addTask(new CopyObservabilitySymbolsTask(), isSingleFileBuild)
 //                .addTask(new RunTestsTask(outStream, errStream, args), this.skipTests || isSingleFileBuild)

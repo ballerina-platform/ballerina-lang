@@ -22,8 +22,6 @@ import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateBaloTask;
-import io.ballerina.cli.task.CreateBirTask;
-import io.ballerina.cli.task.CreateJarTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.cli.task.RunExecutableTask;
 import io.ballerina.cli.utils.FileUtils;
@@ -167,7 +165,6 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
                 .addTask(new CreateBirTask(), isSingleFileBuild)   // create the bir
                 .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO (build projects only)
-                .addTask(new CreateJarTask())   // create the jar
 //                .addTask(new CopyResourcesTask(), isSingleFileBuild)
 //                .addTask(new CopyObservabilitySymbolsTask(), isSingleFileBuild)
                 .addTask(new RunExecutableTask(args, outStream, errStream))
