@@ -658,20 +658,22 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(compileResult.getWarnCount(), 0);
 
         PackageNode packageNode = compileResult.getAST();
-        BLangMarkdownDocumentation documentationAttachment =
-                packageNode.getFunctions().get(0).getMarkdownDocumentationAttachment();
+        BLangMarkdownDocumentation documentationAttachment = packageNode.getFunctions().get(0)
+                .getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
-        Assert.assertEquals(documentationAttachment.getDocumentation(), "Gets a access parameter value (`true` or " +
-                "`false`) for a given key. Please note that `foo` will always be bigger than `bar`.\n" +
-                "Example:\n" +
-                "`SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);`");
+        Assert.assertEquals(documentationAttachment.getDocumentation(), "Gets a access parameter value (`true` or "
+                + "`false`) for a given key. Please note that `foo` will always be bigger than `bar`.\n" + "Example:\n"
+                + "`SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);`");
 
         LinkedList<BLangMarkdownParameterDocumentation> parameters = documentationAttachment.getParameters();
-        Assert.assertEquals(parameters.size(), 2);
+        Assert.assertEquals(parameters.size(), 1);
         Assert.assertEquals(parameters.get(0).getParameterName().getValue(), "accessMode");
         Assert.assertEquals(parameters.get(0).getParameterDocumentation(), "read or write mode");
-        Assert.assertEquals(parameters.get(1).getParameterName().getValue(), "successful");
-        Assert.assertEquals(parameters.get(1).getParameterDocumentation(), "boolean `true` or `false`");
+
+        BLangMarkdownReturnParameterDocumentation returnParameter = documentationAttachment.getReturnParameter();
+        Assert.assertEquals(returnParameter.type.toString(), "handle");
+        Assert.assertEquals(documentationAttachment.getReturnParameterDocumentation(),
+                "The `fieldTwo` field of the record value passed as an argument");
     }
 
     @Test(description = "Test multiline docs")
