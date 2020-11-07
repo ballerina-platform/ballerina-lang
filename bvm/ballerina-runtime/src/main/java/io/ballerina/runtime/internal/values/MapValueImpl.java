@@ -297,15 +297,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         putValue(key, value);
     }
 
-    @Override
-    public BMap<K, V> checkAndSetReadonly(Type type) {
-        if (type.isReadOnly()) {
-            BMapType mapType = (BMapType) this.type;
-            this.type = TypeCreator.createMapType(mapType.getConstrainedType(), true);
-        }
-        return this;
-    }
-
     /**
      * Clear map entries.
      */

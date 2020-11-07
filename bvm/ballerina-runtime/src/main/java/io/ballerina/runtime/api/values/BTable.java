@@ -197,10 +197,4 @@ public interface BTable<K, V> extends BRefValue, BCollection {
     long getNextKey();
 
     V put(V data);
-
-    /**
-     * Check and and set the table type as readonly.
-     * @param tableType original table type
-     */
-    Object checkAndSetReadonly(BTableType tableType);
 }

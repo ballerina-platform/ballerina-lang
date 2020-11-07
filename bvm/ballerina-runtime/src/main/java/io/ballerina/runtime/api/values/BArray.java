@@ -17,7 +17,6 @@
 */
 package io.ballerina.runtime.api.values;
 
-import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Type;
 
 /**
@@ -211,10 +210,4 @@ public interface BArray extends BRefValue, BCollection {
     void setLength(long i);
 
     long getLength();
-
-    /**
-     * Check and and set the array type as readonly.
-     * @param type original Array type
-     */
-    BArray checkAndSetReadonly(ArrayType type);
 }
