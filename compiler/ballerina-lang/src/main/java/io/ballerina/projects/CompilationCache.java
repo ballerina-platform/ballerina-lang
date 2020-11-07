@@ -17,7 +17,9 @@
  */
 package io.ballerina.projects;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * Represents the compilation cache of a single Package.
@@ -33,7 +35,11 @@ public abstract class CompilationCache {
 
     public abstract byte[] getBir(ModuleName moduleName);
 
-    public abstract void cacheBir(ModuleName moduleName, byte[] bir);
+    public abstract void cacheBir(ModuleName moduleName, ByteArrayOutputStream birContent);
 
-    public abstract Path getPlatformSpecificLibrary(ModuleName moduleName);
+    public abstract Optional<Path> getPlatformSpecificLibrary(CompilerBackend compilerBackend, String libraryName);
+
+    public abstract void cachePlatformSpecificLibrary(CompilerBackend compilerBackend,
+                                                      String libraryName,
+                                                      ByteArrayOutputStream libraryContent);
 }
