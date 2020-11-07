@@ -17,11 +17,9 @@
 */
 package org.ballerinalang.test.balo.listener;
 
-import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
