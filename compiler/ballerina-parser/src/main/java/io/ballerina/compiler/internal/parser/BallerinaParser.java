@@ -3565,13 +3565,22 @@ public class BallerinaParser extends AbstractParser {
         STNode expr;
         STNode semicolon;
         boolean hasVarInit = false;
+        boolean isConfigurable = false;
+
+        if (isModuleVar && isSyntaxKindInList(varDeclQuals, SyntaxKind.CONFIGURABLE_KEYWORD)) {
+            isConfigurable = true;
+        }
 
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case EQUAL_TOKEN:
                 assign = parseAssignOp();
                 if (isModuleVar) {
-                    expr = parseExpression();
+                    if (isConfigurable) {
+                        expr = parseConfigurableVarDeclRhs();
+                    } else {
+                        expr = parseExpression();
+                    }
                 } else {
                     expr = parseActionOrExpression();
                 }
@@ -3592,7 +3601,7 @@ public class BallerinaParser extends AbstractParser {
         endContext();
         if (isModuleVar) {
             return createModuleVarDeclaration(metadata, varDeclQuals, typedBindingPattern, assign, expr,
-                    semicolon, hasVarInit);
+                    semicolon, isConfigurable, hasVarInit);
         }
 
         STNode finalKeyword;
@@ -3606,18 +3615,39 @@ public class BallerinaParser extends AbstractParser {
                 expr, semicolon);
     }
 
+    private STNode parseConfigurableVarDeclRhs() {
+        STNode expr;
+        STToken nextToken = peek();
+        switch(nextToken.kind) {
+            case QUESTION_MARK_TOKEN:
+                expr = STNodeFactory.createRequiredExpressionNode(consume());
+                break;
+            default:
+                if (isValidExprStart(nextToken.kind)) {
+                    expr = parseExpression();
+                    break;
+                }
+                recover(nextToken, ParserRuleContext.CONFIG_VAR_DECL_RHS);
+                return parseConfigurableVarDeclRhs();
+        }
+        return expr;
+    }
+
     private STNode createModuleVarDeclaration(STNode metadata, List<STNode> varDeclQuals,
                                               STNode typedBindingPattern, STNode assign, STNode expr, STNode semicolon,
-                                              boolean hasVarInit) {
+                                              boolean isConfigurable, boolean hasVarInit) {
         if (hasVarInit || varDeclQuals.isEmpty()) {
-            STNode isolatedFinalQualifierNode = STNodeFactory.createNodeList(varDeclQuals);
-            return STNodeFactory.createModuleVariableDeclarationNode(metadata, isolatedFinalQualifierNode,
-                    typedBindingPattern, assign, expr, semicolon);
+            return createModuleVarDeclaration(metadata, varDeclQuals, typedBindingPattern, assign, expr, semicolon);
         }
 
-        if (isSyntaxKindInList(varDeclQuals, SyntaxKind.CONFIGURABLE_KEYWORD)) {
-            semicolon = SyntaxErrors.addDiagnostic(semicolon,
+        if (isConfigurable) {
+            // Configurable variable must have an initialization.
+            assign = SyntaxErrors.createMissingToken(SyntaxKind.EQUAL_TOKEN);
+            assign = SyntaxErrors.addDiagnostic(assign,
                     DiagnosticErrorCode.ERROR_CONFIGURABLE_VARIABLE_MUST_BE_INITIALIZED);
+            STToken questionMarkToken = SyntaxErrors.createMissingToken(SyntaxKind.QUESTION_MARK_TOKEN);
+            expr = STNodeFactory.createRequiredExpressionNode(questionMarkToken);
+            return createModuleVarDeclaration(metadata, varDeclQuals, typedBindingPattern, assign, expr, semicolon);
         }
 
         // If following 3 conditions are satisfied, we should let isolated qualifier to be a part of the type.
@@ -3631,6 +3661,13 @@ public class BallerinaParser extends AbstractParser {
                     modifyTypedBindingPatternWithIsolatedQualifier(typedBindingPattern, lastQualifier);
         }
 
+        return createModuleVarDeclaration(metadata, varDeclQuals, typedBindingPattern, assign, expr, semicolon);
+    }
+
+    // Do not use this method directly.
+    private STNode createModuleVarDeclaration(STNode metadata, List<STNode> varDeclQuals,
+                                              STNode typedBindingPattern, STNode assign,
+                                              STNode expr, STNode semicolon) {
         STNode varDeclQualifiersNode = STNodeFactory.createNodeList(varDeclQuals);
         return STNodeFactory.createModuleVariableDeclarationNode(metadata, varDeclQualifiersNode,
                 typedBindingPattern, assign, expr, semicolon);

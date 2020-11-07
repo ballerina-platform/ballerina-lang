@@ -294,6 +294,7 @@ public enum ParserRuleContext {
     ASSIGNMENT_STMT("assignment-stmt"),
     VAR_DECL_STMT("var-decl-stmt"),
     VAR_DECL_STMT_RHS("var-decl-rhs"),
+    CONFIG_VAR_DECL_RHS("config-var-decl-rhs"),
     TYPE_NAME_OR_VAR_NAME("type-or-var-name"),
     ASSIGNMENT_OR_VAR_DECL_STMT("assign-or-var-decl"),
     ASSIGNMENT_OR_VAR_DECL_STMT_RHS("assign-or-var-decl-rhs"),

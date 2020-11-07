@@ -661,6 +661,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] NAMED_WORKER_DECL_START =
             { ParserRuleContext.WORKER_KEYWORD, ParserRuleContext.TRANSACTIONAL_KEYWORD };
 
+    private static final ParserRuleContext[] CONFIG_VAR_DECL_RHS =
+            { ParserRuleContext.EXPRESSION, ParserRuleContext.QUESTION_MARK };
+
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -796,6 +799,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FUNC_TYPE_DESC_START:
             case NAMED_WORKER_DECL_START:
             case ANON_FUNC_EXPRESSION_START:
+            case CONFIG_VAR_DECL_RHS:
                 return true;
             default:
                 return false;
@@ -1438,6 +1442,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MODULE_CLASS_DEFINITION_START:
             case OBJECT_CONSTRUCTOR_TYPE_REF:
             case OBJECT_FIELD_QUALIFIER:
+            case CONFIG_VAR_DECL_RHS:
                 return true;
             default:
                 return false;
@@ -1663,6 +1668,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case OBJECT_FIELD_QUALIFIER:
                 alternativeRules = OBJECT_FIELD_QUALIFIER;
+                break;
+            case CONFIG_VAR_DECL_RHS:
+                alternativeRules = CONFIG_VAR_DECL_RHS;
                 break;
             default:
                 return seekMatchInStmtRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
