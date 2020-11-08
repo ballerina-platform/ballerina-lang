@@ -303,3 +303,41 @@ isolated class IsolatedClassWithValidCopyyingWithClone {
         }
     }
 }
+
+isolated class IsolatedClassPassingCopiedInVarsToIsolatedFunctions {
+
+    private anydata[] arr = [];
+
+    isolated function add(anydata val) {
+        lock {
+            anydata val2 = val.clone();
+            self.arr.push(val2);
+            self.addAgain(val2);
+            outerAdd(val.clone());
+
+            if val is anydata[] {
+                self.arr.push(val[0].clone());
+                self.addAgain(val[0].clone());
+                anydata val3 = val[0].cloneReadOnly();
+                outerAdd(val3);
+            }
+
+            lock {
+                if val2 is anydata[] {
+                    self.arr.push(val2[0].clone());
+                    self.addAgain(val2[0].clone());
+                    anydata val3 = val2[0].cloneReadOnly();
+                    outerAdd(val3);
+                }
+            }
+        }
+    }
+
+    isolated function addAgain(anydata val) {
+
+    }
+}
+
+isolated function outerAdd(anydata val) {
+
+}

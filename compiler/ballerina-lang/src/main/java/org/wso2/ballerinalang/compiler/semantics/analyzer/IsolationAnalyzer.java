@@ -2488,6 +2488,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return isInvalidCopyingOfMutableValueInIsolatedObject(parentExpression, copyOut, invokedOnSelf);
         }
 
+        if (copyOut) {
+            return false;
+        }
+
         // `expression` is an argument to a function
         return expression.getKind() != NodeKind.INVOCATION ||
                 !isCloneOrCloneReadOnlyInvocation((BLangInvocation) expression);

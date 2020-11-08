@@ -386,9 +386,9 @@ isolated class InvalidIsolatedClassWithInvalidCopyyingWithClone {
             self.arr.push(val);
 
             self.addAgain(val);
+            outerAdd(val);
             anydata clonedVal = val;
-            self.addAgain(clonedVal);
-
+            self.addAgain(clonedVal); // OK
             if val is anydata[] {
                 self.arr.push(val.pop());
 
@@ -398,7 +398,7 @@ isolated class InvalidIsolatedClassWithInvalidCopyyingWithClone {
             }
 
             if clonedVal is anydata[] {
-                self.arr.push(clonedVal.pop());
+                self.arr.push(clonedVal.pop()); // OK
 
                 lock {
                     self.arr.push(clonedVal.pop());
@@ -407,10 +407,10 @@ isolated class InvalidIsolatedClassWithInvalidCopyyingWithClone {
         }
     }
 
-    isolated function addAgain(anydata val) {
-
-    }
+    isolated function addAgain(anydata val) { }
 }
+
+isolated function outerAdd(anydata val) { }
 
 decimal globDecimal = 0;
 

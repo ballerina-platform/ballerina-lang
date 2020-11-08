@@ -137,11 +137,10 @@ public class IsolatedObjectTest {
         validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 374, 40);
         validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 386, 27);
         validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 388, 27);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 389, 33);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 390, 27);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 389, 22);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 390, 33);
         validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 393, 31);
         validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 396, 35);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 401, 31);
         validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 404, 35);
         validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 430, 14);
         validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 430, 17);
