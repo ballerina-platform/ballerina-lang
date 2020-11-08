@@ -153,6 +153,14 @@ public class BallerinaSemanticModel implements SemanticModel {
      * {@inheritDoc}
      */
     @Override
+    public List<Location> allReferences(Symbol symbol) {
+        return new ArrayList<>();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Optional<TypeSymbol> getType(String fileName, LineRange range) {
         BLangCompilationUnit compilationUnit = getCompilationUnit(fileName);
         NodeFinder nodeFinder = new NodeFinder();
