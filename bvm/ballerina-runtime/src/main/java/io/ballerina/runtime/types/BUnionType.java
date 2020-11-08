@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -42,6 +43,7 @@ public class BUnionType extends BType implements UnionType {
     private final boolean readonly;
     private IntersectionType immutableType;
     private boolean resolving = false;
+    private boolean isCyclic;
 
     /**
      * Create a {@code BUnionType} which represents the union type.
@@ -88,6 +90,7 @@ public class BUnionType extends BType implements UnionType {
         super(null, null, Object.class);
         this.typeFlags = typeFlags;
         this.readonly = readonly;
+        this.memberTypes = new ArrayList<>();
     }
 
     public BUnionType(Type[] memberTypes, int typeFlags, boolean readonly) {
@@ -108,11 +111,20 @@ public class BUnionType extends BType implements UnionType {
 
     public void setMemberTypes(Type[] memberTypes) {
         this.memberTypes = Arrays.asList(memberTypes);
+        resolveCyclicType();
         setFlagsBasedOnMembers();
     }
 
+    private void resolveCyclicType() {
+        for (var member : memberTypes) {
+            if (member == this) {
+                continue;
+            }
+        }
+    }
+
     public boolean isNilable() {
-        if (memberTypes == null) {
+        if (memberTypes == null || memberTypes.isEmpty()) {
             return true;
         }
 
@@ -199,7 +211,7 @@ public class BUnionType extends BType implements UnionType {
         resolving = true;
         if (cachedToString == null) {
             StringBuilder sb = new StringBuilder();
-            int size = memberTypes.size();
+            int size = memberTypes != null? memberTypes.size(): 0;
             int i = 0;
             while (i < size) {
                 sb.append(memberTypes.get(i).toString());

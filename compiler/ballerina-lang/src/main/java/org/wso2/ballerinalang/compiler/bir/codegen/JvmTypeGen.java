@@ -366,12 +366,12 @@ public class JvmTypeGen {
                     }
                     break;
                 case TypeTags.UNION:
-                    // populate member fields
                     BUnionType unionType = (BUnionType) bType;
                     mv.visitTypeInsn(CHECKCAST, UNION_TYPE_IMPL);
                     mv.visitInsn(DUP);
                     mv.visitInsn(DUP);
 
+                    // populate member fields
                     addUnionMembers(mv, unionType.getMemberTypes());
                     addImmutableType(mv, unionType);
                     break;
@@ -864,6 +864,10 @@ public class JvmTypeGen {
     private static void createUnionType(MethodVisitor mv, BUnionType unionType) {
         mv.visitTypeInsn(NEW, UNION_TYPE_IMPL);
         mv.visitInsn(DUP);
+
+//        if (unionType.tsymbol.name != null) {
+//            mv.visitLdcInsn(unionType.tsymbol.name.value);
+//        }
 
         // Load type flags
         mv.visitLdcInsn(typeFlag(unionType));

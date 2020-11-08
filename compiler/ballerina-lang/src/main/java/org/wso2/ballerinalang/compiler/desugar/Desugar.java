@@ -4447,7 +4447,7 @@ public class Desugar extends BLangNodeVisitor {
     */
     private void fixTypeCastInTypeParamInvocation(BLangInvocation iExpr, BLangInvocation genIExpr) {
         var returnTypeOfInvokable = ((BInvokableSymbol) iExpr.symbol).retType;
-        if (iExpr.langLibInvocation && TypeParamAnalyzer.containsTypeParam(returnTypeOfInvokable)) { // false in master
+        if (iExpr.langLibInvocation || TypeParamAnalyzer.containsTypeParam(returnTypeOfInvokable)) { // false in master
             // why we dont consider whole action invocation
             BType originalInvType = genIExpr.type;
             if (!genIExpr.async) {

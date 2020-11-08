@@ -58,31 +58,13 @@ public class AnnotationUtils {
             return;
         }
         BObjectType objectType = (BObjectType) type;
-        if (objectType == null) {
-            return;
-        }
-        var attachedFunctions = objectType.getAttachedFunctions();
-        if (attachedFunctions == null) {
-            return;
-        }
-        for (int i = 0; i < attachedFunctions.length; i++) {
-            var attachedFunction = attachedFunctions[i];
-            if (attachedFunction == null) {
-                continue;
-            }
+        for (AttachedFunctionType attachedFunction : objectType.getAttachedFunctions()) {
             annotationKey = StringUtils.fromString(attachedFunction.getAnnotationKey());
             if (globalAnnotMap.containsKey(annotationKey)) {
                 ((AttachedFunction) attachedFunction).setAnnotations((MapValue<BString, Object>)
-                        globalAnnotMap.get(annotationKey));
+                                                                             globalAnnotMap.get(annotationKey));
             }
         }
-//        for (AttachedFunctionType attachedFunction : objectType.getAttachedFunctions()) {
-//            annotationKey = StringUtils.fromString(attachedFunction.getAnnotationKey());
-//            if (globalAnnotMap.containsKey(annotationKey)) {
-//                ((AttachedFunction) attachedFunction).setAnnotations((MapValue<BString, Object>)
-//                                                                             globalAnnotMap.get(annotationKey));
-//            }
-//        }
     }
 
     public static void processServiceAnnotations(MapValue globalAnnotMap, BServiceType bType, Strand strand) {
