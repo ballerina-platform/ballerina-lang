@@ -36,11 +36,9 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
  */
 public class CompileTask implements Task {
     private final transient PrintStream out;
-    private final transient PrintStream err;
 
-    public CompileTask(PrintStream out, PrintStream err) {
+    public CompileTask(PrintStream out) {
         this.out = out;
-        this.err = err;
     }
 
     @Override
