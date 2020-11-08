@@ -17,7 +17,9 @@
  */
 package io.ballerina.compiler.api.impl;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -30,7 +32,9 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -115,7 +119,14 @@ public class BallerinaSemanticModel implements SemanticModel {
             return Optional.empty();
         }
 
+        if (isTypeSymbol(symbolAtCursor) && !PositionUtil.withinBlock(position, symbolAtCursor.pos)) {
+            ModuleID moduleID = new BallerinaModuleID(symbolAtCursor.pkgID);
+            return Optional.of(new BallerinaTypeReferenceTypeSymbol(this.compilerContext, moduleID, symbolAtCursor.type,
+                                                                    symbolAtCursor.getName().getValue()));
+        }
+
         return Optional.ofNullable(symbolFactory.getBCompiledSymbol(symbolAtCursor, symbolAtCursor.name.value));
+
     }
 
     /**
@@ -220,6 +231,10 @@ public class BallerinaSemanticModel implements SemanticModel {
                 .filter(unit -> unit.name.equals(srcFile))
                 .findFirst()
                 .get();
+    }
+
+    private boolean isTypeSymbol(BSymbol symbol) {
+        return symbol instanceof BTypeSymbol && !(symbol instanceof BPackageSymbol);
     }
 
     private boolean withinRange(LineRange range, LineRange specifiedRange) {

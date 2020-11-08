@@ -1253,11 +1253,18 @@ public class BIRPackageSymbolEnter {
                     String objName = getStringCPEntryValue(inputStream);
                     int objFlags = (inputStream.readBoolean() ? Flags.CLASS : 0) | Flags.PUBLIC;
                     objFlags = inputStream.readBoolean() ? objFlags | Flags.CLIENT : objFlags;
-                    BObjectTypeSymbol objectSymbol = Symbols.createObjectSymbol(objFlags,
-                                                                                names.fromString(objName),
-                                                                                env.pkgSymbol.pkgID, null,
-                                                                                env.pkgSymbol, symTable.builtinPos,
-                                                                                COMPILED_SOURCE);
+                    BObjectTypeSymbol objectSymbol;
+
+                    if (Symbols.isFlagOn(objFlags, Flags.CLASS)) {
+                        objectSymbol = Symbols.createClassSymbol(objFlags, names.fromString(objName),
+                                                                 env.pkgSymbol.pkgID, null, env.pkgSymbol,
+                                                                 symTable.builtinPos, COMPILED_SOURCE);
+                    } else {
+                        objectSymbol = Symbols.createObjectSymbol(objFlags, names.fromString(objName),
+                                                                  env.pkgSymbol.pkgID, null, env.pkgSymbol,
+                                                                  symTable.builtinPos, COMPILED_SOURCE);
+                    }
+
                     objectSymbol.scope = new Scope(objectSymbol);
                     BObjectType objectType;
                     // Below is a temporary fix, need to fix this properly by using the type tag

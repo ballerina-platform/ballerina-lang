@@ -601,7 +601,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BTypeSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags), className, env.enclPkg.symbol.pkgID, null,
                                                         env.scope.owner, classDefinition.name.pos,
-                                                        getOrigin(className));
+                                                        getOrigin(className, flags));
         tSymbol.scope = new Scope(tSymbol);
         tSymbol.markdownDocumentation = getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
 
@@ -3001,6 +3001,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         variable.type = invokableType;
+    }
+
+    private SymbolOrigin getOrigin(Name name, Set<Flag> flags) {
+        if (flags.contains(Flag.SERVICE) || missingNodesHelper.isMissingNode(name)) {
+            return VIRTUAL;
+        }
+        return SOURCE;
     }
 
     private SymbolOrigin getOrigin(Name name) {
