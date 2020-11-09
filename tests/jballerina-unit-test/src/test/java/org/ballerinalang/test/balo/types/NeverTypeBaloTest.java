@@ -37,9 +37,9 @@ public class NeverTypeBaloTest {
     @BeforeClass
     public void setup() {
         CompileResult compileResult = BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project");
-        if (compileResult.getErrorCount() != 0) {
+        if (compileResult.getErrorCount() > 0) {
             Arrays.stream(compileResult.getDiagnostics()).forEach(System.out::println);
-            Assert.fail("Compilation contains error");
+            Assert.fail("Compilation contains errors");
         }
         result = BCompileUtil.compile("test-src/balo/test_balo/types/never_type_test.bal");
     }
