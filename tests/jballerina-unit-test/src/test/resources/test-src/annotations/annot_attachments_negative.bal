@@ -24,7 +24,7 @@ public annotation Annot v1 on type;
 annotation Annot v2 on class;
 public annotation Annot v3 on function;
 annotation map<int> v4 on object function;
-public annotation Annot v5 on resource function;
+public annotation Annot v5 on object function;
 annotation Annot v6 on parameter;
 public annotation v7 on return;
 annotation Annot v8 on service;
@@ -422,7 +422,7 @@ listener Listener lis = new;
 @v15 {
     val: false
 }
-service ser on lis {
+service on lis {
 
     @v1 {
         val: "v1"
@@ -458,7 +458,7 @@ service ser on lis {
     @v15 {
         val: false
     }
-    resource function res() {
+    resource function get res() {
 
     }
 }
@@ -469,10 +469,10 @@ class Listener {
     public function init() {
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function __attach(service object {} s, string? name = ()) returns error? {
     }
 
-    public function __detach(service s) returns error? {
+    public function __detach(service object {} s) returns error? {
     }
 
     public function __start() returns error? {
@@ -683,7 +683,7 @@ function externalFunctionOne(int fi, float ff) returns int = @v1 {
 @v8 {
     val: "invalid"
 }
-service serVar =
+service object {} serVar =
 @v1 {
     val: "v1"
 }
@@ -721,9 +721,9 @@ service serVar =
 @v15 {
     val: false
 }
-service {
+service object {
 
-    resource function res() {
+    resource function get res() {
 
     }
 };

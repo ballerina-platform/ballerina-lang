@@ -54,6 +54,7 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public List<BLangSimpleVariable> referencedFields;
     public int precedence;
+    public boolean isServiceDecl;
 
     public BLangClassDefinition() {
         this.functions = new ArrayList<>();

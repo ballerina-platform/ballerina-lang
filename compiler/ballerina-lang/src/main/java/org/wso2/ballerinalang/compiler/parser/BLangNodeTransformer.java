@@ -3576,6 +3576,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ServiceDeclarationNode serviceDeclarationNode) {
         Location pos = getPositionWithoutMetadata(serviceDeclarationNode);
         BLangClassDefinition annonClassDef = transformObjectCtorExpressionBody(serviceDeclarationNode.members());
+        annonClassDef.isServiceDecl = true;
         annonClassDef.pos = pos;
         annonClassDef.flagSet.add(SERVICE);
 

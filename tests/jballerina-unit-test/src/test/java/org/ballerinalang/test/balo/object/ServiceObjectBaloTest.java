@@ -29,22 +29,22 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
- * Tests for `readonly object`s.
+ * Tests for `service objects` and `service classes`.
  *
  * @since 2.0.0
  */
-public class ReadOnlyObjectBaloTest {
+public class ServiceObjectBaloTest {
 
     private CompileResult result;
 
     @Test
     public void testReadonlyRecordFields() {
         BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "readonly_objects");
+        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/service_test_project", "testorg", "serv_classes");
         result = BCompileUtil.compile("test-src/balo/test_balo/object/test_readonly_objects.bal");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testReadonlyType() {
         BRunUtil.invoke(result, "testReadonlyObjects");
     }

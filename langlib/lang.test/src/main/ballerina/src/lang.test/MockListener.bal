@@ -40,11 +40,11 @@ public class MockListener {
         
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function __attach(service object {} s, string? name = ()) returns error? {
         return self.register();
     }
 
-    public function __detach(service s) returns error? {
+    public function __detach(service object {} s) returns error? {
         return self.detach();
     }
 
@@ -75,10 +75,11 @@ public class MockListener {
 }
 
 public client class Caller {
-    public remote function respond(string message) returns string {
+    remote function respond(string message) returns string {
         return message;
     }
-     public remote function badRequest(string message) returns string {
+
+    remote function badRequest(string message) returns string {
         string response = message;
         return self->respond(response);
     }

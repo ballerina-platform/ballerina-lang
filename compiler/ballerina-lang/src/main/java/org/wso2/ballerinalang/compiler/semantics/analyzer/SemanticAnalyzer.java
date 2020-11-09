@@ -319,7 +319,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!funcNode.flagSet.contains(Flag.WORKER)) {
             // annotation validation for workers is done for the invocation.
             funcNode.annAttachments.forEach(annotationAttachment -> {
-                if (Symbols.isFlagOn(funcNode.symbol.flags, Flags.RESOURCE)) {
+                if (Symbols.isFlagOn(funcNode.symbol.flags, Flags.REMOTE) && funcNode.receiver != null
+                        && Symbols.isService(funcNode.receiver.symbol)) {
                     annotationAttachment.attachPoints.add(AttachPoint.Point.SERVICE_REMOTE);
                 } else if (funcNode.attachedFunction) {
                     annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT_METHOD);
@@ -434,8 +435,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangClassDefinition classDefinition) {
+        AttachPoint.Point attachedPoint = classDefinition.isServiceDecl
+                ? AttachPoint.Point.SERVICE
+                : AttachPoint.Point.CLASS;
+
         classDefinition.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachPoints.add(AttachPoint.Point.CLASS);
+            annotationAttachment.attachPoints.add(attachedPoint);
             annotationAttachment.accept(this);
         });
         validateAnnotationAttachmentCount(classDefinition.annAttachments);
