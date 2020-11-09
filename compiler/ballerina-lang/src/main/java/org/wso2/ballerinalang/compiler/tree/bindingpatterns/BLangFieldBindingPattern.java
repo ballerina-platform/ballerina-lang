@@ -15,33 +15,23 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.tree.matchpatterns;
+package org.wso2.ballerinalang.compiler.tree.bindingpatterns;
 
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.matchpatterns.FieldMatchPatternNode;
-import org.ballerinalang.model.tree.matchpatterns.MatchPatternNode;
+import org.ballerinalang.model.tree.bindingpattern.BindingPatternNode;
+import org.ballerinalang.model.tree.bindingpattern.FieldBindingPatternNode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * Represent field-match-pattern.
+ * Represent field-binding-pattern.
  *
  * @since 2.0.0
  */
-public class BLangFieldMatchPattern extends BLangMatchPattern implements FieldMatchPatternNode {
+public class BLangFieldBindingPattern extends BLangBindingPattern implements FieldBindingPatternNode {
     public BLangIdentifier fieldName;
-    public BLangMatchPattern matchPattern;
-
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public NodeKind getKind() {
-        return NodeKind.FIELD_MATCH_PATTERN;
-    }
+    public BLangBindingPattern bindingPattern;
 
     @Override
     public IdentifierNode getFieldName() {
@@ -54,7 +44,17 @@ public class BLangFieldMatchPattern extends BLangMatchPattern implements FieldMa
     }
 
     @Override
-    public MatchPatternNode getMatchPattern() {
-        return matchPattern;
+    public BindingPatternNode getBindingPattern() {
+        return bindingPattern;
+    }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.FIELD_BINDING_PATTERN;
     }
 }

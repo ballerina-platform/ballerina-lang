@@ -15,20 +15,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.model.tree.matchpatterns;
+package org.ballerinalang.model.tree.bindingpattern;
 
-import org.ballerinalang.model.tree.IdentifierNode;
-import org.ballerinalang.model.tree.Node;
+import java.util.List;
 
 /**
- * The interface with the APIs to implement the field-match-pattern.
+ * The interface with the APIs to implement the mapping-binding-pattern.
  *
  * @since 2.0.0
  */
-public interface FieldMatchPatternNode extends Node {
-    IdentifierNode getFieldName();
+public interface MappingBindingPatternNode {
+    List<? extends FieldBindingPatternNode> getFieldBindingPatterns();
 
-    void setFieldName(IdentifierNode fieldName);
+    RestBindingPatternNode getRestBindingPattern();
 
-    MatchPatternNode getMatchPattern();
+    void setRestBindingPattern(RestBindingPatternNode restBindingPattern);
 }
