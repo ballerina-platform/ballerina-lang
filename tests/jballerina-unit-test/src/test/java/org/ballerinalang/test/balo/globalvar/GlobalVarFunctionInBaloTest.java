@@ -45,7 +45,7 @@ public class GlobalVarFunctionInBaloTest {
     CompileResult result;
 
     @BeforeClass
-    public void setup() throws IOException {
+    public void setup() {
         BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project");
         result = BCompileUtil.compile("test-src/balo/test_balo/globalvar/test_global_var_function.bal");
     }
