@@ -25,7 +25,6 @@ package io.ballerina.toml.syntax.tree;
 public enum SyntaxKind {
     INITIAL_TRIVIA(200),
     NEW_LINE(201, "\n"),
-    CARRIAGE_RETURN(202, "\r"),
 
     MODULE_NAME(3014),
 

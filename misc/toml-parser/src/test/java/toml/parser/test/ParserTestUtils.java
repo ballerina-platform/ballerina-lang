@@ -396,8 +396,6 @@ public class ParserTestUtils {
                 return SyntaxKind.INITIAL_TRIVIA;
             case "NEW_LINE":
                 return SyntaxKind.NEW_LINE;
-            case "CARRIAGE_RETURN":
-                return SyntaxKind.CARRIAGE_RETURN;
             case "MODULE_NAME":
                 return SyntaxKind.MODULE_NAME;
             case "TRUE_KEYWORD":

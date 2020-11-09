@@ -69,7 +69,6 @@ public enum ParserRuleContext {
     NUMERICAL_LITERAL("numerical-literal"),
 
     //TOML
-//    KEY("key-toml"),
     VALUE("value-toml"),
     START_SQUARE_BRACES("start-square-braces"),
     END_SQUARE_BRACES("end-square-braces"),

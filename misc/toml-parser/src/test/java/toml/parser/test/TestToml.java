@@ -19,7 +19,7 @@
 package toml.parser.test;
 
 import io.ballerina.toml.api.Toml;
-import io.ballerina.toml.semantic.ast.TomlStringValueNode;
+import io.ballerina.toml.semantic.ast.TomlLongValueNode;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 
 import java.io.FileInputStream;
@@ -50,7 +50,9 @@ public class TestToml {
             OUT.println(diagnostic.message());
         }
 
-        TomlStringValueNode key1 = read.getTable("table").get("key");
+        TomlLongValueNode key1 = read.get("key1");
+        TomlLongValueNode key2 = read.get("key2");
         OUT.println(key1.getValue());
+        OUT.println(key2.getValue());
     }
 }

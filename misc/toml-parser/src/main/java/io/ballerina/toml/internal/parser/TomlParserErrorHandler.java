@@ -165,7 +165,7 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_LITERAL;
                     break;
                 case NEW_LINE:
-                    hasMatch = isNewLine(nextToken.kind);
+                    hasMatch = nextToken.kind == SyntaxKind.NEW_LINE;
                     break;
                 case SIGN_TOKEN:
                     hasMatch = nextToken.kind == SyntaxKind.PLUS_TOKEN || nextToken.kind == SyntaxKind.MINUS_TOKEN;
@@ -232,11 +232,6 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
         result.solution = new Solution(Action.KEEP, currentCtx, SyntaxKind.NONE, currentCtx.toString());
         return result;
     }
-
-    private boolean isNewLine(SyntaxKind kind) {
-        return kind == SyntaxKind.NEW_LINE || kind == SyntaxKind.CARRIAGE_RETURN;
-    }
-
 
     private void startContextIfRequired(ParserRuleContext currentCtx) {
         switch (currentCtx) {
@@ -370,7 +365,7 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
             case BOOLEAN_LITERAL:
                 return SyntaxKind.FALSE_KEYWORD; //Better handling
             case NEW_LINE:
-                return SyntaxKind.NEW_LINE; //Better handling
+                return SyntaxKind.NEW_LINE;
             case DOT:
                 return SyntaxKind.DOT_TOKEN;
             case ARRAY_TABLE_FIRST_END:

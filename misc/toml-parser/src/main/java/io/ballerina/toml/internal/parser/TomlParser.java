@@ -26,7 +26,6 @@ import io.ballerina.toml.syntax.tree.SyntaxKind;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.ballerina.toml.syntax.tree.SyntaxKind.CARRIAGE_RETURN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.CLOSE_BRACKET_TOKEN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.DEC_INT;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.EOF_TOKEN;
@@ -83,7 +82,6 @@ public class TomlParser extends AbstractParser {
             case EOF_TOKEN:
                 return null;
             case NEW_LINE:
-            case CARRIAGE_RETURN:
                 consume(); //New line is only used for validations. Should be ignored
                 return parseTopLevelNode();
             case OPEN_BRACKET_TOKEN:
@@ -118,8 +116,8 @@ public class TomlParser extends AbstractParser {
     }
 
     private boolean isEndOfStatement(STToken nextToken) {
-        return nextToken.kind == SyntaxKind.EQUAL_TOKEN || nextToken.kind == SyntaxKind.NEW_LINE ||
-                nextToken.kind == CARRIAGE_RETURN || nextToken.kind == EOF_TOKEN;
+        return nextToken.kind == SyntaxKind.EQUAL_TOKEN || nextToken.kind == SyntaxKind.NEW_LINE
+                || nextToken.kind == EOF_TOKEN;
     }
 
     /**
@@ -240,7 +238,7 @@ public class TomlParser extends AbstractParser {
     }
 
     private boolean isNewLine(SyntaxKind kind) {
-        return kind == SyntaxKind.NEW_LINE || kind == CARRIAGE_RETURN;
+        return kind == SyntaxKind.NEW_LINE;
     }
 
     /**
