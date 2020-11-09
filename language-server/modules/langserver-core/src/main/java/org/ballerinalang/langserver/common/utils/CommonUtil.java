@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
@@ -71,7 +72,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -142,7 +142,7 @@ public class CommonUtil {
     public static final Path LS_STDLIB_CACHE_DIR = TEMP_DIR.resolve("ls_stdlib_cache").resolve(SDK_VERSION);
 
     public static final Path LS_CONNECTOR_CACHE_DIR = TEMP_DIR.resolve("ls_connector_cache").resolve(SDK_VERSION);
-    
+
     public static final List<String> PRE_DECLARED_LANG_LIBS = Arrays.asList("lang.boolean", "lang.decimal",
             "lang.error", "lang.float", "lang.future", "lang.int", "lang.map", "lang.object", "lang.stream",
             "lang.string", "lang.table", "lang.typedesc", "lang.xml", "lang.annotations");
@@ -168,7 +168,7 @@ public class CommonUtil {
         int startColumn = diagnosticLocation.lineRange().startLine().offset() - 1;
         int endColumn = diagnosticLocation.lineRange().endLine().offset() - 1;
         return new BLangDiagnosticLocation(diagnosticLocation.lineRange().filePath(),
-                                           startLine, endLine, startColumn, endColumn);
+                startLine, endLine, startColumn, endColumn);
     }
 
     /**
@@ -183,20 +183,6 @@ public class CommonUtil {
         int startColumn = lineRange.startLine().offset();
         int endColumn = lineRange.endLine().offset();
         return new Range(new Position(startLine, startColumn), new Position(endLine, endColumn));
-    }
-
-    /**
-     * Clone the diagnostic position given.
-     *
-     * @param diagnosticLocation - diagnostic position to be cloned
-     * @return {@link Location} cloned diagnostic position
-     */
-    public static Location clonePosition(Location diagnosticLocation) {
-        return new BLangDiagnosticLocation(diagnosticLocation.lineRange().filePath(),
-                                           diagnosticLocation.lineRange().startLine().line(),
-                                           diagnosticLocation.lineRange().endLine().line(),
-                                           diagnosticLocation.lineRange().startLine().offset(),
-                                           diagnosticLocation.lineRange().endLine().offset());
     }
 
     /**
@@ -240,7 +226,7 @@ public class CommonUtil {
         if (bType == null) {
             return "()";
         }
-        switch (bType.typeKind()) {
+        switch (getRawType(bType).typeKind()) {
             case INT:
                 typeString = Integer.toString(0);
                 break;
@@ -376,14 +362,22 @@ public class CommonUtil {
      * @param typeName type name to be filtered against
      * @return {@link Optional} type found
      */
-    public static Optional<TypeDefinitionSymbol> getTypeFromModule(LSContext context, String alias, String typeName) {
+    public static Optional<TypeSymbol> getTypeFromModule(LSContext context, String alias, String typeName) {
         Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, alias);
         if (module.isEmpty()) {
             return Optional.empty();
         }
-        for (TypeDefinitionSymbol typeDefinitionSymbol : module.get().typeDefinitions()) {
+
+        ModuleSymbol moduleSymbol = module.get();
+        for (TypeDefinitionSymbol typeDefinitionSymbol : moduleSymbol.typeDefinitions()) {
             if (typeDefinitionSymbol.name().equals(typeName)) {
-                return Optional.of(typeDefinitionSymbol);
+                return Optional.of(typeDefinitionSymbol.typeDescriptor());
+            }
+        }
+
+        for (ClassSymbol clazz : moduleSymbol.classes()) {
+            if (clazz.name().equals(typeName)) {
+                return Optional.of(clazz);
             }
         }
 
@@ -593,7 +587,7 @@ public class CommonUtil {
      * @return {@link String} Insert text
      */
     public static String getRecordFieldCompletionInsertText(FieldSymbol bField, int tabOffset) {
-        TypeSymbol fieldType = bField.typeDescriptor();
+        TypeSymbol fieldType = CommonUtil.getRawType(bField.typeDescriptor());
         StringBuilder insertText = new StringBuilder(bField.name() + ": ");
         if (fieldType.typeKind() == TypeDescKind.RECORD) {
             List<FieldSymbol> requiredFields = getMandatoryRecordFields((RecordTypeSymbol) fieldType);
@@ -602,20 +596,17 @@ public class CommonUtil {
                 return insertText.toString();
             }
             insertText.append("{").append(LINE_SEPARATOR);
-            int tabCount = tabOffset;
             List<String> requiredFieldInsertTexts = new ArrayList<>();
             for (FieldSymbol field : requiredFields) {
-                String fieldText = String.join("", Collections.nCopies(tabCount + 1, "\t")) +
-                        getRecordFieldCompletionInsertText(field, tabCount) +
-                        String.join("", Collections.nCopies(tabCount, "\t"));
+                String fieldText = String.join("", Collections.nCopies(tabOffset + 1, "\t")) +
+                        getRecordFieldCompletionInsertText(field, tabOffset + 1);
                 requiredFieldInsertTexts.add(fieldText);
-                tabCount++;
             }
-            insertText.append(String.join(CommonUtil.LINE_SEPARATOR, requiredFieldInsertTexts));
+            insertText.append(String.join("," + CommonUtil.LINE_SEPARATOR, requiredFieldInsertTexts));
             insertText.append(LINE_SEPARATOR)
                     .append(String.join("", Collections.nCopies(tabOffset, "\t")))
                     .append("}");
-        } else if (fieldType instanceof BArrayType) {
+        } else if (fieldType.typeKind() == TypeDescKind.ARRAY) {
             insertText.append("[").append("${1}").append("]");
         } else if (fieldType.typeKind() == TypeDescKind.STRING) {
             insertText.append("\"").append("${1}").append("\"");

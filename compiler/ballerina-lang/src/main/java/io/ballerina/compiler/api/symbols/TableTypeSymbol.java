@@ -38,7 +38,7 @@ public interface TableTypeSymbol extends TypeSymbol {
      *
      * @return {@link Optional} type descriptor
      */
-    Optional<TypeDescTypeSymbol> keyTypeConstraint();
+    Optional<TypeSymbol> keyConstraintTypeParameter();
 
     /**
      * Get the list of key specifiers.

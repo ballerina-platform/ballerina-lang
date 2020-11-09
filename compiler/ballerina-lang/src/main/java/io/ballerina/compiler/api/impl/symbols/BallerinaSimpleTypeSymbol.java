@@ -17,7 +17,6 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.symbols.SimpleTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -29,11 +28,21 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  */
 public class BallerinaSimpleTypeSymbol extends AbstractTypeSymbol implements SimpleTypeSymbol {
 
-    private String typeName;
+    private final String typeName;
 
     public BallerinaSimpleTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType) {
         super(context, TypesFactory.getTypeDescKind(bType.getKind()), moduleID, bType);
         this.typeName = bType.getKind().typeName();
+    }
+
+    public BallerinaSimpleTypeSymbol(CompilerContext context, ModuleID moduleID, String name, BType bType) {
+        super(context, TypesFactory.getTypeDescKind(bType.getKind()), moduleID, bType);
+        this.typeName = name;
+    }
+
+    @Override
+    public String name() {
+        return this.typeName;
     }
 
     @Override

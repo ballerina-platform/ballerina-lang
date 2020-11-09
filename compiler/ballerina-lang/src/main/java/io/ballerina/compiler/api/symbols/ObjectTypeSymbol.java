@@ -17,7 +17,6 @@
 package io.ballerina.compiler.api.symbols;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Represents an object type descriptor.
@@ -46,13 +45,6 @@ public interface ObjectTypeSymbol extends TypeSymbol {
      * @return {@link List} of object methods
      */
     List<MethodSymbol> methods();
-
-    /**
-     * Get the init method.
-     *
-     * @return {@link Optional} init method
-     */
-    Optional<MethodSymbol> initMethod();
 
     /**
      * Represents the object type qualifier.

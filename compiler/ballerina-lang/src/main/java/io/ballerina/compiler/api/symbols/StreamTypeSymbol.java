@@ -16,7 +16,7 @@
  */
 package io.ballerina.compiler.api.symbols;
 
-import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents an stream type descriptor.
@@ -26,9 +26,17 @@ import java.util.List;
 public interface StreamTypeSymbol extends TypeSymbol {
 
     /**
-     * Get the type parameters.
+     * Gets the type of the values of this stream.
      *
-     * @return {@link List} of types
+     * @return The type of the values
      */
-    List<TypeSymbol> typeParameters();
+    TypeSymbol typeParameter();
+
+    /**
+     * Gets the type of the completion value of the stream. Absence of a type descriptor is the same as the type being
+     * ().
+     *
+     * @return The type of the completion value
+     */
+    Optional<TypeSymbol> completionValueTypeParameter();
 }
