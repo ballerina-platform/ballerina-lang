@@ -2,8 +2,21 @@
     "line": 4,
     "character": 6,
     "expected": {
-        "title": "Type Guard 'getBar'",
+        "title": "Create Variable and Handle Error Inside",
         "edits": [
+            {
+                "range": {
+                    "start": {
+                        "line": 4,
+                        "character": 13
+                    },
+                    "end": {
+                        "line": 4,
+                        "character": 13
+                    }
+                },
+                "newText": "\n    if (bar is error) {\n\n    }\n"
+            },
             {
                 "range": {
                     "start": {
@@ -12,10 +25,10 @@
                     },
                     "end": {
                         "line": 4,
-                        "character": 13
+                        "character": 4
                     }
                 },
-                "newText": "if (getBar() is error) {\n\n\t\t\t\t}"
+                "newText": "error|() bar \u003d "
             }
         ]
     }

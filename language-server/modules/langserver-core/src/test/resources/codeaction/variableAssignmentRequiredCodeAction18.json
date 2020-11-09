@@ -2,7 +2,7 @@
     "line": 7,
     "character": 4,
     "expected": {
-        "title": "Create Local Variable",
+        "title": "Create Variable",
         "edits": [
             {
                 "range": {
@@ -15,7 +15,7 @@
                         "character": 4
                     }
                 },
-                "newText": "function (string a, string b, int... args) returns () a = "
+                "newText": "function (string x, string y, int... args) returns () functionResult = "
             }
         ]
     }

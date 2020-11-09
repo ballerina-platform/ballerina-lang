@@ -1,17 +1,17 @@
 {
-    "line": 73,
+    "line": 87,
     "character": 4,
     "expected": {
-        "title": "Create Local Variable",
+        "title": "Create Variable",
         "edits": [
             {
                 "range": {
                     "start": {
-                        "line": 73,
+                        "line": 87,
                         "character": 4
                     },
                     "end": {
-                        "line": 73,
+                        "line": 87,
                         "character": 4
                     }
                 },

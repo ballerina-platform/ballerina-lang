@@ -2,8 +2,21 @@
     "line": 5,
     "character": 6,
     "expected": {
-        "title": "Type Guard 'update_apple'",
+        "title": "Create Variable and Handle Error Inside",
         "edits": [
+            {
+                "range": {
+                    "start": {
+                        "line": 5,
+                        "character": 19
+                    },
+                    "end": {
+                        "line": 5,
+                        "character": 19
+                    }
+                },
+                "newText": "\n    if (apple is int) {\n\n    } else {\n\n    }\n"
+            },
             {
                 "range": {
                     "start": {
@@ -12,10 +25,10 @@
                     },
                     "end": {
                         "line": 5,
-                        "character": 19
+                        "character": 4
                     }
                 },
-                "newText": "if (update_apple() is int) {\n\n\t\t\t\t} else {\n\n\t\t\t\t}"
+                "newText": "int|error apple \u003d "
             }
         ]
     }

@@ -2,7 +2,7 @@
     "line": 10,
     "character": 4,
     "expected": {
-        "title": "Create Local Variable",
+        "title": "Create Variable",
         "edits": [
             {
                 "range": {
@@ -15,7 +15,7 @@
                         "character": 4
                     }
                 },
-                "newText": "[int, string] a = "
+                "newText": "[int, string] listResult = "
             }
         ]
     }

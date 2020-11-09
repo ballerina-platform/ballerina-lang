@@ -1,21 +1,21 @@
 {
-    "line": 53,
+    "line": 68,
     "character": 4,
     "expected": {
-        "title": "Create Local Variable with 'record {| string firstName; string lastName; string deptAccess; |}'",
+        "title": "Create Variable with 'record {| string firstName; string lastName; string deptAccess; |}'",
         "edits": [
             {
                 "range": {
                     "start": {
-                        "line": 53,
+                        "line": 68,
                         "character": 4
                     },
                     "end": {
-                        "line": 53,
+                        "line": 68,
                         "character": 4
                     }
                 },
-                "newText": "record {| string firstName; string lastName; string deptAccess; |} a = "
+                "newText": "record {| string firstName; string lastName; string deptAccess; |} mappingResult = "
             }
         ]
     }

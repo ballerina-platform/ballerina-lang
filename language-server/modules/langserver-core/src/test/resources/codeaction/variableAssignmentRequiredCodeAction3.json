@@ -2,19 +2,21 @@
   "line": 23,
   "character": 3,
   "expected": {
-    "title": "Create Local Variable",
-    "edits": [{
-      "range": {
-        "start": {
-          "line": 23,
-          "character": 3
+    "title": "Create Variable",
+    "edits": [
+      {
+        "range": {
+          "start": {
+            "line": 23,
+            "character": 3
+          },
+          "end": {
+            "line": 23,
+            "character": 3
+          }
         },
-        "end": {
-          "line": 23,
-          "character": 3
-        }
-      },
-      "newText": "Apple apple = "
-    }]
+        "newText": "Apple appleResult = "
+      }
+    ]
   }
 }
