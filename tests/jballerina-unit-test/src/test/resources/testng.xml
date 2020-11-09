@@ -743,18 +743,6 @@
                     <exclude name="testTypeConstants"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.documentation.FieldLevelDocsTest">
-                <methods>
-                    <exclude name="testObjWithModuleLevelAndFieldLevelFieldDocs"/>
-                    <exclude name="testObjectDocsWithMarkdownStyles"/>
-                    <exclude name="testObjectWithFieldLevelFieldDocs"/>
-                    <exclude name="testObjectWithModuleLevelFieldDocs"/>
-                    <exclude name="testRecordDocsWithMarkdownStyles"/>
-                    <exclude name="testRecordWithFieldLevelFieldDocs"/>
-                    <exclude name="testRecordWithModuleLevelAndFieldLevelFieldDocs"/>
-                    <exclude name="testRecordWithModuleLevelFieldDocs"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.listener.ListenerBaloTestExtPackage">
                 <methods>
                     <exclude name="testListenerObjectDefinedInDifferentPackage"/>
