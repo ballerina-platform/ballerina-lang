@@ -1067,11 +1067,6 @@
                     <exclude name="testRestMatchPattern5"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.constant.SimpleConstantBaloNegativeTests">
-                <methods>
-                    <exclude name="testNegative"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.worker.WorkerTest">
                 <methods>
                     <exclude name="innerWorkerPanicTest"/>
