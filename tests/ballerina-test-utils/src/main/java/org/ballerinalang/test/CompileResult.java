@@ -26,18 +26,10 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.model.tree.PackageNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * Projects based test compilation result.
@@ -83,7 +75,7 @@ public class CompileResult {
         if (classLoader != null) {
             return classLoader;
         }
-        classLoader = jBallerinaBackend.getClassLoader();
+        classLoader = jBallerinaBackend.jarResolver().getClassLoaderWithRequiredJarFilesForExecution();
         return classLoader;
     }
 
@@ -105,31 +97,5 @@ public class CompileResult {
 
     PackageDescriptor packageDescriptor() {
         return this.pkg.packageDescriptor();
-    }
-
-    private void addClasspathEntries(Path jarFilePath, List<URL> jarFiles) throws IOException {
-
-        if (!Files.exists(jarFilePath)) {
-            return;
-        }
-
-        if (Files.isRegularFile(jarFilePath) &&
-                jarFilePath.toString().endsWith(BLANG_COMPILED_JAR_EXT)) {
-            jarFiles.add(jarFilePath.normalize().toUri().toURL());
-            return;
-        }
-
-        Files.walk(jarFilePath)
-                .filter(filePath -> Files.isRegularFile(filePath) &&
-                        filePath.toString().endsWith(BLANG_COMPILED_JAR_EXT))
-                .forEach(filePath -> {
-                    try {
-                        jarFiles.add(filePath.normalize().toUri().toURL());
-                    } catch (MalformedURLException e) {
-                        throw new BLangRuntimeException("Error while adding classpath libraries from :" +
-                                jarFilePath.toString(), e);
-                    }
-                });
-
     }
 }

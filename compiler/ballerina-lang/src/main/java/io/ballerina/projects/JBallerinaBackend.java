@@ -38,15 +38,10 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -84,8 +79,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private DiagnosticResult diagnosticResult;
     private boolean codeGenCompleted;
-    private List<Path> allJarFilePaths;
-    private ClassLoader classLoaderWithAllJars;
+    private final JarResolver jarResolver;
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JdkVersion jdkVersion) {
         return new JBallerinaBackend(packageCompilation, jdkVersion);
@@ -95,6 +89,7 @@ public class JBallerinaBackend extends CompilerBackend {
         this.pkgCompilation = packageCompilation;
         this.jdkVersion = jdkVersion;
         this.packageContext = packageCompilation.packageContext();
+        this.jarResolver = new JarResolver(this, pkgCompilation);
 
         ProjectEnvironment projectEnvContext = this.packageContext.project().projectEnvironmentContext();
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
@@ -232,44 +227,8 @@ public class JBallerinaBackend extends CompilerBackend {
         return JAR_FILE_EXTENSION;
     }
 
-    public ClassLoader getClassLoader() {
-        if (classLoaderWithAllJars != null) {
-            return classLoaderWithAllJars;
-        }
-
-        if (diagnosticResult.hasErrors()) {
-            throw new IllegalStateException("Cannot create a ClassLoader: this compilation has errors.");
-        }
-
-        List<Path> allJarFilePaths = getAllJarLibraryPaths();
-        URL[] urls = new URL[allJarFilePaths.size()];
-        for (int index = 0; index < allJarFilePaths.size(); index++) {
-            Path jarFilePath = allJarFilePaths.get(index);
-            try {
-                urls[index] = jarFilePath.toUri().toURL();
-            } catch (MalformedURLException e) {
-                // This path cannot get executed
-                throw new RuntimeException("Failed to create classloader with all jar files", e);
-            }
-        }
-
-        // TODO use the ClassLoader.getPlatformClassLoader() here
-        classLoaderWithAllJars = AccessController.doPrivileged(
-                (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(urls, ClassLoader.getSystemClassLoader())
-        );
-
-        return classLoaderWithAllJars;
-    }
-
-    // TODO Should we move these jar related methods to the JBallerinaBackend.jarResolver()
-    public Collection<Path> allJars() {
-        return null;
-    }
-
-    // We want to run tests in this module: ModuleName
-    // We need the test-jar of MouleName
-    public List<Path> allJarsWithTestsJars(ModuleName moduleName) {
-        return null;
+    public JarResolver jarResolver() {
+        return jarResolver;
     }
 
     // TODO Can we move this method to Module.displayName()
@@ -293,7 +252,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private void assembleExecutableJar(Path executableFilePath,
                                        Manifest manifest,
-                                       List<Path> jarFilePaths) throws IOException {
+                                       Collection<Path> jarFilePaths) throws IOException {
         // Used to prevent adding duplicated entries during the final jar creation.
         HashSet<String> copiedEntries = new HashSet<>();
 
@@ -415,32 +374,6 @@ public class JBallerinaBackend extends CompilerBackend {
                 excludeExtensions.contains(entryName.substring(entryName.lastIndexOf(".") + 1));
     }
 
-    private List<Path> getAllJarLibraryPaths() {
-        if (allJarFilePaths != null) {
-            return allJarFilePaths;
-        }
-
-        allJarFilePaths = new ArrayList<>();
-        List<PackageId> sortedPackageIds = pkgCompilation.packageDependencyGraph().toTopologicallySortedList();
-        for (PackageId packageId : sortedPackageIds) {
-            PackageContext packageContext = packageResolver.getPackage(packageId).packageContext();
-            for (ModuleId moduleId : packageContext.moduleIds()) {
-                ModuleContext moduleContext = packageContext.moduleContext(moduleId);
-                PlatformLibrary generatedJarLibrary = codeGeneratedLibrary(packageId, moduleContext.moduleName());
-                allJarFilePaths.add(generatedJarLibrary.path());
-            }
-
-            // Add all the jar library dependencies of current package (packageId)
-            // TODO Filter our test scope dependencies
-            Collection<PlatformLibrary> otherJarDependencies = platformLibraryDependencies(packageId);
-            otherJarDependencies.forEach(platformLibrary -> allJarFilePaths.add(platformLibrary.path()));
-        }
-
-        // Add the runtime library path
-        allJarFilePaths.add(runtimeLibrary().path());
-        return allJarFilePaths;
-    }
-
     private PlatformLibrary codeGeneratedLibrary(PackageId packageId,
                                                  ModuleName moduleName,
                                                  String fileNameSuffix) {
@@ -466,7 +399,7 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         Manifest manifest = createManifest();
-        List<Path> jarLibraryPaths = getAllJarLibraryPaths();
+        Collection<Path> jarLibraryPaths = jarResolver.getJarFilePathsRequiredForExecution();
 
         try {
             assembleExecutableJar(executableFilePath, manifest, jarLibraryPaths);
