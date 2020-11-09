@@ -50,8 +50,9 @@ public enum TypeDescKind {
     HANDLE("handle"),
     TABLE("table"),
     SINGLETON("singleton"),
+    READONLY("readonly"),
     NEVER("never");
-    
+
     
     private final String name;
 

@@ -14,29 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.ballerina.compiler.api.symbols;
 
 import java.util.Optional;
 
 /**
- * Represents an stream type descriptor.
+ * Represents an xml type descriptor.
  *
  * @since 2.0.0
  */
-public interface StreamTypeSymbol extends TypeSymbol {
+public interface XMLTypeSymbol extends TypeSymbol {
 
     /**
-     * Gets the type of the values of this stream.
+     * Get the type descriptor of the type parameter.
      *
-     * @return The type of the values
+     * @return The type parameter
      */
-    TypeSymbol typeParameter();
-
-    /**
-     * Gets the type of the completion value of the stream. Absence of a type descriptor is the same as the type being
-     * ().
-     *
-     * @return The type of the completion value
-     */
-    Optional<TypeSymbol> completionValueTypeParameter();
+    Optional<TypeSymbol> typeParameter();
 }

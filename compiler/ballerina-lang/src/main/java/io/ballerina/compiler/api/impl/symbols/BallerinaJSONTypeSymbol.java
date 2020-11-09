@@ -14,39 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.symbols.SimpleTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import io.ballerina.compiler.api.symbols.JSONTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
- * Represents the built-in simple type descriptor.
+ * Represents the json type descriptor.
  *
  * @since 2.0.0
  */
-public class BallerinaSimpleTypeSymbol extends AbstractTypeSymbol implements SimpleTypeSymbol {
+public class BallerinaJSONTypeSymbol extends AbstractTypeSymbol implements JSONTypeSymbol {
 
-    private final String typeName;
-
-    public BallerinaSimpleTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType) {
-        super(context, TypesFactory.getTypeDescKind(bType.getKind()), moduleID, bType);
-        this.typeName = bType.getKind().typeName();
-    }
-
-    public BallerinaSimpleTypeSymbol(CompilerContext context, ModuleID moduleID, String name, BType bType) {
-        super(context, TypesFactory.getTypeDescKind(bType.getKind()), moduleID, bType);
-        this.typeName = name;
-    }
-
-    @Override
-    public String name() {
-        return this.typeName;
+    public BallerinaJSONTypeSymbol(CompilerContext context, ModuleID moduleID, BJSONType jsonType) {
+        super(context, TypeDescKind.JSON, moduleID, jsonType);
     }
 
     @Override
     public String signature() {
-        return this.typeName;
+        return "json";
     }
 }
