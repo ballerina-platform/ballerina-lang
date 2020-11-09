@@ -1,6 +1,7 @@
 [package]
-org = "testorg"
-name = "test_project"
+org= "testorg"
+name="foo"
 version= "1.0.0"
+exported=["testpkg.foo"]
 
 [dependencies]

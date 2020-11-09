@@ -40,8 +40,7 @@ public class ObjectInitializerTest {
 
     @BeforeClass
     public void setup() {
-//        compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "init");
-        compileResult = BCompileUtil.compile("test-src/object/ObjectProject/init");
+        compileResult = BCompileUtil.compile("test-src/object/object_init_project");
     }
 
     @Test(description = "Test object initializers that are in the same package")
@@ -70,8 +69,7 @@ public class ObjectInitializerTest {
 
     @Test(description = "Test negative object initializers scenarios")
     public void testInvalidStructLiteralKey() {
-//        CompileResult result = BCompileUtil.compile("test-src/object/ObjectProject", "init.negative");
-        CompileResult result = BCompileUtil.compile("test-src/object/ObjectProject/init.negative");
+        CompileResult result = BCompileUtil.compile("test-src/object/object_init_negative_project");
         Assert.assertEquals(result.getErrorCount(), 1);
         validateError(result, 0, "attempt to refer to non-accessible symbol 'student.init'", 5, 21);
 
