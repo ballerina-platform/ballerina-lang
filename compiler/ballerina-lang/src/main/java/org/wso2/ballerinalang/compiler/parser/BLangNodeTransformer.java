@@ -1798,6 +1798,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 BLangRecordSpreadOperatorField bLRecordSpreadOpField =
                         (BLangRecordSpreadOperatorField) TreeBuilder.createRecordSpreadOperatorField();
                 bLRecordSpreadOpField.expr = createExpression(spreadFieldNode.valueExpr());
+                bLRecordSpreadOpField.pos = getPosition(spreadFieldNode);
                 bLiteralNode.fields.add(bLRecordSpreadOpField);
             } else if (field.kind() == SyntaxKind.COMPUTED_NAME_FIELD) {
                 ComputedNameFieldNode computedNameField = (ComputedNameFieldNode) field;
