@@ -855,12 +855,6 @@
                     <exclude name="testDefaultErrorBeforeSend"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.readonly.SelectivelyImmutableTypeBaloTest">
-                <methods>
-                    <exclude name="testImmutableTypesNegative"/>
-                    <exclude name="testReadonlyType"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.documentation.MultilineDocsTest">
                 <methods>
                     <exclude name="testMultilineDocs"/>
