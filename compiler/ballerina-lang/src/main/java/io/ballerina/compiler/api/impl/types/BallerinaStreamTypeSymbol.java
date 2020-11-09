@@ -46,6 +46,7 @@ public class BallerinaStreamTypeSymbol extends AbstractTypeSymbol implements Str
         if (this.typeParameters == null) {
             this.typeParameters = new ArrayList<>();
             typeParameters.add(TypesFactory.getTypeDescriptor(((BStreamType) this.getBType()).constraint));
+            typeParameters.add(TypesFactory.getTypeDescriptor(((BStreamType) this.getBType()).error));
         }
 
         return this.typeParameters;

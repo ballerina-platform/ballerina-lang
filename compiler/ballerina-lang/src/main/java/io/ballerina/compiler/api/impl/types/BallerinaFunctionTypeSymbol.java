@@ -87,7 +87,7 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
     @Override
     public String signature() {
         StringBuilder signature = new StringBuilder("function (");
-        StringJoiner joiner = new StringJoiner(",");
+        StringJoiner joiner = new StringJoiner(", ");
         for (ParameterSymbol requiredParam : this.parameters()) {
             String ballerinaParameterSignature = requiredParam.signature();
             joiner.add(ballerinaParameterSignature);

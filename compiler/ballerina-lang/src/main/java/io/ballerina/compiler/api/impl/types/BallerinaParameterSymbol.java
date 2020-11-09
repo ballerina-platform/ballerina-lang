@@ -88,7 +88,14 @@ public class BallerinaParameterSymbol implements ParameterSymbol {
     public String signature() {
         StringJoiner joiner = new StringJoiner(" ");
         this.qualifiers().forEach(accessModifier -> joiner.add(accessModifier.getValue()));
-        joiner.add(this.typeDescriptor().signature());
+        String signature;
+        if (this.kind() == ParameterKind.REST) {
+            signature = this.typeDescriptor().signature();
+            signature = signature.substring(0, signature.length() - 2) + "...";
+        } else {
+            signature = this.typeDescriptor().signature();
+        }
+        joiner.add(signature);
         if (this.name().isPresent()) {
             joiner.add(this.name().get());
         }

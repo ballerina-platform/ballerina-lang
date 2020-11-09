@@ -67,7 +67,7 @@ public class BallerinaTupleTypeSymbol extends AbstractTypeSymbol implements Tupl
 
     @Override
     public String signature() {
-        StringJoiner joiner = new StringJoiner(",");
+        StringJoiner joiner = new StringJoiner(", ");
         for (TypeSymbol typeDescriptorImpl : memberTypeDescriptors()) {
             String typeDescriptorSignature = typeDescriptorImpl.signature();
             joiner.add(typeDescriptorSignature);

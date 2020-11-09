@@ -85,17 +85,19 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
     public String signature() {
         StringJoiner joiner;
         if (this.isInclusive) {
-            joiner = new StringJoiner("; ", "{ ", " }");
+            joiner = new StringJoiner(" ", "{ ", " }");
         } else {
-            joiner = new StringJoiner("; ", "{| ", " |}");
+            joiner = new StringJoiner(" ", "{| ", " |}");
         }
         for (FieldSymbol fieldSymbol : this.fieldDescriptors()) {
-            String ballerinaFieldSignature = fieldSymbol.signature();
+            String ballerinaFieldSignature = fieldSymbol.signature() + ";";
             joiner.add(ballerinaFieldSignature);
         }
 
-        restTypeDescriptor().ifPresent(typeDescriptor -> joiner.add(typeDescriptor.signature() + "..."));
+        restTypeDescriptor().ifPresent(typeDescriptor -> {
+            joiner.add(typeDescriptor.signature() + "...;");
+        });
 
-        return joiner.toString();
+        return "record " + joiner.toString();
     }
 }
