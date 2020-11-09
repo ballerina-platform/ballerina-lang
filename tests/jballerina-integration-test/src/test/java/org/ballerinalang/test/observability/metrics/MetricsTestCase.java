@@ -132,15 +132,7 @@ public class MetricsTestCase extends ObservabilityBaseTest {
      */
     private void testFunctionMetrics(Metrics allMetrics, String invocationPosition, long invocationCount,
                                        Tag ...additionalTags) {
-        Metrics functionMetrics = filterByTag(allMetrics, "src.position", invocationPosition);
-
-        Set<Tag> tags = new HashSet<>(Arrays.asList(additionalTags));
-        tags.add(Tag.of("src.module", MODULE_ID));
-        tags.add(Tag.of("src.position", invocationPosition));
-
-        testFunctionCounters(invocationCount, functionMetrics, tags);
-        testFunctionGauges(invocationCount, functionMetrics, tags);
-        Assert.assertEquals(functionMetrics.getPolledGauges().size(), 0);
+        testFunctionMetrics(allMetrics, invocationPosition,invocationCount,additionalTags,null);
     }
 
     /**
@@ -161,7 +153,9 @@ public class MetricsTestCase extends ObservabilityBaseTest {
         startTags.add(Tag.of("src.position", invocationPosition));
 
         Set<Tag> endTags = new HashSet<>(startTags);
-        endTags.addAll(Arrays.asList(endObservationTags));
+        if(endObservationTags != null) {
+            endTags.addAll(Arrays.asList(endObservationTags));
+        }
         testFunctionGauges(invocationCount, functionMetrics, startTags, endTags);
         testFunctionCounters(invocationCount, functionMetrics, endTags);
         Assert.assertEquals(functionMetrics.getPolledGauges().size(), 0);
@@ -194,38 +188,6 @@ public class MetricsTestCase extends ObservabilityBaseTest {
                 }
             } else {
                 Assert.fail("Unexpected metric " + counter.getId().getName());
-            }
-        });
-    }
-
-    /**
-     * Test the gauge metrics generated for a particular function invocation.
-     *
-     * @param invocationCount The number of times the function should have been called
-     * @param functionMetrics All the metrics generated for the function invocation
-     * @param tags Tags that should be present in metrics
-     */
-    private void testFunctionGauges(long invocationCount, Metrics functionMetrics, Set<Tag> tags) {
-        Assert.assertEquals(functionMetrics.getGauges().stream()
-                        .map(gauge -> gauge.getId().getName())
-                        .collect(Collectors.toSet()),
-                new HashSet<>(Arrays.asList("response_time_seconds", "inprogress_requests")));
-        Assert.assertEquals(functionMetrics.getGauges().size(), 2);
-        functionMetrics.getGauges().forEach(gauge -> {
-            if (Objects.equals(gauge.getId().getName(), "response_time_seconds")) {
-                testFunctionResponseTimeGaugeMetrics(invocationCount, tags, gauge);
-            } else if (Objects.equals(gauge.getId().getName(), "inprogress_requests")) {
-                // Creating a new tag set without error metric as it is added after the observation is started and
-                // hence not included in progress metrics
-                Set<Tag> inProgressGaugeTags = new HashSet<>(tags);
-                inProgressGaugeTags.remove(Tag.of("error", "true"));
-                Assert.assertEquals(gauge.getId().getTags(), inProgressGaugeTags);
-                Assert.assertEquals(gauge.getCount(), invocationCount * 2);
-                Assert.assertEquals(gauge.getSum(), (double) invocationCount);
-                Assert.assertEquals(gauge.getValue(), 0.0);
-                Assert.assertEquals(gauge.getSnapshots().length, 0);
-            } else {
-                Assert.fail("Unexpected metric " + gauge.getId().getName());
             }
         });
     }

@@ -83,9 +83,6 @@ public class CustomTracingTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
                     new AbstractMap.SimpleEntry<>("connector_name", SERVER_CONNECTOR_NAME)
             ));
-
-            // AddTagToMetrics() key should not be included in span tags
-            Assert.assertFalse(span.getTags().containsKey("metric"));
         });
 
         Optional<BMockSpan> span2 = spans.stream()

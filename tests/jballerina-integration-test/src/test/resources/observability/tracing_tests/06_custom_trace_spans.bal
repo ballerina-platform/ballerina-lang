@@ -25,7 +25,7 @@ service testServiceFive on new testobserve:Listener(9096) {
         _ = checkpanic observe:addTagToSpan("index", "1", customSpanOneId);
 
         // Adding a metric tag and this should not be included in the tracing tags
-        _ = checkpanic observe:addTagToMetrics("metric", "Metric Value" );
+        checkpanic observe:addTagToMetrics("metric", "Metric Value" );
 
         var a = 12;
         var b = 27;
