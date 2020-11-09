@@ -254,7 +254,7 @@
             </class>
             <class name="org.ballerinalang.test.balo.object.RemoteObjectBaloTest">
                 <methods>
-                    <exclude name="testRemoteObject"/>
+<!--                    <exclude name="testRemoteObject"/>-->
                 </methods>
             </class>
             <class name="org.ballerinalang.test.balo.constant.SimpleConstantAccessInBaloTest">
