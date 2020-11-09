@@ -774,13 +774,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         this.inLockStatement = prevInLockStatement;
 
-        Set<BSymbol> accessedRestrictedVarKeys = copyInLockInfo.accessedRestrictedVars.keySet();
+        Map<BSymbol, List<BLangSimpleVarRef>> accessedRestrictedVars = copyInLockInfo.accessedRestrictedVars;
+        Set<BSymbol> accessedRestrictedVarKeys = accessedRestrictedVars.keySet();
 
         if (!accessedRestrictedVarKeys.isEmpty()) {
             if (accessedRestrictedVarKeys.size() > 1) {
                 for (BSymbol accessedRestrictedVarKey : accessedRestrictedVarKeys) {
-                    dlog.error(accessedRestrictedVarKey.pos,
-                               DiagnosticCode.INVALID_USAGE_OF_MULTIPLE_RESTRICTED_VARS_IN_LOCK);
+                    for (BLangSimpleVarRef varRef : accessedRestrictedVars.get(accessedRestrictedVarKey)) {
+                        dlog.error(varRef.pos, DiagnosticCode.INVALID_USAGE_OF_MULTIPLE_RESTRICTED_VARS_IN_LOCK);
+                    }
                 }
             }
 
@@ -2674,7 +2676,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private void addToAccessedRestrictedVars(Map<BSymbol, List<BLangSimpleVarRef>> accessedRestrictedVars,
                                              BLangSimpleVarRef varRef) {
-        BSymbol originalSymbol = getOriginalSymbol(varRef.varSymbol);
+        BSymbol originalSymbol = getOriginalSymbol(varRef.symbol);
 
         if (accessedRestrictedVars.containsKey(originalSymbol)) {
             accessedRestrictedVars.get(originalSymbol).add(varRef);

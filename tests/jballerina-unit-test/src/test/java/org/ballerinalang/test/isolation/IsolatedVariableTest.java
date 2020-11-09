@@ -35,6 +35,8 @@ public class IsolatedVariableTest {
             "invalid initial value expression: expected an isolated expression";
     private static final String ERROR_INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK =
             "invalid access of an 'isolated' variable outside a 'lock' statement";
+    private static final String ERROR_INVALID_ACCESS_OF_MULTIPLE_RESTRICTER_VARS =
+            "cannot access more than one variable for which usage is restricted in a single 'lock' statement";
 
     @Test
     public void testIsolatedVariablesSemanticNegative() {
@@ -61,6 +63,11 @@ public class IsolatedVariableTest {
         validateError(result, i++, ERROR_INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK, 67, 19);
         validateError(result, i++, ERROR_INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK, 74, 13);
         validateError(result, i++, ERROR_INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK, 81, 24);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MULTIPLE_RESTRICTER_VARS, 90, 21);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MULTIPLE_RESTRICTER_VARS, 91, 13);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MULTIPLE_RESTRICTER_VARS, 97, 21);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MULTIPLE_RESTRICTER_VARS, 98, 13);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MULTIPLE_RESTRICTER_VARS, 99, 13);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

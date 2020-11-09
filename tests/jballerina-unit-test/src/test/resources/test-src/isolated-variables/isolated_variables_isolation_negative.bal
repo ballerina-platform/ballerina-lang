@@ -81,3 +81,22 @@ function testInvalidIsolatedVariableAccessOutsideLock(boolean bool) {
         int[][] arr2 = b;
     };
 }
+
+isolated class IsolatedObject {
+    private map<int> m = {};
+
+    isolated function testInvalidAccessOfMoreThanOneIsolatedVar1() {
+        lock {
+            int x = b[0][0];
+            self.m["a"] = x;
+        }
+    }
+
+    function testInvalidAccessOfMoreThanOneIsolatedVar2() {
+        lock {
+            int x = b[0][0];
+            self.m["a"] = x;
+            self.testInvalidAccessOfMoreThanOneIsolatedVar1();
+        }
+    }
+}
