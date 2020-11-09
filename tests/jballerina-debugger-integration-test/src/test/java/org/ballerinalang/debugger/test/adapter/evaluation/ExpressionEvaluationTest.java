@@ -273,7 +273,29 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void unaryExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // unary plus operator
+        // int
+        assertExpression(context, String.format("+%s", INT_VAR), "20", "int");
+        // float
+        assertExpression(context, String.format("+%s", FLOAT_VAR), "-10.0", "float");
+        // decimal
+        assertExpression(context, String.format("+%s", DECIMAL_VAR), "3.5", "decimal");
+
+        // unary minus operator
+        // int
+        assertExpression(context, String.format("-%s", INT_VAR), "-20", "int");
+        // float
+        assertExpression(context, String.format("-%s", FLOAT_VAR), "10.0", "float");
+        // decimal
+        assertExpression(context, String.format("-%s", DECIMAL_VAR), "-3.5", "decimal");
+
+        // unary invert operator
+        // int
+        assertExpression(context, String.format("~%s", INT_VAR), "-21", "int");
+
+        // unary negation operator
+        // boolean
+        assertExpression(context, String.format("!%s", BOOLEAN_VAR), "false", "boolean");
     }
 
     @Override

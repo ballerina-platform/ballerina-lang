@@ -147,7 +147,10 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void unaryExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        assertEvaluationError(context, String.format("+%s", STRING_VAR), "operator '+' not defined for 'string'");
+        assertEvaluationError(context, String.format("-%s", STRING_VAR), "operator '-' not defined for 'string'");
+        assertEvaluationError(context, String.format("~%s", STRING_VAR), "operator '~' not defined for 'string'");
+        assertEvaluationError(context, String.format("!%s", STRING_VAR), "operator '!' not defined for 'string'");
     }
 
     @Override
@@ -268,8 +271,8 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         // empty expressions
         assertEvaluationError(context, "  ", EvaluationExceptionKind.EMPTY.getString());
         // unsupported expressions
-        assertEvaluationError(context, "~x", String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION
-                .getString(), "~x - UNARY_EXPRESSION"));
+        assertEvaluationError(context, "new()", String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION
+                .getString(), "new() - IMPLICIT_NEW_EXPRESSION"));
         // syntactically incorrect expressions (additional semi-colon)
         assertEvaluationError(context, "x + 5;;", String.format(EvaluationExceptionKind.SYNTAX_ERROR
                 .getString(), "invalid token ';'"));
