@@ -16,16 +16,11 @@
 
 package io.ballerina.runtime.api.values;
 
-import javax.xml.XMLConstants;
-import javax.xml.namespace.QName;
-
 /**
- * {@code BXMLItem} represents an XML Item in Ballerina.
+ * {@code BXmlNonElementItem} represents an XML non element Item in Ballerina.
  *
  * @since 2.0.0
  */
 public interface BXmlNonElementItem extends BXml {
-
-
 
 }
