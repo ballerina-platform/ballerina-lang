@@ -57,6 +57,9 @@ public class IgnoreReturnCodeAction extends AbstractCodeActionProvider {
         }
 
         TypeSymbol typeDescriptor = positionDetails.matchedSymbolTypeDesc();
+        if (typeDescriptor == null) {
+            return Collections.emptyList();
+        }
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         Position pos = diagnostic.getRange().getStart();
         // Add ignore return value code action

@@ -70,7 +70,7 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
         Symbol matchedSymbol = positionDetails.matchedSymbol();
         TypeSymbol typeDescriptor = positionDetails.matchedSymbolTypeDesc();
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-        if (typeDescriptor.typeKind() != TypeDescKind.UNION) {
+        if (typeDescriptor == null || typeDescriptor.typeKind() != TypeDescKind.UNION) {
             return Collections.emptyList();
         }
         UnionTypeSymbol unionType = (UnionTypeSymbol) typeDescriptor;

@@ -78,11 +78,11 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         if (!(diagnosticMsg.contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return Collections.emptyList();
         }
-
-        if (positionDetails.matchedSymbolTypeDesc().typeKind() != TypeDescKind.UNION) {
+        TypeSymbol typeSymbol = positionDetails.matchedSymbolTypeDesc();
+        if (typeSymbol == null || typeSymbol.typeKind() != TypeDescKind.UNION) {
             return Collections.emptyList();
         }
-        UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) positionDetails.matchedSymbolTypeDesc();
+        UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) typeSymbol;
 
         boolean hasErrorMemberType = unionTypeDesc.memberTypeDescriptors().stream()
                 .anyMatch(member -> member.typeKind() == TypeDescKind.ERROR);
@@ -145,7 +145,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         String typeWithError = createVarTextEdits.types.get(0);
         String typeWithoutError = unionTypeDesc.memberTypeDescriptors().stream()
                 .filter(member -> member.typeKind() != TypeDescKind.ERROR)
-                .map(typeDesc -> CodeActionUtil.getPossibleTypes(typeDesc, edits, context, compilerContext).get(0))
+                .map(typeDesc -> CodeActionUtil.getPossibleTypes(typeDesc, edits, context).get(0))
                 .collect(Collectors.joining("|"));
 
         TextEdit textEdit = createVarTextEdits.edits.get(0);

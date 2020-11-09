@@ -68,6 +68,9 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         if (!(diagnosticMsg.contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return actions;
         }
+        if (positionDetails.matchedSymbolTypeDesc() == null) {
+            return actions;
+        }
 
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(diagnostic, positionDetails, context);
@@ -108,7 +111,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
 
         List<TextEdit> importEdits = new ArrayList<>();
         List<TextEdit> edits = new ArrayList<>();
-        List<String> types = CodeActionUtil.getPossibleTypes(typeDescriptor, importEdits, context, compilerContext);
+        List<String> types = CodeActionUtil.getPossibleTypes(typeDescriptor, importEdits, context);
         Position pos = diagnostic.getRange().getStart();
         for (String type : types) {
             Position insertPos = new Position(pos.getLine(), pos.getCharacter());
