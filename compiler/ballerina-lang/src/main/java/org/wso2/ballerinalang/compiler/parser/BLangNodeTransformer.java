@@ -5066,6 +5066,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private void markVariableAsConfigurable(BLangVariable variable) {
         // Set the configurable flag to the variable.
         variable.flagSet.add(Flag.CONFIGURABLE);
+        // Configurable variables are readonly, hence add the readonly flag as well
+        variable.flagSet.add(Flag.READONLY);
 
         switch (variable.getKind()) {
             case TUPLE_VARIABLE:

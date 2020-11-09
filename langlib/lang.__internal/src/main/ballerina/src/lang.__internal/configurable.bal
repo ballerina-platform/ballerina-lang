@@ -18,18 +18,26 @@ import ballerina/java;
 
 # Check whether a given key has a configuard value
 #
-# + key - The key value
+# + orgName - Organization name
+# + moduleName - module name
+# + versionNumber - version number
+# + configVarName - configuration variable name
 # + return - Boolean value
-public function hasConfigurableValue(string key) returns boolean = @java:Method {
+public function hasConfigurableValue(string orgName, string moduleName, string versionNumber, string configVarName)
+returns boolean = @java:Method {
     'class: "org.ballerinalang.langlib.internal.Configurable",
     name: "hasConfigurableValue"
 } external;
 
 # Get the value of the configurable variable
 #
-# + key - The key value
+# + orgName - Organization name
+# + moduleName - module name
+# + versionNumber - version number
+# + configVarName - configuration variable name
 # + return - Configured value of the key
-public function getConfigurableValue(string key) returns anydata = @java:Method {
+public function getConfigurableValue(string orgName, string moduleName, string versionNumber, string configVarName)
+returns anydata = @java:Method {
     'class: "org.ballerinalang.langlib.internal.Configurable",
     name: "getConfigurableValue"
 } external;

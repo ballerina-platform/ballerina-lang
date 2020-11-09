@@ -264,6 +264,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -729,7 +730,7 @@ public class Desugar extends BLangNodeVisitor {
             if (globalVar.expr != null) {
                 // Create ternary expression for configurable variables
                 if (Symbols.isFlagOn(globalVar.symbol.flags, Flags.CONFIGURABLE)) {
-                    globalVar.expr  = rewriteExpr(createTernaryExprFromConfigurable(globalVar));
+                    globalVar.expr  = createIfElseFromConfigurable(globalVar);
                 }
                 BLangAssignment assignment = createAssignmentStmt(globalVar);
                 initFnBody.stmts.add(assignment);
@@ -776,19 +777,36 @@ public class Desugar extends BLangNodeVisitor {
         result = pkgNode;
     }
     
-    private BLangTernaryExpr createTernaryExprFromConfigurable(BLangSimpleVariable configurableVar) {
+    private BLangStatementExpression createIfElseFromConfigurable(BLangSimpleVariable configurableVar) {
 
-        // configurableValue = hasValue(key) ? getValue(key) : defaultValue
-        // key = orgName + "." + moduleName + "." + version + "." + configVarName
+        /*
+         * If else will be generated as follows:
+         *
+         * if (hasValue(key)) {
+         *    result = getValue(key);
+         * } else {
+         *    result = defaultValue;
+         * }
+         *
+         * key = orgName + "." + moduleName + "." + version + "." + configVarName
+         */
+
+        // Prepare parameters
         String orgName = env.enclPkg.packageID.orgName.getValue();
+        BLangLiteral orgLiteral = ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, orgName);
         String moduleName = env.enclPkg.packageID.name.getValue();
-        String version = env.enclPkg.packageID.version.getValue();
+        BLangLiteral moduleNameLiteral =
+                ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, moduleName);
+        String versionNumber = env.enclPkg.packageID.version.getValue();
+        BLangLiteral versionLiteral =
+                ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, versionNumber);
         String configVarName = configurableVar.name.getValue();
+        BLangLiteral configNameLiteral =
+                ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, configVarName);
 
-        String keyValue = orgName + "." + moduleName + "." + version + "." + configVarName;
+        List<BLangExpression> args = new ArrayList<>
+                (Arrays.asList(orgLiteral, moduleNameLiteral, versionLiteral, configNameLiteral));
 
-        BLangLiteral keyLiteral = ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, keyValue);
-        List<BLangExpression> args = new ArrayList<>() {{ add(keyLiteral); }};
         // Check if value is configured
         BLangInvocation hasValueInvocation = createLangLibInvocationNode("hasConfigurableValue",
                 args, symTable.booleanType, configurableVar.pos);
@@ -796,11 +814,31 @@ public class Desugar extends BLangNodeVisitor {
         BLangInvocation getValueInvocation = createLangLibInvocationNode("getConfigurableValue",
                 args, symTable.anydataType, configurableVar.pos);
 
-        BLangTernaryExpr ternaryExpr = ASTBuilderUtil.createTernaryExpr(configurableVar.pos, hasValueInvocation,
-                getValueInvocation, configurableVar.expr);
-        ternaryExpr.type = configurableVar.type;
+        BLangBlockStmt thenBody = ASTBuilderUtil.createBlockStmt(configurableVar.pos);
+        BLangBlockStmt elseBody = ASTBuilderUtil.createBlockStmt(configurableVar.pos);
 
-        return ternaryExpr;
+        // Create then assignment
+        BLangSimpleVarRef thenResultVarRef =
+                ASTBuilderUtil.createVariableRef(configurableVar.pos, configurableVar.symbol);
+        BLangAssignment thenAssignment =
+                ASTBuilderUtil.createAssignmentStmt(configurableVar.pos, thenResultVarRef, getValueInvocation);
+        thenBody.addStatement(thenAssignment);
+
+        // Create else assignment
+        BLangSimpleVarRef elseResultVarRef =
+                ASTBuilderUtil.createVariableRef(configurableVar.pos, configurableVar.symbol);
+        BLangAssignment elseAssignment =
+                ASTBuilderUtil.createAssignmentStmt(configurableVar.pos, elseResultVarRef, configurableVar.expr);
+        elseBody.addStatement(elseAssignment);
+
+        BLangIf ifElse = ASTBuilderUtil.createIfElseStmt(configurableVar.pos, hasValueInvocation, thenBody, elseBody);
+
+        // Then make it an expression-statement, since we need it to be an expression
+        BLangSimpleVarRef resultVarRef = ASTBuilderUtil.createVariableRef(configurableVar.pos, configurableVar.symbol);
+        BLangStatementExpression stmtExpr = createStatementExpression(ifElse, resultVarRef);
+        stmtExpr.type = configurableVar.type;
+
+        return rewriteExpr(stmtExpr);
     }
 
     private void desugarClassDefinitions(List<TopLevelNode> topLevelNodes) {

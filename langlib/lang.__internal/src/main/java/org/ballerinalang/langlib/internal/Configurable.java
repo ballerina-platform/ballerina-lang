@@ -32,14 +32,20 @@ import java.util.Map;
 public class Configurable {
     private static Map<String, Object> configMap = new HashMap<>() {{ put("$anon...0.0.0.x", 1); }};
 
-    public static Object hasConfigurableValue(BString key) {
+    public static Object hasConfigurableValue(BString orgName, BString moduleName, BString versionNumber,
+                                              BString configVarName) {
+       String key = orgName.getValue() + "." + moduleName.getValue() + "." + versionNumber.getValue() + "."
+               + configVarName.getValue();
        if (configMap.containsKey(key)) {
            return true;
        }
        return false;
     }
 
-    public static Object getConfigurableValue(BString key) {
+    public static Object getConfigurableValue(BString orgName, BString moduleName, BString versionNumber,
+                                              BString configVarName) {
+        String key = orgName.getValue() + "." + moduleName.getValue() + "." + versionNumber.getValue() + "."
+                + configVarName.getValue();
         if (configMap.containsKey(key)) {
             return configMap.get(key);
         }
