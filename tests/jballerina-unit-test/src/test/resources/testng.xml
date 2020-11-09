@@ -730,40 +730,40 @@
                     <exclude name="testFunctions"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.constant.MapConstantInBaloTest">
-                <methods>
-                    <exclude name="testBooleanConstKeyReference"/>
-                    <exclude name="testBooleanConstKeyReferenceInLocalVar"/>
-                    <exclude name="testByteConstKeyReference"/>
-                    <exclude name="testByteConstKeyReferenceInLocalVar"/>
-                    <exclude name="testComplexBooleanConstMap"/>
-                    <exclude name="testComplexByteConstMap"/>
-                    <exclude name="testComplexConstMap"/>
-                    <exclude name="testComplexDecimalConstMap"/>
-                    <exclude name="testComplexFloatConstMap"/>
-                    <exclude name="testComplexIntConstMap"/>
-                    <exclude name="testComplexNilConstMap"/>
-                    <exclude name="testComplexStringConstMap"/>
-                    <exclude name="testConstInAnnotations"/>
-                    <exclude name="testDecimalConstKeyReference"/>
-                    <exclude name="testDecimalConstKeyReferenceInLocalVar"/>
-                    <exclude name="testFloatConstKeyReference"/>
-                    <exclude name="testFloatConstKeyReferenceInLocalVar"/>
-                    <exclude name="testIntConstKeyReference"/>
-                    <exclude name="testIntConstKeyReferenceInLocalVar"/>
-                    <exclude name="testNullConstKeyReference"/>
-                    <exclude name="testNullConstKeyReferenceInLocalVar"/>
-                    <exclude name="testSimpleBooleanConstMap"/>
-                    <exclude name="testSimpleByteConstMap"/>
-                    <exclude name="testSimpleDecimalConstMap"/>
-                    <exclude name="testSimpleFloatConstMap"/>
-                    <exclude name="testSimpleIntConstMap"/>
-                    <exclude name="testSimpleNilConstMap"/>
-                    <exclude name="testSimpleStringConstMap"/>
-                    <exclude name="testStringConstKeyReference"/>
-                    <exclude name="testStringConstKeyReferenceInLocalVar"/>
-                </methods>
-            </class>
+<!--            <class name="org.ballerinalang.test.balo.constant.MapConstantInBaloTest">-->
+<!--                <methods>-->
+<!--                    <exclude name="testBooleanConstKeyReference"/>-->
+<!--                    <exclude name="testBooleanConstKeyReferenceInLocalVar"/>-->
+<!--                    <exclude name="testByteConstKeyReference"/>-->
+<!--                    <exclude name="testByteConstKeyReferenceInLocalVar"/>-->
+<!--                    <exclude name="testComplexBooleanConstMap"/>-->
+<!--                    <exclude name="testComplexByteConstMap"/>-->
+<!--                    <exclude name="testComplexConstMap"/>-->
+<!--                    <exclude name="testComplexDecimalConstMap"/>-->
+<!--                    <exclude name="testComplexFloatConstMap"/>-->
+<!--                    <exclude name="testComplexIntConstMap"/>-->
+<!--                    <exclude name="testComplexNilConstMap"/>-->
+<!--                    <exclude name="testComplexStringConstMap"/>-->
+<!--                    <exclude name="testConstInAnnotations"/>-->
+<!--                    <exclude name="testDecimalConstKeyReference"/>-->
+<!--                    <exclude name="testDecimalConstKeyReferenceInLocalVar"/>-->
+<!--                    <exclude name="testFloatConstKeyReference"/>-->
+<!--                    <exclude name="testFloatConstKeyReferenceInLocalVar"/>-->
+<!--                    <exclude name="testIntConstKeyReference"/>-->
+<!--                    <exclude name="testIntConstKeyReferenceInLocalVar"/>-->
+<!--                    <exclude name="testNullConstKeyReference"/>-->
+<!--                    <exclude name="testNullConstKeyReferenceInLocalVar"/>-->
+<!--                    <exclude name="testSimpleBooleanConstMap"/>-->
+<!--                    <exclude name="testSimpleByteConstMap"/>-->
+<!--                    <exclude name="testSimpleDecimalConstMap"/>-->
+<!--                    <exclude name="testSimpleFloatConstMap"/>-->
+<!--                    <exclude name="testSimpleIntConstMap"/>-->
+<!--                    <exclude name="testSimpleNilConstMap"/>-->
+<!--                    <exclude name="testSimpleStringConstMap"/>-->
+<!--                    <exclude name="testStringConstKeyReference"/>-->
+<!--                    <exclude name="testStringConstKeyReferenceInLocalVar"/>-->
+<!--                </methods>-->
+<!--            </class>-->
 <!--            <class name="org.ballerinalang.test.execution.LargeInitBuildTest">-->
 <!--                <methods>-->
 <!--                    <exclude name="testFileWithLargeInitMethod"/>-->
