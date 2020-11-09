@@ -260,7 +260,7 @@ class JMethodResolver {
             BType bParamType = jMethod.getReceiverType();
             if (!isValidParamBType(jParamTypes[0], bParamType, false, jMethodRequest.restParamExist)) {
                 throw getNoSuchMethodError(jMethodRequest.methodName, jParamType, bParamType,
-                                           jMethodRequest.declaringClass);
+                        jMethodRequest.declaringClass);
             }
             bParamCount = bParamCount + 1;
             j++;
@@ -275,8 +275,12 @@ class JMethodResolver {
             boolean isLastParam = bParamTypes.length == 1;
             if (!isValidParamBType(jMethodRequest.declaringClass, receiverType, isLastParam,
                     jMethodRequest.restParamExist)) {
-                throw getNoSuchMethodError(jMethodRequest.methodName, jParamTypes[0], receiverType,
-                                           jMethodRequest.declaringClass);
+                if (jParamTypes.length > 0) {
+                    throw getNoSuchMethodError(jMethodRequest.methodName, jParamTypes[0], receiverType,
+                            jMethodRequest.declaringClass);
+                } else {
+                    throw getZeroParameterError(jMethodRequest);
+                }
             }
             i++;
         } else if (jMethod.isBalEnvAcceptingMethod()) {
@@ -855,6 +859,13 @@ class JMethodResolver {
 
         return new JInteropException(DiagnosticCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
                 "Parameter count does not match with Java method '" + jMethodRequest.methodName + "' found in class '" +
+                        jMethodRequest.declaringClass.getName() + "'");
+    }
+
+    private JInteropException getZeroParameterError(JMethodRequest jMethodRequest) {
+
+        return new JInteropException(DiagnosticCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
+                "Java static method '" + jMethodRequest.methodName + "' with no arguments found in the class '" +
                         jMethodRequest.declaringClass.getName() + "'");
     }
 }
