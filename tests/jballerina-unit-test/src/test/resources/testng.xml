@@ -1019,12 +1019,6 @@
                     <exclude name="testReadonlyType"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.documentation.MultilineDocsTest">
-                <methods>
-                    <exclude name="testMultilineDocs"/>
-                    <exclude name="testMultilineDocsWithDeprecation"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtListMatchPatternTest">
                 <methods>
                     <exclude name="testListMatchPattern1"/>
