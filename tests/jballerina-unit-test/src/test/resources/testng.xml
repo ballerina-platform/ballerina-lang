@@ -810,15 +810,6 @@
                     <exclude name="testAccessingVarsInOtherPackage"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.types.NeverTypeBaloTest">
-                <methods>
-                    <exclude name="testExclusiveRecordTypeWithNeverTypedField"/>
-                    <exclude name="testInclusiveRecordTypeWithNeverTypedField"/>
-                    <exclude name="testNeverReturnTypedFunctionCall"/>
-                    <exclude name="testNeverWithKeyLessTable"/>
-                    <exclude name="testTypeOfNeverReturnTypedFunction"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.constant.MapConstantEqualityInDifferentBaloTest">
                 <methods>
                     <exclude name="testComplexBooleanMapReferenceEquality"/>
