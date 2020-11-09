@@ -1183,12 +1183,6 @@
                     <exclude name="testValRefType"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.object.ReadOnlyObjectBaloTest">
-                <methods>
-                    <exclude name="testReadonlyRecordFieldsNegative"/>
-                    <exclude name="testReadonlyType"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.globalvar.GlobalVarFunctionInBaloTest">
                 <methods>
                     <exclude name="testAccessGlobalVarWithinFunctions"/>
