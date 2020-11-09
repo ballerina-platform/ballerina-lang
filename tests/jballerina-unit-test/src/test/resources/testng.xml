@@ -1176,46 +1176,6 @@
                     <exclude name="testVoidFunctionWorkers"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.object.ObjectInBaloTest">
-                <methods>
-                    <exclude name="testBasicStructAsObject"/>
-                    <exclude name="testBasicStructAsObjectWithJustNew"/>
-                    <exclude name="testFieldWithExpr"/>
-                    <exclude name="testInitializingInterfaceObject"/>
-                    <exclude name="testInitializingObjectWithStructLiteral"/>
-                    <exclude name="testNewAsReturnWithDifferentType"/>
-                    <exclude name="testNewAsReturnWithSameType"/>
-                    <exclude name="testObjectCallAttachedFunctions"/>
-                    <exclude name="testObjectFieldDefaultable"/>
-                    <exclude name="testObjectInsideObject"/>
-                    <exclude name="testObjectNegativeSemanticTestForNonInitializable"/>
-                    <exclude name="testObjectNegativeTestForAttachFunctions"/>
-                    <exclude name="testObjectNegativeTestForNonInitializable"/>
-                    <exclude name="testObjectNegativeTestForReturnDifferentType"/>
-                    <exclude name="testObjectPassSelfAsValue"/>
-                    <exclude name="testObjectReferingNonAbstractObjFromBalo"/>
-                    <exclude name="testObjectReferingNonAbstractObjLoadedFromBalo"/>
-                    <exclude name="testObjectReferingTypeFromBalo_1"/>
-                    <exclude name="testObjectReferingTypeFromBalo_2"/>
-                    <exclude name="testObjectReferingTypeFromBalo_3"/>
-                    <exclude name="testObjectSelfreferenceWithDefaultable"/>
-                    <exclude name="testObjectWithAttachedFunction"/>
-                    <exclude name="testObjectWithAttachedFunction1"/>
-                    <exclude name="testObjectWithByteTypeFields"/>
-                    <exclude name="testObjectWithDefaultInitializeGlobalVar"/>
-                    <exclude name="testObjectWithDefaultableField"/>
-                    <exclude name="testObjectWithSelfKeyword"/>
-                    <exclude name="testObjectWithSimpleInit"/>
-                    <exclude name="testObjectWithSimpleInitWithDiffValues"/>
-                    <exclude name="testObjectWithWithDefaultInitialize"/>
-                    <exclude name="testObjectWithoutRHSType"/>
-                    <exclude name="testPassingValueForDefaultableObjectField"/>
-                    <exclude name="testRecursiveObjectRefWithNillable"/>
-                    <exclude name="testReferUndefinedFieldBal"/>
-                    <exclude name="testShadowingObjectField"/>
-                    <exclude name="testUnInitializableObjFieldAsParam"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.bir.BirVariableOptimizationTest">
                 <methods>
                     <exclude name="testAttachedFunctions"/>
