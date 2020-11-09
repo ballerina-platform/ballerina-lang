@@ -20,11 +20,12 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-import io.ballerina.compiler.api.types.FieldDescriptor;
-import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
-import io.ballerina.compiler.api.types.RecordTypeDescriptor;
+import io.ballerina.compiler.api.types.FieldSymbol;
+import io.ballerina.compiler.api.types.ObjectTypeSymbol;
+import io.ballerina.compiler.api.types.ParameterSymbol;
+import io.ballerina.compiler.api.types.RecordTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
@@ -162,7 +163,7 @@ public class SignatureHelpUtil {
         functionSymbol.typeDescriptor().parameters().forEach(
                 param -> parameters.add(new Parameter(param.name().get(), param.typeDescriptor(), false, false))
         );
-        Optional<io.ballerina.compiler.api.types.Parameter> restParam = functionSymbol.typeDescriptor().restParam();
+        Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();
         restParam.ifPresent(parameter
                 -> parameters.add(new Parameter(parameter.name().get(), parameter.typeDescriptor(), false, true)));
         boolean skipFirstParam = functionSymbol.kind() == METHOD && CommonUtil.isLangLib(functionSymbol.moduleID());
@@ -208,11 +209,11 @@ public class SignatureHelpUtil {
      */
     private static class Parameter {
         private final String name;
-        private final BallerinaTypeDescriptor type;
+        private final TypeSymbol type;
         private final boolean isRestArg;
         private final boolean isOptional;
 
-        public Parameter(String name, BallerinaTypeDescriptor type, boolean isOptional, boolean isRestArg) {
+        public Parameter(String name, TypeSymbol type, boolean isOptional, boolean isRestArg) {
             this.name = name;
             this.type = type;
             this.isOptional = isOptional;
@@ -332,7 +333,7 @@ public class SignatureHelpUtil {
                     .map(symbol -> (FunctionSymbol) symbol)
                     .findAny();
         }
-        Optional<? extends BallerinaTypeDescriptor> typeDesc;
+        Optional<? extends TypeSymbol> typeDesc;
         String methodName;
         if (tokenAtCursor.get().kind() == SyntaxKind.METHOD_CALL) {
             MethodCallExpressionNode methodCall = (MethodCallExpressionNode) tokenAtCursor.get();
@@ -355,7 +356,7 @@ public class SignatureHelpUtil {
                 .findAny();
     }
 
-    private static Optional<? extends BallerinaTypeDescriptor> getTypeDesc(LSContext ctx, ExpressionNode expr) {
+    private static Optional<? extends TypeSymbol> getTypeDesc(LSContext ctx, ExpressionNode expr) {
         switch (expr.kind()) {
             case SIMPLE_NAME_REFERENCE:
                 /*
@@ -389,34 +390,34 @@ public class SignatureHelpUtil {
         }
     }
 
-    private static Optional<? extends BallerinaTypeDescriptor> getTypeDescForFieldAccess(
+    private static Optional<? extends TypeSymbol> getTypeDescForFieldAccess(
             LSContext context, FieldAccessExpressionNode node) {
         String fieldName = ((SimpleNameReferenceNode) node.fieldName()).name().text();
         ExpressionNode expressionNode = node.expression();
-        Optional<? extends BallerinaTypeDescriptor> typeDescriptor = getTypeDesc(context, expressionNode);
+        Optional<? extends TypeSymbol> typeDescriptor = getTypeDesc(context, expressionNode);
 
         if (typeDescriptor.isEmpty()) {
             return Optional.empty();
         }
 
-        List<FieldDescriptor> fieldDescriptors = new ArrayList<>();
+        List<FieldSymbol> fieldSymbols = new ArrayList<>();
 
-        if (CommonUtil.getRawType(typeDescriptor.get()).kind() == TypeDescKind.OBJECT) {
-            fieldDescriptors.addAll(((ObjectTypeDescriptor) CommonUtil
+        if (CommonUtil.getRawType(typeDescriptor.get()).typeKind() == TypeDescKind.OBJECT) {
+            fieldSymbols.addAll(((ObjectTypeSymbol) CommonUtil
                     .getRawType(typeDescriptor.get())).fieldDescriptors());
-        } else if (CommonUtil.getRawType(typeDescriptor.get()).kind() == TypeDescKind.RECORD) {
-            fieldDescriptors.addAll(((RecordTypeDescriptor) CommonUtil
+        } else if (CommonUtil.getRawType(typeDescriptor.get()).typeKind() == TypeDescKind.RECORD) {
+            fieldSymbols.addAll(((RecordTypeSymbol) CommonUtil
                     .getRawType(typeDescriptor.get())).fieldDescriptors());
         }
 
-        return fieldDescriptors.stream()
+        return fieldSymbols.stream()
                 .filter(fieldDescriptor -> fieldDescriptor.name().equals(fieldName))
-                .map(FieldDescriptor::typeDescriptor)
+                .map(FieldSymbol::typeDescriptor)
                 .findAny();
     }
 
-    private static Optional<? extends BallerinaTypeDescriptor> getTypeDescForNameRef(LSContext context,
-                                                                                     NameReferenceNode referenceNode) {
+    private static Optional<? extends TypeSymbol> getTypeDescForNameRef(LSContext context,
+                                                                        NameReferenceNode referenceNode) {
         if (referenceNode.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
             return Optional.empty();
         }
@@ -432,7 +433,7 @@ public class SignatureHelpUtil {
         return SymbolUtil.getTypeDescriptor(symbolRef.get());
     }
 
-    private static Optional<? extends BallerinaTypeDescriptor> getTypeDescForFunctionCall(
+    private static Optional<? extends TypeSymbol> getTypeDescForFunctionCall(
             LSContext context, FunctionCallExpressionNode expr) {
         String fName = ((SimpleNameReferenceNode) expr.functionName()).name().text();
         List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
@@ -447,19 +448,19 @@ public class SignatureHelpUtil {
         return symbolRef.get().typeDescriptor().returnTypeDescriptor();
     }
 
-    private static Optional<? extends BallerinaTypeDescriptor> getTypeDescForMethodCall(
+    private static Optional<? extends TypeSymbol> getTypeDescForMethodCall(
             LSContext context, MethodCallExpressionNode node) {
         String methodName = ((SimpleNameReferenceNode) node.methodName()).name().text();
 
-        Optional<? extends BallerinaTypeDescriptor> fieldTypeDesc = getTypeDesc(context, node.expression());
+        Optional<? extends TypeSymbol> fieldTypeDesc = getTypeDesc(context, node.expression());
 
         if (fieldTypeDesc.isEmpty()) {
             return Optional.empty();
         }
 
         List<MethodSymbol> visibleMethods = fieldTypeDesc.get().builtinMethods();
-        if (CommonUtil.getRawType(fieldTypeDesc.get()).kind() == TypeDescKind.OBJECT) {
-            visibleMethods.addAll(((ObjectTypeDescriptor) CommonUtil.getRawType(fieldTypeDesc.get())).methods());
+        if (CommonUtil.getRawType(fieldTypeDesc.get()).typeKind() == TypeDescKind.OBJECT) {
+            visibleMethods.addAll(((ObjectTypeSymbol) CommonUtil.getRawType(fieldTypeDesc.get())).methods());
         }
         Optional<MethodSymbol> filteredMethod = visibleMethods.stream()
                 .filter(methodSymbol -> methodSymbol.name().equals(methodName))
@@ -472,10 +473,10 @@ public class SignatureHelpUtil {
         return filteredMethod.get().typeDescriptor().returnTypeDescriptor();
     }
 
-    private static List<FunctionSymbol> getFunctionSymbolsForTypeDesc(BallerinaTypeDescriptor typeDescriptor) {
+    private static List<FunctionSymbol> getFunctionSymbolsForTypeDesc(TypeSymbol typeDescriptor) {
         List<FunctionSymbol> functionSymbols = new ArrayList<>();
-        if (CommonUtil.getRawType(typeDescriptor).kind() == TypeDescKind.OBJECT) {
-            ObjectTypeDescriptor objTypeDesc = (ObjectTypeDescriptor) CommonUtil.getRawType(typeDescriptor);
+        if (CommonUtil.getRawType(typeDescriptor).typeKind() == TypeDescKind.OBJECT) {
+            ObjectTypeSymbol objTypeDesc = (ObjectTypeSymbol) CommonUtil.getRawType(typeDescriptor);
             functionSymbols.addAll(objTypeDesc.methods());
         }
         functionSymbols.addAll(typeDescriptor.builtinMethods());

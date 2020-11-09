@@ -145,7 +145,6 @@ public class RecordTypeDescriptorNode extends TypeDescriptorNode {
 
         public RecordTypeDescriptorNodeModifier withRecordRestDescriptor(
                 RecordRestDescriptorNode recordRestDescriptor) {
-            Objects.requireNonNull(recordRestDescriptor, "recordRestDescriptor must not be null");
             this.recordRestDescriptor = recordRestDescriptor;
             return this;
         }

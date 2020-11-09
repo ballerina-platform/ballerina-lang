@@ -19,7 +19,7 @@ import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
@@ -140,7 +140,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
     }
 
     private LSCompletionItem getAnnotationsCompletionItem(LSContext ctx, AnnotationSymbol annotationSymbol) {
-        Optional<BallerinaTypeDescriptor> attachedType = annotationSymbol.typeDescriptor();
+        Optional<TypeSymbol> attachedType = annotationSymbol.typeDescriptor();
         CompletionItem item = new CompletionItem();
         item.setInsertText(annotationSymbol.name());
         item.setLabel(annotationSymbol.name());
