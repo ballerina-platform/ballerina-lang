@@ -42,6 +42,14 @@ public class ModuleName {
         if (moduleNamePart != null && moduleNamePart.isEmpty()) {
             throw new IllegalArgumentException("moduleNamePart should be a non-empty string or null");
         }
+
+        // TODO Need fix this later
+        // if moduleNamePart already has packageName
+        if (moduleNamePart != null && moduleNamePart.startsWith(packageName.toString() + ".")) {
+            String[] moduleNameParts = moduleNamePart.split("\\.");
+            return new ModuleName(PackageName.from(moduleNameParts[0]), moduleNameParts[1]);
+        }
+
         // TODO Check whether the moduleNamePart is a valid list of identifiers
         return new ModuleName(packageName, moduleNamePart);
     }

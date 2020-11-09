@@ -19,10 +19,10 @@
 package org.ballerinalang.test.balo.record;
 
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.balo.BaloCreator;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -40,7 +40,7 @@ public class RecordInBaloTest {
 
     @BeforeClass
     public void setup() {
-//        BCompileUtil.compile("test-src/balo/test_projects/test_project/", "testorg", "records");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project");
         result = BCompileUtil.compile("test-src/record/rest_in_balo.bal");
     }
 

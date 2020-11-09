@@ -235,9 +235,8 @@
                     <exclude name="testAsyncNonNativeBasic11" />
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest"/>
+            <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest" />
             <class name="org.ballerinalang.test.balo.record.ClosedRecordTypeReferenceTest" />
-            <class name="org.ballerinalang.test.balo.object.ReadOnlyObjectBaloTest"/>
 
 
             <!-- Disabled tests related to ProjectAPI change -->
@@ -1171,9 +1170,22 @@
                     <exclude name="updateReturnedConstantStringMapWithExistingKey"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.record.RecordInBaloTest">
+            <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest">
                 <methods>
-                    <exclude name="testRestFieldTypeDefAfterRecordDef"/>
+                    <exclude name="testCreatingRecordWithOverriddenFields"/>
+                    <exclude name="testDefaultValueInit"/>
+                    <exclude name="testDefaultValueInitInBALOs"/>
+                    <exclude name="testOrdering"/>
+                    <exclude name="testRefTypes"/>
+                    <exclude name="testReferenceChains"/>
+                    <exclude name="testTypeReferencingInBALOs"/>
+                    <exclude name="testValRefType"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.balo.object.ReadOnlyObjectBaloTest">
+                <methods>
+                    <exclude name="testReadonlyRecordFieldsNegative"/>
+                    <exclude name="testReadonlyType"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.balo.globalvar.GlobalVarFunctionInBaloTest">

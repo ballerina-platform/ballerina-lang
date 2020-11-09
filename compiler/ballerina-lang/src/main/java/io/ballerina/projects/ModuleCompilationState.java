@@ -51,7 +51,7 @@ enum ModuleCompilationState {
                                           CompilerContext compilerContext,
                                           CompilerBackend compilerBackend) {
             compile(moduleContext, compilerContext);
-            ModuleContext.generateCodeInternal(moduleContext, compilerContext, compilerBackend);
+            ModuleContext.generateCodeInternal(moduleContext, compilerBackend);
             moduleContext.setCompilationState(PLATFORM_LIBRARY_GENERATED);
         }
     },
@@ -80,7 +80,7 @@ enum ModuleCompilationState {
                                           CompilerContext compilerContext,
                                           CompilerBackend compilerBackend) {
             compile(moduleContext, compilerContext);
-            ModuleContext.generateCodeInternal(moduleContext, compilerContext, compilerBackend);
+            ModuleContext.generateCodeInternal(moduleContext, compilerBackend);
             moduleContext.setCompilationState(PLATFORM_LIBRARY_GENERATED);
         }
     },
@@ -106,7 +106,7 @@ enum ModuleCompilationState {
                                           CompilerContext compilerContext,
                                           CompilerBackend compilerBackend) {
             compile(moduleContext, compilerContext);
-            ModuleContext.generateCodeInternal(moduleContext, compilerContext, compilerBackend);
+            ModuleContext.generateCodeInternal(moduleContext, compilerBackend);
             moduleContext.setCompilationState(PLATFORM_LIBRARY_GENERATED);
         }
     },
@@ -132,7 +132,7 @@ enum ModuleCompilationState {
         void generatePlatformSpecificCode(ModuleContext moduleContext,
                                           CompilerContext compilerContext,
                                           CompilerBackend compilerBackend) {
-            ModuleContext.generateCodeInternal(moduleContext, compilerContext, compilerBackend);
+            ModuleContext.generateCodeInternal(moduleContext, compilerBackend);
             moduleContext.setCompilationState(PLATFORM_LIBRARY_GENERATED);
         }
     },
