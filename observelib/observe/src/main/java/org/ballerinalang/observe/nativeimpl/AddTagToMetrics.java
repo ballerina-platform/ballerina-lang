@@ -19,7 +19,6 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-
 import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BString;
@@ -33,25 +32,33 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-
 /**
- * This function adds tags to a span.
+ * This function add tags to System Metrics.
+ * Custom tag is not included in the 'in progress-requests'
  */
 public class AddTagToMetrics {
+
     public static Object addTagToMetrics(BString tagKey, BString tagValue) {
+
         Optional<ObserverContext> observer = ObserveUtils.getObserverContextOfCurrentFrame(Scheduler.getStrand());
         ObserverContext observerContext;
+        boolean isCustomTagsAvailable = true;
         if (observer.isPresent()) {
             observerContext = observer.get();
             Map<String, Tag> customTags =
-                    observerContext.getProperty(BallerinaMetricsObserver.PROPERTY_CUSTOM_TAGS) != null ?
-                    (Map<String, Tag>) observerContext.getProperty(BallerinaMetricsObserver.PROPERTY_CUSTOM_TAGS) :
-                    new HashMap<String, Tag>();
+                    (Map<String, Tag>) observerContext.getProperty(BallerinaMetricsObserver.PROPERTY_CUSTOM_TAGS);
+            if (customTags == null) {
+                customTags = new HashMap<>();
+                isCustomTagsAvailable = false;
+            }
             customTags.put(tagKey.getValue(), Tag.of(tagKey.getValue(), tagValue.getValue()));
-            observerContext.addProperty(BallerinaMetricsObserver.PROPERTY_CUSTOM_TAGS, customTags);
+
+            if (!isCustomTagsAvailable) {
+                observerContext.addProperty(BallerinaMetricsObserver.PROPERTY_CUSTOM_TAGS, customTags);
+            }
             return null;
         }
         return ErrorCreator.createError(
-                StringUtils.fromString(("Can not add tag {" + tagKey + ":" + tagValue + "}")));
+                StringUtils.fromString("Can not add tag {" + tagKey + ":" + tagValue + "}"));
     }
 }
