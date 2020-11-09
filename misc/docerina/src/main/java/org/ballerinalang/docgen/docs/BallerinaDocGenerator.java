@@ -695,10 +695,9 @@ public class BallerinaDocGenerator {
 
     private static Path getAbsoluteModulePath(String sourceRoot, Path modulePath) {
         Path sourcePath = Paths.get(sourceRoot);
-        if(sourcePath.endsWith(modulePath)) {
+        if (sourcePath.endsWith(modulePath)) {
             return Paths.get(sourceRoot);
         }
-        return sourcePath.resolve(ProjectDirConstants.MODULES_ROOT)
-                               .resolve(modulePath);
+        return sourcePath.resolve(ProjectDirConstants.MODULES_ROOT).resolve(modulePath);
     }
 }
