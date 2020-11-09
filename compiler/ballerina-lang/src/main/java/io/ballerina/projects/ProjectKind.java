@@ -18,22 +18,16 @@
 package io.ballerina.projects;
 
 /**
- * Contains a list of JVM versions that are supported by the jBallerina backend.
+ * Represents the kind of the {@code Project} instance.
+ * <p>
+ * There are three known kinds of project at the moment: {@code BuildProject},
+ * {@code SingleFileProject} and {@code BalrProject}.
  *
  * @since 2.0.0
  */
-// TODO move this class to a separate Java package. e.g. io.ballerina.projects.platform.jballerina
-public enum JdkVersion implements CompilerBackend.TargetPlatform {
-    JAVA_11("java11"),
+public enum ProjectKind {
+    BUILD_PROJECT,
+    SINGLE_FILE_PROJECT,
+    BALR_PROJECT,
     ;
-
-    private final String code;
-
-    JdkVersion(String code) {
-        this.code = code;
-    }
-
-    public String code() {
-        return code;
-    }
 }

@@ -15,25 +15,24 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects;
+package io.ballerina.projects.internal;
+
+import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.tools.diagnostics.Diagnostic;
+
+import java.util.Collection;
 
 /**
- * Contains a list of JVM versions that are supported by the jBallerina backend.
+ * The default implementaion of the {@code DiagnosticResult}.
+ * <p>
+ * Having this class in the internal package, restricts api users from creating
+ * new instances of {@code DiagnosticResult}.
  *
  * @since 2.0.0
  */
-// TODO move this class to a separate Java package. e.g. io.ballerina.projects.platform.jballerina
-public enum JdkVersion implements CompilerBackend.TargetPlatform {
-    JAVA_11("java11"),
-    ;
+public class DefaultDiagnosticResult extends DiagnosticResult {
 
-    private final String code;
-
-    JdkVersion(String code) {
-        this.code = code;
-    }
-
-    public String code() {
-        return code;
+    public DefaultDiagnosticResult(Collection<Diagnostic> allDiagnostics) {
+        super(allDiagnostics);
     }
 }

@@ -17,12 +17,9 @@
  */
 package io.ballerina.projects.internal;
 
-import io.ballerina.projects.CompilerBackend;
-import io.ballerina.projects.ModuleId;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.BIRGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
@@ -70,7 +67,6 @@ public class CompilerPhaseRunner {
     private final ObservabilitySymbolCollector observabilitySymbolCollector;
     private final Desugar desugar;
     private final BIRGen birGenerator;
-    private final CodeGenerator codeGenerator;
     private final CompilerPhase compilerPhase;
     private final DataflowAnalyzer dataflowAnalyzer;
     private final IsolationAnalyzer isolationAnalyzer;
@@ -102,7 +98,6 @@ public class CompilerPhaseRunner {
         this.observabilitySymbolCollector = ObserverbilitySymbolCollectorRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.birGenerator = BIRGen.getInstance(context);
-        this.codeGenerator = CodeGenerator.getInstance(context);
         this.compilerPhase = this.options.getCompilerPhase();
         this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
         this.isolationAnalyzer = IsolationAnalyzer.getInstance(context);
@@ -199,10 +194,6 @@ public class CompilerPhaseRunner {
         }
 
         birGen(pkgNode);
-    }
-
-    public void codeGen(ModuleId moduleId, CompilerBackend compilerBackend, BLangPackage pkgNode) {
-        codeGenerator.generate(moduleId, compilerBackend, pkgNode);
     }
 
     private void generateObservabilityData(BLangPackage pkgNode) {

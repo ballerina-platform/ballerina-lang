@@ -15,14 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.projects;
+package io.ballerina.projects.internal.jballerina;
 
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.io.OutputStream;
 import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -34,24 +33,26 @@ import java.util.jar.Manifest;
  *
  * @since 2.0.0
  */
-class JarWriter {
+public class JarWriter {
 
-    /**
-     * Write the compiled module to a jar file.
-     *
-     * @param compiledJarFile compiled module
-     * @param jarFilePath     path to the jar file
-     * @throws IOException if jar creation fails
-     */
-    public static void write(CompiledJarFile compiledJarFile, Path jarFilePath) throws IOException {
+    public static ByteArrayOutputStream write(CompiledJarFile compiledJarFile) throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        writeJar(compiledJarFile, byteArrayOutputStream);
+        return byteArrayOutputStream;
+    }
+
+    private static Manifest getManifest(CompiledJarFile compiledJarFile) {
         Manifest manifest = new Manifest();
         Attributes mainAttributes = manifest.getMainAttributes();
         mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
         compiledJarFile.getMainClassName().ifPresent(mainClassName ->
                 mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClassName));
+        return manifest;
+    }
 
-        try (JarOutputStream target = new JarOutputStream(new BufferedOutputStream(
-                new FileOutputStream(jarFilePath.toString())), manifest)) {
+    private static void writeJar(CompiledJarFile compiledJarFile, OutputStream outputStream) throws IOException {
+        Manifest manifest = getManifest(compiledJarFile);
+        try (JarOutputStream target = new JarOutputStream(outputStream, manifest)) {
             Map<String, byte[]> jarEntries = compiledJarFile.getJarEntries();
             for (Map.Entry<String, byte[]> keyVal : jarEntries.entrySet()) {
                 byte[] entryContent = keyVal.getValue();

@@ -31,7 +31,6 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.wso2.ballerinalang.compiler.BIRPackageSymbolEnter;
-import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
@@ -40,15 +39,16 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
+import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -172,45 +172,6 @@ class ModuleContext {
 
     BLangPackage bLangPackage() {
         return getBLangPackageOrThrow();
-    }
-
-    CompiledJarFile compiledJarEntries() {
-        BPackageSymbol packageSymbol;
-        if (bLangPackage != null) {
-            packageSymbol = bLangPackage.symbol;
-        } else if (bPackageSymbol != null) {
-            packageSymbol = bPackageSymbol;
-        } else {
-            throw new IllegalStateException("Compile the module first!");
-        }
-        return packageSymbol.compiledJarFile;
-    }
-
-    Optional<CompiledJarFile> compiledTestJarEntries() {
-        BPackageSymbol packageSymbol;
-        if (bLangPackage != null) {
-            if (bLangPackage.hasTestablePackage()) {
-                packageSymbol = bLangPackage.getTestablePkg().symbol;
-                return Optional.ofNullable(packageSymbol.compiledJarFile);
-            }
-        } else {
-            throw new IllegalStateException("Compile the module first!");
-        }
-        return Optional.empty();
-    }
-
-
-
-    CompiledBinaryFile.BIRPackageFile bir() {
-        BPackageSymbol packageSymbol;
-        if (bLangPackage != null) {
-            packageSymbol = bLangPackage.symbol;
-        } else if (bPackageSymbol != null) {
-            packageSymbol = bPackageSymbol;
-        } else {
-            throw new IllegalStateException("Compile the module first!");
-        }
-        return packageSymbol.birPackageFile;
     }
 
     private BLangPackage getBLangPackageOrThrow() {
@@ -363,17 +324,31 @@ class ModuleContext {
             compilerPhaseRunner.compile(pkgNode);
         }
         moduleContext.bLangPackage = pkgNode;
-    }
 
-    static void generateCodeInternal(ModuleContext moduleContext,
-                                     CompilerContext compilerContext,
-                                     CompilerBackend compilerBackend) {
-        // Skip the code generation phase if there diagnostics
-        if (ProjectUtils.hasErrors(moduleContext.diagnostics())) {
+        // Skip caching BIR if there are diagnostics
+        if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
             return;
         }
-        CompilerPhaseRunner compilerPhaseRunner = CompilerPhaseRunner.getInstance(compilerContext);
-        compilerPhaseRunner.codeGen(moduleContext.moduleId, compilerBackend, moduleContext.bLangPackage);
+
+        // Can we improve this logic
+        ByteArrayOutputStream birContent = new ByteArrayOutputStream();
+        try {
+            byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(
+                    moduleContext.bLangPackage.symbol.birPackageFile);
+            birContent.writeBytes(pkgBirBinaryContent);
+            moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
+        } catch (IOException e) {
+            // This path may never be executed
+            throw new RuntimeException("Failed to convert BIR model to a byte array", e);
+        }
+    }
+
+    static void generateCodeInternal(ModuleContext moduleContext, CompilerBackend compilerBackend) {
+        // Skip the code generation phase if there are diagnostics
+        if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
+            return;
+        }
+        compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
     }
 
     static void loadBirBytesInternal(ModuleContext moduleContext) {

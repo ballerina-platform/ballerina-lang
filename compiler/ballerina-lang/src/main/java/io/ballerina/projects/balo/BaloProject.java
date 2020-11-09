@@ -21,6 +21,7 @@ package io.ballerina.projects.balo;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.ProjectKind;
 
 import java.nio.file.Path;
 import java.util.Optional;
@@ -48,8 +49,7 @@ public class BaloProject extends Project {
     }
 
     private BaloProject(ProjectEnvironmentBuilder environmentBuilder, Path baloPath) {
-        super(environmentBuilder);
-        this.sourceRoot = baloPath;
+        super(ProjectKind.BALR_PROJECT, baloPath, environmentBuilder);
         addPackage(baloPath.toString());
     }
 
