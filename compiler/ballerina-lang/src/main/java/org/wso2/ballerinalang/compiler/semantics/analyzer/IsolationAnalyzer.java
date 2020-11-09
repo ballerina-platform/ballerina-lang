@@ -208,6 +208,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 /**
@@ -773,7 +774,16 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         this.inLockStatement = prevInLockStatement;
 
-        if (copyInLockInfo.hasMutableAccessInLock) {
+        Set<BSymbol> accessedRestrictedVarKeys = copyInLockInfo.accessedRestrictedVars.keySet();
+
+        if (!accessedRestrictedVarKeys.isEmpty()) {
+            if (accessedRestrictedVarKeys.size() > 1) {
+                for (BSymbol accessedRestrictedVarKey : accessedRestrictedVarKeys) {
+                    dlog.error(accessedRestrictedVarKey.pos,
+                               DiagnosticCode.INVALID_USAGE_OF_MULTIPLE_RESTRICTED_VARS_IN_LOCK);
+                }
+            }
+
             for (BLangSimpleVarRef varRef : copyInLockInfo.nonCaptureBindingPatternVarRefsOnLhs) {
                 dlog.error(varRef.pos, DiagnosticCode.INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE);
             }
@@ -956,24 +966,29 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             varInfo.totalRefCount++;
         }
 
-        if (isInIsolatedObjectMethod(env, true)) {
-            BLangNode parent = varRefExpr.parent;
-            if (inLockStatement) {
-                if (parent == null && varRefExpr.lhsVar) {
-                    if (!Names.SELF.value.equals(varRefExpr.variableName.value) && isInvalidCopyIn(varRefExpr, env)) {
-                        copyInLockInfoStack.peek().nonCaptureBindingPatternVarRefsOnLhs.add(varRefExpr);
-                    }
-                } else if ((!varRefExpr.lhsVar || (parent != null && parent.getKind() != NodeKind.ASSIGNMENT))  &&
-                        !Names.SELF.value.equals(varRefExpr.variableName.value) && isInvalidCopyIn(varRefExpr, env)) {
-                    copyInLockInfoStack.peek().copyInVarRefs.add(varRefExpr);
-                } else if (!varRefExpr.lhsVar && parent != null &&
-                        isInvalidCopyingOfMutableValueInIsolatedObject(varRefExpr, true)) {
-                    copyInLockInfoStack.peek().copyOutVarRefs.add(varRefExpr);
-                }
-            } else if (Names.SELF.value.equals(varRefExpr.variableName.value) && parent != null &&
-                    parent.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_MUTABLE_FIELD_ACCESS_IN_ISOLATED_OBJECT_OUTSIDE_LOCK);
+        BLangNode parent = varRefExpr.parent;
+        boolean isolatedModuleVariableReference = isIsolatedModuleVariableSymbol(symbol);
+
+        if (inLockStatement) {
+            PotentiallyInvalidExpressionInfo exprInfo = copyInLockInfoStack.peek();
+
+            if (isolatedModuleVariableReference || isMethodCallOnSelfInIsolatedObject(varRefExpr, parent)) {
+                addToAccessedRestrictedVars(exprInfo.accessedRestrictedVars, varRefExpr);
             }
+
+            if (parent == null && varRefExpr.lhsVar) {
+                if (!Names.SELF.value.equals(varRefExpr.variableName.value) && isInvalidCopyIn(varRefExpr, env)) {
+                    exprInfo.nonCaptureBindingPatternVarRefsOnLhs.add(varRefExpr);
+                }
+            } else if ((!varRefExpr.lhsVar || (parent != null && parent.getKind() != NodeKind.ASSIGNMENT))  &&
+                    !Names.SELF.value.equals(varRefExpr.variableName.value) && isInvalidCopyIn(varRefExpr, env)) {
+                exprInfo.copyInVarRefs.add(varRefExpr);
+            } else if (!varRefExpr.lhsVar && parent != null &&
+                    isInvalidCopyingOfMutableValueInIsolatedObject(varRefExpr, true)) {
+                exprInfo.copyOutVarRefs.add(varRefExpr);
+            }
+        } else if (isMethodCallOnSelfInIsolatedObject(varRefExpr, parent)) {
+            dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_REFERENCE_TO_SELF_IN_ISOLATED_OBJECT_OUTSIDE_LOCK);
         }
 
         boolean inIsolatedFunction = isInIsolatedFunction(enclInvokable);
@@ -1025,7 +1040,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         inferredIsolated = false;
 
-        if (isIsolatedModuleVariableSymbol(symbol)) {
+        if (isolatedModuleVariableReference) {
             if (!inLockStatement) {
                 dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_ISOLATED_VARIABLE_ACCESS_OUTSIDE_LOCK);
             }
@@ -1060,7 +1075,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (inLockStatement) {
-            copyInLockInfoStack.peek().hasMutableAccessInLock = true;
+            addToAccessedRestrictedVars(copyInLockInfoStack.peek().accessedRestrictedVars,
+                                        (BLangSimpleVarRef) fieldAccessExpr.expr);
             return;
         }
 
@@ -2604,6 +2620,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return isInvalidCopyIn(varRefExpr, name, symTag, currentEnv.enclEnv);
     }
 
+    private boolean isMethodCallOnSelfInIsolatedObject(BLangSimpleVarRef varRefExpr, BLangNode parent) {
+        return isSelfVarInIsolatedObject(varRefExpr) &&
+                parent != null && parent.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR;
+    }
+
+    private boolean isSelfVarInIsolatedObject(BLangSimpleVarRef varRefExpr) {
+        return isInIsolatedObjectMethod(env, true) && Names.SELF.value.equals(varRefExpr.variableName.value);
+    }
+
     private boolean isIsolatedModuleVariableSymbol(BSymbol symbol) {
         return symbol.owner.getKind() == SymbolKind.PACKAGE && isIsolated(symbol.flags);
     }
@@ -2636,6 +2661,29 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private BSymbol getOriginalSymbol(BSymbol symbol) {
+        if (!(symbol instanceof  BVarSymbol)) {
+            return symbol;
+        }
+
+        BVarSymbol varSymbol = (BVarSymbol) symbol;
+
+        BVarSymbol originalSymbol = varSymbol.originalSymbol;
+        return originalSymbol == null ? varSymbol : getOriginalSymbol(originalSymbol);
+    }
+
+    private void addToAccessedRestrictedVars(Map<BSymbol, List<BLangSimpleVarRef>> accessedRestrictedVars,
+                                             BLangSimpleVarRef varRef) {
+        BSymbol originalSymbol = getOriginalSymbol(varRef.varSymbol);
+
+        if (accessedRestrictedVars.containsKey(originalSymbol)) {
+            accessedRestrictedVars.get(originalSymbol).add(varRef);
+            return;
+        }
+
+        accessedRestrictedVars.put(originalSymbol, new ArrayList<>() {{ add(varRef); }});
+    }
+
     /**
      * For isolated objects, invalid copy ins and non-isolated invocations should result in compilation errors if
      * they happen in a lock statement accessing a mutable field of the object. This class holds potentially
@@ -2643,8 +2691,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
      */
     private static class PotentiallyInvalidExpressionInfo {
         BLangInvokableNode enclInvokableNode;
-        boolean hasMutableAccessInLock = false;
 
+        Map<BSymbol, List<BLangSimpleVarRef>> accessedRestrictedVars = new HashMap<>();
         List<BLangSimpleVarRef> nonCaptureBindingPatternVarRefsOnLhs = new ArrayList<>();
         List<BLangSimpleVarRef> copyInVarRefs = new ArrayList<>();
         List<BLangSimpleVarRef> copyOutVarRefs = new ArrayList<>();

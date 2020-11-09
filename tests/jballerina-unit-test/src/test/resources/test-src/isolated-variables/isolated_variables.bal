@@ -66,7 +66,7 @@ isolated function getBooleanArray(int[] arr) returns boolean[] {
 function testIsolatedVariableAccessInLock(boolean bool) {
     int[][] arr;
     lock {
-        arr = b;
+        arr = b.clone();
     }
 
     if bool {
@@ -75,7 +75,8 @@ function testIsolatedVariableAccessInLock(boolean bool) {
 
         lock {
             while j != 0 {
-                c.i = [index];
+                var cClone = c.clone();
+                cClone.i = [index];
                 j = arr[index][index];
                 index += 1;
             }
@@ -85,7 +86,7 @@ function testIsolatedVariableAccessInLock(boolean bool) {
 
 isolated function testAccessingIsolatedVariableInIsolatedFunction() {
     lock {
-        int[][] arr = b;
+        int[][] arr = b.cloneReadOnly();
     }
 
     var fn = isolated function (int i) {

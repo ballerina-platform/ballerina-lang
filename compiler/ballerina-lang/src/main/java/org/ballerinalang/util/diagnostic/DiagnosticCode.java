@@ -626,6 +626,7 @@ public enum DiagnosticCode {
             "invalid.non.isolated.invocation.in.isolated.object.method"),
     INVALID_ISOLATED_VARIABLE_ACCESS_OUTSIDE_LOCK("invalid.isolated.variable.access.outside.lock"),
     INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE("invalid.assignment.in.lock.with.restricted.var.usage"),
+    INVALID_USAGE_OF_MULTIPLE_RESTRICTED_VARS_IN_LOCK("invalid.usage.of.multiple.restricted.vars.in.lock"),
 
     COMPILER_PLUGIN_ERROR("compiler.plugin.crashed"),
     ;

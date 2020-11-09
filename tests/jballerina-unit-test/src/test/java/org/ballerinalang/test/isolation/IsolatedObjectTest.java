@@ -130,10 +130,10 @@ public class IsolatedObjectTest {
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 334, 5);
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 335, 5);
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 339, 5);
-        validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
-                "statement", 347, 13);
-        validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
-                "statement", 348, 9);
+        validateError(result, i++, "invalid reference to 'self' outside a 'lock' statement in an 'isolated' object",
+                      347, 13);
+        validateError(result, i++, "invalid reference to 'self' outside a 'lock' statement in an 'isolated' object",
+                      348, 9);
         validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 374, 40);
         validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 386, 27);
         validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 388, 27);
