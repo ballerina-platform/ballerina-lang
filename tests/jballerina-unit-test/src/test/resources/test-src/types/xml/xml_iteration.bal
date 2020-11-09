@@ -40,11 +40,9 @@ function foreachTest() returns [int, string][] {
 
     int i = 0;
     foreach var x in bookstore/<book> {
-        if x is xml {
             titles[count] = [i, (x/<title>/*).toString()];
             count +=1;
             i +=1;
-        }
     }
 
     return titles;
