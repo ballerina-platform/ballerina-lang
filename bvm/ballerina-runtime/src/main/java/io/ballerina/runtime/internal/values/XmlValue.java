@@ -95,14 +95,14 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
      * 
      * @return Attributes as a {@link MapValueImpl}
      */
-    public abstract MapValue<BString, ?> getAttributesMap();
+    public abstract MapValue<BString, BString> getAttributesMap();
 
     /**
      * Set the attributes of the XML{@link MapValueImpl}.
      * 
      * @param attributes Attributes to be set.
      */
-    public abstract void setAttributes(BMap<BString, ?> attributes);
+    public abstract void setAttributes(BMap<BString, BString> attributes);
 
     /**
      * Get the type of the XML.
@@ -129,7 +129,7 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
         return type;
     }
 
-    protected abstract void setAttributesOnInitialization(BMap<BString, ?> attributes);
+    protected abstract void setAttributesOnInitialization(BMap<BString, BString> attributes);
 
     protected abstract void setAttributeOnInitialization(String localName, String namespace, String prefix,
                                                          String value);

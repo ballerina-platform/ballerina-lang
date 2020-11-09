@@ -1,4 +1,4 @@
-module io.ballerina.runtime.internal {
+module io.ballerina.runtime {
     requires java.xml;
     requires woodstox.core.asl;
     requires org.apache.commons.lang3;

@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -32,6 +33,7 @@ import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.AbstractObjectValue;
 import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.BmpStringValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
@@ -141,22 +143,22 @@ public class StringUtils {
         return new NonBmpStringValue(s, highSurrogatesArr);
     }
 
-    public static BString[] fromStringArray(String[] s) {
+    public static BArray fromStringArray(String[] s) {
         BString[] bStringArray = new BString[s.length];
         for (int i = 0; i < s.length; i++) {
             bStringArray[i] = StringUtils.fromString(s[i]);
         }
-        return bStringArray;
+        return new ArrayValueImpl(bStringArray);
     }
 
-    public static BString[] fromStringSet(Set<String> set) {
+    public static BArray fromStringSet(Set<String> set) {
         BString[] bStringArray = new BString[set.size()];
         int i = 0;
         for (String s : set) {
             bStringArray[i] = StringUtils.fromString(s);
             i++;
         }
-        return bStringArray;
+        return new ArrayValueImpl(bStringArray);
     }
 
     /**

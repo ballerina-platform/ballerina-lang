@@ -1,3 +1,3 @@
 module io.ballerina.auth {
-    requires io.ballerina.runtime.internal;
+    requires io.ballerina.runtime;
 }

@@ -1,6 +1,6 @@
 module io.ballerina.lang.xml {
     requires io.ballerina.lang;
-    requires io.ballerina.runtime.internal;
+    requires io.ballerina.runtime;
     requires slf4j.api;
     requires axiom.api;
     requires io.ballerina.lang.internal;

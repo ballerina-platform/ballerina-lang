@@ -64,8 +64,8 @@ public class Map {
                         () -> new Object[]{parentStrand, x.getItem(index.incrementAndGet()),
                                 true},
                         result -> elements.add((BXml) result),
-                                                       () -> ValueCreator.createXMLSequence(elements),
+                                                       () -> ValueCreator.createXmlSequence(elements),
                                                        Scheduler.getStrand().scheduler);
-        return ValueCreator.createXMLSequence(elements);
+        return ValueCreator.createXmlSequence(elements);
     }
 }

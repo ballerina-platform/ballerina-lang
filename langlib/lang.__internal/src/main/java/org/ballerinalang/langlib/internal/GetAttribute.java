@@ -43,7 +43,7 @@ public class GetAttribute {
                                StringUtils.fromString("Invalid xml attribute access on xml " +
                                                                xmlVal.getNodeType().value()));
         }
-        BXmlQName qname = ValueCreator.createXMLQName(attrName);
+        BXmlQName qname = ValueCreator.createXmlQName(attrName);
         BString attrVal = xmlVal.getAttribute(qname.getLocalName(), qname.getUri());
         if (attrVal == null && !optionalFiledAccess) {
             return createError(XML_OPERATION_ERROR, StringUtils.fromString("attribute '" + attrName + "' not found"));

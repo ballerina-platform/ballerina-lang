@@ -55,6 +55,6 @@ public class Concat {
                 lastItem = (BXml) refValue;
             }
         }
-        return ValueCreator.createXMLSequence(backingArray);
+        return ValueCreator.createXmlSequence(backingArray);
     }
 }

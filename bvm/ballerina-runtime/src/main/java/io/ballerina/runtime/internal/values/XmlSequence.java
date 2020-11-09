@@ -188,7 +188,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
 
     @Override
     @Deprecated
-    public void setAttributes(BMap<BString, ?> attributes) {
+    public void setAttributes(BMap<BString, BString> attributes) {
         if (this.isFrozen()) {
             ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
         }
@@ -512,7 +512,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
     }
 
     @Override
-    protected void setAttributesOnInitialization(BMap<BString, ?> attributes) {
+    protected void setAttributesOnInitialization(BMap<BString, BString> attributes) {
         if (isSingleton()) {
             ((XmlValue) children.get(0)).setAttributesOnInitialization(attributes);
         }

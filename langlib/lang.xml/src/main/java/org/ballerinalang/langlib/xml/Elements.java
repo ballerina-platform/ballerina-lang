@@ -61,6 +61,6 @@ public class Elements {
         while (bIterator.hasNext()) {
             list.add((BXml) bIterator.next());
         }
-        return ValueCreator.createXMLSequence(list);
+        return ValueCreator.createXmlSequence(list);
     }
 }

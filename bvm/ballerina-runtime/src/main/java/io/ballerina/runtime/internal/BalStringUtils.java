@@ -199,7 +199,7 @@ public class BalStringUtils {
         // start index of table keys string = index of '(' + 1
         String[] keys = exprValue.substring
                 (exprValue.indexOf('(') + 1, exprValue.indexOf(')')).split(",");
-        ArrayValue fieldNames = (ArrayValue) ValueCreator.createArrayValue(StringUtils.fromStringArray(keys));
+        ArrayValue fieldNames = (ArrayValue) StringUtils.fromStringArray(keys);
         // start index of table members string = index of ')' + 2
         ArrayValueImpl data = (ArrayValueImpl) StringUtils.parseExpressionStringValue(exprValue.substring
                 (exprValue.indexOf(')') + 2), parent);

@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.JsonParser;
 import io.ballerina.runtime.internal.values.ErrorValue;
@@ -125,28 +126,38 @@ public class JsonUtils {
     }
 
     /**
-     * Convert {@link BArray} to JSON.
+     * Parses {@link BTable} to JSON.
+     *
+     * @param bTable {@link BTable} to be converted to JSON
+     * @return JSON representation of the provided bTable
+     */
+    public static Object parse(BTable bTable) {
+        return io.ballerina.runtime.internal.JsonUtils.toJSON(bTable);
+    }
+
+    /**
+     * Parses {@link BArray} to JSON.
      *
      * @param bArray {@link BArray} to be converted to JSON
      * @return JSON representation of the provided bArray
      */
-    public static BArray convertArrayToJSON(BArray bArray) {
+    public static Object parse(BArray bArray) {
         return io.ballerina.runtime.internal.JsonUtils.convertArrayToJSON(bArray);
     }
 
     /**
-     * Convert map value to JSON.
+     * Parse map value to JSON.
      *
      * @param map        value {@link BMap} to be converted to JSON
      * @param targetType the target JSON type to be convert to
      * @return JSON representation of the provided array
      */
-    public static Object convertMapToJSON(BMap<BString, ?> map, JsonType targetType) {
+    public static Object parse(BMap<BString, ?> map, JsonType targetType) {
         return io.ballerina.runtime.internal.JsonUtils.convertMapToJSON(map, targetType);
     }
 
     /**
-     * Convert a JSON node to a map.
+     * Converts a JSON node to a map.
      *
      * @param json    JSON to convert
      * @param mapType MapType which the JSON is converted to.
@@ -159,7 +170,7 @@ public class JsonUtils {
     }
 
     /**
-     * Convert a BJSON to a user defined record.
+     * Converts a BJSON to a user defined record.
      *
      * @param record     JSON to convert
      * @param structType Type (definition) of the target record
@@ -172,7 +183,7 @@ public class JsonUtils {
     }
 
     /**
-     * Convert a BJSON to a user given target type.
+     * Converts a BJSON to a user given target type.
      *
      * @param source     JSON to convert
      * @param targetType Type (definition) of the target record
@@ -184,7 +195,7 @@ public class JsonUtils {
     }
 
     /**
-     * Convert a union type value to a user given target type.
+     * Converts a union type value to a user given target type.
      *
      * @param source     Union type value to convert
      * @param targetType Type (definition).

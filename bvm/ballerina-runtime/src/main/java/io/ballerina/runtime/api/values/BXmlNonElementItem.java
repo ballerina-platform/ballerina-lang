@@ -24,15 +24,8 @@ import javax.xml.namespace.QName;
  *
  * @since 2.0.0
  */
-public interface BXmlItem extends BXml {
+public interface BXmlNonElementItem extends BXml {
 
-    String XMLNS_URL_PREFIX = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}";
 
-    String XMLNS = "xmlns";
 
-    QName getQName();
-
-    void setQName(QName newQName);
-
-    BXmlSequence getChildrenSeq();
 }

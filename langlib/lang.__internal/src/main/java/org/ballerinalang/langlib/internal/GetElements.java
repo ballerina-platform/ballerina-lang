@@ -63,7 +63,7 @@ public class GetElements {
             if (matchFilters(elemNames, nsList, localNameList, xmlVal.getElementName())) {
                 return xmlVal;
             }
-            return ValueCreator.createXMLSequence();
+            return ValueCreator.createXmlSequence();
         }
 
         ArrayList<BXml> selectedElements = new ArrayList<>();
@@ -79,7 +79,7 @@ public class GetElements {
             }
         }
 
-        return ValueCreator.createXMLSequence(selectedElements);
+        return ValueCreator.createXmlSequence(selectedElements);
     }
 
     public static void destructureFilters(BString[] elemNames,

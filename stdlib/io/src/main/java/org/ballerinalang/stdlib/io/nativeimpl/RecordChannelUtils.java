@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BObject;
@@ -99,7 +98,7 @@ public class RecordChannelUtils {
         } else {
             try {
                 String[] records = textRecordChannel.read();
-                return ValueCreator.createArrayValue(StringUtils.fromStringArray(records));
+                return StringUtils.fromStringArray(records);
             } catch (BallerinaIOException e) {
                 log.error("error occurred while reading next text record from ReadableTextRecordChannel", e);
                 return IOUtils.createError(e);

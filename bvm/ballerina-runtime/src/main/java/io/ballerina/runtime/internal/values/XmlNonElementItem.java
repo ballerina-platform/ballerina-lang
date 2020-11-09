@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlNonElementItem;
 import io.ballerina.runtime.internal.BallerinaXmlSerializer;
 import org.apache.axiom.om.OMNode;
 
@@ -38,7 +39,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_NULL_VA
  *
  * @since 1.2.0
  */
-public abstract class XmlNonElementItem extends XmlValue {
+public abstract class XmlNonElementItem extends XmlValue implements BXmlNonElementItem {
 
     @Override
     public boolean isSingleton() {
@@ -76,7 +77,7 @@ public abstract class XmlNonElementItem extends XmlValue {
     }
 
     @Override
-    public void setAttributes(BMap<BString, ?> attributes) {
+    public void setAttributes(BMap<BString, BString> attributes) {
 
     }
 
@@ -214,7 +215,7 @@ public abstract class XmlNonElementItem extends XmlValue {
     public abstract boolean equals(Object obj);
 
     @Override
-    protected void setAttributesOnInitialization(BMap<BString, ?> attributes) {
+    protected void setAttributesOnInitialization(BMap<BString, BString> attributes) {
     }
 
     @Override

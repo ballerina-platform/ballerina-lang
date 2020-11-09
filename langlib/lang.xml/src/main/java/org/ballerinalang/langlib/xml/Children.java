@@ -48,8 +48,8 @@ public class Children {
             for (BXml bxml : sequence.getChildrenList()) {
                 liftedChildren.addAll(((BXmlItem) bxml).getChildrenSeq().getChildrenList());
             }
-            return ValueCreator.createXMLSequence(liftedChildren);
+            return ValueCreator.createXmlSequence(liftedChildren);
         }
-        return ValueCreator.createXMLSequence();
+        return ValueCreator.createXmlSequence();
     }
 }

@@ -40,7 +40,7 @@ import io.ballerina.runtime.internal.XmlFactory;
 public class CreateElement {
 
     public static BXml createElement(BString name, BXml children) {
-        BXmlQName xmlqName = ValueCreator.createXMLQName(name);
+        BXmlQName xmlqName = ValueCreator.createXmlQName(name);
         String temp = null;
         BXml xmlElement = XmlFactory.createXMLElement(xmlqName, temp);
         xmlElement.setChildren(getChildren(children));
@@ -49,7 +49,7 @@ public class CreateElement {
 
     private static BXml getChildren(BXml children) {
         if (children == null) {
-            return ValueCreator.createXMLSequence();
+            return ValueCreator.createXmlSequence();
         }
         return children;
     }

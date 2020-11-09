@@ -68,8 +68,8 @@ public class ElementChildren {
                     items.add(childElement);
                 }
             }
-            return ValueCreator.createXMLSequence(items);
+            return ValueCreator.createXmlSequence(items);
         }
-        return ValueCreator.createXMLSequence();
+        return ValueCreator.createXmlSequence();
     }
 }

@@ -144,14 +144,14 @@ public interface BXml extends BRefValue, BCollection {
      * 
      * @return Attributes as a {@link BMap}
      */
-    BMap<BString, ?> getAttributesMap();
+    BMap<BString, BString> getAttributesMap();
 
     /**
      * Set the attributes of the XML{@link BMap}.
      * 
      * @param attributes Attributes to be set.
      */
-    void setAttributes(BMap<BString, ?> attributes);
+    void setAttributes(BMap<BString, BString> attributes);
 
     /**
      * Get all the elements-type items, in the given sequence.

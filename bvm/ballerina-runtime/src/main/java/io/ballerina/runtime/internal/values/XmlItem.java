@@ -65,15 +65,13 @@ import static io.ballerina.runtime.api.types.XmlNodeType.TEXT;
  */
 public final class XmlItem extends XmlValue implements BXmlItem {
 
-    public static final String XMLNS_URL_PREFIX = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}";
-    public static final String XMLNS = "xmlns";
     private QName name;
     private XmlSequence children;
     private AttributeMapValueImpl attributes;
     // Keep track of probable parents of xml element to detect probable cycles in xml.
     private List<WeakReference<XmlItem>> probableParents;
 
-    public XmlItem(QName name, XmlSequence children) {
+    public XmlItem(QName name, XmlSequence children, boolean readonly) {
         this.name = name;
         this.children = children;
         for (BXml child : children.children) {
@@ -83,6 +81,11 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         addDefaultNamespaceAttribute(name, attributes);
         probableParents = new ArrayList<>();
         this.type = PredefinedTypes.TYPE_ELEMENT;
+        this.type = readonly ? PredefinedTypes.TYPE_READONLY_ELEMENT : PredefinedTypes.TYPE_ELEMENT;
+    }
+
+    public XmlItem(QName name, XmlSequence children) {
+        this(name, children, false);
     }
 
     /**
@@ -108,7 +111,6 @@ public final class XmlItem extends XmlValue implements BXmlItem {
 
         this.type = readonly ? PredefinedTypes.TYPE_READONLY_ELEMENT : PredefinedTypes.TYPE_ELEMENT;
     }
-
     private void addDefaultNamespaceAttribute(QName name, AttributeMapValueImpl attributes) {
         String namespace = name.getNamespaceURI();
         if (namespace == null || namespace.isEmpty()) {
@@ -231,7 +233,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
      */
     @Override
     @Deprecated
-    public void setAttributes(BMap<BString, ?> attributes) {
+    public void setAttributes(BMap<BString, BString> attributes) {
         if (this.type.isReadOnly()) {
             ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
         }
@@ -530,7 +532,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
     }
 
     @Override
-    protected void setAttributesOnInitialization(BMap<BString, ?> attributes) {
+    protected void setAttributesOnInitialization(BMap<BString, BString> attributes) {
         setAttributes(attributes, this::setAttributeOnInitialization);
     }
 
@@ -576,7 +578,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         }
     }
 
-    private void setAttributes(BMap<BString, ?> attributes, SetAttributeFunction func) {
+    private void setAttributes(BMap<BString, BString> attributes, SetAttributeFunction func) {
         String localName, uri;
         for (BString qname : attributes.getKeys()) {
             if (qname.getValue().startsWith("{") && qname.getValue().indexOf('}') > 0) {

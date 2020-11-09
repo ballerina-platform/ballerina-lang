@@ -1,3 +1,3 @@
 module ballerina.test.listener {
-    requires io.ballerina.runtime.internal;
+    requires io.ballerina.runtime;
 }

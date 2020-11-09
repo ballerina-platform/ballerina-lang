@@ -58,11 +58,11 @@ public class Filter {
             func.asyncCall(args,
                       result -> {
                           if ((Boolean) result) {
-                              return ValueCreator.createXMLSequence(x);
+                              return ValueCreator.createXmlSequence(x);
                           }
-                          return ValueCreator.createXMLSequence();
+                          return ValueCreator.createXmlSequence();
                       }, METADATA);
-            return ValueCreator.createXMLSequence();
+            return ValueCreator.createXmlSequence();
         }
 
         List<BXml> elements = new ArrayList<>();
@@ -77,9 +77,9 @@ public class Filter {
                                                            if ((Boolean) result) {
                                                                elements.add(x.getItem(index.get()));
                                                            }
-                                                       }, () -> ValueCreator.createXMLSequence(elements),
+                                                       }, () -> ValueCreator.createXmlSequence(elements),
                                                        Scheduler.getStrand().scheduler);
 
-        return ValueCreator.createXMLSequence(elements);
+        return ValueCreator.createXmlSequence(elements);
     }
 }

@@ -39,7 +39,7 @@ public class GetFilteredChildrenFlat {
     public static BXml getFilteredChildrenFlat(BXml xmlVal, long index, BString[] elemNames) {
         if (xmlVal.getNodeType() == XmlNodeType.ELEMENT) {
             BXmlItem element = (BXmlItem) xmlVal;
-            return ValueCreator.createXMLSequence(filterElementChildren(index, elemNames, element));
+            return ValueCreator.createXmlSequence(filterElementChildren(index, elemNames, element));
         } else if (xmlVal.getNodeType() == XmlNodeType.SEQUENCE) {
             BXmlSequence sequence = (BXmlSequence) xmlVal;
             ArrayList<BXml> liftedFilteredChildren = new ArrayList<>();
@@ -48,10 +48,10 @@ public class GetFilteredChildrenFlat {
                     liftedFilteredChildren.addAll(filterElementChildren(index, elemNames, (BXmlItem) child));
                 }
             }
-            return ValueCreator.createXMLSequence(liftedFilteredChildren);
+            return ValueCreator.createXmlSequence(liftedFilteredChildren);
 
         }
-        return ValueCreator.createXMLSequence();
+        return ValueCreator.createXmlSequence();
     }
 
     private static List<BXml> filterElementChildren(long index, BString[] elemNames, BXmlItem element) {
