@@ -1212,13 +1212,6 @@
                     <exclude name="testPackageInitWorkerTest"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.documentation.ObjectFieldDefaultValueTest">
-                <methods>
-                    <exclude name="testDefValInitInt"/>
-                    <exclude name="testDefValInitObject"/>
-                    <exclude name="testDefValInitString"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.lock.FieldLockTest">
                 <methods>
                     <exclude name="testLockInAttachedFunc"/>
