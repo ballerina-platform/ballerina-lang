@@ -164,6 +164,8 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
                                                 spanCount++;
                                             }
                                         }
+                                    } else {
+                                        break;
                                     }
                                 }
                                 LOGGER.info("span buffer is full : " + "dropped " + spanCount + " spans");
