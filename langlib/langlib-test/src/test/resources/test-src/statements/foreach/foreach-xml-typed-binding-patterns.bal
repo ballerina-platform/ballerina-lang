@@ -20,10 +20,8 @@ function testXmlWithRootWithSimpleVariableWithoutType() returns string {
 
     int i = 0;
     foreach var v in xdata {
-        if v is xml {
-            concatIntXml(i, v);
-            i += 1;
-        }
+        concatIntXml(i, v);
+        i += 1;
     }
     return output;
 }
@@ -33,10 +31,8 @@ function testXmlWithRootWithSimpleVariableWithType() returns string {
 
     int i = 0;
     foreach xml|string v in xdata {
-        if v is xml {
-            concatIntXml(i, v);
-            i += 1;
-        }
+        concatIntXml(i, v);
+        i += 1;
     }
     return output;
 }
@@ -48,10 +44,8 @@ function testXmlInnerElementsWithSimpleVariableWithoutType() returns string {
 
     int i = 0;
     foreach var v in (xdata/*).elements() {
-        if v is xml {
-            concatIntXml(i, v);
-            i += 1;
-        }
+        concatIntXml(i, v);
+        i += 1;
     }
     return output;
 }
@@ -61,10 +55,8 @@ function testXmlInnerElementsWithSimpleVariableWithType() returns string {
 
     int i = 0;
     foreach xml|string v in (xdata/*).elements() {
-        if v is xml {
-            concatIntXml(i, v);
-            i += 1;
-        }
+        concatIntXml(i, v);
+        i += 1;
     }
     return output;
 }
@@ -78,10 +70,8 @@ function testEmptyXmlIteration() returns string {
 
     int i = 0;
     foreach var v in data/* {
-        if v is xml {
-            concatIntXml(i, v);
-            i += 1;
-        }
+        concatIntXml(i, v);
+        i += 1;
     }
     return output;
 }
