@@ -40,6 +40,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
+import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.engine.BasicLiteralEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.BinaryExpressionEvaluator;
@@ -53,6 +54,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.OptionalFieldAccessExpre
 import org.ballerinalang.debugadapter.evaluation.engine.SimpleNameReferenceEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.StringTemplateEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.TypeOfExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.UnaryExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.XMLTemplateEvaluator;
 
 import java.util.ArrayList;
@@ -87,6 +89,7 @@ import java.util.StringJoiner;
  * <li> String template expression
  * <li> XML template expression
  * <li> Shift expression
+ * <li> Unary expression
  * </ul>
  * <br>
  * To be Implemented.
@@ -98,7 +101,6 @@ import java.util.StringJoiner;
  * <li> Anonymous function expression
  * <li> Let expression
  * <li> Type cast expression
- * <li> Unary expression
  * <li> Range expression
  * <li> Type test expression
  * <li> Checking expression
@@ -328,6 +330,14 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     @Override
+    public void visit(UnaryExpressionNode unaryExpressionNode) {
+        visitSyntaxNode(unaryExpressionNode);
+        unaryExpressionNode.expression().accept(this);
+        Evaluator subExprEvaluator = result;
+        result = new UnaryExpressionEvaluator(context,unaryExpressionNode, subExprEvaluator);
+    }
+
+    @Override
     public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
         visitSyntaxNode(simpleNameReferenceNode);
         result = new SimpleNameReferenceEvaluator(context, simpleNameReferenceNode);
@@ -493,7 +503,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addUnaryExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.UNARY_EXPRESSION);
     }
 
     private void addMultiplicativeExpressionSyntax() {

@@ -303,3 +303,52 @@ function getType(any value) returns string|error {
         return result;
     }
 }
+
+
+function unaryPlus(any value) returns any|error {
+    any|error result;
+    if (value is int) {
+        result = trap +value;
+    } else if (value is float) {
+        result = trap +value;
+    } else if (value is decimal) {
+        result = trap +value;
+    } else {
+        result = error("operator '+' not defined for'" + getType(value) + "'");
+    }
+    return result;
+}
+
+function unaryMinus(any value) returns any|error {
+    any|error result;
+    if (value is int) {
+        result = trap -value;
+    } else if (value is float) {
+        result = trap -value;
+    } else if (value is decimal) {
+        result = trap -value;
+    } else {
+        result = error("operator '-' not defined for'" + getType(value) + "'");
+    }
+    return result;
+}
+
+function unaryInvert(any value) returns any|error {
+    any|error result;
+    if (value is int) {
+        result = trap ~value;
+    } else {
+        result = error("operator '~' not defined for'" + getType(value) + "'");
+    }
+    return result;
+}
+
+function unaryNot(any value) returns any|error {
+    any|error result;
+    if (value is boolean) {
+        result = trap !value;
+    } else {
+        result = error("operator '!' not defined for'" + getType(value) + "'");
+    }
+    return result;
+}
