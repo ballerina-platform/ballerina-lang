@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.execution;
 
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.BRunUtil.ExitDetails;
@@ -82,8 +81,7 @@ public class ModuleExecutionFlowTests {
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: panicked while initializing module B.*")
+    @Test
     public void testModuleInitPanic() {
         CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj4");
         ExitDetails output = run(compileResult, new String[]{});
@@ -96,8 +94,7 @@ public class ModuleExecutionFlowTests {
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: panicked while starting module B.*")
+    @Test
     public void testModuleStartPanic() {
         CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj5");
         ExitDetails output = run(compileResult, new String[]{});

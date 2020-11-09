@@ -1,5 +1,5 @@
-import unit_tests1/proj2.a;
-import unit_tests1/proj2.b;
+import unit_tests/proj2.a;
+import unit_tests/proj2.b;
 import ballerina/io;
 
 function init() {
@@ -7,8 +7,8 @@ function init() {
 }
 
 public function main() {
-    d:sample();
+    b:sample();
     io:println("Module c main function invoked");
 }
 
-listener c:ABC ep = new c:ABC("ModC");
+listener a:ABC ep = new a:ABC("ModC");

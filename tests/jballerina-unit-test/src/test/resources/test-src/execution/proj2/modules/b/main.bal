@@ -1,4 +1,4 @@
-import unit_tests1/proj2.a;
+import unit_tests/proj2.a;
 import ballerina/io;
 
 function init() returns error? {
@@ -11,4 +11,4 @@ public function sample() {
 
 }
 
-listener c:ABC ep = new c:ABC("ModB");
+listener a:ABC ep = new a:ABC("ModB");

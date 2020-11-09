@@ -1,5 +1,5 @@
-import unit_tests/proj5.a;
-import unit_tests/proj5.b;
+import unit_tests/proj6.a;
+import unit_tests/proj6.b;
 import ballerina/io;
 
 function init() {
