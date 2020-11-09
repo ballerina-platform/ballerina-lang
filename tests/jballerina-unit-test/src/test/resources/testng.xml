@@ -1188,11 +1188,6 @@
                     <exclude name="testReadonlyType"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.record.RecordInBaloTest">
-                <methods>
-                    <exclude name="testRestFieldTypeDefAfterRecordDef"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.globalvar.GlobalVarFunctionInBaloTest">
                 <methods>
                     <exclude name="testAccessGlobalVarWithinFunctions"/>
