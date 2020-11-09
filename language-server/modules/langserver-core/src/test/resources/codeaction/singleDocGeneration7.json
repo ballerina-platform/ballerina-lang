@@ -1,12 +1,12 @@
 {
   "range": {
     "start": {
-      "line": 39,
-      "character": 19
+      "line": 45,
+      "character": 17
     },
     "end": {
-      "line": 39,
-      "character": 19
+      "line": 45,
+      "character": 17
     }
   },
   "expected": {
@@ -18,7 +18,7 @@
         "arguments": [
           {
             "argumentK": "node.line",
-            "argumentV": "39"
+            "argumentV": "45"
           }
         ]
       },

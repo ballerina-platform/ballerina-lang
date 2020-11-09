@@ -30,6 +30,7 @@ import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -53,14 +54,11 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
@@ -93,29 +91,35 @@ public class CodeActionUtil {
         ModulePartNode modulePartNode = syntaxTree.rootNode();
         List<ModuleMemberDeclarationNode> members = modulePartNode.members().stream().collect(Collectors.toList());
         for (ModuleMemberDeclarationNode member : members) {
-            boolean isSameLine = member.lineRange().startLine().line() == cursorLine;
             boolean isWithinLines = cursorLine > member.lineRange().startLine().line() &&
                     cursorLine < member.lineRange().endLine().line();
             if (member.kind() == SyntaxKind.SERVICE_DECLARATION) {
+                ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) member;
+                boolean isSameLine = serviceDeclrNode.serviceKeyword().lineRange().startLine().line() == cursorLine;
                 if (isSameLine) {
                     // Cursor on the service
                     return Optional.of(new ImmutablePair<>(CodeActionNodeType.SERVICE, member));
                 } else if (isWithinLines) {
                     // Cursor within the service
-                    ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) member;
                     for (Node resourceNode : ((ServiceBodyNode) serviceDeclrNode.serviceBody()).resources()) {
-                        boolean isSameResLine = resourceNode.lineRange().startLine().line() == cursorLine;
-                        if (isSameResLine && resourceNode.kind() == SyntaxKind.FUNCTION_DEFINITION) {
+                        boolean isWithinResLine = cursorLine >= resourceNode.lineRange().startLine().line() &&
+                                cursorLine <= resourceNode.lineRange().endLine().line();
+                        if (isWithinResLine && resourceNode.kind() == SyntaxKind.FUNCTION_DEFINITION) {
                             // Cursor on the resource function
                             return Optional.of(new ImmutablePair<>(CodeActionNodeType.RESOURCE, member));
                         }
                     }
                 }
-            } else if (isSameLine && member.kind() == SyntaxKind.FUNCTION_DEFINITION) {
-                return Optional.of(new ImmutablePair<>(CodeActionNodeType.FUNCTION, member));
+            } else if (member.kind() == SyntaxKind.FUNCTION_DEFINITION) {
+                FunctionDefinitionNode definitionNode = (FunctionDefinitionNode) member;
+                boolean isSameLine = definitionNode.functionKeyword().lineRange().startLine().line() == cursorLine;
+                if (isSameLine) {
+                    return Optional.of(new ImmutablePair<>(CodeActionNodeType.FUNCTION, member));
+                }
             } else if (member.kind() == SyntaxKind.TYPE_DEFINITION) {
                 TypeDefinitionNode definitionNode = (TypeDefinitionNode) member;
                 Node typeDesc = definitionNode.typeDescriptor();
+                boolean isSameLine = definitionNode.typeKeyword().lineRange().startLine().line() == cursorLine;
                 if (isSameLine) {
                     if (typeDesc.kind() == SyntaxKind.RECORD_TYPE_DESC) {
                         return Optional.of(new ImmutablePair<>(CodeActionNodeType.RECORD, member));
@@ -125,23 +129,26 @@ public class CodeActionUtil {
                 } else if (isWithinLines && typeDesc.kind() == SyntaxKind.OBJECT_TYPE_DESC) {
                     ObjectTypeDescriptorNode objectTypeDescNode = (ObjectTypeDescriptorNode) typeDesc;
                     for (Node memberNode : objectTypeDescNode.members()) {
-                        boolean isSameResLine = memberNode.lineRange().startLine().line() == cursorLine;
-                        if (isSameResLine && memberNode.kind() == SyntaxKind.METHOD_DECLARATION) {
+                        boolean isWithinResLine = cursorLine >= memberNode.lineRange().startLine().line() &&
+                                cursorLine <= memberNode.lineRange().endLine().line();
+                        if (isWithinResLine && memberNode.kind() == SyntaxKind.METHOD_DECLARATION) {
                             // Cursor on the object function
                             return Optional.of(new ImmutablePair<>(CodeActionNodeType.OBJECT_FUNCTION, member));
                         }
                     }
                 }
             } else if (member.kind() == SyntaxKind.CLASS_DEFINITION) {
+                ClassDefinitionNode classDefNode = (ClassDefinitionNode) member;
+                boolean isSameLine = classDefNode.classKeyword().lineRange().startLine().line() == cursorLine;
                 if (isSameLine) {
                     // Cursor on the class
                     return Optional.of(new ImmutablePair<>(CodeActionNodeType.CLASS, member));
                 } else if (isWithinLines) {
                     // Cursor within the class
-                    ClassDefinitionNode classDefNode = (ClassDefinitionNode) member;
                     for (Node memberNode : classDefNode.members()) {
-                        boolean isSameResLine = memberNode.lineRange().startLine().line() == cursorLine;
-                        if (isSameResLine && memberNode.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
+                        boolean isWithinResLine = cursorLine >= memberNode.lineRange().startLine().line() &&
+                                cursorLine <= memberNode.lineRange().endLine().line();
+                        if (isWithinResLine && memberNode.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
                             // Cursor on the class function
                             return Optional.of(new ImmutablePair<>(CodeActionNodeType.CLASS_FUNCTION, member));
                         }
@@ -206,8 +213,9 @@ public class CodeActionUtil {
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
 
         List<String> types = new ArrayList<>();
-        String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor, context);
         if (typeDescriptor.typeKind() == TypeDescKind.RECORD) {
+            // Handle ambiguous mapping construct types {}
+
             // Matching Record type
             // TODO: Disabled due to #26789
 //            if (matchingRecordType != null) {
@@ -240,6 +248,7 @@ public class CodeActionUtil {
                 types.add("map<any>");
             }
         } else if (typeDescriptor.typeKind() == TypeDescKind.TUPLE) {
+            // Handle ambiguous list construct types []
             TupleTypeSymbol tupleType = (TupleTypeSymbol) typeDescriptor;
             String arrayType = null;
             TypeSymbol prevType = null;
@@ -288,16 +297,8 @@ public class CodeActionUtil {
             }
             // Tuple
             types.add("[" + tupleJoiner.toString() + "]");
-        } else if (typeDescriptor instanceof BLangQueryExpr) {
-            BLangQueryExpr queryExpr = (BLangQueryExpr) typeDescriptor;
-            ExpressionNode expression = queryExpr.getSelectClause().getExpression();
-            if (expression instanceof BLangRecordLiteral) {
-                return getPossibleTypes(typeDescriptor, edits, context);
-            } else {
-                types.add("var");
-            }
         } else {
-            types.add(variableType);
+            types.add(FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor, context));
         }
 
         // Remove brackets of the unions
@@ -309,10 +310,10 @@ public class CodeActionUtil {
     /**
      * Returns position details for this cursor position.
      *
-     * @param range
-     * @param syntaxTree
-     * @param context
-     * @return
+     * @param range      cursor {@link Range}
+     * @param syntaxTree {@link SyntaxTree}
+     * @param context    {@link LSContext}
+     * @return {@link PositionDetails}
      */
     public static PositionDetails findCursorDetails(Range range, SyntaxTree syntaxTree, LSContext context) {
         // Find Cursor node

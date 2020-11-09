@@ -1,11 +1,11 @@
 {
   "range": {
     "start": {
-      "line": 30,
+      "line": 34,
       "character": 19
     },
     "end": {
-      "line": 30,
+      "line": 34,
       "character": 19
     }
   },
@@ -17,12 +17,8 @@
         "command": "ADD_DOC",
         "arguments": [
           {
-            "argumentK": "node.type",
-            "argumentV": "OBJECT_FUNCTION"
-          },
-          {
             "argumentK": "node.line",
-            "argumentV": "30"
+            "argumentV": "34"
           }
         ]
       },
