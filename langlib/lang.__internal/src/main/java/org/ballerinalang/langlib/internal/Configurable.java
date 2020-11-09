@@ -21,8 +21,8 @@ package org.ballerinalang.langlib.internal;
 
 import io.ballerina.runtime.api.values.BString;
 
-import java.util.HashMap;
-import java.util.Map;
+//import java.util.HashMap;
+//import java.util.Map;
 
 /**
  * Native implementation of lang.internal:configurable.
@@ -30,15 +30,15 @@ import java.util.Map;
  * @since 2.0
  */
 public class Configurable {
-    private static Map<String, Object> configMap = new HashMap<>() {{ put("$anon...0.0.0.x", 1); }};
+//    private static Map<String, Object> configMap = new HashMap<>() {{ put("$anon...0.0.0.x", 1); }};
 
     public static Object hasConfigurableValue(BString orgName, BString moduleName, BString versionNumber,
                                               BString configVarName) {
        String key = orgName.getValue() + "." + moduleName.getValue() + "." + versionNumber.getValue() + "."
                + configVarName.getValue();
-       if (configMap.containsKey(key)) {
-           return true;
-       }
+//       if (configMap.containsKey(key)) {
+//           return true;
+//       }
        return false;
     }
 
@@ -46,9 +46,9 @@ public class Configurable {
                                               BString configVarName) {
         String key = orgName.getValue() + "." + moduleName.getValue() + "." + versionNumber.getValue() + "."
                 + configVarName.getValue();
-        if (configMap.containsKey(key)) {
-            return configMap.get(key);
-        }
+//        if (configMap.containsKey(key)) {
+//            return configMap.get(key);
+//        }
         return null;
     }
 }
