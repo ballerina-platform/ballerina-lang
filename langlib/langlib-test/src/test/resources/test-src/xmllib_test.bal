@@ -175,6 +175,7 @@ function testForEach() {
             r = 'xml:concat(r, x);
         }
     }
+    assert(r.length(), 3);
 }
 
 function testSlice() returns [xml, xml, xml] {

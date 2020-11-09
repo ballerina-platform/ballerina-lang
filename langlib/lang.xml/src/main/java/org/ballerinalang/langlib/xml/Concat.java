@@ -22,6 +22,7 @@ import io.ballerina.runtime.XMLNodeType;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.values.XMLSequence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +52,14 @@ public class Concat {
                 backingArray.add(xmlText);
                 lastItem = xmlText;
             } else {
+                if (refValue instanceof XMLSequence) {
+                    List<BXML> sequenceChildren = ((XMLSequence) refValue).getChildrenList();
+                    for (int j = 0; j < sequenceChildren.size(); j++) {
+                        backingArray.add(sequenceChildren.get(j));
+                    }
+                    lastItem = (BXML) refValue;
+                    continue;
+                }
                 backingArray.add((BXML) refValue);
                 lastItem = (BXML) refValue;
             }
