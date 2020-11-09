@@ -22,7 +22,7 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -75,7 +75,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
      * @param code Error code
      * @param args Parameters associated with the error
      */
-    public void error(Location location, DiagnosticCode code, Object... args) {
+    public void error(Location location, DiagnosticErrorCode code, Object... args) {
         String msg = formatMessage(ERROR_PREFIX, code, args);
         reportDiagnostic(code, location, msg, DiagnosticSeverity.ERROR);
     }
@@ -87,7 +87,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
      * @param code Error code
      * @param args Parameters associated with the error
      */
-    public void warning(Location location, DiagnosticCode code, Object... args) {
+    public void warning(Location location, DiagnosticErrorCode code, Object... args) {
         String msg = formatMessage(WARNING_PREFIX, code, args);
         reportDiagnostic(code, location, msg, DiagnosticSeverity.WARNING);
     }
@@ -99,7 +99,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
      * @param code Error code
      * @param args Parameters associated with the info
      */
-    public void note(Location location, DiagnosticCode code, Object... args) {
+    public void note(Location location, DiagnosticErrorCode code, Object... args) {
         String msg = formatMessage(NOTE_PREFIX, code, args);
         reportDiagnostic(code, location, msg, DiagnosticSeverity.INFO);
     }
@@ -171,13 +171,13 @@ public class BLangDiagnosticLog implements DiagnosticLog {
 
     // private helper methods
 
-    private String formatMessage(String prefix, DiagnosticCode code, Object[] args) {
+    private String formatMessage(String prefix, DiagnosticErrorCode code, Object[] args) {
         String msgKey = MESSAGES.getString(prefix + "." + code.getValue());
         return MessageFormat.format(msgKey, args);
     }
 
-    private void reportDiagnostic(PackageID packageID, DiagnosticCode diagnosticCode, Location location, String msg,
-                                  DiagnosticSeverity severity) {
+    private void reportDiagnostic(PackageID packageID, DiagnosticErrorCode diagnosticCode, Location location,
+                                  String msg, DiagnosticSeverity severity) {
         if (severity == DiagnosticSeverity.ERROR) {
             this.errorCount++;
         }
@@ -193,7 +193,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         storeDiagnosticInModule(packageID, diagnostic);
     }
 
-    private void reportDiagnostic(DiagnosticCode diagnosticCode, Location location, String msg,
+    private void reportDiagnostic(DiagnosticErrorCode diagnosticCode, Location location, String msg,
                                   DiagnosticSeverity severity) {
         if (severity == DiagnosticSeverity.ERROR) {
             this.errorCount++;

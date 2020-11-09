@@ -25,7 +25,7 @@ import org.ballerinalang.docgen.model.ModuleDoc;
 import org.ballerinalang.packerina.utils.EmptyPrintStream;
 import org.ballerinalang.packerina.writer.JarFileWriter;
 import org.ballerinalang.repository.CompiledPackage;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -51,7 +51,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURE
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
-import static org.ballerinalang.util.diagnostic.DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.USAGE_OF_DEPRECATED_CONSTRUCT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_EXT;
 import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
 import static org.wso2.ballerinalang.util.RepoUtils.COMPILE_BALLERINA_ORG_PROP;
@@ -173,7 +173,7 @@ public class GenerateBalo {
                 if (!(diagnostic instanceof BLangDiagnostic)) {
                     continue;
                 }
-                DiagnosticCode code = ((BLangDiagnostic) diagnostic).getCode();
+                DiagnosticErrorCode code = ((BLangDiagnostic) diagnostic).getCode();
                 if (code != null && (code == USAGE_OF_DEPRECATED_CONSTRUCT ||
                         (!logIsolationWarnings && isIsolatedWarningLog(code)))) {
                     deprecatedWarnCount++;
@@ -209,7 +209,7 @@ public class GenerateBalo {
         }
     }
 
-    private static boolean isIsolatedWarningLog(DiagnosticCode code) {
+    private static boolean isIsolatedWarningLog(DiagnosticErrorCode code) {
         switch (code) {
             case FUNCTION_CAN_BE_MARKED_ISOLATED:
             case WARNING_INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT:

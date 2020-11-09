@@ -25,7 +25,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -164,13 +164,13 @@ public class Types {
     public BType checkType(BLangExpression node,
                            BType actualType,
                            BType expType) {
-        return checkType(node, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
+        return checkType(node, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
     }
 
     public BType checkType(BLangExpression expr,
                            BType actualType,
                            BType expType,
-                           DiagnosticCode diagCode) {
+                           DiagnosticErrorCode diagCode) {
         expr.type = checkType(expr.pos, actualType, expType, diagCode);
         if (expr.type.tag == TypeTags.SEMANTIC_ERROR) {
             return expr.type;
@@ -185,7 +185,7 @@ public class Types {
     public BType checkType(Location pos,
                            BType actualType,
                            BType expType,
-                           DiagnosticCode diagCode) {
+                           DiagnosticErrorCode diagCode) {
         if (expType.tag == TypeTags.SEMANTIC_ERROR) {
             return expType;
         } else if (expType.tag == TypeTags.NONE) {
@@ -1434,7 +1434,7 @@ public class Types {
                 varType = streamType.constraint;
                 if (streamType.error != null) {
                     BType actualType = BUnionType.create(null, varType, streamType.error);
-                    dlog.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                    dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                             varType, actualType);
                 }
                 break;
@@ -1448,14 +1448,14 @@ public class Types {
                     BType errorType = getErrorType(nextMethodReturnType);
                     if (errorType != null) {
                         BType actualType = BUnionType.create(null, valueType, errorType);
-                        dlog.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                        dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                                 valueType, actualType);
                     }
                     foreachNode.nillableResultType = nextMethodReturnType;
                     foreachNode.varType = valueType;
                     return;
                 }
-                dlog.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
+                dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
                 // fallthrough
             case TypeTags.SEMANTIC_ERROR:
                 foreachNode.varType = symTable.semanticError;
@@ -1466,7 +1466,7 @@ public class Types {
                 foreachNode.varType = symTable.semanticError;
                 foreachNode.resultType = symTable.semanticError;
                 foreachNode.nillableResultType = symTable.semanticError;
-                dlog.error(foreachNode.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
+                dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
                                  collectionType);
                 return;
         }
@@ -1539,7 +1539,7 @@ public class Types {
                     return;
                 }
                 dlog.error(bLangInputClause.collection.pos,
-                        DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
+                        DiagnosticErrorCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
                 // fallthrough
             case TypeTags.SEMANTIC_ERROR:
                 bLangInputClause.varType = symTable.semanticError;
@@ -1550,7 +1550,7 @@ public class Types {
                 bLangInputClause.varType = symTable.semanticError;
                 bLangInputClause.resultType = symTable.semanticError;
                 bLangInputClause.nillableResultType = symTable.semanticError;
-                dlog.error(bLangInputClause.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
+                dlog.error(bLangInputClause.collection.pos, DiagnosticErrorCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
                                  collectionType);
                 return;
         }
@@ -3304,7 +3304,7 @@ public class Types {
      * @param function          The function of which the return type should be validated
      * @param diagnosticCode    The code to log if the return type is invalid
      */
-    public void validateErrorOrNilReturn(BLangFunction function, DiagnosticCode diagnosticCode) {
+    public void validateErrorOrNilReturn(BLangFunction function, DiagnosticErrorCode diagnosticCode) {
         BType returnType = function.returnTypeNode.type;
 
         if (returnType.tag == TypeTags.NIL) {

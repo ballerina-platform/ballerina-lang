@@ -19,7 +19,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,23 +69,23 @@ public class TaintRecord {
     public static class TaintError {
         public Location pos;
         public List<String> paramName;
-        public DiagnosticCode diagnosticCode;
+        public DiagnosticErrorCode diagnosticCode;
 
-        public TaintError(Location location, String paramName, DiagnosticCode diagnosticCode) {
+        public TaintError(Location location, String paramName, DiagnosticErrorCode diagnosticCode) {
             this.pos = location;
             this.paramName = new ArrayList<>(1);
             this.paramName.add(paramName);
             this.diagnosticCode = diagnosticCode;
         }
 
-        public TaintError(Location location, List<String> paramName, DiagnosticCode diagnosticCode) {
+        public TaintError(Location location, List<String> paramName, DiagnosticErrorCode diagnosticCode) {
             this.pos = location;
             this.paramName = paramName;
             this.diagnosticCode = diagnosticCode;
         }
 
         public TaintError(Location pos, String paramName, String paramName2,
-                          DiagnosticCode diagnosticCode) {
+                          DiagnosticErrorCode diagnosticCode) {
             this.pos = pos;
             this.paramName = new ArrayList<>(1);
             this.paramName.add(paramName);

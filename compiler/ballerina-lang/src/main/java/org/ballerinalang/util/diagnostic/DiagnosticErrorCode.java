@@ -22,7 +22,7 @@ package org.ballerinalang.util.diagnostic;
  *
  * @since 0.94
  */
-public enum DiagnosticCode {
+public enum DiagnosticErrorCode {
 
     UNDEFINED_MODULE("undefined.module"),
     CYCLIC_MODULE_IMPORTS_DETECTED("cyclic.module.imports.detected"),
@@ -629,13 +629,20 @@ public enum DiagnosticCode {
     BINDING_PATTERN_NOT_YET_SUPPORTED_IN_MODULE_VAR_DECL("binding.pattern.not.yet.supported.in.module.var.decl"),
     COMPILER_PLUGIN_ERROR("compiler.plugin.crashed"),
     ;
-    private String value;
 
-    DiagnosticCode(String value) {
-        this.value = value;
+    private String diagnosticId;
+    private String messageKey;
+
+    DiagnosticErrorCode(String diagnosticId, String messageKey) {
+        this.diagnosticId = diagnosticId;
+        this.messageKey = messageKey;
+    }
+
+    DiagnosticErrorCode(String messageKey) {
+        this.messageKey = messageKey;
     }
 
     public String getValue() {
-        return value;
+        return messageKey;
     }
 }

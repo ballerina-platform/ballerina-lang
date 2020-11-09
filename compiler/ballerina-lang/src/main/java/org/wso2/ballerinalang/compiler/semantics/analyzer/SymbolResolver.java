@@ -26,7 +26,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
@@ -138,7 +138,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private SymbolEnv env;
     private BType resultType;
-    private DiagnosticCode diagCode;
+    private DiagnosticErrorCode diagCode;
     private SymbolEnter symbolEnter;
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
@@ -197,7 +197,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         if (isRedeclaredSymbol(symbol, foundSym)) {
-            dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
+            dlog.error(pos, DiagnosticErrorCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
 
@@ -262,7 +262,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         if (isSymbolDefinedInRootPkgLvl(foundSym)) {
-            dlog.error(pos, DiagnosticCode.REDECLARED_BUILTIN_SYMBOL, symbol.name);
+            dlog.error(pos, DiagnosticErrorCode.REDECLARED_BUILTIN_SYMBOL, symbol.name);
             return false;
         }
 
@@ -348,7 +348,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     public boolean checkForUniqueMemberSymbol(Location pos, SymbolEnv env, BSymbol symbol) {
         BSymbol foundSym = lookupMemberSymbol(pos, env.scope, env, symbol.name, symbol.tag);
         if (foundSym != symTable.notFoundSymbol) {
-            dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
+            dlog.error(pos, DiagnosticErrorCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
 
@@ -388,7 +388,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         // Lookup for an imported package
         BSymbol pkgSymbol = lookupSymbolInPrefixSpace(env, pkgAlias);
         if (pkgSymbol == symTable.notFoundSymbol) {
-            dlog.error(pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias.value);
+            dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
         }
 
         return pkgSymbol;
@@ -443,12 +443,12 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {
-        return resolveTypeNode(typeNode, env, DiagnosticCode.UNKNOWN_TYPE);
+        return resolveTypeNode(typeNode, env, DiagnosticErrorCode.UNKNOWN_TYPE);
     }
 
-    public BType resolveTypeNode(BLangType typeNode, SymbolEnv env, DiagnosticCode diagCode) {
+    public BType resolveTypeNode(BLangType typeNode, SymbolEnv env, DiagnosticErrorCode diagCode) {
         SymbolEnv prevEnv = this.env;
-        DiagnosticCode preDiagCode = this.diagCode;
+        DiagnosticErrorCode preDiagCode = this.diagCode;
 
         this.env = env;
         this.diagCode = diagCode;
@@ -698,7 +698,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         BSymbol pkgSymbol =
                 resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().filePath()));
         if (pkgSymbol == symTable.notFoundSymbol) {
-            dlog.error(pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias.value);
+            dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;
         }
 
@@ -719,7 +719,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         BSymbol pkgSymbol =
                 resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().filePath()));
         if (pkgSymbol == symTable.notFoundSymbol) {
-            dlog.error(pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias.value);
+            dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;
         }
 
@@ -740,7 +740,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         BSymbol pkgSymbol =
                 resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().filePath()));
         if (pkgSymbol == symTable.notFoundSymbol) {
-            dlog.error(pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias.value);
+            dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;
         }
 
@@ -761,7 +761,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         BSymbol pkgSymbol =
                 resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().filePath()));
         if (pkgSymbol == symTable.notFoundSymbol) {
-            dlog.error(pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias.value);
+            dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;
         }
 
@@ -812,7 +812,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (isMemberAccessAllowed(env, entry.symbol)) {
                 return entry.symbol;
             } else {
-                dlog.error(pos, DiagnosticCode.ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL, entry.symbol.name);
+                dlog.error(pos, DiagnosticErrorCode.ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL, entry.symbol.name);
                 return symTable.notFoundSymbol;
             }
         }
@@ -930,7 +930,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     arrType =  new BArrayType(resultType, arrayTypeSymbol,  sizeIndicator, arrayState);
                 } else {
                     if (size.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-                        dlog.error(size.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.intType,
+                        dlog.error(size.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, symTable.intType,
                                 ((BLangTypedescExpr) size).getTypeNode());
                         isError = true;
                         continue;
@@ -943,13 +943,13 @@ public class SymbolResolver extends BLangNodeVisitor {
                     BSymbol sizeSymbol = lookupMainSpaceSymbolInPackage(size.pos, env, pkgAlias, typeName);
 
                     if (symTable.notFoundSymbol == sizeSymbol) {
-                        dlog.error(arrayTypeNode.pos, DiagnosticCode.UNDEFINED_SYMBOL, size);
+                        dlog.error(arrayTypeNode.pos, DiagnosticErrorCode.UNDEFINED_SYMBOL, size);
                         isError = true;
                         continue;
                     }
 
                     if (sizeSymbol.tag != SymTag.CONSTANT) {
-                        dlog.error(size.pos, DiagnosticCode.INVALID_ARRAY_SIZE_REFERENCE, sizeSymbol);
+                        dlog.error(size.pos, DiagnosticErrorCode.INVALID_ARRAY_SIZE_REFERENCE, sizeSymbol);
                         isError = true;
                         continue;
                     }
@@ -958,7 +958,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     BType lengthLiteralType = sizeConstSymbol.literalType;
 
                     if (lengthLiteralType.tag != TypeTags.INT) {
-                        dlog.error(size.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.intType,
+                        dlog.error(size.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, symTable.intType,
                                 sizeConstSymbol.literalType);
                         isError = true;
                         continue;
@@ -1239,7 +1239,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         if (!TypeTags.isXMLTypeTag(constraintType.tag) && constraintType.tag != TypeTags.NEVER) {
-            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType, constraintType);
+            dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType, constraintType);
         }
     }
 
@@ -1249,7 +1249,8 @@ public class SymbolResolver extends BLangNodeVisitor {
                 checkUnionTypeForXMLSubTypes((BUnionType) memberType, pos);
             }
             if (!TypeTags.isXMLTypeTag(memberType.tag)) {
-                dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType, constraintUnionType);
+                dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType,
+                           constraintUnionType);
             }
         }
     }
@@ -1284,12 +1285,12 @@ public class SymbolResolver extends BLangNodeVisitor {
 
                 if (func.returnTypeNode == null || !func.hasBody() ||
                         func.body.getKind() != NodeKind.EXTERN_FUNCTION_BODY) {
-                    dlog.error(userDefinedTypeNode.pos, DiagnosticCode.INVALID_USE_OF_TYPEDESC_PARAM);
+                    dlog.error(userDefinedTypeNode.pos, DiagnosticErrorCode.INVALID_USE_OF_TYPEDESC_PARAM);
                     errored = true;
                 }
 
                 if (tempSymbol.type.tag != TypeTags.TYPEDESC) {
-                    dlog.error(userDefinedTypeNode.pos, DiagnosticCode.INVALID_PARAM_TYPE_FOR_RETURN_TYPE,
+                    dlog.error(userDefinedTypeNode.pos, DiagnosticErrorCode.INVALID_PARAM_TYPE_FOR_RETURN_TYPE,
                                tempSymbol.type);
                     errored = true;
                 }
@@ -1357,7 +1358,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     return typeRefSym != symTable.notFoundSymbol ? typeRefSym.type : symTable.semanticError;
                 }
 
-                dlog.error(param.pos, DiagnosticCode.INVALID_TYPEDESC_PARAM);
+                dlog.error(param.pos, DiagnosticErrorCode.INVALID_TYPEDESC_PARAM);
                 return symTable.semanticError;
             }
         }
@@ -1388,7 +1389,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             Name paramName = names.fromIdNode(param.name);
             if (paramName != Names.EMPTY) {
                 if (paramNames.contains(paramName.value)) {
-                    dlog.error(param.name.pos, DiagnosticCode.REDECLARED_SYMBOL, paramName.value);
+                    dlog.error(param.name.pos, DiagnosticErrorCode.REDECLARED_SYMBOL, paramName.value);
                 } else {
                     paramNames.add(paramName.value);
                 }
@@ -1409,7 +1410,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             param.symbol = symbol;
 
             if (param.expr == null && foundDefaultableParam) {
-                dlog.error(param.pos, DiagnosticCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM);
+                dlog.error(param.pos, DiagnosticErrorCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM);
             }
 
             if (param.flagSet.contains(Flag.PUBLIC)) {
@@ -1687,12 +1688,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         if (!validIntersection) {
-            dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_INTERSECTION_TYPE, intersectionTypeNode);
+            dlog.error(intersectionTypeNode.pos, DiagnosticErrorCode.INVALID_INTERSECTION_TYPE, intersectionTypeNode);
             return symTable.semanticError;
         }
 
         if (!hasReadOnlyType) {
-            dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_NON_READONLY_INTERSECTION_TYPE,
+            dlog.error(intersectionTypeNode.pos, DiagnosticErrorCode.INVALID_NON_READONLY_INTERSECTION_TYPE,
                        intersectionTypeNode);
             return symTable.semanticError;
         }
@@ -1704,9 +1705,9 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (!types.isSelectivelyImmutableType(potentialIntersectionType, true, false)) {
             if (types.isSelectivelyImmutableType(potentialIntersectionType)) {
                 // This intersection would have been valid if not for `readonly object`s.
-                dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_READONLY_OBJECT_INTERSECTION_TYPE);
+                dlog.error(intersectionTypeNode.pos, DiagnosticErrorCode.INVALID_READONLY_OBJECT_INTERSECTION_TYPE);
             } else {
-                dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_READONLY_INTERSECTION_TYPE,
+                dlog.error(intersectionTypeNode.pos, DiagnosticErrorCode.INVALID_READONLY_INTERSECTION_TYPE,
                            potentialIntersectionType);
             }
             return symTable.semanticError;
