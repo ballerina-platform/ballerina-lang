@@ -969,11 +969,6 @@
                     <exclude name="testAttachedAsyncInvWithoutDefaultParams"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.annotation.AnnotationTests">
-                <methods>
-                    <exclude name="testDeprecation"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.types.ErrorTypeTest">
                 <methods>
                     <exclude name="errorFromAnotherPkg"/>
