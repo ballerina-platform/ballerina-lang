@@ -17,6 +17,14 @@
  */
 package io.ballerina.projects.testsuite;
 
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @since 2.0.0
  */
-public class TestSuite {
+public class TestSuite implements Serializable {
 
     private String orgName;
     private String version;
@@ -274,6 +282,14 @@ public class TestSuite {
             }
             testGroup.incrementTestCount();
             this.groups.put(groupName, testGroup);
+        }
+    }
+
+    public byte[] serialize() throws IOException {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            ObjectOutputStream os = new ObjectOutputStream(out);
+            os.writeObject(this);
+            return out.toByteArray();
         }
     }
 }

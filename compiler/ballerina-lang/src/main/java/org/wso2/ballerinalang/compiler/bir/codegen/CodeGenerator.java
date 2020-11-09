@@ -148,7 +148,6 @@ public class CodeGenerator {
         Set<Path> moduleDependencies = getPlatformDependencyPaths(moduleId, compilerBackend, null);
         Set<Path> testDependencies = getPlatformDependencyPaths(moduleId, compilerBackend, "testOnly");
         testDependencies.addAll(moduleDependencies);
-        generate(bLangTestablePackage.symbol, testDependencies);
         return generate(bLangTestablePackage.symbol, testDependencies);
     }
 

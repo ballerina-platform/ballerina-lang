@@ -68,6 +68,7 @@ public class ProjectConstants {
     public static final String TARGET_BALO_DIR_NAME = "balo";
     public static final String BALLERINA_HOME = "ballerina.home";
     public static final String DIST_CACHE_DIRECTORY = "distribution-cache";
+    public static final String BALLERINA_HOME_BRE = "bre";
 
     public static final String ANON_ORG = "$anon";
     public static final String DOT = ".";
@@ -76,8 +77,16 @@ public class ProjectConstants {
     // Constants related to file system repo
     public static final String REPO_BALO_DIR_NAME = TARGET_BALO_DIR_NAME;
     public static final String REPO_CACHE_DIR_NAME = "cache";
-    public static final String REPO_JAR_CACHE_NAME = "jar";
+    public static final String REPO_JAR_CACHE_NAME = "java11";
     public static final String REPO_BIR_CACHE_NAME = "bir";
 
+    // Test framework related constants
+    public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";
     public static final String TEST_SUITE = "test_suit.json";
+
+    public static final String JACOCO_CORE_JAR = "org.jacoco.core-0.8.5.jar";
+    public static final String JACOCO_REPORT_JAR = "org.jacoco.report-0.8.5.jar";
+    public static final String ASM_JAR = "asm-7.1.jar";
+    public static final String ASM_TREE_JAR = "asm-tree-7.2.jar";
+    public static final String ASM_COMMONS_JAR = "asm-commons-7.2.jar";
 }

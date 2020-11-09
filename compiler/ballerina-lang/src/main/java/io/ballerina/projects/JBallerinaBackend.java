@@ -21,6 +21,8 @@ import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.jballerina.JarWriter;
+import io.ballerina.projects.testsuite.TestSuite;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
@@ -176,7 +178,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
     @Override
     public PlatformLibrary codeGeneratedTestLibrary(PackageId packageId, ModuleName moduleName) {
-        return codeGeneratedLibrary(packageId, moduleName, TEST_JAR_FILE_NAME_SUFFIX);
+        return codeGeneratedLibrary(packageId, moduleName, TEST_JAR_FILE_NAME_SUFFIX + JAR_FILE_NAME_SUFFIX);
     }
 
     @Override
@@ -214,7 +216,18 @@ public class JBallerinaBackend extends CompilerBackend {
         String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
         CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(
                 moduleContext.moduleId(), this, bLangPackage.testablePkgs.get(0));
+
+        TestSuite testSuite = null;
+        if (moduleContext.project().kind() == ProjectKind.BUILD_PROJECT) {
+            testSuite = moduleContext.generateTestSuite(compilerContext);
+        } else if (moduleContext.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            testSuite = moduleContext.generateSingleFileTestSuite(compilerContext);
+        }
+
         try {
+            if (testSuite != null) {
+                compiledTestJarFile.getJarEntries().put(ProjectConstants.TEST_SUITE, testSuite.serialize());
+            }
             ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile);
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
         } catch (IOException e) {

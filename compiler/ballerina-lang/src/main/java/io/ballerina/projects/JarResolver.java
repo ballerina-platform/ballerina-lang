@@ -19,6 +19,7 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
+import io.ballerina.projects.util.ProjectUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -96,9 +97,10 @@ public class JarResolver {
         allJarFileForTestExec.add(generatedTestJar.path());
 
         // Remove the generated jar without test code.
-        PlatformLibrary generatedJar = jBalBackend.codeGeneratedTestLibrary(
+        PlatformLibrary generatedJar = jBalBackend.codeGeneratedLibrary(
                 packageContext.packageId(), moduleName);
         allJarFileForTestExec.remove(generatedJar.path());
+        allJarFileForTestExec.addAll(ProjectUtils.testDependencies());
 
         return allJarFileForTestExec;
     }

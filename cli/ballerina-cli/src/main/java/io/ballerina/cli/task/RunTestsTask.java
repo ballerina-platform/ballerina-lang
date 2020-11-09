@@ -19,12 +19,15 @@
 package io.ballerina.cli.task;
 
 import com.google.gson.Gson;
-import io.ballerina.cli.utils.OsUtils;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JarResolver;
+import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.model.Target;
 import io.ballerina.projects.testsuite.TestSuite;
@@ -54,8 +57,10 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.StringJoiner;
 
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
@@ -146,6 +151,10 @@ public class RunTestsTask implements Task {
 
         int result = 0;
 
+        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        JarResolver jarResolver = jBallerinaBackend.jarResolver();
+
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
         // in packages.
@@ -183,13 +192,13 @@ public class RunTestsTask implements Task {
                 continue;
             }
             suite.setReportRequired(report || coverage);
-            HashSet<Path> testDependencies = new HashSet<>();
-            if (project instanceof SingleFileProject) {
+            Collection<Path> dependencies = jarResolver.getJarFilePathsRequiredForTestExecution(moduleName);
+            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
                 out.println("\t" + module.document(module.documentIds().iterator().next()).name());
             } else {
                 out.println("\t" + module.moduleName().toString());
             }
-            int testResult = runTestSuit(jsonPath, target, testDependencies, module);
+            int testResult = runTestSuit(jsonPath, target, dependencies, module);
             if (result == 0) {
                 result = testResult;
             }
@@ -197,8 +206,7 @@ public class RunTestsTask implements Task {
             if (report || coverage) {
                 // Set projectName in test report
                 String projectName;
-                if (project instanceof SingleFileProject) {
-                    ProjectUtils.getJarName(module);
+                if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
                     projectName = ProjectUtils.getJarName(module) + ProjectConstants.BLANG_SOURCE_EXT;
                 } else {
                     projectName = sourceRootPath.toFile().getName();
@@ -216,7 +224,7 @@ public class RunTestsTask implements Task {
             if (coverage) {
                 int coverageResult;
                 try {
-                    coverageResult = generateCoverageReport(target, testDependencies, module);
+                    coverageResult = generateCoverageReport(target, dependencies, project, module);
                 } catch (IOException e) {
                     throw createLauncherException("error while generating coverage report" + e.getMessage());
                 }
@@ -298,11 +306,11 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private int runTestSuit(Path jsonPath, Target target, HashSet<Path> testDependencies,
+    private int runTestSuit(Path jsonPath, Target target, Collection<Path> testDependencies,
                             Module module) {
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(System.getProperty("java.command"));
-//        cmdArgs.addAll(Lists.of("-Xdebug", "-Xrunjdwp:transport=dt_socket,address=5005,server=y"));
+        cmdArgs.addAll(Lists.of("-Xdebug", "-Xrunjdwp:transport=dt_socket,address=5005,server=y"));
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
         String orgName = module.packageInstance().packageOrg().toString();
         String packageName = module.packageInstance().packageName().toString();
@@ -323,13 +331,8 @@ public class RunTestsTask implements Task {
                 cmdArgs.add(agentCommand);
             }
 
-            resolveTestDependencies(testDependencies);
-
-//            String classPath = getClassPath(ProjectUtils.getTesterinaRuntimeJarPath(), testDependencies);
-            String testJarName = ProjectUtils.getTestableJarName(module);
-//            cmdArgs.addAll(Lists.of("-cp", classPath));
-            cmdArgs.addAll(Lists.of("-cp", getBalHomePath() + "/bre/lib/*:"
-                    + target.getTestsCachePath().resolve(testJarName).toString()));
+            String classPath = getClassPath(testDependencies, module.project());
+            cmdArgs.addAll(Lists.of("-cp", classPath));
             if (isInDebugMode()) {
                 cmdArgs.add(getDebugArgs(this.err));
             }
@@ -337,7 +340,6 @@ public class RunTestsTask implements Task {
             cmdArgs.add(jsonPath.toString());
             cmdArgs.addAll(args);
             cmdArgs.add(target.path().toString());
-            cmdArgs.add(target.getTestsCachePath().resolve(testJarName).toString());
             cmdArgs.add(orgName);
             cmdArgs.add(packageName);
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
@@ -348,7 +350,7 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private int generateCoverageReport(Target target, HashSet<Path> testDependencies,
+    private int generateCoverageReport(Target target, Collection<Path> dependencies, Project project,
                                        Module module) throws IOException {
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(System.getProperty("java.command"));
@@ -358,7 +360,7 @@ public class RunTestsTask implements Task {
         String packageName = module.packageInstance().packageName().toString();
         String version = module.packageInstance().packageVersion().toString();
         try {
-            String classPath = getClassPath(ProjectUtils.getTesterinaRuntimeJarPath(), testDependencies);
+            String classPath = getClassPath(dependencies, project);
             String testJarName = ProjectUtils.getJarName(module) + "-testable" + BLANG_COMPILED_JAR_EXT;
 
             cmdArgs.addAll(Lists.of("-cp", classPath, mainClassName, jsonPath.toString()));
@@ -376,17 +378,15 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private String getClassPath(Path testRuntimeJar, HashSet<Path> testDependencies) {
-        String separator = ":";
-        StringBuilder classPath = new StringBuilder();
-        classPath.append(testRuntimeJar);
-        if (OsUtils.isWindows()) {
-            separator = ";";
+    private String getClassPath(Collection<Path> dependencies, Project project) {
+        StringJoiner cp = new StringJoiner(File.pathSeparator);
+        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            cp.add(getBalHomePath() + "/bre/lib/*");
+        } else {
+            dependencies.stream().map(Path::toString).forEach(cp::add);
         }
-        for (Path testDependency : testDependencies) {
-            classPath.append(separator).append(testDependency);
-        }
-        return classPath.toString();
+
+        return cp.toString();
     }
 
     /**
@@ -426,24 +426,5 @@ public class RunTestsTask implements Task {
             createLauncherException("error while running failed tests. ", e);
         }
         return new ArrayList<>();
-    }
-
-    private void resolveTestDependencies(HashSet<Path> testDependencies) {
-        Path jacocoCoreJarPath =  Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
-                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.JACOCO_CORE_JAR);
-        Path jacocoReportJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
-                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.JACOCO_REPORT_JAR);
-        Path asmJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
-                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.ASM_JAR);
-        Path asmTreeJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
-                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.ASM_TREE_JAR);
-        Path asmCommonsJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
-                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.ASM_COMMONS_JAR);
-
-        testDependencies.add(jacocoCoreJarPath);
-        testDependencies.add(jacocoReportJarPath);
-        testDependencies.add(asmJarPath);
-        testDependencies.add(asmTreeJarPath);
-        testDependencies.add(asmCommonsJarPath);
     }
 }

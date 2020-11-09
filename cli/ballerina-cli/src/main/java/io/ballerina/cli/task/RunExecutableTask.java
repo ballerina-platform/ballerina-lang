@@ -18,17 +18,18 @@
 
 package io.ballerina.cli.task;
 
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JarResolver;
+import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.projects.model.Target;
 import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,11 +37,7 @@ import java.util.StringJoiner;
 
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
-import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
-import static io.ballerina.projects.util.ProjectUtils.getBalHomePath;
-import static io.ballerina.projects.util.ProjectUtils.getBallerinaRTJarPath;
 import static io.ballerina.runtime.util.BLangConstants.MODULE_INIT_CLASS_NAME;
-import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * Task for running the executable.
@@ -50,7 +47,6 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 public class RunExecutableTask implements Task {
 
     private final List<String> args;
-    private Path jarPath;
     private final transient PrintStream out;
     private final transient PrintStream err;
 
@@ -65,7 +61,6 @@ public class RunExecutableTask implements Task {
         this.args = Lists.of(args);
         this.out = out;
         this.err = err;
-        this.jarPath = null;
     }
 
     @Override
@@ -75,37 +70,16 @@ public class RunExecutableTask implements Task {
         out.println("Running executable");
         out.println();
 
-        Path sourceRootPath = project.sourceRoot();
-        if (project.currentPackage().getDefaultModule().getCompilation().entryPointExists()) {
-            Target target;
-            try {
-                target = new Target(sourceRootPath);
-                //TODO: move this to a util
-                this.jarPath = target.getJarCachePath().
-                        resolve(ProjectUtils.getJarName(project.currentPackage().getDefaultModule()));
-            } catch (IOException e) {
-                throw new RuntimeException("error creating the target directory", e);
-            }
-        } else {
+        if (!project.currentPackage().getDefaultModule().getCompilation().entryPointExists()) {
             throw new RuntimeException("no entrypoint found in package: " + project.currentPackage().packageName());
-        }
-
-        // if the executable does not exist.
-        if (Files.notExists(this.jarPath)) {
-            throw createLauncherException(String.format("cannot run '%s' as it does not exist.",
-                    jarPath.toAbsolutePath().toString()));
-        }
-
-        // if the executable is not a file and not an extension with .jar.
-        if (!(Files.isRegularFile(this.jarPath) &&
-                this.jarPath.toString().endsWith(BLANG_COMPILED_JAR_EXT))) {
-            throw new RuntimeException(String.format("cannot run '%s' as it is not an executable with .jar " +
-                    "extension.", this.jarPath.toAbsolutePath().toString()));
         }
         this.runGeneratedExecutable(project.currentPackage().getDefaultModule(), project);
     }
 
     private void runGeneratedExecutable(Module executableModule, Project project) {
+        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        JarResolver jarResolver = jBallerinaBackend.jarResolver();
 
         String initClassName = ProjectUtils.getQualifiedClassName(
                 executableModule.packageInstance().packageOrg().toString(),
@@ -117,7 +91,7 @@ public class RunExecutableTask implements Task {
             commands.add("java");
             // Sets classpath with executable thin jar and all dependency jar paths.
             commands.add("-cp");
-            commands.add(getAllClassPaths(executableModule, project));
+            commands.add(getAllClassPaths(jarResolver, project));
             if (isInDebugMode()) {
                 commands.add(getDebugArgs(err));
             }
@@ -131,21 +105,19 @@ public class RunExecutableTask implements Task {
         }
     }
 
-    private String getAllClassPaths(Module executableModule, Project project) {
+    private String getAllClassPaths(JarResolver jarResolver, Project project) {
 
         StringJoiner cp = new StringJoiner(File.pathSeparator);
-        // Adds executable thin jar path.
-        cp.add(this.jarPath.toString());
-        // TODO: Adds all the dependency paths for modules once the JarResolves is implemented.
+        jarResolver.getJarFilePathsRequiredForExecution().stream().map(Path::toString).forEach(cp::add);
+        return cp.toString();
 
         // Adds bre/lib/* to the class-path since we need to have ballerina runtime related dependencies
         // when running single bal files
-        if (project instanceof SingleFileProject) {
-            cp.add(getBalHomePath() + "/bre/lib/*");
-        } else {
-            cp.add(getBallerinaRTJarPath().toString());
-        }
-        return cp.toString();
+        //TODO: remove this and create an issue to track
+//        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+//            cp.add(getBalHomePath() + "/bre/lib/*");
+//        }
+
     }
 }
 

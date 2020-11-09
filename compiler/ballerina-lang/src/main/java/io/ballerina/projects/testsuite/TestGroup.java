@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.testsuite;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +26,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class TestGroup {
+public class TestGroup implements Serializable {
     private int testCount;
     private int executedCount;
     private List<String> beforeGroupsFunctions;

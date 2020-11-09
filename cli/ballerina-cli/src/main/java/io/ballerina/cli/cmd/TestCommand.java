@@ -4,9 +4,6 @@ import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateBaloTask;
-import io.ballerina.cli.task.CreateBirTask;
-import io.ballerina.cli.task.CreateExecutableTask;
-import io.ballerina.cli.task.CreateJarTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.cli.task.ListTestGroupsTask;
 import io.ballerina.cli.task.RunTestsTask;
@@ -180,10 +177,8 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory
 //                .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
-                .addTask(new CompileTask(outStream, errStream)) // compile the modules
-                .addTask(new CreateBirTask(), isSingleFileBuild || listGroups)   // create the bir
+                .addTask(new CompileTask(outStream)) // compile the modules
                 .addTask(new CreateBaloTask(outStream), isSingleFileBuild || listGroups) // create the BALO ( build projects only)
-                .addTask(new CreateJarTask())   // create the jar
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new ListTestGroupsTask(outStream), !listGroups) // list the available test groups
                 .addTask(new RunTestsTask(outStream, errStream, args, rerunTests, groupList, disableGroupList,
