@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -518,6 +519,22 @@ public class Types {
         }
         this.env = env;
         BType intersectionType = getTypeIntersection(mappingMatchPattern.matchExpr.type, patternType);
+        if (intersectionType == symTable.semanticError) {
+            return symTable.noType;
+        }
+        return intersectionType;
+    }
+
+    public BType resolvePatternTypeFromMatchExpr(BLangMappingBindingPattern mappingBindingPattern,
+                                                 BLangVarBindingPatternMatchPattern varBindingPatternMatchPattern,
+                                                 SymbolEnv env) {
+        BRecordType mappingBindingPatternType = (BRecordType) mappingBindingPattern.type;
+        if (varBindingPatternMatchPattern.matchExpr == null) {
+            return mappingBindingPatternType;
+        }
+        this.env = env;
+        BType intersectionType = getTypeIntersection(varBindingPatternMatchPattern.matchExpr.type,
+                mappingBindingPatternType);
         if (intersectionType == symTable.semanticError) {
             return symTable.noType;
         }
