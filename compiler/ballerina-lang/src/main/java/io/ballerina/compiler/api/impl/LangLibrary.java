@@ -61,22 +61,23 @@ public class LangLibrary {
     private LangLibrary(CompilerContext context) {
         context.put(LANG_LIB_KEY, this);
 
-        symbolFactory = SymbolFactory.getInstance(context);
-        SymbolTable symbolTable = SymbolTable.getInstance(context);
-        Map<String, BPackageSymbol> langLibs = new HashMap<>();
-        wrappedLangLibMethods = new HashMap<>();
+        this.symbolFactory = SymbolFactory.getInstance(context);
+        this.wrappedLangLibMethods = new HashMap<>();
+        this.langLibMethods = new HashMap<>();
 
+        SymbolTable symbolTable = SymbolTable.getInstance(context);
         for (Map.Entry<BPackageSymbol, SymbolEnv> entry : symbolTable.pkgEnvMap.entrySet()) {
             BPackageSymbol module = entry.getKey();
             PackageID moduleID = module.pkgID;
 
-            if (Names.BALLERINA_ORG.equals(moduleID.orgName) &&
-                    (moduleID.nameComps.size() >= 2 && Names.LANG.equals(moduleID.nameComps.get(0)))) {
-                langLibs.put(moduleID.nameComps.get(1).value, module);
+            if (isLangLibModule(moduleID)) {
+                if (!LANG_VALUE.equals(moduleID.nameComps.get(1).value)) {
+                    addLangLibMethods(moduleID.nameComps.get(1).value, module, this.langLibMethods);
+                } else {
+                    populateLangValueLibrary(module, this.langLibMethods);
+                }
             }
         }
-
-        langLibMethods = getLangLibMethods(langLibs);
     }
 
     public static LangLibrary getInstance(CompilerContext context) {
@@ -149,44 +150,34 @@ public class LangLibrary {
             case TABLE:
                 return typeDescKind.getName();
             default:
-                return "value";
+                return LANG_VALUE;
         }
     }
 
-    private static Map<String, Map<String, BInvokableSymbol>> getLangLibMethods(Map<String, BPackageSymbol> langLibs) {
-        Map<String, Map<String, BInvokableSymbol>> langLibMethods = new HashMap<>();
+    private static void addLangLibMethods(String basicType, BPackageSymbol langLibModule,
+                                          Map<String, Map<String, BInvokableSymbol>> langLibMethods) {
+        Map<String, BInvokableSymbol> methods = new HashMap<>();
 
-        for (Map.Entry<String, BPackageSymbol> entry : langLibs.entrySet()) {
-            String moduleName = entry.getKey();
-            BPackageSymbol moduleSymbol = entry.getValue();
+        for (Map.Entry<Name, Scope.ScopeEntry> nameScopeEntry : langLibModule.scope.entries.entrySet()) {
+            BSymbol symbol = nameScopeEntry.getValue().symbol;
 
-            Map<String, BInvokableSymbol> methods = new HashMap<>();
-
-            for (Map.Entry<Name, Scope.ScopeEntry> nameScopeEntry : moduleSymbol.scope.entries.entrySet()) {
-                BSymbol symbol = nameScopeEntry.getValue().symbol;
-
-                if (symbol.kind != SymbolKind.FUNCTION) {
-                    continue;
-                }
-
-                BInvokableSymbol invSymbol = (BInvokableSymbol) symbol;
-
-                if (Symbols.isFlagOn(invSymbol.flags, Flags.PUBLIC) && !invSymbol.params.isEmpty() &&
-                        moduleName.compareToIgnoreCase(invSymbol.params.get(0).type.getKind().name()) == 0) {
-                    methods.put(invSymbol.name.value, invSymbol);
-                }
+            if (symbol.kind != SymbolKind.FUNCTION) {
+                continue;
             }
 
-            langLibMethods.put(moduleName, methods);
+            BInvokableSymbol invSymbol = (BInvokableSymbol) symbol;
+
+            if (Symbols.isFlagOn(invSymbol.flags, Flags.PUBLIC) && !invSymbol.params.isEmpty() &&
+                    basicType.compareToIgnoreCase(invSymbol.params.get(0).type.getKind().name()) == 0) {
+                methods.put(invSymbol.name.value, invSymbol);
+            }
         }
 
-        populateLangValueLibrary(langLibs, langLibMethods);
-        return langLibMethods;
+        langLibMethods.put(basicType, methods);
     }
 
-    private static void populateLangValueLibrary(Map<String, BPackageSymbol> langLibs,
+    private static void populateLangValueLibrary(BPackageSymbol langValue,
                                                  Map<String, Map<String, BInvokableSymbol>> langLibMethods) {
-        BPackageSymbol langValue = langLibs.get(LANG_VALUE);
         Map<String, BInvokableSymbol> methods = new HashMap<>();
 
         for (Map.Entry<Name, Scope.ScopeEntry> nameScopeEntry : langValue.scope.entries.entrySet()) {
@@ -200,5 +191,10 @@ public class LangLibrary {
         }
 
         langLibMethods.put(LANG_VALUE, methods);
+    }
+
+    private static boolean isLangLibModule(PackageID moduleID) {
+        return Names.BALLERINA_ORG.equals(moduleID.orgName)
+                && (moduleID.nameComps.size() == 2 && Names.LANG.equals(moduleID.nameComps.get(0)));
     }
 }
