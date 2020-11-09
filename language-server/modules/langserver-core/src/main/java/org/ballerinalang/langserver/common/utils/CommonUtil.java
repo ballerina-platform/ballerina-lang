@@ -747,12 +747,12 @@ public class CommonUtil {
      * @return random argument name
      */
     public static String generateVariableName(Symbol symbol, TypeSymbol typeSymbol, Set<String> names) {
-        String name;
         if (symbol != null) {
             // Start naming with symbol-name
-            name = symbol.name();
-        } else {
+            return generateVariableName(1, symbol.name(), names);
+        } else if (typeSymbol != null) {
             // If symbol is null, try typeSymbol
+            String name;
             if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE && !typeSymbol.name().startsWith("$")) {
                 name = typeSymbol.name();
             } else {
@@ -769,8 +769,10 @@ public class CommonUtil {
                         break;
                 }
             }
+            return generateVariableName(1, name, names);
+        } else {
+            return generateName(1, names);
         }
-        return generateVariableName(1, name, names);
     }
 
     /**
@@ -787,7 +789,6 @@ public class CommonUtil {
     private static String generateVariableName(int suffix, String name, Set<String> names) {
         String newName = name.replaceAll(".+[\\:\\.]", "");
         if (suffix == 1 && !name.isEmpty()) {
-            newName = name;
             BiFunction<String, String, String> replacer = (search, text) ->
                     (text.startsWith(search)) ? text.replaceFirst(search, "") : text;
             // Replace common prefixes
