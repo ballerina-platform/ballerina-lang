@@ -455,11 +455,6 @@
                     <exclude name="waitTest9"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.testerina.TopLevelNodesTest">
-                <methods>
-                    <exclude name="testModule"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.record.AnonymousClosedRecordTest">
                 <methods>
                     <exclude name="testAnonStructAsFuncParam"/>

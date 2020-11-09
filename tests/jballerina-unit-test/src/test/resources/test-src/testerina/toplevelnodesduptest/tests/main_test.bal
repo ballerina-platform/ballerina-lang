@@ -1,8 +1,4 @@
-import ballerina/io;
-import ballerina/test;
-
 public function testDuplicate() {
-  io:println("test");
 }
 
 public type Person record {|
@@ -22,10 +18,6 @@ public class Company {
     }
 }
 
-@test:Config {
-    before: "beforeFunc",
-    after: "afterFunc"
-}
 function testFunction() {
   testDuplicate();
     main();
