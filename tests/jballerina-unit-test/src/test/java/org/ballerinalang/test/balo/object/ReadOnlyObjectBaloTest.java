@@ -38,7 +38,7 @@ public class ReadOnlyObjectBaloTest {
 
     @Test
     public void testReadonlyRecordFields() {
-//        BCompileUtil.compile("test-src/balo/test_projects/test_project", "testorg", "readonly_objects");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_readonly_obj");
         result = BCompileUtil.compile("test-src/balo/test_balo/object/test_readonly_objects.bal");
     }
 
