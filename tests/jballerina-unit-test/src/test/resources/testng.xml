@@ -1111,21 +1111,6 @@
                     <exclude name="workerWithFutureTest3"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.documentation.DeprecatedAnnotationTest">
-                <methods>
-                    <exclude name="testDeprecatedAnnotationDef"/>
-                    <exclude name="testDeprecatedConstantDecl"/>
-                    <exclude name="testDeprecatedErrorTypeDef"/>
-                    <exclude name="testDeprecatedFiniteTypeDef"/>
-                    <exclude name="testDeprecatedFunctionDef"/>
-                    <exclude name="testDeprecatedObjectMemberField"/>
-                    <exclude name="testDeprecatedObjectMemberMethod"/>
-                    <exclude name="testDeprecatedObjectTypeDef"/>
-                    <exclude name="testDeprecatedRecordTypeDef"/>
-                    <exclude name="testDeprecatedUnionTypeDef"/>
-                    <exclude name="testFunctionParams"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.constant.MapConstantPanicInBaloTest">
                 <methods>
                     <exclude name="updateConstantBooleanMapValueInArrayWithExistingKey"/>
