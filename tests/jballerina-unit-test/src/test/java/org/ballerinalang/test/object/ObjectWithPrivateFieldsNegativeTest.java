@@ -35,12 +35,11 @@ public class ObjectWithPrivateFieldsNegativeTest {
 
 //        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject",
 //                "object-private-fields-01-negative");
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject/object-private-fields-01" +
-                "-negative");
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/RuntimeObjEgNegativeProject");
         BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeObjEqNegative");
 
         Assert.assertEquals(returns[0].stringValue(), "{ballerina}TypeCastError {\"message\":\"incompatible types:" +
-                " 'org.foo:user' cannot be cast to 'object-private-fields-01-negative:userB'\"}");
+                " 'pkg.org_foo:user' cannot be cast to 'pkg:userB'\"}");
     }
 
     @Test(description = "Test private field access")
@@ -48,18 +47,17 @@ public class ObjectWithPrivateFieldsNegativeTest {
 
 //        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject",
 //                "object-private-fields-02-negative");
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject/object-private-fields-02" +
-                "-negative");
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/PrivateFieldsAccessProject");
 
         BAssertUtil.validateError(compileResult, 0, "attempt to refer to non-accessible symbol 'ssn'", 7, 18);
-        BAssertUtil.validateError(compileResult, 1, "undefined field 'ssn' in object 'testorg/org.foo:1.0.0:person'",
+        BAssertUtil.validateError(compileResult, 1, "undefined field 'ssn' in object 'test/pkg.org_foo:1.0.0:person'",
                 7, 20);
     }
 
     @Test(description = "Test private object access in public functions")
     public void testPrivateObjAccess1() {
 //        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "private-field1");
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject/private-field1");
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/PrivateObjAccess1Project");
 
         Assert.assertEquals(compileResult.getErrorCount(), 6);
         String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
@@ -75,7 +73,8 @@ public class ObjectWithPrivateFieldsNegativeTest {
     @Test(description = "Test private object access in public functions")
     public void testPrivateObjAccess1SemanticsNegative() {
 //        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "private-field1.sn");
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject/private-field1.sn");
+        CompileResult compileResult
+                = BCompileUtil.compile("test-src/object/PrivateObjAccess1SemanticsNegativeProject");
         Assert.assertEquals(compileResult.getErrorCount(), 8);
         String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
         String expectedErrMsg2 = "attempt to expose non-public symbol ";
@@ -94,20 +93,21 @@ public class ObjectWithPrivateFieldsNegativeTest {
     @Test(description = "Test private object access in public functions")
     public void testPrivateObjAccess2() {
 //        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "private-field2");
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject/private-field2");
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/PrivateObjAccess2Project");
 
         Assert.assertEquals(compileResult.getErrorCount(), 2);
         String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
         int i = 0;
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'address'", 10, 13);
         BAssertUtil.validateError(compileResult, i,
-                "undefined field 'address' in object 'testorg/org.foo.baz:1.0.0:FooEmployee'", 10, 18);
+                "undefined field 'address' in object 'test/pkg.org_foo_baz:1.0.0:FooEmployee'", 10, 18);
     }
 
     @Test(description = "Test private object access in public functions")
     public void testPrivateObjAccess2SemanticsNegative() {
 //        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "private-field2.sn");
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject/private-field2.sn");
+        CompileResult compileResult
+                = BCompileUtil.compile("test-src/object/PrivateObjAccess2SemanticsNegativeProject");
 
         Assert.assertEquals(compileResult.getErrorCount(), 8);
         String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
@@ -121,6 +121,6 @@ public class ObjectWithPrivateFieldsNegativeTest {
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg2 + "'FooFamily'", 16, 5);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'address'", 10, 13);
         BAssertUtil.validateError(compileResult, i,
-                "undefined field 'address' in object 'testorg/org.foo.baz.sn:1.0.0:FooEmployee'", 10, 18);
+                "undefined field 'address' in object 'test/pkg.org_foo_baz_sn:1.0.0:FooEmployee'", 10, 18);
     }
 }

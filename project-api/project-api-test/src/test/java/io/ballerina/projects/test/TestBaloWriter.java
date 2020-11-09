@@ -25,7 +25,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.model.BaloJson;
-import io.ballerina.projects.model.PackageJson;
+import io.ballerina.projects.internal.balo.PackageJson;
 import io.ballerina.projects.model.Target;
 import io.ballerina.projects.util.ProjectUtils;
 import org.testng.Assert;
@@ -96,8 +96,8 @@ public class TestBaloWriter {
         Path packageJsonPath = BALO_PATH.resolve("package.json");
         Assert.assertTrue(packageJsonPath.toFile().exists());
 
-//        try (FileReader reader = new FileReader(String.valueOf(packageJsonPath))) {
-//            PackageJson packageJson = gson.fromJson(reader, PackageJson.class);
+        try (FileReader reader = new FileReader(String.valueOf(packageJsonPath))) {
+            PackageJson packageJson = gson.fromJson(reader, PackageJson.class);
 //            Assert.assertEquals(packageJson.getOrganization(), "foo");
 //            Assert.assertEquals(packageJson.getName(), "winery");
 //            Assert.assertEquals(packageJson.getVersion(), "0.1.0");
@@ -120,7 +120,10 @@ public class TestBaloWriter {
 //            Assert.assertFalse(packageJson.getExported().isEmpty());
 //            Assert.assertEquals(packageJson.getExported().get(0), "winery");
 //            Assert.assertEquals(packageJson.getExported().get(1), "service");
-//        }
+
+            Assert.assertEquals(packageJson.getTarget(), "java11");
+            Assert.assertEquals(packageJson.getPlatformDependencies().size(), 1);
+        }
 
         // docs
         Path packageMdPath = BALO_PATH.resolve("docs").resolve("Package.md");
@@ -156,10 +159,10 @@ public class TestBaloWriter {
         Assert.assertFalse(storageModuleSrcPath.resolve("tests").toFile().exists());
         Assert.assertFalse(storageModuleSrcPath.resolve("Module.md").toFile().exists());
 
-//        // libs
-//        Path libPath = BALO_PATH.resolve("lib");
-//        Assert.assertTrue(libPath.toFile().exists());
-//        Assert.assertTrue(libPath.resolve("ballerina-io-1.0.0-java.txt").toFile().exists());
+        // Check if platform dependencies exists
+        Path platformDependancy = BALO_PATH.resolve("platform").resolve("java11")
+                .resolve("ballerina-io-1.0.0-java.txt");
+        Assert.assertTrue(platformDependancy.toFile().exists());
     }
 
     @Test

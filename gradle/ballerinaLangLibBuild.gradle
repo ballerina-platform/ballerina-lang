@@ -87,13 +87,7 @@ task createDistributionCache() {
     }
 }
 
-ext {
-    if (project.projectDir.name != "testerina-core") {
-        modName = project.projectDir.name
-    } else {
-        modName = "test"
-    }
-}
+ext.modName = project.projectDir.name
 
 
 task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {

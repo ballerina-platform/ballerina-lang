@@ -40,10 +40,7 @@ public class FunctionPointersTest {
     @BeforeClass
     public void setup() {
         fpProgram = BCompileUtil.compile("test-src/expressions/lambda/function-pointers.bal");
-//        privateFPProgram = BCompileUtil.compile("test-src/expressions/lambda/FunctionPointersProject",
-//                "private-function-pointers");
-        privateFPProgram = BCompileUtil.compile("test-src/expressions/lambda/FunctionPointersProject/private-function" +
-                "-pointers");
+        privateFPProgram = BCompileUtil.compile("test-src/expressions/lambda/function_pointers_project");
         globalProgram = BCompileUtil.compile("test-src/expressions/lambda/global-function-pointers.bal");
         structProgram = BCompileUtil.compile("test-src/expressions/lambda/struct-function-pointers.bal");
         closureFPProgram =
@@ -240,7 +237,7 @@ public class FunctionPointersTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "1500526800000");
+        Assert.assertEquals(returns[0].stringValue(), "foobar");
     }
 
     @Test

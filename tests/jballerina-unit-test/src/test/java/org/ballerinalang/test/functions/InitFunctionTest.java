@@ -53,8 +53,7 @@ public class InitFunctionTest {
 
     @Test
     public void testMainFunctionWithImportsWithUserDefinedInit() {
-//        CompileResult compileResult = BCompileUtil.compile("test-src/functions/TestProjWithInitFuncs", "a.b");
-        CompileResult compileResult = BCompileUtil.compile("test-src/functions/TestProjWithInitFuncs/a.b");
+        CompileResult compileResult = BCompileUtil.compile("test-src/functions/test_proj_with_init_funcs");
         BValue[] result = BRunUtil.invoke(compileResult, "main");
 
         assertEquals(result.length, 1);

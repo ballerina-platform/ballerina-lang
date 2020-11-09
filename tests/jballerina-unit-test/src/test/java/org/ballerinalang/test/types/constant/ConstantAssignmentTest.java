@@ -99,7 +99,7 @@ public class ConstantAssignmentTest {
     public void testConstantAssignmentViaConstant() {
         BValue[] returns = BRunUtil.invoke(positiveCompileResult, "accessConstantEvalWithMultipleConst");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "testdummyballerina is awesome");
+        Assert.assertEquals(returns[0].stringValue(), "dummyballerina is awesome");
     }
 
     @Test

@@ -37,7 +37,7 @@ public class OpenRecordEquivalencyTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/record/record-project");
+        compileResult = BCompileUtil.compile("test-src/record/record_project_open_rec_equiv");
     }
 
     @Test(description = "Test equivalence of records that are in the same package")
