@@ -464,8 +464,8 @@
                 <methods>
                     <exclude name="testModuleInitPanic"/>
                     <exclude name="testModuleInitReturningError"/>
-                    <exclude name="testModuleMainPanicError"/>
-                    <exclude name="testModuleMainReturnError"/>
+                    <exclude name="testModuleStartAndStopPanic"/>
+                    <exclude name="testModuleStartPanic"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.taintchecking.TaintedStatusPropagationTest">
