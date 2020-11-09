@@ -37,7 +37,7 @@ function testAssertStringValues() {
     error result = <error>err;
     test:assertTrue(result.message().toString().endsWith("--- expected\n+++ " +
     "actual \n \n @@ -1,1 +1,1 @@ \n \n -hello" +
-    " user\n+hello userr\n \n"));
+    " userr\n+hello user\n \n"));
 }
 
 @test:Config {}
@@ -52,10 +52,10 @@ function testAssertLongStringValues() {
     error result = <error>err;
     test:assertTrue(result.message().toString().endsWith("--- expected\n+++ " +
     "actual \n \n @@ -1,4 +1,4 @@ \n \n  Ballerina is an open source " +
-    "programming language and platform for cloud-era appl\n-ication programmers." +
-    "\n+ication programmersss.\n Sequence diagrams have been everyone’s " +
-    "favorite tool to describe how distributed\n- & conccurrent programs work.\n" +
-    "+ & concurrent programs work.\n \n"));
+    "programming language and platform for cloud-era appl\n-ication programmersss." +
+    "\n+ication programmers.\n Sequence diagrams have been everyone’s " +
+    "favorite tool to describe how distributed\n- & concurrent programs work.\n" +
+    "+ & conccurrent programs work.\n \n"));
 }
 
 @test:Config {}
@@ -63,7 +63,7 @@ function testAssertMultipleLinesString() {
     error? err = trap test:assertEquals("hello user\nWelcome to Ballerina","hello userr\nWelcome to Ballerina");
     error result = <error>err;
     test:assertTrue(result.message().toString().endsWith("--- expected\n+++ " +
-    "actual \n \n @@ -1,2 +1,2 @@ \n \n -hello user\n+hello userr\n Welcome to " +
+    "actual \n \n @@ -1,2 +1,2 @@ \n \n -hello userr\n+hello user\n Welcome to " +
     "Ballerina\n \n"));
 }
 
