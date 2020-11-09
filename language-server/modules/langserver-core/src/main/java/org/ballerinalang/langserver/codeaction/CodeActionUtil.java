@@ -17,13 +17,19 @@ package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.types.FieldSymbol;
+import io.ballerina.compiler.api.types.FunctionTypeSymbol;
 import io.ballerina.compiler.api.types.RecordTypeSymbol;
 import io.ballerina.compiler.api.types.TupleTypeSymbol;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -61,6 +67,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -187,16 +194,15 @@ public class CodeActionUtil {
     /**
      * Returns a list of possible types for this type descriptor.
      *
-     * @param typeDescriptor  {@link TypeSymbol}
-     * @param edits           a list of {@link TextEdit}
-     * @param context         {@link LSContext}
-     * @param compilerContext {@link CompilerContext}
+     * @param typeDescriptor {@link TypeSymbol}
+     * @param edits          a list of {@link TextEdit}
+     * @param context        {@link LSContext}
      * @return a list of possible type list
      */
-    public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, List<TextEdit> edits,
-                                                LSContext context,
-                                                CompilerContext compilerContext) {
-        typeDescriptor = CommonUtil.getRawType(typeDescriptor);
+    public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, List<TextEdit> edits, LSContext context) {
+        if (typeDescriptor.name().startsWith("$")) {
+            typeDescriptor = CommonUtil.getRawType(typeDescriptor);
+        }
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
 
         List<String> types = new ArrayList<>();
@@ -286,9 +292,7 @@ public class CodeActionUtil {
             BLangQueryExpr queryExpr = (BLangQueryExpr) typeDescriptor;
             ExpressionNode expression = queryExpr.getSelectClause().getExpression();
             if (expression instanceof BLangRecordLiteral) {
-//                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
-                return getPossibleTypes(typeDescriptor, edits, context,
-                                        compilerContext);
+                return getPossibleTypes(typeDescriptor, edits, context);
             } else {
                 types.add("var");
             }
@@ -324,15 +328,35 @@ public class CodeActionUtil {
                                                                                         semanticModel, relPath);
         Symbol matchedSymbol;
         NonTerminalNode matchedNode;
+        Optional<TypeSymbol> typeSymbol;
         if (nodeAndSymbol.isPresent()) {
             matchedNode = nodeAndSymbol.get().getLeft();
             matchedSymbol = nodeAndSymbol.get().getRight();
+            typeSymbol = getTypeDescriptor(matchedSymbol);
         } else {
             matchedNode = cursorNode;
             matchedSymbol = null;
+            typeSymbol = semanticModel.getType(relPath, largestExpressionNode(cursorNode, range).lineRange());
         }
-        Optional<TypeSymbol> typeSymbol = semanticModel.getType(relPath, cursorNode.lineRange());
         return PositionDetailsImpl.from(matchedNode, matchedSymbol, typeSymbol.orElse(null));
+    }
+
+    /**
+     * Returns largest expression node for this range from bottom-up approach.
+     *
+     * @param node  starting {@link Node}
+     * @param range {@link Range}
+     * @return largest possible node
+     */
+    private static NonTerminalNode largestExpressionNode(NonTerminalNode node, Range range) {
+        Predicate<NonTerminalNode> isWithinScope =
+                tNode -> tNode != null && !(tNode instanceof ExpressionStatementNode) &&
+                        CommonUtil.isWithinLineRange(range.getStart(), tNode.lineRange()) &&
+                        CommonUtil.isWithinLineRange(range.getEnd(), tNode.lineRange());
+        while (isWithinScope.test(node.parent())) {
+            node = node.parent();
+        }
+        return node;
     }
 
     private static Optional<Pair<NonTerminalNode, Symbol>> getMatchedNodeAndSymbol(NonTerminalNode cursorNode,
@@ -355,5 +379,27 @@ public class CodeActionUtil {
         Symbol matchedSymbol = optMatchedSymbol.get();
         NonTerminalNode matchedNode = scopedSymbolFinder.node().get();
         return Optional.of(new ImmutablePair<>(matchedNode, matchedSymbol));
+    }
+
+    private static Optional<TypeSymbol> getTypeDescriptor(Symbol matchedSymbol) {
+        switch (matchedSymbol.kind()) {
+            case FUNCTION: {
+                FunctionSymbol functionSymbol = (FunctionSymbol) matchedSymbol;
+                FunctionTypeSymbol funTypeDesc = functionSymbol.typeDescriptor();
+                return funTypeDesc.returnTypeDescriptor();
+            }
+            case METHOD: {
+                MethodSymbol methodSymbol = (MethodSymbol) matchedSymbol;
+                FunctionTypeSymbol funTypeDesc = methodSymbol.typeDescriptor();
+                return funTypeDesc.returnTypeDescriptor();
+            }
+            case VARIABLE: {
+                return Optional.of(((VariableSymbol) matchedSymbol).typeDescriptor());
+            }
+            case TYPE: {
+                return Optional.of(((TypeDefinitionSymbol) matchedSymbol).typeDescriptor());
+            }
+        }
+        return Optional.empty();
     }
 }
