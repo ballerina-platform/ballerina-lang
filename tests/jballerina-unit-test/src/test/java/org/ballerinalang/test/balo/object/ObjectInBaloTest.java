@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.test.balo.object;
 
-import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BString;
@@ -32,8 +31,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.PrintStream;
-
 /**
  * Test cases for user defined object types in ballerina.
  */
@@ -43,12 +40,8 @@ public class ObjectInBaloTest {
 
     @BeforeClass
     public void setup() {
-        PrintStream out = System.out;
         BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project");
-        CompileResult compileResult = BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_two");
-        for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
-            out.println(diagnostic.toString());
-        }
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_two");
         BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_utils");
 
         result = BCompileUtil.compile("test-src/balo/test_balo/object/test_objects.bal");
