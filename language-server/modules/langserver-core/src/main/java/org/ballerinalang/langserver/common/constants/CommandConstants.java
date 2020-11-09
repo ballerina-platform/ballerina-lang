@@ -100,9 +100,9 @@ public class CommandConstants {
 
     public static final String MAKE_OBJ_NON_ABSTRACT_TITLE = "Make '%s' an Non-Abstract Object";
 
-    public static final String TYPE_GUARD_TITLE = "Create Variable and Handle Error Inside";
+    public static final String TYPE_GUARD_TITLE = "Create Variable and Type Guard";
 
-    public static final String ADD_CHECK_TITLE = "Create Variable and Handle Error Outside";
+    public static final String ADD_CHECK_TITLE = "Create Variable and Check Error";
 
     public static final String CREATE_SERVICE_RESOURCE = "Create service resource for the path '%s'";
 

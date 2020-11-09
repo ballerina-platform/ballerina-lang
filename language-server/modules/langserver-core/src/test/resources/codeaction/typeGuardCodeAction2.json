@@ -2,7 +2,7 @@
     "line": 4,
     "character": 6,
     "expected": {
-        "title": "Create Variable and Handle Error Inside",
+        "title": "Create Variable and Type Guard",
         "edits": [
             {
                 "range": {
