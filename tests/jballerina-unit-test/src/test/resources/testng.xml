@@ -958,11 +958,6 @@
                     <exclude name="testLockInAttachedFunc"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.expressions.invocations.PackageInitTest">
-                <methods>
-                    <exclude name="testPackageInitsInDependantPackages"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.statements.packageimport.PackageImportTest">
                 <methods>
                     <exclude name="testImportsPerfile"/>
