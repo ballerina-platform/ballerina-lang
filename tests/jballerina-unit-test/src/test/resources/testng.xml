@@ -237,7 +237,6 @@
             </class>
             <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest" />
             <class name="org.ballerinalang.test.balo.record.ClosedRecordTypeReferenceTest" />
-            <class name="org.ballerinalang.test.balo.object.ReadOnlyObjectBaloTest"/>
 
 
             <!-- Disabled tests related to ProjectAPI change -->
