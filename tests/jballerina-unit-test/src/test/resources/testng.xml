@@ -825,18 +825,6 @@
                     <exclude name="testAttachedAsyncInvWithoutDefaultParams"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.types.ErrorTypeTest">
-                <methods>
-                    <exclude name="errorFromAnotherPkg"/>
-                    <exclude name="indirectErrorCtorFromAnotherPkg"/>
-                    <exclude name="testDistinctErrorTypeNegative"/>
-                    <exclude name="testDistinctTypeFromAnotherPackageInATypeDef"/>
-                    <exclude name="testDistinctTypeFromAnotherPackageInATypeDefWithACast"/>
-                    <exclude name="testErrorDetailDefinedAfterErrorDef"/>
-                    <exclude name="testPerformInvalidCastWithDistinctErrorType"/>
-                    <exclude name="testUsageOfDistinctTypeFromAnotherPackage"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.services.ErrorReturnTest">
                 <methods>
                     <exclude name="testErrorReturnFunction"/>
