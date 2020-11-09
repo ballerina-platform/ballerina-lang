@@ -589,7 +589,7 @@ public class BTestRunner {
             testStop.invoke();
         }
         stop.setName("$moduleStop");
-        stop.directInvoke(new Class<?>[]{});
+        stop.directInvoke(new Class<?>[]{Scheduler.ListenerRegistry.class});
     }
 
     private Object invokeTestFunction(TestSuite suite, String functionName, ClassLoader classLoader,

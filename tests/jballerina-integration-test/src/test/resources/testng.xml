@@ -17,7 +17,7 @@
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="jBallerina-Test-Suite">
+<suite name="jBallerina-Test-Suite" time-out="120000">
     <listeners>
         <listener class-name="org.ballerinalang.test.listener.TestExecutionListener"/>
         <listener class-name="org.ballerinalang.test.listener.TestNGListener"/>
