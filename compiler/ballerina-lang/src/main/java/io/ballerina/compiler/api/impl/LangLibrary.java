@@ -40,19 +40,8 @@ import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.BOOLEAN;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.STREAM;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.TABLE;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 
 
 /**
@@ -82,7 +71,7 @@ public class LangLibrary {
             PackageID moduleID = module.pkgID;
 
             if (Names.BALLERINA_ORG.equals(moduleID.orgName) &&
-                    (moduleID.nameComps.size() == 2 && Names.LANG.equals(moduleID.nameComps.get(0)))) {
+                    (moduleID.nameComps.size() >= 2 && Names.LANG.equals(moduleID.nameComps.get(0)))) {
                 langLibs.put(moduleID.nameComps.get(1).value, module);
             }
         }
@@ -141,34 +130,24 @@ public class LangLibrary {
             case INT:
             case BYTE:
                 return INT.getName();
-            case FLOAT:
-                return FLOAT.getName();
-            case DECIMAL:
-                return DECIMAL.getName();
-            case STRING:
-                return STRING.getName();
-            case BOOLEAN:
-                return BOOLEAN.getName();
             case ARRAY:
             case TUPLE:
                 return ARRAY.getName();
-            case STREAM:
-                return STREAM.getName();
-            case OBJECT:
-                return OBJECT.getName();
             case RECORD:
             case MAP:
                 return MAP.getName();
+            case FLOAT:
+            case DECIMAL:
+            case STRING:
+            case BOOLEAN:
+            case STREAM:
+            case OBJECT:
             case ERROR:
-                return ERROR.getName();
             case FUTURE:
-                return FUTURE.getName();
             case TYPEDESC:
-                return TYPEDESC.getName();
             case XML:
-                return XML.getName();
             case TABLE:
-                return TABLE.getName();
+                return typeDescKind.getName();
             default:
                 return "value";
         }
@@ -178,12 +157,12 @@ public class LangLibrary {
         Map<String, Map<String, BInvokableSymbol>> langLibMethods = new HashMap<>();
 
         for (Map.Entry<String, BPackageSymbol> entry : langLibs.entrySet()) {
-            String key = entry.getKey();
-            BPackageSymbol value = entry.getValue();
+            String moduleName = entry.getKey();
+            BPackageSymbol moduleSymbol = entry.getValue();
 
             Map<String, BInvokableSymbol> methods = new HashMap<>();
 
-            for (Map.Entry<Name, Scope.ScopeEntry> nameScopeEntry : value.scope.entries.entrySet()) {
+            for (Map.Entry<Name, Scope.ScopeEntry> nameScopeEntry : moduleSymbol.scope.entries.entrySet()) {
                 BSymbol symbol = nameScopeEntry.getValue().symbol;
 
                 if (symbol.kind != SymbolKind.FUNCTION) {
@@ -193,12 +172,12 @@ public class LangLibrary {
                 BInvokableSymbol invSymbol = (BInvokableSymbol) symbol;
 
                 if (Symbols.isFlagOn(invSymbol.flags, Flags.PUBLIC) && !invSymbol.params.isEmpty() &&
-                        key.compareToIgnoreCase(invSymbol.params.get(0).type.getKind().name()) == 0) {
+                        moduleName.compareToIgnoreCase(invSymbol.params.get(0).type.getKind().name()) == 0) {
                     methods.put(invSymbol.name.value, invSymbol);
                 }
             }
 
-            langLibMethods.put(key, methods);
+            langLibMethods.put(moduleName, methods);
         }
 
         populateLangValueLibrary(langLibs, langLibMethods);
