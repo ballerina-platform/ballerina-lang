@@ -1053,8 +1053,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ObjectFieldNode objFieldNode) {
         BLangSimpleVariable simpleVar = createSimpleVar(objFieldNode.fieldName(), objFieldNode.typeName(),
-                                                        objFieldNode.expression().orElse(null),
-                                                        false, false, false, objFieldNode.visibilityQualifier().orElse(null),
+                                                        objFieldNode.expression().orElse(null), false,
+                false, false, objFieldNode.visibilityQualifier().orElse(null),
                                                         getAnnotations(objFieldNode.metadata()));
         // Transform documentation
         Optional<Node> doc = getDocumentationString(objFieldNode.metadata());
@@ -4358,8 +4358,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private BLangSimpleVariable createSimpleVar(Token name, Node typeName, Node initializer, boolean isFinal,
-                                                boolean isConfigurable, boolean isListenerVar, Token visibilityQualifier,
-                                                NodeList<AnnotationNode> annotations) {
+                                                boolean isConfigurable, boolean isListenerVar,
+                                                Token visibilityQualifier, NodeList<AnnotationNode> annotations) {
         BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         bLSimpleVar.setName(this.createIdentifier(name));
         bLSimpleVar.name.pos = getPosition(name);
