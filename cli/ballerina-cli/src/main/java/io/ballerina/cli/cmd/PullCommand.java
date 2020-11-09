@@ -29,6 +29,7 @@ import picocli.CommandLine;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -48,22 +49,28 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
         description = "download the module source and binaries from a remote repository")
 public class PullCommand implements BLauncherCmd {
     private PrintStream errStream;
+    private Path userDir;
     private CentralAPIClient client;
 
-    @CommandLine.Parameters private List<String> argList;
+    @CommandLine.Parameters
+    private List<String> argList;
 
-    @CommandLine.Option(names = { "--help", "-h" }, hidden = true) private boolean helpFlag;
+    @CommandLine.Option(names = { "--help", "-h" }, hidden = true)
+    private boolean helpFlag;
 
-    @CommandLine.Option(names = "--debug", hidden = true) private String debugPort;
+    @CommandLine.Option(names = "--debug", hidden = true)
+    private String debugPort;
 
     public PullCommand() {
+        this.userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         this.errStream = System.err;
-        this.client = new CentralAPIClient();
+//        this.client = new CentralAPIClient();
     }
 
-    public PullCommand(PrintStream errStream, CentralAPIClient client) {
+    public PullCommand(Path userDir, PrintStream errStream) {
+        this.userDir = userDir;
         this.errStream = errStream;
-        this.client = client;
+//        this.client = new CentralAPIClient();
     }
 
     @Override
@@ -153,7 +160,6 @@ public class PullCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-        throw new UnsupportedOperationException();
     }
 
     private String getPullCommandRegex() {

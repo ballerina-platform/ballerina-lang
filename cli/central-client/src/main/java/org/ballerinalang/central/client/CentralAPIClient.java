@@ -136,9 +136,9 @@ public class CentralAPIClient {
                 }
             } else if (statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
                 try (BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(conn.getInputStream(), Charset.defaultCharset()))) {
+                        new InputStreamReader(conn.getErrorStream(), Charset.defaultCharset()))) {
                     Error errorJsonSchema = new Gson().fromJson(reader, Error.class);
-                    if (errorJsonSchema.getMessage().contains("package not found:")) {
+                    if (errorJsonSchema.getMessage().contains("package not found for:")) {
                         throw new NoPackageException(errorJsonSchema.getMessage());
                     } else {
                         throw createLauncherException(

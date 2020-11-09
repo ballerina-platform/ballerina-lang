@@ -121,7 +121,7 @@ public class TestBaloWriter {
 //            Assert.assertEquals(packageJson.getExported().get(0), "winery");
 //            Assert.assertEquals(packageJson.getExported().get(1), "service");
 
-            Assert.assertEquals(packageJson.getTarget(), "java11");
+            Assert.assertEquals(packageJson.getPlatform(), "java11");
             Assert.assertEquals(packageJson.getPlatformDependencies().size(), 1);
         }
 

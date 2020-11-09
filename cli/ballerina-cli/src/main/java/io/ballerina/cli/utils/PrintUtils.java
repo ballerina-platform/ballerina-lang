@@ -61,8 +61,8 @@ public class PrintUtils {
         printTitle();
         printTableHeader(dateColWidth, versionColWidth, nameColWidth, descColWidth, minDescColWidth, authorsColWidth);
 
-        for (Package packageJsonSchema : packages) {
-            printModule(packageJsonSchema, dateColWidth, versionColWidth, authorsColWidth, nameColWidth, descColWidth,
+        for (Package aPackage : packages) {
+            printPackage(aPackage, dateColWidth, versionColWidth, authorsColWidth, nameColWidth, descColWidth,
                     minDescColWidth);
             outStream.println();
         }
@@ -73,24 +73,24 @@ public class PrintUtils {
     /**
      * Print package row.
      *
-     * @param packageJsonSchema module information
-     * @param dateColWidth      date column width
-     * @param versionColWidth   version column width
-     * @param nameColWidth      name column width
-     * @param descColWidth      description column width
-     * @param minDescColWidth   minimum description column width
-     * @param authorsColWidth   authors column width
+     * @param aPackage        package information
+     * @param dateColWidth    date column width
+     * @param versionColWidth version column width
+     * @param nameColWidth    name column width
+     * @param descColWidth    description column width
+     * @param minDescColWidth minimum description column width
+     * @param authorsColWidth authors column width
      */
-    private static void printModule(Package packageJsonSchema, int dateColWidth, int versionColWidth,
-            int authorsColWidth, int nameColWidth, int descColWidth, int minDescColWidth) {
-        printInCLI("|" + packageJsonSchema.getOrganization() + "/" + packageJsonSchema.getName(), nameColWidth);
+    private static void printPackage(Package aPackage, int dateColWidth, int versionColWidth, int authorsColWidth,
+            int nameColWidth, int descColWidth, int minDescColWidth) {
+        printInCLI("|" + aPackage.getOrganization() + "/" + aPackage.getName(), nameColWidth);
 
-        String summary = packageJsonSchema.getSummary();
+        String summary = getSummary(aPackage);
 
         if (descColWidth >= minDescColWidth) {
             printInCLI(summary, descColWidth - authorsColWidth);
             String authors = "";
-            List<String> authorsArr = packageJsonSchema.getAuthors();
+            List<String> authorsArr = aPackage.getAuthors();
 
             if (!authorsArr.isEmpty()) {
                 for (int j = 0; j < authorsArr.size(); j++) {
@@ -108,8 +108,8 @@ public class PrintUtils {
             printInCLI(summary, descColWidth);
         }
 
-        printInCLI(getDateCreated(packageJsonSchema.getCreatedDate()), dateColWidth);
-        printInCLI(packageJsonSchema.getVersion(), versionColWidth);
+        printInCLI(getDateCreated(aPackage.getCreatedDate()), dateColWidth);
+        printInCLI(aPackage.getVersion(), versionColWidth);
     }
 
     /**
@@ -239,5 +239,17 @@ public class PrintUtils {
         printCharacter("-", versionColWidth, "-", true);
 
         outStream.println();
+    }
+
+    private static String getSummary(Package aPackage) {
+        String summary = aPackage.getSummary();
+        if (summary == null) {
+            String readme = aPackage.getReadme();
+            if (readme == null) {
+                return "";
+            }
+            summary = readme.substring(0, readme.indexOf('\n'));
+        }
+        return summary;
     }
 }

@@ -32,9 +32,9 @@ public class Constants {
     static final String NEW_COMMAND = "new";
     static final String ADD_COMMAND = "add";
     static final String LIST_COMMAND = "list";
-    static final String PULL_COMMAND = "pull";
-    static final String PUSH_COMMAND = "push";
-    static final String SEARCH_COMMAND = "search";
+    static final String PULL_COMMAND = "pullOld";
+    static final String PUSH_COMMAND = "pushOld";
+    static final String SEARCH_COMMAND = "searchOld";
     static final String CLEAN_COMMAND = "clean";
     static final String UNINSTALL_COMMAND = "uninstall";
 

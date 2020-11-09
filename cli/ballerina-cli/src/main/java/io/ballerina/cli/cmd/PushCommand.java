@@ -82,7 +82,7 @@ public class PushCommand implements BLauncherCmd {
     private PrintStream errStream;
     
     public PushCommand() {
-        userDir = Paths.get(System.getProperty("user.dir"));
+        userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         errStream = System.err;
     }
     
@@ -151,7 +151,6 @@ public class PushCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-        throw new UnsupportedOperationException();
     }
 
     private void pushPackage(BuildProject project) {
@@ -182,7 +181,7 @@ public class PushCommand implements BLauncherCmd {
         try (Stream<Path> baloFilesStream = Files.list(baloOutputDir)) {
             packageBaloFile = baloFilesStream
                     .filter(baloFile -> null != baloFile.getFileName() && baloFile.getFileName().toString()
-                            .startsWith(pkgName + "-" + IMPLEMENTATION_VERSION)).findFirst();
+                            .startsWith(orgName + "-" + pkgName)).findFirst();
         }
 
         if (!packageBaloFile.isPresent()) {

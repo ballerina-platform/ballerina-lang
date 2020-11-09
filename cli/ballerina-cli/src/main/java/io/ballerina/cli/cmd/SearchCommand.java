@@ -93,7 +93,6 @@ public class SearchCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-        throw new UnsupportedOperationException();
     }
 
     /**
