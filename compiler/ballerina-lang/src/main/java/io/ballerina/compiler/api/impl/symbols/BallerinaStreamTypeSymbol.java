@@ -17,17 +17,14 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.StringJoiner;
+import java.util.Optional;
 
 /**
  * Represents an stream type descriptor.
@@ -36,34 +33,47 @@ import java.util.StringJoiner;
  */
 public class BallerinaStreamTypeSymbol extends AbstractTypeSymbol implements StreamTypeSymbol {
 
-    private List<TypeSymbol> typeParameters;
+    private TypeSymbol typeParameter;
+    private TypeSymbol completionValueTypeParameter;
+    private String signature;
 
     public BallerinaStreamTypeSymbol(CompilerContext context, ModuleID moduleID, BStreamType streamType) {
         super(context, TypeDescKind.STREAM, moduleID, streamType);
     }
 
     @Override
-    public List<TypeSymbol> typeParameters() {
-        if (this.typeParameters == null) {
-            List<TypeSymbol> typeParams = new ArrayList<>();
+    public TypeSymbol typeParameter() {
+        if (this.typeParameter == null) {
             TypesFactory typesFactory = TypesFactory.getInstance(this.context);
-            typeParams.add(typesFactory.getTypeDescriptor(((BStreamType) this.getBType()).constraint));
-            this.typeParameters = Collections.unmodifiableList(typeParams);
+            this.typeParameter = typesFactory.getTypeDescriptor(((BStreamType) this.getBType()).constraint);
         }
 
-        return this.typeParameters;
+        return this.typeParameter;
+    }
+
+    @Override
+    public Optional<TypeSymbol> completionValueTypeParameter() {
+        if (this.completionValueTypeParameter == null) {
+            BType completionType = ((BStreamType) this.getBType()).error;
+
+            if (completionType != null) {
+                TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+                this.completionValueTypeParameter = typesFactory.getTypeDescriptor(completionType);
+            }
+        }
+
+        return Optional.ofNullable(this.completionValueTypeParameter);
     }
 
     @Override
     public String signature() {
-        String memberSignature;
-        if (this.typeParameters().isEmpty()) {
-            memberSignature = "()";
-        } else {
-            StringJoiner joiner = new StringJoiner(", ");
-            this.typeParameters().forEach(typeDescriptor -> joiner.add(typeDescriptor.signature()));
-            memberSignature = joiner.toString();
+        if (this.signature == null) {
+            StringBuilder sigBuilder = new StringBuilder("stream<");
+            sigBuilder.append(this.typeParameter().signature());
+            this.completionValueTypeParameter().ifPresent(t -> sigBuilder.append(", ").append(t.signature()));
+            sigBuilder.append('>');
+            this.signature = sigBuilder.toString();
         }
-        return "stream<" + memberSignature + ">";
+        return this.signature;
     }
 }
