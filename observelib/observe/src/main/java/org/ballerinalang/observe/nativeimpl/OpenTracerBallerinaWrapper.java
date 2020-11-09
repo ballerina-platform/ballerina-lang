@@ -125,7 +125,6 @@ public class OpenTracerBallerinaWrapper {
     /**
      * Method to mark a span as finished.
      *
-     *
      * @param env current environment
      * @param spanId id of the Span
      * @return boolean to indicate if span was finished
@@ -161,23 +160,23 @@ public class OpenTracerBallerinaWrapper {
         if (!enabled) {
             return false;
         }
+
+        final BSpan span;
         if (spanId == -1) {
             Optional<ObserverContext> observer = ObserveUtils.getObserverContextOfCurrentFrame(env);
-            if (observer.isPresent()) {
-                BSpan span = (BSpan) observer.get().getProperty(TraceConstants.KEY_SPAN);
-                span.addTag(tagKey, tagValue);
-                observer.get().addProperty(TraceConstants.KEY_SPAN, span);
-                return true;
+            if (observer.isEmpty()) {
+                return false;
             }
-        }
-        ObserverContext observerContext = observerContextMap.get(spanId);
-        if (observerContext != null) {
-            BSpan span = (BSpan) observerContext.getProperty(TraceConstants.KEY_SPAN);
-            span.addTag(tagKey, tagValue);
-            observerContext.addProperty(TraceConstants.KEY_SPAN, span);
-            return true;
+            span = (BSpan) observer.get().getProperty(TraceConstants.KEY_SPAN);
         } else {
-            return false;
+            ObserverContext observerContext = observerContextMap.get(spanId);
+            if (observerContext == null) {
+                return false;
+            }
+            span = (BSpan) observerContext.getProperty(TraceConstants.KEY_SPAN);
         }
+
+        span.addTag(tagKey, tagValue);
+        return true;
     }
 }
