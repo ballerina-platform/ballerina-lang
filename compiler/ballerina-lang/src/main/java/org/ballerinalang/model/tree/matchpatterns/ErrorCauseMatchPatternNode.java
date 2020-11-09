@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.Node;
 /**
  * The interface with the APIs to implement the error-cause-match-pattern.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public interface ErrorCauseMatchPatternNode extends Node {
 

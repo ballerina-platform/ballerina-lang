@@ -27,7 +27,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 /**
- * @since Swan Lake
+ * Represent error-match-pattern.
+ *
+ * @since 2.0.0
  */
 public class BLangErrorMatchPattern extends BLangMatchPattern implements ErrorMatchPatternNode {
 

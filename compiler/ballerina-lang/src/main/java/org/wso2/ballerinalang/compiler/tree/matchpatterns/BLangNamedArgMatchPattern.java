@@ -25,7 +25,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * @since Swan Lake
+ * Represent named-arg-match-pattern.
+ *
+ * @since 2.0.0
  */
 public class BLangNamedArgMatchPattern extends BLangMatchPattern implements NamedArgMatchPatternNode {
 

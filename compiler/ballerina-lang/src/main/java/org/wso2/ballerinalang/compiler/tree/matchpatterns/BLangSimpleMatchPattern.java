@@ -25,6 +25,8 @@ import org.ballerinalang.model.tree.matchpatterns.WildCardMatchPatternNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
+ * Represent simple-match-pattern.
+ *
  * @since Swan Lake
  */
 public class BLangSimpleMatchPattern extends BLangMatchPattern implements SimpleMatchPatternNode {

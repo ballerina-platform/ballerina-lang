@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.Node;
 /**
  * The interface with the APIs to implement the named-arg-match-pattern.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public interface NamedArgMatchPatternNode extends Node {
 

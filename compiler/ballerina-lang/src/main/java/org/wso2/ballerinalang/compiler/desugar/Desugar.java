@@ -3850,7 +3850,7 @@ public class Desugar extends BLangNodeVisitor {
 
             if (errorMatchPattern.errorFieldMatchPatterns.restMatchPattern != null) {
                 BLangRestMatchPattern restMatchPattern = errorMatchPattern.errorFieldMatchPatterns.restMatchPattern;
-                DiagnosticPos restPatternPos = restMatchPattern.pos;
+                Location restPatternPos = restMatchPattern.pos;
                 List<String> keysToRemove = getKeysToRemove(errorMatchPattern.errorFieldMatchPatterns);
                 BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(symTable.stringType,
                         symTable.anydataType)), null);
@@ -3964,46 +3964,6 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         return createVarCheckCondition(simpleMatchPattern.varVariableName, matchExprVarRef);
-    }
-
-    private BLangExpression createVarCheckCondition(BLangMatchPattern matchPattern, BLangSimpleVarRef varRef) {
-        NodeKind patternKind = matchPattern.getKind();
-        switch (patternKind) {
-            case WILDCARD_MATCH_PATTERN:
-                return createConditionForWildCardMatchPattern((BLangWildCardMatchPattern) matchPattern, varRef);
-            case CONST_MATCH_PATTERN:
-                return createConditionForConstMatchPattern((BLangConstPattern) matchPattern, varRef);
-            case VAR_BINDING_PATTERN_MATCH_PATTERN:
-                return createConditionForVarBindingPatternMatchPattern(
-                        (BLangVarBindingPatternMatchPattern) matchPattern, varRef);
-            case ERROR_MATCH_PATTERN:
-                return createConditionForErrorMatchPattern((BLangErrorMatchPattern) matchPattern, varRef);
-            default:
-                // If some patterns are not implemented, those should be detected before this phase
-                // TODO : Remove this after all patterns are implemented
-                return null;
-        }
-    }
-
-    private BLangExpression createConditionForMatchPattern(BLangMatchPattern matchPattern,
-                                                           BLangSimpleVarRef matchExprVarRef) {
-        NodeKind patternKind = matchPattern.getKind();
-        switch (patternKind) {
-            case WILDCARD_MATCH_PATTERN:
-                return createConditionForWildCardMatchPattern((BLangWildCardMatchPattern) matchPattern,
-                        matchExprVarRef);
-            case CONST_MATCH_PATTERN:
-                return createConditionForConstMatchPattern((BLangConstPattern) matchPattern, matchExprVarRef);
-            case VAR_BINDING_PATTERN_MATCH_PATTERN:
-                return createConditionForVarBindingPatternMatchPattern(
-                        (BLangVarBindingPatternMatchPattern) matchPattern, matchExprVarRef);
-            case ERROR_MATCH_PATTERN:
-                return createConditionForErrorMatchPattern((BLangErrorMatchPattern) matchPattern, matchExprVarRef);
-            default:
-                // If some patterns are not implemented, those should be detected before this phase
-                // TODO : Remove this after all patterns are implemented
-                return null;
-        }
     }
 
     @Override

@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 /**
  * The interface with the APIs to implement the error-match-pattern.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public interface ErrorMatchPatternNode extends Node {
 

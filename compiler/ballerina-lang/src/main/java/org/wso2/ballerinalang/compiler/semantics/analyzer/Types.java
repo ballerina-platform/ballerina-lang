@@ -397,16 +397,19 @@ public class Types {
         return symTable.noType;
     }
 
-    BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BLangExpression constPatternExpr) {
-        if (matchExpr == null) {
-            if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                return ((BLangSimpleVarRef) constPatternExpr).symbol.type;
-            } else {
-                return constPatternExpr.type;
-            }
-        }
+//    public BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BLangExpression constPatternExpr) {
+//
+//        if (matchExpr == null) {
+//            if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+//                return ((BLangSimpleVarRef) constPatternExpr).symbol.type;
+//            } else {
+//                return constPatternExpr.type;
+//            }
+//        }
+//
+//        BType matchExprType = matchExpr.type;
+//    }
 
-        BType matchExprType = matchExpr.type;
     public BType resolvePatternTypeFromMatchExpr(BType matchExprType, BType matchPatternType) {
         if (isAssignable(matchExprType, matchPatternType)) {
             return matchExprType;
@@ -417,8 +420,16 @@ public class Types {
         return symTable.noType;
     }
 
-    public BType resolvePatternTypeFromMatchExpr(BType matchExprType, BLangConstPattern constMatchPattern) {
-        BLangExpression constPatternExpr = constMatchPattern.expr;
+    public BType resolvePatternTypeFromMatchExpr(BLangConstPattern constPattern, BLangExpression constPatternExpr) {
+        if (constPattern.matchExpr == null) {
+            if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                return ((BLangSimpleVarRef) constPatternExpr).symbol.type;
+            } else {
+                return constPatternExpr.type;
+            }
+        }
+
+        BType matchExprType = constPattern.matchExpr.type;
         BType constMatchPatternExprType = constPatternExpr.type;
 
         if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -432,25 +443,20 @@ public class Types {
             }
             return symTable.noType;
         }
-
         // After the above check, according to spec all other const-patterns should be literals.
         BLangLiteral constPatternLiteral = (BLangLiteral) constPatternExpr;
-
         if (containsAnyType(constMatchPatternExprType)) {
             return matchExprType;
         } else if (containsAnyType(matchExprType)) {
             return constMatchPatternExprType;
         }
-
         // This should handle specially
         if (matchExprType.tag == TypeTags.BYTE && constMatchPatternExprType.tag == TypeTags.INT) {
             return matchExprType;
         }
-
         if (isAssignable(constMatchPatternExprType, matchExprType)) {
             return constMatchPatternExprType;
         }
-
         if (matchExprType.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) matchExprType).getMemberTypes()) {
                 if (memberType.tag == TypeTags.FINITE) {

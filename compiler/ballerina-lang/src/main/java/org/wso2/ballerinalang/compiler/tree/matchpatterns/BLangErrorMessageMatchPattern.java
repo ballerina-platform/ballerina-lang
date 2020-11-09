@@ -23,7 +23,9 @@ import org.ballerinalang.model.tree.matchpatterns.SimpleMatchPatternNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * @since Swan Lake
+ * Represent error-message-match-pattern.
+ *
+ * @since 2.0.0
  */
 public class BLangErrorMessageMatchPattern extends BLangMatchPattern implements ErrorMessageMatchPatternNode {
 

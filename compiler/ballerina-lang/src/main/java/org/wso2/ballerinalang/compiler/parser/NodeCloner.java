@@ -810,13 +810,6 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRestMatchPattern source) {
-        BLangRestMatchPattern clone = new BLangRestMatchPattern();
-        source.cloneRef = clone;
-        clone.variableName = source.variableName;
-    }
-
-    @Override
     public void visit(BLangErrorFieldMatchPatterns source) {
         BLangErrorFieldMatchPatterns clone = new BLangErrorFieldMatchPatterns();
         source.cloneRef = clone;

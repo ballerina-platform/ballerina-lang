@@ -4080,9 +4080,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         if (kind == SyntaxKind.NUMERIC_LITERAL ||
-        }
-
-        if (kind == SyntaxKind.NUMERIC_LITERAL ||
                 kind == SyntaxKind.STRING_LITERAL ||
                 kind == SyntaxKind.SIMPLE_NAME_REFERENCE ||
                 kind == SyntaxKind.NULL_LITERAL ||

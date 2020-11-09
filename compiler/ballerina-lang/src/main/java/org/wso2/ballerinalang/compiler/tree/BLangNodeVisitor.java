@@ -400,10 +400,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangRestMatchPattern restMatchPattern) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangErrorMatchPattern errorMatchPattern) {
         throw new AssertionError();
     }

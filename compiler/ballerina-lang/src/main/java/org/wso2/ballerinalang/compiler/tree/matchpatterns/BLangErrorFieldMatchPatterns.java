@@ -27,7 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @since Swan Lake
+ * Represent error-field-match-patterns.
+ *
+ * @since 2.0.0
  */
 public class BLangErrorFieldMatchPatterns extends BLangMatchPattern implements ErrorFieldMatchPatternsNode {
 
