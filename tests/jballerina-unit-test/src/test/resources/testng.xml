@@ -927,20 +927,6 @@
                     <exclude name="testValRefType"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.globalvar.GlobalVarFunctionInBaloTest">
-                <methods>
-                    <exclude name="testAccessGlobalVarWithinFunctions"/>
-                    <exclude name="testAssignGlobalVarToAnotherGlobalVar"/>
-                    <exclude name="testChangeGlobalVarWithinFunction"/>
-                    <exclude name="testDefiningGlobalVar"/>
-                    <exclude name="testGlobalArraysWithinFunction"/>
-                    <exclude name="testGlobalVarByte"/>
-                    <exclude name="testGlobalVarByteArray1"/>
-                    <exclude name="testGlobalVarByteArray2"/>
-                    <exclude name="testGlobalVarByteArray3"/>
-                    <exclude name="testInitializingGlobalVarWithinFunction"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.worker.PackageInitWorkerTest">
                 <methods>
                     <exclude name="testPackageInitWorkerTest"/>
