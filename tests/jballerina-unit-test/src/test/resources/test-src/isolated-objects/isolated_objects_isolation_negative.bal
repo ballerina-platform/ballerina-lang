@@ -377,7 +377,7 @@ isolated class InvalidIsolatedClassWithCopyInInsideBlock {
     }
 }
 
-isolated class InvalidIsolatedClassWithInvalidCopyyingWithClone {
+isolated class InvalidIsolatedClassWithInvalidCopyingWithClone {
     private anydata[] arr = [];
     private anydata[] arr2 = [];
 

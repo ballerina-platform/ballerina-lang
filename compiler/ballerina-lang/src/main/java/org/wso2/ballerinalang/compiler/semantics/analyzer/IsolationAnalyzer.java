@@ -766,7 +766,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangLock lockNode) {
         boolean prevInLockStatement = this.inLockStatement;
         this.inLockStatement = true;
-        copyInLockInfoStack.push(new PotentiallyInvalidExpressionInfo(env.enclInvokable));
+        copyInLockInfoStack.push(new PotentiallyInvalidExpressionInfo(lockNode));
 
         analyzeNode(lockNode.body, SymbolEnv.createLockEnv(lockNode, env));
 
@@ -791,37 +791,59 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             }
 
             for (BLangSimpleVarRef varRef : copyInLockInfo.copyInVarRefs) {
-                dlog.error(varRef.pos, DiagnosticCode.INVALID_COPY_IN_OF_MUTABLE_VALUE_INTO_ISOLATED_OBJECT);
+                dlog.error(varRef.pos, DiagnosticCode.INVALID_TRANSFER_INTO_LOCK_WITH_RESTRICTED_VAR_USAGE);
             }
 
             for (BLangSimpleVarRef varRef : copyInLockInfo.copyOutVarRefs) {
-                dlog.error(varRef.pos, DiagnosticCode.INVALID_COPY_OUT_OF_MUTABLE_VALUE_FROM_ISOLATED_OBJECT);
+                dlog.error(varRef.pos, DiagnosticCode.INVALID_TRANSFER_OUT_OF_LOCK_WITH_RESTRICTED_VAR_USAGE);
             }
 
-            for (BLangInvocation invocation : copyInLockInfo.invocations) {
-                dlog.error(invocation.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_OBJECT_METHOD);
+            for (BLangInvocation invocation : copyInLockInfo.nonIsolatedInvocations) {
+                dlog.error(invocation.pos,
+                           DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_IN_LOCK_WITH_RESTRICTED_VAR_USAGE);
             }
+        }
 
+        if (copyInLockInfoStack.empty()) {
             return;
         }
+
+        BLangLock lastCheckedLockNode = lockNode;
 
         for (int i = copyInLockInfoStack.size() - 1; i >= 0; i--) {
             PotentiallyInvalidExpressionInfo prevCopyInLockInfo = copyInLockInfoStack.get(i);
 
-            BLangInvokableNode enclInvokableNode = prevCopyInLockInfo.enclInvokableNode;
-            if (enclInvokableNode.getKind() != NodeKind.FUNCTION) {
+            BLangLock outerLockNode = prevCopyInLockInfo.lockNode;
+
+            if (!isEnclosedLockWithinSameFunction(lastCheckedLockNode, outerLockNode)) {
                 return;
             }
 
-            BLangFunction function = (BLangFunction) enclInvokableNode;
-            if (!function.attachedFunction || function.objInitFunction) {
-                return;
+            lastCheckedLockNode = outerLockNode;
+
+            Map<BSymbol, List<BLangSimpleVarRef>> prevLockAccessedRestrictedVars =
+                    prevCopyInLockInfo.accessedRestrictedVars;
+
+            for (Map.Entry<BSymbol, List<BLangSimpleVarRef>> entry : accessedRestrictedVars.entrySet()) {
+                BSymbol key = entry.getKey();
+
+                if (prevLockAccessedRestrictedVars.containsKey(key)) {
+                    prevLockAccessedRestrictedVars.get(key).addAll(entry.getValue());
+                    continue;
+                }
+
+                prevLockAccessedRestrictedVars.put(key, entry.getValue());
+            }
+
+            if (!accessedRestrictedVars.isEmpty()) {
+                continue;
             }
 
             prevCopyInLockInfo.nonCaptureBindingPatternVarRefsOnLhs.addAll(
                     copyInLockInfo.nonCaptureBindingPatternVarRefsOnLhs);
             prevCopyInLockInfo.copyInVarRefs.addAll(copyInLockInfo.copyInVarRefs);
             prevCopyInLockInfo.copyOutVarRefs.addAll(copyInLockInfo.copyOutVarRefs);
+            prevCopyInLockInfo.nonIsolatedInvocations.addAll(copyInLockInfo.nonIsolatedInvocations);
         }
     }
 
@@ -1652,7 +1674,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         boolean expectsIsolation =
                 inIsolatedFunction || recordFieldDefaultValue || objectFieldDefaultValueRequiringIsolation;
 
-        if (isIsolated(symbol.type.flags)) {
+        boolean isolatedFunctionCall = isIsolated(symbol.type.flags);
+
+        if (isolatedFunctionCall) {
             if (!expectsIsolation) {
                 analyzeArgs(requiredArgs, restArgs);
                 return;
@@ -1664,8 +1688,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         analyzeArgs(requiredArgs, restArgs);
 
-        if (inLockStatement && isInIsolatedObjectMethod(env, true)) {
-            copyInLockInfoStack.peek().invocations.add(invocationExpr);
+        if (inLockStatement && !isolatedFunctionCall) {
+            copyInLockInfoStack.peek().nonIsolatedInvocations.add(invocationExpr);
         }
 
         inferredIsolated = false;
@@ -2446,7 +2470,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         BLangNode parent = expression.parent;
 
-        NodeKind kind = parent.getKind();
+        NodeKind parentExprKind = parent.getKind();
         if (!(parent instanceof BLangExpression)) {
             if (isIsolatedObjectTypes(type)) {
                 return false;
@@ -2461,7 +2485,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return true;
             }
 
-            switch (kind) {
+            switch (parentExprKind) {
                 case ASSIGNMENT:
                     BLangExpression varRef = ((BLangAssignment) parent).varRef;
 
@@ -2486,7 +2510,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         BLangExpression parentExpression = (BLangExpression) parent;
 
-        if (kind != NodeKind.INVOCATION) {
+        if (parentExprKind != NodeKind.INVOCATION) {
             return isInvalidCopyingOfMutableValueInIsolatedObject(parentExpression, copyOut, invokedOnSelf);
         }
 
@@ -2495,12 +2519,16 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (calledOnExpr == expression) {
             // If this is the analysis of the called-on expression of a method call, do some additional checks.
-            if (invocation.type.tag == TypeTags.NIL) {
+            if (invokedOnSelf && (!copyOut || invocation.type.tag == TypeTags.NIL)) {
                 return false;
             }
 
-            if (invokedOnSelf && !copyOut) {
+            if (isCloneOrCloneReadOnlyInvocation(invocation) || isIsolatedObjectTypes(type)) {
                 return false;
+            }
+
+            if (!copyOut) {
+                return true;
             }
 
             return isInvalidCopyingOfMutableValueInIsolatedObject(parentExpression, copyOut, invokedOnSelf);
@@ -2686,22 +2714,38 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         accessedRestrictedVars.put(originalSymbol, new ArrayList<>() {{ add(varRef); }});
     }
 
+    private boolean isEnclosedLockWithinSameFunction(BLangLock currentLock, BLangLock potentialOuterLock) {
+        return isEnclosedLockWithinSameFunction(currentLock.parent, potentialOuterLock);
+    }
+
+    private boolean isEnclosedLockWithinSameFunction(BLangNode parent, BLangLock potentialOuterLock) {
+        if (parent == potentialOuterLock) {
+            return true;
+        }
+
+        if (parent == null || parent.getKind() == NodeKind.FUNCTION) {
+            return false;
+        }
+
+        return isEnclosedLockWithinSameFunction(parent.parent, potentialOuterLock);
+    }
+
     /**
-     * For isolated objects, invalid copy ins and non-isolated invocations should result in compilation errors if
-     * they happen in a lock statement accessing a mutable field of the object. This class holds potentially
-     * erroneous expression per lock statement, and whether or not the lock statement accesses a mutable field.
+     * For lock statements with restricted var usage, invalid transfers and non-isolated invocations should result in
+     * compilation errors. This class holds potentially erroneous expression per lock statement, and the protected
+     * variables accessed in the lock statement.
      */
     private static class PotentiallyInvalidExpressionInfo {
-        BLangInvokableNode enclInvokableNode;
+        BLangLock lockNode;
 
         Map<BSymbol, List<BLangSimpleVarRef>> accessedRestrictedVars = new HashMap<>();
         List<BLangSimpleVarRef> nonCaptureBindingPatternVarRefsOnLhs = new ArrayList<>();
         List<BLangSimpleVarRef> copyInVarRefs = new ArrayList<>();
         List<BLangSimpleVarRef> copyOutVarRefs = new ArrayList<>();
-        List<BLangInvocation> invocations = new ArrayList<>();
+        List<BLangInvocation> nonIsolatedInvocations = new ArrayList<>();
 
-        private PotentiallyInvalidExpressionInfo(BLangInvokableNode enclInvokableNode) {
-            this.enclInvokableNode = enclInvokableNode;
+        private PotentiallyInvalidExpressionInfo(BLangLock lockNode) {
+            this.lockNode = lockNode;
         }
     }
 }

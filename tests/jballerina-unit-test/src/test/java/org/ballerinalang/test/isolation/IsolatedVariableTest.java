@@ -38,6 +38,13 @@ public class IsolatedVariableTest {
     private static final String ERROR_INVALID_ACCESS_OF_MULTIPLE_RESTRICTER_VARS =
             "cannot access more than one variable for which usage is restricted in a single 'lock' statement";
 
+    private static final String ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE =
+            "invalid attempt to transfer a value into a 'lock' statement with restricted variable usage";
+    private static final String ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE =
+            "invalid attempt to transfer out a value from a 'lock' statement with restricted variable usage";
+    private static final String ERROR_INVALID_NON_ISOLATED_INVOCATION_IN_LOCK_WITH_RESTRICTED_VAR_USAGE =
+            "invalid invocation of a non-isolated function in a 'lock' statement with restricted variable usage";
+
     @Test
     public void testIsolatedVariablesSemanticNegative() {
         CompileResult result = BCompileUtil.compile(
@@ -68,6 +75,30 @@ public class IsolatedVariableTest {
         validateError(result, i++, ERROR_INVALID_ACCESS_OF_MULTIPLE_RESTRICTER_VARS, 97, 21);
         validateError(result, i++, ERROR_INVALID_ACCESS_OF_MULTIPLE_RESTRICTER_VARS, 98, 13);
         validateError(result, i++, ERROR_INVALID_ACCESS_OF_MULTIPLE_RESTRICTER_VARS, 99, 13);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 111, 9);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 111, 16);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 112, 9);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 112, 16);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 113, 14);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 113, 19);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 122, 32);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 123, 19);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 126, 9);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 126, 16);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 127, 9);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 127, 16);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 128, 14);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 128, 19);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 129, 15);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 138, 13);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 139, 16);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 149, 19);
+        validateError(result, i++, ERROR_INVALID_NON_ISOLATED_INVOCATION_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 150, 17);
+        validateError(result, i++, "invalid invocation of a non-isolated function in an 'isolated' function", 150, 17);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 152, 13);
+        validateError(result, i++, ERROR_INVALID_NON_ISOLATED_INVOCATION_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 159, 13);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MULTIPLE_RESTRICTER_VARS, 168, 21);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MULTIPLE_RESTRICTER_VARS, 172, 9);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

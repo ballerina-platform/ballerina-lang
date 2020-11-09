@@ -100,3 +100,79 @@ isolated class IsolatedObject {
         }
     }
 }
+
+isolated map<boolean>[] f = [];
+map<boolean> globBoolMap = {a: true, b: false};
+
+function testInvalidCopyInWithIsolatedVarOne(map<boolean> boolMap) {
+    map<boolean> bm1 = {};
+    lock {
+        map<boolean> bm2 = {a: true, b: false};
+        f[0] = globBoolMap;
+        f.push(boolMap);
+        f = [bm1, bm2];
+    }
+}
+
+isolated function testInvalidCopyInWithIsolatedVarTwo(map<boolean> boolMap) {
+    map<boolean> bm1 = {};
+    lock {
+        map<boolean> bm2 = {};
+        lock {
+            map<boolean> bm3 = boolMap;
+            bm2 = bm3;
+        }
+
+        f.push(boolMap);
+        f[0] = boolMap;
+        f = [bm1, bm2];
+        bm2 = f[0];
+    }
+}
+
+function testInvalidCopyOutWithIsolatedVarOne(map<boolean>[] boolMaps) returns map<boolean>[] {
+    map<boolean>[] bm1 = boolMaps;
+    lock {
+        map<boolean>[] bm2 = [{a: true, b: false}];
+        bm2 = f.clone();
+        f = bm2;
+        return bm2;
+    }
+}
+
+isolated function testIInvalidCopyOutWithIsolatedVarTwo(map<boolean>[] boolMaps) {
+    map<boolean> bm1 = {};
+    lock {
+        map<boolean> bm2 = {};
+        lock {
+            map<boolean> bm3 = boolMaps[0].clone();
+            bm1 = bm3;
+            _ = nonIsolatedFunc();
+        }
+        f = boolMaps;
+    }
+}
+
+function testInvokingNonIsolatedFunctionInLockAccessingIsolatedVar() {
+    lock {
+        f = [];
+        _ = nonIsolatedFunc();
+    }
+}
+
+isolated int g = 1;
+
+isolated function testAccessingDifferentIsolatedVarsInNestedLockStatements() {
+    lock {
+        lock {
+            int i = g;
+        }
+
+        int j = 2;
+        f = [];
+    }
+}
+
+function nonIsolatedFunc() returns int[] {
+    return [1, 2, 3];
+}

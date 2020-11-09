@@ -620,10 +620,10 @@ public enum DiagnosticCode {
     INVALID_REFERENCE_TO_SELF_IN_ISOLATED_OBJECT_OUTSIDE_LOCK(
             "invalid.reference.to.self.in.isolated.object.outside.lock"),
     INVALID_NON_ISOLATED_EXPRESSION_AS_INITIAL_VALUE("invalid.non.isolated.expression.as.initial.value"),
-    INVALID_COPY_OUT_OF_MUTABLE_VALUE_FROM_ISOLATED_OBJECT("invalid.copy.out.of.mutable.value.from.isolated.object"),
-    INVALID_COPY_IN_OF_MUTABLE_VALUE_INTO_ISOLATED_OBJECT("invalid.copy.in.of.mutable.value.into.isolated.object"),
-    INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_OBJECT_METHOD(
-            "invalid.non.isolated.invocation.in.isolated.object.method"),
+    INVALID_TRANSFER_OUT_OF_LOCK_WITH_RESTRICTED_VAR_USAGE("invalid.transfer.out.of.lock.with.restricted.var.usage"),
+    INVALID_TRANSFER_INTO_LOCK_WITH_RESTRICTED_VAR_USAGE("invalid.transfer.into.lock.with.restricted.var.usage"),
+    INVALID_NON_ISOLATED_INVOCATION_IN_LOCK_WITH_RESTRICTED_VAR_USAGE(
+            "invalid.non.isolated.invocation.in.lock.with.restricted.var.usage"),
     INVALID_ISOLATED_VARIABLE_ACCESS_OUTSIDE_LOCK("invalid.isolated.variable.access.outside.lock"),
     INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE("invalid.assignment.in.lock.with.restricted.var.usage"),
     INVALID_USAGE_OF_MULTIPLE_RESTRICTED_VARS_IN_LOCK("invalid.usage.of.multiple.restricted.vars.in.lock"),

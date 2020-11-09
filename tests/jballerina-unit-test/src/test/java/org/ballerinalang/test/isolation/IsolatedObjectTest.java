@@ -36,6 +36,12 @@ public class IsolatedObjectTest {
     private static final String ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE =
             "cannot assign to a variable outside the 'lock' statement with restricted variable usage, " +
                     "if not just a variable name";
+    private static final String ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE =
+            "invalid attempt to transfer a value into a 'lock' statement with restricted variable usage";
+    private static final String ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE =
+            "invalid attempt to transfer out a value from a 'lock' statement with restricted variable usage";
+    private static final String ERROR_INVALID_NON_ISOLATED_INVOCATION_IN_LOCK_WITH_RESTRICTED_VAR_USAGE =
+            "invalid invocation of a non-isolated function in a 'lock' statement with restricted variable usage";
 
     @Test
     public void testIsolatedObjectSemanticNegative() {
@@ -85,48 +91,42 @@ public class IsolatedObjectTest {
         validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 141, 42);
         validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 142, 34);
         validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 157, 22);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 179, 25);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 180, 25);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 181, 23);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 190, 36);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 191, 23);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 194, 25);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 195, 25);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 196, 23);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 211, 25);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 212, 25);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 213, 23);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 222, 36);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 223, 23);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 226, 25);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 227, 25);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 228, 23);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 247, 19);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 248, 27);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 249, 20);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 250, 20);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 260, 23);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 263, 19);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 264, 19);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 278, 23);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 279, 23);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 280, 24);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 281, 24);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 291, 27);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 294, 31);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 295, 23);
-        validateError(result, i++, "invalid invocation of a non-isolated function in a method accessing a mutable " +
-                "field of an 'isolated' object", 309, 20);
-        validateError(result, i++, "invalid invocation of a non-isolated function in a method accessing a mutable " +
-                "field of an 'isolated' object", 310, 20);
-        validateError(result, i++, "invalid invocation of a non-isolated function in a method accessing a mutable " +
-                "field of an 'isolated' object", 312, 17);
-        validateError(result, i++, "invalid invocation of a non-isolated function in a method accessing a mutable " +
-                "field of an 'isolated' object", 325, 20);
-        validateError(result, i++, "invalid invocation of a non-isolated function in a method accessing a mutable " +
-                "field of an 'isolated' object", 326, 20);
-        validateError(result, i++, "invalid invocation of a non-isolated function in a method accessing a mutable " +
-                "field of an 'isolated' object", 328, 17);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 179, 25);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 180, 25);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 181, 23);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 190, 36);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 191, 23);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 194, 25);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 195, 25);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 196, 23);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 211, 25);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 212, 25);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 213, 23);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 222, 36);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 223, 23);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 226, 25);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 227, 25);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 228, 23);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 247, 19);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 248, 27);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 249, 20);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 250, 20);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 260, 23);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 263, 19);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 264, 19);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 278, 23);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 279, 23);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 280, 24);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 281, 24);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 291, 27);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 294, 31);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 295, 23);
+        validateError(result, i++, ERROR_INVALID_NON_ISOLATED_INVOCATION_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 309, 20);
+        validateError(result, i++, ERROR_INVALID_NON_ISOLATED_INVOCATION_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 310, 20);
+        validateError(result, i++, ERROR_INVALID_NON_ISOLATED_INVOCATION_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 312, 17);
+        validateError(result, i++, ERROR_INVALID_NON_ISOLATED_INVOCATION_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 325, 20);
+        validateError(result, i++, ERROR_INVALID_NON_ISOLATED_INVOCATION_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 326, 20);
+        validateError(result, i++, ERROR_INVALID_NON_ISOLATED_INVOCATION_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 328, 17);
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 334, 5);
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 335, 5);
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 339, 5);
@@ -134,22 +134,22 @@ public class IsolatedObjectTest {
                       347, 13);
         validateError(result, i++, "invalid reference to 'self' outside a 'lock' statement in an 'isolated' object",
                       348, 9);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 374, 40);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 386, 27);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 388, 27);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 389, 22);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 390, 33);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 393, 31);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 396, 35);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 404, 35);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 374, 40);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 386, 27);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 388, 27);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 389, 22);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 390, 33);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 393, 31);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 396, 35);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 404, 35);
         validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 430, 14);
         validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 430, 17);
         validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 431, 14);
         validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 431, 18);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 431, 33);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 431, 33);
         validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 441, 14);
         validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 441, 17);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 441, 25);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 441, 25);
         validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 442, 14);
         validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 442, 17);
         Assert.assertEquals(result.getErrorCount(), i);

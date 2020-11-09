@@ -91,7 +91,8 @@ isolated function testAccessingIsolatedVariableInIsolatedFunction() {
 
     var fn = isolated function (int i) {
         lock {
-            b.push([i]);
+            int[][] clone = b.clone();
+            clone.push([i]);
         }
     };
 }
