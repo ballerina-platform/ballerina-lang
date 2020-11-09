@@ -237,9 +237,6 @@
             </class>
             <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest" />
             <class name="org.ballerinalang.test.balo.record.ClosedRecordTypeReferenceTest" />
-            <class name="org.ballerinalang.test.expressions.conversion.NativeConversionTest"/>
-            <class name="org.ballerinalang.test.record.AnonymousClosedRecordTest"/>
-            <class name="org.ballerinalang.test.query.QueryExprWithQueryConstructTypeTest"/>
 
 
             <!-- Disabled tests related to ProjectAPI change -->
