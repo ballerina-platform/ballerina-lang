@@ -116,7 +116,7 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
 
         // Add status_code_group tag
         Integer statusCode = (Integer) observerContext.getProperty(PROPERTY_KEY_HTTP_STATUS_CODE);
-        if (statusCode != null && statusCode >= 100) {
+        if (statusCode != null && statusCode > 0) {
             tags.add(Tag.of(TAG_KEY_HTTP_STATUS_CODE_GROUP, (statusCode / 100) + STATUS_CODE_GROUP_SUFFIX));
         }
 
