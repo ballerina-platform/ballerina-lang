@@ -1121,50 +1121,6 @@
                     <exclude name="testFunctionParams"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.constant.MapConstantPanicInBaloTest">
-                <methods>
-                    <exclude name="updateConstantBooleanMapValueInArrayWithExistingKey"/>
-                    <exclude name="updateConstantBooleanMapValueInArrayWithNewKey"/>
-                    <exclude name="updateConstantByteMapValueInArrayWithExistingKey"/>
-                    <exclude name="updateConstantByteMapValueInArrayWithNewKey"/>
-                    <exclude name="updateConstantDecimalMapValueInArrayWithExistingKey"/>
-                    <exclude name="updateConstantDecimalMapValueInArrayWithNewKey"/>
-                    <exclude name="updateConstantFloatMapValueInArrayWithExistingKey"/>
-                    <exclude name="updateConstantFloatMapValueInArrayWithNewKey"/>
-                    <exclude name="updateConstantIntMapValueInArrayWithExistingKey"/>
-                    <exclude name="updateConstantIntMapValueInArrayWithNewKey"/>
-                    <exclude name="updateConstantNilMapValueInArrayWithExistingKey"/>
-                    <exclude name="updateConstantNilMapValueInArrayWithNewKey"/>
-                    <exclude name="updateConstantStringMapValueInArrayWithExistingKey"/>
-                    <exclude name="updateConstantStringMapValueInArrayWithNewKey"/>
-                    <exclude name="updateNestedConstantByteMapValueWithExistingKey"/>
-                    <exclude name="updateNestedConstantByteMapValueWithNewKey"/>
-                    <exclude name="updateNestedConstantDecimalMapValueWithExistingKey"/>
-                    <exclude name="updateNestedConstantDecimalMapValueWithNewKey"/>
-                    <exclude name="updateNestedConstantFloatMapValueWithExistingKey"/>
-                    <exclude name="updateNestedConstantFloatMapValueWithNewKey"/>
-                    <exclude name="updateNestedConstantIntMapValueWithExistingKey"/>
-                    <exclude name="updateNestedConstantIntMapValueWithNewKey"/>
-                    <exclude name="updateNestedConstantNilMapValueWithExistingKey"/>
-                    <exclude name="updateNestedConstantNilMapValueWithNewKey"/>
-                    <exclude name="updateNestedConstantStringMapValueWithExistingKey"/>
-                    <exclude name="updateNestedConstantStringMapValueWithNewKey"/>
-                    <exclude name="updateReturnedConstantBooleanMap2WithNewKey"/>
-                    <exclude name="updateReturnedConstantBooleanMapWithExistingKey"/>
-                    <exclude name="updateReturnedConstantByteMap2WithNewKey"/>
-                    <exclude name="updateReturnedConstantByteMapWithExistingKey"/>
-                    <exclude name="updateReturnedConstantDecimalMap2WithNewKey"/>
-                    <exclude name="updateReturnedConstantDecimalMapWithExistingKey"/>
-                    <exclude name="updateReturnedConstantFloatMap2WithNewKey"/>
-                    <exclude name="updateReturnedConstantFloatMapWithExistingKey"/>
-                    <exclude name="updateReturnedConstantIntMap2WithNewKey"/>
-                    <exclude name="updateReturnedConstantIntMapWithExistingKey"/>
-                    <exclude name="updateReturnedConstantNilMap2WithNewKey"/>
-                    <exclude name="updateReturnedConstantNilMapWithExistingKey"/>
-                    <exclude name="updateReturnedConstantStringMap2WithNewKey"/>
-                    <exclude name="updateReturnedConstantStringMapWithExistingKey"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest">
                 <methods>
                     <exclude name="testCreatingRecordWithOverriddenFields"/>
