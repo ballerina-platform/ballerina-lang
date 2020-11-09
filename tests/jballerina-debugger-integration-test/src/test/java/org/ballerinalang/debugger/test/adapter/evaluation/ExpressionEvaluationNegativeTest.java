@@ -225,7 +225,12 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void logicalEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // Logical AND
+        assertEvaluationError(context, String.format("%s && %s", INT_VAR, STRING_VAR), "operator '&&' not defined for "
+                + "'int' and 'string'.");
+        // Logical OR
+        assertEvaluationError(context, String.format("%s || %s", INT_VAR, STRING_VAR), "operator '||' not defined for "
+                + "'int' and 'string'.");
     }
 
     @Override

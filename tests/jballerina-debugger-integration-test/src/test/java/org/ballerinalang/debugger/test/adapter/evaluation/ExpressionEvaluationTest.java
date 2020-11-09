@@ -540,7 +540,10 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void logicalEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // logical AND
+        assertExpression(context, String.format("%s && false", BOOLEAN_VAR), "false", "boolean");
+        // logical OR
+        assertExpression(context, String.format("%s || false", BOOLEAN_VAR), "true", "boolean");
     }
 
     @Override

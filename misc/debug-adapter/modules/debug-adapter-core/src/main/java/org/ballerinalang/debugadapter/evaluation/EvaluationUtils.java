@@ -74,6 +74,8 @@ public class EvaluationUtils {
     public static final String B_LEFT_SHIFT_METHOD = "leftShift";
     public static final String B_SIGNED_RIGHT_SHIFT_METHOD = "signedRightShift";
     public static final String B_UNSIGNED_RIGHT_SHIFT_METHOD = "unsignedRightShift";
+    public static final String B_LOGICAL_AND_METHOD = "logicalAND";
+    public static final String B_LOGICAL_OR_METHOD = "logicalOR";
     public static final String GET_TYPEDESC_METHOD = "getTypedesc";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String REF_EQUAL_METHOD = "isReferenceEqual";

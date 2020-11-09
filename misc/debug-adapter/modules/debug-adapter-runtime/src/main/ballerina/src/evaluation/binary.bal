@@ -274,6 +274,26 @@ function unsignedRightShift(any lhs, any rhs) returns int|error {
     return result;
 }
 
+function logicalOR(any lhs, any rhs) returns boolean|error {
+    boolean|error result;
+    if (lhs is boolean && rhs is boolean) {
+        result = lhs || rhs;
+    } else {
+        result = error("operator '||' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
+    }
+    return result;
+}
+
+function logicalAND(any lhs, any rhs) returns boolean|error {
+    boolean|error result;
+    if (lhs is boolean && rhs is boolean) {
+        result = lhs && rhs;
+    } else {
+        result = error("operator '&&' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
+    }
+    return result;
+}
+
 function getType(any value) returns string|error {
     var result = trap (typeof value);
     if(result is typedesc) {

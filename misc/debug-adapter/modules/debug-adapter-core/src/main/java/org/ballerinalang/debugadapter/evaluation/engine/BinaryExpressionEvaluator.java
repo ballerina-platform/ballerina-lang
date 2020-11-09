@@ -40,6 +40,8 @@ import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_DIV_ME
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_GT_EQUALS_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_GT_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_LEFT_SHIFT_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_LOGICAL_AND_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_LOGICAL_OR_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_LT_EQUALS_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_LT_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_MOD_METHOD;
@@ -126,9 +128,8 @@ public class BinaryExpressionEvaluator extends Evaluator {
             case TRIPPLE_GT_TOKEN:
                 return performBitwiseOperation(lVar, rVar, operatorType);
             case LOGICAL_AND_TOKEN:
-                return logicalAND(lVar, rVar);
             case LOGICAL_OR_TOKEN:
-                return logicalOR(lVar, rVar);
+                return performLogicalOperation(lVar, rVar, operatorType);
             case ELVIS_TOKEN:
                 return conditionalReturn(lVar, rVar);
             case DOUBLE_EQUAL_TOKEN:
@@ -256,28 +257,26 @@ public class BinaryExpressionEvaluator extends Evaluator {
         return new BExpressionValue(context, result);
     }
 
-    /**
-     * Performs logical AND operation on the given ballerina variable values and returns the result.
-     */
-    private BExpressionValue logicalAND(BVariable lVar, BVariable rVar) throws EvaluationException {
-        if (lVar.getBType() == BVariableType.BOOLEAN && rVar.getBType() == BVariableType.BOOLEAN) {
-            return !Boolean.parseBoolean(lVar.computeValue()) ? EvaluationUtils.make(context, false)
-                    : EvaluationUtils.make(context, Boolean.parseBoolean(rVar.computeValue()));
-        } else {
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.LOGICAL_AND_TOKEN);
-        }
-    }
+    private BExpressionValue performLogicalOperation(BVariable lVar, BVariable rVar, SyntaxKind operator)
+            throws EvaluationException {
+        List<Value> argList = new ArrayList<>();
+        argList.add(getValueAsObject(context, lVar));
+        argList.add(getValueAsObject(context, rVar));
 
-    /**
-     * Performs logical OR operation on the given ballerina variable values and returns the result.
-     */
-    private BExpressionValue logicalOR(BVariable lVar, BVariable rVar) throws EvaluationException {
-        if (lVar.getBType() == BVariableType.BOOLEAN && rVar.getBType() == BVariableType.BOOLEAN) {
-            return Boolean.parseBoolean(lVar.computeValue()) ? EvaluationUtils.make(context, true)
-                    : EvaluationUtils.make(context, Boolean.parseBoolean(rVar.computeValue()));
-        } else {
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.LOGICAL_OR_TOKEN);
+        GeneratedStaticMethod genMethod;
+        switch (operator) {
+            case LOGICAL_AND_TOKEN:
+                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_LOGICAL_AND_METHOD);
+                break;
+            case LOGICAL_OR_TOKEN:
+                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_LOGICAL_OR_METHOD);
+                break;
+            default:
+                throw createUnsupportedOperationException(lVar, rVar, operator);
         }
+        genMethod.setArgValues(argList);
+        Value result = genMethod.invoke();
+        return new BExpressionValue(context, result);
     }
 
     /**
