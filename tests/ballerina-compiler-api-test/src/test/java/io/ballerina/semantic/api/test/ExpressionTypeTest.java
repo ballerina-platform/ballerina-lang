@@ -169,10 +169,7 @@ public class ExpressionTypeTest {
     @Test
     public void testInferredMappingConstructorType() {
         TypeSymbol type = getExprType(35, 13, 35, 43);
-        assertEquals(type.typeKind(), TYPE_REFERENCE);
-
-        TypeSymbol referredType = ((TypeReferenceTypeSymbol) type).typeDescriptor();
-        assertEquals(referredType.typeKind(), RECORD);
+        assertEquals(type.typeKind(), RECORD);
 
         assertType(35, 14, 35, 20, STRING);
         assertType(35, 22, 35, 31, STRING);
@@ -303,6 +300,10 @@ public class ExpressionTypeTest {
         };
     }
 
+    @Test
+    public void testInferredRecordTypeForInvalidExprs() {
+        assertType(97, 5, 97, 20, RECORD);
+    }
 
     private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
         TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);

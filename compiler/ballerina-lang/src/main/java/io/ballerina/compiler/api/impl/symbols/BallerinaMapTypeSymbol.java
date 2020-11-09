@@ -17,7 +17,6 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -52,6 +51,6 @@ public class BallerinaMapTypeSymbol extends AbstractTypeSymbol implements MapTyp
     @Override
     public String signature() {
         Optional<TypeSymbol> memberTypeDescriptor = this.typeParameter();
-        return memberTypeDescriptor.map(typeDescriptor -> "map<" + typeDescriptor.signature() + ">").orElse("map<>");
+        return memberTypeDescriptor.map(typeDescriptor -> "map<" + typeDescriptor.signature() + ">").orElse("map");
     }
 }

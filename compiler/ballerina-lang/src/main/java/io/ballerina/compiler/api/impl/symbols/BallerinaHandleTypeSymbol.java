@@ -14,39 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.symbols.SimpleTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import io.ballerina.compiler.api.symbols.HandleTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
- * Represents the built-in simple type descriptor.
+ * Represents the handle type descriptor.
  *
  * @since 2.0.0
  */
-public class BallerinaSimpleTypeSymbol extends AbstractTypeSymbol implements SimpleTypeSymbol {
+public class BallerinaHandleTypeSymbol extends AbstractTypeSymbol implements HandleTypeSymbol {
 
-    private final String typeName;
-
-    public BallerinaSimpleTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType) {
-        super(context, TypesFactory.getTypeDescKind(bType.getKind()), moduleID, bType);
-        this.typeName = bType.getKind().typeName();
-    }
-
-    public BallerinaSimpleTypeSymbol(CompilerContext context, ModuleID moduleID, String name, BType bType) {
-        super(context, TypesFactory.getTypeDescKind(bType.getKind()), moduleID, bType);
-        this.typeName = name;
-    }
-
-    @Override
-    public String name() {
-        return this.typeName;
+    public BallerinaHandleTypeSymbol(CompilerContext context, ModuleID moduleID, BHandleType handleType) {
+        super(context, TypeDescKind.HANDLE, moduleID, handleType);
     }
 
     @Override
     public String signature() {
-        return this.typeName;
+        return "handle";
     }
 }
