@@ -49,7 +49,7 @@ public class OpenRecordTypeReferenceTest {
 
     @BeforeClass
     public void setup() {
-//        BCompileUtil.compile("test-src/balo/test_projects/test_project", "testorg", "records");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_records");
         compileResult = BCompileUtil.compile("test-src/record/open_record_type_reference.bal");
     }
 
