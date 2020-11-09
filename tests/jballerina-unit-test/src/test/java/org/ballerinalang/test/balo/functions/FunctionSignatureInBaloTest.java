@@ -46,8 +46,8 @@ public class FunctionSignatureInBaloTest {
     private CompileResult resultNegative;
 
     @BeforeClass
-    public void setup() throws IOException {
-        //        BCompileUtil.compile("test-src/balo/test_projects/test_project", "testorg", "foo");
+    public void setup() {
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project");
         result = BCompileUtil.compile("test-src/balo/test_balo/functions/test_different_function_signatures.bal");
         resultNegative = BCompileUtil
                 .compile("test-src/balo/test_balo/functions/test_different_function_signatures_negative.bal");
