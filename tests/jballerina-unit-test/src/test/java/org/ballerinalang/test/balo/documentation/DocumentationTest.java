@@ -41,7 +41,7 @@ public class DocumentationTest {
 
     @BeforeClass
     public void setup() {
-//        BCompileUtil.compile("test-src/balo/test_projects/test_documentation", "testDocOrg", "test");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_documentation/testdocorg");
         CompileResult result = BCompileUtil.compile("test-src/balo/test_balo/documentation/test_documentation.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
         symbol = ((BLangPackage) result.getAST()).symbol;
@@ -49,7 +49,7 @@ public class DocumentationTest {
 
     @Test(description = "Test Doc attachments in Balo.")
     public void testDocAttachmentBalo() {
-        BPackageSymbol testOrgPackage = (BPackageSymbol) symbol.scope.lookup(new Name("test")).symbol;
+        BPackageSymbol testOrgPackage = (BPackageSymbol) symbol.scope.lookup(new Name("test_documentation")).symbol;
         BSymbol functionSymbol = testOrgPackage.scope.lookup(new Name("open")).symbol;
 
         Assert.assertNotNull(functionSymbol.markdownDocumentation);
@@ -102,7 +102,7 @@ public class DocumentationTest {
 
     @Test(description = "Test doc attachments in annotations")
     public void testAnnotationDoc() {
-        BPackageSymbol testOrgPackage = (BPackageSymbol) symbol.scope.lookup(new Name("test")).symbol;
+        BPackageSymbol testOrgPackage = (BPackageSymbol) symbol.scope.lookup(new Name("test_documentation")).symbol;
         BSymbol annotationSymbol = testOrgPackage.scope.lookup(new Name("Test")).symbol;
 
         MarkdownDocAttachment markdownDocumentation = annotationSymbol.markdownDocumentation;

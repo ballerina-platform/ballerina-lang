@@ -1,5 +1,6 @@
 
-import c.d;
+//import c.d;
+import testproj.d;
 
 public function testInvokePkgFunctionInMixOrder() returns [int, float, string, int, string, int[]] {
     return d:functionWithAllTypesParams(e="Bob", a=10, d=30, c="Alex", b=20.0);

@@ -49,7 +49,7 @@ public class ClosedRecordTypeReferenceTest {
 
     @BeforeClass
     public void setup() {
-//        BCompileUtil.compile("test-src/balo/test_projects/test_project", "testorg", "records");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project/testorg");
         compileResult = BCompileUtil.compile("test-src/record/closed_record_type_reference.bal");
     }
 

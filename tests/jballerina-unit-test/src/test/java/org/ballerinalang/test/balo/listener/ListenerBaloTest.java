@@ -36,7 +36,7 @@ public class ListenerBaloTest {
 
     @BeforeClass
     public void setup() {
-//        BCompileUtil.compile("test-src/balo/test_projects/test_listener", "listenerProject", "bee");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_listener/listenerproject");
         compileResult = BCompileUtil.compile("test-src/balo/test_balo/listener/external_listener_access.bal");
     }
 

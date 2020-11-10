@@ -257,26 +257,6 @@
 <!--                    <exclude name="testRemoteObject"/>-->
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.constant.SimpleConstantAccessInBaloTest">
-                <methods>
-                    <exclude name="testAccessConstantWithType"/>
-                    <exclude name="testAccessConstantWithoutType"/>
-                    <exclude name="testAccessConstantWithoutTypeAsString"/>
-                    <exclude name="testAccessFiniteType"/>
-                    <exclude name="testAccessTypeWithContInDef"/>
-                    <exclude name="testBooleanTypeWithType"/>
-                    <exclude name="testBooleanTypeWithoutType"/>
-                    <exclude name="testByteTypeWithType"/>
-                    <exclude name="testDecimalTypeWithType"/>
-                    <exclude name="testFloatTypeWithType"/>
-                    <exclude name="testFloatTypeWithoutType"/>
-                    <exclude name="testIntTypeWithType"/>
-                    <exclude name="testIntTypeWithoutType"/>
-                    <exclude name="testReturnFiniteType"/>
-                    <exclude name="testStringTypeWithType"/>
-                    <exclude name="testStringTypeWithoutType"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.worker.WorkerSyncSendTest">
                 <methods>
                     <exclude name="basicSyncSendTest"/>
@@ -316,81 +296,6 @@
                     <exclude name="testVoidWithThrows"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.functions.FunctionSignatureTest">
-                <methods>
-                    <exclude name="defaultValueForObjectFunctionParam"/>
-                    <exclude name="funcInvocAsRestArgs"/>
-                    <exclude name="testAttachedFunction"/>
-                    <exclude name="testFuncWithNilDefaultParamExpr"/>
-                    <exclude name="testFuncWithUnionTypedDefaultParam"/>
-                    <exclude name="testFunctionWithFunctionTypedParamWithOnlyRestParam1"/>
-                    <exclude name="testFunctionWithFunctionTypedParamWithOnlyRestParam2"/>
-                    <exclude name="testInvokeFuncWithAnyRestParam1"/>
-                    <exclude name="testInvokeFuncWithOnlyNamedParams1"/>
-                    <exclude name="testInvokeFuncWithOnlyNamedParams2"/>
-                    <exclude name="testInvokeFuncWithOnlyNamedParams3"/>
-                    <exclude name="testInvokeFuncWithOnlyRestParam1"/>
-                    <exclude name="testInvokeFuncWithOnlyRestParam2"/>
-                    <exclude name="testInvokeFuncWithOnlyRestParam3"/>
-                    <exclude name="testInvokeFuncWithoutRestParamsAndMissingDefaultableParam"/>
-                    <exclude name="testInvokeFunctionInMixOrder1"/>
-                    <exclude name="testInvokeFunctionInMixOrder2"/>
-                    <exclude name="testInvokeFunctionInOrder1"/>
-                    <exclude name="testInvokeFunctionInOrder2"/>
-                    <exclude name="testInvokeFunctionWithAllParamsAndRestArgs"/>
-                    <exclude name="testInvokeFunctionWithRequiredArgsOnly"/>
-                    <exclude name="testInvokeFunctionWithoutSomeNamedArgs"/>
-                    <exclude name="testInvokePkgFunctionInMixOrder"/>
-                    <exclude name="testInvokePkgFunctionInOrderWithRestParams"/>
-                    <exclude name="testInvokePkgFunctionWithRequiredArgsOnly"/>
-                    <exclude name="testOptionalArgsInNativeFunc"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.types.FiniteTypeTest">
-                <methods>
-                    <exclude name="finiteAssignmentIntArrayType"/>
-                    <exclude name="finiteAssignmentIntSetType"/>
-                    <exclude name="finiteAssignmentNumberSetType"/>
-                    <exclude name="finiteAssignmentRefValueType"/>
-                    <exclude name="finiteAssignmentRefValueTypeCaseTwo"/>
-                    <exclude name="finiteAssignmentStateSameTypeComparison"/>
-                    <exclude name="finiteAssignmentStateSameTypeComparisonCaseTwo"/>
-                    <exclude name="finiteAssignmentStateType"/>
-                    <exclude name="finiteAssignmentStringOrIntSetType"/>
-                    <exclude name="finiteAssignmentStringOrIntSetTypeCaseTwo"/>
-                    <exclude name="testByteTypeDefinitionWithVarArgs"/>
-                    <exclude name="testFiniteAssignmentByteType"/>
-                    <exclude name="testFiniteTypeAssignmentToBroaderType"/>
-                    <exclude name="testFiniteTypeAssignmentToBroaderType"/>
-                    <exclude name="testFiniteTypeAssignmentToBroaderType"/>
-                    <exclude name="testFiniteTypeAssignmentToBroaderType"/>
-                    <exclude name="testFiniteTypeAssignmentToBroaderType"/>
-                    <exclude name="testFiniteTypeAssignmentToBroaderType"/>
-                    <exclude name="testFiniteTypeAssignmentToBroaderType"/>
-                    <exclude name="testFiniteTypeAssignmentToBroaderType"/>
-                    <exclude name="testFiniteTypeAssignmentToBroaderType"/>
-                    <exclude name="testFiniteTypeAssignmentToBroaderType"/>
-                    <exclude name="testFiniteTypeWithMatch"/>
-                    <exclude name="testFiniteTypesWithDefaultValues"/>
-                    <exclude name="testFiniteTypesWithTuple"/>
-                    <exclude name="testFiniteTypesWithUnion"/>
-                    <exclude name="testFiniteTypesWithUnionCaseOne"/>
-                    <exclude name="testFiniteTypesWithUnionCaseThree"/>
-                    <exclude name="testFiniteTypesWithUnionCaseTwo"/>
-                    <exclude name="testTypeAliasing"/>
-                    <exclude name="testTypeAliasingCaseOne"/>
-                    <exclude name="testTypeDefWithFunctions"/>
-                    <exclude name="testTypeDefWithFunctions2"/>
-                    <exclude name="testTypeDefinitionWithArray"/>
-                    <exclude name="testTypeDefinitionWithByteArray"/>
-                    <exclude name="testTypeDefinitionWithVarArgs"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.object.DistinctObjectTest">
-                <methods>
-                    <exclude name="testDistinctObjectAssignability"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.javainterop.basic.StaticMethodTest">
                 <methods>
                     <exclude name="testAcceptNothingAndReturnNothing"/>
@@ -412,11 +317,6 @@
                     <exclude name="testStringParamAndReturn"/>
                     <exclude name="testTupleReturn"/>
                     <exclude name="testUsingParamValues"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.listener.ListenerBaloTest">
-                <methods>
-                    <exclude name="testBasicStructAsObject"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.action.start.StartActionTest">
@@ -628,12 +528,6 @@
                     <exclude name="testTupleConversion2"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.documentation.DocumentationTest">
-                <methods>
-                    <exclude name="testAnnotationDoc"/>
-                    <exclude name="testDocAttachmentBalo"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.worker.WaitForAnyActionsTest">
                 <methods>
                     <exclude name="waitTest1"/>
@@ -672,72 +566,6 @@
                     <exclude name="workerCancelledBeforeSend"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.record.ClosedRecordTypeReferenceTest">
-                <methods>
-                    <exclude name="testDefaultValueInit"/>
-                    <exclude name="testDefaultValueInitInBALOs"/>
-                    <exclude name="testOrdering"/>
-                    <exclude name="testRefTypes"/>
-                    <exclude name="testReferenceChains"/>
-                    <exclude name="testTypeReferencingInBALOs"/>
-                    <exclude name="testValRefType"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.constant.SimpleConstantInBaloTest">
-                <methods>
-                    <exclude name="testBooleanConstInTuple"/>
-                    <exclude name="testBooleanConstInUnion"/>
-                    <exclude name="testBooleanWithType"/>
-                    <exclude name="testBooleanWithoutType"/>
-                    <exclude name="testBuiltinFunctionInvocation"/>
-                    <exclude name="testBuiltinFunctionInvocationOnArrayElement"/>
-                    <exclude name="testBuiltinFunctionInvocationOnField"/>
-                    <exclude name="testByteConstInTuple"/>
-                    <exclude name="testByteConstInUnion"/>
-                    <exclude name="testByteWithType"/>
-                    <exclude name="testConstAndTypeComparison"/>
-                    <exclude name="testConstInJsonKey"/>
-                    <exclude name="testConstInJsonValue"/>
-                    <exclude name="testConstInMapKey"/>
-                    <exclude name="testConstInMapValue"/>
-                    <exclude name="testConstInRecord"/>
-                    <exclude name="testConstWithTypeAsParam"/>
-                    <exclude name="testConstWithTypeAssignmentToGlobalVariable"/>
-                    <exclude name="testConstWithTypeAssignmentToLocalVariable"/>
-                    <exclude name="testConstWithTypeAssignmentToType"/>
-                    <exclude name="testConstWithTypeConcat"/>
-                    <exclude name="testConstWithTypeInCondition"/>
-                    <exclude name="testConstWithTypeInReturn"/>
-                    <exclude name="testConstWithoutTypeAsParam"/>
-                    <exclude name="testConstWithoutTypeAssignmentToGlobalVariable"/>
-                    <exclude name="testConstWithoutTypeAssignmentToLocalVariable"/>
-                    <exclude name="testConstWithoutTypeAssignmentToType"/>
-                    <exclude name="testConstWithoutTypeConcat"/>
-                    <exclude name="testConstWithoutTypeInCondition"/>
-                    <exclude name="testConstWithoutTypeInReturn"/>
-                    <exclude name="testDecimalWithType"/>
-                    <exclude name="testEqualityWithConstWithType"/>
-                    <exclude name="testFloatAsFiniteType"/>
-                    <exclude name="testFloatConstInTuple"/>
-                    <exclude name="testFloatConstInUnion"/>
-                    <exclude name="testFloatWithType"/>
-                    <exclude name="testFloatWithoutType"/>
-                    <exclude name="testIntConstInTuple"/>
-                    <exclude name="testIntConstInUnion"/>
-                    <exclude name="testIntWithType"/>
-                    <exclude name="testIntWithoutType"/>
-                    <exclude name="testLabeling"/>
-                    <exclude name="testNilWithType"/>
-                    <exclude name="testNilWithoutType"/>
-                    <exclude name="testProperSubset"/>
-                    <exclude name="testStringConstInTuple"/>
-                    <exclude name="testStringConstInUnion"/>
-                    <exclude name="testStringWithType"/>
-                    <exclude name="testStringWithoutType"/>
-                    <exclude name="testTypeConstAsParam"/>
-                    <exclude name="testTypeConstants"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.documentation.FieldLevelDocsTest">
                 <methods>
                     <exclude name="testObjWithModuleLevelAndFieldLevelFieldDocs"/>
@@ -748,11 +576,6 @@
                     <exclude name="testRecordWithFieldLevelFieldDocs"/>
                     <exclude name="testRecordWithModuleLevelAndFieldLevelFieldDocs"/>
                     <exclude name="testRecordWithModuleLevelFieldDocs"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.listener.ListenerBaloTestExtPackage">
-                <methods>
-                    <exclude name="testListenerObjectDefinedInDifferentPackage"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.types.constant.ConstantAssignmentTest">
