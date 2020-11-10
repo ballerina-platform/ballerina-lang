@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -55,7 +56,7 @@ public class Filter {
         Type newConstraint;
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
-                BMapType type = (BMapType) mapType;
+                MapType type = (MapType) mapType;
                 newConstraint = type.getConstrainedType();
                 break;
             case TypeTags.RECORD_TYPE_TAG:

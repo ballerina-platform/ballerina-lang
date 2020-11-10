@@ -19,7 +19,9 @@
 package org.ballerinalang.langlib.table;
 
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
@@ -49,7 +51,7 @@ public class Filter {
                                                                       TABLE_VERSION, "filter");
 
     public static BTable filter(BTable tbl, BFunctionPointer<Object, Boolean> func) {
-        BTableType newTableType = (BTableType) tbl.getType();
+        TableType newTableType = (TableType) tbl.getType();
         BTable newTable =
                 ValueCreator.createTableValue(TypeCreator.createTableType(newTableType.getConstrainedType(),
                         newTableType.getFieldNames(), false));
