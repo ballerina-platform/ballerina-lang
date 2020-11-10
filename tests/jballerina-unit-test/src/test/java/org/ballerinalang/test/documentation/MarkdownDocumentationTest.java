@@ -18,7 +18,6 @@
 
 package org.ballerinalang.test.documentation;
 
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.ClassDefinition;
 import org.ballerinalang.model.tree.DocumentationReferenceType;
 import org.ballerinalang.model.tree.PackageNode;

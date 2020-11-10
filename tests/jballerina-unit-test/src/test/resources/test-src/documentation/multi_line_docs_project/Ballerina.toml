@@ -1,3 +1,4 @@
-[project]
-org-name="test_org"
-version="1.0.0"
+[package]
+org = "test_org"
+name = "multi_line_docs_project"
+version = "1.0.0"

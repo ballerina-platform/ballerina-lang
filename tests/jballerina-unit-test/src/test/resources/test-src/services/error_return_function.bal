@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/java;
-import ballerina/test;
 import ballerina/lang.'object as lang;
 
 public class Listener {
@@ -47,9 +46,9 @@ error diff = error("A different error");
 service hello on lsn {
     resource function processRequest() returns error? {
         error? aDifferentError = createADifferentError();
-        test:assertEquals(diff, aDifferentError);
+        assertEquals(diff, aDifferentError);
         error? anotherErr = self.createError();
-        test:assertEquals(err, anotherErr);
+        assertEquals(err, anotherErr);
     }
 
     function createError() returns @tainted error? {
@@ -71,4 +70,12 @@ public function testErrorFunction() {
     if(err is error) {
         panic err;
     }
+}
+
+function assertEquals(anydata|error expected, anydata|error actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

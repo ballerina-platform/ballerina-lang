@@ -18,30 +18,18 @@
 package org.ballerinalang.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageDescriptor;
-import io.ballerina.projects.PackageId;
-import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.model.tree.PackageNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * Projects based test compilation result.
@@ -52,23 +40,18 @@ public class CompileResult {
 
     private final Package pkg;
     private final PackageCompilation packageCompilation;
-    private final Path targetPath;
 
-    private URLClassLoader classLoader;
+    private ClassLoader classLoader;
+    private final JBallerinaBackend jBallerinaBackend;
+    private final DiagnosticResult diagnosticResult;
     private final Diagnostic[] diagnostics;
-    private int errorCount = 0;
-    private int warnCount = 0;
 
-    public CompileResult(Package pkg, List<Diagnostic> diagnostics) {
-        this(pkg, diagnostics, null);
-    }
-
-    public CompileResult(Package pkg, List<Diagnostic> diagnostics, Path targetPath) {
+    public CompileResult(Package pkg, JBallerinaBackend jBallerinaBackend) {
         this.pkg = pkg;
         this.packageCompilation = pkg.getCompilation();
-        this.targetPath = targetPath;
-        this.diagnostics = diagnostics.toArray(new Diagnostic[0]);
-        populateDiagnosticsCount(this.diagnostics);
+        this.jBallerinaBackend = jBallerinaBackend;
+        this.diagnosticResult = jBallerinaBackend.diagnosticResult();
+        this.diagnostics = diagnosticResult.diagnostics().toArray(new Diagnostic[0]);
     }
 
     Path projectSourceRoot() {
@@ -88,15 +71,12 @@ public class CompileResult {
         return packageCompilation.getSemanticModel(module.moduleId());
     }
 
-    public URLClassLoader getClassLoader() {
-        if (classLoader == null) {
-            try {
-                this.classLoader = jarCacheClassLoader();
-            } catch (IOException e) {
-                throw new BLangRuntimeException("Error while creating class loader for compiled jar entries", e);
-            }
+    public ClassLoader getClassLoader() {
+        if (classLoader != null) {
+            return classLoader;
         }
-        return this.classLoader;
+        classLoader = jBallerinaBackend.jarResolver().getClassLoaderWithRequiredJarFilesForExecution();
+        return classLoader;
     }
 
     public Diagnostic[] getDiagnostics() {
@@ -104,11 +84,11 @@ public class CompileResult {
     }
 
     public int getErrorCount() {
-        return this.errorCount;
+        return diagnosticResult.errorCount();
     }
 
     public int getWarnCount() {
-        return this.warnCount;
+        return diagnosticResult.warningCount();
     }
 
     BIRNode.BIRPackage defaultModuleBIR() {
@@ -117,75 +97,5 @@ public class CompileResult {
 
     PackageDescriptor packageDescriptor() {
         return this.pkg.packageDescriptor();
-    }
-
-    private void addClasspathEntries(Path jarFilePath, List<URL> jarFiles) throws IOException {
-
-        if (!Files.exists(jarFilePath)) {
-            return;
-        }
-
-        if (Files.isRegularFile(jarFilePath) &&
-                jarFilePath.toString().endsWith(BLANG_COMPILED_JAR_EXT)) {
-            jarFiles.add(jarFilePath.normalize().toUri().toURL());
-            return;
-        }
-
-        Files.walk(jarFilePath)
-                .filter(filePath -> Files.isRegularFile(filePath) &&
-                        filePath.toString().endsWith(BLANG_COMPILED_JAR_EXT))
-                .forEach(filePath -> {
-                    try {
-                        jarFiles.add(filePath.normalize().toUri().toURL());
-                    } catch (MalformedURLException e) {
-                        throw new BLangRuntimeException("Error while adding classpath libraries from :" +
-                                jarFilePath.toString(), e);
-                    }
-                });
-
-    }
-
-    private URLClassLoader jarCacheClassLoader() throws IOException {
-        List<URL> jarFiles = new ArrayList<>();
-
-        Path distCachePath = Paths.get(System.getProperty(ProjectConstants.BALLERINA_HOME))
-                .resolve(ProjectConstants.DIST_CACHE_DIRECTORY);
-
-        List<PackageId> sortedPackageIds = packageCompilation.packageDependencyGraph().toTopologicallySortedList();
-        PackageResolver packageResolver = pkg.project().projectEnvironmentContext().getService(PackageResolver.class);
-
-        // Add the thin jars of all the dependent packages to the classpath
-        for (PackageId packageId : sortedPackageIds) {
-            Package dependentPkg = packageResolver.getPackage(packageId);
-
-            if (dependentPkg.packageDescriptor().org().anonymous()) {
-                continue;
-            }
-
-            Path pkgJarPath = distCachePath.resolve("cache")
-                    .resolve(dependentPkg.packageOrg().toString())
-                    .resolve(dependentPkg.packageName().value())
-                    .resolve(dependentPkg.packageVersion().version().toString())
-                    .resolve("jar");
-            addClasspathEntries(pkgJarPath, jarFiles);
-        }
-
-        addClasspathEntries(targetPath, jarFiles);
-        URL[] urls = new URL[jarFiles.size()];
-        urls = jarFiles.toArray(urls);
-        return new URLClassLoader(urls);
-    }
-
-    private void populateDiagnosticsCount(Diagnostic[] diagnostics) {
-        for (Diagnostic diagnostic : diagnostics) {
-            switch (diagnostic.diagnosticInfo().severity()) {
-                case WARNING:
-                    warnCount++;
-                    break;
-                case ERROR:
-                    errorCount++;
-                    break;
-            }
-        }
     }
 }

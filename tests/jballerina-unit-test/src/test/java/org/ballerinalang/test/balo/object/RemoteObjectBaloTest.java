@@ -37,7 +37,7 @@ public class RemoteObjectBaloTest {
 
     @BeforeClass
     public void setup() {
-        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project/testorg/foo");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project");
         compileResult = BCompileUtil.compile("test-src/balo/test_balo/object/test_client_objects.bal");
     }
 

@@ -46,7 +46,7 @@ public class FunctionSignatureTest {
     public void setup() {
         result = BCompileUtil.compile("test-src/functions/different-function-signatures.bal");
 //        pkgResult = BCompileUtil.compile("test-src/functions/TestProj", "a.b");
-        pkgResult = BCompileUtil.compile("test-src/functions/TestProj/a.b");
+        pkgResult = BCompileUtil.compile("test-src/functions/testproj");
     }
 
     @Test
@@ -383,7 +383,7 @@ public class FunctionSignatureTest {
     @Test()
     public void testOptionalArgsInNativeFunc() {
 //        CompileResult result = BCompileUtil.compile("test-src/functions/TestProj", "foo.bar");
-        CompileResult result = BCompileUtil.compile("test-src/functions/TestProj/foo.bar");
+        CompileResult result = BCompileUtil.compile("test-src/functions/testproj/foo.bar");
         BValue[] returns = BRunUtil.invoke(result, "testOptionalArgsInNativeFunc");
 
         Assert.assertTrue(returns[0] instanceof BInteger);

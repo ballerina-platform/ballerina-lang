@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.test.statements.comment;
 
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;

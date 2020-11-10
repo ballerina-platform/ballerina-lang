@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
+import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -49,7 +50,7 @@ public class PackageCompilation {
 
     private final DependencyGraph<PackageId> dependencyGraph;
     private final List<ModuleContext> sortedModuleContextList;
-    private List<Diagnostic> diagnostics;
+    private DiagnosticResult diagnosticResult;
 
     private boolean compiled;
 
@@ -111,12 +112,12 @@ public class PackageCompilation {
     }
 
     private void compile() {
-        diagnostics = new ArrayList<>();
+        List<Diagnostic> diagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : sortedModuleContextList) {
             moduleContext.compile(compilerContext);
             diagnostics.addAll(moduleContext.diagnostics());
         }
-        diagnostics = Collections.unmodifiableList(diagnostics);
+        diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         compiled = true;
     }
 
@@ -128,16 +129,12 @@ public class PackageCompilation {
         return this.dependencyGraph;
     }
 
-    public List<Diagnostic> diagnostics() {
+    public DiagnosticResult diagnosticResult() {
         // TODO think about parallel invocations of this method
         if (!compiled) {
             compile();
         }
-        return diagnostics;
-    }
-
-    public boolean hasDiagnostics() {
-        return !diagnostics().isEmpty();
+        return diagnosticResult;
     }
 
     public SemanticModel getSemanticModel(ModuleId moduleId) {
