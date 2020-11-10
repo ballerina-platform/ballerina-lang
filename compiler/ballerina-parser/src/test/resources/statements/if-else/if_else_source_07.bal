@@ -4,7 +4,7 @@ public function foo() {
     } else if b {
         if (x) {
 
-        } else  y {
+        } else y {
 
         }
     } else if (c) {
