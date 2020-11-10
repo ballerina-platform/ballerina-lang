@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
-import io.ballerina.runtime.IdentifierUtils;
+import io.ballerina.runtime.internal.IdentifierUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;

@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.runtime.IdentifierUtils;
+import io.ballerina.runtime.internal.IdentifierUtils;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
