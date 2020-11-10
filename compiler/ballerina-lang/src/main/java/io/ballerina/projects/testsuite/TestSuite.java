@@ -17,12 +17,8 @@
  */
 package io.ballerina.projects.testsuite;
 
-
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -37,6 +33,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 2.0.0
  */
 public class TestSuite implements Serializable {
+
+    private static final long serialVersionUID = 42L;
 
     private String orgName;
     private String version;

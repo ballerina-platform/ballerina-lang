@@ -110,14 +110,6 @@ public class RunExecutableTask implements Task {
         StringJoiner cp = new StringJoiner(File.pathSeparator);
         jarResolver.getJarFilePathsRequiredForExecution().stream().map(Path::toString).forEach(cp::add);
         return cp.toString();
-
-        // Adds bre/lib/* to the class-path since we need to have ballerina runtime related dependencies
-        // when running single bal files
-        //TODO: remove this and create an issue to track
-//        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-//            cp.add(getBalHomePath() + "/bre/lib/*");
-//        }
-
     }
 }
 

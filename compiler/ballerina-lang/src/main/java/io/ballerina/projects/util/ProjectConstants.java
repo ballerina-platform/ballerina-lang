@@ -77,7 +77,6 @@ public class ProjectConstants {
     // Constants related to file system repo
     public static final String REPO_BALO_DIR_NAME = TARGET_BALO_DIR_NAME;
     public static final String REPO_CACHE_DIR_NAME = "cache";
-    public static final String REPO_JAR_CACHE_NAME = "java11";
     public static final String REPO_BIR_CACHE_NAME = "bir";
 
     // Test framework related constants

@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 /**
  * Task for listing groups defined in tests.
  *
- * @since 1.1.2
+ * @since 2.0.0
  */
 public class ListTestGroupsTask implements Task {
 

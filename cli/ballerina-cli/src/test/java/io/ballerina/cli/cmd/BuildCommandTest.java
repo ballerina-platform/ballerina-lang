@@ -236,6 +236,10 @@ public class BuildCommandTest extends BaseCommandTest {
                 "Creating balos\n" +
                 "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
                 "\n" +
+                "Running Tests\n\n" +
+                "\twinery\n" +
+                "\tNo tests found\n" +
+                "\n" +
                 "Generating executable\n" +
                 "\ttarget/bin/winery.jar\n");
 
@@ -263,6 +267,10 @@ public class BuildCommandTest extends BaseCommandTest {
                 "\n" +
                 "Creating balos\n" +
                 "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
+                "\n" +
+                "Running Tests\n\n" +
+                "\twinery\n" +
+                "\tNo tests found\n" +
                 "\n" +
                 "Generating executable\n" +
                 "\ttarget/bin/winery.jar\n");
@@ -319,14 +327,32 @@ public class BuildCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), "\nCompiling source\n" +
+        String actualOutput1 = "\nCompiling source\n" +
                 "\tfoo/winery:0.1.0\n" +
                 "\n" +
                 "Creating balos\n" +
                 "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
                 "\n" +
+                "Running Tests\n" +
+                "\twinery\n" +
+                "\twinery.storage\n" +
+                "\n" +
                 "Generating executable\n" +
-                "\ttarget/bin/winery.jar\n");
+                "\ttarget/bin/winery.jar\n";
+        String actualOutput2 = "\nCompiling source\n" +
+                "\tfoo/winery:0.1.0\n" +
+                "\n" +
+                "Creating balos\n" +
+                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
+                "\n" +
+                "Running Tests\n" +
+                "\twinery.storage\n" +
+                "\twinery\n" +
+                "\n" +
+                "Generating executable\n" +
+                "\ttarget/bin/winery.jar\n";
+        Assert.assertTrue(buildLog.replaceAll("\r", "").equals(actualOutput1)
+                || buildLog.replaceAll("\r", "").equals(actualOutput2));
 
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("balo").resolve("foo-winery-any-0.1.0.balo").toFile().exists());

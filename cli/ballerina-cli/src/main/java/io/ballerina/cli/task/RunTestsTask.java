@@ -52,7 +52,6 @@ import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -62,7 +61,6 @@ import java.util.StringJoiner;
 
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
-import static io.ballerina.projects.util.ProjectUtils.getBalHomePath;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DATA_PLACEHOLDER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DIR_NAME;
@@ -78,6 +76,8 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
 
 /**
  * Task for executing tests.
+ *
+ * @since 2.0.0
  */
 public class RunTestsTask implements Task {
     private final PrintStream out;
@@ -120,6 +120,10 @@ public class RunTestsTask implements Task {
             isSingleTestExecution = true;
             singleExecTests = testList;
         }
+
+        //TODO: handle test report generation once CompilerOptions are available
+        report = false;
+        coverage = false;
     }
 
     @Override
@@ -405,18 +409,14 @@ public class RunTestsTask implements Task {
         BufferedReader bufferedReader = Files.newBufferedReader(statusJsonPath, StandardCharsets.UTF_8);
         return gson.fromJson(bufferedReader, ModuleStatus.class);
     }
-
     private List<String> readFailedTestsFromFile(Path rerunTestJsonPath) {
         Gson gson = new Gson();
         rerunTestJsonPath = Paths.get(rerunTestJsonPath.toString(), RERUN_TEST_JSON_FILE);
 
         try (BufferedReader bufferedReader = Files.newBufferedReader(rerunTestJsonPath, StandardCharsets.UTF_8)) {
             return gson.fromJson(bufferedReader, ArrayList.class);
-        } catch (NoSuchFileException e) {
-            createLauncherException("No failed test cache present in target directory. ", e);
         } catch (IOException e) {
-            createLauncherException("error while running failed tests. ", e);
+            throw createLauncherException("error while running failed tests. ", e);
         }
-        return new ArrayList<>();
     }
 }

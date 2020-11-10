@@ -27,7 +27,10 @@ import java.util.Map;
 /**
  * Keep a registry of instances.
  * This is required to modify the runtime behavior.
+ *
+ * @deprecated Use {@link io.ballerina.projects.testsuite.TesterinaRegistry} instead.
  */
+@Deprecated
 public class TesterinaRegistry {
 
     private String orgName = null;

@@ -141,7 +141,7 @@ public class ProjectFiles {
         }
     }
 
-    public static List<DocumentData> loadTestDocuments(Path dirPath) {
+    private static List<DocumentData> loadTestDocuments(Path dirPath) {
         try (Stream<Path> pathStream = Files.walk(dirPath, 1)) {
             return pathStream
                     .filter(matcher::matches)
@@ -165,7 +165,7 @@ public class ProjectFiles {
         return DocumentData.from(Optional.of(documentFilePath.getFileName()).get().toString(), content);
     }
 
-    public static DocumentData loadTestDocument(Path documentFilePath) {
+    private static DocumentData loadTestDocument(Path documentFilePath) {
         String content;
         if (documentFilePath == null) {
             throw new RuntimeException("document path cannot be null");
