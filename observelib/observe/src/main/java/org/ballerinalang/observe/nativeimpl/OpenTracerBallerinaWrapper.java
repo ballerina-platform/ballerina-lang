@@ -163,11 +163,11 @@ public class OpenTracerBallerinaWrapper {
 
         final BSpan span;
         if (spanId == -1) {
-            Optional<ObserverContext> observer = ObserveUtils.getObserverContextOfCurrentFrame(env);
-            if (observer.isEmpty()) {
+            ObserverContext observer = ObserveUtils.getObserverContextOfCurrentFrame(env);
+            if (observer == null) {
                 return false;
             }
-            span = (BSpan) observer.get().getProperty(TraceConstants.KEY_SPAN);
+            span = (BSpan) observer.getProperty(TraceConstants.KEY_SPAN);
         } else {
             ObserverContext observerContext = observerContextMap.get(spanId);
             if (observerContext == null) {

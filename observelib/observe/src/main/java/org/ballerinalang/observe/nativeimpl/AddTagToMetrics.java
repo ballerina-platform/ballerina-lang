@@ -19,18 +19,17 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import io.ballerina.runtime.api.ErrorCreator;
-import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.ObserverContext;
 import io.ballerina.runtime.observability.metrics.BallerinaMetricsObserver;
 import io.ballerina.runtime.observability.metrics.Tag;
-import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * This function add tags to System Metrics.
@@ -38,13 +37,11 @@ import java.util.Optional;
  */
 public class AddTagToMetrics {
 
-    public static Object addTagToMetrics(BString tagKey, BString tagValue) {
+    public static Object addTagToMetrics(Environment env,BString tagKey, BString tagValue) {
 
-        Optional<ObserverContext> observer = ObserveUtils.getObserverContextOfCurrentFrame(Scheduler.getStrand());
-        ObserverContext observerContext;
+        ObserverContext observerContext = ObserveUtils.getObserverContextOfCurrentFrame(env);
         boolean isCustomTagsAvailable = true;
-        if (observer.isPresent()) {
-            observerContext = observer.get();
+        if (observerContext != null ) {
             Map<String, Tag> customTags =
                     (Map<String, Tag>) observerContext.getProperty(BallerinaMetricsObserver.PROPERTY_CUSTOM_TAGS);
             if (customTags == null) {
