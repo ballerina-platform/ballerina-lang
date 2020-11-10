@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import java.util.Collection;
 import java.util.Map;

@@ -18,11 +18,11 @@
 
 package org.ballerinalang.cli.module;
 
-import io.ballerina.runtime.JSONParser;
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.utils.JsonUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.values.ArrayValue;
-import io.ballerina.runtime.values.MapValue;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.MapValue;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -55,7 +55,7 @@ public class SearchTest {
             throws IOException {
         Path searchResultsFilePath = Paths
                 .get("src", "test", "resources", "test-resources", "search", "search-results.json");
-        MapValue arr = (MapValue) JSONParser
+        MapValue arr = (MapValue) JsonUtils
                 .parse(new String(Files.readAllBytes(searchResultsFilePath), StandardCharsets.UTF_8));
         BArray modules = arr.getArrayValue(StringUtils.fromString("modules"));
         return new Object[][] {

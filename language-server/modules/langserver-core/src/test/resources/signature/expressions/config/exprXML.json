@@ -4,7 +4,7 @@
         "character": 31
     },
     "source": "expressions/expressions.bal",
-	"expected": {
+    "expected": {
         "result": {
             "signatures": [
                 {
@@ -18,7 +18,10 @@
                     "parameters": [
                         {
                             "label": {
-                                "left": "float a"
+                                "right": {
+                                    "first": 10,
+                                    "second": 11
+                                }
                             },
                             "documentation": {
                                 "right": {
@@ -29,7 +32,10 @@
                         },
                         {
                             "label": {
-                                "left": "boolean b"
+                                "right": {
+                                    "first": 21,
+                                    "second": 22
+                                }
                             },
                             "documentation": {
                                 "right": {

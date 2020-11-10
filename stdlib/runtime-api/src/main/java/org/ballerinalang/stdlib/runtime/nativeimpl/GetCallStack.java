@@ -18,15 +18,14 @@
 
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
-import io.ballerina.runtime.api.ErrorCreator;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.TypeCreator;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.values.ErrorValue;
 
 import java.util.List;
 
@@ -43,12 +42,21 @@ public class GetCallStack {
                 Constants.CALL_STACK_ELEMENT).getType();
         BArray callStack = ValueCreator.createArrayValue(TypeCreator.createArrayType(recordType));
         for (int i = 0; i < filteredStack.size(); i++) {
-            Object[] values = ErrorValue.getStackFrame(filteredStack.get(i));
+            Object[] values = getStackFrame(filteredStack.get(i));
             BMap<BString, Object> createRecordValue = ValueCreator.createRecordValue(ValueCreator.
                             createRecordValue(Constants.BALLERINA_RUNTIME_PKG_ID, Constants.CALL_STACK_ELEMENT),
                     values);
             callStack.add(i, createRecordValue);
         }
         return callStack;
+    }
+
+    private static Object[] getStackFrame(StackTraceElement stackTraceElement) {
+        Object[] values = new Object[4];
+        values[0] = stackTraceElement.getMethodName();
+        values[1] = stackTraceElement.getClassName();
+        values[2] = stackTraceElement.getFileName();
+        values[3] = stackTraceElement.getLineNumber();
+        return values;
     }
 }

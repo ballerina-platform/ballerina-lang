@@ -19,7 +19,7 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Runtime;
-import io.ballerina.runtime.values.ObjectValue;
+import io.ballerina.runtime.internal.values.ObjectValue;
 
 /**
  * This class is used for Java interoperability tests.

@@ -1,7 +1,7 @@
 function foo() {
     var obj = object
-    int n;
-    function bar() {
-        int i = 10;
-    }
-}
+                  int n;
+                  function bar() {
+                      int i = 10;
+                  }
+              }

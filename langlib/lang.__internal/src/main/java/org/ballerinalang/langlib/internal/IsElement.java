@@ -17,22 +17,22 @@
  */
 package org.ballerinalang.langlib.internal;
 
-import io.ballerina.runtime.XMLNodeType;
-import io.ballerina.runtime.api.values.BXML;
-import io.ballerina.runtime.api.values.BXMLSequence;
+import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlSequence;
 
 /**
  * Helper function to check xml.isElement().
  */
 public class IsElement {
 
-    public static boolean isElement(BXML bxml) {
-        if (bxml.getNodeType() == XMLNodeType.ELEMENT) {
+    public static boolean isElement(BXml bxml) {
+        if (bxml.getNodeType() == XmlNodeType.ELEMENT) {
             return true;
         }
-        if (bxml.getNodeType() == XMLNodeType.SEQUENCE) {
+        if (bxml.getNodeType() == XmlNodeType.SEQUENCE) {
             return bxml.size() == 1
-                    && ((BXMLSequence) bxml).getChildrenList().get(0).getNodeType() == XMLNodeType.ELEMENT;
+                    && ((BXmlSequence) bxml).getChildrenList().get(0).getNodeType() == XmlNodeType.ELEMENT;
         }
         return false;
     }
