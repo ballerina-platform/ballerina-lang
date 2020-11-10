@@ -33,7 +33,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-tool')
     implementation 'javax.ws.rs:javax.ws.rs-api'
-    implementation 'me.tongfei:progressbar:0.7.4'
+    implementation 'me.tongfei:progressbar'
     implementation 'com.google.code.gson:gson'
     implementation 'com.google.code.findbugs:jsr305'
     testCompile 'org.testng:testng'

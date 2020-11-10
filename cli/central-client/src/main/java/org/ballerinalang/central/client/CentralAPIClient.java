@@ -218,7 +218,7 @@ public class CentralAPIClient {
             int statusCode = getStatusCode(conn);
             // 200 - Module pushed successfully
             // Other - Error occurred, json returned with the error message
-            if (statusCode == HttpURLConnection.HTTP_OK) {
+            if (statusCode == HttpURLConnection.HTTP_NO_CONTENT) {
                 outStream.println(org + "/" + name + ":" + version + " pushed to central successfully");
             } else if (statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
                 errStream.println("unauthorized access token for organization: " + org);
@@ -282,7 +282,13 @@ public class CentralAPIClient {
                 String newUrl = conn.getHeaderField(LOCATION);
                 String contentDisposition = conn.getHeaderField(CONTENT_DISPOSITION);
 
-                conn = createHttpUrlConnection(newUrl);
+                // create connection
+                if (this.proxy == null) {
+                    conn = (HttpURLConnection) convertToUrl(newUrl).openConnection();
+                } else {
+                    conn = (HttpURLConnection) convertToUrl(newUrl).openConnection(this.proxy);
+                }
+
                 conn.setRequestProperty(CONTENT_DISPOSITION, contentDisposition);
 
                 boolean isNightlyBuild = RepoUtils.getBallerinaVersion().contains("SNAPSHOT");

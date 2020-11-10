@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
 import static io.ballerina.projects.util.ProjectConstants.PKG_NAME_REGEX;
 import static io.ballerina.runtime.util.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
-import static java.nio.file.Files.createDirectory;
+import static java.nio.file.Files.createDirectories;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
@@ -49,7 +49,6 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
         description = "download the module source and binaries from a remote repository")
 public class PullCommand implements BLauncherCmd {
     private PrintStream errStream;
-    private Path userDir;
     private CentralAPIClient client;
 
     @CommandLine.Parameters
@@ -62,15 +61,13 @@ public class PullCommand implements BLauncherCmd {
     private String debugPort;
 
     public PullCommand() {
-        this.userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         this.errStream = System.err;
-//        this.client = new CentralAPIClient();
+        this.client = new CentralAPIClient();
     }
 
-    public PullCommand(Path userDir, PrintStream errStream) {
-        this.userDir = userDir;
+    public PullCommand(PrintStream errStream, CentralAPIClient client) {
         this.errStream = errStream;
-//        this.client = new CentralAPIClient();
+        this.client = client;
     }
 
     @Override
@@ -125,7 +122,7 @@ public class PullCommand implements BLauncherCmd {
                 .resolve(ProjectConstants.BALO_CACHE_DIR_NAME).resolve(orgName).resolve(packageName);
         // create directory path in balo cache
         try {
-            createDirectory(packagePathInBaloCache);
+            createDirectories(packagePathInBaloCache);
         } catch (IOException e) {
             throw createLauncherException(
                     "unexpected error occurred while creating package repository in balo cache: " + e.getMessage());

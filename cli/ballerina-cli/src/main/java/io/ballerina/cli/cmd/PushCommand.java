@@ -156,7 +156,7 @@ public class PushCommand implements BLauncherCmd {
     private void pushPackage(BuildProject project) {
         try {
             Path baloFilePath = validateBalo(project);
-            pushBaloToRemote(baloFilePath, project.currentPackage().packageName().toString());
+            pushBaloToRemote(baloFilePath);
         } catch (IOException e) {
             throw createLauncherException(
                     "unexpected error occurred when trying to push to remote repository: " + getRemoteRepoURL());
@@ -236,7 +236,7 @@ public class PushCommand implements BLauncherCmd {
      *
      * @param baloPath Path to the balo file.
      */
-    private static void pushBaloToRemote(Path baloPath, String pkgName) {
+    private static void pushBaloToRemote(Path baloPath) {
         Path baloFileName = baloPath.getFileName();
         if (null != baloFileName) {
             try {
@@ -251,10 +251,7 @@ public class PushCommand implements BLauncherCmd {
                     }
 
                     errorMessage = errorMessage.replaceAll("error: ", "");
-
-                    throw createLauncherException(
-                            "unexpected error occurred while pushing package '" + pkgName + "' to remote repository("
-                                    + getRemoteRepoURL() + "): " + errorMessage);
+                    throw createLauncherException(errorMessage);
                 }
             }
         }
