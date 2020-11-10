@@ -125,27 +125,29 @@ public class MetricsTestCase extends ObservabilityBaseTest {
     /**
      * Test the metrics generated for a particular function invocation.
      *
-     * @param allMetrics All the metrics collected from Metrics Registry
+     * @param allMetrics         All the metrics collected from Metrics Registry
      * @param invocationPosition The invocation position of the function invocation
-     * @param invocationCount The number of times the function should have been called
-     * @param additionalTags Additional tags that should be present in the metrics
+     * @param invocationCount    The number of times the function should have been called
+     * @param additionalTags     Additional tags that should be present in the metrics
      */
     private void testFunctionMetrics(Metrics allMetrics, String invocationPosition, long invocationCount,
-                                       Tag ...additionalTags) {
-        testFunctionMetrics(allMetrics, invocationPosition,invocationCount,additionalTags,null);
+                                     Tag... additionalTags) {
+
+        testFunctionMetrics(allMetrics, invocationPosition, invocationCount, additionalTags, null);
     }
 
     /**
      * Test the metrics generated for a particular function invocation for a given start and end tag set.
      *
-     * @param allMetrics         All the metrics collected from Metrics Registry
-     * @param invocationPosition The invocation position of the function invocation
-     * @param invocationCount    The number of times the function should have been called
-     * @param startObservationTags  tags at the observation start which should be present in the metrics
-     * @param endObservationTags    tags at the observation end which should be present in the metrics
+     * @param allMetrics           All the metrics collected from Metrics Registry
+     * @param invocationPosition   The invocation position of the function invocation
+     * @param invocationCount      The number of times the function should have been called
+     * @param startObservationTags tags at the observation start which should be present in the metrics
+     * @param endObservationTags   tags at the observation end which should be present in the metrics
      */
     private void testFunctionMetrics(Metrics allMetrics, String invocationPosition, long invocationCount,
                                      Tag[] startObservationTags, Tag[] endObservationTags) {
+
         Metrics functionMetrics = filterByTag(allMetrics, "src.position", invocationPosition);
 
         Set<Tag> startTags = new HashSet<>(Arrays.asList(startObservationTags));
@@ -153,7 +155,7 @@ public class MetricsTestCase extends ObservabilityBaseTest {
         startTags.add(Tag.of("src.position", invocationPosition));
 
         Set<Tag> endTags = new HashSet<>(startTags);
-        if(endObservationTags != null) {
+        if (endObservationTags != null) {
             endTags.addAll(Arrays.asList(endObservationTags));
         }
         testFunctionGauges(invocationCount, functionMetrics, startTags, endTags);
