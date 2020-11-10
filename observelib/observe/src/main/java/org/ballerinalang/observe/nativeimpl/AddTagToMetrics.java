@@ -19,14 +19,15 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.ObserverContext;
 import io.ballerina.runtime.observability.metrics.BallerinaMetricsObserver;
 import io.ballerina.runtime.observability.metrics.Tag;
-import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.utils.StringUtils;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,11 +38,11 @@ import java.util.Map;
  */
 public class AddTagToMetrics {
 
-    public static Object addTagToMetrics(Environment env,BString tagKey, BString tagValue) {
+    public static Object addTagToMetrics(Environment env, BString tagKey, BString tagValue) {
 
         ObserverContext observerContext = ObserveUtils.getObserverContextOfCurrentFrame(env);
         boolean isCustomTagsAvailable = true;
-        if (observerContext != null ) {
+        if (observerContext != null) {
             Map<String, Tag> customTags =
                     (Map<String, Tag>) observerContext.getProperty(BallerinaMetricsObserver.PROPERTY_CUSTOM_TAGS);
             if (customTags == null) {
