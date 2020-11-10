@@ -278,24 +278,6 @@
                     <exclude name="testSyncSendAfterSend"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.javainterop.basic.InstanceMethodTest">
-                <methods>
-                    <exclude name="handleOrErrorReturn"/>
-                    <exclude name="handleOrErrorWithObjectReturn"/>
-                    <exclude name="testAcceptNothingAndReturnNothing"/>
-                    <exclude name="testAcceptNothingButReturnSomething"/>
-                    <exclude name="testAcceptSomethingAndReturnSomething"/>
-                    <exclude name="testAcceptSomethingButReturnNothing"/>
-                    <exclude name="testAcceptTwoParamsAndReturnSomething"/>
-                    <exclude name="testErrorDetail"/>
-                    <exclude name="testInstanceResolve"/>
-                    <exclude name="testInteropFunctionWithDifferentName"/>
-                    <exclude name="testPrimitiveOrErrorReturn"/>
-                    <exclude name="testUncheckedErrorDetail"/>
-                    <exclude name="testUnionWithErrorReturn"/>
-                    <exclude name="testVoidWithThrows"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.javainterop.basic.StaticMethodTest">
                 <methods>
                     <exclude name="testAcceptNothingAndReturnNothing"/>
@@ -622,12 +604,6 @@
                     <exclude name="testUsingParamValuesInAttachedFunc"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.expressions.literals.IdentifierLiteralPackageTest">
-                <methods>
-                    <exclude name="testAccessStructGlobalVarWithIdentifierLiteralInOtherPackage"/>
-                    <exclude name="testAccessingVarsInOtherPackage"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.expressions.async.BasicAsyncOperationsTest">
                 <methods>
                     <exclude name="testAsyncInvWithDefaultParams"/>
@@ -641,11 +617,6 @@
                     <exclude name="testAsyncObjectAttachedFunctions"/>
                     <exclude name="testAttachedAsyncInvWithDefaultParams"/>
                     <exclude name="testAttachedAsyncInvWithoutDefaultParams"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.services.ErrorReturnTest">
-                <methods>
-                    <exclude name="testErrorReturnFunction"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.statements.variabledef.ForwardReferencingGlobalDefinitionTest">
