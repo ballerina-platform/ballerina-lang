@@ -334,7 +334,7 @@ public class EvaluatorBuilder extends NodeVisitor {
         visitSyntaxNode(unaryExpressionNode);
         unaryExpressionNode.expression().accept(this);
         Evaluator subExprEvaluator = result;
-        result = new UnaryExpressionEvaluator(context,unaryExpressionNode, subExprEvaluator);
+        result = new UnaryExpressionEvaluator(context, unaryExpressionNode, subExprEvaluator);
     }
 
     @Override
