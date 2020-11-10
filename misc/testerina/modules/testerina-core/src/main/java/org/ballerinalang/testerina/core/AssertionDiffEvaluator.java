@@ -51,6 +51,8 @@ public class AssertionDiffEvaluator {
                 if (valueArray[i].length() > MAX_ARG_LENGTH) {
                     String[] partitions = valueArray[i].split(PARTITION_REGEX);
                     valueList.addAll(Arrays.asList(partitions));
+                } else {
+                    valueList.add(valueArray[i]);
                 }
             }
         } else {
@@ -71,7 +73,7 @@ public class AssertionDiffEvaluator {
      * @param actual BString
      * @return BString
      */
-    public static BString getStringDiff(BString expected, BString actual) {
+    public static BString getStringDiff(BString actual, BString expected) {
         List<String> expectedValueList = getValueList(expected.toString());
         List<String> difference = null;
         String output = "\n";
