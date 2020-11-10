@@ -1,5 +1,5 @@
 
-import testorg/test_project.e.f;
+import testorg/test_project.e.f as f;
 
 public type Person record {
     string name = "";

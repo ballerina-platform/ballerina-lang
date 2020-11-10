@@ -1,5 +1,5 @@
 
-import testorg/test_project.c.d;
+import testorg/test_project.c.d as d;
 
 function testJsonToRecord() returns d:Person|error {
     json j = {"name":"John", "age":30, "adrs": {"street": "20 Palm Grove", "city":"Colombo 03", "country":"Sri Lanka"}};

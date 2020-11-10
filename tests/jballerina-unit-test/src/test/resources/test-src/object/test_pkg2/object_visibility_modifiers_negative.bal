@@ -1,4 +1,4 @@
-import testorg/test_pkg2.pkg1;
+import testorg/test_pkg2.pkg1 as pkg1;
 
 class Person {
 

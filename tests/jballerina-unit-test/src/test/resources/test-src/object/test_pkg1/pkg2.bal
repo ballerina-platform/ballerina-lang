@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.package internal;
 
-import testorg/test_pkg1.pkg1;
+import testorg/test_pkg1.pkg1 as pkg1;
 
 function testObjectInitFunctionWithDefaultableParams() returns [int, int, int, int, int] {
     pkg1:TempCache? cache1 = new();
