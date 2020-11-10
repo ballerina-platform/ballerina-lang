@@ -17,7 +17,8 @@
  */
 package org.ballerinalang.test.types.xml;
 
-import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.XmlFactory;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BIterator;
 import org.ballerinalang.core.model.values.BString;
@@ -298,7 +299,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testXMLToString() {
-        io.ballerina.runtime.api.values.BXML xml = XMLFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+        BXml xml = XmlFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY data \"Example\" >]><foo>&data;</foo>");
         Assert.assertEquals(xml.toString(), "<foo>Example</foo>");
     }

@@ -16,9 +16,13 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -48,6 +52,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
@@ -120,8 +125,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                     super.sort(context, node, completionItems);
                     continue;
                 }
-                String sortText = genSortTextForInitContextItem(context, lsItem,
-                        (assignableType.get().typeDescriptor()).kind());
+                String sortText = genSortTextForInitContextItem(context, lsItem, assignableType.get().typeKind());
                 cItem.setSortText(sortText);
             }
         }
@@ -167,7 +171,9 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
             return completionItems;
         }
 
-        List<TypeSymbol> listeners = moduleSymbol.get().typeDefinitions().stream()
+        ModuleSymbol module = moduleSymbol.get();
+        Stream<Symbol> classesAndTypeDefs = Stream.concat(module.classes().stream(), module.typeDefinitions().stream());
+        List<Symbol> listeners = classesAndTypeDefs
                 .filter(SymbolUtil::isListener)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(listeners, context));
@@ -184,7 +190,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         (1) public listener mod:Listener test = <cursor>
         (2) public listener mod:Listener test = a<cursor>
          */
-        Optional<ObjectTypeDescriptor> objectTypeDesc = getListenerTypeDesc(context, listenerNode);
+        Optional<ObjectTypeSymbol> objectTypeDesc = getListenerTypeDesc(context, listenerNode);
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == VARIABLE)
                 .collect(Collectors.toList());
@@ -241,9 +247,9 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                 || (cursorPos.getLine() > lineRange.startLine().line());
     }
 
-    private Optional<ObjectTypeDescriptor> getListenerTypeDesc(LSContext context, ListenerDeclarationNode node) {
+    private Optional<ObjectTypeSymbol> getListenerTypeDesc(LSContext context, ListenerDeclarationNode node) {
         Node typeDescriptor = node.typeDescriptor();
-        Optional<TypeSymbol> typeSymbol = Optional.empty();
+        Optional<ObjectTypeSymbol> typeSymbol = Optional.empty();
         List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         if (typeDescriptor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode nameReferenceNode = (QualifiedNameReferenceNode) typeDescriptor;
@@ -253,9 +259,12 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
             if (moduleSymbol.isEmpty()) {
                 return Optional.empty();
             }
-            typeSymbol = moduleSymbol.get().typeDefinitions().stream()
+            ModuleSymbol module = moduleSymbol.get();
+            Stream<Symbol> objsAndClasses = Stream.concat(module.classes().stream(), module.typeDefinitions().stream());
+            typeSymbol = objsAndClasses
                     .filter(type -> SymbolUtil.isListener(type)
                             && type.name().equals(nameReferenceNode.identifier().text()))
+                    .map(this::mapToObjectType)
                     .findAny();
 
         } else if (typeDescriptor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
@@ -263,11 +272,21 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
             typeSymbol = visibleSymbols.stream()
                     .filter(visibleSymbol -> SymbolUtil.isListener(visibleSymbol)
                             && visibleSymbol.name().equals(nameReferenceNode.name().text()))
-                    .map(visibleSymbol -> (TypeSymbol) visibleSymbol)
+                    .map(this::mapToObjectType)
                     .findAny();
         }
 
-        return typeSymbol.map(symbol -> (ObjectTypeDescriptor) CommonUtil.getRawType(symbol.typeDescriptor()));
+        return typeSymbol;
+    }
+
+    private ObjectTypeSymbol mapToObjectType(Symbol symbol) {
+        if (symbol.kind() == SymbolKind.TYPE) {
+            TypeSymbol type = ((TypeDefinitionSymbol) symbol).typeDescriptor();
+            return type.typeKind() == TypeDescKind.TYPE_REFERENCE ?
+                    (ObjectTypeSymbol) ((TypeReferenceTypeSymbol) type).typeDescriptor() :
+                    (ObjectTypeSymbol) type;
+        }
+        return (ObjectTypeSymbol) symbol;
     }
 
     private enum ContextScope {

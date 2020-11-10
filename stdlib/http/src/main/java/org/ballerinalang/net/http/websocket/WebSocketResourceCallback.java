@@ -19,7 +19,7 @@ package org.ballerinalang.net.http.websocket;
 
 import io.ballerina.runtime.api.connector.CallableUnitCallback;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.services.ErrorHandlerUtils;
+import io.ballerina.runtime.internal.services.ErrorHandlerUtils;
 import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityConstants;
 import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;

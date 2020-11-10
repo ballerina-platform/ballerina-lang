@@ -49,14 +49,14 @@
       ]
     },
     {
-      "kind": "IMPORT_VERSION",
+      "kind": "IMPORT_PREFIX",
       "hasDiagnostics": true,
       "children": [
         {
-          "kind": "VERSION_KEYWORD",
+          "kind": "AS_KEYWORD",
           "hasDiagnostics": true,
           "diagnostics": [
-            "ERROR_INVALID_TOKEN"
+            "ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED"
           ],
           "leadingMinutiae": [
             {
@@ -73,60 +73,64 @@
             {
               "kind": "WHITESPACE_MINUTIAE",
               "value": " "
-            }
-          ],
-          "trailingMinutiae": [
+            },
+            {
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "hasDiagnostics": true,
+                "children": [
+                  {
+                    "kind": "VERSION_KEYWORD",
+                    "hasDiagnostics": true,
+                    "diagnostics": [
+                      "ERROR_INVALID_TOKEN"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            },
+            {
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
+                  {
+                    "kind": "MINUS_TOKEN"
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            },
+            {
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "hasDiagnostics": true,
+                "children": [
+                  {
+                    "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                    "hasDiagnostics": true,
+                    "diagnostics": [
+                      "ERROR_INVALID_TOKEN"
+                    ],
+                    "value": "6"
+                  }
+                ]
+              }
+            },
             {
               "kind": "WHITESPACE_MINUTIAE",
               "value": " "
             }
-          ]
-        },
-        {
-          "kind": "LIST",
-          "hasDiagnostics": true,
-          "children": [
-            {
-              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_INVALID_TOKEN"
-              ],
-              "value": "6",
-              "leadingMinutiae": [
-                {
-                  "kind": "INVALID_NODE_MINUTIAE",
-                  "invalidNode": {
-                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                    "children": [
-                      {
-                        "kind": "MINUS_TOKEN"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ],
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "kind": "IMPORT_PREFIX",
-      "hasDiagnostics": true,
-      "children": [
-        {
-          "kind": "AS_KEYWORD",
+          ],
           "trailingMinutiae": [
             {
               "kind": "WHITESPACE_MINUTIAE",
@@ -184,6 +188,12 @@
               }
             ]
           }
+        }
+      ],
+      "trailingMinutiae": [
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
         }
       ]
     }

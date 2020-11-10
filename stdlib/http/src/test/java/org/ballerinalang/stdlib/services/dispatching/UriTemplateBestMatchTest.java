@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.stdlib.services.dispatching;
 
-import io.ballerina.runtime.JSONParser;
+import io.ballerina.runtime.internal.JSONParser;
 import io.ballerina.runtime.api.BStringUtils;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.model.util.JsonParser;

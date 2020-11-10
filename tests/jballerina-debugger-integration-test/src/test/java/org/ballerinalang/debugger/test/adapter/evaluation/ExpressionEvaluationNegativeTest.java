@@ -258,7 +258,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         // Todo - Add negative tests for function invocations related errors. (invalid argument validation, etc.).
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     private void cleanup() {
         terminateDebugSession();
         this.context = null;

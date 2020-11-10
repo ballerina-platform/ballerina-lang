@@ -19,9 +19,9 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import io.ballerina.runtime.api.ErrorCreator;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 
 /**
  * This function which implements the finishSpan method for observe.
@@ -30,8 +30,8 @@ import io.ballerina.runtime.scheduling.Scheduler;
 public class FinishSpan {
     private static final OpenTracerBallerinaWrapper otWrapperInstance = OpenTracerBallerinaWrapper.getInstance();
 
-    public static Object finishSpan(long spanId) {
-        boolean isFinished = OpenTracerBallerinaWrapper.getInstance().finishSpan(Scheduler.getStrand(), spanId);
+    public static Object finishSpan(Environment env, long spanId) {
+        boolean isFinished = OpenTracerBallerinaWrapper.getInstance().finishSpan(env, spanId);
 
         if (isFinished) {
             return null;

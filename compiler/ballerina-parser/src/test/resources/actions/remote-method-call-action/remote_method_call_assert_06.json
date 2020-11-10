@@ -70,7 +70,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "   "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -138,24 +138,12 @@
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "value": "a",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "value": "a"
                                 }
                               ]
                             },
                             {
-                              "kind": "RIGHT_ARROW_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "RIGHT_ARROW_TOKEN"
                             },
                             {
                               "kind": "SIMPLE_NAME_REFERENCE",

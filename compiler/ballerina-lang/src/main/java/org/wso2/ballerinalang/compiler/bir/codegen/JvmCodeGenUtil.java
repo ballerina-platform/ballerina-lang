@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
@@ -42,7 +43,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
@@ -93,7 +93,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
  */
 public class JvmCodeGenUtil {
     public static final ResolvedTypeBuilder TYPE_BUILDER = new ResolvedTypeBuilder();
-    public static final String INITIAL_MEHOD_DESC = "(Lio/ballerina/runtime/scheduling/Strand;";
+    public static final String INITIAL_MEHOD_DESC = String.format("(L%s;", STRAND_CLASS);
     private static final Pattern IMMUTABLE_TYPE_CHAR_PATTERN = Pattern.compile("[/.]");
     private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[\\.:/<>]");
 
@@ -116,7 +116,7 @@ public class JvmCodeGenUtil {
     private static String getMapsDesc(long count) {
         StringBuilder builder = new StringBuilder();
         for (long i = count; i > 0; i--) {
-            builder.append("Lio/ballerina/runtime/values/MapValue;");
+            builder.append("Lio/ballerina/runtime/internal/values/MapValue;");
         }
         return builder.toString();
     }
@@ -557,16 +557,16 @@ public class JvmCodeGenUtil {
         return lastScope;
     }
 
-    public static void generateDiagnosticPos(DiagnosticPos pos, MethodVisitor mv) {
+    public static void generateDiagnosticPos(Location pos, MethodVisitor mv) {
         Label label = new Label();
         generateDiagnosticPos(pos, mv, label);
     }
 
-    private static void generateDiagnosticPos(DiagnosticPos pos, MethodVisitor mv, Label label) {
-        if (pos != null && pos.sLine != 0x80000000) {
+    private static void generateDiagnosticPos(Location pos, MethodVisitor mv, Label label) {
+        if (pos != null && pos.lineRange().startLine().line() != 0x80000000) {
             mv.visitLabel(label);
             // Adding +1 since 'pos' is 0-based and we want 1-based positions at run time
-            mv.visitLineNumber(pos.sLine + 1, label);
+            mv.visitLineNumber(pos.lineRange().startLine().line() + 1, label);
         }
     }
 

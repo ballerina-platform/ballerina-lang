@@ -30,7 +30,7 @@ import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXml;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -381,7 +381,7 @@ class JMethodResolver {
                 case TypeTags.XML_PI:
                 case TypeTags.XML_COMMENT:
                 case TypeTags.XML_TEXT:
-                    return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BXml.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TUPLE:
                 case TypeTags.ARRAY:
                     return isValidListType(jType, isLastParam, restParamExist);
@@ -526,7 +526,7 @@ class JMethodResolver {
                 case TypeTags.XML_PI:
                 case TypeTags.XML_COMMENT:
                 case TypeTags.XML_TEXT:
-                    return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BXml.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TUPLE:
                 case TypeTags.ARRAY:
                     return isValidListType(jType, true, jMethodRequest.restParamExist);
@@ -612,7 +612,7 @@ class JMethodResolver {
                 isAssignableFrom(BObject.class, jType) ||
                 isAssignableFrom(BTypedesc.class, jType) ||
                 isAssignableFrom(BHandle.class, jType) ||
-                isAssignableFrom(BXML.class, jType) ||
+                isAssignableFrom(BXml.class, jType) ||
                 this.isValidListType(jType, true, jMethodRequest.restParamExist) ||
                 isAssignableFrom(BMap.class, jType) ||
                 isAssignableFrom(BTable.class, jType);

@@ -18,16 +18,16 @@
 
 package org.ballerinalang.mime.util;
 
-import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
@@ -493,7 +493,7 @@ public class MimeUtil {
     }
 
     public static String getMessageAsString(Object dataSource) {
-        Type type = TypeChecker.getType(dataSource);
+        Type type = TypeUtils.getType(dataSource);
 //        if (TypeChecker.checkIsType(dataSource, Types.typeString)) {
         if (type.getTag() == TypeTags.STRING_TAG) {
             if (dataSource instanceof BString) {
@@ -525,7 +525,7 @@ public class MimeUtil {
             return false;
         }
 
-        return parseAsJson(entity) && isJSONCompatible(TypeChecker.getType(value));
+        return parseAsJson(entity) && isJSONCompatible(TypeUtils.getType(value));
     }
 
     private static boolean parseAsJson(BObject entity) {

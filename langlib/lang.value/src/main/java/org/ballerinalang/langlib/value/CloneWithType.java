@@ -18,13 +18,10 @@
 
 package org.ballerinalang.langlib.value;
 
-import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.TypeConverter;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.MapType;
@@ -32,28 +29,31 @@ import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypedescType;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.commons.TypeValuePair;
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.util.exceptions.BallerinaException;
-import io.ballerina.runtime.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.TypeConverter;
+import io.ballerina.runtime.internal.commons.TypeValuePair;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.runtime.api.ErrorCreator.createError;
-import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CONVERSION_ERROR;
-import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR;
-import static io.ballerina.runtime.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
+import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CONVERSION_ERROR;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR;
+import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
 /**
  * Extern function lang.values:cloneWithType.

@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BXML;
-import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 /**
  * Create XML processing instruction.
@@ -38,7 +38,7 @@ import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 //)
 public class GetTarget {
 
-    public static BString getTarget(BXML xmlValue) {
+    public static BString getTarget(BXml xmlValue) {
         if (!IsProcessingInstruction.isProcessingInstruction(xmlValue)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR,
                     "getTarget", "processing instruction");

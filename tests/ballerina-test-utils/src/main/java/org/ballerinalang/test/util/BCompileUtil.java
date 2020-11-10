@@ -17,10 +17,10 @@
 package org.ballerinalang.test.util;
 
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.values.ErrorValue;
-import io.ballerina.runtime.values.FutureValue;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.FutureValue;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.core.util.exceptions.BallerinaException;
@@ -205,10 +205,7 @@ public class BCompileUtil {
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
-                if (t instanceof io.ballerina.runtime.util.exceptions.BLangRuntimeException) {
-                    throw new BLangRuntimeException(t.getMessage());
-                }
-                if (t instanceof io.ballerina.runtime.util.exceptions.BallerinaConnectorException) {
+                if (t instanceof io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof ErrorValue) {
@@ -768,7 +765,7 @@ public class BCompileUtil {
     }
 
     private static String calcFileNameForJar(BLangPackage bLangPackage) {
-        PackageID pkgID = bLangPackage.pos.src.pkgID;
+        PackageID pkgID = bLangPackage.packageID;
         Name sourceFileName = pkgID.sourceFileName;
         if (sourceFileName != null) {
             return sourceFileName.value.replaceAll("\\.bal$", "");

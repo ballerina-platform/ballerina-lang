@@ -121,7 +121,6 @@ public class FunctionBodyBlockNode extends FunctionBodyNode {
 
         public FunctionBodyBlockNodeModifier withNamedWorkerDeclarator(
                 NamedWorkerDeclarator namedWorkerDeclarator) {
-            Objects.requireNonNull(namedWorkerDeclarator, "namedWorkerDeclarator must not be null");
             this.namedWorkerDeclarator = namedWorkerDeclarator;
             return this;
         }

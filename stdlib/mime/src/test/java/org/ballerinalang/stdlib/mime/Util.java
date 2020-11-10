@@ -18,15 +18,15 @@
 
 package org.ballerinalang.stdlib.mime;
 
-import io.ballerina.runtime.XMLFactory;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.TypeCreator;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.XmlUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXml;
 import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.mime.util.EntityBodyChannel;
@@ -180,7 +180,7 @@ public class Util {
      * @return A ballerina struct that represent a body part
      */
     public static BObject getXmlBodyPart() {
-        BXML xmlNode = XMLFactory.parse("<name>Ballerina</name>");
+        BXml xmlNode = XmlUtils.parse("<name>Ballerina</name>");
         BObject bodyPart = createEntityObject();
         EntityBodyChannel byteChannel = new EntityBodyChannel(new ByteArrayInputStream(
                 xmlNode.stringValue(null).getBytes(StandardCharsets.UTF_8)));
@@ -335,7 +335,7 @@ public class Util {
         Assert.assertEquals(StringUtils.getJsonString(jsonData), "{\"" + "bodyPart" + "\":\"" + "jsonPart" + "\"}");
 
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(1));
-        BXML xmlData = EntityBodyHandler.constructXmlDataSource(bodyPart);
+        BXml xmlData = EntityBodyHandler.constructXmlDataSource(bodyPart);
         Assert.assertNotNull(xmlData);
         Assert.assertEquals(xmlData.stringValue(null), "<name>Ballerina xml file part</name>");
 

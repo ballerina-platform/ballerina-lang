@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.services.basics;
 
-import io.ballerina.runtime.JSONParser;
+import io.ballerina.runtime.internal.JSONParser;
 import io.ballerina.runtime.api.BStringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.netty.buffer.Unpooled;

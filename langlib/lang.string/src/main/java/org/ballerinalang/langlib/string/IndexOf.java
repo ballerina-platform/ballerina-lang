@@ -19,12 +19,12 @@
 package org.ballerinalang.langlib.string;
 
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
-import static io.ballerina.runtime.util.BLangConstants.STRING_LANG_LIB;
-import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 import static org.ballerinalang.langlib.string.utils.StringUtils.createNullReferenceError;
 
 /**

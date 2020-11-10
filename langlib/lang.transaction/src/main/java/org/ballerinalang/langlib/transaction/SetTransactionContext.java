@@ -18,11 +18,11 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.transactions.TransactionConstants;
 import io.ballerina.runtime.transactions.TransactionLocalContext;
 

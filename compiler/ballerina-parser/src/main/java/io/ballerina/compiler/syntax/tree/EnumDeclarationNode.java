@@ -144,14 +144,12 @@ public class EnumDeclarationNode extends ModuleMemberDeclarationNode {
 
         public EnumDeclarationNodeModifier withMetadata(
                 MetadataNode metadata) {
-            Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
         public EnumDeclarationNodeModifier withQualifier(
                 Token qualifier) {
-            Objects.requireNonNull(qualifier, "qualifier must not be null");
             this.qualifier = qualifier;
             return this;
         }

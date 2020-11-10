@@ -17,12 +17,13 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.XMLFactory;
-import io.ballerina.runtime.XMLNodeType;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BXML;
-import io.ballerina.runtime.values.XMLSequence;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlSequence;
+import io.ballerina.runtime.internal.XmlFactory;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,36 +35,36 @@ import java.util.List;
  */
 public class Concat {
 
-    public static BXML concat(Object... arrayValue) {
-        List<BXML> backingArray = new ArrayList<>();
-        BXML lastItem = null;
+    public static BXml concat(Object... arrayValue) {
+        List<BXml> backingArray = new ArrayList<>();
+        BXml lastItem = null;
         for (int i = 0; i < arrayValue.length; i++) {
             Object refValue = arrayValue[i];
             if (refValue instanceof BString) {
-                if (lastItem != null && lastItem.getNodeType() == XMLNodeType.TEXT) {
+                if (lastItem != null && lastItem.getNodeType() == XmlNodeType.TEXT) {
                     // If last added item is a string, then concat prev values with this values and replace prev value.
                     String concat = lastItem.getTextValue() + refValue;
-                    BXML xmlText = XMLFactory.createXMLText(concat);
+                    BXml xmlText = XmlFactory.createXMLText(concat);
                     backingArray.set(backingArray.size() - 1, xmlText);
                     lastItem = xmlText;
                     continue;
                 }
-                BXML xmlText = XMLFactory.createXMLText((BString) refValue);
+                BXml xmlText = XmlFactory.createXMLText((BString) refValue);
                 backingArray.add(xmlText);
                 lastItem = xmlText;
             } else {
-                if (refValue instanceof XMLSequence) {
-                    List<BXML> sequenceChildren = ((XMLSequence) refValue).getChildrenList();
+                if (refValue instanceof BXmlSequence) {
+                    List<BXml> sequenceChildren = ((BXmlSequence) refValue).getChildrenList();
                     for (int j = 0; j < sequenceChildren.size(); j++) {
                         backingArray.add(sequenceChildren.get(j));
                     }
-                    lastItem = (BXML) refValue;
+                    lastItem = (BXml) refValue;
                     continue;
                 }
-                backingArray.add((BXML) refValue);
-                lastItem = (BXML) refValue;
+                backingArray.add((BXml) refValue);
+                lastItem = (BXml) refValue;
             }
         }
-        return ValueCreator.createXMLSequence(backingArray);
+        return ValueCreator.createXmlSequence(backingArray);
     }
 }

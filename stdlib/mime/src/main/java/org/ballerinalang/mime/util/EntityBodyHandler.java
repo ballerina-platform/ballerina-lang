@@ -18,19 +18,19 @@
 
 package org.ballerinalang.mime.util;
 
-import io.ballerina.runtime.JSONParser;
-import io.ballerina.runtime.XMLFactory;
-import io.ballerina.runtime.api.ErrorCreator;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.TypeCreator;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.JsonUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.XmlUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXml;
 import org.ballerinalang.stdlib.io.channels.TempFileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
@@ -215,12 +215,12 @@ public class EntityBodyHandler {
         if (isNotNullAndEmpty(contentTypeValue)) {
             String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
             if (isNotNullAndEmpty(charsetValue)) {
-                jsonData = JSONParser.parse(inputStream, charsetValue);
+                jsonData = JsonUtils.parse(inputStream, charsetValue);
             } else {
-                jsonData = JSONParser.parse(inputStream);
+                jsonData = JsonUtils.parse(inputStream);
             }
         } else {
-            jsonData = JSONParser.parse(inputStream);
+            jsonData = JsonUtils.parse(inputStream);
         }
         return jsonData;
     }
@@ -231,7 +231,7 @@ public class EntityBodyHandler {
      * @param entityObj Represent an entity object
      * @return BXML data source which is kept in memory
      */
-    public static BXML constructXmlDataSource(BObject entityObj) {
+    public static BXml constructXmlDataSource(BObject entityObj) {
         Channel byteChannel = getByteChannel(entityObj);
         if (byteChannel == null) {
             throw ErrorCreator.createError(StringUtils.fromString(("Empty xml payload")));
@@ -252,18 +252,18 @@ public class EntityBodyHandler {
      * @param inputStream  Represent the input stream
      * @return BXML data source which is kept in memory
      */
-    public static BXML constructXmlDataSource(BObject entityObj, InputStream inputStream) {
-        BXML xmlContent;
+    public static BXml constructXmlDataSource(BObject entityObj, InputStream inputStream) {
+        BXml xmlContent;
         String contentTypeValue = EntityHeaderHandler.getHeaderValue(entityObj, CONTENT_TYPE);
         if (isNotNullAndEmpty(contentTypeValue)) {
             String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
             if (isNotNullAndEmpty(charsetValue)) {
-                xmlContent = XMLFactory.parse(inputStream, charsetValue);
+                xmlContent = XmlUtils.parse(inputStream, charsetValue);
             } else {
-                xmlContent = XMLFactory.parse(inputStream);
+                xmlContent = XmlUtils.parse(inputStream);
             }
         } else {
-            xmlContent = XMLFactory.parse(inputStream);
+            xmlContent = XmlUtils.parse(inputStream);
         }
         return xmlContent;
     }

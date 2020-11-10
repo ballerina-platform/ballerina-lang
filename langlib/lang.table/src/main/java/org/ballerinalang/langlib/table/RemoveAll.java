@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.table;
 
-import io.ballerina.runtime.api.ErrorCreator;
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BTable;
 
 /**
@@ -32,7 +32,7 @@ public class RemoveAll {
     public static void removeAll(BTable tbl) {
         try {
             tbl.clear();
-        } catch (io.ballerina.runtime.util.exceptions.BLangFreezeException e) {
+        } catch (io.ballerina.runtime.internal.util.exceptions.BLangFreezeException e) {
             throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()),
                                            StringUtils
                                                     .fromString("Failed to remove all from table: " + e.getDetail()));

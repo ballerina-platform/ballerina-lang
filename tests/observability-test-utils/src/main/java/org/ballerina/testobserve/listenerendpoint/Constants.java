@@ -20,7 +20,7 @@ package org.ballerina.testobserve.listenerendpoint;
 
 import io.ballerina.runtime.api.Module;
 
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
 /**
  * Mock Listener related constants.
