@@ -355,50 +355,18 @@
                     <exclude name="waitTest9"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.record.AnonymousClosedRecordTest">
-                <methods>
-                    <exclude name="testAnonStructAsFuncParam"/>
-                    <exclude name="testAnonStructAsLocalVar"/>
-                    <exclude name="testAnonStructAsPkgVar"/>
-                    <exclude name="testAnonStructAsStructField"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.execution.ModuleExecutionFlowTests">
                 <methods>
-                    <exclude name="testModuleDependencyChainForInit"/>
-                    <exclude name="testModuleDependencyChainForStart"/>
-                    <exclude name="testModuleExecutionOrder"/>
-                    <exclude name="testModuleImmediateStopPanic"/>
                     <exclude name="testModuleInitPanic"/>
                     <exclude name="testModuleInitReturningError"/>
-                    <exclude name="testModuleMainPanicError"/>
-                    <exclude name="testModuleMainReturnError"/>
                     <exclude name="testModuleStartAndStopPanic"/>
                     <exclude name="testModuleStartPanic"/>
-                    <exclude name="testModuleStartReturningError"/>
-                    <exclude name="testModuleStopPanic"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.taintchecking.TaintedStatusPropagationTest">
                 <methods>
                     <exclude name="testParameterStatusWithNativeInvocations"/>
                     <exclude name="testParameterStatusWithNativeInvocationsNegative"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.query.QueryExprWithQueryConstructTypeTest">
-                <methods>
-                    <exclude name="testInnerJoinAndLimitReturnStream"/>
-                    <exclude name="testKeyLessTableWithReturnTable"/>
-                    <exclude name="testMultipleFromWhereAndLetReturnStream"/>
-                    <exclude name="testQueryExprWithJoinClauseReturnTable"/>
-                    <exclude name="testQueryExprWithLimitClauseReturnTable"/>
-                    <exclude name="testQueryExprWithOtherClausesReturnTable"/>
-                    <exclude name="testSimpleQueryExprReturnTable"/>
-                    <exclude name="testSimpleQueryReturnStream"/>
-                    <exclude name="testStreamInFromClauseWithReturnStream"/>
-                    <exclude name="testTableNoDuplicatesAndOnConflictReturnTable"/>
-                    <exclude name="testTableWithDuplicateKeys"/>
-                    <exclude name="testTableWithDuplicatesAndOnConflictReturnTable"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.error.ErrorTest">
@@ -439,9 +407,6 @@
             <class name="org.ballerinalang.test.object.ObjectTest">
                 <methods>
                     <exclude name="testObjectAttachFuncReturningTuple"/>
-                    <exclude name="testObjectInitFunctionWithDefaultableParams"/>
-                    <exclude name="testObjectInitFunctionWithDefaultableParams2"/>
-                    <exclude name="testObjectVisibilityModifiers"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.worker.BasicWorkerTest">
@@ -467,65 +432,6 @@
                     <exclude name="waitTest7"/>
                     <exclude name="waitTest8"/>
                     <exclude name="waitTest9"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.expressions.conversion.NativeConversionTest">
-                <methods>
-                    <exclude name="structWithComplexArraysToJson"/>
-                    <exclude name="structWithComplexMapToJson"/>
-                    <exclude name="testAnyRecordToAnydataMap"/>
-                    <exclude name="testArrayToJson1"/>
-                    <exclude name="testArrayToJson2"/>
-                    <exclude name="testConvertWithFuncCall"/>
-                    <exclude name="testConvertWithFuncReturnUnion"/>
-                    <exclude name="testEmptyJSONtoStructWithOptionals"/>
-                    <exclude name="testImplicitConversionToString"/>
-                    <exclude name="testIncompatibleJsonToStruct"/>
-                    <exclude name="testJsonArrayToStruct"/>
-                    <exclude name="testJsonFloatToRecordWithFloat"/>
-                    <exclude name="testJsonIntArrayToStringArray"/>
-                    <exclude name="testJsonToAnyArray"/>
-                    <exclude name="testJsonToArray1"/>
-                    <exclude name="testJsonToArray2"/>
-                    <exclude name="testJsonToArrayFail"/>
-                    <exclude name="testJsonToIntArray"/>
-                    <exclude name="testJsonToMapConstrained1"/>
-                    <exclude name="testJsonToMapConstrained2"/>
-                    <exclude name="testJsonToMapConstrainedFail"/>
-                    <exclude name="testJsonToMapUnconstrained"/>
-                    <exclude name="testJsonToRecordInPackage"/>
-                    <exclude name="testJsonToStringArray"/>
-                    <exclude name="testJsonToStruct"/>
-                    <exclude name="testJsonToStructWithMissingOptionalFields"/>
-                    <exclude name="testJsonToStructWithMissingRequiredFields"/>
-                    <exclude name="testJsonToXmlArray"/>
-                    <exclude name="testJsonWithIncompatibleMapToStruct"/>
-                    <exclude name="testJsonWithIncompatibleStructToStruct"/>
-                    <exclude name="testJsonWithIncompatibleTypeToStruct"/>
-                    <exclude name="testMapToJsonConversion"/>
-                    <exclude name="testMapToRecordInPackage"/>
-                    <exclude name="testMapToStruct"/>
-                    <exclude name="testMapToStructWithMapValueForJsonField"/>
-                    <exclude name="testMapWithIncompatibleArrayToStruct"/>
-                    <exclude name="testMapWithIncompatibleStructToStruct"/>
-                    <exclude name="testMapWithMissingOptionalFieldsToStruct"/>
-                    <exclude name="testNestedMapToNestedStruct"/>
-                    <exclude name="testNonArrayJsonToArray"/>
-                    <exclude name="testNullJsonArrayToArray"/>
-                    <exclude name="testNullJsonToArray"/>
-                    <exclude name="testNullJsonToStruct"/>
-                    <exclude name="testNullStructToJson"/>
-                    <exclude name="testRecordToJsonWithIsJson"/>
-                    <exclude name="testStructArrayConversion1"/>
-                    <exclude name="testStructArrayConversion2"/>
-                    <exclude name="testStructToJson"/>
-                    <exclude name="testStructToMap"/>
-                    <exclude name="testStructToMapWithRefTypeArray"/>
-                    <exclude name="testStructWithIncompatibleTypeMapToJson"/>
-                    <exclude name="testStructWithIncompatibleTypeToJson"/>
-                    <exclude name="testStructWithStringArrayToJSON"/>
-                    <exclude name="testTupleConversion1"/>
-                    <exclude name="testTupleConversion2"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.worker.WaitForAnyActionsTest">
