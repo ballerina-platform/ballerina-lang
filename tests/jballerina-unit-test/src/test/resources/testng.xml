@@ -718,11 +718,6 @@
                     <exclude name="testUsingExistingBallerinaRuntime"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.documentation.MarkdownDocumentationTest">
-                <methods>
-                    <exclude name="testDocNativeFunction"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.worker.NotSoBasicWorkerTest">
                 <methods>
                     <exclude name="chainedWorkerSendReceive"/>
