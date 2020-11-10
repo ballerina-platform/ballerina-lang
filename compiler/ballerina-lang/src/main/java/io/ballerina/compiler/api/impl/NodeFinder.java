@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -162,6 +163,7 @@ class NodeFinder extends BaseVisitor {
 
     private LineRange range;
     private BLangNode enclosingNode;
+    private BLangNode enclosingContainer;
 
     BLangNode lookup(BLangCompilationUnit unit, LineRange range) {
         this.range = range;
@@ -180,6 +182,12 @@ class NodeFinder extends BaseVisitor {
         }
 
         return this.enclosingNode;
+    }
+
+    BLangNode lookupEnclosingContainer(BLangPackage module, BLangCompilationUnit unit, LineRange range) {
+        this.enclosingContainer = module;
+        lookup(unit, range);
+        return this.enclosingContainer;
     }
 
     private void lookupNodes(List<? extends BLangNode> nodes) {
@@ -220,6 +228,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        this.enclosingContainer = funcNode;
         lookupNodes(funcNode.requiredParams);
         lookupNode(funcNode.restParam);
         lookupNode(funcNode.returnTypeNode);
@@ -228,6 +237,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangBlockFunctionBody blockFuncBody) {
+        this.enclosingContainer = blockFuncBody;
         lookupNodes(blockFuncBody.stmts);
     }
 
@@ -291,6 +301,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangBlockStmt blockNode) {
+        this.enclosingContainer = blockNode;
         lookupNodes(blockNode.stmts);
     }
 
