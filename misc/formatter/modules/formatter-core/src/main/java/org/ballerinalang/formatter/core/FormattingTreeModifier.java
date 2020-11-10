@@ -3511,6 +3511,7 @@ public class FormattingTreeModifier extends TreeModifier {
             env.hasNewline = trailingNL > 0;
             env.trailingNL = prevTrailingNL;
             env.trailingWS = prevTrailingWS;
+            env.prevTokensTrailingWS = trailingWS;
         } catch (Exception e) {
             checkForNewline(token);
             LOGGER.error(String.format("Error while formatting [kind: %s] [line: %s] [column:%s]: %s",
@@ -4022,7 +4023,10 @@ public class FormattingTreeModifier extends TreeModifier {
     private MinutiaeList getTrailingMinutiae(Token token) {
         List<Minutiae> trailingMinutiae = new ArrayList<>();
         Minutiae prevMinutiae = null;
-        if (env.trailingWS > 0) {
+
+        // If the token is a missing token and if the previous token has trailing whitespaces,
+        // new whitespaces are not added.
+        if (env.trailingWS > 0 && !(token.isMissing() && env.prevTokensTrailingWS > 0)) {
             addWhitespace(env.trailingWS, trailingMinutiae);
         }
 
