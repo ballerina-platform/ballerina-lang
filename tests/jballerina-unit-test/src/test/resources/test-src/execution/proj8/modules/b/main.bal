@@ -1,4 +1,4 @@
-import unit_tests/proj8.a;
+import unit_tests/proj8.a as a;
 import ballerina/io;
 
 function init() {

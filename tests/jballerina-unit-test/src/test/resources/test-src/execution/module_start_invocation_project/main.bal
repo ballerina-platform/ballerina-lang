@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/module_start_invocation_project.basic;
-import testorg/module_start_invocation_project.dependent1;
-import testorg/module_start_invocation_project.dependent2;
+import testorg/module_start_invocation_project.basic as basic;
+import testorg/module_start_invocation_project.dependent1 as dependent1;
+import testorg/module_start_invocation_project.dependent2 as dependent2;
 
 import ballerina/io;
 

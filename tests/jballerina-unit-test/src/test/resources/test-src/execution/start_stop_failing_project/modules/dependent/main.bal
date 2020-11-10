@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/start_stop_failing_project.basic;
+import testorg/start_stop_failing_project.basic as basic;
 import ballerina/io;
 
 function init() {

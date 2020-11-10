@@ -1,4 +1,4 @@
-import unit_tests/proj2.a;
+import unit_tests/proj2.a as a;
 import ballerina/io;
 
 function init() returns error? {

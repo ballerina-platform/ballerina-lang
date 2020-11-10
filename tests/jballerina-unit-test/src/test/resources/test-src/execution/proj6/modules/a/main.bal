@@ -5,6 +5,9 @@ function init() {
 	io:println("Initializing module a");
 }
 
+public function main() {
+}
+
 public class ABC {
 
     *'object:Listener;
