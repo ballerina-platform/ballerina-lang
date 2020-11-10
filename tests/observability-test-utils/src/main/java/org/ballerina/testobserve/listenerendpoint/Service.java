@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BObject;
 
 import java.util.Objects;
 
-import static io.ballerina.runtime.api.TypeConstants.STRING_TNAME;
+import static io.ballerina.runtime.api.constants.TypeConstants.STRING_TNAME;
 import static org.ballerina.testobserve.listenerendpoint.Constants.CALLER_TYPE_NAME;
 import static org.ballerina.testobserve.listenerendpoint.Constants.TEST_OBSERVE_PACKAGE;
 

@@ -54,10 +54,22 @@
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "a"
+                  "value": "a",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
-                  "kind": "EQUAL_TOKEN"
+                  "kind": "EQUAL_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
                   "kind": "NIL_LITERAL",
@@ -81,7 +93,13 @@
           ]
         },
         {
-          "kind": "CLOSE_PAREN_TOKEN"
+          "kind": "CLOSE_PAREN_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -178,26 +196,50 @@
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "value": "a"
+                                  "value": "a",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             },
                             {
-                              "kind": "PLUS_TOKEN"
+                              "kind": "PLUS_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "value": "b"
+                                  "value": "b",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }
                           ]
                         },
                         {
-                          "kind": "PLUS_TOKEN"
+                          "kind": "PLUS_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         },
                         {
                           "kind": "SIMPLE_NAME_REFERENCE",

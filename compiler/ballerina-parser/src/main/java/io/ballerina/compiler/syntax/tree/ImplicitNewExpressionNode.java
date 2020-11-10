@@ -101,7 +101,6 @@ public class ImplicitNewExpressionNode extends NewExpressionNode {
 
         public ImplicitNewExpressionNodeModifier withParenthesizedArgList(
                 ParenthesizedArgList parenthesizedArgList) {
-            Objects.requireNonNull(parenthesizedArgList, "parenthesizedArgList must not be null");
             this.parenthesizedArgList = parenthesizedArgList;
             return this;
         }

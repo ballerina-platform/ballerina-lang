@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.value;
 
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 /**

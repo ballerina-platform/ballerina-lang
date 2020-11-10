@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import io.ballerina.runtime.IdentifierUtils;
+import io.ballerina.runtime.internal.IdentifierUtils;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.OrderKeyNode;
@@ -77,6 +77,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
@@ -126,6 +127,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -1665,7 +1667,7 @@ public class TypeChecker extends BLangNodeVisitor {
             recordSymbol.scope.define(fieldName, fieldSymbol);
         }
 
-        BRecordType recordType = new BRecordType(recordSymbol);
+        BRecordType recordType = new BRecordType(recordSymbol, recordSymbol.flags);
         if (applicableMappingType.tag == TypeTags.MAP) {
             recordType.sealed = false;
             recordType.restFieldType = ((BMapType) applicableMappingType).constraint;
@@ -2181,7 +2183,7 @@ public class TypeChecker extends BLangNodeVisitor {
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
 
         String recordName = this.anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.symbol.pkgID);
-        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, names.fromString(recordName),
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.ANONYMOUS, names.fromString(recordName),
                                                                     env.enclPkg.symbol.pkgID, null, env.scope.owner,
                                                                     varRefExpr.pos, SOURCE);
         symbolEnter.defineSymbol(varRefExpr.pos, recordSymbol, env);
@@ -2874,6 +2876,75 @@ public class TypeChecker extends BLangNodeVisitor {
         return true;
     }
 
+    @Override
+    public void visit(BLangObjectConstructorExpression objectCtorExpression) {
+        if (objectCtorExpression.referenceType == null && objectCtorExpression.expectedType != null) {
+            BObjectType objectType = (BObjectType) objectCtorExpression.classNode.type;
+            if (objectCtorExpression.expectedType.tag == TypeTags.OBJECT) {
+                BObjectType expObjType = (BObjectType) objectCtorExpression.expectedType;
+                objectType.typeIdSet = expObjType.typeIdSet;
+            } else if (objectCtorExpression.expectedType.tag != TypeTags.NONE) {
+                if (!checkAndLoadTypeIdSet(objectCtorExpression.expectedType, objectType)) {
+                    dlog.error(objectCtorExpression.pos, DiagnosticCode.INVALID_TYPE_OBJECT_CONSTRUCTOR,
+                            objectCtorExpression.expectedType);
+                    resultType = symTable.semanticError;
+                    return;
+                }
+            }
+        }
+        visit(objectCtorExpression.typeInit);
+    }
+
+    private boolean isDefiniteObjectType(BType type, Set<BTypeIdSet> typeIdSets) {
+        if (type.tag != TypeTags.OBJECT && type.tag != TypeTags.UNION) {
+            return false;
+        }
+
+        Set<BType> visitedTypes = new HashSet<>();
+        if (!collectObjectTypeIds(type, typeIdSets, visitedTypes)) {
+            return false;
+        }
+        return typeIdSets.size() <= 1;
+    }
+
+    private boolean collectObjectTypeIds(BType type, Set<BTypeIdSet> typeIdSets, Set<BType> visitedTypes) {
+        if (type.tag == TypeTags.OBJECT) {
+            var objectType = (BObjectType) type;
+            typeIdSets.add(objectType.typeIdSet);
+            return true;
+        }
+        if (type.tag == TypeTags.UNION) {
+            if (!visitedTypes.add(type)) {
+                return true;
+            }
+            for (BType member : ((BUnionType) type).getMemberTypes()) {
+                if (!collectObjectTypeIds(member, typeIdSets, visitedTypes)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkAndLoadTypeIdSet(BType type, BObjectType objectType) {
+        Set<BTypeIdSet> typeIdSets = new HashSet<>();
+        if (!isDefiniteObjectType(type, typeIdSets)) {
+            return false;
+        }
+        if (typeIdSets.isEmpty()) {
+            objectType.typeIdSet = BTypeIdSet.emptySet();
+            return true;
+        }
+        var typeIdIterator = typeIdSets.iterator();
+        if (typeIdIterator.hasNext()) {
+            BTypeIdSet typeIdSet = typeIdIterator.next();
+            objectType.typeIdSet = typeIdSet;
+            return true;
+        }
+        return true;
+    }
+
     public void visit(BLangTypeInit cIExpr) {
         if ((expType.tag == TypeTags.ANY && cIExpr.userDefinedType == null) || expType.tag == TypeTags.RECORD) {
             dlog.error(cIExpr.pos, DiagnosticCode.INVALID_TYPE_NEW_LITERAL, expType);
@@ -3001,7 +3072,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BUnionType createNextReturnType(Location pos, BStreamType streamType) {
-        BRecordType recordType = new BRecordType(null);
+        BRecordType recordType = new BRecordType(null, Flags.ANONYMOUS);
         recordType.restFieldType = symTable.noType;
         recordType.sealed = true;
 
@@ -3012,7 +3083,7 @@ public class TypeChecker extends BLangNodeVisitor {
         field.type = streamType.constraint;
         recordType.fields.put(field.name.value, field);
 
-        recordType.tsymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.packageID,
+        recordType.tsymbol = Symbols.createRecordSymbol(Flags.ANONYMOUS, Names.EMPTY, env.enclPkg.packageID,
                                                         recordType, env.scope.owner, pos, VIRTUAL);
         recordType.tsymbol.scope = new Scope(env.scope.owner);
         recordType.tsymbol.scope.define(fieldName, field.symbol);
@@ -3253,7 +3324,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BRecordType getWaitForAllExprReturnType(List<BLangWaitForAllExpr.BLangWaitKeyValue> keyVals,
                                                     Location pos) {
-        BRecordType retType = new BRecordType(null);
+        BRecordType retType = new BRecordType(null, Flags.ANONYMOUS);
 
         for (BLangWaitForAllExpr.BLangWaitKeyValue keyVal : keyVals) {
             BLangIdentifier fieldName;
@@ -3273,8 +3344,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         retType.restFieldType = symTable.noType;
         retType.sealed = true;
-        retType.tsymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.packageID, retType, null, pos,
-                                                     VIRTUAL);
+        retType.tsymbol = Symbols.createRecordSymbol(Flags.ANONYMOUS, Names.EMPTY, env.enclPkg.packageID, retType, null,
+                                                     pos, VIRTUAL);
         return retType;
     }
 
@@ -7174,7 +7245,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private BRecordTypeSymbol createRecordTypeSymbol(PackageID pkgID, Location location,
                                                      SymbolOrigin origin) {
         BRecordTypeSymbol recordSymbol =
-                Symbols.createRecordSymbol(0, names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(pkgID)),
+                Symbols.createRecordSymbol(Flags.ANONYMOUS,
+                                           names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(pkgID)),
                                            pkgID, null, env.scope.owner, location, origin);
 
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);

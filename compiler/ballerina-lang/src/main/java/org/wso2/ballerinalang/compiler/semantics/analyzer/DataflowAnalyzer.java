@@ -106,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParam
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -466,6 +467,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         classDefinition.functions.forEach(function -> analyzeNode(function, env));
         classDefinition.typeRefs.forEach(type -> analyzeNode(type, env));
         this.currDependentSymbol.pop();
+    }
+
+    @Override
+    public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
+        visit(objectConstructorExpression.typeInit);
     }
 
     @Override

@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.XMLNodeType;
-import io.ballerina.runtime.api.values.BXML;
-import io.ballerina.runtime.api.values.BXMLSequence;
-import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlSequence;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.List;
 
@@ -43,9 +43,9 @@ public class Get {
 
     public static final int LENGTH_OF_ONE = 1;
 
-    public static BXML get(BXML xmlVal, long i) {
+    public static BXml get(BXml xmlVal, long i) {
         // Handle single xml items
-        XMLNodeType nodeType = xmlVal.getNodeType();
+        XmlNodeType nodeType = xmlVal.getNodeType();
         switch (nodeType) {
             case ELEMENT:
             case COMMENT:
@@ -59,12 +59,12 @@ public class Get {
         }
 
         // Handle xml sequence
-        List<BXML> childrenList = ((BXMLSequence) xmlVal).getChildrenList();
+        List<BXml> childrenList = ((BXmlSequence) xmlVal).getChildrenList();
         int size = childrenList.size();
         if (i < 0 || i >= size) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_SEQUENCE_INDEX_OUT_OF_RANGE, size, i);
         }
 
-        return (BXML) childrenList.get((int) i);
+        return (BXml) childrenList.get((int) i);
     }
 }

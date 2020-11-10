@@ -408,11 +408,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void populateDistinctTypeIdsFromIncludedTypeReferences(BLangTypeDefinition typeDefinition) {
-        if (!typeDefinition.typeNode.flagSet.contains(Flag.DISTINCT)) {
-            return;
-        }
-
-        if (typeDefinition.typeNode.type.tag != TypeTags.OBJECT) {
+        if (typeDefinition.typeNode.getKind() != NodeKind.OBJECT_TYPE) {
             return;
         }
 
@@ -425,17 +421,17 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             BObjectType refType = (BObjectType) typeRef.type;
 
-            typeIdSet.primary.addAll(refType.typeIdSet.primary);
-            typeIdSet.secondary.addAll(refType.typeIdSet.secondary);
+            if (!refType.typeIdSet.primary.isEmpty()) {
+                typeIdSet.primary.addAll(refType.typeIdSet.primary);
+            }
+            if (!refType.typeIdSet.secondary.isEmpty()) {
+                typeIdSet.secondary.addAll(refType.typeIdSet.secondary);
+            }
         }
     }
 
     private void populateDistinctTypeIdsFromIncludedTypeReferences(BLangClassDefinition typeDef) {
         BLangClassDefinition classDefinition = typeDef;
-        if (!classDefinition.flagSet.contains(Flag.DISTINCT)) {
-            return;
-        }
-
         BTypeIdSet typeIdSet = ((BObjectType) classDefinition.type).typeIdSet;
 
         for (BLangType typeRef : classDefinition.typeRefs) {
@@ -444,8 +440,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             BObjectType refType = (BObjectType) typeRef.type;
 
-            typeIdSet.primary.addAll(refType.typeIdSet.primary);
-            typeIdSet.secondary.addAll(refType.typeIdSet.secondary);
+            if (!refType.typeIdSet.primary.isEmpty()) {
+                typeIdSet.primary.addAll(refType.typeIdSet.primary);
+            }
+            if (!refType.typeIdSet.secondary.isEmpty()) {
+                typeIdSet.secondary.addAll(refType.typeIdSet.secondary);
+            }
         }
     }
 
@@ -599,7 +599,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BTypeSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags), className, env.enclPkg.symbol.pkgID, null,
                                                         env.scope.owner, classDefinition.name.pos,
-                                                        getOrigin(className));
+                                                        getOrigin(className, flags));
         tSymbol.scope = new Scope(tSymbol);
         tSymbol.markdownDocumentation = getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
 
@@ -622,8 +622,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         if (flags.contains(Flag.DISTINCT)) {
-            objectType.typeIdSet = BTypeIdSet.from(env.enclPkg.symbol.pkgID, classDefinition.name.value, isPublicType,
-                    BTypeIdSet.emptySet());
+            objectType.typeIdSet = BTypeIdSet.from(env.enclPkg.symbol.pkgID, classDefinition.name.value, isPublicType);
+        }
+
+        if (flags.contains(Flag.CLIENT)) {
+            objectType.flags |= Flags.CLIENT;
         }
 
         tSymbol.type = objectType;
@@ -2926,6 +2929,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         variable.type = invokableType;
+    }
+
+    private SymbolOrigin getOrigin(Name name, Set<Flag> flags) {
+        if (flags.contains(Flag.SERVICE) || missingNodesHelper.isMissingNode(name)) {
+            return VIRTUAL;
+        }
+        return SOURCE;
     }
 
     private SymbolOrigin getOrigin(Name name) {

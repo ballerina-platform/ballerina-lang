@@ -138,14 +138,12 @@ public class ModuleXMLNamespaceDeclarationNode extends ModuleMemberDeclarationNo
 
         public ModuleXMLNamespaceDeclarationNodeModifier withAsKeyword(
                 Token asKeyword) {
-            Objects.requireNonNull(asKeyword, "asKeyword must not be null");
             this.asKeyword = asKeyword;
             return this;
         }
 
         public ModuleXMLNamespaceDeclarationNodeModifier withNamespacePrefix(
                 IdentifierToken namespacePrefix) {
-            Objects.requireNonNull(namespacePrefix, "namespacePrefix must not be null");
             this.namespacePrefix = namespacePrefix;
             return this;
         }

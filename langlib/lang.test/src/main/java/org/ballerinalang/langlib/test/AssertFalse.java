@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.test;
 
-import io.ballerina.runtime.api.ErrorCreator;
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 
 /**
  * Native implementation of assertFalse(boolean value).

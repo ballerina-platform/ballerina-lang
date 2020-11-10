@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import io.ballerina.runtime.internal.IdentifierUtils;
 import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
@@ -82,6 +83,7 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
@@ -180,7 +182,9 @@ class JvmObservabilityGen {
      * @param pkg The package containing the function
      */
     private void rewriteAsyncInvocations(BIRFunction func, BIRTypeDefinition attachedTypeDef, BIRPackage pkg) {
-        PackageID currentPkgId = new PackageID(pkg.org, pkg.name, pkg.version);
+        Name org = new Name(IdentifierUtils.decodeIdentifier(pkg.org.value));
+        Name module = new Name(IdentifierUtils.decodeIdentifier(pkg.name.value));
+        PackageID currentPkgId = new PackageID(org, module, pkg.version);
         BSymbol functionOwner;
         List<BIRFunction> scopeFunctionsList;
         if (attachedTypeDef == null) {
@@ -580,8 +584,8 @@ class JvmObservabilityGen {
         JIMethodCall observeStartCallTerminator = new JIMethodCall(null);
         observeStartCallTerminator.invocationType = INVOKESTATIC;
         observeStartCallTerminator.jClassName = OBSERVE_UTILS;
-        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;L%s;)V", B_STRING_VALUE, B_STRING_VALUE,
-                                                                B_STRING_VALUE, B_STRING_VALUE);
+        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;L%s;L%s;)V",
+                                        BAL_ENV, B_STRING_VALUE, B_STRING_VALUE, B_STRING_VALUE, B_STRING_VALUE);
         observeStartCallTerminator.name = START_RESOURCE_OBSERVATION_METHOD;
         observeStartCallTerminator.args = Arrays.asList(serviceNameOperand, resourceOperand, pkgOperand,
                 originalInsPosOperand);
@@ -620,8 +624,8 @@ class JvmObservabilityGen {
         JIMethodCall observeStartCallTerminator = new JIMethodCall(desugaredInsLocation);
         observeStartCallTerminator.invocationType = INVOKESTATIC;
         observeStartCallTerminator.jClassName = OBSERVE_UTILS;
-        observeStartCallTerminator.jMethodVMSig = String.format("(ZZZL%s;L%s;L%s;L%s;)V", B_OBJECT, B_STRING_VALUE,
-                                                                B_STRING_VALUE, B_STRING_VALUE);
+        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;ZZZL%s;L%s;L%s;L%s;)V", BAL_ENV, B_OBJECT,
+                                                                B_STRING_VALUE, B_STRING_VALUE, B_STRING_VALUE);
         observeStartCallTerminator.name = START_CALLABLE_OBSERVATION_METHOD;
         observeStartCallTerminator.args = Arrays.asList(isRemoteOperand, isMainEntryPointOperand, isWorkerOperand,
                 objectOperand, actionOperand, pkgOperand, originalInsPosOperand);
@@ -675,7 +679,7 @@ class JvmObservabilityGen {
         JIMethodCall reportErrorCallTerminator = new JIMethodCall(pos);
         reportErrorCallTerminator.invocationType = INVOKESTATIC;
         reportErrorCallTerminator.jClassName = OBSERVE_UTILS;
-        reportErrorCallTerminator.jMethodVMSig = String.format("(L%s;)V", ERROR_VALUE);
+        reportErrorCallTerminator.jMethodVMSig = String.format("(L%s;L%s;)V", BAL_ENV, ERROR_VALUE);
         reportErrorCallTerminator.name = REPORT_ERROR_METHOD;
         reportErrorCallTerminator.args = Collections.singletonList(castedErrorOperand);
         errorReportBB.terminator = reportErrorCallTerminator;
@@ -691,7 +695,7 @@ class JvmObservabilityGen {
         JIMethodCall observeEndCallTerminator = new JIMethodCall(pos);
         observeEndCallTerminator.invocationType = INVOKESTATIC;
         observeEndCallTerminator.jClassName = OBSERVE_UTILS;
-        observeEndCallTerminator.jMethodVMSig = "()V";
+        observeEndCallTerminator.jMethodVMSig = String.format("(L%s;)V", BAL_ENV);
         observeEndCallTerminator.name = STOP_OBSERVATION_METHOD;
         observeEndCallTerminator.args = Collections.emptyList();
         observeEndBB.terminator = observeEndCallTerminator;

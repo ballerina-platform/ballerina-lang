@@ -15,6 +15,10 @@
           "hasDiagnostics": true,
           "children": [
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
               "children": [
@@ -27,12 +31,6 @@
                         {
                           "kind": "STRING_LITERAL_TOKEN",
                           "value": "http://ballerinalang.org/ns1",
-                          "leadingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ],
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",

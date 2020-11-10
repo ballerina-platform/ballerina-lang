@@ -19,11 +19,11 @@
 package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXml;
 
 /**
  * Native implementation of lang.xml.XMLIterator:next().
@@ -43,7 +43,7 @@ public class Next {
         BIterator xmlIterator = (BIterator) m.getNativeData("&iterator&");
 
         if (xmlIterator == null) {
-            xmlIterator = ((BXML) m.get(StringUtils.fromString("m"))).getIterator();
+            xmlIterator = ((BXml) m.get(StringUtils.fromString("m"))).getIterator();
             m.addNativeData("&iterator&", xmlIterator);
         }
 

@@ -19,10 +19,10 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.observability.ObservabilityConstants;
-import io.ballerina.runtime.scheduling.Scheduler;
 
 import static org.ballerinalang.observe.nativeimpl.OpenTracerBallerinaWrapper.ROOT_SPAN_INDICATOR;
 
@@ -32,10 +32,9 @@ import static org.ballerinalang.observe.nativeimpl.OpenTracerBallerinaWrapper.RO
 
 public class StartRootSpan {
 
-    public static long startRootSpan(BString spanName, Object tags) {
-        return OpenTracerBallerinaWrapper.getInstance().startSpan(
-                (String) Scheduler.getStrand().getProperty(ObservabilityConstants.SERVICE_NAME),
-                spanName.getValue(), Utils.toStringMap((BMap<BString, ?>) tags), ROOT_SPAN_INDICATOR,
-                Scheduler.getStrand());
+    public static long startRootSpan(Environment env,  BString spanName, Object tags) {
+        return OpenTracerBallerinaWrapper.getInstance().startSpan(env,
+                        (String) env.getStrandLocal(ObservabilityConstants.SERVICE_NAME),
+                        spanName.getValue(), Utils.toStringMap((BMap<BString, ?>) tags), ROOT_SPAN_INDICATOR);
     }
 }
