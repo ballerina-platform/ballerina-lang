@@ -97,7 +97,8 @@ public class XMLLiteralTest {
         Assert.assertEquals(index, negativeResult.getErrorCount());
 
         // XML iterator return type
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: 'xml' will not be matched to 'string'", 81, 29);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: 'xml' will not be matched to 'string'",
+                81, 29);
     }
 
     @Test
