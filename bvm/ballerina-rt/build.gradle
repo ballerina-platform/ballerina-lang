@@ -119,6 +119,9 @@ dependencies {
     dist 'com.atomikos:transactions:5.0.8'
     dist 'javax.transaction:javax.transaction-api:1.3'
 
+    // debugger runtime helpers
+    dist project(path: ':debug-adapter:debug-adapter-runtime', configuration: 'birJar')
+
     // Other Runtime Libs
     dist project(':ballerina-runtime')
     dist project(':ballerina-core')
