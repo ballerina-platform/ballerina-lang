@@ -123,4 +123,15 @@ public class TypeUtils {
     public static Type getType(Object value) {
         return TypeChecker.getType(value);
     }
+
+    /**
+     * Check whether two types are the same.
+     *
+     * @param sourceType type to test
+     * @param targetType type to test against
+     * @return true if the two types are same; false otherwise
+     */
+    public static boolean isSameType(Type sourceType, Type targetType) {
+        return TypeChecker.isSameType(sourceType, targetType);
+    }
 }
