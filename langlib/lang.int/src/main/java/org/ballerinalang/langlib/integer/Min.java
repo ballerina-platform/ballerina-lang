@@ -18,33 +18,24 @@
 
 package org.ballerinalang.langlib.integer;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.INT_VERSION;
-
 /**
  * Native implementation of lang.int:min(int, int...).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.int", version = INT_VERSION, functionName = "min",
-        args = {@Argument(name = "n", type = TypeKind.INT), @Argument(name = "ns", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.int", functionName = "min",
+//        args = {@Argument(name = "n", type = TypeKind.INT), @Argument(name = "ns", type = TypeKind.ARRAY)},
+//        returnType = {@ReturnType(type = TypeKind.INT)},
+//        isPublic = true
+//)
 public class Min {
 
-    public static long min(Strand strand, long n, ArrayValue ns) {
+    public static long min(long n, long[] ns) {
         long min = n;
-        int size = ns.size();
+        int size = ns.length;
         for (int i = 0; i < size; i++) {
-            long current = ns.getInt(i);
+            long current = ns[i];
             min = current <= min ? current : min;
         }
         return min;

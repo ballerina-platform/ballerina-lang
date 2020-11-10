@@ -104,7 +104,7 @@ function testTableArrayFill(int index) {
         }
     }
 
-    assertEquality("id=1 name=John salary=50000.0", ar[index].toString());
+    assertEquality("[{\"id\":1,\"name\":\"John\",\"salary\":50000.0}]", ar[index].toString());
     assertEquality("John", name.trim());
 }
 
@@ -267,7 +267,7 @@ function testSingletonTypeArrayStaticFill() returns bTrue[] {
     return bTrueAr1;
 }
 
-type Student object {
+class Student {
     public string name;
     public int age;
 
@@ -275,7 +275,7 @@ type Student object {
         self.name = name;
         self.age = age;
     }
-};
+}
 
 function testSequentialArrayInsertion() returns Student[] {
     Student s = new("Grainier", 28);
@@ -294,13 +294,13 @@ function testTwoDimensionalArrayFill() returns int[][] {
     return x;
 }
 
-type Obj object {
+class Obj {
     int i;
 
     function init() {
         self.i = 1;
     }
-};
+}
 
 function testArrayFillWithObjs() returns Obj[][] {
     Obj o = new;

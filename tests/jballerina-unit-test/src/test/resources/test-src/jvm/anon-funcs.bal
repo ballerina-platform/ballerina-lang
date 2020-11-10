@@ -90,3 +90,13 @@ function basicWorkerTest() returns int {
     
     return global + result;
 }
+
+public function testQualifiers() {
+    foo(isolated function () {
+
+    });
+}
+
+function foo(isolated function() x) {
+
+}

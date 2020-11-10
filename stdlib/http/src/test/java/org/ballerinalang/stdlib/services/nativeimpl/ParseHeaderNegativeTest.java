@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.services.nativeimpl;
 
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -62,7 +62,7 @@ public class ParseHeaderNegativeTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BError);
         Assert.assertEquals(((BError) returnVals[0]).getMessage(),
-                            "failed to parse: error invalid header value: ;a = 2");
+                            "failed to parse: error(\"invalid header value: ;a = 2\")");
     }
 
     @Test(description = "Test function with invalid param values")
@@ -74,7 +74,7 @@ public class ParseHeaderNegativeTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BError);
         Assert.assertEquals(((BError) returnVals[0]).getMessage(),
-                            "failed to parse: error invalid header parameter: a =");
+                            "failed to parse: error(\"invalid header parameter: a =\")");
     }
 
     @Test(description = "Test function with invalid param values")
@@ -86,7 +86,7 @@ public class ParseHeaderNegativeTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BError);
         Assert.assertEquals(((BError) returnVals[0]).getMessage(),
-                            "failed to parse: error invalid header parameter: =");
+                            "failed to parse: error(\"invalid header parameter: =\")");
     }
 
     @Test(description = "Test function with invalid param values")
@@ -98,6 +98,6 @@ public class ParseHeaderNegativeTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BError);
         Assert.assertEquals(((BError) returnVals[0]).getMessage(),
-                            "failed to parse: error invalid header parameter: = 2");
+                            "failed to parse: error(\"invalid header parameter: = 2\")");
     }
 }

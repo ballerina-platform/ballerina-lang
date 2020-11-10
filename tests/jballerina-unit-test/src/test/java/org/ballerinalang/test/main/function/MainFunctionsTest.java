@@ -16,9 +16,9 @@
  */
 package org.ballerinalang.test.main.function;
 
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.types.BTypes;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -87,7 +87,7 @@ public class MainFunctionsTest {
         assertTrue(result.consoleOutput.startsWith("error? returning main invoked"),
                             "expected the main function to be invoked");
         assertTrue(result.errorOutput.contains("const error reason"), "invalid error reason");
-        assertTrue(result.errorOutput.contains("message=error message"), "invalid error message");
+        assertTrue(result.errorOutput.contains("{\"message\":\"error message\""), "invalid error message");
     }
 
     @Test(groups = { "disableOnOldParser" })

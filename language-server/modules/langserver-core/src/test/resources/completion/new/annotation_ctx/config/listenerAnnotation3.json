@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 11,
+    "character": 9
+  },
+  "source": "annotation_ctx/source/listenerAnnotation3.bal",
+  "items": [
+    {
+      "label": "sourceVarAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "sourceVarAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sourceVarAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "sourceVarAnnotation2",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

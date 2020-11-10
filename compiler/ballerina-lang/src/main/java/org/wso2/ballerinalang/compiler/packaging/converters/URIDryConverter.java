@@ -18,9 +18,9 @@
 
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
-import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.JSONParser;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.toml.model.Manifest;
@@ -128,8 +128,8 @@ public class URIDryConverter extends URIConverter {
                             result.append(line);
                         }
                         Object payload = JSONParser.parse(result.toString());
-                        if (payload instanceof MapValue) {
-                            MapValue moduleInfo = ((MapValue) payload).getMapValue(StringUtils.fromString("module"));
+                        if (payload instanceof BMap) {
+                            BMap moduleInfo = ((BMap) payload).getMapValue(StringUtils.fromString("module"));
                             String version = moduleInfo.getStringValue(StringUtils.fromString("version")).getValue();
                             moduleID.version = new Name(version);
                         }

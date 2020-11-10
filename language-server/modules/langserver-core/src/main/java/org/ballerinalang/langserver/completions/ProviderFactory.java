@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.completions;
 
-import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.Node;
 import org.ballerinalang.langserver.commons.completion.spi.CompletionProvider;
 
 import java.util.HashMap;

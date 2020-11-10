@@ -5,7 +5,7 @@ function init() {
 	io:println("Initializing module a");
 }
 
-public type ABC object {
+public class ABC {
 
     *'object:Listener;
     private string name = "";
@@ -35,6 +35,6 @@ public type ABC object {
     public function __detach(service s) returns error? {
         io:println("a:ABC listener __detach called, service name - " + self.name);
     }
-};
+}
 
 listener ABC ep = new ABC("ModA");

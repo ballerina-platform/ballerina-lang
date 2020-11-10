@@ -38,6 +38,7 @@ dependencies {
     implementation project(':ballerina-logging')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-tool')
+    implementation project(':ballerina-tools-api')
     implementation project(':testerina:testerina-core')
     implementation project(':testerina:testerina-runtime')
     implementation project(':docerina')
@@ -89,3 +90,15 @@ test {
 }
 
 description = 'Ballerina - Packerina'
+
+ext.moduleName = 'ballerina-packerina'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

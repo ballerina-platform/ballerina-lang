@@ -18,13 +18,13 @@
 
 package org.ballerinalang.stdlib.auth.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ValueCreator;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_AUTH_PKG_ID;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_AUTH_PKG_ID;
 
 /**
  * Extern function to get auth invocation context record.
@@ -32,19 +32,18 @@ import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_AUTH_PKG_ID;
  */
 public class GetInvocationContext {
 
-    public static MapValue<BString, Object> getInvocationContext() {
+    public static BMap<BString, Object> getInvocationContext() {
         return getInvocationContextRecord(Scheduler.getStrand());
     }
 
     private static final String AUTH_INVOCATION_CONTEXT_PROPERTY = "AuthInvocationContext";
     private static final String RECORD_TYPE_INVOCATION_CONTEXT = "InvocationContext";
-    private static final ValueCreator valueCreator = ValueCreator.getValueCreator(BALLERINA_AUTH_PKG_ID.toString());
 
-    private static MapValue<BString, Object> getInvocationContextRecord(Strand strand) {
-        MapValue<BString, Object> invocationContext =
-                (MapValue<BString, Object>) strand.getProperty(AUTH_INVOCATION_CONTEXT_PROPERTY);
+    private static BMap<BString, Object> getInvocationContextRecord(Strand strand) {
+        BMap<BString, Object> invocationContext =
+                (BMap<BString, Object>) strand.getProperty(AUTH_INVOCATION_CONTEXT_PROPERTY);
         if (invocationContext == null) {
-            invocationContext = valueCreator.createRecordValue(RECORD_TYPE_INVOCATION_CONTEXT);
+            invocationContext = ValueCreator.createRecordValue(BALLERINA_AUTH_PKG_ID, RECORD_TYPE_INVOCATION_CONTEXT);
             strand.setProperty(AUTH_INVOCATION_CONTEXT_PROPERTY, invocationContext);
         }
         return invocationContext;

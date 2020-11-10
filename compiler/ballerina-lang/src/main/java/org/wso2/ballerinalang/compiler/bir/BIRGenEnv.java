@@ -56,6 +56,7 @@ class BIRGenEnv {
     BIROperand targetOperand;
     BIRBasicBlock enclLoopBB;
     BIRBasicBlock enclLoopEndBB;
+    BIRBasicBlock enclOnFailEndBB;
 
     List<BIRAnnotationAttachment> enclAnnotAttachments;
 

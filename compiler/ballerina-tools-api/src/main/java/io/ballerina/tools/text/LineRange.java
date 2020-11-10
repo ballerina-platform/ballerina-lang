@@ -73,4 +73,5 @@ public class LineRange {
     public String toString() {
         return "(" + startLine + "," + endLine + ")";
     }
+
 }

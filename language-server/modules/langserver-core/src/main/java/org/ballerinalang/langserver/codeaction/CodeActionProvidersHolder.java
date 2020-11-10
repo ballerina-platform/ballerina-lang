@@ -63,6 +63,9 @@ public class CodeActionProvidersHolder {
                         case OBJECT:
                             nodeBasedProviders.get(CodeActionNodeType.OBJECT).add(provider);
                             break;
+                        case CLASS:
+                            nodeBasedProviders.get(CodeActionNodeType.CLASS).add(provider);
+                            break;
                         case SERVICE:
                             nodeBasedProviders.get(CodeActionNodeType.SERVICE).add(provider);
                             break;
@@ -74,6 +77,9 @@ public class CodeActionProvidersHolder {
                             break;
                         case OBJECT_FUNCTION:
                             nodeBasedProviders.get(CodeActionNodeType.OBJECT_FUNCTION).add(provider);
+                            break;
+                        case CLASS_FUNCTION:
+                            nodeBasedProviders.get(CodeActionNodeType.CLASS_FUNCTION).add(provider);
                             break;
                         default:
                             break;

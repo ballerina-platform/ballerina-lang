@@ -18,40 +18,26 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 
-import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
-import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+import static io.ballerina.runtime.util.BLangConstants.STRING_LANG_LIB;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static org.ballerinalang.langlib.string.utils.StringUtils.createNullReferenceError;
 
 /**
  * Extern function ballerina.model.strings:indexOf.
  *
  * @since 0.8.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION,
-        functionName = "indexOf",
-        args = {@Argument(name = "s", type = TypeKind.STRING),
-                @Argument(name = "substring", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.UNION)},
-        isPublic = true
-)
 public class IndexOf {
 
-    public static Object indexOf(Strand strand, BString bStr, BString subString, long startIndx) {
+    public static Object indexOf(BString bStr, BString subString, long startIndx) {
 
         if (bStr == null || subString == null) {
-            throw BallerinaErrors.createNullReferenceError();
+            throw createNullReferenceError();
         }
         if (startIndx > Integer.MAX_VALUE) {
             throw BLangExceptionHelper.getRuntimeException(getModulePrefixedReason(STRING_LANG_LIB,

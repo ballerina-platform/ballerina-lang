@@ -142,7 +142,7 @@ function getPerson() returns (json<Person>) {
 }
 
 function getStudent() returns (json<Student>) {
-    json<Student> j = { name: "John Doe", age: 30, address: "Colombo", class: "5" };
+    json<Student> j = { name: "John Doe", age: 30, address: "Colombo", 'class: "5" };
     return j;
 }
 

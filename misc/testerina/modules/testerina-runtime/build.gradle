@@ -30,12 +30,12 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-config')
     implementation 'com.google.code.gson:gson'
-    dist 'com.google.code.gson:gson:2.7'
-    dist 'org.jacoco:org.jacoco.core:0.8.5'
-    dist 'org.jacoco:org.jacoco.report:0.8.5'
-    dist 'org.ow2.asm:asm:7.2'
-    dist 'org.ow2.asm:asm-commons:7.2'
-    dist 'org.ow2.asm:asm-tree:7.2'
+    implementation 'com.google.code.gson:gson:2.7'
+    implementation 'org.jacoco:org.jacoco.core:0.8.5'
+    implementation 'org.jacoco:org.jacoco.report:0.8.5'
+    implementation 'org.ow2.asm:asm:7.2'
+    implementation 'org.ow2.asm:asm-commons:7.2'
+    implementation 'org.ow2.asm:asm-tree:7.2'
 
     reportTools project(path: ':testerina:report-tools', configuration: 'reportTpl')
 
@@ -57,3 +57,15 @@ dependencies {
 }
 
 description = 'Ballerina - Test Executer'
+
+ext.moduleName = 'io.ballerina.testerina.runtime'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

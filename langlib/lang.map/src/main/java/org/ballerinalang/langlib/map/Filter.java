@@ -18,27 +18,25 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.AsyncUtils;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
 import org.ballerinalang.langlib.map.util.MapLibUtils;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
+import static io.ballerina.runtime.MapUtils.createOpNotSupportedError;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.MAP_LANG_LIB;
 import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 
 /**
@@ -46,45 +44,39 @@ import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION, functionName = "filter",
-        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "func", type = TypeKind.FUNCTION)},
-        returnType = {@ReturnType(type = TypeKind.MAP)},
-        isPublic = true
-)
 public class Filter {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
                                                                       MAP_VERSION, "filter");
 
-    public static MapValue filter(Strand strand, MapValue<?, ?> m, FPValue<Object, Boolean> func) {
-        BType mapType = m.getType();
-        BType newMapType;
+    public static BMap filter(BMap<?, ?> m, BFunctionPointer<Object, Boolean> func) {
+        Type mapType = m.getType();
+        Type newMapType;
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
                 newMapType = mapType;
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                BType newConstraint = MapLibUtils.getCommonTypeForRecordField((BRecordType) mapType);
-                newMapType = new BMapType(newConstraint);
+                Type newConstraint = MapLibUtils.getCommonTypeForRecordField((RecordType) mapType);
+                newMapType = TypeCreator.createMapType(newConstraint);
                 break;
             default:
                 throw createOpNotSupportedError(mapType, "filter()");
         }
-        MapValue<Object, Object> newMap = new MapValueImpl<>(newMapType);
+        BMap<BString, Object> newMap = ValueCreator.createMapValue(newMapType);
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
-        BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{strand,
-                                                               m.get(m.getKeys()[index.incrementAndGet()]), true},
-                                                       result -> {
-                                                           if ((Boolean) result) {
-                                                               Object key = m.getKeys()[index.get()];
-                                                               Object value = m.get(key);
-                                                               newMap.put(key, value);
-                                                           }
-                                                       }, () -> newMap);
+        Strand parentStrand = Scheduler.getStrand();
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                                                         () -> new Object[]{parentStrand,
+                                                                 m.get(m.getKeys()[index.incrementAndGet()]), true},
+                                                         result -> {
+                                                             if ((Boolean) result) {
+                                                                 Object key = m.getKeys()[index.get()];
+                                                                 Object value = m.get(key);
+                                                                 newMap.put((BString) key, value);
+                                                             }
+                                                         }, () -> newMap, Scheduler.getStrand().scheduler);
         return newMap;
     }
 }

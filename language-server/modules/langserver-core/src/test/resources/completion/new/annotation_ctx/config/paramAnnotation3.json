@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 11,
+    "character": 23
+  },
+  "source": "annotation_ctx/source/paramAnnotation3.bal",
+  "items": [
+    {
+      "label": "parameterAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "parameterAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "parameterAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "parameterAnnotation2",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

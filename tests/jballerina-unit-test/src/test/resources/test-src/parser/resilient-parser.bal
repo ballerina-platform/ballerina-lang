@@ -31,20 +31,20 @@ public function foo5(int a, = "hello", int b =) {
     int y = arr1];
 }
 
-type Foo object {
+class Foo {
     int x;
 
     function bar () returns int {
         return 2;
     }
-};
+}
 
 public function foo6() {
     Foo f  new;
     int x = ff.bar();
 }
 
-type Foo1 object {
+class Foo1 {
     int x = 0;
 
     func2(x) {
@@ -54,7 +54,7 @@ type Foo1 object {
 
  Foo1 object {
     int x = 0;
-};
+}
 
 type Foo1 {
     int x = 0;

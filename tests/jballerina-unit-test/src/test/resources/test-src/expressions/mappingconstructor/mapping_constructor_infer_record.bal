@@ -220,41 +220,32 @@ function testMappingConstrExprWithNoACET2() {
     assertEquality("other", e3["fn"]);
 }
 
-type Bar object {
+class Bar {
     public function init(any arg) {
 
     }
-};
+}
 
-type Rec1 record {
-    int i;
-    boolean b;
-};
-
-type Rec2 record {
-    string i?;
+type Rec1 record {|
+    string i;
     float f?;
-};
+|};
 
 function testInferredRecordTypeWithOptionalTypeFieldViaSpreadOp() {
-    Rec1 rec1 = {i: 1, b: true};
-    Rec2 rec2 = {i: "str"};
+    Rec1 rec1 = {i: "str"};
 
     var r1 = {
-        ...rec1,
         a: 0.1d,
-        ...rec2
+        ...rec1
     };
 
     record {
-        int|string i;
-        boolean b;
         decimal a;
+        string i;
         float f?;
     } r2 = r1;
 
     assertEquality("str", r2.i);
-    assertEquality(true, r2.b);
     assertEquality(0.1d, r2.a);
     assertEquality((), r2?.f);
 }
@@ -406,6 +397,14 @@ function testInferringForReadOnlyInUnion() {
 }
 
 function testValidReadOnlyWithDifferentFieldKinds() {
+    record {|
+            int[] x;
+            int[] y;
+        |} & readonly rec = {
+           x: [1, 2],
+           y: [3]
+        };
+
     map<int[]> & readonly a = {
         "x": [1, 2],
         "y": [3]
@@ -414,8 +413,8 @@ function testValidReadOnlyWithDifferentFieldKinds() {
     boolean[] & readonly b = [true, false];
 
     readonly x = {
-        ...a,
         b,
+        ...rec,
         c: {
             d: a
         }
@@ -449,9 +448,12 @@ function testValidReadOnlyWithDifferentFieldKinds() {
 }
 
 function testValidReadOnlyInUnionWithDifferentFieldKinds() {
-    map<int[]> & readonly a = {
-        "x": [1, 2],
-        "y": [3]
+    record {|
+        int[] x;
+        int[] y;
+    |} & readonly a = {
+       x: [1, 2],
+       y: [3]
     };
 
     boolean[] & readonly b = [true, false];

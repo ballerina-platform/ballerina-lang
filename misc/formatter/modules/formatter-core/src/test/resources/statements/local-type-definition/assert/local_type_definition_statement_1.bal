@@ -1,4 +1,4 @@
 public function foo() {
-   int i;
-   string word = "hello";
+    int i = 2;
+    string word = "hello";
 }

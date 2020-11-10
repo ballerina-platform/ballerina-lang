@@ -183,12 +183,6 @@
         },
         {
           "kind": "CLOSE_BRACE_TOKEN",
-          "leadingMinutiae": [
-            {
-              "kind": "END_OF_LINE_MINUTIAE",
-              "value": "\n"
-            }
-          ],
           "trailingMinutiae": [
             {
               "kind": "END_OF_LINE_MINUTIAE",

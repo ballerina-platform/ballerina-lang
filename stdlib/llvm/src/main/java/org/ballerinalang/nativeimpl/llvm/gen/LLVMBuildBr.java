@@ -16,9 +16,9 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.scheduling.Strand;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -48,13 +48,13 @@ import static org.bytedeco.llvm.global.LLVM.LLVMBuildBr;
 )
 public class LLVMBuildBr {
 
-    public static MapValue<String, Object> llvmBuildBr(Strand strand, MapValue<String, Object> arg0, MapValue<String,
+    public static BMap<String, Object> llvmBuildBr(Strand strand, BMap<String, Object> arg0, BMap<String,
             Object> dest) {
 
         LLVMBuilderRef arg0Ref = (LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
         LLVMBasicBlockRef destRef = (LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(dest);
         LLVMValueRef returnValue = LLVMBuildBr(arg0Ref, destRef);
-        MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",
+        BMap<String, Object> returnWrappedRecord = FFIUtil.newRecord(new Module("ballerina",
                 "llvm"), "LLVMValueRef");
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
         return returnWrappedRecord;

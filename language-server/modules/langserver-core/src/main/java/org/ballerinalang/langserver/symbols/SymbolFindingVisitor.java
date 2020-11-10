@@ -110,11 +110,9 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangService serviceNode) {
         this.addSymbol(serviceNode, serviceNode.symbol, SymbolKind.Class);
-        BLangObjectTypeNode serviceType = (BLangObjectTypeNode) serviceNode.serviceTypeDefinition.typeNode;
         List<BLangNode> serviceContent = new ArrayList<>();
-        List<BLangFunction> serviceFunctions = ((BLangObjectTypeNode) serviceNode.serviceTypeDefinition.typeNode)
-                .getFunctions();
-        List<BLangSimpleVariable> serviceFields = serviceType.getFields().stream()
+        List<BLangFunction> serviceFunctions = serviceNode.serviceClass.functions;
+        List<BLangSimpleVariable> serviceFields = serviceNode.serviceClass.fields.stream()
                 .map(simpleVar -> (BLangSimpleVariable) simpleVar)
                 .collect(Collectors.toList());
         serviceContent.addAll(serviceFunctions);
@@ -209,10 +207,10 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
     private Range getRange(BLangNode node) {
         Range r = new Range();
 
-        int startLine = node.getPosition().getStartLine() - 1; // LSP range is 0 based
-        int startChar = node.getPosition().getStartColumn() - 1;
-        int endLine = node.getPosition().getEndLine() - 1;
-        int endChar = node.getPosition().getEndColumn() - 1;
+        int startLine = node.getPosition().lineRange().startLine().line() - 1; // LSP range is 0 based
+        int startChar = node.getPosition().lineRange().startLine().offset() - 1;
+        int endLine = node.getPosition().lineRange().endLine().line() - 1;
+        int endChar = node.getPosition().lineRange().endLine().offset() - 1;
 
         if (endLine <= 0) {
             endLine = startLine;

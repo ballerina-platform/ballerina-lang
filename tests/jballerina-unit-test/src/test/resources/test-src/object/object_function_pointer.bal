@@ -14,32 +14,32 @@
 // specific language governing permissions and limitations
 // under the License.package internal;
 
-public type Window object {
+public class Window {
     public string v = "hello";
     public int a = 1;
 
     public function process() returns int {
         return 5 + self.a;
     }
-};
+}
 
-public type LengthWindow object {
+public class LengthWindow {
     public string v = "hello1";
     public int a = 2;
 
     public function process() returns int {
         return 10 + self.a;
     }
-};
+}
 
-public type SampleWindow object {
+public class SampleWindow {
     public string v = "hello2";
     public int a = 3;
 
     public function process() returns int {
         return 15 + self.a;
     }
-};
+}
 
 function testObjectFunctionPointer() returns int {
     Window win = new LengthWindow();

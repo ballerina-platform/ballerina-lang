@@ -17,11 +17,11 @@
 */
 package org.ballerinalang.test.balo.functions;
 
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -351,7 +351,7 @@ public class FunctionSignatureInBaloTest {
         validateError(resultNegative, i++, "rest argument not allowed after named arguments", 13, 78);
         validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 17, 53);
         validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 17, 61);
-        
+
         validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 24, 16);
         validateError(resultNegative, i++, "incompatible types: expected 'boolean[]', found '[int,boolean," +
                 "boolean]'", 24, 30);
@@ -389,7 +389,7 @@ public class FunctionSignatureInBaloTest {
         validateError(resultNegative, i++, "incompatible types: expected '[float,boolean...]', found " +
                 "'boolean[]'", 79, 26);
         validateError(resultNegative, i++, "incompatible types: expected 'boolean', found 'float'", 85, 22);
-        
+
         Assert.assertEquals(i,  resultNegative.getErrorCount());
     }
 

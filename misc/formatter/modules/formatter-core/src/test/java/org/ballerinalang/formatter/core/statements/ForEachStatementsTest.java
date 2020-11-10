@@ -41,13 +41,6 @@ public class ForEachStatementsTest extends FormatterTest {
     }
 
     @Override
-    public Object[][] testSubset() {
-        return new Object[][] {
-                {"foreach_statement_1.bal", this.getTestResourceDir()}
-        };
-    }
-
-    @Override
     public String getTestResourceDir() {
         return Paths.get("statements", "foreach").toString();
     }

@@ -120,21 +120,21 @@ function testErrorValueFreeze() {
     anydata res = val.cloneReadOnly();
 }
 
-type PersonObj object {
+class PersonObj {
     string name = "";
 
     function getName() returns string {
         return self.name;
     }
-};
+}
 
-type PersonObjTwo object {
+class PersonObjTwo {
     string id = "";
 
     function getId() returns string {
         return self.id;
     }
-};
+}
 
 type Department record {|
     PersonObj head;

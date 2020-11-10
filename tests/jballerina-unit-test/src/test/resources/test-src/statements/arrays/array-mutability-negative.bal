@@ -54,15 +54,15 @@ function mismatchingCovariace() {
     int[3][3] x18 = x17; // Compile Error
 }
 
-type Animal object {
+class Animal {
     public string name = "";
 
     public function getName() returns string {
         return self.name;
     }
-};
+}
 
-type Cat object { // Not Assignable to Animal Object
+class Cat { // Not Assignable to Animal Object
     public string catName = "";
     public int age = 0;
 
@@ -73,7 +73,7 @@ type Cat object { // Not Assignable to Animal Object
     public function getNameAndAge() returns [string, int] {
         return [self.catName, self.age];
     }
-};
+}
 
 function mismatchingCovariace2() {
     Cat[] catArray = [new, new];

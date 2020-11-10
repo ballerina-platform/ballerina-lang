@@ -16,36 +16,30 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 
-import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+import static org.ballerinalang.langlib.string.utils.StringUtils.createNullReferenceError;
 
 /**
  * Extern function ballerina.model.arrays:substring(string, int, int).
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION,
-        functionName = "substring",
-        args = {@Argument(name = "mainString", type = TypeKind.STRING),
-                @Argument(name = "startIndex", type = TypeKind.INT),
-                @Argument(name = "endIndex", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.string",
+//        functionName = "substring",
+//        args = {@Argument(name = "mainString", type = TypeKind.STRING),
+//                @Argument(name = "startIndex", type = TypeKind.INT),
+//                @Argument(name = "endIndex", type = TypeKind.INT)},
+//        returnType = {@ReturnType(type = TypeKind.STRING)},
+//        isPublic = true
+//)
 public class Substring {
 
-    public static BString substring(Strand strand, BString value, long startIndex, long endIndex) {
+    public static BString substring(BString value, long startIndex, long endIndex) {
         if (value == null) {
-            throw BallerinaErrors.createNullReferenceError();
+            throw createNullReferenceError();
         }
         if (startIndex != (int) startIndex) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,

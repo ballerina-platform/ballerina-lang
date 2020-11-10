@@ -34,8 +34,10 @@ import java.net.UnknownHostException;
  * Launch debugger adapter protocol server instance.
  */
 public class Launcher {
+
     private static final int DEFAULT_PORT = 4711;
     private static final Logger LOGGER = LoggerFactory.getLogger(Launcher.class);
+
     public static void main(String[] args) {
         ServerSocket server;
         DataOutputStream os;
@@ -43,26 +45,23 @@ public class Launcher {
         Socket clientSocket;
 
         try {
-            int port = args.length == 0 ? DEFAULT_PORT : Integer.parseInt(args[0]);
+            int port = args.length != 0 ? Integer.parseInt(args[0]) : DEFAULT_PORT;
             server = new ServerSocket(port);
             PrintStream out = System.out;
             out.println("Debug server started on " + port);
             clientSocket = server.accept();
-            os = new DataOutputStream(clientSocket.getOutputStream());
             is = new DataInputStream(clientSocket.getInputStream());
-
+            os = new DataOutputStream(clientSocket.getOutputStream());
             JBallerinaDebugServer jBallerinaDebugServer = new JBallerinaDebugServer();
             org.eclipse.lsp4j.jsonrpc.Launcher<IDebugProtocolClient> serverLauncher = DSPLauncher.createServerLauncher(
                     jBallerinaDebugServer, is, os);
             IDebugProtocolClient client = serverLauncher.getRemoteProxy();
             jBallerinaDebugServer.connect(client);
             serverLauncher.startListening();
-
         } catch (UnknownHostException e) {
             LOGGER.error(e.getMessage(), e);
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
     }
-
 }

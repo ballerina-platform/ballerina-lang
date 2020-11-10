@@ -16,19 +16,6 @@
 
 import pkg1;
 
-function testBaloWithFieldWithSameNameAsMethod() returns [int, int, int, float, float, float, float] {
-    pkg1:SameFieldAndMethodObject obj = new();
-    int a = obj.someInt;
-    int b = obj.someInt();
-    int c = obj.getInt();
-
-    [float, float] [d, e] = obj.testFloat();
-    float f = obj.someFloat;
-    float g = obj.someFloat();
-
-    return [a, b, c, d, e, f, g];
-}
-
 function testObjectInitFunctionWithDefaultableParams() returns [int, int, int, int, int] {
     pkg1:TempCache? cache1 = new();
     pkg1:TempCache? cache2 = new(10000, capacity = 10);
@@ -42,20 +29,20 @@ function testObjectInitFunctionWithDefaultableParams() returns [int, int, int, i
     return [0, 0, 0, 0, 0];
 }
 
-type InitObjOne object {
+class InitObjOne {
     float f;
 
     public function init(float i) {
         self.f = i;
     }
-};
+}
 
-type InitObjTwo object {
+class InitObjTwo {
     int f;
     public function init(int i) {
         self.f = i;
     }
-};
+}
 
 function testObjectInitFunctionWithDefaultableParams2() returns [float, int] {
     InitObjOne|InitObjTwo|int f1 = new(1.1);

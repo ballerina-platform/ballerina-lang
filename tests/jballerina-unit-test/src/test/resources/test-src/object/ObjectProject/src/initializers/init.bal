@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type employee object {
+public class employee {
 
     public int age = 0;
     public string name = "";
@@ -28,10 +28,10 @@ public type employee object {
     public function getAge() {
         self.age = 12;
     }
-};
+}
 
 // object with non-public initializer
-public type student object {
+public class student {
     public int age = 20;
     public string name = "";
     public string address = "";
@@ -42,4 +42,4 @@ public type student object {
     public function getAge() {
         self.age = 20;
     }
-};
+}

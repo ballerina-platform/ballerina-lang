@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  *
  * @deprecated since 0.983.0, use {@link BLangPanic} instead.
  */
+@Deprecated
 public class BLangThrow extends BLangStatement implements ThrowNode {
     public BLangExpression expr;
 

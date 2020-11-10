@@ -15,6 +15,10 @@
           "hasDiagnostics": true,
           "children": [
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
               "children": [
@@ -22,6 +26,10 @@
                   "kind": "FUNCTION_TYPE_DESC",
                   "hasDiagnostics": true,
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "FUNCTION_KEYWORD"
                     },
@@ -129,6 +137,10 @@
           "hasDiagnostics": true,
           "children": [
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
               "children": [
@@ -136,6 +148,10 @@
                   "kind": "FUNCTION_TYPE_DESC",
                   "hasDiagnostics": true,
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "FUNCTION_KEYWORD"
                     },
@@ -352,6 +368,10 @@
           "hasDiagnostics": true,
           "children": [
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
               "children": [
@@ -359,6 +379,10 @@
                   "kind": "FUNCTION_TYPE_DESC",
                   "hasDiagnostics": true,
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "FUNCTION_KEYWORD",
                       "trailingMinutiae": [
@@ -622,6 +646,10 @@
                               "hasDiagnostics": true,
                               "children": [
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "FUNCTION_KEYWORD",
                                   "leadingMinutiae": [
                                     {
@@ -745,6 +773,10 @@
                               "kind": "FUNCTION_TYPE_DESC",
                               "hasDiagnostics": true,
                               "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
                                 {
                                   "kind": "FUNCTION_KEYWORD",
                                   "leadingMinutiae": [
@@ -979,6 +1011,10 @@
                               "hasDiagnostics": true,
                               "children": [
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "FUNCTION_KEYWORD",
                                   "leadingMinutiae": [
                                     {
@@ -1185,6 +1221,10 @@
           "hasDiagnostics": true,
           "children": [
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
               "children": [
@@ -1192,6 +1232,10 @@
                   "kind": "FUNCTION_TYPE_DESC",
                   "hasDiagnostics": true,
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "FUNCTION_KEYWORD",
                       "hasDiagnostics": true,

@@ -4,18 +4,8 @@ NAME
 
 
 SYNOPSIS
-       ballerina openapi gen-service <module-name>:<service-name>
-                                     <openapi-contract>
-                                     [-o <dir-path> | --output <dir-path>]
-                                     [-c| --skip-bind]
-
-       ballerina openapi gen-client [<module-name>:]<client-name>
-                                    <openapi-contract> [-o <dir-path> | --output <dir-path>]
-    
-       ballerina openapi gen-contract [<module-name>:]<service-name>
-                                      [-i <ballerina-file> | --ballerina-file <ballerina-file>]
-                                      [-o <openapi-contract> | --contract-location <openapi-contract>]
-                                      [-s | --skip-bind]
+       ballerina openapi [(-i|--input) <openapi-contract> | <ballerina service> ]
+                         [(-o| --output) <output>]
 
 
 DESCRIPTION
@@ -28,21 +18,45 @@ DESCRIPTION
        Note: This is an experimental tool, which only supports a limited
        set of functionality.
 
+OPTIONS
+        (-i| --input) <openapi-contract> | <ballerina service file>
+            This is a mandatory input. The given OpenAPI contract input will generate a Ballerina service and the client
+            stub files for the given OpenAPI contract. This generated service can be used as a code template
+            to start the service implementation. Generated sources contain a service definition, schema definition, and
+            a copy of the OpenAPI contract, which is used for the template generation. The generated client stub is used to
+            start the client application implementation to call the service defined in the OpenAPI file.
+            The given Ballerina service file input will generate the relevant OpenAPI specification for the service
+            file.
+
+        (-o| --output) <target location>
+            Location of the generated Ballerina source code. If this path is not specified,
+            the output will be written onto the same directory from where the command is run.
+
+        (--mode) <mode-type>
+            Mode type can be service or client. Generate a ballerina service and client only
+            according to the mode. This is optional input.
+
+        (-m| --module) <module name>
+            This use when ballerina file convert to openapi contract
+
+        (--service-name) <service name>
+            This use for allocating specific user-given name to generated service and client stub according to openapi
+            contract. This option uses with the command of openApi to ballerina file generation.
+
+
+        (-s| --service ) <current service name>
+            This service name is used to identify the service that need to documented as openApi specification. This
+            option uses with the command of ballerina to openApi specification generation.
+
+        (--tags) <tag names>
+            This tags use to filter the operations tag need to generate services. This option uses with command
+            of openApi to ballerina file generation.
+
+        (--operations) <operation names>
+            These operations are used to filter the operations that are needed to generate services. This option is used with the command
+            of the OpenAPI to Ballerina file generation.
 
 SUB COMMANDS
-       gen-service
-           Generate a Ballerina service from the OpenAPI file. This
-           generated service can be used as a code template to start the
-           service implementation. Generated sources contain a service
-           definition, schema definition and  a copy of the OpenAPI contract
-           which is used for the template generation.
-
-       gen-client
-           Generate a Ballerina client stub for the service defined
-           in the OpenAPI file. Generated client stub is used to start the
-           client application implementation to call the service defined in
-           the OpenAPI file.
-
        gen-contract
            Generate a Ballerina service from an OpenAPI Specification 3.0
            definition. For export to work properly, the input Ballerina
@@ -60,18 +74,22 @@ EXAMPLES
           $ ballerina openapi
           $ ballerina openapi -h
 
-       Print usage details of the OpenAPI sub commands.
-          $ ballerina openapi gen-service -h
-          $ ballerina openapi gen-client -h
-          $ ballerina openapi gen-contract -h
+       Generate a Ballerina mock service with the module name `hellomock`
+       and service name `hello` using the `hello.yaml` OpenAPI contract.
+          $ ballerina openapi -i hello.yaml --mode service
 
-       Generate a Ballerina mock service with module name hellomock
-       and service name hello using hello.yaml OpenAPI contract.
-          $ ballerina openapi gen-service hellomock:hello hello.yaml
-
-       Generate a Ballerina client with client name helloclient
+       Generate a Ballerina client with client name `hello-client`
        and write the output to the client_project folder.
-          $ ballerina openapi gen-client helloclient hello.yaml -o client_project
+          $ ballerina openapi -i hello.yaml --mode client -o ./output_path
 
-       Export an OpenAPI definition for hello_service.bal for the hello service.
-          $ ballerina openapi gen-contract hello -i hello_service.bal
+       Export an OpenAPI definition for `hello_service.bal` for the `hello` service.
+          $ ballerina openapi -i hello_service.bal --serviceName hello -o ./
+
+       Generate both the Ballerina client and service file.
+          $ballerina openapi --input petstore.yaml -o ./example
+
+       Generate services for given tags
+          $ ballerina openapi -i hello.yaml --mode service --tags pets
+
+       Generate services for given operations
+                 $ ballerina openapi -i hello.yaml --mode service --operations listPets

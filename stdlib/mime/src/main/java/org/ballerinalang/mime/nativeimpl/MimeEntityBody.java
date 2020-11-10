@@ -18,11 +18,11 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
@@ -67,8 +67,8 @@ import static org.ballerinalang.mime.util.MimeUtil.getNewMultipartDelimiter;
 public class MimeEntityBody {
     private static final Logger log = LoggerFactory.getLogger(MimeEntityBody.class);
 
-    public static Object getBodyParts(ObjectValue entityObj) {
-        ArrayValue partsArray;
+    public static Object getBodyParts(BObject entityObj) {
+        BArray partsArray;
         try {
             String baseType = HeaderUtil.getBaseType(entityObj);
             if (baseType != null && (baseType.toLowerCase(Locale.getDefault()).startsWith(MULTIPART_AS_PRIMARY_TYPE) ||
@@ -98,7 +98,7 @@ public class MimeEntityBody {
         }
     }
 
-    public static Object getBodyPartsAsChannel(ObjectValue entityObj) {
+    public static Object getBodyPartsAsChannel(BObject entityObj) {
         try {
             String contentType = getContentTypeWithParameters(entityObj);
             if (isMultipart(contentType)) {
@@ -110,8 +110,8 @@ public class MimeEntityBody {
                 EntityBodyChannel entityBodyChannel = new EntityBodyChannel(new ByteArrayInputStream(
                         outputStream.toByteArray()));
                 MimeUtil.closeOutputStream(outputStream);
-                ObjectValue byteChannelObj = BallerinaValues.createObjectValue(IOConstants.IO_PACKAGE_ID,
-                                                                               READABLE_BYTE_CHANNEL_STRUCT);
+                BObject byteChannelObj = ValueCreator.createObjectValue(IOConstants.IO_PACKAGE_ID,
+                                                                        READABLE_BYTE_CHANNEL_STRUCT);
                 byteChannelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new EntityWrapper(entityBodyChannel));
                 return byteChannelObj;
             } else {
@@ -124,10 +124,10 @@ public class MimeEntityBody {
         }
     }
 
-    public static Object getByteChannel(ObjectValue entityObj) {
-        ObjectValue byteChannelObj;
+    public static Object getByteChannel(BObject entityObj) {
+        BObject byteChannelObj;
         try {
-            byteChannelObj = BallerinaValues.createObjectValue(PROTOCOL_IO_PKG_ID, READABLE_BYTE_CHANNEL_STRUCT);
+            byteChannelObj = ValueCreator.createObjectValue(PROTOCOL_IO_PKG_ID, READABLE_BYTE_CHANNEL_STRUCT);
             Channel byteChannel = EntityBodyHandler.getByteChannel(entityObj);
             if (byteChannel != null) {
                 byteChannelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
@@ -155,24 +155,24 @@ public class MimeEntityBody {
 
     public static Object getMediaType(BString contentType) {
         try {
-            ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
+            BObject mediaType = ValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
             return MimeUtil.parseMediaType(mediaType, contentType.getValue());
         } catch (Throwable err) {
             return MimeUtil.createError(INVALID_CONTENT_TYPE_ERROR, getErrorMsg(err));
         }
     }
 
-    public static void setBodyParts(ObjectValue entityObj, ArrayValue bodyParts, BString contentType) {
+    public static void setBodyParts(BObject entityObj, BArray bodyParts, BString contentType) {
         entityObj.addNativeData(BODY_PARTS, bodyParts);
         MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType.getValue() : MULTIPART_FORM_DATA);
     }
 
-    public static void setByteArray(ObjectValue entityObj, ArrayValue payload, BString contentType) {
+    public static void setByteArray(BObject entityObj, BArray payload, BString contentType) {
         EntityBodyHandler.addMessageDataSource(entityObj, payload);
         MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType.getValue() : OCTET_STREAM);
     }
 
-    public static void setByteChannel(ObjectValue entityObj, ObjectValue byteChannel,
+    public static void setByteChannel(BObject entityObj, BObject byteChannel,
                                       BString contentType) {
         entityObj.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME));
         Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
@@ -182,17 +182,17 @@ public class MimeEntityBody {
         MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType.getValue() : OCTET_STREAM);
     }
 
-    public static void setJson(ObjectValue entityObj, Object jsonContent, BString contentType) {
+    public static void setJson(BObject entityObj, Object jsonContent, BString contentType) {
         EntityBodyHandler.addJsonMessageDataSource(entityObj, jsonContent);
         MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType.getValue() : APPLICATION_JSON);
     }
 
-    public static void setText(ObjectValue entityObj, BString textContent, BString contentType) {
+    public static void setText(BObject entityObj, BString textContent, BString contentType) {
         EntityBodyHandler.addMessageDataSource(entityObj, textContent.getValue());
         MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType.getValue() : TEXT_PLAIN);
     }
 
-    public static void setXml(ObjectValue entityObj, XMLValue xmlContent, BString contentType) {
+    public static void setXml(BObject entityObj, BXML xmlContent, BString contentType) {
         EntityBodyHandler.addMessageDataSource(entityObj, xmlContent);
         MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType.getValue() : APPLICATION_XML);
     }

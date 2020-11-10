@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Foo object {
+class Foo {
     string name = "default";
-};
+}
 
 function testInvalidOptionalFieldAccessOnObject() {
     Foo f = new;
@@ -71,9 +71,9 @@ function testInvalidOptionalFieldAccessTypeForLaxType() {
     json j2 = j1?.a;
 }
 
-type Qux object {
+class Qux {
     int? i = 1;
-};
+}
 
 function getQux() returns Qux {
     return new;

@@ -22,7 +22,7 @@ import ballerina/mime;
 # + loadBalanceClientsArray - Array of HTTP clients for load balancing
 # + lbRule - Load balancing rule
 # + failover - Whether to fail over in case of a failure
-public type LoadBalanceClient client object {
+public client class LoadBalanceClient {
 
     public LoadBalanceClientConfiguration loadBalanceClientConfig;
     public Client?[] loadBalanceClientsArray;
@@ -197,7 +197,7 @@ public type LoadBalanceClient client object {
     #
     # + promise - The Push Promise to be rejected
     public remote function rejectPromise(PushPromise promise) {}
-};
+}
 
 # Represents the error attributes in addition to the message and the cause of the `LoadBalanceActionError`.
 #

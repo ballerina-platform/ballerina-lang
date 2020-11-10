@@ -1,3 +1,3 @@
 function foo() {
-    check (a() -> b());
+    check (a()->b());
 }

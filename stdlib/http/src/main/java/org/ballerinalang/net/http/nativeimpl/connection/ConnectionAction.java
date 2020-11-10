@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.net.http.DataContext;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -39,7 +39,7 @@ import static org.ballerinalang.net.http.nativeimpl.connection.ResponseWriter.se
 public abstract class ConnectionAction {
 
     static void sendOutboundResponseRobust(DataContext dataContext, HttpCarbonMessage requestMessage,
-                                    ObjectValue outboundResponseObj, HttpCarbonMessage responseMessage) {
+                                           BObject outboundResponseObj, HttpCarbonMessage responseMessage) {
         sendResponseRobust(dataContext, requestMessage, outboundResponseObj, responseMessage);
     }
 
@@ -49,7 +49,7 @@ public abstract class ConnectionAction {
         outResponseStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
     }
 
-    static void serializeMsgDataSource(Object outboundMessageSource, ObjectValue entityStruct,
+    static void serializeMsgDataSource(Object outboundMessageSource, BObject entityStruct,
                                 OutputStream messageOutputStream) {
         serializeDataSource(outboundMessageSource, entityStruct, messageOutputStream);
     }

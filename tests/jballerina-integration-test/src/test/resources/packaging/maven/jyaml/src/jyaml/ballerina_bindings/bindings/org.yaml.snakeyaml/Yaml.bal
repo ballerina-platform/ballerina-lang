@@ -416,42 +416,42 @@ function newYaml8(Representer arg0, DumperOptions arg1) returns Yaml {
 // External interop functions for mapping public constructors.
 
 function org_yaml_snakeyaml_Yaml_newYaml1() returns handle = @java:Constructor {
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: []
 } external;
 
 function org_yaml_snakeyaml_Yaml_newYaml2(handle arg0) returns handle = @java:Constructor {
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["org.yaml.snakeyaml.constructor.BaseConstructor"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_newYaml3(handle arg0, handle arg1) returns handle = @java:Constructor {
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["org.yaml.snakeyaml.constructor.BaseConstructor", "org.yaml.snakeyaml.representer.Representer"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_newYaml4(handle arg0, handle arg1, handle arg2) returns handle = @java:Constructor {
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["org.yaml.snakeyaml.constructor.BaseConstructor", "org.yaml.snakeyaml.representer.Representer", "org.yaml.snakeyaml.DumperOptions"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_newYaml5(handle arg0, handle arg1, handle arg2, handle arg3) returns handle = @java:Constructor {
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["org.yaml.snakeyaml.constructor.BaseConstructor", "org.yaml.snakeyaml.representer.Representer", "org.yaml.snakeyaml.DumperOptions", "org.yaml.snakeyaml.resolver.Resolver"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_newYaml6(handle arg0) returns handle = @java:Constructor {
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["org.yaml.snakeyaml.DumperOptions"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_newYaml7(handle arg0) returns handle = @java:Constructor {
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["org.yaml.snakeyaml.representer.Representer"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_newYaml8(handle arg0, handle arg1) returns handle = @java:Constructor {
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["org.yaml.snakeyaml.representer.Representer", "org.yaml.snakeyaml.DumperOptions"]
 } external;
 
@@ -459,193 +459,193 @@ function org_yaml_snakeyaml_Yaml_newYaml8(handle arg0, handle arg1) returns hand
 
 function org_yaml_snakeyaml_Yaml_addImplicitResolver(handle receiver, handle arg0, handle arg1, handle arg2) = @java:Method {
     name: "addImplicitResolver",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["org.yaml.snakeyaml.nodes.Tag", "java.util.regex.Pattern", "java.lang.String"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_compose(handle receiver, handle arg0) returns handle = @java:Method {
     name: "compose",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["java.io.Reader"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_composeAll(handle receiver, handle arg0) returns handle = @java:Method {
     name: "composeAll",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["java.io.Reader"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_dump1(handle receiver, handle arg0) returns handle = @java:Method {
     name: "dump",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["java.lang.Object"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_dump2(handle receiver, handle arg0, handle arg1) = @java:Method {
     name: "dump",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["java.lang.Object", "java.io.Writer"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_dumpAll1(handle receiver, handle arg0) returns handle = @java:Method {
     name: "dumpAll",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["java.util.Iterator"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_dumpAll2(handle receiver, handle arg0, handle arg1) = @java:Method {
     name: "dumpAll",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["java.util.Iterator", "java.io.Writer"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_dumpAs(handle receiver, handle arg0, handle arg1, handle arg2) returns handle = @java:Method {
     name: "dumpAs",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["java.lang.Object", "org.yaml.snakeyaml.nodes.Tag", "org.yaml.snakeyaml.DumperOptions$FlowStyle"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_dumpAsMap(handle receiver, handle arg0) returns handle = @java:Method {
     name: "dumpAsMap",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["java.lang.Object"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_equals(handle receiver, handle arg0) returns boolean = @java:Method {
     name: "equals",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["java.lang.Object"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_getClass(handle receiver) returns handle = @java:Method {
     name: "getClass",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: []
 } external;
 
 function org_yaml_snakeyaml_Yaml_getName(handle receiver) returns handle = @java:Method {
     name: "getName",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: []
 } external;
 
 function org_yaml_snakeyaml_Yaml_hashCode(handle receiver) returns int = @java:Method {
     name: "hashCode",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: []
 } external;
 
 function org_yaml_snakeyaml_Yaml_load1(handle receiver, handle arg0) returns handle = @java:Method {
     name: "load",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["java.io.InputStream"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_load2(handle receiver, handle arg0) returns handle = @java:Method {
     name: "load",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["java.io.Reader"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_load3(handle receiver, handle arg0) returns handle = @java:Method {
     name: "load",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["java.lang.String"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_loadAll1(handle receiver, handle arg0) returns handle = @java:Method {
     name: "loadAll",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["java.io.InputStream"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_loadAll2(handle receiver, handle arg0) returns handle = @java:Method {
     name: "loadAll",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["java.io.Reader"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_loadAll3(handle receiver, handle arg0) returns handle = @java:Method {
     name: "loadAll",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["java.lang.String"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_loadAs1(handle receiver, handle arg0, handle arg1) returns handle = @java:Method {
     name: "loadAs",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["java.io.InputStream", "java.lang.Class"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_loadAs2(handle receiver, handle arg0, handle arg1) returns handle = @java:Method {
     name: "loadAs",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["java.io.Reader", "java.lang.Class"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_loadAs3(handle receiver, handle arg0, handle arg1) returns handle = @java:Method {
     name: "loadAs",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["java.lang.String", "java.lang.Class"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_notify(handle receiver) = @java:Method {
     name: "notify",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: []
 } external;
 
 function org_yaml_snakeyaml_Yaml_notifyAll(handle receiver) = @java:Method {
     name: "notifyAll",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: []
 } external;
 
 function org_yaml_snakeyaml_Yaml_parse(handle receiver, handle arg0) returns handle = @java:Method {
     name: "parse",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["java.io.Reader"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_represent(handle receiver, handle arg0) returns handle = @java:Method {
     name: "represent",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["java.lang.Object"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_serialize(handle receiver, handle arg0) returns handle = @java:Method {
     name: "serialize",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["org.yaml.snakeyaml.nodes.Node"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_setBeanAccess(handle receiver, handle arg0) = @java:Method {
     name: "setBeanAccess",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["org.yaml.snakeyaml.introspector.BeanAccess"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_setName(handle receiver, handle arg0) = @java:Method {
     name: "setName",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["java.lang.String"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_wait1(handle receiver) returns error? = @java:Method {
     name: "wait",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: []
 } external;
 
 function org_yaml_snakeyaml_Yaml_wait2(handle receiver, int arg0) returns error? = @java:Method {
     name: "wait",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["long"]
 } external;
 
 function org_yaml_snakeyaml_Yaml_wait3(handle receiver, int arg0, int arg1) returns error? = @java:Method {
     name: "wait",
-    class: "org.yaml.snakeyaml.Yaml",
+    'class: "org.yaml.snakeyaml.Yaml",
     paramTypes: ["long", "int"]
 } external;
 

@@ -69,7 +69,7 @@ function createJMethodValidationRequest(jvm:MethodAnnotTag annotTagRef,
 
     jvm:MethodValidationRequest valRequest = {
         name:  getJMethodNameFromAnnot(annotTagRef, annotValueMap[NAME_FIELD_NAME], birFunc),
-        class: <string>getLiteralValueFromAnnotValue(annotValueMap[CLASS_FIELD_NAME]),
+        'class: <string>getLiteralValueFromAnnotValue(annotValueMap[CLASS_FIELD_NAME]),
         kind: jvm:getMethodKindFromAnnotTag(annotTagRef),
         bFuncType: birFunc.typeValue
     };
@@ -87,7 +87,7 @@ function createJFieldValidationRequest(jvm:FieldAnnotTag annotTagRef,
 
     return {
         name: getJFieldNameFromAnnot(annotValueMap[NAME_FIELD_NAME], birFunc),
-        class: <string>getLiteralValueFromAnnotValue(annotValueMap[CLASS_FIELD_NAME]),
+        'class: <string>getLiteralValueFromAnnotValue(annotValueMap[CLASS_FIELD_NAME]),
         method: jvm:getFieldMethodFromAnnotTag(annotTagRef),
         bFuncType: birFunc.typeValue
     };

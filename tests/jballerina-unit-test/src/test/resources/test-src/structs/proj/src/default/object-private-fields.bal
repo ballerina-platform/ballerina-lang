@@ -1,6 +1,6 @@
 import org.foo;
 
-public type employee01 object {
+public class employee01 {
     public int age = 0;
     public string name = "";
     public string address = "";
@@ -9,18 +9,18 @@ public type employee01 object {
     string ssn = "";
     int id = 0;
     int employeeId = 123456;
-};
+}
 
-public type person object {
+public class person {
     public int age = 0;
     public string name = "";
     public string address = "";
     public string zipcode = "95134";
     public string ssn = "";
     public int id = 0;
-};
+}
 
-public type employeeObj object {
+public class employeeObj {
     public int age = 0;
     public string name = "";
     public string address = "";
@@ -28,18 +28,18 @@ public type employeeObj object {
     public string ssn = "";
     public int id = 0;
     public int employeeId = 123456;
-};
+}
 
-public type userA object {
+public class userA {
     public int age = 0;
     public string name = "";
-};
+}
 
-public type userB object {
+public class userB {
     public int age = 0;
     public string name = "";
     public string address = "";
-};
+}
 
 public function textPrivateFieldAccess1 () returns [string, string, string, int, int] {
     employee01 e = new;

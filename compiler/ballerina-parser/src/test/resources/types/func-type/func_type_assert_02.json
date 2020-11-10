@@ -12,11 +12,19 @@
           "kind": "MODULE_VAR_DECL",
           "children": [
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
                   "kind": "FUNCTION_TYPE_DESC",
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "FUNCTION_KEYWORD"
                     },
@@ -125,11 +133,19 @@
           "kind": "MODULE_VAR_DECL",
           "children": [
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
                   "kind": "FUNCTION_TYPE_DESC",
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "FUNCTION_KEYWORD"
                     },
@@ -254,11 +270,19 @@
           "kind": "MODULE_VAR_DECL",
           "children": [
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
                   "kind": "FUNCTION_TYPE_DESC",
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "FUNCTION_KEYWORD"
                     },
@@ -300,6 +324,10 @@
                             {
                               "kind": "FUNCTION_TYPE_DESC",
                               "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
                                 {
                                   "kind": "FUNCTION_KEYWORD"
                                 },
@@ -581,6 +609,10 @@
                               "kind": "FUNCTION_TYPE_DESC",
                               "children": [
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "FUNCTION_KEYWORD",
                                   "leadingMinutiae": [
                                     {
@@ -703,6 +735,10 @@
                             {
                               "kind": "FUNCTION_TYPE_DESC",
                               "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
                                 {
                                   "kind": "FUNCTION_KEYWORD",
                                   "leadingMinutiae": [
@@ -843,6 +879,10 @@
                               "kind": "FUNCTION_TYPE_DESC",
                               "children": [
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "FUNCTION_KEYWORD",
                                   "leadingMinutiae": [
                                     {
@@ -889,6 +929,10 @@
                                         {
                                           "kind": "FUNCTION_TYPE_DESC",
                                           "children": [
+                                            {
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
                                             {
                                               "kind": "FUNCTION_KEYWORD"
                                             },

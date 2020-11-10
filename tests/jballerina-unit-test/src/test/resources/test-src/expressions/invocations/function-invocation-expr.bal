@@ -280,7 +280,7 @@ function testMethodVarargEvaluationCount() {
     assertValueEquality(1, counter);
 }
 
-type Foo client object {
+client class Foo {
     function baz(int i, boolean... b) returns [int, boolean[]] {
         return [i, checkpanic b.cloneWithType(BooleanArray)];
     }
@@ -288,7 +288,7 @@ type Foo client object {
     remote function bar(int i, string s = "hello", string... t) returns [int, string, string[]] {
         return [i, s, checkpanic t.cloneWithType(StringArray)];
     }
-};
+}
 
 type ArgsAsRecord record {
     boolean b;

@@ -3,7 +3,7 @@ public function testShadowingObjectField () returns [int, string] {
     return [p.age, p.name];
 }
 
-type Person object {
+class Person {
     public int age = 10;
     public string name = "";
 
@@ -11,4 +11,4 @@ type Person object {
         self.age = a;
         self.name = n;
     }
-};
+}

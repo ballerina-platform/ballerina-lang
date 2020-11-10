@@ -17,14 +17,15 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.repository.CompiledPackage;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 
@@ -57,13 +58,13 @@ public class BPackageSymbol extends BTypeSymbol {
     // TODO Refactor following two flags
     public boolean entryPointExists = false;
 
-    public BPackageSymbol(PackageID pkgID, BSymbol owner, DiagnosticPos pos) {
-        super(PACKAGE, 0, pkgID.name, pkgID, null, owner, pos);
+    public BPackageSymbol(PackageID pkgID, BSymbol owner, Location pos, SymbolOrigin origin) {
+        super(PACKAGE, 0, pkgID.name, pkgID, null, owner, pos, origin);
         this.type = new BPackageType(this);
     }
 
-    public BPackageSymbol(PackageID pkgID, BSymbol owner, int flags, DiagnosticPos pos) {
-        this(pkgID, owner, pos);
+    public BPackageSymbol(PackageID pkgID, BSymbol owner, int flags, Location pos, SymbolOrigin origin) {
+        this(pkgID, owner, pos, origin);
         this.flags = flags;
     }
 
@@ -93,7 +94,7 @@ public class BPackageSymbol extends BTypeSymbol {
 
     @Override
     public BPackageSymbol createLabelSymbol() {
-        BPackageSymbol copy = new BPackageSymbol(pkgID, owner, pos);
+        BPackageSymbol copy = new BPackageSymbol(pkgID, owner, pos, origin);
         copy.initFunctionSymbol = initFunctionSymbol;
         copy.startFunctionSymbol = startFunctionSymbol;
         copy.stopFunctionSymbol = stopFunctionSymbol;

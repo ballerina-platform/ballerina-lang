@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static io.ballerina.runtime.util.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.packerina.cmd.Constants.MODULE_NAME_REGEX;
 import static org.ballerinalang.packerina.cmd.Constants.PULL_COMMAND;
 

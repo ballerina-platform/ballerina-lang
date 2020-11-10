@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.types.any;
 
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -61,7 +61,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
         try {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(result, "printlnAnyVal", new BValue[0]);
-            Assert.assertEquals(outContent.toString().replace("\r", ""), "PropertyName=Value\n",
+            Assert.assertEquals(outContent.toString().replace("\r", ""), "{\"PropertyName\":\"Value\"}\n",
                               "Invalid xml printed");
         } finally {
             outContent.close();
@@ -75,7 +75,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
         try {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(result, "printAnyVal", new BValue[0]);
-            Assert.assertEquals(outContent.toString().replace("\r", ""), "PropertyName=Value",
+            Assert.assertEquals(outContent.toString().replace("\r", ""), "{\"PropertyName\":\"Value\"}",
                                 "Invalid xml printed");
         } finally {
             outContent.close();

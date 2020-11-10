@@ -18,8 +18,8 @@
 
 package org.ballerinalang.test.types.string;
 
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -45,12 +45,12 @@ public class StringValueRecordTest {
 
     @Test
     public void testRecordGetKeys() {
-        testAndAssert("testRecordGetKeys", 21);
+        testAndAssert("testRecordGetKeys", 31);
     }
 
     @Test
     public void testMapToKeys() {
-        testAndAssert("testMapToKeys", 28);
+        testAndAssert("testMapToKeys", 38);
     }
 
     @Test

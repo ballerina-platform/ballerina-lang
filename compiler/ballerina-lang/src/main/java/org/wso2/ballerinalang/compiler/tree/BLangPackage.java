@@ -17,10 +17,13 @@
  */
 package org.wso2.ballerinalang.compiler.tree;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationNode;
+import org.ballerinalang.model.tree.ClassDefinition;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
@@ -31,21 +34,22 @@ import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
-import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.wso2.ballerinalang.compiler.diagnostic.DiagnosticComparator;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @since 0.94
@@ -68,14 +72,19 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangTestablePackage> testablePkgs;
     // Queue to maintain lambda functions so that we can visit all lambdas at the end of the semantic phase
     public Queue<BLangLambdaFunction> lambdaFunctions = new ArrayDeque<>();
+    public List<BLangClassDefinition> classDefinitions;
+
+    // Hold global variable dependencies identified in DataflowAnalyzer.
+    public Map<BSymbol, Set<BVarSymbol>> globalVariableDependencies;
 
     public PackageID packageID;
     public BPackageSymbol symbol;
     public Set<Flag> flagSet;
     public byte[] jarBinaryContent;
 
-    // TODO Revisit these instance variables
-    public BDiagnosticCollector diagCollector;
+    private int errorCount;
+    private int warnCount;
+    private TreeSet<Diagnostic> diagnostics;
 
     public RepoHierarchy repos;
 
@@ -89,13 +98,14 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.functions = new ArrayList<>();
         this.typeDefinitions = new ArrayList<>();
         this.annotations = new ArrayList<>();
+        this.classDefinitions = new ArrayList<>();
 
         this.objAttachedFunctions = new ArrayList<>();
         this.topLevelNodes = new ArrayList<>();
         this.completedPhases = EnumSet.noneOf(CompilerPhase.class);
-        this.diagCollector = new BDiagnosticCollector();
         this.testablePkgs = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
+        this.diagnostics = new TreeSet<>(new DiagnosticComparator());
     }
 
     @Override
@@ -189,6 +199,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
+    public List<? extends ClassDefinition> getClassDefinitions() {
+        return this.classDefinitions;
+    }
+
+    @Override
     public void addTypeDefinition(TypeDefinition typeDefinition) {
         this.typeDefinitions.add((BLangTypeDefinition) typeDefinition);
         this.topLevelNodes.add(typeDefinition);
@@ -248,29 +263,51 @@ public class BLangPackage extends BLangNode implements PackageNode {
         return this.testablePkgs.size() > 0;
     }
 
+    public void addClassDefinition(BLangClassDefinition classDefNode) {
+        this.topLevelNodes.add(classDefNode);
+        this.classDefinitions.add(classDefNode);
+    }
+
     /**
-     * This class collect diagnostics.
+     * Add a diagnostic to this package.
      *
-     * @since 0.970.0
+     * @param diagnostic Diagnostic to be added
      */
-    public static class BDiagnosticCollector {
-        private int errorCount;
-        private List<BDiagnostic> diagnostics;
-
-        public BDiagnosticCollector() {
-            this.diagnostics = new ArrayList<>();
+    public void addDiagnostic(Diagnostic diagnostic) {
+        boolean isAdded = this.diagnostics.add(diagnostic);
+        if (!isAdded) {
+            return;
         }
-
-        public void addDiagnostic(BDiagnostic diagnostic) {
-            this.diagnostics.add(diagnostic);
-            if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
-                this.errorCount++;
-            }
-            Collections.sort(diagnostics);
+        if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
+            this.errorCount++;
+        } else if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.WARNING) {
+            this.warnCount++;
         }
+    }
 
-        public boolean hasErrors() {
-            return this.errorCount > 0;
-        }
+    /**
+     * Get all the diagnostics of this package.
+     *
+     * @return List of diagnostics in this package
+     */
+    public List<Diagnostic> getDiagnostics() {
+        return new ArrayList<>(this.diagnostics);
+    }
+
+    public int getErrorCount() {
+        return errorCount;
+    }
+
+    public int getWarnCount() {
+        return warnCount;
+    }
+
+    /**
+     * Check whether this package has any errors.
+     *
+     * @return <code>true</code> if this package has any errors. <code>false</code> otherwise
+     */
+    public boolean hasErrors() {
+        return this.errorCount > 0;
     }
 }

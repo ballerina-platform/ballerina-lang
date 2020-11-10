@@ -11,8 +11,8 @@ function testClosedIntRange(int startValue, int endValue) returns int[] {
 function testClosedIntRangeAsArray(int startValue, int endValue) returns int[] {
     int[] returnArray = [];
     int returnArrayIndex = 0;
-    abstract object {
-        public function __iterator() returns abstract object {
+    object {
+        public function __iterator() returns object {
                 public function next () returns (record {| int value; |}?);
         };
     } rangeAsArray = startValue ... endValue;
@@ -36,8 +36,8 @@ function testHalfOpenIntRange(int startValue, int endValue) returns int[] {
 function testHalfOpenIntRangeAsArray(int startValue, int endValue) returns int[] {
     int[] returnArray = [];
     int returnArrayIndex = 0;
-    abstract object {
-            public function __iterator() returns abstract object {
+    object {
+            public function __iterator() returns object {
                     public function next () returns (record {| int value; |}?);
             };
         } rangeAsArray = startValue ..< endValue;

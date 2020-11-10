@@ -3,7 +3,7 @@ public function testObjectWithInterface () returns [int, string] {
     return [p.attachInterface(7), p.month];
 }
 
-type Person object {
+class Person {
     public int age = 10;
 
     string month = "february";
@@ -17,4 +17,4 @@ type Person object {
         int count = self.age + add;
         return count;
     }
-};
+}

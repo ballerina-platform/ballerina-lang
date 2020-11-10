@@ -73,7 +73,7 @@ public class BallerinaConnectorRequest {
                 ", module='" + module + '\'' +
                 ", version='" + version + '\'' +
                 ", name='" + name + '\'' +
-                ", beta='" + beta + '\'' +
+                ", beta=" + beta +
                 '}';
     }
 }

@@ -52,14 +52,14 @@ public class TestReportTest extends BaseTestCase {
         resultsJsonPath = reportTestProjectPath.resolve("target").resolve("test_results.json");
     }
 
-    @Test(enabled = false)
+    @Test ()
     public void testWithCoverage() throws BallerinaTestException, IOException {
         runCommand(true);
         validateStatuses();
         validateCoverage();
     }
 
-    @Test (enabled = false)
+    @Test ()
     public void testWithoutCoverage() throws BallerinaTestException, IOException {
         runCommand(false);
         validateStatuses();
@@ -71,7 +71,7 @@ public class TestReportTest extends BaseTestCase {
         if (coverage) {
             args = new String[]{"--code-coverage", "--all"};
         } else {
-            args = new String[]{ "--all"};
+            args = new String[]{"--test-report", "--all"};
         }
 
         balClient.runMain("test", args, null, new String[]{},
@@ -84,19 +84,14 @@ public class TestReportTest extends BaseTestCase {
 
     private void validateStatuses() {
         int total = 5, totalPassed = 3, totalFailed = 1, totalSkipped = 1;
-        int serviceTotal = 1, servicePassed = 1, serviceFailed = 0, serviceSkipped = 0;
         int mathTotal = 2, mathPassed = 2, mathFailed = 0, mathSkipped = 0;
         int fooTotal = 2, fooPassed = 0, fooFailed = 1, fooSkipped = 1;
+        int bartestTotal = 1, barPassed = 1, barFailed = 0, barSkipped = 0;
 
         // Verify module level numbers
         for (JsonElement obj : resultObj.get("moduleStatus").getAsJsonArray()) {
             JsonObject moduleObj = ((JsonObject) obj);
-            if ("myService".equals(moduleObj.get("name").getAsString())) {
-                Assert.assertEquals(serviceTotal, moduleObj.get("totalTests").getAsInt());
-                Assert.assertEquals(servicePassed, moduleObj.get("passed").getAsInt());
-                Assert.assertEquals(serviceFailed, moduleObj.get("failed").getAsInt());
-                Assert.assertEquals(serviceSkipped, moduleObj.get("skipped").getAsInt());
-            } else if ("math".equals(moduleObj.get("name").getAsString())) {
+            if ("math".equals(moduleObj.get("name").getAsString())) {
                 Assert.assertEquals(mathTotal, moduleObj.get("totalTests").getAsInt());
                 Assert.assertEquals(mathPassed, moduleObj.get("passed").getAsInt());
                 Assert.assertEquals(mathFailed, moduleObj.get("failed").getAsInt());
@@ -106,6 +101,13 @@ public class TestReportTest extends BaseTestCase {
                 Assert.assertEquals(fooPassed, moduleObj.get("passed").getAsInt());
                 Assert.assertEquals(fooFailed, moduleObj.get("failed").getAsInt());
                 Assert.assertEquals(fooSkipped, moduleObj.get("skipped").getAsInt());
+            } else if ("bartests".equals(moduleObj.get("name").getAsString())) {
+                Assert.assertEquals(bartestTotal, moduleObj.get("totalTests").getAsInt());
+                Assert.assertEquals(barPassed, moduleObj.get("passed").getAsInt());
+                Assert.assertEquals(barFailed, moduleObj.get("failed").getAsInt());
+                Assert.assertEquals(barSkipped, moduleObj.get("skipped").getAsInt());
+            } else if ("bar".equals(moduleObj.get("name").getAsString())) {
+                // No module status for bar
             } else {
                 Assert.fail("unrecognized module found: " + moduleObj.get("name").getAsString());
             }
@@ -120,15 +122,6 @@ public class TestReportTest extends BaseTestCase {
 
     private void validateCoverage() {
         JsonParser parser = new JsonParser();
-        // service module
-        int[] serviceMainCovered = new int[]{32, 35, 36, 39, 40}, serviceMainMissed = new int[]{37};
-        float serviceMainPercentageVal =
-                (float) (serviceMainCovered.length) / (serviceMainCovered.length + serviceMainMissed.length) * 100;
-        float serviceMainPercentage =
-                (float) (Math.round(serviceMainPercentageVal * 100.0) / 100.0);
-
-        int serviceCovered = serviceMainCovered.length, serviceMissed = serviceMainMissed.length;
-
         //math module
         int[] mathAddCovered = new int[] {22, 23, 24, 26, 29, 31}, mathAddMissed = new int[] {27};
         float mathAddPercentageVal =
@@ -148,7 +141,7 @@ public class TestReportTest extends BaseTestCase {
         float mathPercentage = (float) (Math.round(mathPercentageVal * 100.0) / 100.0);
 
         //foo module
-        int[] fooMainCovered = new int[] {25, 26, 27, 32, 33, 39, 40}, fooMainMissed = new int[] {29};
+        int[] fooMainCovered = new int[] {22, 23, 24, 26, 29, 30, 36, 37}, fooMainMissed = new int[] {};
         float fooMainPercentageVal =
                 (float) (fooMainCovered.length) / (fooMainCovered.length + fooMainMissed.length) * 100;
         float fooMainPercentage =
@@ -156,30 +149,26 @@ public class TestReportTest extends BaseTestCase {
 
         int fooCovered = fooMainCovered.length, fooMissed = fooMainMissed.length;
 
+        //bar module
+//        int[] barMainCovered = new int[] {19}, barMainMissed = new int[] {};
+//        float barMainPercentageVal =
+//                (float) (barMainCovered.length) / (barMainMissed.length + barMainCovered.length) * 100;
+//        float barMainPercentage =
+//                (float) (Math.round(barMainPercentageVal * 100.0) / 100.0);
+//
+//        int barCovered = barMainCovered.length, barMissed = barMainMissed.length;
+
         // project
-        int totalCovered = serviceCovered + mathCovered + fooCovered;
-        int totalMissed =  serviceMissed + mathMissed + fooMissed;
+        int totalCovered = mathCovered + fooCovered;
+        int totalMissed =  mathMissed + fooMissed;
         float coveragePercentageVal = (float) (totalCovered) / (totalCovered + totalMissed) * 100;
         float coveragePercentage = (float) (Math.round(coveragePercentageVal * 100.0) / 100.0);
 
         // Verify module level coverage
         for (JsonElement element : resultObj.get("moduleCoverage").getAsJsonArray()) {
             JsonObject moduleObj = ((JsonObject) element);
-            if ("myService".equals(moduleObj.get("name").getAsString())) {
-                // Verify coverage of source file
-                JsonObject fileObj = (JsonObject) moduleObj.get("sourceFiles").getAsJsonArray().get(0);
-                Assert.assertEquals("main.bal", fileObj.get("name").getAsString());
-                Assert.assertEquals(parser.parse(Arrays.toString(serviceMainCovered)),
-                        parser.parse(fileObj.get("coveredLines").getAsJsonArray().toString()));
-                Assert.assertEquals(parser.parse(Arrays.toString(serviceMainMissed)),
-                        parser.parse(fileObj.get("missedLines").getAsJsonArray().toString()));
-                Assert.assertEquals(serviceMainPercentage, fileObj.get("coveragePercentage").getAsFloat());
 
-                // verify coverage of module
-                Assert.assertEquals(serviceCovered, moduleObj.get("coveredLines").getAsInt());
-                Assert.assertEquals(serviceMissed, moduleObj.get("missedLines").getAsInt());
-                Assert.assertEquals(serviceMainPercentage, moduleObj.get("coveragePercentage").getAsFloat());
-            } else if ("math".equals(moduleObj.get("name").getAsString())) {
+            if ("math".equals(moduleObj.get("name").getAsString())) {
                 // Verify coverage of individual source file
                 for (JsonElement element1 :  moduleObj.get("sourceFiles").getAsJsonArray()) {
                     JsonObject fileObj = (JsonObject) element1;
@@ -220,6 +209,21 @@ public class TestReportTest extends BaseTestCase {
                 Assert.assertEquals(fooCovered, moduleObj.get("coveredLines").getAsInt());
                 Assert.assertEquals(fooMissed, moduleObj.get("missedLines").getAsInt());
                 Assert.assertEquals(fooMainPercentage, moduleObj.get("coveragePercentage").getAsFloat());
+            } else if ("bar".equals(moduleObj.get("name").getAsString())) {
+//                JsonObject fileObj = (JsonObject) moduleObj.get("sourceFiles").getAsJsonArray().get(0);
+//                Assert.assertEquals("main.bal", fileObj.get("name").getAsString());
+//                Assert.assertEquals(parser.parse(Arrays.toString(barMainCovered)),
+//                        parser.parse(fileObj.get("coveredLines").getAsJsonArray().toString()));
+//                Assert.assertEquals(parser.parse(Arrays.toString(barMainMissed)),
+//                        parser.parse(fileObj.get("missedLines").getAsJsonArray().toString()));
+//                Assert.assertEquals(barMainPercentage, fileObj.get("coveragePercentage").getAsFloat());
+//
+//                // Verify coverage of module
+//                Assert.assertEquals(barCovered, moduleObj.get("coveredLines").getAsInt());
+//                Assert.assertEquals(barMissed, moduleObj.get("missedLines").getAsInt());
+//                Assert.assertEquals(barMainPercentage, moduleObj.get("coveragePercentage").getAsFloat());
+            } else if ("bartests".equals(moduleObj.get("name").getAsString())) {
+                // No module coverage for bar_tests
             } else {
                 Assert.fail("unrecognized module: " + moduleObj.get("name").getAsString());
             }

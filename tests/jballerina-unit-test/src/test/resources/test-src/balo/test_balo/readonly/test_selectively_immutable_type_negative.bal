@@ -43,13 +43,13 @@ function testNonReadOnlyValueForReadOnlyCET() {
     se:ReadOnlyStudent rs = st;
 }
 
-type Obj object {
+class Obj {
     int i;
 
     function init(int i) {
         self.i = i;
     }
-};
+}
 
 type ABAny se:AB|any;
 

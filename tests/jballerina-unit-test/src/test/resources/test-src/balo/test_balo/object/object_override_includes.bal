@@ -1,6 +1,6 @@
 import testorg/foo;
 
-public type NewButSameBin object {
+public class NewButSameBin {
     *foo:Bin;
     public int age;
     public string name;
@@ -21,7 +21,7 @@ public type NewButSameBin object {
         self.year = year;
         self.month = month;
     }
-};
+}
 
 public function testSimpleObjectOverridingSimilarObject () {
     NewButSameBin p = new (20, "Bob", 2020, "march");
@@ -31,7 +31,7 @@ public function testSimpleObjectOverridingSimilarObject () {
     assertEquality("march", p.month);
 }
 
-public type DustBinOverridingBin object {
+public class DustBinOverridingBin {
     public int age = 20;
     public string name = "sample name";
     public int year = 50;
@@ -57,7 +57,7 @@ public type DustBinOverridingBin object {
         string val2 = value1 + self.month;
         return [count, val2];
     }
-};
+}
 
 public function testObjectOverrideInterfaceWithInterface() {
     foo:Bin p = new DustBinOverridingBin(100, 10, val1 = "adding");

@@ -44,7 +44,7 @@ type FooRecord record {
     float d;
 };
 
-type FooObject object {
+class FooObject {
     string a;
     int b;
 
@@ -56,7 +56,7 @@ type FooObject object {
     function getValues() returns [string, int] {
         return [self.a, self.b];
     }
-};
+}
 
 function getIntOrError(int a) returns int|error {
     if (a == 0) {
@@ -89,7 +89,7 @@ function testObjectInitWithDefaultValues() returns [[string, boolean, int, float
     return [o1.getValues(), o2.getValues()];
 }
 
-type ObjectOne object {
+class ObjectOne {
     string a;
     boolean b;
     int c;
@@ -109,7 +109,7 @@ type ObjectOne object {
     function getValues() returns [string, boolean, int, float, FooRecord, FooObject] {
         return [self.a, self.b, self.c, self.d, self.e, self.f];
     }
-};
+}
 
 // Test 2
 function testObjectInitWithDefaultValues2() returns [[int, string, float, FooRecord], [int, string, float, FooRecord]]{
@@ -119,7 +119,7 @@ function testObjectInitWithDefaultValues2() returns [[int, string, float, FooRec
     return [o1.getValues(), o2.getValues()];
 }
 
-type ObjectTwo object {
+class ObjectTwo {
     int a;
     string b;
     float c;
@@ -135,7 +135,7 @@ type ObjectTwo object {
     function getValues() returns [int, string, float, FooRecord] {
         return [self.a, self.b, self.c, self.d];
     }
-};
+}
 
 // Test 3
 function testObjectAttachedFunction1() returns [[string, int, FooRecord], [string, int, FooRecord]] {
@@ -153,7 +153,7 @@ function testObjectAttachedFunction2() returns [[int, string, float, FooRecord],
     return [a, b];
 }
 
-type ObjectThree object {
+class ObjectThree {
 
     function attachedFunction1(string a = GLB_STRING, int b = getInt(), FooRecord c = { a: "default", b: 50, c: false, d: 11.1 }) returns [string, int, FooRecord] {
         return [a, b * 2, c];
@@ -162,7 +162,7 @@ type ObjectThree object {
     function attachedFunction2(int a = getInt() + 10 + getInt(), string b = "def" + getString() + GLB_STRING, float c = getFloat() + getInt(), FooRecord d = getRecord()) returns [int, string, float, FooRecord] {
         return [a, b, c, d];
     }
-};
+}
 
 // Test 5
 function testObjectAttachedFunction3() returns [[string, int, FooRecord], [string, int, FooRecord]] {
@@ -180,7 +180,7 @@ function testObjectAttachedFunction4() returns [[int, string, float, FooRecord],
     return [a, b];
 }
 
-type ObjectFour object {
+class ObjectFour {
 
     function attachedFunction1(string a = GLB_STRING, int b = getInt(), FooRecord c = { a: "default", b: 50, c: false, d: 11.1 }) returns [string, int, FooRecord] {
         return [a, b * 2, c];
@@ -189,19 +189,19 @@ type ObjectFour object {
     function attachedFunction2(int a = getInt() + 10 + getInt(), string b = "def" + getString() + GLB_STRING, float c = getFloat() + getInt(), FooRecord d = getRecord()) returns [int, string, float, FooRecord] {
         return [a, b, c, d];
     }
-};
+}
 
-type ObjectFive object {
+class ObjectFive {
     function foo(int x = getInt(), float y = getFloat()) returns [int, float] {
         return [x * 2, y * 2];
     }
-};
+}
 
-type ObjectSix object {
+class ObjectSix {
     function foo(int x = getInt() * 2, float y = getFloat() * 2) returns [int, float] {
         return [x * 2, y * 2];
     }
-};
+}
 
 function testObjectCasting1() returns [[int, float], [int, float], [int, float], [int, float]] {
     ObjectFive o1 = new();

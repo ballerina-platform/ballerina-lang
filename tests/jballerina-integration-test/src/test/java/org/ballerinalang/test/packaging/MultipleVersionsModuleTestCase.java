@@ -58,7 +58,7 @@ public class MultipleVersionsModuleTestCase extends BaseTest {
     private Map<String, String> envVariables;
     private BMainInstance balClient;
 
-    @BeforeClass(enabled = false)
+    @BeforeClass()
     public void setUp() throws IOException, BallerinaTestException {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-versions-project-");
         printModuleName = printModuleName + PackerinaTestUtils.randomModuleName(8);
@@ -70,8 +70,7 @@ public class MultipleVersionsModuleTestCase extends BaseTest {
         balClient = new BMainInstance(balServer);
     }
 
-    @Test(enabled = false, description = "Test pushing multiple versions of same module " +
-            "to central and use them in a project")
+    @Test(description = "Test pushing multiple versions of same module to central and use them in a project")
     public void testMultipleVersionsOfSameModuleImport() throws Exception {
 
         // Build and Push  print module of PrintProjectV1
@@ -150,12 +149,10 @@ public class MultipleVersionsModuleTestCase extends BaseTest {
         });
 
         // Test multiple versions of same module output at runtime.
-        String printV1PMsg = "Print: Hello World! from v1";
-        String printV2PMsg = "Print: Hello World! from v2";
-        LogLeecher printV1MsgLeecher = new LogLeecher(printV1PMsg, LogLeecher.LeecherType.INFO);
-        LogLeecher printV2MsgLeecher = new LogLeecher(printV2PMsg, LogLeecher.LeecherType.INFO);
+        String runMsg = "1 passing";
+        LogLeecher runMsgLeecher = new LogLeecher(runMsg, LogLeecher.LeecherType.INFO);
         balClient.runMain("run", new String[]{printerJarFilePath}, envVariables, new String[]{},
-                          new LogLeecher[]{printV1MsgLeecher, printV2MsgLeecher}, multiVersionsProject.toString());
+                          new LogLeecher[]{runMsgLeecher}, multiVersionsProject.toString());
     }
 
     /**
@@ -169,7 +166,7 @@ public class MultipleVersionsModuleTestCase extends BaseTest {
         return envVariables;
     }
 
-    @AfterClass(enabled = false)
+    @AfterClass()
     private void cleanup() throws Exception {
         PackerinaTestUtils.deleteFiles(tempProjectDirectory);
     }

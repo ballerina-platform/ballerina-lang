@@ -16,13 +16,21 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine;
 
-import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
+import com.sun.jdi.Field;
+import com.sun.jdi.ReferenceType;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
+import org.ballerinalang.debugadapter.utils.PackageUtils;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
 
 /**
  * Simple name reference evaluator implementation.
@@ -37,12 +45,18 @@ public class SimpleNameReferenceEvaluator extends Evaluator {
     public SimpleNameReferenceEvaluator(SuspendedContext context, SimpleNameReferenceNode node) {
         super(context);
         this.syntaxNode = node;
-        this.nameRef = node.toSourceCode().trim();
+        this.nameRef = node.name().text();
     }
 
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
         try {
+            // Searches within global variable scope.
+            Optional<BExpressionValue> result = searchInGlobalVariables();
+            if (result.isPresent()) {
+                return result.get();
+            }
+            // If no results found, searches within local variable scope.
             LocalVariableProxyImpl jvmVar = context.getFrame().visibleVariableByName(nameRef);
             if (jvmVar == null) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.VARIABLE_NOT_FOUND.getString(),
@@ -58,5 +72,19 @@ public class SimpleNameReferenceEvaluator extends Evaluator {
             throw new EvaluationException(String.format(EvaluationExceptionKind.VARIABLE_EXECUTION_ERROR.getString(),
                     nameRef));
         }
+    }
+
+    private Optional<BExpressionValue> searchInGlobalVariables() {
+        String classQName = PackageUtils.getQualifiedClassName(context, INIT_CLASS_NAME);
+        List<ReferenceType> cls = context.getAttachedVm().classesByName(classQName);
+        if (cls.size() != 1) {
+            return Optional.empty();
+        }
+        ReferenceType initClassReference = cls.get(0);
+        Field field = initClassReference.fieldByName(nameRef);
+        if (field == null) {
+            return Optional.empty();
+        }
+        return Optional.of(new BExpressionValue(context, initClassReference.getValue(field)));
     }
 }

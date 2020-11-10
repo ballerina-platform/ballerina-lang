@@ -6,19 +6,19 @@ public function interopWithArrayAndMap() returns int[] {
 }
 
 public function getArrayValueFromMap(string key, map<int> mapValue) returns int[] = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public type Employee record {
     string name = "";
 };
 
-public type Person object {
+public class Person {
     int age = 9;
     public function init(int age) {
         self.age = age;
     }
-};
+}
 
 public function interopWithRefTypesAndMapReturn() returns map<any> {
     Person a = new Person(44);
@@ -32,7 +32,7 @@ public function interopWithRefTypesAndMapReturn() returns map<any> {
 }
 
 public function acceptRefTypesAndReturnMap(Person a, [int, string, Person] b, int|string|Employee c, error d, any e, anydata f, Employee g) returns map<any> = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function interopWithErrorReturn() returns string {
@@ -41,7 +41,7 @@ public function interopWithErrorReturn() returns string {
 }
 
 public function acceptStringErrorReturn(string s) returns error = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 service testService = service {
@@ -55,7 +55,7 @@ public function acceptServiceAndBooleanReturn() returns boolean {
 }
 
 public function acceptServiceObjectAndReturnBoolean(service s) returns boolean = @java:Method {
-    class: "org.ballerinalang.nativeimpl.jvm.tests.StaticMethods"
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.StaticMethods"
 } external;
 
 public function interopWithUnionReturn() returns boolean {
@@ -79,7 +79,7 @@ public function interopWithUnionReturn() returns boolean {
 }
 
 public function acceptIntUnionReturn(int s) returns int|string|float|boolean|handle = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function interopWithObjectReturn() returns boolean {
@@ -95,7 +95,7 @@ public function interopWithObjectReturn() returns boolean {
 }
 
 public function acceptObjectAndObjectReturn(Person p, int newVal) returns Person = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function interopWithRecordReturn() returns boolean {
@@ -112,7 +112,7 @@ public function interopWithRecordReturn() returns boolean {
 }
 
 public function acceptRecordAndRecordReturn(Employee e, string newVal) returns Employee = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function interopWithAnyReturn() returns boolean {
@@ -136,7 +136,7 @@ public function interopWithAnyReturn() returns boolean {
 }
 
 public function acceptIntAnyReturn(int s) returns any= @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
     name:"acceptIntUnionReturn"
 } external;
 
@@ -161,33 +161,33 @@ public function interopWithAnydataReturn() returns boolean {
 }
 
 public function acceptIntAnydataReturn(int s) returns anydata= @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
     name:"acceptIntUnionReturn"
 } external;
 
 public function acceptIntReturnIntThrowsCheckedException(int a) returns int | error = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function acceptRecordAndRecordReturnWhichThrowsCheckedException(Employee e, string newVal) returns Employee | error = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function acceptIntUnionReturnWhichThrowsCheckedException(int s) returns int|string|float|boolean|error = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function acceptRefTypesAndReturnMapWhichThrowsCheckedException(Person a, [int, string, Person] b,
                     int|string|Employee c, error d, any e, anydata f, Employee g) returns map<any> | error = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function acceptStringErrorReturnWhichThrowsCheckedException(string s) returns error = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function getArrayValueFromMapWhichThrowsCheckedException(string key, map<int> mapValue) returns int[] | error = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 
@@ -202,27 +202,27 @@ function testJsonParams() returns json {
 }
 
 public function getJson() returns json = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function getInt() returns json = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function getJsonObject() returns json = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function getJsonArray() returns json = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function getIntFromJson(json j) returns int = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function getNullJson() returns json = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 // XML interop
@@ -232,11 +232,11 @@ function testPassingXML() returns string {
 }
 
 function getXML() returns xml = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
 
 function getStringFromXML(xml x) returns string = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
 
 
@@ -256,39 +256,39 @@ function testAcceptMixTypes() returns [any, any, any] {
 }
 
 function getAllInts() returns ALL_INT = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
 
 function acceptAllInts(ALL_INT x) returns int = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
 
 function acceptAllFloats(ALL_INT x) returns float = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
 
 function acceptAny(ALL_INT x) returns any = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
 
 function getMixType() returns MIX_TYPE = @java:Method {
     name:"getAny",
-    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
 
 function getIntegersAsMixType() returns MIX_TYPE = @java:Method {
     name:"getAllInts",
-    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
 
 function acceptMixType(MIX_TYPE x) returns any = @java:Method {
     name:"acceptAny",
-    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
 
 function getInvalidIntegerAsMixType() returns MIX_TYPE = @java:Method {
     name:"getInvalidMixType",
-    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
 
 // Function pointers with interop
@@ -303,11 +303,11 @@ function testGetFunctionPointer() returns int {
 }
 
 function useFunctionPointer((function (int a, int b) returns int) fp) returns int = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
 
 function getFunctionPointer(any x) returns (function (int a, int b) returns int) = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
 
 
@@ -323,11 +323,11 @@ function testGetTypeDesc() returns typedesc<any> {
 }
 
 function useTypeDesc(typedesc<any> t) returns string = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
 
 function getTypeDesc() returns typedesc<any> = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
 
 
@@ -346,11 +346,11 @@ function testGetFuture() returns any {
 }
 
 function useFuture(future<any> f) returns any = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
 
 function getFuture(any a) returns future<any> = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
 
 
@@ -366,11 +366,11 @@ function testUseHandle() returns string {
 }
 
 function useHandle(handle h) returns string = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
 
 function getHandle() returns handle = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
 
 function testUseHandleInUnion() returns string {
@@ -383,7 +383,7 @@ function testUseHandleInUnion() returns string {
 }
 
 function getHandleOrError() returns handle|error = @java:Method {
-    class:"org/ballerinalang/test/javainterop/RefTypeTests",
+    'class:"org/ballerinalang/test/javainterop/RefTypeTests",
     name: "getHandle"
 } external;
 
@@ -393,12 +393,12 @@ public function testThrowJavaException2() returns any|error {
 }
 
 function createJavaStack() returns handle = @java:Constructor {
-    class: "java/util/Stack",
+    'class: "java/util/Stack",
     paramTypes: []
 } external;
 
 function javaStackPop(handle stack) returns any = @java:Method {
-    class: "java/util/Stack",
+    'class: "java/util/Stack",
     name: "pop"
 } external;
 
@@ -423,7 +423,7 @@ function testDifferentRefTypesForIntersectionEffectiveType() {
 
 function getValues(map<int> & readonly intMap, map<string> & readonly stringMap)
     returns (int|string)[] & readonly = @java:Method {
-        class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function testUsingIntersectionEffectiveType() {
@@ -432,7 +432,7 @@ function testUsingIntersectionEffectiveType() {
     assertEquality(a, r1);
 
     Graduate b = new ("Jo", 1234);
-    readonly & abstract object {} r2 = echoObject(b);
+    readonly & object {} r2 = echoObject(b);
     assertEquality(b, r2);
 
     Details & readonly c = {
@@ -443,7 +443,7 @@ function testUsingIntersectionEffectiveType() {
     assertTrue(r3);
 }
 
-type Graduate readonly object {
+readonly class Graduate {
     string name;
     int id;
 
@@ -451,7 +451,7 @@ type Graduate readonly object {
         self.name = name;
         self.id = id;
     }
-};
+}
 
 type Details record {
     Graduate emp;
@@ -459,16 +459,16 @@ type Details record {
 };
 
 function echoAnydataAsAny(anydata & readonly value) returns any & readonly = @java:Method {
-    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
-function echoObject(abstract object {string name; int id;} & readonly obj)
-    returns abstract object {} & readonly = @java:Method {
-        class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+function echoObject(object {string name; int id;} & readonly obj)
+    returns object {} & readonly = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function echoImmutableRecordField(Details & readonly value, string key) returns boolean = @java:Method {
-     class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+     'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function testReadOnlyAsParamAndReturnTypes() {
@@ -497,16 +497,10 @@ function testReadOnlyAsParamAndReturnTypes() {
     readonly missingMemAsReadOnly = acceptAndReturnReadOnly(m2);
     assertTrue(missingMemAsReadOnly is ());
 
-    readonly object {
-        int i = 21;
-
-        function getInt() returns int {
-            return self.i;
-        }
-    } ob = new;
+    ReadOnlyIntProvider ob = new;
     readonly objectAsReadOnly = acceptAndReturnReadOnly(ob);
-    assertTrue(objectAsReadOnly is readonly & abstract object { int i; function getInt() returns int; });
-    var cObj = <abstract object { int i; function getInt() returns int; } & readonly> objectAsReadOnly;
+    assertTrue(objectAsReadOnly is readonly & object { int i; function getInt() returns int; });
+    var cObj = <object { int i; function getInt() returns int; } & readonly> objectAsReadOnly;
     assertEquality(21, cObj.getInt());
     assertEquality(ob, objectAsReadOnly);
 
@@ -517,8 +511,16 @@ function testReadOnlyAsParamAndReturnTypes() {
     assertEquality(arr, arrayAsReadOnly);
 }
 
+readonly class ReadOnlyIntProvider {
+    int i = 21;
+
+    function getInt() returns int {
+        return self.i;
+    }
+}
+
 function acceptAndReturnReadOnly(readonly value) returns readonly = @java:Method {
-     class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+     'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function testNarrowerTypesAsReadOnlyReturnTypes() {
@@ -608,73 +610,73 @@ function testNarrowerTypesAsReadOnlyReturnTypes() {
     assertEquality(tb, tableAsReadOnly);
 }
 
-type Bar readonly object {
-    readonly int i;
-    readonly string s = "hello world";
+readonly class Bar {
+    final int i;
+    final string s = "hello world";
 
     function init(int i) {
         self.i = i;
     }
-};
+}
 
 function getNilAsReadOnly() returns readonly = @java:Method {
-    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function getBooleanAsReadOnly() returns readonly = @java:Method {
-    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function getIntAsReadOnly() returns readonly = @java:Method {
-    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function getFloatAsReadOnly(float f) returns readonly = @java:Method {
-    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function getDecimalAsReadOnly(decimal d) returns readonly = @java:Method {
-    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function getStringAsReadOnly(string s1, string s2) returns readonly = @java:Method {
-    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function getErrorAsReadOnly(error e) returns readonly = @java:Method {
-    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function getFunctionPointerAsReadOnly(function () returns int func) returns readonly = @java:Method {
-    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function getObjectOrServiceAsReadOnly(object {} ob) returns readonly = @java:Method {
-    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function getTypedescAsReadOnly(typedesc t) returns readonly = @java:Method {
-    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function getHandleAsReadOnly(handle t) returns readonly = @java:Method {
-    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function getXmlAsReadOnly(xml & readonly x) returns readonly = @java:Method {
-    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function getListAsReadOnly(int[] list) returns readonly = @java:Method {
-    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function getMappingAsReadOnly(map<int|string> mp) returns readonly = @java:Method {
-    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function getTableAsReadOnly(table<map<int>> tb) returns readonly = @java:Method {
-    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function assertTrue(anydata actual) {

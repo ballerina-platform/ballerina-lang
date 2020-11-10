@@ -41,13 +41,6 @@ public class LocalTypeDefinitionStatementsTest extends FormatterTest {
     }
 
     @Override
-    public Object[][] testSubset() {
-        return new Object[][] {
-                {"local_type_definition_statement_1.bal", this.getTestResourceDir()}
-        };
-    }
-
-    @Override
     public String getTestResourceDir() {
         return Paths.get("statements", "local-type-definition").toString();
     }

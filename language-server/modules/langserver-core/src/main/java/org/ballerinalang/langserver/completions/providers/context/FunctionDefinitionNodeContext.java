@@ -15,10 +15,11 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextRange;
-import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
@@ -57,6 +58,7 @@ public class FunctionDefinitionNodeContext extends AbstractCompletionProvider<Fu
             /*
             This is to cover the following within the service body node
             (1) resource <cursor>
+            (2) public remote <cursor>
             Suggest the function keyword and the function snippet
              */
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
@@ -80,7 +82,11 @@ public class FunctionDefinitionNodeContext extends AbstractCompletionProvider<Fu
     @Override
     public boolean onPreValidation(LSContext context, FunctionDefinitionNode node) {
         Integer textPosition = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
-        TextRange functionKW = node.functionKeyword().textRange();
-        return functionKW.endOffset() <= textPosition;
+        Token functionKeyword = node.functionKeyword();
+        if (functionKeyword.isMissing()) {
+            return true;
+        }
+        TextRange textRange = functionKeyword.textRange();
+        return textRange.endOffset() <= textPosition;
     }
 }

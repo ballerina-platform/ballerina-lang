@@ -211,7 +211,7 @@ public class ArgumentParserPositiveTest {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                 "test_main_with_optional_defaultable_param.bal");
         String output = runMain(compileResult, new String[]{"-s=ballerina", "-m={\"eleven\":11,\"twelve\":12}"});
-        Assert.assertEquals(output, "string value: ballerina eleven=11 twelve=12",
+        Assert.assertEquals(output, "string value: ballerina {\"eleven\":11,\"twelve\":12}",
                             "evaluated to invalid value");
     }
 
@@ -278,7 +278,7 @@ public class ArgumentParserPositiveTest {
     public Object[][] optionalDefaultableParamArgAndResult() {
         return new Object[][]{
                 {"-s=hello world", "string value: hello world m is nil"},
-                {"-m={\"one\":1,\"two\":2}", "string value: s is nil one=1 two=2"}
+                {"-m={\"one\":1,\"two\":2}", "string value: s is nil {\"one\":1,\"two\":2}"}
         };
     }
 

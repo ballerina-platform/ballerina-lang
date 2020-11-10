@@ -17,11 +17,11 @@
 */
 package org.ballerinalang.test.balo.object;
 
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -44,7 +44,9 @@ public class ObjectInBaloTest {
     public void setup() {
         BaloCreator.cleanCacheDirectories();
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
+        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project_two", "testorgtwo", "foo");
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "utils");
+
         result = BCompileUtil.compile("test-src/balo/test_balo/object/test_objects.bal");
     }
 
@@ -285,18 +287,19 @@ public class ObjectInBaloTest {
         Assert.assertEquals(returns[3].stringValue(), "");
     }
 
-//    @Test(description = "Test passing value to a defaultable object field")
-//    public void testPassingValueForDefaultableObjectField() {
-//        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_values_for_defaultable_field.bal");
-//        BValue[] returns = BRunUtil.invoke(compileResult, "passValueForDefaultableObjectField");
-//
-//        Assert.assertEquals(returns.length, 2);
-//        Assert.assertSame(returns[0].getClass(), BInteger.class);
-//        Assert.assertSame(returns[1].getClass(), BString.class);
-//
-//        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
-//        Assert.assertEquals(returns[1].stringValue(), "passed in name value");
-//    }
+    @Test(description = "Test passing value to a defaultable object field")
+    public void testPassingValueForDefaultableObjectField() {
+        CompileResult compileResult = BCompileUtil
+                                  .compile("test-src/object/object_values_for_defaultable_field.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "passValueForDefaultableObjectField");
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
+        Assert.assertEquals(returns[1].stringValue(), "passed in name value");
+    }
 
     @Test(description = "Test shadowing object field")
     public void testShadowingObjectField() {
@@ -419,14 +422,13 @@ public class ObjectInBaloTest {
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
-//    @Test (description = "Negative test to test returning different type without type name")
-//    public void testUnInitializableObjFieldAsParam() {
-//        CompileResult result = BCompileUtil.compile("test-src/object/object_un_initializable_field.bal");
-//        Assert.assertEquals(result.getErrorCount(), 1);
-//        BAssertUtil.validateError(result, 0, "object un-initializable field 'Foo foo' is not " +
-//                "present as a constructor parameter", 18, 1);
-//    }
-//
+    @Test (description = "Negative test to test returning different type without type name")
+    public void testUnInitializableObjFieldAsParam() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_un_initializable_field.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "uninitialized field 'foo'", 18, 5);
+    }
+
 //    @Test (description = "Negative test to test self reference types")
 //    public void testSelfReferenceType() {
 //        CompileResult result = BCompileUtil.compile("test-src/object/object_cyclic_self_reference.bal");
@@ -491,31 +493,28 @@ public class ObjectInBaloTest {
 //                "function 'test13' in the object 'Person'", 94, 1);
 //    }
 //
-//    @Test (description = "Negative test to test initializing objects with only interface functions")
-//    public void testInitializingInterfaceObject() {
-//        CompileResult result = BCompileUtil.compile("test-src/object/object_initialize_interface_object.bal");
-//        Assert.assertEquals(result.getErrorCount(), 1);
-//        BAssertUtil.validateError(result, 0, "cannot initialize object 'Person', " +
-//                "no implementation for the interface 'Person.test'", 3, 16);
-//    }
-//
-//    @Test (description = "Negative test to test initializing object with struct literal")
-//    public void testInitializingObjectWithStructLiteral() {
-//        CompileResult result = BCompileUtil.compile("test-src/object/object_init_with_struct_literal.bal");
-//        Assert.assertEquals(result.getErrorCount(), 2);
-//        BAssertUtil.validateError(result, 0, "invalid usage of record literal with type 'Person'", 1, 13);
-//        BAssertUtil.validateError(result, 1, "invalid usage of record literal with type 'Person'", 4, 16);
-//    }
-//
-//    @Test (description = "Negative test to test referring undefined field in constructor")
-//    public void testReferUndefinedFieldBal() {
-//        CompileResult result = BCompileUtil.compile("test-src/object/object_access_undefined_field.bal");
-//        Assert.assertEquals(result.getErrorCount(), 3);
-//        BAssertUtil.validateError(result, 0, "undefined field 'agea' in object 'Person'", 6, 10);
-//        BAssertUtil.validateError(result, 1, "undefined symbol '><'", 6, 10);
-//        BAssertUtil.validateError(result, 2, "undefined symbol 'abc'", 7, 9);
-//    }
-//
+    @Test (description = "Negative test to test initializing objects with only interface functions")
+    public void testInitializingInterfaceObject() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_initialize_interface_object.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "cannot initialize abstract object 'Person'", 3, 16);
+    }
+
+    @Test (description = "Negative test to test initializing object with struct literal")
+    public void testInitializingObjectWithStructLiteral() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_init_with_struct_literal.bal");
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "invalid usage of record literal with type 'Person'", 1, 13);
+        BAssertUtil.validateError(result, 1, "invalid usage of record literal with type 'Person'", 4, 16);
+    }
+
+    @Test (description = "Negative test to test referring undefined field in constructor")
+    public void testReferUndefinedFieldBal() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_access_undefined_field.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "undefined symbol 'abc'", 6, 9);
+    }
+
 //    @Test (description = "Negative test to test nillable initialization")
 //    public void testNillableInitialization() {
 //        CompileResult result = BCompileUtil.compile("test-src/object/object_nillable_init.bal");
@@ -574,27 +573,25 @@ public class ObjectInBaloTest {
         BRunUtil.invoke(result, "testObjectReferingNonAbstractObjLoadedFromBalo");
     }
 
-    @Test
-    public void testObjectReferingTypeFromBaloNegative() {
-        CompileResult result =
-                BCompileUtil.compile("test-src/balo/test_balo/object/test_objects_type_reference_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 5);
-        int i = 0;
-        BAssertUtil.validateError(result, i++, "undefined field 'name' in object 'Manager1'", 25, 13);
-        BAssertUtil.validateError(result, i++, "undefined field 'age' in object 'Manager1'", 26, 13);
-        BAssertUtil.validateError(result, i++,
-                                  "no implementation found for the function 'getBonus' of non-abstract object " +
-                                          "'Manager2'",
-                                  36, 5);
-        BAssertUtil.validateError(result, i++,
-                                  "no implementation found for the function 'getName' of non-abstract object " +
-                                          "'Manager2'",
-                                  36, 5);
-        BAssertUtil.validateError(result, i,
-                                  "incompatible type reference 'foo:NormalPerson': a referenced object cannot have " +
-                                          "non-public fields or methods",
-                                  42, 6);
-    }
+//    @Test
+//    public void testObjectReferingTypeFromBaloNegative() {
+//        CompileResult result =
+//                BCompileUtil.compile("test-src/balo/test_balo/object/test_objects_type_reference_negative.bal");
+//        Assert.assertEquals(result.getErrorCount(), 5);
+//        int i = 0;
+//        BAssertUtil.validateError(result, i++, "undefined field 'name' in object 'Manager1'", 25, 13);
+//        BAssertUtil.validateError(result, i++, "undefined field 'age' in object 'Manager1'", 26, 13);
+//        BAssertUtil.validateError(result, i++,
+//                                  "no implementation found for the method 'getBonus' of class 'Manager2'",
+//                                  35, 1);
+//        BAssertUtil.validateError(result, i++,
+//                                  "no implementation found for the method 'getName' of class 'Manager2'",
+//                                  35, 1);
+//        BAssertUtil.validateError(result, i,
+//                                  "incompatible type reference 'foo:NormalPerson': a referenced object cannot have " +
+//                                          "non-public fields or methods",
+//                                  42, 6);
+//    }
 
     @AfterClass
     public void tearDown() {

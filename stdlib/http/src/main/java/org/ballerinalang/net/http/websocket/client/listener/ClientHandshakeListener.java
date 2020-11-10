@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.websocket.client.listener;
 
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
@@ -51,7 +51,7 @@ public class ClientHandshakeListener implements ExtendedHandshakeListener {
     }
 
     @Override
-    public ObjectValue getWebSocketClient() {
+    public BObject getWebSocketClient() {
         return handshakeListener.getWebSocketClient();
     }
 

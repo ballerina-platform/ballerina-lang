@@ -18,8 +18,8 @@
 
 package org.ballerinalang.net.http.websocket.observability;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.scheduling.Strand;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketService;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
@@ -216,7 +216,7 @@ public class WebSocketObservabilityUtil {
         }
     }
 
-    public static WebSocketConnectionInfo getConnectionInfo(ObjectValue wsConnection) {
+    public static WebSocketConnectionInfo getConnectionInfo(BObject wsConnection) {
         return (WebSocketConnectionInfo) wsConnection.getNativeData(
                 WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
     }

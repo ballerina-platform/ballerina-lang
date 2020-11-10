@@ -1,2 +1,2 @@
 
-public annotation record { string value;} Config on type;
+public annotation record { string value;} Config on type, class;

@@ -23,3 +23,15 @@ dependencies {
 }
 
 description = 'Ballerina - Logging'
+
+ext.moduleName = 'ballerina.logging'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

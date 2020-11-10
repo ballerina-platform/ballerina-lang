@@ -177,7 +177,7 @@ function test8() returns map<string> {
 
 // OBJECTS
 
-type Person object {
+class Person {
     public int age;
     public string name;
     public string fullName;
@@ -187,7 +187,7 @@ type Person object {
         self.name = name;
         self.fullName = firstname + " " + lastname;
     }
-};
+}
 
 function test9() returns Person {
     Person p1 = new(5, "John");

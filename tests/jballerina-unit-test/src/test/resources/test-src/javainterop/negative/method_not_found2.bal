@@ -1,11 +1,11 @@
 import ballerina/java;
 
-public type Person object {
+public class Person {
     int age = 9;
     public function init(int age) {
         self.age = age;
     }
-};
+}
 
 public function interopWithObjectReturn() returns boolean {
     Person p = new Person(8);
@@ -20,5 +20,5 @@ public function interopWithObjectReturn() returns boolean {
 }
 
 public function acceptObjectAndObjectReturn(Person p, int newVal, float f) returns Person = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;

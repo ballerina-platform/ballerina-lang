@@ -13,22 +13,22 @@ public function testOverloadedConstructorsWithOneParam() returns [handle, handle
 }
 
 public function newStringBuffer(handle strValue) returns handle = @java:Constructor {
-    class:"java.lang.StringBuffer",
+    'class:"java.lang.StringBuffer",
     paramTypes:["java.lang.String"]
 } external;
 
 public function newStringBuilder(handle strValue) returns handle = @java:Constructor {
-    class:"java.lang.StringBuilder",
+    'class:"java.lang.StringBuilder",
     paramTypes:["java.lang.String"]
 } external;
 
 public function newStringWithStringBuffer(handle buffer) returns handle = @java:Constructor {
-    class:"java.lang.String",
+    'class:"java.lang.String",
     paramTypes:["java.lang.StringBuffer"]
 } external;
 
 public function newStringWithStringBuilder(handle builder) returns handle = @java:Constructor {
-    class:"java.lang.String",
+    'class:"java.lang.String",
     paramTypes:["java.lang.StringBuilder"]
 } external;
 
@@ -51,29 +51,29 @@ public function testOverloadedMethodsWithDifferentParametersTwo(string strValue)
 }
 
 function getBytes(handle receiver) returns handle = @java:Method {
-    class: "java.lang.String"
+    'class: "java.lang.String"
 } external;
 
 function sortByteArray(handle src) = @java:Method {
     name: "sort",
-    class: "java.util.Arrays",
-    paramTypes: [{class: "byte", dimensions:1}]
+    'class: "java.util.Arrays",
+    paramTypes: [{'class: "byte", dimensions:1}]
 } external;
 
 function newString(handle bytes) returns handle = @java:Constructor {
-    class: "java.lang.String",
-    paramTypes: [{class: "byte", dimensions:1}]
+    'class: "java.lang.String",
+    paramTypes: [{'class: "byte", dimensions:1}]
 } external;
 
 function getString(string str) returns handle = @java:Method {
     name: "moveTo",
-    class: "org.ballerinalang.test.javainterop.overloading.pkg.Vehicle",
-    paramTypes: ["org.ballerinalang.jvm.values.api.BString"]
+    'class: "org.ballerinalang.test.javainterop.overloading.pkg.Vehicle",
+    paramTypes: ["io.ballerina.runtime.api.values.BString"]
 } external;
 
 function getIntString(int val) returns handle = @java:Method {
     name: "moveTo",
-    class: "org.ballerinalang.test.javainterop.overloading.pkg.Vehicle",
+    'class: "org.ballerinalang.test.javainterop.overloading.pkg.Vehicle",
     paramTypes: ["java.lang.Long"]
 } external;
 

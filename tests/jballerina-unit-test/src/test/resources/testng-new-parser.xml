@@ -136,6 +136,7 @@
             <package name="org.ballerinalang.test.statements.retrystmt.*"/>
             <package name="org.ballerinalang.test.types.readonly.*"/>
             <package name="org.ballerinalang.test.strand.*"/>
+            <package name="org.ballerinalang.test.services.*"/>
         </packages>
 
         <classes>
@@ -166,7 +167,6 @@
             <class name="org.ballerinalang.test.javainterop.primitivetypes.PrimitiveTypeFunctionParamTest"></class>
             <class name="org.ballerinalang.test.javainterop.primitivetypes.UnionsWithPrimitiveTypesTest"></class>
             <class name="org.ballerinalang.test.jvm.BuiltinMethodTest"></class>
-            <class name="org.ballerinalang.test.jvm.IOBasicTest"></class>
             <class name="org.ballerinalang.test.jvm.TypeTestExprTest"></class>
             <class name="org.ballerinalang.test.record.RecordValueTest"></class>
             <class name="org.ballerinalang.test.statements.arrays.ArrayIndexTooLargeTest"></class>
@@ -194,12 +194,6 @@
             <!--<include name="simpleLock"/>-->
             <!--</methods>-->
             <!--</class>-->
-            <class name="org.ballerinalang.test.lock.LocksInServicesTest">
-                <methods>
-                    <!-- Not supported at the moment -->
-                    <exclude name="testFieldLock"></exclude>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.lock.LocksInMainTest" />
             <class name="org.ballerinalang.test.lock.FieldLockTest">
                 <methods>

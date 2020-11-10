@@ -18,9 +18,9 @@
 
 package org.ballerinalang.net.http.serviceendpoint;
 
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
@@ -37,10 +37,10 @@ import static org.ballerinalang.net.http.HttpUtil.getListenerConfig;
  * @since 0.966
  */
 public class InitEndpoint extends AbstractHttpNativeFunction {
-    public static Object initEndpoint(ObjectValue serviceEndpoint) {
+    public static Object initEndpoint(BObject serviceEndpoint) {
         try {
             // Creating server connector
-            MapValue serviceEndpointConfig = serviceEndpoint.getMapValue(HttpConstants.SERVICE_ENDPOINT_CONFIG);
+            BMap serviceEndpointConfig = serviceEndpoint.getMapValue(HttpConstants.SERVICE_ENDPOINT_CONFIG);
             long port = serviceEndpoint.getIntValue(ENDPOINT_CONFIG_PORT);
             ListenerConfiguration listenerConfiguration = getListenerConfig(port, serviceEndpointConfig);
             ServerConnector httpServerConnector =
@@ -50,8 +50,8 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
             //Adding service registries to native data
             resetRegistry(serviceEndpoint);
             return null;
-        } catch (ErrorValue errorValue) {
-            return errorValue;
+        } catch (BError BError) {
+            return BError;
         } catch (Exception e) {
             return HttpUtil.createHttpError(e.getMessage(), HttpErrorType.GENERIC_LISTENER_ERROR);
         }

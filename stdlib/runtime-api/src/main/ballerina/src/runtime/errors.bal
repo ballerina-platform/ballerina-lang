@@ -36,5 +36,5 @@ public type CallStackElement record {|
 #
 # + return - Array of `runtime:CallStackElement` records
 public function getCallStack() returns CallStackElement[] = @java:Method {
-    class: "org.ballerinalang.stdlib.runtime.nativeimpl.GetCallStack"
+    'class: "org.ballerinalang.stdlib.runtime.nativeimpl.GetCallStack"
 } external;

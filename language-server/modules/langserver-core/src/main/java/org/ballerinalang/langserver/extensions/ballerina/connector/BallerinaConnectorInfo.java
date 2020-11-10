@@ -90,7 +90,7 @@ public class BallerinaConnectorInfo {
                 ", version='" + version + '\'' +
                 ", displayName='" + displayName + '\'' +
                 ", logoBase64Encoded='" + logoBase64Encoded + '\'' +
-                ", beta='" + beta + '\'' +
+                ", beta=" + beta +
                 '}';
     }
 }

@@ -40,6 +40,6 @@ public class ExperimentalFeaturesTest {
         BAssertUtil.validateError(result, i++, "using experimental feature 'transaction'. " +
                 "use '--experimental' flag to enable the experimental features", 4, 5);
         Assert.assertEquals(result.getDiagnostics().length, i,
-                "Error count mismatch" + Arrays.toString(result.getDiagnostics()));
+                            "Error count mismatch" + Arrays.toString(result.getDiagnostics()));
     }
 }

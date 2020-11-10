@@ -18,43 +18,36 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BXML;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BIterator;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
  * Get all the elements-type items of a xml.
  * 
  * @since 0.88
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
-        functionName = "elements",
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "elements",
+//        returnType = {@ReturnType(type = TypeKind.XML)},
+//        isPublic = true
+//)
 public class Elements {
 
     private static final String OPERATION = "get elements from xml";
 
-    public static XMLValue elements(Strand strand, XMLValue xml, Object name) {
+    public static BXML elements(BXML xml, Object name) {
         try {
             if (name instanceof BString) {
-                return (XMLValue) xml.elements(((BString) name).getValue());
+                return (BXML) xml.elements(((BString) name).getValue());
             }
-            return (XMLValue) xml.elements();
+            return (BXML) xml.elements();
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }
@@ -62,12 +55,12 @@ public class Elements {
         return null;
     }
 
-    private static XMLValue generateCodePointSequence(XMLValue value) {
+    private static BXML generateCodePointSequence(BXML value) {
         List<BXML> list = new ArrayList<>();
-        IteratorValue bIterator = value.getIterator();
+        BIterator bIterator = value.getIterator();
         while (bIterator.hasNext()) {
-            list.add((XMLValue) bIterator.next());
+            list.add((BXML) bIterator.next());
         }
-        return new XMLSequence(list);
+        return ValueCreator.createXMLSequence(list);
     }
 }

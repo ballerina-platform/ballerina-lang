@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type TestEP client object {
+client class TestEP {
     remote function action1(string s, int i) returns boolean {
         if (i > 5) {
             return true;
@@ -33,7 +33,7 @@ type TestEP client object {
     function func2(string s) returns int {
         return 5;
     }
-};
+}
 
 function test1(int i) returns boolean{
     TestEP z;
@@ -51,7 +51,7 @@ function test2() returns int {
 
 TestEP globEP = new;
 
-type TestObject object {
+class TestObject {
     string s = "abc";
     TestEP x = new;
 
@@ -60,7 +60,7 @@ type TestObject object {
         boolean b = self.x->action1("test1", 10);
         return b;
     }
-};
+}
 
 function test3() returns boolean {
     TestObject x = new;

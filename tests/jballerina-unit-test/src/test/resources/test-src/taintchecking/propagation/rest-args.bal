@@ -14,7 +14,7 @@ public function main(string... argv) {
     foo(argv[0], argv[1]);
 }
 
-type Obj object {
+class Obj {
     function bar(@untainted string... arg) {
 
     }
@@ -28,4 +28,4 @@ type Obj object {
         self.bar2("", baz());
     }
 
-};
+}

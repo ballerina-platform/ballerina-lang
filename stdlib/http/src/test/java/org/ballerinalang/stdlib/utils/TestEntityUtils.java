@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.stdlib.utils;
 
+import io.ballerina.runtime.api.values.BObject;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -45,7 +45,7 @@ public class TestEntityUtils {
      * @param contentType content-type header value.
      * @param payload     mime entity payload.
      */
-    public static void enrichTestEntity(ObjectValue entity, String contentType, String payload) {
+    public static void enrichTestEntity(BObject entity, String contentType, String payload) {
         enrichTestMessageHeaders(entity, contentType);
         entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getEntityWrapper(payload));
     }
@@ -56,7 +56,7 @@ public class TestEntityUtils {
      * @param messageObj      mime entity to be enriched.
      * @param contentType content-type header value.
      */
-    public static void enrichTestMessageHeaders(ObjectValue messageObj, String contentType) {
+    public static void enrichTestMessageHeaders(BObject messageObj, String contentType) {
         HttpHeaders httpHeaders = new DefaultHttpHeaders();
         httpHeaders.add(CONTENT_TYPE, contentType);
         messageObj.addNativeData(HTTP_HEADERS, httpHeaders);
@@ -82,7 +82,7 @@ public class TestEntityUtils {
      * @param entity      mime entity to be enriched.
      * @param payload     mime entity payload.
      */
-    public static void enrichEntityWithDefaultMsg(ObjectValue entity, String payload) {
+    public static void enrichEntityWithDefaultMsg(BObject entity, String payload) {
         HTTPTestRequest inRequestMsg =
                 MessageUtils.generateHTTPMessage("", HttpConstants.HTTP_METHOD_POST, payload);
         inRequestMsg.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(payload.length()));

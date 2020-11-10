@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.nativeimpl;
 
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.net.http.HttpUtil;
 
 /**
@@ -28,27 +28,27 @@ import org.ballerinalang.net.http.HttpUtil;
  */
 public class ExternResponse {
 
-    public static ObjectValue createNewEntity(ObjectValue responseObj) {
+    public static BObject createNewEntity(BObject responseObj) {
         return HttpUtil.createNewEntity(responseObj);
     }
 
-    public static Object getEntity(ObjectValue responseObj) {
+    public static Object getEntity(BObject responseObj) {
         return HttpUtil.getEntity(responseObj, false, true, true);
     }
 
-    public static ObjectValue getEntityWithoutBodyAndHeaders(ObjectValue responseObj) {
+    public static BObject getEntityWithoutBodyAndHeaders(BObject responseObj) {
         return HttpUtil.getEntity(responseObj, false, false, false);
     }
 
-    public static ObjectValue getEntityWithBodyAndWithoutHeaders(ObjectValue requestObj) {
+    public static BObject getEntityWithBodyAndWithoutHeaders(BObject requestObj) {
         return HttpUtil.getEntity(requestObj, false, true, false);
     }
 
-    public static void setEntity(ObjectValue requestObj, ObjectValue entityObj) {
+    public static void setEntity(BObject requestObj, BObject entityObj) {
         HttpUtil.setEntity(requestObj, entityObj, false, true);
     }
 
-    public static void setEntityAndUpdateContentTypeHeader(ObjectValue requestObj, ObjectValue entityObj) {
+    public static void setEntityAndUpdateContentTypeHeader(BObject requestObj, BObject entityObj) {
         HttpUtil.setEntity(requestObj, entityObj, false, false);
     }
 }

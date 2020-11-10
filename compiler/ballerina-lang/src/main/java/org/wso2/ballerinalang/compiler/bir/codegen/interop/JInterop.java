@@ -134,7 +134,9 @@ class JInterop {
     static ParamTypeConstraint[] buildParamTypeConstraints(List<JType> javaTypeConstraints, ClassLoader classLoader) {
 
         if (javaTypeConstraints == null) {
-            return new ParamTypeConstraint[0];
+            // Returning null because empty array signifies that the parameterTypes field is set but is empty
+            // Null signifies that parameterTypes field has not been set
+            return null;
         }
 
         List<ParamTypeConstraint> constraintList = new ArrayList<>();
@@ -291,5 +293,8 @@ class JInterop {
     static boolean isMethodAnnotationTag(String annotTag) {
 
         return CONSTRUCTOR_ANNOT_TAG.equals(annotTag) || METHOD_ANNOT_TAG.equals(annotTag);
+    }
+
+    private JInterop() {
     }
 }

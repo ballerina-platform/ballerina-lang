@@ -17,31 +17,24 @@
  **/
 package org.ballerinalang.langlib.error;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.ERROR_VERSION;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * Get the error message of an error value.
  *
  * @since 0.990.4
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.error", version = ERROR_VERSION,
-        functionName = "message",
-        args = {@Argument(name = "value", type = TypeKind.ERROR)},
-        returnType = {@ReturnType(type = TypeKind.STRING)})
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.error", version = ERROR_VERSION,
+//        functionName = "message",
+//        args = {@Argument(name = "value", type = TypeKind.ERROR)},
+//        returnType = {@ReturnType(type = TypeKind.STRING)})
 public class Message {
 
 
     @Deprecated
-    public static BString message(Strand strand, ErrorValue value) {
+    public static BString message(BError value) {
         return value.getErrorMessage();
     }
 }

@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.types.TypeNode;
 /**
  * Represents TypeDefinition Top Level Node interface.
  */
-public interface TypeDefinition extends AnnotatableNode, DocumentableNode, TopLevelNode {
+public interface TypeDefinition extends AnnotatableNode, DocumentableNode, TopLevelNode, OrderedNode {
 
     IdentifierNode getName();
 
@@ -34,4 +34,3 @@ public interface TypeDefinition extends AnnotatableNode, DocumentableNode, TopLe
     void setTypeNode(TypeNode typeNode);
 
 }
-

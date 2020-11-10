@@ -40,7 +40,7 @@ function formatName(any a) returns any {
     return a;
 }
 
-type User object {
+class User {
 
     public string name = "";
 
@@ -50,7 +50,7 @@ type User object {
         string name = "";
         xmlns "http://sample.com/wso2/a4" as ns;
     }
-};
+}
 
 service ser = service {
 
@@ -114,9 +114,9 @@ function testTypeNameAsVariableInSameScope1() {
 }
 
 const Student = "Anne";
-type Student object { // This type name equals const name 'Student'
+class Student { // This type name equals const name 'Student'
     int studentId = 0;
-};
+}
 
 function testTypeNameAsVariableInSameScope2() {
 }
@@ -125,9 +125,9 @@ const Person1 = "Person";
 const Person2 = "Person";
 type Person Person1 | Person2; // This type name equals const name 'Person'
 
-type Vehicle object {
+class Vehicle {
     string name = "Car";
-};
+}
 
 function testTypeNameAsVariableInDifferentScope1() {
     string Vehicle = "Van";

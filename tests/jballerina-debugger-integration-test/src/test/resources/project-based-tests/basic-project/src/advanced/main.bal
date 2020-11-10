@@ -1,3 +1,4 @@
+import ballerina/lang.'int;
 // Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
@@ -14,9 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Student record {
-    string name;
-    int age;
+type '\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_Student record {
+    string '1st_name;
+    int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{2324};
     Grades grades;
 };
 
@@ -40,70 +41,96 @@ type Employee record {
 
 type EmployeeTable table<Employee> key(id);
 
-type Person object {
-    public string name = "";
-    public int age = 0;
-    public Person? parent = ();
-    private string email = "default@abc.com";
+class 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ {
+    public string '1st_name = "John";
+    public int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{2324} = 0;
+    public 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ? parent = ();
+    string email = "default@abc.com";
     string address = "No 20, Palm grove";
 
     public function getSum(int a, int b) returns int {
         return a + b;
     }
-};
+}
 
-public type AnonPerson record {
-    string name;
-    int age;
-    object {
-        public string city;
-        public string country;
+public class Location {
+   public string city;
+   public string country;
 
-        public function init(string city, string country) {
-            self.city = city;
-            self.country = country;
-        }
+   public function init(string city, string country) {
+       self.city = city;
+       self.country = country;
+   }
 
-        public function value() returns string {
-            return self.city + ", " + self.country;
-        }
-    } address;
+   public function value() returns string {
+       return self.city + ", " + self.country;
+   }
+}
+
+public type AnonPerson object {
+    public string '1st_name;
+    public int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{2324};
+    public 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ? parent;
+    string email;
+    string address;
 };
 
 type EventType "CURRENT"|"EXPIRED"|"ALL"|"RESET"|"TIMER";
 
-type OddNumberGenerator object {
+class OddNumberGenerator {
     int i = 1;
 
     public function next() returns record {|int value;|}|error? {
         self.i += 2;
         return {value: self.i};
     }
-};
+}
+
+// constants
+const nameWithoutType = "Ballerina";
+const string nameWithType = "Ballerina";
+const map<string> nameMap = {"name":"John"};
+const nilWithoutType = ();
+const () nilWithType = ();
+
+// global variables
+var stringValue = "Ballerina";
+var decimalValue = 100.0d;
+var byteValue = <byte>2;
+var floatValue = 2.0;
+json jsonVar = {name:"John", age:20};
+var '\ \/\:\@\[\`\{\~\u{2324}_IL = "IL with global var";
 
 public function main() {
     //------------------------ basic, simple type variables ------------------------//
 
-    var v01_varVariable = ();
-    boolean v02_booleanVar = true;
-    int v03_intVar = 20;
-    float v04_floatVar = -10.0;
-    decimal v05_decimalVar = 3.5;
+    var varVariable = ();
+    boolean booleanVar = true;
+    int intVar = 20;
+    float floatVar = -10.0;
+    decimal decimalVar = 3.5;
+
+    'int:Unsigned8 unsigned8IntVar = 1;
+    'int:Unsigned16 unsigned16IntVar = 100;
+    'int:Unsigned32 unsigned32IntVar = 1000;
+    'int:Signed8 signed8IntVar = -1;
+    'int:Signed16 signed16IntVar = -100;
+    'int:Signed32 signed32IntVar = -1000;
 
     //------------------------ basic, sequence type variables ------------------------//
 
-    string v06_stringVar = "foo";
-    xml v07_xmlVar = xml `<person gender="male"><firstname>Praveen</firstname><lastname>Nada</lastname></person>`;
+    string stringVar = "foo";
+    xml xmlVar = xml `<person gender="male"><firstname>Praveen</firstname><lastname>Nada</lastname></person>`;
 
     //------------------------ basic, structured type variables ------------------------//
 
-    any[] v08_arrayVar = [1, 20, -10.0, "foo"];
-    [int, string] v09_tupleVar = [20, "foo"];
-    map<string> v10_mapVar = {line1: "No. 20", line2: "Palm Grove", city: "Colombo 03", country: "Sri Lanka"};
+    any[] arrayVar = [1, 20, -10.0, "foo"];
+    [int, string] tupleVar = [20, "foo"];
+    map<string> mapVar = {line1: "No. 20", line2: "Palm Grove", city: "Colombo 03", country: "Sri Lanka"};
 
-    Student v11_john = {
-        name: "John Doe",
-        age: 20,
+    '\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_Student recordVar = {
+        '1st_name: "John Doe",
+        'Ȧɢέ_\ \/\:\@\[\`\{\~⌤: 20,
         grades: {
             maths: 80,
             physics: 75,
@@ -111,48 +138,45 @@ public function main() {
         }
     };
 
-    record {|string city; string country;|} v12_anonRecord = {city: "London", country: "UK"};
+    record {|string city; string country;|} anonRecord = {city: "London", country: "UK"};
 
-    EmployeeTable v25_tableVar = table [
+    EmployeeTable tableVar = table [
       {id: 1, name: "John", salary: 300.50},
       {id: 2, name: "Bella", salary: 500.50},
       {id: 3, name: "Peter", salary: 750.0}
     ];
 
-    error v13_errorVar = error("SimpleErrorType", message = "Simple error occurred");
+    error errorVar = error("SimpleErrorType", message = "Simple error occurred");
 
     //------------------------ basic, behavioral type variables ------------------------//
 
-    function (string, string) returns string v14_anonFunctionVar =
+    function (string, string) returns string anonFunctionVar =
         function (string x, string y) returns string {
         return x + y;
     };
 
-    future<int> v15_futureVar = start sum(40, 50);
-    _ = wait v15_futureVar;
+    future<int> futureVar = start sum(40, 50);
+    _ = wait futureVar;
 
-    Person v16_objectVar = new;
+    'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ objectVar = new;
 
-    AnonPerson v17_anonObjectVar = {
-        name: "John Doe",
-        age: 25,
-        address: new ("Colombo", "Sri Lanka")
-    };
+    AnonPerson anonObjectVar = new 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ();
 
-    typedesc<int> v18_typedescVar = int;
-    stream<int, error> v26_oddNumberStream = new stream<int, error>(new OddNumberGenerator());
+    typedesc<int> typedescVar = int;
+    stream<int, error> oddNumberStream = new stream<int, error>(new OddNumberGenerator());
 
     //------------------------ Other types ------------------------//
 
-    string|error v19_unionVar = "foo";
-    string? v20_optionalVar = "foo";
-    any v21_anyVar = 15.0;
-    anydata v22_anydataVar = 619;
-    byte v23_byteVar = 128;
-    json v24_jsonVar = {name: "apple", color: "red", price: 40};
-    xml<never> v27_neverVar = <xml<never>> 'xml:concat();
-}
+    string|error unionVar = "foo";
+    string? optionalVar = "foo";
+    any anyVar = 15.0;
+    anydata anydataVar = 619;
+    byte byteVar = 128;
+    json jsonVar = {name: "apple", color: "red", price: 40};
+    xml<never> neverVar = <xml<never>> 'xml:concat();
 
-function sum(int a, int b) returns int {
-    return a + b;
+    // quoted identifiers
+    string '\ \/\:\@\[\`\{\~\u{2324}_var = "IL with special characters in var";
+    string 'üňĩćőđę_var = "IL with unicode characters in var";
+    json 'ĠĿŐΒȂɭ_\ \/\:\@\[\`\{\~\u{2324}_json = {};
 }

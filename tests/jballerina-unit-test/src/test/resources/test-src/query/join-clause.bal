@@ -174,12 +174,12 @@ function testJoinClauseWithLimit() returns boolean {
        from var person in personList
        join Department dept in deptList
        on person.id equals dept.id
+       limit 1
        select {
            fname : person.fname,
            lname : person.lname,
            dept : dept.name
-       }
-       limit 1;
+       };
 
     boolean testPassed = true;
     DeptPerson dp;
@@ -344,12 +344,12 @@ function testOuterJoinClauseWithLimit() returns boolean {
        from var person in personList
        outer join Department dept in deptList
        on person.id equals dept.id
+       limit 2
        select {
            fname : person.fname,
            lname : person.lname,
            dept : dept.name
-       }
-       limit 2;
+       };
 
     boolean testPassed = true;
     DeptPerson dp;

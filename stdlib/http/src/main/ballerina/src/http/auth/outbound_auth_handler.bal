@@ -15,7 +15,7 @@
 // under the License.
 
 # The representation of an outbound authentication handler for HTTP traffic.
-public type OutboundAuthHandler abstract object {
+public type OutboundAuthHandler object {
 
     # Prepares the request with the relevant authentication requirements.
     #

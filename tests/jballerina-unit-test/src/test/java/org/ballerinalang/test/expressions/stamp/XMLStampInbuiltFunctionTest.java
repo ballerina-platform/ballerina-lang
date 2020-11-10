@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.test.expressions.stamp;
 
-import org.ballerinalang.model.types.BXMLType;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.types.BXMLType;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;

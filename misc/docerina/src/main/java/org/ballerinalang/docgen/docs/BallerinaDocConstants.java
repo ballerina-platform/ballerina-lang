@@ -25,21 +25,21 @@ public class BallerinaDocConstants {
 
     public static final String PROJECT_TEMPLATE_NAME_KEY = "project.template.name";
     public static final String MODULE_TEMPLATE_NAME_KEY = "module.template.name";
-    public static final String HTML_OUTPUT_PATH_KEY = "html.output.path";
     public static final String TEMPLATES_FOLDER_PATH_KEY = "templates.folder.path";
     public static final String ENABLE_DEBUG_LOGS = "debugDocerina";
     public static final String OUTPUT_ZIP_PATH = "output.zip.path";
 
     // config registry environment variables -e flags
-    public static final String ORG_NAME = "org-name";
-    public static final String VERSION = "version";
-    public static final String RECORD_TEMPLATE_NAME_KEY = "record.template.name";
-    public static final String OBJECT_TEMPLATE_NAME_KEY = "object.template.name";
-    public static final String CLIENT_TEMPLATE_NAME_KEY = "client.template.name";
-    public static final String LISTENER_TEMPLATE_NAME_KEY = "listener.template.name";
-    public static final String FUNCTIONS_TEMPLATE_NAME_KEY = "functions.template.name";
-    public static final String CONSTANTS_TEMPLATE_NAME_KEY = "constants.template.name";
-    public static final String TYPES_TEMPLATE_NAME_KEY = "types.template.name";
-    public static final String ANNOTATIONS_TEMPLATE_NAME_KEY = "annotations.template.name";
-    public static final String ERRORS_TEMPLATE_NAME_KEY = "errors.template.name";
+    static final String ORG_NAME = "org-name";
+    static final String VERSION = "version";
+    static final String RECORD_TEMPLATE_NAME_KEY = "record.template.name";
+    static final String CLASS_TEMPLATE_NAME_KEY = "class.template.name";
+    static final String ABSTRACT_OBJECT_TEMPLATE_NAME_KEY = "abstractObject.template.name";
+    static final String CLIENT_TEMPLATE_NAME_KEY = "client.template.name";
+    static final String LISTENER_TEMPLATE_NAME_KEY = "listener.template.name";
+    static final String FUNCTIONS_TEMPLATE_NAME_KEY = "functions.template.name";
+    static final String CONSTANTS_TEMPLATE_NAME_KEY = "constants.template.name";
+    static final String TYPES_TEMPLATE_NAME_KEY = "types.template.name";
+    static final String ANNOTATIONS_TEMPLATE_NAME_KEY = "annotations.template.name";
+    static final String ERRORS_TEMPLATE_NAME_KEY = "errors.template.name";
 }

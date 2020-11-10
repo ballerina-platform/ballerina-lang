@@ -21,7 +21,7 @@ public function testReturningTuple() returns [string, string] {
     return p.returnTuple();
 }
 
-type Person object {
+class Person {
 
     function returnTuple() returns [string, string] {
         return [self.nonBlockingCall(), "secondValue"];
@@ -32,5 +32,5 @@ type Person object {
         return "firstValue";
     }
 
-};
+}
 

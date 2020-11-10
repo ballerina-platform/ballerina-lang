@@ -25,7 +25,6 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
@@ -71,8 +70,7 @@ public class BallerinaProjectServiceImpl implements BallerinaProjectService {
                         .ProjectServiceContextBuilder(LSContextOperation.PROJ_MODULES)
                         .withModulesParams(sourceRoot, documentManager)
                         .build();
-                List<BLangPackage> modules = LSModuleCompiler.getBLangModules(astContext, this.documentManager,
-                        LSCustomErrorStrategy.class, false, false);
+                List<BLangPackage> modules = LSModuleCompiler.getBLangModules(astContext, this.documentManager, false);
                 JsonObject jsonModulesInfo = getJsonReply(astContext, modules);
                 reply.setModules(jsonModulesInfo);
                 reply.setParseSuccess(true);
@@ -111,8 +109,8 @@ public class BallerinaProjectServiceImpl implements BallerinaProjectService {
                 jsonCUnit.addProperty("name", cUnit.name);
                 Path sourceRoot = Paths.get(new URI(astContext.get(DocumentServiceKeys.SOURCE_ROOT_KEY)));
                 String uri = sourceRoot.resolve(
-                        Paths.get("src", module.getPosition().getSource().cUnitName,
-                        cUnit.getPosition().getSource().cUnitName)).toUri().toString();
+                        Paths.get("src", module.getPosition().lineRange().filePath(),
+                                cUnit.getPosition().lineRange().filePath())).toUri().toString();
                 jsonCUnit.addProperty("uri", uri);
                 JsonElement jsonAST = TextDocumentFormatUtil.generateJSON(cUnit, new HashMap<>(), visibleEPsByNode);
                 jsonCUnit.add("ast", jsonAST);

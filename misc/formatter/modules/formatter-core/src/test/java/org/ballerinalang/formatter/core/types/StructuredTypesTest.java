@@ -41,14 +41,6 @@ public class StructuredTypesTest extends FormatterTest {
     }
 
     @Override
-    public Object[][] testSubset() {
-        return new Object[][] {
-                {"array_type_3.bal", this.getTestResourceDir()},
-                {"array_type_5.bal", this.getTestResourceDir()}
-        };
-    }
-
-    @Override
     public String getTestResourceDir() {
         return Paths.get("types", "structured").toString();
     }

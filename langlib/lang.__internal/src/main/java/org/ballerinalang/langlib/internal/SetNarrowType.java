@@ -18,19 +18,14 @@
 
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BField;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.util.Flags;
 
 import java.util.HashMap;
 
@@ -39,22 +34,18 @@ import java.util.HashMap;
  *
  * @since 1.2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0", functionName = "setNarrowType",
-        args = {@Argument(name = "td", type = TypeKind.TYPEDESC), @Argument(name = "val", type = TypeKind.RECORD)},
-        returnType = {@ReturnType(type = TypeKind.RECORD)}
-)
 public class SetNarrowType {
 
-    public static MapValue setNarrowType(Strand strand, TypedescValue td, MapValue value) {
-        BRecordType recordType = (BRecordType) value.getType();
-        BRecordType newRecordType = new BRecordType("narrowType", recordType.getPackage(), recordType.flags,
-                                                    recordType.sealed, recordType.typeFlags);
-        newRecordType.setFields(new HashMap<String, BField>() {{
-            put("value", new BField(td.getDescribingType(), "value", Flags.PUBLIC + Flags.REQUIRED));
+    public static BMap setNarrowType(BTypedesc td, BMap value) {
+        RecordType recordType = (RecordType) value.getType();
+        RecordType newRecordType =
+                TypeCreator.createRecordType("narrowType", recordType.getPackage(), recordType.getTypeFlags(),
+                                             recordType.isSealed(), recordType.getTypeFlags());
+        newRecordType.setFields(new HashMap() {{
+            put("value", TypeCreator.createField(td.getDescribingType(), "value", Flags.PUBLIC + Flags.REQUIRED));
         }});
 
-        MapValueImpl<BString, Object> newRecord = new MapValueImpl<>(newRecordType);
+        BMap<BString, Object> newRecord = ValueCreator.createMapValue(newRecordType);
         newRecord.put(StringUtils.fromString("value"), value.get(StringUtils.fromString("value")));
         return newRecord;
     }

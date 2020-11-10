@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.nativeimpl.pipelining;
 
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.net.http.DataContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -36,11 +36,11 @@ public class PipelinedResponse implements Comparable<PipelinedResponse> {
     private final HttpCarbonMessage inboundRequestMsg;
     private final HttpCarbonMessage outboundResponseMsg;
     private DataContext dataContext;
-    private ObjectValue outboundResponseObj; //Ballerina outbound response object
+    private BObject outboundResponseObj; //Ballerina outbound response object
     private final long sequenceId; //Identifies the response order
 
     public PipelinedResponse(HttpCarbonMessage inboundRequestMsg, HttpCarbonMessage
-            outboundResponseMsg, DataContext dataContext, ObjectValue outboundResponseObj) {
+            outboundResponseMsg, DataContext dataContext, BObject outboundResponseObj) {
         this.inboundRequestMsg = inboundRequestMsg;
         this.outboundResponseMsg = outboundResponseMsg;
         this.dataContext = dataContext;
@@ -70,7 +70,7 @@ public class PipelinedResponse implements Comparable<PipelinedResponse> {
         return dataContext;
     }
 
-    ObjectValue getOutboundResponseObj() {
+    BObject getOutboundResponseObj() {
         return outboundResponseObj;
     }
 

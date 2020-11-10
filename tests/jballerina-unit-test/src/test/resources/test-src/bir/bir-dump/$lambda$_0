@@ -1,0 +1,48 @@
+$lambda$_0 function(map<any | error{map<anydata | readonly>}>, int) -> int {
+    %0(RETURN) int;
+    %1(ARG) map<any | error>;
+    %2(ARG) int;
+    %0(RETURN) int;
+    %1(ARG) map<any | error>;
+    %2(ARG) int;
+    %3(LOCAL) int;
+    %6(TEMP) int;
+    %7(TEMP) boolean;
+    %12(TEMP) string;
+    %13(TEMP) int;
+    %14(TEMP) int;
+    %17(LOCAL) string;
+    %21(TEMP) string;
+
+    bb0 {
+        %3 = ConstLoad 34;
+        %6 = ConstLoad 3;
+        %7 = %2 == %6;
+        %7? bb1 : bb2;
+    }
+    bb1 {
+        %6 = %3 + %2;
+        %12 = ConstLoad a;
+        %13 = %1[%12];
+        %14 = %6 + %13;
+        %3 = %14 + globalA;
+        GOTO bb2;
+    }
+    bb2 {
+        %12 = ConstLoad l;
+        %21 = %1[%12];
+        %17 = s + %21;
+        %12 = ConstLoad a;
+        %6 = %1[%12];
+        %0 = %3 + %6;
+        GOTO bb4;
+    }
+    bb3 {
+        GOTO bb4;
+    }
+    bb4 {
+        return;
+    }
+
+
+}

@@ -68,6 +68,19 @@ public class StartActionTest {
         BRunUtil.invoke(result, funcName);
     }
 
+    @Test(description = "Test casting for lambda functions")
+    public void testStartLambdaParameterCasting() {
+        BRunUtil.invoke(result, "testCast");
+    }
+
+    @Test(description = "Test casting for lambda functions for functions from another package")
+    public void testStartLambdaParameterCastingFromOtherPackage() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/action/start/startTypeCastProject", "pkg.main",
+                false);
+        BCompileUtil.ExitDetails output = BCompileUtil.run(compileResult, new String[]{});
+        Assert.assertEquals("", output.errorOutput);
+    }
+
     @DataProvider(name = "FuncList")
     public Object[][] getFunctionNames() {
         return new Object[][]{

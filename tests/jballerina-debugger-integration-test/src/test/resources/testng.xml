@@ -43,6 +43,8 @@ under the License.
             <class name="org.ballerinalang.debugger.test.adapter.LanguageConstructDebugTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.ControlFlowDebugTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.evaluation.ExpressionEvaluationTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.evaluation.ExpressionEvaluationNegativeTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.CallStackDebugTest"/>
         </classes>
     </test>
 </suite>

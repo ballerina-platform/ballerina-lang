@@ -1,5 +1,9 @@
 import bcintegrationtest/fee;
 
 public function main() {
-    fee:say();
+    string s = print();
+}
+
+public function print() returns string {
+    return fee:say();
 }

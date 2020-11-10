@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 5,
+    "character": 29
+  },
+  "source": "expression_context/source/object_constructor_expr_ctx_source1.bal",
+  "items": [
+    {
+      "label": "object",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object constructor",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "object {\n\t\n};",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

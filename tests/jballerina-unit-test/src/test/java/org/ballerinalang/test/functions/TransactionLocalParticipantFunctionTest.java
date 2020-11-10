@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.test.functions;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

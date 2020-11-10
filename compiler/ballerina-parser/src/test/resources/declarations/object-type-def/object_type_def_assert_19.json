@@ -27,40 +27,51 @@
       "children": [
         {
           "kind": "LIST",
-          "hasDiagnostics": true,
-          "children": [
-            {
-              "kind": "ABSTRACT_KEYWORD",
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_SAME_OBJECT_TYPE_QUALIFIER"
-              ],
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                },
-                {
-                  "kind": "INVALID_NODE_MINUTIAE",
-                  "invalidNode": {
-                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                    "children": [
-                      {
-                        "kind": "ABSTRACT_KEYWORD"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            }
-          ]
+          "children": []
         },
         {
           "kind": "OBJECT_KEYWORD",
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_QUALIFIER_NOT_ALLOWED"
+          ],
+          "leadingMinutiae": [
+            {
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
+                  {
+                    "kind": "ABSTRACT_KEYWORD"
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            },
+            {
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "hasDiagnostics": true,
+                "children": [
+                  {
+                    "kind": "ABSTRACT_KEYWORD",
+                    "hasDiagnostics": true,
+                    "diagnostics": [
+                      "ERROR_QUALIFIER_NOT_ALLOWED"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ],
           "trailingMinutiae": [
             {
               "kind": "WHITESPACE_MINUTIAE",

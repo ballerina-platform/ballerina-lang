@@ -162,7 +162,7 @@ public function testWithRecords() returns Student {
     return stu;
 }
 
-public type Person object {
+public class Person {
     public int age;
     public string name;
     public string fullName;
@@ -172,7 +172,7 @@ public type Person object {
         self.name = name;
         self.fullName = fullName;
     }
-};
+}
 
 public function testWithObjects() returns Person {
     Person p1 = new(5, "John", "John Doe");

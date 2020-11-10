@@ -48,6 +48,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "java",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "java",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "lang.future",
       "kind": "Module",
       "detail": "Module",

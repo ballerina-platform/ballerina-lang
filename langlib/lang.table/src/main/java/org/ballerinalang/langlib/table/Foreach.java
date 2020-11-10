@@ -18,19 +18,17 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
+import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.scheduling.AsyncUtils;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.TABLE_LANG_LIB;
 import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 
 /**
@@ -38,28 +36,29 @@ import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
  *
  * @since 1.3.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION, functionName = "forEach",
-        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.table", functionName = "forEach",
+//        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION)},
+//        isPublic = true
+//)
 public class Foreach {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "forEach");
 
-    public static void forEach(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func) {
+    public static void forEach(BTable tbl, BFunctionPointer<Object, Object> func) {
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
-        BRuntime.getCurrentRuntime()
+        Strand parentStrand = Scheduler.getStrand();
+        AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                        () -> new Object[]{strand,
+                        () -> new Object[]{parentStrand,
                                 tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
                         result -> {
-                        }, () -> null);
+                        }, () -> null, Scheduler.getStrand().scheduler);
     }
 
-    public static void forEach_bstring(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func) {
-        forEach(strand, tbl, func);
+    public static void forEach_bstring(Strand strand, BTable tbl, BFunctionPointer<Object, Object> func) {
+        forEach(tbl, func);
     }
 }

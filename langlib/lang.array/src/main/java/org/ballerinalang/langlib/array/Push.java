@@ -18,41 +18,35 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
 
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
-import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSupportedError;
 
 /**
  * Native implementation of lang.array:push((any|error)[], (any|error)...).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "push",
-        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "vals", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.ANY)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "push",
+//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "vals", type = TypeKind.ARRAY)},
+//        returnType = {@ReturnType(type = TypeKind.ANY)},
+//        isPublic = true
+//)
 public class Push {
 
     private static final String FUNCTION_SIGNATURE = "push()";
 
-    public static void push(Strand strand, ArrayValue arr, ArrayValue vals) {
-        BType arrType = arr.getType();
-        int nVals = vals.size();
+    public static void push(BArray arr, Object... vals) {
+        Type arrType = arr.getType();
+        int nVals = vals.length;
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
             case TypeTags.TUPLE_TAG:
                 for (int i = arr.size(), j = 0; j < nVals; i++, j++) {
-                    arr.add(i, vals.get(j));
+                    arr.add(i, vals[j]);
                 }
                 break;
             default:

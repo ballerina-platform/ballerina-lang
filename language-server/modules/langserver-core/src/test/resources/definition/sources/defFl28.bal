@@ -55,11 +55,11 @@ function testFlush() {
     _ = wait {w1, w2};
 }
 
-public type SimpleClient client object {
+public client class SimpleClient {
     public remote function simpleAction(string actionParam) {
-        
+
     }
-};
+}
 
 function testRemoteAction() {
     SimpleClient sClient = new();

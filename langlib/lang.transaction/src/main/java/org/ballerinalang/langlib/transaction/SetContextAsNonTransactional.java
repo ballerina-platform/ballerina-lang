@@ -18,25 +18,22 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-
-import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
+import io.ballerina.runtime.scheduling.Scheduler;
 
 /**
  * Extern function transaction:setContextAsNonTransactional.
  *
  * @since Swan Lake
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.transaction", version = TRANSACTION_VERSION,
-        functionName = "setContextAsNonTransactional",
-        args = {},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.transaction", version = TRANSACTION_VERSION,
+//        functionName = "setContextAsNonTransactional",
+//        args = {},
+//        isPublic = true
+//)
 public class SetContextAsNonTransactional {
 
-    public static void setContextAsNonTransactional(Strand strand) {
-        strand.currentTrxContext.setTransactional(false);
+    public static void setContextAsNonTransactional() {
+        Scheduler.getStrand().currentTrxContext.setTransactional(false);
     }
 }

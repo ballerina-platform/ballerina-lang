@@ -16,13 +16,13 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -116,7 +116,8 @@ public class ModOperationTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}DivisionByZero message= / by zero.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}DivisionByZero \\{\"message\":\" / " +
+                    "by zero\"\\}.*")
     public void testIntModZero() {
         BRunUtil.invoke(result, "intMod", new BValue[]{new BInteger(2000), new BInteger(0)});
     }

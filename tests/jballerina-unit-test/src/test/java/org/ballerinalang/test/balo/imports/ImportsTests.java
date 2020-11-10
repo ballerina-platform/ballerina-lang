@@ -16,8 +16,8 @@
  */
 package org.ballerinalang.test.balo.imports;
 
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -35,6 +35,7 @@ import java.nio.file.Paths;
 /**
  * Test cases for multiple version support.
  */
+@Test(groups = { "brokenOnSpecDeviation" })
 public class ImportsTests {
 
     private static final String USER_HOME = "user.home";

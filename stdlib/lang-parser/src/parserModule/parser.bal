@@ -16,7 +16,7 @@
 
 import ballerina/log;
 
-type Parser object {
+class Parser {
     //stack which holds the operators during expression rule
     OperatorStack operatorStack = new;
     //fill the operator map
@@ -69,7 +69,7 @@ type Parser object {
             nodeKind: PACKAGE_NODE,
             tokenList: [currToken],
             definitionList: <DefinitionNode[]>(defList.cloneReadOnly())
-        };
+        }
         return pkNode;
     }
 
@@ -1131,7 +1131,7 @@ type Parser object {
 };
 
 # Operator stack to store the operators
-type OperatorStack object {
+class OperatorStack {
     Token[] oprStack = [];
     int top;
 
@@ -1158,7 +1158,7 @@ type OperatorStack object {
                 lineNumber: 0,
                 index: -1,
                 whiteSpace: ""
-            };
+            }
         }
     }
 
@@ -1204,7 +1204,7 @@ type OperatorStack object {
 };
 
 # Expression stack stores each expression built
-type ExpressionStack object {
+class ExpressionStack {
     ExpressionNode[] exprStack = [()];
     int top;
 
@@ -1232,4 +1232,4 @@ type ExpressionStack object {
     function isEmpty() returns boolean {
         return self.exprStack.length() == 1 && self.exprStack[0] is ();
     }
-};
+}

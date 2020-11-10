@@ -1,3 +1,3 @@
-type Person object {
+class Person {
     public Person parent = ();
-};
+}

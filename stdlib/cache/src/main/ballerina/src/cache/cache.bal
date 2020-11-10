@@ -58,11 +58,11 @@ service cleanupService = service {
 
 # The `cache:Cache` object, which is used for all the cache-related operations. It is not recommended to insert `()`
 # as the value of the cache since it doesn't make any sense to cache a nil.
-public type Cache object {
+public class Cache {
 
     *AbstractCache;
 
-    private int capacity;
+    private int capacity_;
     private AbstractEvictionPolicy evictionPolicy;
     private float evictionFactor;
     private int defaultMaxAgeInSeconds;
@@ -72,13 +72,13 @@ public type Cache object {
     #
     # + cacheConfig - Configurations for the `cache:Cache` object
     public function init(CacheConfig cacheConfig = {}) {
-        self.capacity = cacheConfig.capacity;
+        self.capacity_ = cacheConfig.capacity;
         self.evictionPolicy = cacheConfig.evictionPolicy;
         self.evictionFactor = cacheConfig.evictionFactor;
         self.defaultMaxAgeInSeconds = cacheConfig.defaultMaxAgeInSeconds;
 
         // Cache capacity must be a positive value.
-        if (self.capacity <= 0) {
+        if (self.capacity_ <= 0) {
             panic prepareError("Capacity must be greater than 0.");
         }
         // Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive).
@@ -96,7 +96,7 @@ public type Cache object {
             tail: ()
         };
 
-        externInit(self, self.capacity);
+        externInit(self, self.capacity_);
 
         int? cleanupIntervalInSeconds = cacheConfig?.cleanupIntervalInSeconds;
         if (cleanupIntervalInSeconds is int) {
@@ -130,8 +130,8 @@ public type Cache object {
                                 logLevel = LOG_LEVEL_DEBUG);
         }
         // If the current cache is full (i.e. size = capacity), evict cache.
-        if (self.size() == self.capacity) {
-            evict(self, self.list, self.evictionPolicy, self.capacity, self.evictionFactor);
+        if (self.size() == self.capacity_) {
+            evict(self, self.list, self.evictionPolicy, self.capacity_, self.evictionFactor);
         }
 
         // Calculate the `expTime` of the cache entry based on the `maxAgeInSeconds` property and
@@ -240,9 +240,9 @@ public type Cache object {
     #
     # + return - The capacity of the cache
     public function capacity() returns int {
-        return self.capacity;
+        return self.capacity_;
     }
-};
+}
 
 function evict(Cache cache, LinkedList list, AbstractEvictionPolicy evictionPolicy, int capacity, float evictionFactor) {
     int evictionKeysCount = <int>(capacity * evictionFactor);
@@ -277,33 +277,33 @@ function cleanup(Cache cache, LinkedList list, AbstractEvictionPolicy evictionPo
 }
 
 function externInit(Cache cache, int capacity) = @java:Method {
-    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+    'class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
 
 function externPut(Cache cache, string key, Node value) = @java:Method {
-    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+    'class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
 
 function externGet(Cache cache, string key) returns Node = @java:Method {
-    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+    'class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
 
 function externRemove(Cache cache, string key) = @java:Method {
-    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+    'class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
 
 function externRemoveAll(Cache cache) = @java:Method {
-    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+    'class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
 
 function externHasKey(Cache cache, string key) returns boolean = @java:Method {
-    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+    'class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
 
 function externKeys(Cache cache) returns string[] = @java:Method {
-    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+    'class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
 
 function externSize(Cache cache) returns int = @java:Method {
-    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+    'class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;

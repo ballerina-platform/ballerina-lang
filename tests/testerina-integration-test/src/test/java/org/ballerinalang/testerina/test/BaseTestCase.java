@@ -44,6 +44,7 @@ public class BaseTestCase {
     static Path reportTestProjectPath;
     static Path outsideTestsProjectPath;
     static Path rerunFailedProjectPath;
+    static Path predeclaredImportProjectPath;
 
     @BeforeSuite(alwaysRun = true)
     public void initialize() throws BallerinaTestException, IOException {
@@ -60,6 +61,11 @@ public class BaseTestCase {
                 "basic-tests").toAbsolutePath();
         basicTestsProjectPath = tempProjectDirectory.resolve("basic-tests");
         FileUtils.copyFolder(originalMultiModulesProj, basicTestsProjectPath);
+
+        Path predeclaredImportsProj = Paths.get("src", "test", "resources", "project-based-tests",
+                "predeclared-import-tests").toAbsolutePath();
+        predeclaredImportProjectPath = tempProjectDirectory.resolve("predeclared-import-tests");
+        FileUtils.copyFolder(predeclaredImportsProj, predeclaredImportProjectPath);
 
         Path originalMockProj = Paths.get("src", "test", "resources", "project-based-tests",
                 "mock-tests").toAbsolutePath();

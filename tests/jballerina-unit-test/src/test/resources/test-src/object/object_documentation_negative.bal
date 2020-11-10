@@ -25,16 +25,16 @@ final string testConst = "TestConstantDocumentation";
 # + a - struct `field a` documentation
 # + b - struct `field b` documentation
 # + c - struct `field c` documentation
-type Test object {
+class Test {
     public int a = 0;
     public int b = 0;
     public int cdd = 0;
-};
+}
 
 # Documentation for File object
 #
 # + path - file path. Example: ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
-public type File object {
+public class File {
 
     public string path = "";
 
@@ -49,30 +49,30 @@ public type File object {
         boolean successful = false;
         return successful;
     }
-};
+}
 
-type Person object {
+class Person {
     public string firstName = "";
     public string lastName = "";
     public int age = 0;
     public string city = "";
-};
+}
 
-type Employee object {
+class Employee {
     public string name = "";
     public int age = 0;
     public string address = "";
     public any ageAny = ();
-};
+}
 
 # Test Connector
 #
 # + url - url for endpoint
 # + url - url for endpoint
 # + urls - urls for endpoint
-type TestConnector object {
+class TestConnector {
   public string url = "";
-};
+}
 
 # PizzaService HTTP Service
 #
@@ -99,7 +99,7 @@ final string testConsts = "TestConstantDocumentation";
 
 # Docs for this record.
 # + abc - the field documented at object level. Known type `Bar`, unknown type `Baz`.
-public type Foo object {
+public class Foo {
 
     # The field re-documented at field level.
     # Known type `Bar`, unknown type `Baz`.
@@ -111,7 +111,7 @@ public type Foo object {
     # The field documented at field level.
     # Known type `Bar`, unknown type `Baz`.
     string ghi = "str2";
-};
+}
 
 type Bar record {
 };

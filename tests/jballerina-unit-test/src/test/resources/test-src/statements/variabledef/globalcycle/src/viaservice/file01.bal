@@ -39,11 +39,11 @@ service hello on lis {
     }
 }
 
-type Obj object {
+class Obj {
     string str;
     int p = port;
 
     function init() {
         self.str = b7a;
     }
-};
+}

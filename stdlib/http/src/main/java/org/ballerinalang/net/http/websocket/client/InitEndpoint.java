@@ -18,11 +18,10 @@
 
 package org.ballerinalang.net.http.websocket.client;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.BalEnv;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketService;
@@ -42,13 +41,13 @@ import java.util.concurrent.CountDownLatch;
  */
 public class InitEndpoint {
 
-    public static void initEndpoint(ObjectValue webSocketClient) {
+    public static void initEndpoint(BalEnv env, BObject webSocketClient) {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
-        MapValue<BString, Object> clientEndpointConfig =  webSocketClient.getMapValue(
+        BMap<BString, Object> clientEndpointConfig =  webSocketClient.getMapValue(
                 WebSocketConstants.CLIENT_ENDPOINT_CONFIG);
-        Strand strand = Scheduler.getStrand();
         String remoteUrl = webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG).getValue();
-        WebSocketService wsService = WebSocketUtil.validateAndCreateWebSocketService(strand, clientEndpointConfig);
+        WebSocketService wsService = WebSocketUtil.validateAndCreateWebSocketService(env.getRuntime(),
+                                                                                     clientEndpointConfig);
         HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
         WebSocketClientConnectorConfig clientConnectorConfig = new WebSocketClientConnectorConfig(remoteUrl);
         String scheme = URI.create(remoteUrl).getScheme();

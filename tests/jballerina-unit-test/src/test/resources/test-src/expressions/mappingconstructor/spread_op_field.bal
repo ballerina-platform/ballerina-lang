@@ -30,10 +30,9 @@ type Bar record {|
 
 public function testMapRefAsSpreadOp() {
     map<float> m1 = {q: 1.0, w: 2.0};
-    map<boolean|float> m2 = {a: true, ...m1};
+    map<boolean|float> m2 = {...m1};
 
-    assertEquality(3, m2.length());
-    assertEquality(true, m2["a"]);
+    assertEquality(2, m2.length());
     assertEquality(1.0, m2["q"]);
     assertEquality(2.0, m2["w"]);
 }
@@ -42,10 +41,9 @@ public function testMapValueViaFuncAsSpreadOp() {
     map<int> m1 = {q: 1, w: 2};
     function () returns map<int> func = () => m1;
 
-    map<boolean|int> m2 = {a: true, ...func()};
+    map<boolean|int> m2 = {...func()};
 
-    assertEquality(3, m2.length());
-    assertEquality(true, m2["a"]);
+    assertEquality(2, m2.length());
     assertEquality(1, m2["q"]);
     assertEquality(2, m2["w"]);
 }
@@ -60,6 +58,19 @@ public function testRecordRefAsSpreadOp() {
     assertEquality(123.4, f["f"]);
 }
 
+type Quux record {
+    int j;
+    never i?;
+};
+
+public function testRecordRefWithNeverType() {
+    Quux b = {j: 2, "k": 3};
+    map<anydata> m = {i: 0, ...b};
+
+    assertEquality(3, m.length());
+    assertEquality(0, m["i"]);
+}
+
 public function testRecordValueViaFuncAsSpreadOp() {
     var fn = function () returns Bar => {s: "str", i: 1};
     Foo f = {...fn(), f: 123.4};
@@ -72,11 +83,10 @@ public function testRecordValueViaFuncAsSpreadOp() {
 
 const map<float> constFloatMap = {z: 1.0, y: 2.0};
 
-const map<float> constFloatMap2 = {x: 3.0, ...constFloatMap};
+const map<float> constFloatMap2 = {...constFloatMap};
 
 public function testSpreadOpInConstMap() {
-    assertEquality(3, constFloatMap2.length());
-    assertEquality(3.0, constFloatMap2["x"]);
+    assertEquality(2, constFloatMap2.length());
     assertEquality(2.0, constFloatMap2["y"]);
     assertEquality(1.0, constFloatMap2["z"]);
 }
@@ -91,26 +101,23 @@ function getStringMap() returns map<string> {
     };
 }
 
-map<int|string|float> globalISFMap = {
-    f: 4,
-    ...globalIntMap,
-    ...constFloatMap2,
-    g: 12.0,
-    ...getStringMap()
-};
+map<int> globalMapInt = {...globalIntMap};
+map<float> globalMapFloat = {...constFloatMap2};
+map<string> globalMapString = {...getStringMap()};
 
 function testSpreadOpInGlobalMap() {
-    assertEquality(10, globalISFMap.length());
-    assertEquality(4, globalISFMap["f"]);
-    assertEquality(1, globalISFMap["a"]);
-    assertEquality(2, globalISFMap["b"]);
-    assertEquality(3.0, globalISFMap["x"]);
-    assertEquality(1.0, globalISFMap["z"]);
-    assertEquality(2.0, globalISFMap["y"]);
-    assertEquality(12.0, globalISFMap["g"]);
-    assertEquality("el", globalISFMap["l"]);
-    assertEquality("em", globalISFMap["m"]);
-    assertEquality("en", globalISFMap["n"]);
+    assertEquality(2, globalMapInt.length());
+    assertEquality(1, globalMapInt["a"]);
+    assertEquality(2, globalMapInt["b"]);
+
+    assertEquality(2, globalMapFloat.length());
+    assertEquality(1.0, globalMapFloat["z"]);
+    assertEquality(2.0, globalMapFloat["y"]);
+
+    assertEquality(3, globalMapString.length());
+    assertEquality("el", globalMapString["l"]);
+    assertEquality("em", globalMapString["m"]);
+    assertEquality("en", globalMapString["n"]);
 }
 
 function testMappingConstrExprAsSpreadExpr() {
@@ -123,18 +130,6 @@ function testMappingConstrExprAsSpreadExpr() {
     assertEquality(true, f["oth"]);
 }
 
-function testOrderWithSpreadOp() {
-    map<int> m1 = {a: 1, b: 2};
-    map<anydata> m2 = {b: "hi", c: 3};
-
-    map<any> m3 = {a: 0, ...m1, ...m2, c: 4};
-
-    assertEquality(3, m3.length());
-    assertEquality(1, m3["a"]);
-    assertEquality("hi", m3["b"]);
-    assertEquality(4, m3["c"]);
-}
-
 type Baz record {
     int i;
     string s;
@@ -144,21 +139,6 @@ type Qux record {|
     int i;
     boolean...;
 |};
-
-function testInherentTypeViolationViaSpreadOp() {
-    var fn = function() {
-        Qux q = {i: 1, "t": false, "s": true};
-        Baz b = {s: "hello", ...q};
-    };
-
-    error? res = trap fn();
-    assertEquality(true, res is error);
-
-    error resError = <error> res;
-    assertEquality("{ballerina/lang.map}InherentTypeViolation", resError.message());
-    assertEquality("invalid value for record field 's': expected value of type 'string', found 'boolean'",
-                   resError.detail()["message"].toString());
-}
 
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {

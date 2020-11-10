@@ -1,5 +1,5 @@
 function foo() {
-    string country = "Sri Lanka" + “test”;
+    string country = "Sri Lanka" + "test";
     string codeLiteral = "code";
     map  <  string  >   addrMap   =   {
            line1  :    "No. 20"       ,

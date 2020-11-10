@@ -117,12 +117,12 @@ public type Student record {|
     [RESULT, int]...;
 |};
 
-public type Owner abstract object {
+public type Owner object {
     public function getId() returns int;
 };
 
-public type OwnerA object {
-    readonly int id;
+public class OwnerA {
+    final int id;
 
     public function init(int id) {
         self.id = id;
@@ -131,10 +131,10 @@ public type OwnerA object {
     public function getId() returns int {
         return self.id;
     }
-};
+}
 
-public type OwnerB object {
-    readonly int id;
+public class OwnerB {
+    final int id;
     string name;
 
     public function init(int id, string name) {
@@ -145,7 +145,7 @@ public type OwnerB object {
     public function getId() returns int {
         return 2 * self.id;
     }
-};
+}
 
 public type MixedRecord record {|
     'xml:Comment & readonly a;
@@ -214,14 +214,14 @@ public type ReadOnlyStudent readonly & Student;
 
 public type AB "A"|"B";
 
-public type Config abstract object {
+public type Config object {
     public string name;
 
     public function getName() returns string;
 };
 
-public type MyConfig object {
-    public readonly string name;
+public class MyConfig {
+    public final string name;
 
     public function init(string name) {
         self.name = name;
@@ -230,7 +230,7 @@ public type MyConfig object {
     public function getName() returns string {
         return self.name;
     }
-};
+}
 
 public function getImmutableConfig() returns Config & readonly {
     return new MyConfig("client config");

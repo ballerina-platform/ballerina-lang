@@ -502,7 +502,7 @@ function testAnyToTable(){
     any anyValue = tb;
     var casted = <table<Employee>> anyValue;
     table<Employee>|error  castedValue = casted;
-    assertEquality("id=1 name=Jane\nid=2 name=Anne", castedValue.toString());
+    assertEquality("[{\"id\":1,\"name\":\"Jane\"},{\"id\":2,\"name\":\"Anne\"}]", castedValue.toString());
 }
 
 type Employee record {

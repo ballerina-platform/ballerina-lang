@@ -32,7 +32,7 @@ listener Listener uninitializedModuleListener;
 
 public listener Listener uninitializedPublicModuleListener;
 
-public type Listener object {
+public class Listener {
 
     *Listener;
 
@@ -55,4 +55,4 @@ public type Listener object {
     public function __immediateStop() returns error? {
         return ();
     }
-};
+}

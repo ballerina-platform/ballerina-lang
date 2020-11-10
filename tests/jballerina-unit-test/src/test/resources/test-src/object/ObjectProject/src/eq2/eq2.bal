@@ -1,5 +1,5 @@
 
-public type employee object {
+public class employee {
     public int age = 0;
     public string name = "";
     public string address = "";
@@ -27,13 +27,13 @@ public type employee object {
     public function getEmployeeId() returns (int) {
         return self.employeeId;
     }
-};
+}
 
-public type FooObj object {
+public class FooObj {
     public int age = 0;
     public string name = "";
 
     public function getName() returns (string) {
         return self.name;
     }
-};
+}

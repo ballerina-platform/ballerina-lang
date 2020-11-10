@@ -23,6 +23,8 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.util.HashMap;
+
 /**
  * Test class containing tests related to test grouping.
  */
@@ -106,22 +108,22 @@ public class GroupingTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test(enabled = false)
+    @Test
     public void beforeGroupsAfterGroups1() throws BallerinaTestException {
-        String msg = "Value of a is 12345672869";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"before-groups-after-groups-test.bal"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"before-groups-after-groups-test.bal"},
+                new HashMap<>(), projectPath, true);
+        if (errorOutput.contains("[fail] afterSuiteFunc")) {
+            throw new BallerinaTestException("Test failed due to assertion failure in after suite function");
+        }
     }
 
-    @Test(enabled = false)
+    @Test
     public void beforeGroupsAfterGroups2() throws BallerinaTestException {
-        String msg = "Value of a is 123456787";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"before-groups-after-groups-test2.bal"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"before-groups-after-groups-test2.bal"}, new HashMap<>(), projectPath, true);
+        if (errorOutput.contains("[fail] afterSuiteFunc")) {
+            throw new BallerinaTestException("Test failed due to assertion failure in after suite function");
+        }
     }
 
 }

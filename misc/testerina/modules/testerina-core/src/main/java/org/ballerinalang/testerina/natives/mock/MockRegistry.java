@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.testerina.natives.mock;
 
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BIterator;
+import io.ballerina.runtime.api.values.BObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +47,7 @@ public class MockRegistry {
      * @param returnVal value to return when the function is called
      * @param hittingCount count to check the return value from the sequence of return values provided
      */
-    public void registerCase(ObjectValue mockObject, String functionName, ArrayValue argsList, Object returnVal,
+    public void registerCase(BObject mockObject, String functionName, BArray argsList, Object returnVal,
                              int hittingCount) {
         String caseId = constructCaseId(mockObject, functionName, argsList);
         if (!hasHitCount(caseId)) {
@@ -65,12 +65,12 @@ public class MockRegistry {
      * @param argsList arguments list passed to the function
      * @param returnVal value to return when the function is called
      */
-    public void registerCase(ObjectValue mockObject, String functionName, ArrayValue argsList, Object returnVal) {
+    public void registerCase(BObject mockObject, String functionName, BArray argsList, Object returnVal) {
         String caseId = constructCaseId(mockObject, functionName, argsList);
         casesMap.put(caseId, returnVal);
     }
 
-    private String constructCaseId(ObjectValue mockObject, String functionName, ArrayValue argsList) {
+    private String constructCaseId(BObject mockObject, String functionName, BArray argsList) {
         StringBuilder caseIdBuilder = new StringBuilder();
         if (mockObject != null) {
             caseIdBuilder.append(mockObject.hashCode());
@@ -78,7 +78,7 @@ public class MockRegistry {
                 caseIdBuilder.append("-").append(functionName);
             }
             if (argsList != null && argsList.size() > 0) {
-                IteratorValue argIterator = argsList.getIterator();
+                BIterator argIterator = argsList.getIterator();
                 while (argIterator.hasNext()) {
                     caseIdBuilder.append("-").append(argIterator.next().toString());
                 }

@@ -16,8 +16,8 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.scheduling.Strand;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -39,7 +39,7 @@ import static org.bytedeco.llvm.global.LLVM.LLVMDumpModule;
         })
 public class LLVMDumpModule {
 
-    public static void llvmDumpModule(Strand strand, MapValue<String, Object> fn) {
+    public static void llvmDumpModule(Strand strand, BMap<String, Object> fn) {
 
         LLVMModuleRef m = (LLVMModuleRef) FFIUtil.getRecodeArgumentNative(fn);
         LLVMDumpModule(m);

@@ -24,7 +24,7 @@ function testConcat() returns xml {
     return 'xml:concat(x, "Hello", "hello from String");
 }
 
-type CustomListener object {
+class CustomListener {
     *'object:Listener;
 
     public function __attach(service s, string? name) returns error? {
@@ -46,7 +46,7 @@ type CustomListener object {
     public function __immediateStop() returns error? {
         io:println("running __immediateStop");
     }
-};
+}
 
 function testErrorStackTrace('error:CallStackElement elem) returns string {
     return elem.callableName + ":" + elem.fileName;

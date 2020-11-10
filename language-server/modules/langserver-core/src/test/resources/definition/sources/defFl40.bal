@@ -17,16 +17,16 @@ type Object1 object {
     }
 };
 
-type ClientObject client object {
+client class ClientObject {
     public remote function remoteFunc(SimpleTypeDesc param1, SimpleTypeDesc param2 = 1, SimpleTypeDesc2 ...param3) returns SimpleTypeDesc {
         int funcField = param1;
         int funcField2 = param2;
         float[] funcField3 = param3;
         return 1;
     }
-};
+}
 
-type AbstractObject abstract object {
+type AbstractObject object {
     int field1;
     function abstractFunc1(SimpleTypeDesc param1, SimpleTypeDesc param2 = 1, SimpleTypeDesc2 ...param3) returns SimpleTypeDesc;
 };

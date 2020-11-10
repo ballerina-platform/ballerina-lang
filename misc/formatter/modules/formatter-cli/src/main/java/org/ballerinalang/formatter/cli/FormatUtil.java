@@ -17,6 +17,7 @@ package org.ballerinalang.formatter.cli;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.formatter.core.Formatter;
+import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -44,7 +45,6 @@ import java.util.regex.Pattern;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.NEW_PARSER_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
@@ -151,7 +151,7 @@ class FormatUtil {
 
                 generateChangeReport(formattedFiles, dryRun);
             }
-        } catch (IOException | NullPointerException e) {
+        } catch (IOException | NullPointerException | FormatterException e) {
             throw LauncherUtils.createLauncherException(Messages.getException() + e);
         }
     }
@@ -214,16 +214,16 @@ class FormatUtil {
     }
 
     private static void formatAndWrite(BLangCompilationUnit compilationUnit, Path sourceRootPath,
-                                       List<String> formattedFiles, boolean dryRun) throws IOException {
+                               List<String> formattedFiles, boolean dryRun) throws IOException, FormatterException {
         String fileName = Paths.get(sourceRootPath.toString()).resolve("src")
-                .resolve(compilationUnit.getPosition().getSource().getPackageName())
-                .resolve(compilationUnit.getPosition().getSource().getCompilationUnitName()).toString();
+                .resolve(compilationUnit.getPackageID().getName().value)
+                .resolve(compilationUnit.getName()).toString();
 
+        String originalSource = new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8);
         // Format and get the formatted source.
-        String formattedSource = Formatter.format(new String(Files.readAllBytes(Paths.get(fileName)),
-                StandardCharsets.UTF_8));
+        String formattedSource = Formatter.format(originalSource);
 
-        if (areChangesAvailable(formattedSource, formattedSource)) {
+        if (areChangesAvailable(originalSource, formattedSource)) {
             if (!dryRun) {
                 // Write formatted content to the file.
                 FormatUtil.writeFile(fileName, formattedSource);
@@ -233,7 +233,7 @@ class FormatUtil {
     }
 
     private static List<String> iterateAndFormat(BLangPackage bLangPackage, Path sourceRootPath, boolean dryRun)
-            throws IOException {
+            throws IOException, FormatterException {
         List<String> formattedFiles = new ArrayList<>();
 
         // Iterate compilation units and format.
@@ -269,7 +269,6 @@ class FormatUtil {
         options.put(LOCK_ENABLED, Boolean.toString(false));
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(true));
         options.put(PRESERVE_WHITESPACE, Boolean.toString(true));
-        options.put(NEW_PARSER_ENABLED, Boolean.toString(false));
 
         return context;
     }
@@ -312,14 +311,18 @@ class FormatUtil {
      */
     private static void writeFile(String filePath, String content) throws IOException {
         OutputStreamWriter fileWriter = null;
+        FileOutputStream fileStream = null;
         try {
-            try (FileOutputStream fileStream = new FileOutputStream(new File(filePath))) {
-                fileWriter = new OutputStreamWriter(fileStream, StandardCharsets.UTF_8);
-            }
+            File newFile = new File(filePath);
+            fileStream = new FileOutputStream(newFile);
+            fileWriter = new OutputStreamWriter(fileStream, StandardCharsets.UTF_8);
             fileWriter.write(content);
         } finally {
             if (fileWriter != null) {
                 fileWriter.close();
+            }
+            if (fileStream != null) {
+                fileStream.close();
             }
         }
     }

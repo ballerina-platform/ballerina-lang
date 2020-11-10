@@ -25,7 +25,7 @@ import ballerina/java;
 # + return - Returns true if the key is present; if not returs false
 public function contains(@untainted string key) returns boolean = @java:Method {
     name: "contains",
-    class: "org.ballerinalang.stdlib.config.Contains"
+    'class: "org.ballerinalang.stdlib.config.Contains"
 } external;
 
 # Sets the specified key/value pair as a configuration.
@@ -37,10 +37,10 @@ public function contains(@untainted string key) returns boolean = @java:Method {
 # + value - The configuration value to be set
 public function setConfig(string key, string|int|float|boolean value) = @java:Method {
     name: "setConfig",
-    class: "org.ballerinalang.stdlib.config.SetConfig"
+    'class: "org.ballerinalang.stdlib.config.SetConfig"
 } external;
 
 function get(@untainted string key, ValueType vType) returns string|int|float|boolean|map<anydata>|anydata[] = @java:Method {
     name: "get",
-    class: "org.ballerinalang.stdlib.config.GetConfig"
+    'class: "org.ballerinalang.stdlib.config.GetConfig"
 } external;

@@ -16,9 +16,9 @@
  */
 package org.ballerinalang.test.types.typedesc;
 
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BTypeDescValue;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.types.TypeTags;
+import org.ballerinalang.core.model.values.BTypeDescValue;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -41,10 +41,23 @@ public class TypedescTests {
 
     @Test(description = "Test basics types", groups = { "disableOnOldParser" })
     public void testNegative() {
-        final CompileResult compile = BCompileUtil.compile("test-src/types/typedesc/typedesc_negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 2);
-        BAssertUtil.validateError(compile, 0, "missing identifier", 2, 8);
-        BAssertUtil.validateError(compile, 1, "undefined symbol 'i'", 7, 9);
+        final CompileResult compileResult = BCompileUtil.compile("test-src/types/typedesc/typedesc_negative.bal");
+        int index = 0;
+        BAssertUtil.validateError(compileResult, index++, "missing identifier", 2, 8);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'i'", 7, 9);
+        BAssertUtil.validateError(compileResult, index++,
+                "invalid operation: type 'byte' does not support indexing", 9, 18);
+        BAssertUtil.validateError(compileResult, index++,
+                "missing key expr in member access expr", 9, 23);
+        BAssertUtil.validateError(compileResult, index++,
+                "invalid operation: type 'int' does not support indexing", 10, 18);
+        BAssertUtil.validateError(compileResult, index++,
+                "missing key expr in member access expr", 10, 22);
+        BAssertUtil.validateError(compileResult, index++,
+                "invalid operation: type 'string' does not support indexing", 10, 24);
+        BAssertUtil.validateError(compileResult, index++,
+                "missing key expr in member access expr", 10, 31);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 
     @Test(description = "Test basics types")

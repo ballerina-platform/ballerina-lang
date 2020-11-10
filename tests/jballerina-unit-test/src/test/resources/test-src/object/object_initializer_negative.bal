@@ -14,20 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Foo object {
+class Foo {
     public int age = 0;
     public string name = "";
 
     function init() {}
 
     function init() {}
-};
+}
 
-type Bar object {
+class Bar {
    private function init() {}
-};
+}
 
-type Person object {
+class Person {
     string name;
     int age;
 
@@ -35,7 +35,7 @@ type Person object {
         self.name = check getError();
         self.age = 25;
     }
-};
+}
 
 function getError() returns string|error {
     map<string> m = {f: "foo"};
@@ -48,16 +48,16 @@ function testInit() {
     Person p2 = new Person();
 }
 
-type Person2 object {
+class Person2 {
     string name;
 
     function init() returns string? {
         self.name = "";
         return "foo";
     }
-};
+}
 
-type Person3 object {
+class Person3 {
     string name;
 
     function init() returns error {
@@ -65,7 +65,7 @@ type Person3 object {
         error e = error("failed to create Person3");
         return e;
     }
-};
+}
 
 type FooErrData record {
     string f;
@@ -83,7 +83,7 @@ type BarErrData record {
 
 type BarErr error<BarErrData>;
 
-type Person4 object {
+class Person4 {
     string name;
 
     function init() returns FooErr|BarErr {
@@ -91,15 +91,15 @@ type Person4 object {
         FooErr e = FooErr("Foo Error", f = "foo");
         return e;
     }
-};
+}
 
-type Too object {
+class Too {
     public function init() {
     }
     function name() {
         self.init(); // valid
     }
-};
+}
 
 function callInitFunction() {
     Too t = new;

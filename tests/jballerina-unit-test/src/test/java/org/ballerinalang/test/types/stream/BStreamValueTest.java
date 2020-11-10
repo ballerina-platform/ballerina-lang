@@ -16,8 +16,8 @@
  */
 package org.ballerinalang.test.types.stream;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -107,6 +107,12 @@ public class BStreamValueTest {
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
+    @Test(description = "Test empty stream constructs")
+    public void testEmptyStreamConstructs() {
+        BValue[] values = BRunUtil.invoke(result, "testEmptyStreamConstructs", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
     @Test(description = "Test negative test scenarios of stream type")
     public void testStreamTypeNegative() {
         int i = 0;
@@ -180,8 +186,26 @@ public class BStreamValueTest {
                 "|}|CustomError1)?', found '(record {| int value; |}|CustomError)?'", 228, 48);
         BAssertUtil.validateError(negativeResult, i++, "invalid expected stream type. 'itr' does not " +
                 "return an error", 239, 48);
-        BAssertUtil.validateError(negativeResult, i, "invalid expected stream type. 'itr' does not " +
+        BAssertUtil.validateError(negativeResult, i++, "invalid expected stream type. 'itr' does not " +
                 "return an error", 240, 44);
+        BAssertUtil.validateError(negativeResult, i++, "'new(itr, itr)' is not a valid constructor for streams type",
+                246, 27);
+        BAssertUtil.validateError(negativeResult, i++, "'new(itr, itr)' is not a valid constructor for streams type",
+                247, 27);
+        BAssertUtil.validateError(negativeResult, i++, "'new(itr, itr)' is not a valid constructor for streams type",
+                248, 34);
+        BAssertUtil.validateError(negativeResult, i++, "'new(itr, itr)' is not a valid constructor for streams type",
+                249, 34);
+        BAssertUtil.validateError(negativeResult, i++, "'new(itr, itr)' is not a valid constructor for streams type",
+                250, 34);
+        BAssertUtil.validateError(negativeResult, i++, "'new(itr, itr)' is not a valid constructor for streams type",
+                251, 34);
+        BAssertUtil.validateError(negativeResult, i++, "'new(itr, itr)' is not a valid constructor for streams type",
+                252, 19);
+        BAssertUtil.validateError(negativeResult, i++, "'new(itr, itr)' is not a valid constructor for streams type",
+                253, 19);
+        BAssertUtil.validateError(negativeResult, i, "'new(itr, itr)' is not a valid constructor for streams type",
+                254, 19);
     }
 
 }

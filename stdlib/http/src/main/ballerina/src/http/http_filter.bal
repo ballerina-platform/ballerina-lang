@@ -17,7 +17,7 @@
 # Abstract Representation of a HTTP Request Filter.
 # This filter will be applied before the request is dispatched to the relevant resource.
 # Any RequestFilter implementation should be structurally similar to or implement the RequestFilter object.
-public type RequestFilter abstract object {
+public type RequestFilter object {
     # Request filter function. If a false is returned the response should have been sent from this function as it will
     # not be dispatched to the next filter or the resource.
     #
@@ -31,7 +31,7 @@ public type RequestFilter abstract object {
 # Abstract Representation of a HTTP Response Filter.
 # This filter will be applied in the response path.
 # Any ResponseFilter implementation should be structurally similar to or implement the ResponseFilter object.
-public type ResponseFilter abstract object {
+public type ResponseFilter object {
     # Response filter function. If a false is returned a 500 Internal Server Error would be sent to the client.
     #
     # + response - An outbound HTTP response message
@@ -46,7 +46,7 @@ public type ResponseFilter abstract object {
 # + serviceName - Name of the service
 # + resourceName - Name of the resource
 # + attributes - Attributes to share between filters
-public type FilterContext object {
+public class FilterContext {
 
     private service serviceRef;
     private string serviceName = "";
@@ -84,4 +84,4 @@ public type FilterContext object {
     public function getResourceName() returns string {
         return self.resourceName;
     }
-};
+}

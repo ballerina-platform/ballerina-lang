@@ -22,6 +22,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -40,7 +42,6 @@ import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -104,8 +105,7 @@ public class TextDocumentFormatUtil {
         String[] breakFromPackage = path.split(Pattern.quote(packageName + File.separator));
         String relativePath = breakFromPackage[breakFromPackage.length - 1];
 
-        final BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager,
-                FormatterCustomErrorStrategy.class, false, false, false);
+        final BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager, false, false);
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();
         JsonObject result = new JsonObject();
@@ -169,13 +169,13 @@ public class TextDocumentFormatUtil {
             }
             nodeJson.add("ws", wsJsonArray);
         }
-        Diagnostic.DiagnosticPosition position = node.getPosition();
+        Location position = node.getPosition();
         if (position != null) {
             JsonObject positionJson = new JsonObject();
-            positionJson.addProperty("startColumn", position.getStartColumn());
-            positionJson.addProperty("startLine", position.getStartLine());
-            positionJson.addProperty("endColumn", position.getEndColumn());
-            positionJson.addProperty("endLine", position.getEndLine());
+            positionJson.addProperty("startColumn", position.lineRange().startLine().offset());
+            positionJson.addProperty("startLine", position.lineRange().startLine().line());
+            positionJson.addProperty("endColumn", position.lineRange().endLine().offset());
+            positionJson.addProperty("endLine", position.lineRange().endLine().line());
             nodeJson.add("position", positionJson);
         }
 

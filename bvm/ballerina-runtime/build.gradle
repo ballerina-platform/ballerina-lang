@@ -18,15 +18,30 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
-    implementation 'org.apache.ws.commons.axiom:axiom-impl'
-    implementation 'org.apache.ws.commons.axiom:axiom-dom'
-    implementation 'org.apache.ws.commons.axiom:axiom-c14n'
+    implementation ('org.apache.ws.commons.axiom:axiom-impl') {
+        exclude group: 'org.apache.ws.commons.axiom', module: 'axiom-api'
+    }
+//    implementation ('org.apache.ws.commons.axiom:axiom-dom') {
+//        exclude group: 'org.apache.ws.commons.axiom', module: 'axiom-api'
+//    }
+    implementation ('org.apache.ws.commons.axiom:axiom-c14n') {
+        exclude group: 'org.apache.ws.commons.axiom', module: 'axiom-api'
+        exclude group: 'org.apache.ws.commons.axiom', module: 'axiom-impl'
+    }
+    implementation ('org.apache.ws.commons.axiom:axiom-api') {
+        exclude group: 'org.apache.geronimo.specs', module: 'geronimo-stax-api_1.0_spec'
+        exclude group: 'jaxen', module: 'jaxen'
+    }
     implementation 'org.apache.commons:commons-lang3'
     implementation 'io.opentracing:opentracing-api'
     implementation 'io.opentracing:opentracing-util'
-    implementation 'org.awaitility:awaitility'
-    implementation 'org.apache.commons:commons-lang3'
-
+    implementation ('org.awaitility:awaitility') {
+        exclude group: 'org.hamcrest', module: 'hamcrest-core'
+    }
+    implementation('com.atomikos:transactions-jta:5.0.8') {
+        exclude group: 'org.hibernate', module: 'hibernate'
+    }
+    implementation "javax.transaction:javax.transaction-api:1.3"
     implementation project(':ballerina-config')
     implementation project(':ballerina-logging')
 
@@ -51,5 +66,17 @@ test {
             events = ["failed", "skipped"]
             exceptionFormat "full"
         }
+    }
+}
+
+ext.moduleName = 'ballerina.runtime'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
     }
 }

@@ -81,7 +81,7 @@ public class BirVariableOptimizer extends BIRVisitor {
                                   BIRAbstractInstruction instruction) {
         for (BIROperand operand : instruction.getRhsOperands()) {
             BType type = operand.variableDcl.type;
-            if (operand.variableDcl.kind == VarKind.TEMP && !liveOuts.get(instruction).contains(operand.variableDcl)) {
+            if ((isReusableVarKind(operand.variableDcl)) && !liveOuts.get(instruction).contains(operand.variableDcl)) {
                 if (!freeVars.containsKey(type)) {
                     freeVars.put(type, new LinkedList<>());
                 }
@@ -106,12 +106,16 @@ public class BirVariableOptimizer extends BIRVisitor {
         }
         BIRNode.BIRVariableDcl newLhsOp = defLs.peek();
         BIRNode.BIRVariableDcl oldLhsOp = (instruction).lhsOp.variableDcl;
-        if (oldLhsOp.kind == VarKind.TEMP && !checkVarUse(instruction, oldLhsOp)) {
+        if (isReusableVarKind(oldLhsOp) && !checkVarUse(instruction, oldLhsOp)) {
             defLs.remove();
             unusedVars.add(oldLhsOp);
             replaceOldOp(instructionList, index, oldLhsOp, newLhsOp, liveOuts);
             instruction.lhsOp.variableDcl = newLhsOp;
         }
+    }
+
+    private boolean isReusableVarKind(BIRNode.BIRVariableDcl oldLhsOp) {
+        return oldLhsOp.kind == VarKind.TEMP;
     }
 
     private void replaceOldOp(List<BIRAbstractInstruction> instructionList, int index, BIRNode.BIRVariableDcl oldLhsOp,

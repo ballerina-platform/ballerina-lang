@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
+import org.ballerinalang.model.tree.ClassDefinition;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
@@ -63,6 +64,11 @@ public class TestCompilerPlugin extends AbstractCompilerPlugin {
     @Override
     public void process(TypeDefinition typeDefinition, List<AnnotationAttachmentNode> annotations) {
         addEvent(TestEvent.Kind.TYPEDEF_ANN, typeDefinition.getName().getValue(), annotations.size());
+    }
+
+    @Override
+    public void process(ClassDefinition classDefinition, List<AnnotationAttachmentNode> annotations) {
+        addEvent(TestEvent.Kind.CLASSDEF_ANN, classDefinition.getName().getValue(), annotations.size());
     }
 
     @Override

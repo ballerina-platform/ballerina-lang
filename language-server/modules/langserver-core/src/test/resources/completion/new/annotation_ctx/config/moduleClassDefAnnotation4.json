@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 13,
+    "character": 9
+  },
+  "source": "annotation_ctx/source/moduleClassDefAnnotation4.bal",
+  "items": [
+    {
+      "label": "classAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "classAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "classAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "classAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "classAnnotation3",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "classAnnotation3",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

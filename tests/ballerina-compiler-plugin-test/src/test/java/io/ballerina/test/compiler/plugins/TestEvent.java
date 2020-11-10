@@ -28,6 +28,7 @@ class TestEvent {
         PKG_NODE("package"),
         SERVICE_ANN("service"),
         TYPEDEF_ANN("struct"),
+        CLASSDEF_ANN("class"),
         FUNC_ANN("function"),
         VARIAVLE_ANN("variable"),
         ANNOTATION_ANN("annotation"),

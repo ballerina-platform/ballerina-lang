@@ -6,7 +6,7 @@ version= "0.1.0"
 
 
 [platform]
-target = "java8"
+target = "java11"
 
     [[platform.libraries]]
     artifactId = "utils"

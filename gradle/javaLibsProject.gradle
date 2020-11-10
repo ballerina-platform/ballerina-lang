@@ -32,7 +32,6 @@ dependencies {
     dist 'io.dropwizard.metrics:metrics-core:3.1.0'
     dist 'javax.transaction:javax.transaction-api:1.2'
     dist 'org.apache.thrift:libthrift:0.10.0'
-    dist 'org.jvnet.mimepull:mimepull:1.9.7'
     dist 'org.quartz-scheduler:quartz-jobs:2.3.0'
     dist 'org.quartz-scheduler:quartz:2.3.0'
     dist 'org.wso2.carbon:org.wso2.carbon.core:5.1.0'
@@ -87,20 +86,19 @@ dependencies {
 
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-core')
-    dist project(':ballerina-openapi')
     dist project(':ballerina-lang')
     dist project(':ballerina-logging')
     dist project(':ballerina-observability')
     dist project(':ballerina-tool')
-    dist project(':ballerina-transactions')
-    dist project(':ballerina-java')
+//    dist project(':ballerina-transactions')
+    dist project(':ballerina-lang:java')
     dist project(':metrics-extensions:ballerina-metrics-extension')
-    dist project(':metrics-extensions:ballerina-prometheus-extension')
     dist project(':tracing-extensions:ballerina-jaeger-extension')
 
     // Lang libs
-    dist project(':ballerina-lang:internal')
     dist project(':ballerina-lang:annotations')
+    dist project(':ballerina-lang:java')
+    dist project(':ballerina-lang:internal')
     dist project(':ballerina-lang:array')
     dist project(':ballerina-lang:decimal')
     dist project(':ballerina-lang:error')

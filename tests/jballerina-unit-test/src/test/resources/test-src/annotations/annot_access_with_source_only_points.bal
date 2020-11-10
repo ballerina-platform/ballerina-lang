@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public const annotation map<string> v1 on source type, object type;
+public const annotation map<string> v1 on source type, class;
 
 const STRING_VAL = "string value";
 const STRING_VAL_TWO = "string value two";
@@ -30,9 +30,9 @@ public type T1 record {
 @v1 {
     foo: STRING_VAL_TWO
 }
-type T2 object {
+class T2 {
     string name = "ballerina";
-};
+}
 
 function testAnnotAccessForAnnotWithSourceOnlyPoints1() returns boolean {
     T1 a = { name: "ballerina" };
@@ -48,7 +48,7 @@ function testAnnotAccessForAnnotWithSourceOnlyPoints2() returns boolean {
     return annot is map<string> && annot["foo"] == STRING_VAL_TWO;
 }
 
-const annotation map<string> v2 on type, source object type;
+const annotation map<string> v2 on type, source class;
 
 @v2 {
     foo: STRING_VAL,
@@ -61,9 +61,9 @@ public type T3 record {
 @v2 {
     foo: STRING_VAL_TWO
 }
-type T4 object {
+class T4 {
     string name = "ballerina";
-};
+}
 
 function testAnnotAccessForAnnotWithSourceOnlyPoints3() returns boolean {
     T3 a = { name: "ballerina" };
@@ -79,7 +79,7 @@ function testAnnotAccessForAnnotWithSourceOnlyPoints4() returns boolean {
     return annot is ();
 }
 
-public const annotation v3 on source type;
+public const annotation v3 on source type, source class;
 
 @v3
 public type T5 record {
@@ -87,9 +87,9 @@ public type T5 record {
 };
 
 @v3
-type T6 object {
+class T6 {
     string name = "ballerina";
-};
+}
 
 function testAnnotAccessForAnnotWithSourceOnlyPoints5() returns boolean {
     T5 a = { name: "ballerina" };

@@ -29,7 +29,7 @@ type ClosedEmployee record {|
     int id = 0;
 |};
 
-type Abc object {
+class Abc {
     public string name;
     float salary;
     int id;
@@ -39,9 +39,9 @@ type Abc object {
         self.salary = salary;
         self.id = id;
     }
-};
+}
 
-type Def object {
+class Def {
     public string name;
     float salary;
     int id;
@@ -52,7 +52,7 @@ type Def object {
         self.salary = salary;
         self.id = id;
     }
-};
+}
 
 function testBooleanRefEquality(boolean a, boolean b) returns boolean {
     return a === b && !(a !== b);

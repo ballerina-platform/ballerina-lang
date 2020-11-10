@@ -18,9 +18,9 @@
 
 package org.ballerinalang.test.expressions.literals;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -104,13 +104,13 @@ public class NullLiteralUsageTest {
     @Test
     public void testNullStringRepresentation3() {
         BValue[] returns = BRunUtil.invoke(result, "testNullStringRepresentation3");
-        assertEquals(returns[0].stringValue(), "name=John Doe age=25 location=");
+        assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\",\"age\":25,\"location\":null}");
     }
 
     @Test
     public void testNullStringRepresentation4() {
         BValue[] returns = BRunUtil.invoke(result, "testNullStringRepresentation4");
-        assertEquals(returns[0].stringValue(), "name=John Doe age=25 location=");
+        assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\",\"age\":25,\"location\":null}");
     }
 
     @Test

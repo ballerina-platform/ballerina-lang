@@ -22,7 +22,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+
 
     interopImports project(':ballerina-time')
 
@@ -33,11 +33,10 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-time')
     implementation project(':ballerina-system')
-    implementation project(':ballerina-java')
+
 
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
-    testCompile 'commons-codec:commons-codec'
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-core')
@@ -64,4 +63,16 @@ createBalo {
     jvmTarget = 'true'
 }
 
-description = 'Ballerina - Crypto'
+//description = 'Ballerina - Crypto'
+//
+//ext.moduleName = 'crypto'
+//
+//compileJava {
+//    inputs.property("moduleName", moduleName)
+//    doFirst {
+//        options.compilerArgs = [
+//                '--module-path', classpath.asPath,
+//        ]
+//        classpath = files()
+//    }
+//}

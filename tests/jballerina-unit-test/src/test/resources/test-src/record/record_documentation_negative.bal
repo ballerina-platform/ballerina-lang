@@ -1,4 +1,4 @@
-import ballerina/http;
+import ballerina/lang.test;
 
 # Documentation for Test annotation
 #
@@ -34,7 +34,7 @@ type Test record {
 # Documentation for File object
 #
 # + path - file path. Example: ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
-public type File object {
+public class File {
 
     public string path = "";
 
@@ -49,7 +49,7 @@ public type File object {
         boolean successful = false;
         return successful;
     }
-};
+}
 
 type Person record {
     string firstName;
@@ -74,21 +74,20 @@ type TestConnector record {
   string url;
 };
 
-# PizzaService HTTP Service
+# PizzaService
 #
-# + conn - HTTP connection.
-service PizzaService on new http:MockListener(9090) {
+# + conn - connection.
+service PizzaService on new test:MockListener (9090) {
 
     # Check orderPizza resource.
     #
     # + req - In request.
     # + req - In request.
     # + reqest - In request.
-//  # + conn - HTTP connection. Commented due to https://github.com/ballerina-lang/ballerina/issues/5586 issue
+//  # + conn - connection. Commented due to https://github.com/ballerina-lang/ballerina/issues/5586 issue
 
-    resource function orderPizza(http:Caller conn, http:Request req) {
-        http:Response res = new;
-        checkpanic conn->respond(res);
+    resource function orderPizza(string conn, string req) {
+
     }
 }
 

@@ -15,11 +15,11 @@
  */
 package org.ballerinalang.formatter.core;
 
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
-import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 
 /**
  * Class that exposes the formatting APIs.
@@ -31,8 +31,9 @@ public class Formatter {
      *
      * @param source A Ballerina source in string form
      * @return A modified source string after formatting changes
+     * @throws FormatterException Exception caught while formatting
      */
-    public static String format(String source) {
+    public static String format(String source) throws FormatterException {
         return format(source, new FormattingOptions());
     }
 
@@ -43,8 +44,9 @@ public class Formatter {
      * @param syntaxTree The complete SyntaxTree, of which a part is to be formatted
      * @param range LineRange which specifies the range to be formatted
      * @return The modified SyntaxTree after formatting changes
+     * @throws FormatterException Exception caught while formatting
      */
-    public static SyntaxTree format(SyntaxTree syntaxTree, LineRange range) {
+    public static SyntaxTree format(SyntaxTree syntaxTree, LineRange range) throws FormatterException {
         return format(syntaxTree, range, new FormattingOptions());
     }
 
@@ -53,8 +55,9 @@ public class Formatter {
      *
      * @param syntaxTree The SyntaxTree which is to be formatted
      * @return The modified SyntaxTree after formatting changes
+     * @throws FormatterException Exception caught while formatting
      */
-    public static SyntaxTree format(SyntaxTree syntaxTree) {
+    public static SyntaxTree format(SyntaxTree syntaxTree) throws FormatterException {
         return format(syntaxTree, new FormattingOptions());
     }
 
@@ -64,16 +67,12 @@ public class Formatter {
      * @param source A Ballerina source in string form
      * @param options Formatting options that are to be used when formatting
      * @return A modified source string after formatting changes
+     * @throws FormatterException Exception caught while formatting
      */
-    public static String format(String source, FormattingOptions options) {
+    public static String format(String source, FormattingOptions options) throws FormatterException {
         TextDocument textDocument = TextDocuments.from(source);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
-        FormattingTreeModifier treeModifier = new FormattingTreeModifier();
-        ModulePartNode newModulePart = treeModifier.transform((ModulePartNode) syntaxTree.rootNode());
-        if (options != null) {
-            treeModifier.setFormattingOptions(options);
-        }
-        return syntaxTree.modifyWith(newModulePart).toSourceCode();
+        return modifyTree(syntaxTree, options, null).toSourceCode();
     }
 
     /**
@@ -84,15 +83,11 @@ public class Formatter {
      * @param range LineRange which needs to be formatted
      * @param options Formatting options that are to be used when formatting
      * @return The modified SyntaxTree after formatting changes
+     * @throws FormatterException Exception caught while formatting
      */
-    public static SyntaxTree format(SyntaxTree syntaxTree, LineRange range, FormattingOptions options) {
-        FormattingTreeModifier treeModifier = new FormattingTreeModifier();
-        ModulePartNode modulePartNode = syntaxTree.rootNode();
-        treeModifier.setLineRange(range);
-        if (options != null) {
-            treeModifier.setFormattingOptions(options);
-        }
-        return syntaxTree.modifyWith(treeModifier.transform(modulePartNode));
+    public static SyntaxTree format(SyntaxTree syntaxTree, LineRange range, FormattingOptions options)
+            throws FormatterException {
+        return modifyTree(syntaxTree, options, range);
     }
 
     /**
@@ -101,13 +96,20 @@ public class Formatter {
      * @param syntaxTree The SyntaxTree which is to be formatted
      * @param options Formatting options that are to be used when formatting
      * @return The modified SyntaxTree after formatting changes
+     * @throws FormatterException Exception caught while formatting
      */
-    public static SyntaxTree format(SyntaxTree syntaxTree, FormattingOptions options) {
-        FormattingTreeModifier treeModifier = new FormattingTreeModifier();
+    public static SyntaxTree format(SyntaxTree syntaxTree, FormattingOptions options) throws FormatterException {
+        return modifyTree(syntaxTree, options, null);
+    }
+
+    private static SyntaxTree modifyTree(SyntaxTree syntaxTree, FormattingOptions options, LineRange range)
+            throws FormatterException {
+        FormattingTreeModifier treeModifier = new FormattingTreeModifier(options, range);
         ModulePartNode modulePartNode = syntaxTree.rootNode();
-        if (options != null) {
-            treeModifier.setFormattingOptions(options);
+        try {
+            return syntaxTree.modifyWith(treeModifier.transform(modulePartNode));
+        } catch (Exception e) {
+            throw new FormatterException("Error while formatting: " + e.getMessage(), e.getCause());
         }
-        return syntaxTree.modifyWith(treeModifier.transform(modulePartNode));
     }
 }

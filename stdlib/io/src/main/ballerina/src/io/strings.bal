@@ -15,7 +15,7 @@
 // under the License.
 
 # Represents a reader which will wrap string content as a channel.
-public type StringReader object {
+public class StringReader {
     private ReadableCharacterChannel? charChannel;
 
     # Constructs a channel to read string.
@@ -48,7 +48,7 @@ public type StringReader object {
 # io:StringReader reader = new("<Person><Name>Alice</Name></Person>");
 # xml|io:Error? person = reader.readXml();
 # ```
-# 
+#
 # + return - XML or else `io:Error` if any error occurred
     public function readXml() returns @tainted xml|Error? {
         if(self.charChannel is ReadableCharacterChannel){
@@ -87,4 +87,4 @@ public type StringReader object {
         }
         return ();
     }
-};
+}

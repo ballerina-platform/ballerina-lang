@@ -18,22 +18,22 @@
 
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BNewArray;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.types.BTypes;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BByte;
+import org.ballerinalang.core.model.values.BDecimal;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BNewArray;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -216,16 +216,6 @@ public class TypesTest {
         // Todo: revisit when tuple access and var type supported
         BValue[] result = BRunUtil.invoke(compileResult, "tupleTest");
         Assert.assertEquals((result[0]).stringValue(), "10");
-    }
-
-    @Test
-    public void testRestType() {
-        BRunUtil.invoke(compileResult, "testRestType");
-    }
-
-    @Test
-    public void testEmptyArrayType() {
-        BRunUtil.invoke(compileResult, "testEmptyArrayType");
     }
 
     @Test
@@ -501,8 +491,8 @@ public class TypesTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'map<json>' cannot be " +
-                                              "cast to 'json\\[\\]'.*")
+            expectedExceptionsMessageRegExp = ".*TypeCastError \\{\"message\":\"incompatible types: 'map<json>' " +
+                    "cannot be cast to 'json\\[\\]'.*")
     public void testSetToNonArrayWithIndex() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetToNonArrayWithIndex");
         Assert.assertTrue(returns[0] instanceof BMap);
@@ -523,8 +513,8 @@ public class TypesTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'json\\[\\]' cannot be " +
-                                              "cast to 'map<json>.*")
+            expectedExceptionsMessageRegExp = ".*TypeCastError \\{\"message\":\"incompatible types: 'json\\[\\]' " +
+                    "cannot be cast to 'map<json>.*")
     public void testSetToNonObjectWithKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetToNonObjectWithKey");
         Assert.assertTrue(returns[0] instanceof BValueArray);
@@ -557,7 +547,7 @@ public class TypesTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*IndexOutOfRange message=array index out of range: " +
+          expectedExceptionsMessageRegExp = ".*IndexOutOfRange \\{\"message\":\"array index out of range: " +
                                             "index: 5, size: 3.*")
     public void testGetArrayOutofBoundElement() {
         BRunUtil.invoke(compileResult, "testGetArrayOutofBoundElement");

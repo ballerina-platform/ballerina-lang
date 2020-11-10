@@ -40,9 +40,9 @@ public class MockTest extends BaseTestCase {
         projectPath2 = mockProjectPath2.toString();
     }
 
-    @Test(enabled = false)
+    @Test()
     public void testFunctionMocking() throws BallerinaTestException {
-        String msg1 = "11 passing";
+        String msg1 = "9 passing";
         String msg2 = "3 failing";
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
@@ -52,22 +52,13 @@ public class MockTest extends BaseTestCase {
         clientLeecher2.waitForText(20000);
     }
 
-    @Test(enabled = false)
-    public void testFunctionMocking2() throws BallerinaTestException {
-        String msg1 = "2 passing";
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        balClient.runMain("test", new String[] {"Mock2"}, null,
-                new String[] {}, new LogLeecher[]{clientLeecher1}, projectPath);
-        clientLeecher1.waitForText(20000);
-    }
-
-    @Test(enabled = false)
+    @Test()
     public void testObjectMocking() throws BallerinaTestException {
-        String msg1 = "7 passing";
-        String msg2 = "13 failing";
+        String msg1 = "5 passing";
+        String msg2 = "6 failing";
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
-        balClient.runMain("test", new String[]{"--all"}, null,
+        balClient.runMain("test", new String[]{"object-mocking"}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath2);
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);

@@ -1,26 +1,10 @@
-type Iterable object {
-    public function __iterator() returns abstract object {public function next() returns record {|int value;|}?;
+class Iterable {
+    public function __iterator() returns object {public function next() returns record {|int value;|}?;
     } {
-        object {
-            int[] integers = [12, 34, 56, 34, 78, 21, 90];
-            int cursorIndex = 0;
-            public function next() returns
-            record {|
-                int value;
-            |}? {
-                self.cursorIndex += 1;
-                if (self.cursorIndex <= 7) {
-                    return {
-                        value: self.integers[self.cursorIndex - 1]
-                    };
-                } else {
-                    return ();
-                }
-            }
-        } sample = new;
+        InternalIterable sample = new;
         return sample;
     }
-};
+}
 
 public function testIterableObject() returns int[] {
     Iterable p = new Iterable();
@@ -32,28 +16,48 @@ public function testIterableObject() returns int[] {
     return integers;
 }
 
-type AnotherIterable object {
-    public function __iterator() returns abstract object {public function next() returns record {|Iterable value;|}?;
+class InternalIterable {
+   int[] integers = [12, 34, 56, 34, 78, 21, 90];
+   int cursorIndex = 0;
+   public function next() returns
+   record {|
+       int value;
+   |}? {
+       self.cursorIndex += 1;
+       if (self.cursorIndex <= 7) {
+           return {
+               value: self.integers[self.cursorIndex - 1]
+           };
+       } else {
+           return ();
+       }
+   }
+}
+
+class AnotherIterable {
+    public function __iterator() returns object {public function next() returns record {|Iterable value;|}?;
     } {
-        object {
-            int cursorIndex = 0;
-            public function next() returns
-            record {|
-                Iterable value;
-            |}? {
-                self.cursorIndex += 1;
-                if (self.cursorIndex <= 2) {
-                    return {
-                        value: new Iterable()
-                    };
-                } else {
-                    return ();
-                }
-            }
-        } sample = new;
+        AnotherInternalIterable sample = new;
         return sample;
     }
-};
+}
+
+class AnotherInternalIterable {
+    int cursorIndex = 0;
+    public function next() returns
+    record {|
+        Iterable value;
+    |}? {
+        self.cursorIndex += 1;
+        if (self.cursorIndex <= 2) {
+            return {
+                value: new Iterable()
+            };
+        } else {
+            return ();
+        }
+    }
+}
 
 public function testNestedIterableObject() returns int[] {
     AnotherIterable p = new AnotherIterable();

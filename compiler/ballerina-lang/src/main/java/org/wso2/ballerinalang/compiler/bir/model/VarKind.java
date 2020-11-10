@@ -56,7 +56,12 @@ public enum VarKind {
     /**
      * Variable that holds constants.
      */
-    CONSTANT((byte) 7);
+    CONSTANT((byte) 7),
+
+    /**
+     * Variable generated at desugar.
+     */
+    SYNTHETIC((byte) 8);
 
     byte value;
 

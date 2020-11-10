@@ -373,7 +373,7 @@ function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
     assertFalse(a3 is [Details[], Employee...] & readonly);
     assertFalse(a3 is [[Details, Details], Employee] & readonly);
 
-    [Details[], Employee] vals = <[Details[], Employee]> a3;
+    [Details[], Employee...] vals = <[Details[], Employee...]> a3;
     assertFalse(vals[0].isReadOnly());
 
     Details d1 = vals[0][0];
@@ -454,7 +454,7 @@ function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
     assertFalse(k.printer is Printer & readonly);
 }
 
-type MyMutableController object {
+class MyMutableController {
     Owner owner;
     Printer printer;
 
@@ -462,15 +462,15 @@ type MyMutableController object {
         self.owner = owner;
         self.printer = printer;
     }
-};
+}
 
-type MyMutablePrinter object {
+class MyMutablePrinter {
     int id = 1234;
 
     function getPrintString(string s) returns string {
         return string `ID[${self.id}]: ${s}`;
     }
-};
+}
 
 function testImmutabilityOfNestedXmlWithAttributes() {
     xml x1 = xml `<book status="available" count="5">Book One<name lang="english">Great Expectations</name><!-- This is a classic--><author gender="male"><?action concat?><firstName index="C">Charles</firstName><lastName>Dickens</lastName></author></book>`;
@@ -685,39 +685,39 @@ function testImmutableRecordWithDefaultValues() {
     assertEquality(q2.id, 2);
 }
 
-type MyOwner object {
-    readonly int id = 238475;
+class MyOwner {
+    final int id = 238475;
 
     function getId() returns int {
         return self.id;
     }
-};
+}
 
-type MyController object {
-    readonly Owner owner;
-    readonly Printer printer;
+class MyController {
+    final Owner & readonly owner;
+    final readonly & Printer printer;
 
     function init(Owner & readonly ow, Printer pr) {
         self.owner = ow;
         self.printer = <Printer & readonly> pr;
     }
-};
+}
 
-type Printer abstract object {
+type Printer object {
     function getPrintString(string s) returns string;
 };
 
-type Controller abstract object {
+type Controller object {
     Owner owner;
     Printer printer;
 };
 
-type Owner abstract object {
+type Owner object {
     function getId() returns int;
 };
 
-type MyPrinter object {
-    readonly int id;
+class MyPrinter {
+    final int id;
 
     function init(int id) {
         self.id = id;
@@ -726,7 +726,7 @@ type MyPrinter object {
     function getPrintString(string s) returns string {
         return string `ID[${self.id}]: ${s}`;
     }
-};
+}
 
 function testImmutableObjects() {
     Controller & readonly cr = new MyController(new MyOwner(), new MyPrinter(1234));
@@ -837,12 +837,12 @@ type IdentifierRec record {
     string id = "record";
 };
 
-type IdentifierAbstractObj abstract object {
+type IdentifierAbstractObj object {
     function getId() returns string;
 };
 
-type IdentifierObj object {
-    readonly string id;
+class IdentifierObj {
+    final string id;
 
     function init() {
         self.id = "object";
@@ -851,7 +851,7 @@ type IdentifierObj object {
     function getId() returns string {
         return self.id;
     }
-};
+}
 
 type ConfigRec record {
     Versioning versioning;

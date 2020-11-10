@@ -16,14 +16,14 @@
  */
 package org.ballerinalang.test.annotations;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
+//import org.ballerinalang.core.model.values.BBoolean;
+//import org.ballerinalang.core.model.values.BValue;
+//import org.ballerinalang.test.util.BCompileUtil;
+//import org.ballerinalang.test.util.BRunUtil;
+//import org.ballerinalang.test.util.CompileResult;
+//import org.testng.Assert;
+//import org.testng.annotations.BeforeClass;
+//import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -34,27 +34,27 @@ import org.testng.annotations.Test;
 @Test
 public class AnnotationAccessViaReflectTest {
 
-    private CompileResult resultOne;
-
-    @BeforeClass
-    public void setup() {
-        resultOne = BCompileUtil.compile("test-src/annotations/annot_access_via_reflect.bal");
-        Assert.assertEquals(resultOne.getErrorCount(), 0);
-    }
-
-    @Test(dataProvider = "annotAccessTests")
-    public void testAnnotAccess(String testFunction) {
-        BValue[] returns = BRunUtil.invoke(resultOne, testFunction);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @DataProvider(name = "annotAccessTests")
-    public Object[][] annotAccessTests() {
-        return new Object[][]{
-                { "testServiceAnnotAccess" },
-                { "testResourceAnnotAccess" }
-        };
-    }
+//    private CompileResult resultOne;
+//
+//    @BeforeClass
+//    public void setup() {
+//        resultOne = BCompileUtil.compile("test-src/annotations/annot_access_via_reflect.bal");
+//        Assert.assertEquals(resultOne.getErrorCount(), 0);
+//    }
+//
+//    @Test(dataProvider = "annotAccessTests")
+//    public void testAnnotAccess(String testFunction) {
+//        BValue[] returns = BRunUtil.invoke(resultOne, testFunction);
+//        Assert.assertEquals(returns.length, 1);
+//        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+//        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+//    }
+//
+//    @DataProvider(name = "annotAccessTests")
+//    public Object[][] annotAccessTests() {
+//        return new Object[][]{
+//                { "testServiceAnnotAccess" },
+//                { "testResourceAnnotAccess" }
+//        };
+//    }
 }

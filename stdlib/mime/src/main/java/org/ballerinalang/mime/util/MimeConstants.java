@@ -18,12 +18,12 @@
 
 package org.ballerinalang.mime.util;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
 
 /**
  * Constants related to MIME.
@@ -36,11 +36,11 @@ public class MimeConstants {
     public static final String PROTOCOL_PACKAGE_MIME = BALLERINA_PACKAGE_PREFIX + "mime";
     public static final String PROTOCOL_MIME_PKG_VERSION = "1.0.0";
     public static final String PROTOCOL_IO_PKG_VERSION = "0.5.0";
-    public static final BPackage PROTOCOL_MIME_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "mime",
-                                                                     PROTOCOL_MIME_PKG_VERSION);
+    public static final Module PROTOCOL_MIME_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "mime",
+                                                                 PROTOCOL_MIME_PKG_VERSION);
     public static final String PROTOCOL_PACKAGE_IO = BALLERINA_PACKAGE_PREFIX + "io";
-    public static final BPackage PROTOCOL_IO_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "io",
-                                                                   PROTOCOL_IO_PKG_VERSION);
+    public static final Module PROTOCOL_IO_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "io",
+                                                               PROTOCOL_IO_PKG_VERSION);
     public static final String READABLE_BYTE_CHANNEL_STRUCT = "ReadableByteChannel";
     public static final String MIME_ERROR_MESSAGE = "message";
 
@@ -51,7 +51,7 @@ public class MimeConstants {
     public static final String INVALID_HEADER_PARAM_ERROR = "InvalidHeaderParamError";
     public static final String INVALID_CONTENT_LENGTH_ERROR = "InvalidContentLengthError";
     public static final String HEADER_NOT_FOUND_ERROR = "HeaderNotFoundError";
-    public static final String SERIALIZATION_ERROR = "SerializationError";
+    public static final BString SERIALIZATION_ERROR = StringUtils.fromString("SerializationError");
     public static final String NO_CONTENT_ERROR = "NoContentError";
     public static final String INVALID_HEADER_OPERATION_ERROR = "InvalidHeaderOperationError";
 

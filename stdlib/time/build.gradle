@@ -26,7 +26,7 @@ configurations.testCompileClasspath {
 
 dependencies {
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+
 
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
@@ -58,3 +58,15 @@ configurations {
 configurations.all {
     resolutionStrategy.preferProjectModules()
 }
+
+//ext.moduleName = 'time'
+//
+//compileJava {
+//    inputs.property("moduleName", moduleName)
+//    doFirst {
+//        options.compilerArgs = [
+//                '--module-path', classpath.asPath,
+//        ]
+//        classpath = files()
+//    }
+//}

@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.emit;
 
-import org.ballerinalang.jvm.util.Flags;
+import io.ballerina.runtime.util.Flags;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -220,6 +220,7 @@ class EmitterUtils {
         switch (insKind) {
             case TYPEOF:
             case NOT:
+            case NEGATE:
             case SUB:
             case ADD:
                 return true;

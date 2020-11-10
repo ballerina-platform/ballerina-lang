@@ -18,7 +18,6 @@
 
 package org.ballerinalang.packerina.cmd;
 
-
 import com.moandjiezana.toml.Toml;
 import org.ballerinalang.toml.model.Module;
 import org.ballerinalang.tool.BLauncherCmd;
@@ -50,7 +49,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 
 import static org.ballerinalang.packerina.cmd.Constants.ADD_COMMAND;
 

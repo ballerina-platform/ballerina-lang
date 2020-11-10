@@ -18,11 +18,11 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.csv.Format;
@@ -50,7 +50,7 @@ public class RecordChannelUtils {
     private RecordChannelUtils() {
     }
 
-    public static void initRecordChannel(ObjectValue textRecordChannel, ObjectValue characterChannelInfo,
+    public static void initRecordChannel(BObject textRecordChannel, BObject characterChannelInfo,
                                          BString fieldSeparator, BString recordSeparator, BString format) {
         try {
             //Will get the relevant byte channel and will create a character channel
@@ -73,7 +73,7 @@ public class RecordChannelUtils {
         }
     }
 
-    public static boolean hasNext(ObjectValue channel) {
+    public static boolean hasNext(BObject channel) {
         Object textChannel = channel.getNativeData(TXT_RECORD_CHANNEL_NAME);
         if (textChannel == null) {
             return false;
@@ -91,7 +91,7 @@ public class RecordChannelUtils {
         return false;
     }
 
-    public static Object getNext(ObjectValue channel) {
+    public static Object getNext(BObject channel) {
         DelimitedRecordChannel textRecordChannel =
                 (DelimitedRecordChannel) channel.getNativeData(TXT_RECORD_CHANNEL_NAME);
         if (textRecordChannel.hasReachedEnd()) {
@@ -99,7 +99,7 @@ public class RecordChannelUtils {
         } else {
             try {
                 String[] records = textRecordChannel.read();
-                return BValueCreator.createArrayValue(StringUtils.fromStringArray(records));
+                return ValueCreator.createArrayValue(StringUtils.fromStringArray(records));
             } catch (BallerinaIOException e) {
                 log.error("error occurred while reading next text record from ReadableTextRecordChannel", e);
                 return IOUtils.createError(e);
@@ -107,7 +107,7 @@ public class RecordChannelUtils {
         }
     }
 
-    public static Object write(ObjectValue channel, ArrayValue content) {
+    public static Object write(BObject channel, BArray content) {
         DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel
                 .getNativeData(TXT_RECORD_CHANNEL_NAME);
         try {
@@ -118,7 +118,7 @@ public class RecordChannelUtils {
         return null;
     }
 
-    public static Object close(ObjectValue channel) {
+    public static Object close(BObject channel) {
         DelimitedRecordChannel recordChannel = (DelimitedRecordChannel) channel.getNativeData(TXT_RECORD_CHANNEL_NAME);
         try {
             recordChannel.close();

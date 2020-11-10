@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.tree.types;
 
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+
 /**
  * {@code ArrayTypeNode} represents an array type node in Ballerina
  * array type node can be of multiple dimensions and each dimension can be sealed with a specific size
@@ -30,5 +32,5 @@ public interface ArrayTypeNode extends ReferenceTypeNode {
 
     int getDimensions();
 
-    int[] getSizes();
+    BLangExpression[] getSizes();
 }

@@ -78,7 +78,13 @@ public class BLangObjectTypeNode extends BLangStructureTypeNode implements Objec
 
     @Override
     public String toString() {
-        //TODO fix
-        return "object { " + this.fields + " }";
+        StringBuilder sb = new StringBuilder().append("object { ");
+        for (BLangSimpleVariable field : this.fields) {
+            sb.append(field).append(";\n");
+        }
+        for (BLangFunction function : this.functions) {
+            sb.append(function).append(";\n");
+        }
+        return sb.append(" }").toString();
     }
 }

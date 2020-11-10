@@ -18,9 +18,9 @@
 
 package org.ballerinalang.test.variable.shadowing;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -134,5 +134,10 @@ public class ShadowingTest {
     @Test(description = "Shadow the type name in side function.")
     public void testTypeNameAsVariable5() {
         BRunUtil.invoke(result, "testTypeNameAsVariable5");
+    }
+
+    @Test(description = "test shadowing with ballerina generated names")
+    public void testGeneratedNames() {
+        BRunUtil.invoke(result, "testGeneratedNames");
     }
 }

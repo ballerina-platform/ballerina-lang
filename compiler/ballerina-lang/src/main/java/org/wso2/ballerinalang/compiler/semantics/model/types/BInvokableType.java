@@ -21,6 +21,7 @@ import org.ballerinalang.model.types.InvokableType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -56,6 +57,10 @@ public class BInvokableType extends BType implements InvokableType {
         return retType;
     }
 
+    @Override
+    public TypeKind getKind() {
+        return TypeKind.FUNCTION;
+    }
 
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
@@ -64,6 +69,9 @@ public class BInvokableType extends BType implements InvokableType {
 
     @Override
     public String toString() {
+        if (Symbols.isFlagOn(flags, Flags.ISOLATED)) {
+            return "isolated function " + getTypeSignature();
+        }
 
         return "function " + getTypeSignature();
     }

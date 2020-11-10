@@ -1,0 +1,105 @@
+{
+  "position": {
+    "line": 14,
+    "character": 17
+  },
+  "source": "annotation_ctx/source/typeCastExprAnnotation1.bal",
+  "items": [
+    {
+      "label": "module1:typeAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:typeAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "module1:typeAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:typeAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "module1:typeAnnotation3",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:typeAnnotation3",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "tainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "tainted",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "untainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "untainted",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "typeParam",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "typeParam",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "builtinSubtype",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "builtinSubtype",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "deprecated",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "deprecated",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "icon",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "icon {\n\tpath: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "typeAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "typeAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "typeAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "typeAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "typeAnnotation3",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "typeAnnotation3",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    }
+  ]
+}

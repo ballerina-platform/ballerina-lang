@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type World object {
+class World {
     public string name = "Earth";
     public string value = "Happy 🙋";
-};
+}
 
 function testObjectAccess() returns int {
     World world = new;
@@ -25,7 +25,7 @@ function testObjectAccess() returns int {
     return content.length();
 }
 
-type Criminal object {
+class Criminal {
 
     public string name1;
     public string name2;
@@ -42,7 +42,7 @@ type Criminal object {
     function getName() returns string {
         return validate(self.name2);
     }
-};
+}
 
 function validate(string name) returns string {
     return name;

@@ -3,7 +3,7 @@ import ballerina/lang.'object as lang;
 
 public listener mod:Listener test = n
 
-public type Listener object {
+public class Listener {
 
     *lang:Listener;
 

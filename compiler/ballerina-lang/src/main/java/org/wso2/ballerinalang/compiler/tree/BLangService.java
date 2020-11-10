@@ -45,7 +45,7 @@ public class BLangService extends BLangNode implements ServiceNode {
 
     public BSymbol symbol;
     public BLangIdentifier name;
-    public BLangTypeDefinition serviceTypeDefinition;
+    public BLangClassDefinition serviceClass;
     public List<BLangExpression> attachedExprs;
 
     // Reference to global variable of this is a module level service.
@@ -87,8 +87,8 @@ public class BLangService extends BLangNode implements ServiceNode {
     }
 
     @Override
-    public BLangTypeDefinition getTypeDefinition() {
-        return this.serviceTypeDefinition;
+    public BLangClassDefinition getServiceClass() {
+        return this.serviceClass;
     }
 
     @Override

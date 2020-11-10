@@ -79,6 +79,13 @@ public class ForEachStatementTest extends AbstractStatementTest {
         testFile("forEach-stmt/forEach_stmt_source_19.bal",
                 "forEach-stmt/forEach_stmt_assert_19.json");
     }
+
+    @Test
+    public void testForEachStmtWithOnFailClause() {
+        testFile("forEach-stmt/forEach_stmt_source_24.bal",
+                "forEach-stmt/forEach_stmt_assert_24.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -163,5 +170,10 @@ public class ForEachStatementTest extends AbstractStatementTest {
     public void testMappingBindingPatternMissingCloseBraceForEachStmt() {
         testFile("forEach-stmt/forEach_stmt_source_23.bal",
                 "forEach-stmt/forEach_stmt_assert_23.json");
+    }
+
+    @Test
+    public void testForEachOnFailClauseRecovery() {
+        testFile("forEach-stmt/forEach_stmt_source_25.bal", "forEach-stmt/forEach_stmt_assert_25.json");
     }
 }

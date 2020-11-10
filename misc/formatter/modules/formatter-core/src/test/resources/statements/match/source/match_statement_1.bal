@@ -1,19 +1,16 @@
-public function main17() {
+public function foo() {
    string[] animals = ["Cat", "Canine", "Mouse", "Horse"];
-   foreach string animal in animals {
-         match
-           animal
+   foreach string animal in animals {match
+   animal
            {
-           "Mouse" =>
-           {
-           }
-              "Dog"|"Canine"   =>    {
+       "Mouse"    =>
+           {}
+              "Dog"  |  "Canine"   =>    {
            }
 
-           "Cat"  |  "Feline" => {
+           "Cat"  |  "Feline" =>
+           {
+           }_   =>    {
            }
-             _   =>    {
-           }
-       }
-   }
+       }}
 }

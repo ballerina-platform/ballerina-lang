@@ -18,6 +18,6 @@ function main(typedesc<any> t, int|typedesc<any> i = 1, FooObject... f) returns 
     return "invalid";
 }
 
-type FooObject object {
+class FooObject {
     string name = "invalid";
-};
+}

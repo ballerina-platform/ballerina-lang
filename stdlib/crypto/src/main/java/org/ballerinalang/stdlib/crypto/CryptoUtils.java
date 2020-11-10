@@ -17,9 +17,10 @@
  */
 package org.ballerinalang.stdlib.crypto;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.ErrorValue;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BError;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -126,7 +127,7 @@ public class CryptoUtils {
             Signature sig = Signature.getInstance(algorithm);
             sig.initSign(privateKey);
             sig.update(input);
-            return new ArrayValueImpl(sig.sign());
+            return ValueCreator.createArrayValue(sig.sign());
         } catch (InvalidKeyException e) {
             return CryptoUtils.createError("Uninitialized private key: " + e.getMessage());
         } catch (NoSuchAlgorithmException | SignatureException e) {
@@ -162,8 +163,8 @@ public class CryptoUtils {
      * @param errMsg error description
      * @return conversion error
      */
-    public static ErrorValue createError(String errMsg) {
-        return BallerinaErrors.createDistinctError(CRYPTO_ERROR, CRYPTO_PACKAGE_ID, errMsg);
+    public static BError createError(String errMsg) {
+        return ErrorCreator.createDistinctError(CRYPTO_ERROR, CRYPTO_PACKAGE_ID, StringUtils.fromString(errMsg));
     }
 
     /**
@@ -190,7 +191,7 @@ public class CryptoUtils {
             Cipher cipher = Cipher.getInstance(Constants.RSA + "/" + transformedAlgorithmMode + "/"
                     + transformedAlgorithmPadding);
             initCipher(cipher, cipherMode, key, paramSpec);
-            return new ArrayValueImpl(cipher.doFinal(input));
+            return ValueCreator.createArrayValue(cipher.doFinal(input));
         } catch (NoSuchAlgorithmException e) {
             return CryptoUtils.createError("Unsupported algorithm: RSA " + algorithmMode + " " + algorithmPadding +
                     ": " + e.getMessage());
@@ -198,7 +199,7 @@ public class CryptoUtils {
             return CryptoUtils.createError("Unsupported padding scheme defined in the algorithm: RSA "
                     + algorithmMode + " " + algorithmPadding + ": " + e.getMessage());
         } catch (InvalidKeyException | InvalidAlgorithmParameterException | BadPaddingException |
-                IllegalBlockSizeException | ErrorValue e) {
+                IllegalBlockSizeException | BError e) {
             return CryptoUtils.createError("Error occurred while RSA encrypt/decrypt: " + e.getMessage());
         }
     }
@@ -232,7 +233,7 @@ public class CryptoUtils {
             AlgorithmParameterSpec paramSpec = buildParameterSpec(transformedAlgorithmMode, iv, (int) tagSize);
             Cipher cipher = Cipher.getInstance("AES/" + transformedAlgorithmMode + "/" + transformedAlgorithmPadding);
             initCipher(cipher, cipherMode, keySpec, paramSpec);
-            return new ArrayValueImpl(cipher.doFinal(input));
+            return ValueCreator.createArrayValue(cipher.doFinal(input));
         } catch (NoSuchAlgorithmException e) {
             return CryptoUtils.createError("Unsupported algorithm: AES " + algorithmMode + " " + algorithmPadding +
                     ": " + e.getMessage());
@@ -240,7 +241,7 @@ public class CryptoUtils {
             return CryptoUtils.createError("Unsupported padding scheme defined in  the algorithm: AES " +
                     algorithmMode + " " + algorithmPadding + ": " + e.getMessage());
         } catch (BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException |
-                InvalidKeyException | ErrorValue e) {
+                InvalidKeyException | BError e) {
             return CryptoUtils.createError("Error occurred while AES encrypt/decrypt: " + e.getMessage());
         }
     }
@@ -282,7 +283,7 @@ public class CryptoUtils {
      * @param iv            initialization vector for CBC and GCM mode
      * @param tagSize       tag size for GCM mode
      * @return algorithm parameter specification
-     * @throws ErrorValue if initialization vector is not specified
+     * @throws BError if initialization vector is not specified
      */
     private static AlgorithmParameterSpec buildParameterSpec(String algorithmMode, byte[] iv, int tagSize) {
         switch (algorithmMode) {
@@ -311,9 +312,9 @@ public class CryptoUtils {
      *
      * @param algorithmMode algorithm mode
      * @return transformed algorithm mode
-     * @throws ErrorValue if algorithm mode is not supported
+     * @throws BError if algorithm mode is not supported
      */
-    private static String transformAlgorithmMode(String algorithmMode) throws ErrorValue {
+    private static String transformAlgorithmMode(String algorithmMode) throws BError {
         if (!algorithmMode.equals(Constants.CBC) && !algorithmMode.equals(Constants.ECB)
                 && !algorithmMode.equals(Constants.GCM)) {
             throw CryptoUtils.createError("Unsupported mode: " + algorithmMode);
@@ -326,9 +327,9 @@ public class CryptoUtils {
      *
      * @param algorithmPadding padding algorithm name
      * @return transformed  padding algorithm name
-     * @throws ErrorValue if padding algorithm is not supported
+     * @throws BError if padding algorithm is not supported
      */
-    private static String transformAlgorithmPadding(String algorithmPadding) throws ErrorValue {
+    private static String transformAlgorithmPadding(String algorithmPadding) throws BError {
         switch (algorithmPadding) {
             case "PKCS1":
                 algorithmPadding = "PKCS1Padding";

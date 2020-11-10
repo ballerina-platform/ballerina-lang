@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.expressions.invocations;
 
-import org.ballerinalang.model.values.BValueType;
+import org.ballerinalang.core.model.values.BValueType;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;

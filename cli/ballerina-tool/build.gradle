@@ -18,6 +18,7 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
+    implementation project(':ballerina-tools-api')
     implementation project(':ballerina-core')
     implementation project(':ballerina-config')
     implementation project(':ballerina-lang')
@@ -39,5 +40,17 @@ processResources {
 test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
+    }
+}
+
+ext.moduleName = 'ballerina-tool'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
     }
 }

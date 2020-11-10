@@ -38,6 +38,7 @@ import java.util.Optional;
 public class LSPackageLoader {
 
     private static final String LIB_REPO_DIR = "lib/repo";
+    private static final String BALO_CACHE_DIR = "cache/balo";
     private static final String DOT = ".";
     private static final String BALLERINA_HOME = "ballerina.home";
     private static List<String> visibleOrgs = new ArrayList<>();
@@ -91,29 +92,37 @@ public class LSPackageLoader {
         List<BallerinaPackage> ballerinaPackages = new ArrayList<>();
         String ballerinaSDKHome = System.getProperty(BALLERINA_HOME);
         if (ballerinaSDKHome != null) {
-            String ballerinaLibRepoDir = Paths.get(ballerinaSDKHome, LIB_REPO_DIR).toString();
-            File reposDir = new File(ballerinaLibRepoDir);
-            String[] repos = reposDir.list((dir, name) -> !name.startsWith(DOT));
-            if (repos != null) {
-                for (String repo : repos) {
-                    String repoDir = Paths.get(ballerinaLibRepoDir, repo).toString();
-                    File packageDir = new File(repoDir);
-                    String[] packageNames = packageDir.list(((dir, name) -> !name.startsWith(DOT)));
-                    if (packageNames != null) {
-                        for (String name : packageNames) {
-                            if (name == null || ("ballerina".equals(repo) && name.contains("__internal"))
-                                    || name.contains(".balx")) {
-                                continue;
-                            }
-                            File versionDir = Paths.get(packageDir.getAbsolutePath(), name).toFile();
-                            String[] versions = versionDir.list();
-                            if (versions != null) {
-                                for (String version : versions) {
-                                    BallerinaPackage ballerinaPackage = new BallerinaPackage(repo, name, version);
-                                    ballerinaPackages.add(ballerinaPackage);
-                                    if (!visibleOrgs.contains(repo)) {
-                                        visibleOrgs.add(repo);
-                                    }
+            String libRepoDir = Paths.get(ballerinaSDKHome, LIB_REPO_DIR).toString();
+            String baloCacheDir = Paths.get(ballerinaSDKHome, BALO_CACHE_DIR).toString();
+            ballerinaPackages.addAll(getPackageNamesFromDirectory(libRepoDir));
+            ballerinaPackages.addAll(getPackageNamesFromDirectory(baloCacheDir));
+        }
+        return ballerinaPackages;
+    }
+    
+    private static List<BallerinaPackage> getPackageNamesFromDirectory(String dirName) {
+        List<BallerinaPackage> ballerinaPackages = new ArrayList<>();
+        File directory = new File(dirName);
+        String[] repos = directory.list((dir, name) -> !name.startsWith(DOT));
+        if (repos != null) {
+            for (String repo : repos) {
+                String repoDir = Paths.get(dirName, repo).toString();
+                File packageDir = new File(repoDir);
+                String[] packageNames = packageDir.list(((dir, name) -> !name.startsWith(DOT)));
+                if (packageNames != null) {
+                    for (String name : packageNames) {
+                        if (name == null || ("ballerina".equals(repo) && name.contains("__internal"))
+                                || name.contains(".balx")) {
+                            continue;
+                        }
+                        File versionDir = Paths.get(packageDir.getAbsolutePath(), name).toFile();
+                        String[] versions = versionDir.list();
+                        if (versions != null) {
+                            for (String version : versions) {
+                                BallerinaPackage ballerinaPackage = new BallerinaPackage(repo, name, version);
+                                ballerinaPackages.add(ballerinaPackage);
+                                if (!visibleOrgs.contains(repo)) {
+                                    visibleOrgs.add(repo);
                                 }
                             }
                         }
@@ -121,6 +130,7 @@ public class LSPackageLoader {
                 }
             }
         }
+        
         return ballerinaPackages;
     }
 

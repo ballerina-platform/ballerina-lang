@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.jvm.values.api.BFuture;
-import org.ballerinalang.jvm.values.api.BTypedesc;
+import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.values.BTypedesc;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -351,11 +351,28 @@ public class NegativeValidationTest {
         CompileResult compileResult = BCompileUtil.compileInProc(path);
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
-        BAssertUtil.validateError(compileResult, 0,
+        BAssertUtil.validateError(
+                compileResult, 0,
                 "{ballerina/java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible param type for method " +
-                        "'decimalParamAndWithBigDecimal' in class " +
-                        "'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': Java type 'java.math.BigDecimal' " +
-                        "will not be matched to ballerina type 'decimal''",
-                "method_sig_not_match14.bal", 3, 1);
+                        "'decimalParamAndWithBigDecimal' in class 'org.ballerinalang.nativeimpl.jvm.tests" +
+                        ".StaticMethods': Java type 'java.math.BigDecimal' will not be matched to ballerina type " +
+                        "'decimal''", "method_sig_not_match14.bal", 3, 1);
+    }
+
+    @Test(description = "When there are instance and static methods with same name and parameters that differ by one")
+    public void testResolveWithInstanceAndStatic() {
+        String path = "test-src/javainterop/negative/method_resolve_error.bal";
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 2);
+        BAssertUtil.validateError(compileResult, 0,
+                                  "{ballerina/java}OVERLOADED_METHODS 'Overloaded methods cannot be differentiated. " +
+                                          "Please specify the parameterTypes for each parameter in 'paramTypes' field" +
+                                          " in the annotation'", "method_resolve_error.bal", 19, 1);
+        BAssertUtil.validateError(compileResult, 1,
+                                  "{ballerina/java}OVERLOADED_METHODS 'Overloaded methods cannot be differentiated. " +
+                                          "Please specify the parameterTypes for each parameter in 'paramTypes' field" +
+                                          " in the annotation'", "method_resolve_error.bal", 24, 1);
+
     }
 }

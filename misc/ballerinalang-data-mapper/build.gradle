@@ -18,6 +18,7 @@ repositories {
 }
 
 dependencies {
+    implementation project(':ballerina-tools-api')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-parser')
     implementation project(':ballerina-runtime')
@@ -25,9 +26,6 @@ dependencies {
     implementation project(':language-server:language-server-compiler')
     implementation project(':language-server:language-server-core')
     implementation project(':language-server:language-server-cli')
-    implementation project(':openapi-ballerina:openapi-validator')
-    implementation project(':openapi-ballerina:openapi-to-ballerina-generator')
-    implementation project(':openapi-ballerina:ballerina-to-openapi-generator')
 
     // Standard libs
     implementation project(':ballerina-auth')
@@ -35,26 +33,22 @@ dependencies {
     implementation project(':ballerina-cache')
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-crypto')
-    implementation project(':ballerina-java')
+    implementation project(':ballerina-lang:java')
     implementation project(':ballerina-file')
-    implementation project(':ballerina-http')
+//    implementation project(':ballerina-http')
     implementation project(':ballerina-io')
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-mime')
     implementation project(':ballerina-observability')
-    implementation project(':ballerina-openapi')
     implementation project(':ballerina-reflect')
     implementation project(':ballerina-system')
     implementation project(':ballerina-task')
     implementation project(':ballerina-time')
-    implementation project(':ballerina-transactions')
+//    implementation project(':ballerina-transactions')
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-tool')
 
     implementation(group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
-    implementation 'org.mockito:mockito-all:1.10.19'
-    implementation 'org.powermock:powermock-mockito-release-full:1.6.4'
-    implementation 'org.powermock:powermock-module-testng-common:1.6.4'
 
     compile 'com.fasterxml.jackson.core:jackson-databind:2.1.2'
 
@@ -85,7 +79,7 @@ task buildAndCopy(type: Copy) {
     from 'build/libs/ballerinalang-data-mapper-' + project.version + '.jar'
     into  project(':jballerina-tools').projectDir.absolutePath +
             '/build/extracted-distributions/jballerina-tools-' + project.version +
-            '/bre/lib';
+            '/bre/lib'
 }
 
 jacocoTestReport {
@@ -99,5 +93,3 @@ jacocoTestReport {
         }))
     }
 }
-
-sourceCompatibility = 1.8

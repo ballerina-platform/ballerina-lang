@@ -17,12 +17,8 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.observability.metrics.Gauge;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.observability.metrics.Gauge;
 
 /**
  * This is the native register function implementation of the Counter object.
@@ -30,17 +26,9 @@ import org.ballerinalang.natives.annotations.Receiver;
  * @since 0.980.0
  */
 
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "observe", version = "0.8.0",
-        functionName = "unregister",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ObserveNativeImplConstants.GAUGE,
-                structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH),
-        isPublic = true
-)
 public class GaugeUnregister {
 
-    public static void unregister(Strand strand, ObjectValue guageObj) {
+    public static void unregister(BObject guageObj) {
         Gauge gauge = (Gauge) guageObj.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         gauge.unregister();
     }

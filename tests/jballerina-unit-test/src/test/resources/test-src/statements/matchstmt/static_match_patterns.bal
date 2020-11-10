@@ -283,12 +283,12 @@ function testFiniteType2() returns string {
     return "Value is 'Default'";
 }
 
-type Obj object {
+class Obj {
     int var1;
     function init(int var1) {
         self.var1 = var1;
     }
-};
+}
 
 function testNonAnyDataType() returns string {
     Obj y = new (12);

@@ -19,7 +19,7 @@ import ballerina/java;
 
 # This object contains information on a process being created from Ballerina.
 # This is returned from the `exec` function in the `system` module.
-public type Process object {
+public class Process {
 
     private int BUF_SIZE = 10240;
 
@@ -127,34 +127,34 @@ public type Process object {
         }
     }
 
-};
+}
 
 function nativeWaitForExit(Process process) returns int | Error = @java:Method {
     name: "waitForExit",
-    class: "org.ballerinalang.stdlib.system.nativeimpl.WaitForExit"
+    'class: "org.ballerinalang.stdlib.system.nativeimpl.WaitForExit"
 } external;
 
 function nativeExitCode(Process process) returns int | Error = @java:Method {
     name: "exitCode",
-    class: "org.ballerinalang.stdlib.system.nativeimpl.ExitCode"
+    'class: "org.ballerinalang.stdlib.system.nativeimpl.ExitCode"
 } external;
 
 function nativeDestroy(Process process) = @java:Method {
     name: "destroy",
-    class: "org.ballerinalang.stdlib.system.nativeimpl.Destroy"
+    'class: "org.ballerinalang.stdlib.system.nativeimpl.Destroy"
 } external;
 
 function nativeStdin(Process process) returns io:WritableByteChannel = @java:Method {
     name: "stdin",
-    class: "org.ballerinalang.stdlib.system.nativeimpl.Stdin"
+    'class: "org.ballerinalang.stdlib.system.nativeimpl.Stdin"
 } external;
 
 function nativeStdout(Process process) returns io:ReadableByteChannel = @java:Method {
     name: "stdout",
-    class: "org.ballerinalang.stdlib.system.nativeimpl.Stdout"
+    'class: "org.ballerinalang.stdlib.system.nativeimpl.Stdout"
 } external;
 
 function nativeStderr(Process process) returns io:ReadableByteChannel = @java:Method {
     name: "stderr",
-    class: "org.ballerinalang.stdlib.system.nativeimpl.Stderr"
+    'class: "org.ballerinalang.stdlib.system.nativeimpl.Stderr"
 } external;

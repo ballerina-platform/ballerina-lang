@@ -40,4 +40,8 @@
     <Match>
         <Package name="org.ballerinalang.test.util.jvm"/>
     </Match>
+
+    <Match>
+        <Class name="org.ballerinalang.test.agent.server.WebServer"/>
+    </Match>
 </FindBugsFilter>

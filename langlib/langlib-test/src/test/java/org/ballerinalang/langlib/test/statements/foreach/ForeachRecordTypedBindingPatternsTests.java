@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -57,14 +57,14 @@ public class ForeachRecordTypedBindingPatternsTests {
     public void testRecordInRecordWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testRecordInRecordWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:2 1:B 2:i=1 s=A f=1.0 ");
+        Assert.assertEquals(returns[0].stringValue(), "0:2 1:B 2:{\"i\":1,\"s\":\"A\",\"f\":1.0} ");
     }
 
     @Test
     public void testRecordInRecordWithType() {
         BValue[] returns = BRunUtil.invoke(program, "testRecordInRecordWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:2 1:B 2:i=1 s=A f=1.0 ");
+        Assert.assertEquals(returns[0].stringValue(), "0:2 1:B 2:{\"i\":1,\"s\":\"A\",\"f\":1.0} ");
     }
 
     @Test

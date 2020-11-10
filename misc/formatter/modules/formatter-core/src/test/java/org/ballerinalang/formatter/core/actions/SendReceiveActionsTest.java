@@ -21,8 +21,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Test the formatting of send and receive actions.
@@ -40,11 +38,6 @@ public class SendReceiveActionsTest extends FormatterTest {
     @Override
     public Object[][] dataProvider() {
         return this.getConfigsList();
-    }
-
-    @Override
-    public List<String> skipList() {
-        return Collections.singletonList("send_receive_action_1.bal");
     }
 
     @Override

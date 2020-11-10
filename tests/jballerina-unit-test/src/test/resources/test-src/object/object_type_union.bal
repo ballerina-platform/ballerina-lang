@@ -14,40 +14,40 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Obj0 object {
+class Obj0 {
     int val;
     function init(int i, int j = 0) {
         self.val = 0;
     }
-};
+}
 
-type Obj2 object {
+class Obj2 {
     int val;
     function init() {
         self.val = 2;
     }
-};
+}
 
-type Obj3 object {
+class Obj3 {
     int val;
     function init(int j = 0) {
         self.val = 3;
     }
-};
+}
 
-type Obj4 object {
+class Obj4 {
     int val;
     function init(int i, int... restP) {
         self.val = 4;
     }
-};
+}
 
-type Obj5 object {
+class Obj5 {
     int val;
     function init(int i, string... restP) {
         self.val = 5;
     }
-};
+}
 
 Obj0 zero = new(5, j=0);
 Obj0|Obj2|Obj3|Obj4 obj0Instance = new(5, j=0);
@@ -74,21 +74,21 @@ function getMixedUnionMembers() returns (Obj0|Obj2|Obj3|Obj4|int) {
     return item;
 }
 
-type Person object {
+class Person {
     public int age = 0;
 
     function init (int age) {
         self.age = age;
     }
-};
+}
 
-type Employee object {
+class Employee {
     public int age = 0;
 
     function init (int age, int addVal) {
         self.age = age + addVal;
     }
-};
+}
 
 function returnDifferentObectInit1() returns Person | () {
     return new(5);
@@ -110,22 +110,22 @@ function selectOnRestParamInReturnType() returns Obj4|Obj5 {
     return new(0, "eka", "deka");
 }
 
-type Foo object {
+class Foo {
     Bar? bar = ();
 
     function test() {
         PersonRec p = {name: "John Doe"};
         self.bar = new(p);
     }
-};
+}
 
-type Bar object {
+class Bar {
     PersonRec|EmployeeRec p;
 
     function init(PersonRec|EmployeeRec p) {
         self.p = p;
     }
-};
+}
 
 type PersonRec record {|
     string name;

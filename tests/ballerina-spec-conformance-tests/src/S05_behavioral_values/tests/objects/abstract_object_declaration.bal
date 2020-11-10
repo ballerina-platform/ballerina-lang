@@ -54,7 +54,7 @@ const EXPECTED_ABSTRACT_OBJECT_FAILURE_MESSAGE = "expected referenced abstract o
 
 // If a non-abstract object type OT has a type reference to an abstract object type AT,
 // then each method declared in AT must be defined in OT using either a method-defn or an outside-method-defn.
-type AbstractObject abstract object {
+type AbstractObject object {
     public string publicStringField;
     float defaultVisibilityFloatField;
 

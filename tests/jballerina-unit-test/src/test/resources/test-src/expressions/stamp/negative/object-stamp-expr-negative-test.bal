@@ -14,47 +14,47 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type PersonObj object {
+class PersonObj {
     public int age = 10;
     public string name = "mohan";
 
     public int year = 2014;
     public string month = "february";
-};
+}
 
-type EmployeeObj object {
+class EmployeeObj {
     public int age = 10;
     public string name = "raj";
 
-};
+}
 
 type Employee record {
     string name;
     int age;
 };
 
-type EmployeeObject object {
+class EmployeeObject {
     string name = "Mohan";
     string status = "Single";
     string batch = "LK2014";
-};
+}
 
-type IntObject object{
+class IntObject {
     string firstName = "Mohan";
     string lastName = "Raj";
-};
+}
 
-type TeacherObj object {
+class TeacherObj {
     string name = "Mohan";
     int age = 30;
     string status = "Single";
     string batch = "LK2014";
     string school = "VNC";
-};
+}
 
-type BookObject object {
+class BookObject {
     string book = "XYZ";
-};
+}
 
 
 type ExtendedEmployee record {
@@ -64,11 +64,11 @@ type ExtendedEmployee record {
     Address address;
 };
 
-type Address object {
+class Address {
     public int no = 10;
     public string streetName = "Palm Grove";
     public string city = "colombo";
-};
+}
 
 type Teacher record {
     string name;

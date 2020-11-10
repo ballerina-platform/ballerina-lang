@@ -23,7 +23,7 @@ type Employee record {
     int id;
 };
 
-annotation testAnnot on function, object type;
+annotation testAnnot on function,type;
 
 function foo() {
 }

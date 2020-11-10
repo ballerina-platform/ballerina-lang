@@ -30,7 +30,7 @@ import ballerina/stringutils;
 # password="<password>"
 # scopes="<comma_separated_scopes>"
 # ```
-public type InboundBasicAuthProvider object {
+public class InboundBasicAuthProvider {
 
     *InboundAuthProvider;
 
@@ -88,7 +88,7 @@ public type InboundBasicAuthProvider object {
         }
         return authenticated;
     }
-};
+}
 
 # Represents the inbound Basic Authentication configurations.
 #

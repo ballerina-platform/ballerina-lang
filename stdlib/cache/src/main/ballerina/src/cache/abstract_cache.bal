@@ -16,7 +16,7 @@
 
 # The `cache:AbstractCache` object is used for custom implementations of the Ballerina cache.
 # Any custom cache implementation should be object-wise similar.
-public type AbstractCache abstract object {
+public type AbstractCache object {
 
     # Adds the given key value pair to the cache. If the cache previously contained a value associated with the key, the
     # old value is replaced by the new value.

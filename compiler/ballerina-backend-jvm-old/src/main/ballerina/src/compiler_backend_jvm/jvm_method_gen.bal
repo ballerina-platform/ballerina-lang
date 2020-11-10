@@ -150,7 +150,7 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitVarInsn(ISTORE, stateVarIndex);
 
     mv.visitVarInsn(ALOAD, localVarOffset);
-    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "resumeIndex", "I");
+    mv.visitFieldInsn(GETFIELD, "io/ballerina/runtime/scheduling/Strand", "resumeIndex", "I");
     jvm:Label resumeLable = labelGen.getLabel(funcName + "resume");
     mv.visitJumpInsn(IFGT, resumeLable);
 
@@ -193,7 +193,7 @@ function genJMethodForBFunc(bir:Function func,
     // mv.visitJumpInsn(IF_ICMPNE, l0);
     // mv.visitVarInsn(ALOAD, 0);
     // mv.visitInsn(ICONST_1);
-    // mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "yield", "Z");
+    // mv.visitFieldInsn(PUTFIELD, "io/ballerina/runtime/scheduling/Strand", "yield", "Z");
     // termGen.genReturnTerm({kind:"RETURN"}, returnVarRefIndex, func);
     // mv.visitLabel(l0);
 
@@ -207,14 +207,14 @@ function genJMethodForBFunc(bir:Function func,
     string frameName = getFrameClassName(currentPackageName, funcName, attachedType);
     mv.visitLabel(resumeLable);
     mv.visitVarInsn(ALOAD, localVarOffset);
-    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "frames", "[Ljava/lang/Object;");
+    mv.visitFieldInsn(GETFIELD, "io/ballerina/runtime/scheduling/Strand", "frames", "[Ljava/lang/Object;");
     mv.visitVarInsn(ALOAD, localVarOffset);
     mv.visitInsn(DUP);
-    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "resumeIndex", "I");
+    mv.visitFieldInsn(GETFIELD, "io/ballerina/runtime/scheduling/Strand", "resumeIndex", "I");
     mv.visitInsn(ICONST_1);
     mv.visitInsn(ISUB);
     mv.visitInsn(DUP_X1);
-    mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "resumeIndex", "I");
+    mv.visitFieldInsn(PUTFIELD, "io/ballerina/runtime/scheduling/Strand", "resumeIndex", "I");
     mv.visitInsn(AALOAD);
     mv.visitTypeInsn(CHECKCAST, frameName);
 
@@ -244,14 +244,14 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitVarInsn(ASTORE, frameVarIndex);
 
     mv.visitVarInsn(ALOAD, localVarOffset);
-    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "frames", "[Ljava/lang/Object;");
+    mv.visitFieldInsn(GETFIELD, "io/ballerina/runtime/scheduling/Strand", "frames", "[Ljava/lang/Object;");
     mv.visitVarInsn(ALOAD, localVarOffset);
     mv.visitInsn(DUP);
-    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "resumeIndex", "I");
+    mv.visitFieldInsn(GETFIELD, "io/ballerina/runtime/scheduling/Strand", "resumeIndex", "I");
     mv.visitInsn(DUP_X1);
     mv.visitInsn(ICONST_1);
     mv.visitInsn(IADD);
-    mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "resumeIndex", "I");
+    mv.visitFieldInsn(PUTFIELD, "io/ballerina/runtime/scheduling/Strand", "resumeIndex", "I");
     mv.visitVarInsn(ALOAD, frameVarIndex);
     mv.visitInsn(AASTORE);
 
@@ -1198,7 +1198,7 @@ function loadDefaultJValue(jvm:MethodVisitor mv, jvm:JType jType) {
 
 function getMethodDesc(bir:BType?[] paramTypes, bir:BType? retType, bir:BType? attachedType = (),
                         boolean isExtern = false, boolean useBString = false) returns string {
-    string desc = "(Lorg/ballerinalang/jvm/scheduling/Strand;";
+    string desc = "(Lio/ballerina/runtime/scheduling/Strand;";
 
     if (attachedType is bir:BType) {
         desc = desc + getArgTypeSignature(attachedType, useBString);
@@ -1217,7 +1217,7 @@ function getMethodDesc(bir:BType?[] paramTypes, bir:BType? retType, bir:BType? a
 }
 
 function getLambdaMethodDesc(bir:BType?[] paramTypes, bir:BType? retType, int closureMapsCount) returns string {
-    string desc = "(Lorg/ballerinalang/jvm/scheduling/Strand;";
+    string desc = "(Lio/ballerina/runtime/scheduling/Strand;";
     int j = 0;
     while (j < closureMapsCount) {
         j += 1;
@@ -2573,6 +2573,6 @@ function nameOfNonBStringFunc(string funcName) returns string {
 }
 
 function getProperty(handle propertyName) returns handle = @java:Method {
-    class: "java.lang.System",
+    'class: "java.lang.System",
     name: "getProperty"
 } external;

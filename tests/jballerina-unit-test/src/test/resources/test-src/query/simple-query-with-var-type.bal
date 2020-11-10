@@ -24,9 +24,9 @@ type Employee record {|
     int age;
 |};
 
-type NumberGenerator object {
+class NumberGenerator {
     int i = 0;
-    public function next() returns record {|int value;|}|error? {
+    public isolated function next() returns record {|int value;|}|error? {
         //closes the stream after 5 events
         if (self.i == 5) {
             return ();
@@ -34,7 +34,7 @@ type NumberGenerator object {
         self.i += 1;
         return {value: self.i};
     }
-};
+}
 
 type ResultValue record {|
     Person value;
@@ -263,7 +263,13 @@ public function testQueryWithStream() returns boolean {
     var oddNumberList = from var num in numberStream
                         where (num % 2 == 1)
                         select num;
-    return oddNumberList == [1, 3, 5];
+    int[] result = [];
+    record {| int value; |}|error? v = oddNumberList.next();
+    while (v is record {| int value; |}) {
+        result.push(v.value);
+        v = oddNumberList.next();
+    }
+    return result == [1, 3, 5];
 }
 
 function testSimpleSelectQueryReturnStream() returns boolean {

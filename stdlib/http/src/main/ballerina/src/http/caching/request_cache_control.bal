@@ -23,7 +23,7 @@
 # + maxAge - Sets the `max-age` directive
 # + maxStale - Sets the `max-stale` directive
 # + minFresh - Sets the `min-fresh` directive
-public type RequestCacheControl object {
+public class RequestCacheControl {
 
     public boolean noCache = false;
     public boolean noStore = false;
@@ -80,7 +80,7 @@ public type RequestCacheControl object {
 
         return buildCommaSeparatedString(directives);
     }
-};
+}
 
 function setRequestCacheControlHeader(Request request) {
     var requestCacheControl = request.cacheControl;

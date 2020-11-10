@@ -16,6 +16,7 @@
 package org.ballerinalang.datamapper;
 
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.datamapper.config.LSClientExtendedConfig;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -99,7 +100,7 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
      */
     @Override
     public boolean isEnabled() {
-        return LSClientConfigHolder.getInstance().getConfig().getDataMapper().isEnabled();
+        return LSClientConfigHolder.getInstance().getConfigAs(LSClientExtendedConfig.class).getDataMapper().isEnabled();
     }
 
     /**

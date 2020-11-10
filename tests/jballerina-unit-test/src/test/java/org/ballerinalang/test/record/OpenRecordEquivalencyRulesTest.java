@@ -18,11 +18,11 @@
 
 package org.ballerinalang.test.record;
 
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -103,7 +103,7 @@ public class OpenRecordEquivalencyRulesTest {
 
     @Test(description = "RHS closed and LHS open with RHS optional fields corresponding to LHS optional fields",
           expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*KeyNotFound message=cannot find key 'age'.*")
+          expectedExceptionsMessageRegExp = ".*KeyNotFound \\{\"message\":\"cannot find key 'age'.*")
     public void testCRToOROptFieldToOptField2() {
         BRunUtil.invoke(closedRecToOpenRec, "testOptFieldToOptField2");
     }
@@ -142,7 +142,7 @@ public class OpenRecordEquivalencyRulesTest {
 
     @Test(description = "RHS and LHS both open with RHS optional fields corresponding to LHS optional fields",
           expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*KeyNotFound message=cannot find key 'age'.*")
+          expectedExceptionsMessageRegExp = ".*KeyNotFound \\{\"message\":\"cannot find key 'age'.*")
     public void testORToOROptFieldToOptField2() {
         BRunUtil.invoke(openRecToOpenRec, "testOptFieldToOptField2");
     }

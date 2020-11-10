@@ -25,7 +25,7 @@ function typeDescOfARecord() returns typedesc<any> {
     return td0;
 }
 
-type Obj0 object {
+class Obj0 {
     string a;
     int b;
 
@@ -33,7 +33,7 @@ type Obj0 object {
         self.a = a;
         self.b = b;
     }
-};
+}
 
 function typeDescOrAObject() returns typedesc<any> {
     Obj0 o = new("name", 42);

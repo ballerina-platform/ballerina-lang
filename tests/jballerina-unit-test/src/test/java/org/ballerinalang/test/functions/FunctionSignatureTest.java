@@ -17,15 +17,15 @@
 */
 package org.ballerinalang.test.functions;
 
-import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.TupleValueImpl;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.types.BTupleType;
+import io.ballerina.runtime.values.ArrayValue;
+import io.ballerina.runtime.values.TupleValueImpl;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -433,10 +433,11 @@ public class FunctionSignatureTest {
     }
 
     public static ArrayValue mockedNativeFuncWithOptionalParams(long a, double b,
-                                                                org.ballerinalang.jvm.values.api.BString c, long d,
-                                                                org.ballerinalang.jvm.values.api.BString e) {
+                                                                io.ballerina.runtime.api.values.BString c, long d,
+                                                                io.ballerina.runtime.api.values.BString e) {
         BTupleType tupleType = new BTupleType(
-                Arrays.asList(BTypes.typeInt, BTypes.typeFloat, BTypes.typeString, BTypes.typeInt, BTypes.typeString));
+                Arrays.asList(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_FLOAT, PredefinedTypes.TYPE_STRING,
+                              PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING));
         ArrayValue tuple = new TupleValueImpl(tupleType);
         tuple.add(0, Long.valueOf(a));
         tuple.add(1, Double.valueOf(b));

@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.tree.statements;
 
+import org.ballerinalang.model.clauses.OnFailClauseNode;
+
 /**
  * lock {.
  *     body.
@@ -29,4 +31,8 @@ public interface LockNode extends StatementNode {
     BlockStatementNode getBody();
 
     void setBody(BlockStatementNode body);
+
+    OnFailClauseNode getOnFailClause();
+
+    void setOnFailClause(OnFailClauseNode onFailClause);
 }

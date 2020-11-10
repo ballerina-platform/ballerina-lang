@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type ManagingDirector object {
+public class ManagingDirector {
     *Person1;
     *Employee3;
 
@@ -34,4 +34,4 @@ public type ManagingDirector object {
     public function getName(string greeting = "Hello Director,") returns string {
         return greeting + " " + self.name;
     }
-};
+}

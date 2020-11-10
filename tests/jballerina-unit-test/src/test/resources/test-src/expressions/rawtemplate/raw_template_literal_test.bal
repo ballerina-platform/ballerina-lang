@@ -51,7 +51,7 @@ function testLiteralWithNoStrings() {
     assert("World", <string>rt.insertions[2]);
 }
 
-type Person object {
+class Person {
     string name;
     int age;
 
@@ -63,7 +63,7 @@ type Person object {
     function toString() returns string {
         return string `name: ${self.name}, age: ${self.age}`;
     }
-};
+}
 
 function testComplexExpressions() {
     int x = 10;
@@ -86,7 +86,7 @@ function testComplexExpressions() {
     assert("name: John Doe, age: 20", rt3.insertions[0].toString());
 }
 
-type Template1 abstract object {
+type Template1 object {
     public (readonly & string[]) strings;
     public int[] insertions;
 };
@@ -100,7 +100,7 @@ function testSubtyping1() {
     assert(<int[]>[10, 20, 30], t.insertions);
 }
 
-type Template2 abstract object {
+type Template2 object {
     public (readonly & string[]) strings;
     public [int, string, float] insertions;
 };
@@ -116,7 +116,7 @@ function testSubtyping2() {
     assert(s, t.insertions[1]);
     assert(f, t.insertions[2]);
 
-    abstract object {
+    object {
         public (readonly & string[]) strings;
         public [int, string, anydata...] insertions;
     } temp2 = `Using tuples 2: ${x}, ${s}, ${f}`;
@@ -126,7 +126,7 @@ function testSubtyping2() {
     assert(s, temp2.insertions[1]);
     assert(f, temp2.insertions[2]);
 
-    abstract object {
+    object {
         public (readonly & string[]) strings;
         public [anydata...] insertions;
     } temp3 = `Using tuples 3: ${x}, ${s}, ${f}`;
@@ -145,7 +145,7 @@ type FooBar FOO|BAR;
 function testSubtyping3() {
     int x = 10;
 
-    abstract object {
+    object {
         public (readonly & FooBar[]) strings;
         public int[] insertions;
     } temp1 = `Foo${x}Bar`;
@@ -161,19 +161,19 @@ function testUsageWithQueryExpressions() {
         select `INSERT INTO product ('id', 'name', 'price') VALUES (${x}, ${x + 10}, ${x + 20})`;
 
     foreach var x in queries {
-        assert("INSERT INTO product ('id', 'name', 'price') VALUES ( ,  ,  )", x.strings.toString());
+        assert("[\"INSERT INTO product ('id', 'name', 'price') VALUES (\",\", \",\", \",\")\"]", x.strings.toString());
     }
 
     int i = 0;
     foreach var x in queries {
-        assert(string `${arr[i]} ${arr[i] + 10} ${arr[i] + 20}`, x.insertions.toString());
+        assert(string `[${arr[i]},${arr[i] + 10},${arr[i] + 20}]`, x.insertions.toString());
         i += 1;
     }
 }
 
 public type Value ()|int|float|decimal|string|xml;
 
-public type ParameterizedQuery abstract object {
+public type ParameterizedQuery object {
     public (readonly & string[]) strings;
     public Value[] insertions;
 };
@@ -188,12 +188,12 @@ function testUsageWithQueryExpressions2() {
     ParameterizedQuery[] queries = from var rec in data select `INSERT INTO People (name) values (${rec.name});`;
 
     foreach var x in queries {
-        assert("INSERT INTO People (name) values ( );", x.strings.toString());
+        assert("[\"INSERT INTO People (name) values (\",\");\"]", x.strings.toString());
     }
 
     int i = 0;
     foreach var x in queries {
-        assert(data[i]["name"], x.insertions.toString());
+        assert("[\"" + data[i]["name"]+ "\"]", x.insertions.toString());
         i += 1;
     }
 }
@@ -203,7 +203,7 @@ function testUseWithVar() {
     var rt = `Hello ${name}!`;
     typedesc<any> td = typeof rt;
 
-    assert("typedesc $rawTemplate$RawTemplate$12", td.toString());
+    assert("typedesc $rawTemplate$RawTemplate$_12", td.toString());
 }
 
 function testUseWithAny() {
@@ -211,10 +211,10 @@ function testUseWithAny() {
     any rt = `Hello ${name}!`;
     typedesc<any> td = typeof rt;
 
-    assert("typedesc $rawTemplate$RawTemplate$13", td.toString());
+    assert("typedesc $rawTemplate$RawTemplate$_13", td.toString());
 }
 
-public type Template3 abstract object {
+public type Template3 object {
     public (string[2] & readonly) strings;
     public int[1] insertions;
 };
@@ -230,8 +230,8 @@ function testIndirectAssignmentToConcreteType() {
     Template1 rt = `Count: ${10}, ${20}`;
 
     object {
-        public string[] strings = [];
-        public anydata[] insertions = [];
+        public string[] strings;
+        public anydata[] insertions;
     } rt2 = rt;
 
     rt2.insertions.push(30);
@@ -245,10 +245,10 @@ function testIndirectAssignmentToConcreteType() {
     assert("incompatible types: expected 'int', found 'float'", <string>err.detail().get("message"));
 }
 
-type CompatibleObj object {
+class CompatibleObj {
    public string[] strings = [];
    public anydata[] insertions = [];
-};
+}
 
 function testModifyStringsField() {
     Template1 rt = `Count: ${10}, ${20}`;

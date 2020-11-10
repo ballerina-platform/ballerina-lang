@@ -18,6 +18,7 @@ package org.ballerinalang.docgen.generator.model;
 import com.google.gson.annotations.Expose;
 import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.model.elements.Flag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -216,12 +217,13 @@ public class Type {
         // If anonymous type substitute the name
         if (typeModel.name != null && typeModel.name.contains("$anonType$")) {
             // if anonymous empty record
-            if (type.type instanceof BRecordType && ((BRecordType) type.type).fields.isEmpty()) {
-                    typeModel.name = type.type.toString();
-                    typeModel.generateUserDefinedTypeLink = false;
+            if (type.type instanceof BRecordType && ((BRecordType) type.type).fields.isEmpty() &&
+                    type.type.isAnydata()) {
+                typeModel.name = "record {}";
             } else {
-                typeModel.name = "T" + typeModel.name.substring(typeModel.name.lastIndexOf('$') + 1);
+                typeModel.name = type.type.toString();
             }
+            typeModel.generateUserDefinedTypeLink = false;
         }
         return typeModel;
     }
@@ -233,8 +235,10 @@ public class Type {
                 this.category = "clients";
             } else if (objSymbol.getFlags().contains(Flag.LISTENER) || isListenerObject(objSymbol)) {
                 this.category = "listeners";
+            } else if (objSymbol instanceof BClassSymbol) {
+                this.category = "classes";
             } else {
-                this.category = "objects";
+                this.category = "abstractobjects";
             }
         } else {
             switch (type.tag) {
@@ -289,7 +293,7 @@ public class Type {
     }
 
     /**
-     * Check whether the symbol is a listener object.
+     * Check whether the symbol is a listener bClass.
      *
      * @param bSymbol Symbol to evaluate
      * @return {@link Boolean}  whether listener or not

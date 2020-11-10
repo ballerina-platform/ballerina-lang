@@ -22,7 +22,6 @@ import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.AttachingConnector;
 import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
-import com.sun.tools.jdi.SocketAttachingConnector;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.EvaluatorBuilder;
@@ -39,6 +38,9 @@ import java.util.Map;
 public class DebugExecutionManager {
 
     private VirtualMachine attachedVm;
+    private static final String SOCKET_CONNECTOR_NAME = "com.sun.jdi.SocketAttach";
+    private static final String CONNECTOR_ARGS_HOST = "hostname";
+    private static final String CONNECTOR_ARGS_PORT = "port";
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugExecutionManager.class);
 
     public DebugExecutionManager() {
@@ -63,16 +65,19 @@ public class DebugExecutionManager {
         if (port == null || port.isEmpty()) {
             throw new IllegalConnectorArgumentsException("Port is not defined.", "port");
         }
-        AttachingConnector ac = Bootstrap.virtualMachineManager().attachingConnectors().stream()
-                .filter(c -> c instanceof SocketAttachingConnector).findFirst().orElseThrow(() ->
-                        new RuntimeException("Unable to locate SocketAttachingConnector"));
-        Map<String, Connector.Argument> connectorArgs = ac.defaultArguments();
+
+        AttachingConnector socketAttachingConnector = Bootstrap.virtualMachineManager().attachingConnectors().stream()
+                .filter(ac -> ac.name().equals(SOCKET_CONNECTOR_NAME))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Unable to locate SocketAttachingConnector"));
+
+        Map<String, Connector.Argument> connectorArgs = socketAttachingConnector.defaultArguments();
         if (!hostName.isEmpty()) {
-            connectorArgs.get("hostname").setValue(hostName);
+            connectorArgs.get(CONNECTOR_ARGS_HOST).setValue(hostName);
         }
-        connectorArgs.get("port").setValue(port);
+        connectorArgs.get(CONNECTOR_ARGS_PORT).setValue(port);
         LOGGER.info(String.format("Debugger is attaching to: %s:%s", hostName, port));
-        attachedVm = ac.attach(connectorArgs);
+        attachedVm = socketAttachingConnector.attach(connectorArgs);
         return attachedVm;
     }
 

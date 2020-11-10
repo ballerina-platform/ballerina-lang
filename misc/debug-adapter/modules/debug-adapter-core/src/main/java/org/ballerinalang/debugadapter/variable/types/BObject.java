@@ -32,6 +32,8 @@ import java.util.Map;
  */
 public class BObject extends BCompoundVariable {
 
+    private static final String OBJECT_FIELD_PATTERN_IDENTIFIER = "$value$";
+
     public BObject(SuspendedContext context, String name, Value value) {
         super(context, name, BVariableType.OBJECT, value);
     }
@@ -50,10 +52,8 @@ public class BObject extends BCompoundVariable {
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
             Map<String, Value> values = new HashMap<>();
-            // Uses ballerina object type name to filter object fields from the jvm reference.
-            String balObjectFiledIdentifier = this.computeValue() + ".";
             fieldValueMap.forEach((field, value) -> {
-                if (field.toString().contains(balObjectFiledIdentifier)) {
+                if (field.toString().contains(OBJECT_FIELD_PATTERN_IDENTIFIER)) {
                     values.put(field.name(), value);
                 }
             });

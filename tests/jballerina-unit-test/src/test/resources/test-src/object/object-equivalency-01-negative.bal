@@ -1,12 +1,12 @@
-public type person01 object {
+public class person01 {
 
     public int age = 0;
     public string name = "";
     public string address = "";
 
-};
+}
 
-public type employee01 object {
+public class employee01 {
 
     public int age = 0;
     public string name = "";
@@ -16,7 +16,7 @@ public type employee01 object {
         self.age = age;
         self.name = name;
     }
-};
+}
 
 // Field name mismatch
 function testEqOfObjectsInSamePackage01() returns (string) {
@@ -25,15 +25,15 @@ function testEqOfObjectsInSamePackage01() returns (string) {
     return p.name;
 }
 
-public type person02 object {
+public class person02 {
 
     public int age = 0;
     public string name = "";
     public string address = "";
 
-};
+}
 
-public type employee02 object {
+public class employee02 {
 
     public int age = 0;
     public string name = "";
@@ -43,7 +43,7 @@ public type employee02 object {
         self.age = age;
         self.name = name;
     }
-};
+}
 
 // Type name mismatch
 function testEqOfObjectsInSamePackage02() returns (string) {
@@ -52,15 +52,15 @@ function testEqOfObjectsInSamePackage02() returns (string) {
     return p.name;
 }
 
-public type person03 object {
+public class person03 {
 
     public int age = 0;
     public string name = "";
     public string address = "";
 
-};
+}
 
-public type employee03 object {
+public class employee03 {
 
     public int age = 0;
     public string name = "";
@@ -69,7 +69,7 @@ public type employee03 object {
         self.age = age;
         self.name = name;
     }
-};
+}
 
 // Field count mismatch
 function testEqOfObjectsInSamePackage03() returns (string) {
@@ -78,15 +78,15 @@ function testEqOfObjectsInSamePackage03() returns (string) {
     return p.name;
 }
 
-public type person04 object {
+public class person04 {
 
     public int age = 0;
     public string name = "";
     public string address = "";
 
-};
+}
 
-public type employee04 object {
+public class employee04 {
 
     public int age = 0;
     public string name = "";
@@ -100,7 +100,7 @@ public type employee04 object {
         self.age = age;
         self.name = name;
     }
-};
+}
 
 // Private fields in RHS object name mismatch
 function testEqOfObjectsInSamePackage04() returns (string) {
@@ -110,7 +110,7 @@ function testEqOfObjectsInSamePackage04() returns (string) {
 }
 
 
-public type person05 object {
+public class person05 {
 
     public int age = 0;
     public string name = "";
@@ -123,9 +123,9 @@ public type person05 object {
         self.age = age;
         self.name = name;
     }
-};
+}
 
-public type employee05 object {
+public class employee05 {
 
     public int age = 0;
     public string name = "";
@@ -137,7 +137,7 @@ public type employee05 object {
         self.age = age;
         self.name = name;
     }
-};
+}
 
 // Private fields in LHS object name mismatch
 function testEqOfObjectsInSamePackage05() returns (string) {
@@ -146,16 +146,16 @@ function testEqOfObjectsInSamePackage05() returns (string) {
     return p.name;
 }
 
-type person06 object {
+class person06 {
 
     public int age = 0;
     public string name = "";
     public int address = 0;
     public string id = "";
 
-};
+}
 
-type employee06 object {
+class employee06 {
 
     public int age = 0;
     public string name = "";
@@ -167,7 +167,7 @@ type employee06 object {
         self.age = age;
         self.name = name;
     }
-};
+}
 
 // Private Objects type mismatch
 function testEqOfObjectsInSamePackage06() returns (string) {
@@ -177,7 +177,7 @@ function testEqOfObjectsInSamePackage06() returns (string) {
 }
 
 
-public type person07 object {
+public class person07 {
 
     public int age = 0;
     public string name = "";
@@ -196,9 +196,9 @@ public type person07 object {
     public function setSSN(string s) {
         self.ssn = s;
     }
-};
+}
 
-public type employee07 object {
+public class employee07 {
 
     public int age = 0;
     public string name = "";
@@ -219,7 +219,7 @@ public type employee07 object {
     public function getAge() returns int {
         return self.age;
     }
-};
+}
 
 // Public Objects attached function count mismatch
 function testEqOfObjectsInSamePackage07() returns (string) {
@@ -229,7 +229,7 @@ function testEqOfObjectsInSamePackage07() returns (string) {
 }
 
 
-public type person08 object {
+public class person08 {
 
     public int age = 0;
     public string name = "";
@@ -249,9 +249,9 @@ public type person08 object {
     public function setSSN(string s) {
         self.ssn = s;
     }
-};
+}
 
-public type employee08 object {
+public class employee08 {
 
     public int age = 0;
     public string name = "";
@@ -276,7 +276,7 @@ public type employee08 object {
     public function getSSN() returns string {
         return self.ssn;
     }
-};
+}
 
 // Public Objects attached function visibility mismatch
 function testEqOfObjectsInSamePackage08() returns (string) {
@@ -286,7 +286,7 @@ function testEqOfObjectsInSamePackage08() returns (string) {
 }
 
 
-public type person09 object {
+public class person09 {
 
     public int age = 0;
     public string name = "";
@@ -306,9 +306,9 @@ public type person09 object {
     public function setSSN(string s) {
         self.ssn = s;
     }
-};
+}
 
-public type employee09 object {
+public class employee09 {
 
     public int age = 0;
     public string name = "";
@@ -333,7 +333,7 @@ public type employee09 object {
     public function getSSN() returns string {
         return self.ssn;
     }
-};
+}
 
 // Public Objects attached function signature mismatch
 function testEqOfObjectsInSamePackage09() returns (string) {
@@ -343,7 +343,7 @@ function testEqOfObjectsInSamePackage09() returns (string) {
 }
 
 
-public type PersonInOrder object {
+public class PersonInOrder {
     public int age = 0;
     public string name = "";
     public string address = "";
@@ -364,9 +364,9 @@ public type PersonInOrder object {
     public function getAddress() returns (string) {
         return self.address;
     }
-};
+}
 
-public type PersonNotInOrder object {
+public class PersonNotInOrder {
 
     public function getName() returns (string) {
         return self.name;
@@ -391,7 +391,7 @@ public type PersonNotInOrder object {
     }
 
     public string address = "";
-};
+}
 
 function testObjectMemberOrder() returns [PersonInOrder, PersonNotInOrder] {
     PersonInOrder p1 = new("John", 35);
@@ -403,7 +403,7 @@ function testObjectMemberOrder() returns [PersonInOrder, PersonNotInOrder] {
     return [p4, p2];
 }
 
-type ObjWithOnlyRemoteMethod client object {
+client class ObjWithOnlyRemoteMethod {
     public string name;
     public string id = "";
 
@@ -414,9 +414,9 @@ type ObjWithOnlyRemoteMethod client object {
     }
     public remote function receive(string message) {
     }
-};
+}
 
-type ObjWithRemoteMethod client object {
+client class ObjWithRemoteMethod {
     public string name;
     public string id = "";
 
@@ -427,9 +427,9 @@ type ObjWithRemoteMethod client object {
     }
     public function receive(string message) {
     }
-};
+}
 
-type NonClientObj object {
+class NonClientObj {
     public string name;
     public string id = "";
 
@@ -440,9 +440,9 @@ type NonClientObj object {
     }
     public function receive(string message) {
     }
-};
+}
 
-type ClientObjWithoutRemoteMethod client object {
+client class ClientObjWithoutRemoteMethod {
     public string name;
     public string id = "";
 
@@ -453,7 +453,7 @@ type ClientObjWithoutRemoteMethod client object {
     }
     public function receive(string message) {
     }
-};
+}
 
 function testAssignabilityOfObjectsWithAndWithoutRemoteMethods1() {
     NonClientObj e = new ("email-1");

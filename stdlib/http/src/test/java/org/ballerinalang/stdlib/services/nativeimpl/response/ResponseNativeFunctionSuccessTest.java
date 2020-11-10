@@ -17,17 +17,15 @@
  */
 package org.ballerinalang.stdlib.services.nativeimpl.response;
 
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.XMLSequence;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.apache.axiom.om.OMNode;
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.util.JsonParser;
-import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -80,9 +78,9 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testContentType() {
-        ObjectValue response = createResponseObject();
+        BObject response = createResponseObject();
         BValue[] returnVals = BRunUtil.invoke(result, "testContentType", new Object[]{response,
-                org.ballerinalang.jvm.StringUtils.fromString("application/x-custom-type+json")});
+                BStringUtils.fromString("application/x-custom-type+json")});
         Assert.assertNotNull(returnVals[0]);
         Assert.assertEquals(((BString) returnVals[0]).value(), "application/x-custom-type+json");
     }
@@ -90,12 +88,12 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testAddHeader() {
-        ObjectValue outResponse = createResponseObject();
+        BObject outResponse = createResponseObject();
         String headerName = "header1";
         String headerValue = "abc, xyz";
         BValue[] returnVals = BRunUtil.invoke(result, "testAddHeader", new Object[]{outResponse,
-                org.ballerinalang.jvm.StringUtils.fromString(headerName),
-                org.ballerinalang.jvm.StringUtils.fromString(headerValue)});
+                BStringUtils.fromString(headerName),
+                BStringUtils.fromString(headerValue)});
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         HttpHeaders returnHeaders = (HttpHeaders) ((BMap) returnVals[0]).getNativeData(HTTP_HEADERS);
@@ -118,8 +116,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testGetBinaryPayloadMethod() {
-        ObjectValue inResponse = createResponseObject();
-        ObjectValue entity = createEntityObject();
+        BObject inResponse = createResponseObject();
+        BObject entity = createEntityObject();
 
         String payload = "ballerina";
         enrichTestEntity(entity, OCTET_STREAM, payload);
@@ -133,8 +131,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testGetBinaryPayloadNonBlocking() {
-        ObjectValue inResponse = createResponseObject();
-        ObjectValue entity = createEntityObject();
+        BObject inResponse = createResponseObject();
+        BObject entity = createEntityObject();
 
         String payload = "ballerina";
         enrichEntityWithDefaultMsg(entity, payload);
@@ -149,7 +147,7 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testGetContentLength() {
-        ObjectValue inResponse = createResponseObject();
+        BObject inResponse = createResponseObject();
         HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
 
         String payload = "ballerina";
@@ -157,7 +155,7 @@ public class ResponseNativeFunctionSuccessTest {
         inResponseMsg.setHttpStatusCode(200);
         HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
 
-        ObjectValue entity = createEntityObject();
+        BObject entity = createEntityObject();
         HttpUtil.populateInboundResponse(inResponse, entity, inResponseMsg);
 
         BValue[] returnVals = BRunUtil.invoke(result, "testGetContentLength", new Object[]{ inResponse });
@@ -167,17 +165,17 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testGetHeader() {
-        ObjectValue inResponse = createResponseObject();
+        BObject inResponse = createResponseObject();
         HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         inResponseMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         inResponseMsg.setHttpStatusCode(200);
         HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
 
-        ObjectValue entity = createEntityObject();
+        BObject entity = createEntityObject();
         HttpUtil.populateInboundResponse(inResponse, entity, inResponseMsg);
 
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", new Object[]{inResponse,
-                org.ballerinalang.jvm.StringUtils.fromString(HttpHeaderNames.CONTENT_TYPE.toString())});
+                BStringUtils.fromString(HttpHeaderNames.CONTENT_TYPE.toString())});
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), APPLICATION_FORM);
     }
@@ -197,18 +195,18 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test(description = "Test GetHeaders function within a function")
     public void testGetHeaders() {
-        ObjectValue inResponse = createResponseObject();
+        BObject inResponse = createResponseObject();
         HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpHeaders headers = inResponseMsg.getHeaders();
         headers.set("test-header", APPLICATION_FORM);
         headers.add("test-header", TEXT_PLAIN);
 
         inResponseMsg.setHttpStatusCode(200);
-        ObjectValue entity = createEntityObject();
+        BObject entity = createEntityObject();
         HttpUtil.populateInboundResponse(inResponse, entity, inResponseMsg);
 
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeaders", new Object[]{inResponse,
-                org.ballerinalang.jvm.StringUtils.fromString("test-header")});
+                BStringUtils.fromString("test-header")});
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertEquals(((BValueArray) returnVals[0]).getString(0), APPLICATION_FORM);
         Assert.assertEquals(((BValueArray) returnVals[0]).getString(1), TEXT_PLAIN);
@@ -216,8 +214,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testGetJsonPayload() {
-        ObjectValue inResponse = createResponseObject();
-        ObjectValue entity = createEntityObject();
+        BObject inResponse = createResponseObject();
+        BObject entity = createEntityObject();
 
         String payload = "{'code':'123'}";
         enrichTestEntity(entity, APPLICATION_JSON, payload);
@@ -233,8 +231,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testGetJsonPayloadNonBlocking() {
-        ObjectValue inResponse = createResponseObject();
-        ObjectValue entity = createEntityObject();
+        BObject inResponse = createResponseObject();
+        BObject entity = createEntityObject();
 
         String payload = "{'code':'123'}";
         enrichEntityWithDefaultMsg(entity, payload);
@@ -263,8 +261,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testGetTextPayload() {
-        ObjectValue inResponse = createResponseObject();
-        ObjectValue entity = createEntityObject();
+        BObject inResponse = createResponseObject();
+        BObject entity = createEntityObject();
 
         String payload = "ballerina";
         enrichTestEntity(entity, TEXT_PLAIN, payload);
@@ -277,8 +275,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testGetTextPayloadNonBlocking() {
-        ObjectValue inResponse = createResponseObject();
-        ObjectValue entity = createEntityObject();
+        BObject inResponse = createResponseObject();
+        BObject entity = createEntityObject();
 
         String payload = "ballerina";
         enrichEntityWithDefaultMsg(entity, payload);
@@ -300,13 +298,14 @@ public class ResponseNativeFunctionSuccessTest {
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(
-                StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), value);
+                org.ballerinalang.model.util.StringUtils
+                        .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), value);
     }
 
     @Test
     public void testGetXmlPayload() {
-        ObjectValue inResponse = createResponseObject();
-        ObjectValue entity = createEntityObject();
+        BObject inResponse = createResponseObject();
+        BObject entity = createEntityObject();
 
         String payload = "<name>ballerina</name>";
         enrichTestEntity(entity, APPLICATION_XML, payload);
@@ -319,8 +318,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testGetXmlPayloadNonBlocking() {
-        ObjectValue inResponse = createResponseObject();
-        ObjectValue entity = createEntityObject();
+        BObject inResponse = createResponseObject();
+        BObject entity = createEntityObject();
 
         String payload = "<name>ballerina</name>";
         enrichEntityWithDefaultMsg(entity, payload);
@@ -343,7 +342,8 @@ public class ResponseNativeFunctionSuccessTest {
 
         Assert.assertNotNull(response, "Response message not found");
         String returnvalue =
-                StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+                org.ballerinalang.model.util.StringUtils
+                        .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(returnvalue, value);
     }
 
@@ -357,8 +357,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test(description = "Test getTextPayload method with JSON payload")
     public void testGetTextPayloadMethodWithJsonPayload() {
-        ObjectValue inResponse = createResponseObject();
-        ObjectValue entity = createEntityObject();
+        BObject inResponse = createResponseObject();
+        BObject entity = createEntityObject();
 
         String payload = "{\"code\":\"123\"}";
         enrichTestEntity(entity, APPLICATION_JSON, payload);
@@ -372,8 +372,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test(description = "Test getTextPayload method with Xml payload")
     public void testGetTextPayloadMethodWithXmlPayload() {
-        ObjectValue inResponse = createResponseObject();
-        ObjectValue entity = createEntityObject();
+        BObject inResponse = createResponseObject();
+        BObject entity = createEntityObject();
 
         String payload = "<name>ballerina</name>";
         enrichTestEntity(entity, APPLICATION_XML, payload);
@@ -389,10 +389,10 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testRemoveHeader() {
-        ObjectValue outResponse = createResponseObject();
+        BObject outResponse = createResponseObject();
         String expect = "Expect";
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveHeader", new Object[]{outResponse,
-                org.ballerinalang.jvm.StringUtils.fromString(expect)});
+                BStringUtils.fromString(expect)});
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         HttpHeaders returnHeaders = (HttpHeaders) ((BMap) returnVals[0]).getNativeData(HTTP_HEADERS);
@@ -415,7 +415,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testRemoveAllHeaders() {
-        ObjectValue outResponse = createResponseObject();
+        BObject outResponse = createResponseObject();
         String expect = "Expect";
         String range = "Range";
 
@@ -482,7 +482,7 @@ public class ResponseNativeFunctionSuccessTest {
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD.getValue());
         Object bJson = TestEntityUtils.getMessageDataSource(entity);
         Assert.assertEquals(
-                ((MapValueImpl<BString, Object>) bJson).get(org.ballerinalang.jvm.StringUtils.fromString("name"))
+                ((BMap<BString, Object>) bJson).get(BStringUtils.fromString("name"))
                         .toString(), "wso2", "Payload is not set properly");
     }
 
@@ -533,8 +533,8 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entity =
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD.getValue());
-        Object xmlValue = TestEntityUtils.getMessageDataSource(entity);
-        Assert.assertEquals(((XMLValue) xmlValue).getTextValue(), "Ballerina", "Payload is not set properly");
+        Object BXML = TestEntityUtils.getMessageDataSource(entity);
+        Assert.assertEquals(((BXML) BXML).getTextValue(), "Ballerina", "Payload is not set properly");
     }
 
     @Test
@@ -548,7 +548,7 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testAddCookie() {
-        ObjectValue outResponse = createResponseObject();
+        BObject outResponse = createResponseObject();
         String headerName = "Set-Cookie";
         String headerValue =
                 "SID3=31d4d96e407aad42; Domain=google.com; Path=/sample; Expires=Mon, 26 Jun 2017 05:46:22 GMT; " +
@@ -563,7 +563,7 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testRemoveCookiesFromRemoteStore() {
-        ObjectValue outResponse = createResponseObject();
+        BObject outResponse = createResponseObject();
         String headerName = "Set-Cookie";
         String headerValue = "SID3=31d4d96e407aad42; Expires=Sat, 12 Mar 1994 08:12:22 GMT";
         BValue[] returnValue = BRunUtil.invoke(result, "testRemoveCookiesFromRemoteStore",
@@ -576,12 +576,12 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testGetCookies() {
-        ObjectValue inResponse = createResponseObject();
+        BObject inResponse = createResponseObject();
         HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         inResponseMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         inResponseMsg.setHttpStatusCode(200);
         HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
-        ObjectValue entity = createEntityObject();
+        BObject entity = createEntityObject();
         HttpUtil.populateInboundResponse(inResponse, entity, inResponseMsg);
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookies", new Object[]{inResponse});
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "No cookie objects in the Return Values");

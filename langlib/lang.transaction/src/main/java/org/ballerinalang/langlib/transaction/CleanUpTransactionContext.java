@@ -18,33 +18,20 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.transactions.TransactionLocalContext;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.transactions.TransactionLocalContext;
 
 /**
  * Extern function transaction:cleanupTransactionContext.
  *
  * @since 2.0.0-preview1
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.transaction", version = TRANSACTION_VERSION,
-        functionName = "cleanupTransactionContext",
-        args = {
-                @Argument(name = "transactionBlockId", type = TypeKind.STRING)
-        },
-        returnType = {@ReturnType(type = TypeKind.NIL)},
-        isPublic = true
-)
 public class CleanUpTransactionContext {
 
-    public static void cleanupTransactionContext(Strand strand, BString transactionBlockId) {
+    public static void cleanupTransactionContext(BString transactionBlockId) {
+        Strand strand = Scheduler.getStrand();
         TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
         transactionLocalContext.removeTransactionInfo();
         strand.removeCurrentTrxContext();

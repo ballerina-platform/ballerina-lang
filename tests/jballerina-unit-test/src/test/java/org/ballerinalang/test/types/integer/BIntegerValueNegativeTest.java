@@ -32,7 +32,7 @@ public class BIntegerValueNegativeTest {
     @Test
     public void testIntegerValue() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/integer/integer-value-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 8);
+        Assert.assertEquals(compileResult.getErrorCount(), 9);
 
         int index = 0;
         String expectedError = "Hexadecimal '0xFFFFFFFFFFFFFFFF' too large";
@@ -58,5 +58,8 @@ public class BIntegerValueNegativeTest {
 
         expectedError = "missing semicolon token";
         BAssertUtil.validateError(compileResult, index++, expectedError, 18, 1);
+
+        expectedError = "invalid qualifier 'public'";
+        BAssertUtil.validateError(compileResult, index++, expectedError, 21, 8);
     }
 }

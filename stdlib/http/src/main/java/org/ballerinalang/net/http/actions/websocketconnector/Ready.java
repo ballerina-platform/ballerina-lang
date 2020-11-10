@@ -18,8 +18,8 @@
 
 package org.ballerinalang.net.http.actions.websocketconnector;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.scheduling.Scheduler;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityConstants;
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 public class Ready {
     private static final Logger log = LoggerFactory.getLogger(Ready.class);
 
-    public static Object ready(ObjectValue wsConnector) {
+    public static Object ready(BObject wsConnector) {
         WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnector
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
         WebSocketObservabilityUtil.observeResourceInvocation(Scheduler.getStrand(), connectionInfo,

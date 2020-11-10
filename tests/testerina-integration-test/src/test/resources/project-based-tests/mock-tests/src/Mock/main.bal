@@ -14,10 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 public function main() {
-    io:print("FunctionMocking Tests");
 }
 
 //
@@ -55,4 +52,13 @@ public function intAdd3((any|error)... intValues) returns (int) {
     }
 
     return  sum;
+}
+
+// Class calling mocked function
+public class TestClass {
+    function init() {}
+
+    function add(int a, int b) returns (int) {
+        return intAdd(a, b);
+    }
 }

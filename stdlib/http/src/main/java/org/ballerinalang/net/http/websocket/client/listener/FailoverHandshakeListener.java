@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.websocket.client.listener;
 
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
 import org.ballerinalang.net.http.websocket.WebSocketService;
@@ -68,7 +68,7 @@ public class FailoverHandshakeListener implements ExtendedHandshakeListener {
     @Override
     public void onError(Throwable throwable, HttpCarbonResponse response) {
         handshakeListener.onError(throwable, response);
-        ObjectValue webSocketClient = getWebSocketClient();
+        BObject webSocketClient = getWebSocketClient();
         // When the connection is lost, do the failover to the remaining server URLs.
         if (!(throwable instanceof IOException && WebSocketUtil.failover(webSocketClient, wsService))) {
             // Calls the `countDown()` function to initialize the count down latch of the connection.
@@ -78,7 +78,7 @@ public class FailoverHandshakeListener implements ExtendedHandshakeListener {
     }
 
     @Override
-    public ObjectValue getWebSocketClient() {
+    public BObject getWebSocketClient() {
         return handshakeListener.getWebSocketClient();
     }
 

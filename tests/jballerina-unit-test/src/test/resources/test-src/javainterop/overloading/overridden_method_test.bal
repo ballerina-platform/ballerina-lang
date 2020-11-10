@@ -1,21 +1,21 @@
 import ballerina/java;
 
 function newVehicle(handle strName) returns handle = @java:Constructor {
-    class:"org.ballerinalang.test.javainterop.overloading.pkg.Vehicle",
+    'class:"org.ballerinalang.test.javainterop.overloading.pkg.Vehicle",
     paramTypes:["java.lang.String"]
 } external;
 
 function newCar(handle strName, handle strModel) returns handle = @java:Constructor {
-    class:"org.ballerinalang.test.javainterop.overloading.pkg.Car"
+    'class:"org.ballerinalang.test.javainterop.overloading.pkg.Car"
 } external;
 
 
 function getName(handle receiver) returns handle = @java:Method {
-    class:"org.ballerinalang.test.javainterop.overloading.pkg.Car"
+    'class:"org.ballerinalang.test.javainterop.overloading.pkg.Car"
 } external;
 
 function getDescription(handle receiver, handle inputStr) returns handle = @java:Method {
-    class:"org.ballerinalang.test.javainterop.overloading.pkg.Car"
+    'class:"org.ballerinalang.test.javainterop.overloading.pkg.Car"
 } external;
 
 

@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import io.ballerina.tools.diagnostics.Location;
 
 /**
  * Abstract instruction with an lhs-operand.
@@ -28,8 +28,9 @@ public abstract class BIRAbstractInstruction extends BIRNode implements BIRInstr
 
     public InstructionKind kind;
     public BIROperand lhsOp;
+    public BirScope scope;
 
-    BIRAbstractInstruction(DiagnosticPos pos, InstructionKind kind) {
+    BIRAbstractInstruction(Location pos, InstructionKind kind) {
         super(pos);
         this.kind = kind;
     }

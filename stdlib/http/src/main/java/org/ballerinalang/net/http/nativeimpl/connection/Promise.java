@@ -18,10 +18,10 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import io.ballerina.runtime.api.BalEnv;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -32,10 +32,10 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
  * {@code Promise} is the extern function to respond back to the client with a PUSH_PROMISE frame.
  */
 public class Promise extends ConnectionAction {
-    public static Object promise(ObjectValue connectionObj, ObjectValue pushPromiseObj) {
+    public static Object promise(BalEnv env, BObject connectionObj, BObject pushPromiseObj) {
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
         Strand strand = Scheduler.getStrand();
-        DataContext dataContext = new DataContext(strand, new NonBlockingCallback(strand), inboundRequestMsg);
+        DataContext dataContext = new DataContext(strand, env.markAsync(), inboundRequestMsg);
         HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
 
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseObj,

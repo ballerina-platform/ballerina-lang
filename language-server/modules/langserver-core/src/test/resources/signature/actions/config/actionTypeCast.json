@@ -1,0 +1,41 @@
+{
+    "position": {
+        "line": 54,
+        "character": 22
+    },
+    "source": "actions/actions.bal",
+    "expected": {
+        "result": {
+            "signatures": [
+                {
+                    "label": "ping(any a)",
+                    "documentation": {
+                        "right": {
+                            "kind": "markdown",
+                            "value": "**Description**  \nReturns same"
+                        }
+                    },
+                    "parameters": [
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 9,
+                                    "second": 10
+                                }
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`any`a**: any"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            "activeSignature": 0,
+            "activeParameter": 0
+        },
+        "jsonrpc": "2.0"
+    }
+}

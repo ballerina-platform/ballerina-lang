@@ -78,11 +78,11 @@ function func1(int a, int b) returns (int) {
     return c;
 }
 
-type Foo object {
+class Foo {
     function bar() returns (int) {
         return 5;
     }
-};
+}
 
 function testPrintMixVarargs(string s1, int i1, float f1, boolean b1) {
     io:print(s1, i1, f1, b1);

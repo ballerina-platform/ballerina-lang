@@ -2,8 +2,7 @@ function foo() {
     Foo = new object {
         int x;
 
-        function init(int x) {
-            self.x = x;
-        }
+        function init(int x);
+
     } 10);
 }

@@ -34,6 +34,8 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALU
  */
 public class BRecord extends BCompoundVariable {
 
+    private static final String RECORD_FIELD_PATTERN_IDENTIFIER = "$value$";
+
     public BRecord(SuspendedContext context, String name, Value value) {
         super(context, name, BVariableType.RECORD, value);
     }
@@ -55,13 +57,9 @@ public class BRecord extends BCompoundVariable {
             }
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
-
-            // Uses ballerina record type name/anonymous record identifier to filter ballerina record fields from its
-            // jvm reference.
-            String balRecordFiledIdentifier = isAnonymous() ? "$value$" : this.computeValue() + ".";
             Map<String, Value> recordFields = new HashMap<>();
             fieldValueMap.forEach((field, value) -> {
-                if (field.toString().contains(balRecordFiledIdentifier)) {
+                if (field.toString().contains(RECORD_FIELD_PATTERN_IDENTIFIER)) {
                     recordFields.put(field.name(), value);
                 }
             });

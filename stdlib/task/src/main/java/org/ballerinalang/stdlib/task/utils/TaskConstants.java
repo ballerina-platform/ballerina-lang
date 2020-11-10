@@ -18,11 +18,11 @@
 
 package org.ballerinalang.stdlib.task.utils;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
 /**
  * Task related constants.
@@ -32,8 +32,8 @@ public class TaskConstants {
     // Package related constants
     public static final String PACKAGE_NAME = "task";
     public static final String PACKAGE_VERSION = "1.1.0";
-    public static final BPackage TASK_PACKAGE_ID =
-            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME, PACKAGE_VERSION);
+    public static final Module TASK_PACKAGE_ID =
+            new Module(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME, PACKAGE_VERSION);
 
     // Record types used
     public static final String RECORD_TIMER_CONFIGURATION = "TimerConfiguration";

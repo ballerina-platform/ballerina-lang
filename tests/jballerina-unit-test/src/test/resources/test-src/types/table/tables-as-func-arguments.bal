@@ -43,7 +43,7 @@ function testSameKeySpecifierInParamAndArg() returns boolean {
         { name: "CCC", age: 34 }
         ];
     string str = getStringRepresentation1(tab1);
-    return str == "name=AAA age=31\nname=CCC age=34";
+    return str == "[{\"name\":\"AAA\",\"age\":31},{\"name\":\"CCC\",\"age\":34}]";
 }
 
 function testKeySpecifierAndKeyConstraint() returns boolean {
@@ -52,7 +52,7 @@ function testKeySpecifierAndKeyConstraint() returns boolean {
         { name: "CCC", age: 34 }
         ];
     string str = getStringRepresentation2(tab1);
-    return str == "name=AAA age=31\nname=CCC age=34";
+    return str == "[{\"name\":\"AAA\",\"age\":31},{\"name\":\"CCC\",\"age\":34}]";
 }
 
 function testSameKeyConstraintInArgAndParam() returns boolean {
@@ -61,7 +61,7 @@ function testSameKeyConstraintInArgAndParam() returns boolean {
         { name: "CCC", age: 34 }
         ];
     string str = getStringRepresentation2(tab1);
-    return str == "name=AAA age=31\nname=CCC age=34";
+    return str == "[{\"name\":\"AAA\",\"age\":31},{\"name\":\"CCC\",\"age\":34}]";
 }
 
 function testNoKeyConstraintParam1() returns boolean {
@@ -70,7 +70,7 @@ function testNoKeyConstraintParam1() returns boolean {
         { name: "CCC", age: 34 }
         ];
     string str = getStringRepresentation3(tab1);
-    return str == "name=AAA age=31\nname=CCC age=34";
+    return str == "[{\"name\":\"AAA\",\"age\":31},{\"name\":\"CCC\",\"age\":34}]";
 }
 
 function testNoKeyConstraintParam2() returns boolean {
@@ -79,7 +79,7 @@ function testNoKeyConstraintParam2() returns boolean {
         { name: "CCC", age: 34 }
         ];
     string str = getStringRepresentation3(tab1);
-    return str == "name=AAA age=31\nname=CCC age=34";
+    return str == "[{\"name\":\"AAA\",\"age\":31},{\"name\":\"CCC\",\"age\":34}]";
 }
 
 function testUnionTypeInParam() returns boolean {
@@ -94,7 +94,7 @@ function testUnionTypeInParam() returns boolean {
         ];
     string str1 = getStringRepresentation4(tab1);
     string str2 = getStringRepresentation4(tab2);
-    return str1 == "name=AAA age=31\nname=CCC age=34" && str2 == "id=10 name=Foo lname=QWER\nid=11 name=Foo lname=UYOR";
+    return str1 == "[{\"name\":\"AAA\",\"age\":31},{\"name\":\"CCC\",\"age\":34}]" && str2 == "[{\"id\":10,\"name\":\"Foo\",\"lname\":\"QWER\"},{\"id\":11,\"name\":\"Foo\",\"lname\":\"UYOR\"}]";
 }
 
 function testUnionConstraintParam() returns boolean {
@@ -109,7 +109,7 @@ function testUnionConstraintParam() returns boolean {
             ];
     string str1 = getStringRepresentation5(tab1);
     string str2 = getStringRepresentation5(tab2);
-    return str1 == "name=AAA age=31\nname=CCC age=34" && str2 == "id=10 name=Foo lname=QWER\nid=11 name=Bar lname=UYOR";
+    return str1 == "[{\"name\":\"AAA\",\"age\":31},{\"name\":\"CCC\",\"age\":34}]" && str2 == "[{\"id\":10,\"name\":\"Foo\",\"lname\":\"QWER\"},{\"id\":11,\"name\":\"Bar\",\"lname\":\"UYOR\"}]";
 }
 
 function testUnionKeyConstraintParam() returns boolean {
@@ -124,5 +124,5 @@ function testUnionKeyConstraintParam() returns boolean {
             ];
     string str1 = getStringRepresentation6(tab1);
     string str2 = getStringRepresentation6(tab2);
-    return str1 == "name=AAA age=31\nname=CCC age=34" && str2 == "name=AAA age=31\nname=CCC age=34";
+    return str1 == "[{\"name\":\"AAA\",\"age\":31},{\"name\":\"CCC\",\"age\":34}]" && str2 == "[{\"name\":\"AAA\",\"age\":31},{\"name\":\"CCC\",\"age\":34}]";
 }

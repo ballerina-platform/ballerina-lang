@@ -14,21 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
+import ballerina/lang.test;
 
-@untainted listener http:Listener helloWorldEP = new (19293);
+@untainted listener test:MockListener helloWorldEP = new (19293);
 
 // Arguments to resource functions are provided by the listener and if the listener is statically verified to be
 // untainted we consider the arguments provided by the listener to be untainted as well.
 
 service sample on helloWorldEP {
 
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/path/{foo}"
-    }
-    resource function params (http:Caller caller, http:Request req, string foo) {
-        var bar = req.getQueryParamValue("bar");
+    resource function params (string foo) {
         sensitiveFunc(foo);
     }
 }

@@ -1,0 +1,16 @@
+{
+  "position": {
+    "line": 6,
+    "character": 26
+  },
+  "source": "expression_context/source/anon_func_expr_ctx_source1a.bal",
+  "items": [
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

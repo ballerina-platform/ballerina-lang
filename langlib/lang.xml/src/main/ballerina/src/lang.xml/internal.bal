@@ -14,18 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/java;
+
 # Represent the iterator type returned when `iterator` method is invoked.
-type XMLIterator object {
+class XMLIterator {
 
     private xml m;
 
-    public function init(xml m) {
+    public isolated function init(xml m) {
         self.m = m;
     }
 
     # Return next member or nil if end of iteration is reached.
     # + return - iterator result
-    public function next() returns record {|
-        (xml|string) value;
-    |}? = external;
-};
+    public isolated function next() returns record {| (xml|string) value; |}? {
+        return externNext(self);
+    }
+}
+
+isolated function externNext(XMLIterator iterator) returns record {| (xml|string) value; |}? = @java:Method {
+    'class: "org.ballerinalang.langlib.xml.Next",
+    name: "next"
+} external;

@@ -17,7 +17,7 @@
 import ballerina/io;
 import ballerina/lang.'object as obj;
 
-type CustomListener object {
+class CustomListener {
     *obj:Listener;
 
     public function __attach(service s, string? name) returns error? {
@@ -39,9 +39,9 @@ type CustomListener object {
     public function __immediateStop() returns error? {
         io:println("running __immediateStop");
     }
-};
+}
 
-type CustomListenerWithAutoImports object {
+class CustomListenerWithAutoImports {
     *obj:Listener;
 
     public function __attach(service s, string? name) returns error? {
@@ -63,4 +63,4 @@ type CustomListenerWithAutoImports object {
     public function __immediateStop() returns error? {
         io:println("running __immediateStop");
     }
-};
+}

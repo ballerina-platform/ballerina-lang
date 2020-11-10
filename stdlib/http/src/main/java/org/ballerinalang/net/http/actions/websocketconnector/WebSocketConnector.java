@@ -15,13 +15,14 @@
  */
 package org.ballerinalang.net.http.actions.websocketconnector;
 
+import io.ballerina.runtime.api.BalEnv;
+import io.ballerina.runtime.api.BalFuture;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
 import io.netty.channel.ChannelFuture;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityConstants;
@@ -38,16 +39,16 @@ import java.nio.ByteBuffer;
 public class WebSocketConnector {
     private static final Logger log = LoggerFactory.getLogger(WebSocketConnector.class);
 
-    public static Object externPushText(ObjectValue wsConnection, BString text, boolean finalFrame) {
+    public static Object externPushText(BalEnv env, BObject wsConnection, BString text, boolean finalFrame) {
         Strand strand = Scheduler.getStrand();
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
+        BalFuture balFuture = env.markAsync();
         WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection
                 .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
         WebSocketObservabilityUtil.observeResourceInvocation(strand, connectionInfo,
                                                              WebSocketConstants.RESOURCE_NAME_PUSH_TEXT);
         try {
             ChannelFuture future = connectionInfo.getWebSocketConnection().pushText(text.getValue(), finalFrame);
-            WebSocketUtil.handleWebSocketCallback(callback, future, log, connectionInfo);
+            WebSocketUtil.handleWebSocketCallback(env.markAsync(), future, log, connectionInfo);
             WebSocketObservabilityUtil.observeSend(WebSocketObservabilityConstants.MESSAGE_TYPE_TEXT,
                                                    connectionInfo);
         } catch (Exception e) {
@@ -56,15 +57,15 @@ public class WebSocketConnector {
                                                     WebSocketObservabilityConstants.ERROR_TYPE_MESSAGE_SENT,
                                                     WebSocketObservabilityConstants.MESSAGE_TYPE_TEXT,
                                                     e.getMessage());
-            WebSocketUtil.setCallbackFunctionBehaviour(connectionInfo, callback, e);
+            WebSocketUtil.setCallbackFunctionBehaviour(connectionInfo, balFuture, e);
         }
         return null;
     }
 
-    public static Object pushBinary(ObjectValue wsConnection, ArrayValue binaryData,
+    public static Object pushBinary(BalEnv env, BObject wsConnection, BArray binaryData,
                                     boolean finalFrame) {
         Strand strand = Scheduler.getStrand();
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
+        BalFuture future = env.markAsync();
         WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection
                 .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
         WebSocketObservabilityUtil.observeResourceInvocation(strand, connectionInfo,
@@ -72,7 +73,7 @@ public class WebSocketConnector {
         try {
             ChannelFuture webSocketChannelFuture = connectionInfo.getWebSocketConnection().pushBinary(
                     ByteBuffer.wrap(binaryData.getBytes()), finalFrame);
-            WebSocketUtil.handleWebSocketCallback(callback, webSocketChannelFuture, log, connectionInfo);
+            WebSocketUtil.handleWebSocketCallback(future, webSocketChannelFuture, log, connectionInfo);
             WebSocketObservabilityUtil.observeSend(WebSocketObservabilityConstants.MESSAGE_TYPE_BINARY,
                                                    connectionInfo);
         } catch (Exception e) {
@@ -81,21 +82,21 @@ public class WebSocketConnector {
                                                     WebSocketObservabilityConstants.ERROR_TYPE_MESSAGE_SENT,
                                                     WebSocketObservabilityConstants.MESSAGE_TYPE_BINARY,
                                                     e.getMessage());
-            WebSocketUtil.setCallbackFunctionBehaviour(connectionInfo, callback, e);
+            WebSocketUtil.setCallbackFunctionBehaviour(connectionInfo, future, e);
         }
         return null;
     }
 
-    public static Object ping(ObjectValue wsConnection, ArrayValue binaryData) {
+    public static Object ping(BalEnv env, BObject wsConnection, BArray binaryData) {
         Strand strand = Scheduler.getStrand();
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
+        BalFuture balFuture = env.markAsync();
         WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection
                 .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
         WebSocketObservabilityUtil.observeResourceInvocation(strand, connectionInfo,
                                                              WebSocketConstants.RESOURCE_NAME_PING);
         try {
             ChannelFuture future = connectionInfo.getWebSocketConnection().ping(ByteBuffer.wrap(binaryData.getBytes()));
-            WebSocketUtil.handleWebSocketCallback(callback, future, log, connectionInfo);
+            WebSocketUtil.handleWebSocketCallback(balFuture, future, log, connectionInfo);
             WebSocketObservabilityUtil.observeSend(WebSocketObservabilityConstants.MESSAGE_TYPE_PING,
                                                    connectionInfo);
         } catch (Exception e) {
@@ -104,21 +105,21 @@ public class WebSocketConnector {
                                                     WebSocketObservabilityConstants.ERROR_TYPE_MESSAGE_SENT,
                                                     WebSocketObservabilityConstants.MESSAGE_TYPE_PING,
                                                     e.getMessage());
-            WebSocketUtil.setCallbackFunctionBehaviour(connectionInfo, callback, e);
+            WebSocketUtil.setCallbackFunctionBehaviour(connectionInfo, balFuture, e);
         }
         return null;
     }
 
-    public static Object pong(ObjectValue wsConnection, ArrayValue binaryData) {
+    public static Object pong(BalEnv env, BObject wsConnection, BArray binaryData) {
         Strand strand = Scheduler.getStrand();
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
+        BalFuture balFuture = env.markAsync();
         WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection
                 .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
         WebSocketObservabilityUtil.observeResourceInvocation(strand, connectionInfo,
                                                              WebSocketConstants.RESOURCE_NAME_PONG);
         try {
             ChannelFuture future = connectionInfo.getWebSocketConnection().pong(ByteBuffer.wrap(binaryData.getBytes()));
-            WebSocketUtil.handleWebSocketCallback(callback, future, log, connectionInfo);
+            WebSocketUtil.handleWebSocketCallback(balFuture, future, log, connectionInfo);
             WebSocketObservabilityUtil.observeSend(WebSocketObservabilityConstants.MESSAGE_TYPE_PONG,
                                                    connectionInfo);
         } catch (Exception e) {
@@ -127,7 +128,7 @@ public class WebSocketConnector {
                                                     WebSocketObservabilityConstants.ERROR_TYPE_MESSAGE_SENT,
                                                     WebSocketObservabilityConstants.MESSAGE_TYPE_PONG,
                                                     e.getMessage());
-            WebSocketUtil.setCallbackFunctionBehaviour(connectionInfo, callback, e);
+            WebSocketUtil.setCallbackFunctionBehaviour(connectionInfo, balFuture, e);
         }
         return null;
     }

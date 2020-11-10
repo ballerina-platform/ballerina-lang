@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.services.configuration;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -72,7 +72,7 @@ public class ResourceConfigPathTest {
     }
 
     private void assertResponse(Diagnostic diag, String msg, int line) {
-        Assert.assertEquals(diag.getMessage(), msg);
-        Assert.assertEquals(diag.getPosition().getStartLine(), line);
+        Assert.assertEquals(diag.message(), msg);
+        Assert.assertEquals(diag.location().lineRange().startLine().line(), line);
     }
 }

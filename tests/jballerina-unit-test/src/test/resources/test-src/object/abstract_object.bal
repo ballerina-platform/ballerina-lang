@@ -14,13 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type Address abstract object {
+public type Address object {
     public string city;
 
     public function getCity() returns string;
 };
 
-public type StudentAddress object {
+public class StudentAddress {
     public string city;
 
     public function init(string city){
@@ -30,9 +30,9 @@ public type StudentAddress object {
     public function getCity() returns string {
         return self.city;
     }
-};
+}
 
-public type Employee object {
+public class Employee {
     public string city;
     public Address address;
 
@@ -43,9 +43,9 @@ public type Employee object {
 
     public function getCity() returns string {
         return self.city;
-        
+
     }
-};
+}
 
 public function testAbstractObjectInObject() returns Employee {
     // Initializing variable of object type Person

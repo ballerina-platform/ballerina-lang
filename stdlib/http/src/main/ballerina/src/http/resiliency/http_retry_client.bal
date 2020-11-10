@@ -40,7 +40,7 @@ public type RetryInferredConfig record {|
 # + retryInferredConfig - Derived set of configurations associated with retry
 # + httpClient - Chain of different HTTP clients which provides the capability for initiating contact with a remote
 #                HTTP service in resilient manner.
-public type RetryClient client object {
+public client class RetryClient {
 
     public string url;
     public ClientConfiguration config;
@@ -269,7 +269,7 @@ public type RetryClient client object {
     public remote function rejectPromise(PushPromise promise) {
         return self.httpClient->rejectPromise(promise);
     }
-};
+}
 
 
 // Performs execute remote function of the retry client. extract the corresponding http integer value representation

@@ -157,14 +157,14 @@ function intArray() returns int[] {
     return j;
 }
 
-public type PersonA object {
+public class PersonA {
     public int age = 10;
     public string name = "sample name";
 
     public function getName() returns string {
         return self.name;
     }
-};
+}
 
 public function getPersonAObject() returns PersonA {
     return new PersonA();

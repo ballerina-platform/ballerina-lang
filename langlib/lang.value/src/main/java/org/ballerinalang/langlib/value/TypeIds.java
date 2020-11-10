@@ -16,35 +16,31 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.typedesc;
+package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.scheduling.Strand;
 
 /**
  * Extern function lang.typedesc:typeIds.
  *
  * @since 2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.typedesc", functionName = "typeIds",
-        args = {
-                @Argument(name = "t", type = TypeKind.TYPEDESC),
-                @Argument(name = "primaryOnly", type = TypeKind.BOOLEAN)
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.ARRAY)
-        },
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.typedesc", functionName = "typeIds",
+//        args = {
+//                @Argument(name = "t", type = TypeKind.TYPEDESC),
+//                @Argument(name = "primaryOnly", type = TypeKind.BOOLEAN)
+//        },
+//        returnType = {
+//                @ReturnType(type = TypeKind.ARRAY)
+//        },
+//        isPublic = true
+//)
 public class TypeIds {
 
-    public static ArrayValue typeIds(Strand strand, TypedescValue t, boolean primaryOnly) {
+    public static BArray typeIds(Strand strand, BTypedesc t, boolean primaryOnly) {
         return null;
     }
 }

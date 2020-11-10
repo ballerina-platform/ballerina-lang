@@ -46,7 +46,7 @@ public type Error InvalidObjectError|FunctionNotFoundError|FunctionSignatureMism
 #
 # + mockObject - created default mock object
 # + return - prepared object that allows a member function/field to register stubs
-public function prepare(object {} mockObject) returns MockObject {
+public isolated function prepare(object {} mockObject) returns MockObject {
     Error? result = validatePreparedObjExt(mockObject);
     if (result is Error) {
         panic result;
@@ -56,14 +56,14 @@ public function prepare(object {} mockObject) returns MockObject {
 }
 
 # Represents a Mock object in which to create stubs for member functions and variables
-public type MockObject object {
+public class MockObject {
     object {} mockObject;
     string fieldName = "";
 
     # Gets invoked during the mock object preparation.
     #
     # + mockObject - object to register stubbing
-    public function init(object{} mockObject) {
+    public isolated function init(object{} mockObject) {
         self.mockObject = mockObject;
     }
 
@@ -71,7 +71,7 @@ public type MockObject object {
     #
     # + functionName - function name to allow stubbing
     # + return - object that allows stubbing calls to provided member function
-    public function when(string functionName) returns MemberFunctionStub {
+    public isolated function when(string functionName) returns MemberFunctionStub {
         Error? result = validateFunctionNameExt(java:fromString(functionName), self.mockObject);
         if (result is Error) {
              panic result;
@@ -85,7 +85,7 @@ public type MockObject object {
     #
     # + fieldName - field name to allow stubbing
     # + return - object that allows stubbing retrieval of provided member variable
-    public function getMember(string fieldName) returns MemberVariableStub {
+    public isolated function getMember(string fieldName) returns MemberVariableStub {
         self.fieldName = fieldName;
         Error? result = validateFieldNameExt(java:fromString(fieldName), self.mockObject);
         if (result is Error) {
@@ -95,7 +95,7 @@ public type MockObject object {
         memberVariableStub.fieldName = fieldName;
         return memberVariableStub;
     }
-};
+}
 
 # Represents an object that allows stubbing member function invocations.
 #
@@ -104,7 +104,7 @@ public type MockObject object {
 # + args - arguments list of the function
 # + returnValue - value to return
 # + returnValueSeq - equence of values to return
-public type MemberFunctionStub object {
+public class MemberFunctionStub {
     object {} mockObject;
     string functionName = "";
     anydata|error args = [];
@@ -114,7 +114,7 @@ public type MemberFunctionStub object {
     # Gets invoked during the stub registration.
     #
     # + mockObject - object to register
-    public function init(object{} mockObject) {
+    public isolated function init(object{} mockObject) {
         self.mockObject = mockObject;
     }
 
@@ -122,7 +122,7 @@ public type MemberFunctionStub object {
     #
     # + args - arguments list
     # + return - object that allows stubbing calls to provided member function
-    public function withArguments(anydata|error... args) returns MemberFunctionStub {
+    public isolated function withArguments(anydata|error... args) returns MemberFunctionStub {
         self.args = args;
         Error? result = validateArgumentsExt(self);
         if (result is Error) {
@@ -134,7 +134,7 @@ public type MemberFunctionStub object {
     # Sets the value to be returned when the function is called.
     #
     # + returnValue - value or error to return
-    public function thenReturn(any|error returnValue) {
+    public isolated function thenReturn(any|error returnValue) {
         if (self.functionName == "") {
              error err = error("function to mock is not specified.");
              panic err;
@@ -149,7 +149,7 @@ public type MemberFunctionStub object {
     # Sets the values to be returned when the function is called repeatedly.
     #
     # + returnValues - value or error to return
-    public function thenReturnSequence(any|error... returnValues) {
+    public isolated function thenReturnSequence(any|error... returnValues) {
         if (self.functionName == "") {
              error err = error("function to mock is not specified.");
              panic err;
@@ -166,7 +166,7 @@ public type MemberFunctionStub object {
     }
 
     # Sets the function behavior to do nothing when called.
-    public function doNothing() {
+    public isolated function doNothing() {
         if (self.functionName == "") {
              error err = error("function to mock is not specified.");
              panic err;
@@ -177,13 +177,13 @@ public type MemberFunctionStub object {
             panic thenReturnExtResult;
         }
     }
-};
+}
 
 # Represents an object that allows stubbing member variables retrieved.
 #
 # + mockObject - created mock object
 # + returnValue - value to return
-public  type MemberVariableStub object {
+public class MemberVariableStub {
     object {} mockObject;
     any|error returnValue = ();
     string fieldName = "";
@@ -191,14 +191,14 @@ public  type MemberVariableStub object {
     # Gets invoked during the stub registration
     #
     # + mockObject - object to register
-    public function init(object{} mockObject) {
+    public isolated function init(object{} mockObject) {
         self.mockObject = mockObject;
     }
 
     # Sets the value to be returned when the function is called.
     #
     # + returnValue - value or error to return
-    public function thenReturn(any|error returnValue) {
+    public isolated function thenReturn(any|error returnValue) {
         if (self.fieldName == "") {
              error err = error("field name is not specified.");
              panic err;
@@ -209,7 +209,7 @@ public  type MemberVariableStub object {
             panic thenReturnExtResult;
         }
     }
-};
+}
 
 # Objects and functions related to function mocking
 
@@ -217,23 +217,23 @@ public  type MemberVariableStub object {
 #
 # + mockFunction - function name to allow stubbing
 # + return - object that allows stubbing calls to provided function
-public function when(MockFunction mockFunction) returns FunctionStub {
+public isolated function when(MockFunction mockFunction) returns FunctionStub {
     FunctionStub stub = new FunctionStub(mockFunction);
     return stub;
 }
 
 # Represents a MockFunction object
-public type MockFunction object {
+public class MockFunction {
     string functionToMock = "";
     string functionToMockPackage = "";
-};
+}
 
 # Represents an object that allows stubbing function invocations
 #
 # + mockFuncObj - associated mockFunctionObj
 # + returnValue - return value
 # + args - function arguments
-public type FunctionStub object {
+public class FunctionStub {
     MockFunction mockFuncObj;
     any|error returnValue = ();
     anydata|error args = [];
@@ -242,14 +242,14 @@ public type FunctionStub object {
     # Gets invoked during the stub registration
     #
     # + mockObject - object to register
-    public function init(MockFunction mockFunction) {
+    public isolated function init(MockFunction mockFunction) {
         self.mockFuncObj = mockFunction;
     }
 
     # Sets the value to be returned when the function is called.
     #
     # + returnValue - value or error to return
-    public function thenReturn(any|error returnValue) {
+    public isolated function thenReturn(any|error returnValue) {
         self.returnValue = returnValue;
         Error? result = thenReturnFuncExt(self);
         if (result is Error) {
@@ -261,13 +261,13 @@ public type FunctionStub object {
     #
     # + args - arguments list
     # + return - object that allows stubbing calls to a function
-    public function withArguments(anydata|error... args) returns FunctionStub {
+    public isolated function withArguments(anydata|error... args) returns FunctionStub {
         self.args = args;
         return self;
     }
 
     # Sets the function behavior to do nothing when called
-    public function doNothing() {
+    public isolated function doNothing() {
         Error? result = thenReturnFuncExt(self);
         if (result is Error) {
             panic result;
@@ -277,7 +277,7 @@ public type FunctionStub object {
     # Sets a function to be invoked when the real function is called.
     #
     # + functionName - mock function to call in place of the real
-    public function call(string functionName) {
+    public isolated function call(string functionName) {
         self.returnValue = "__CALL__" + functionName;
         Error? result = thenReturnFuncExt(self);
         if (result is Error) {
@@ -286,31 +286,31 @@ public type FunctionStub object {
     }
 
     # Sets the original function to be invoked.
-    public function callOriginal() {
+    public isolated function callOriginal() {
         self.returnValue = "__ORIGINAL__";
         Error? result = thenReturnFuncExt(self);
         if (result is Error) {
             panic result;
         }
     }
-};
+}
 
 # Creates and returns a mock object of provided type description.
 #
 # + T - type of object to create the mock
 # + mockObject - mock object to replace the original (optional)
 # + return - created mock object or throw an error if validation failed
-public function mock(typedesc<object{}> T, object{} mockObject = new) returns T = @java:Method {
-    class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
+public isolated function mock(typedesc<object{}> T, object{} mockObject = object { }) returns T = @java:Method {
+    'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
 
 # Inter-op to validate the mock object.
 #
 # + mockObject - mock object
 # + return - Return Value Description
-function validatePreparedObjExt(object{} mockObject) returns Error? = @java:Method {
+isolated function validatePreparedObjExt(object{} mockObject) returns Error? = @java:Method {
     name: "validatePreparedObj",
-    class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
+    'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
 
 # Inter-op to validate the provided function name
@@ -318,9 +318,9 @@ function validatePreparedObjExt(object{} mockObject) returns Error? = @java:Meth
 # + functionName - function name provided
 # + mockObject - object to validate against
 # + return - error if function does not exist or in case of a signature mismatch
-function validateFunctionNameExt(handle functionName, object{} mockObject) returns Error? = @java:Method {
+isolated function validateFunctionNameExt(handle functionName, object{} mockObject) returns Error? = @java:Method {
     name: "validateFunctionName",
-    class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
+    'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
 
 # Inter-op to validate the field name.
@@ -328,45 +328,45 @@ function validateFunctionNameExt(handle functionName, object{} mockObject) retur
 # + fieldName - field name provided
 # + mockObject - obj to validate against
 # + return - error if field does not exist
-function validateFieldNameExt(handle fieldName, object{} mockObject) returns Error? = @java:Method {
+isolated function validateFieldNameExt(handle fieldName, object{} mockObject) returns Error? = @java:Method {
     name: "validateFieldName",
-    class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
+    'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
 
 # Inter-op to validate the arguments list.
 #
 # + case - case to validate
 # + return - error in case of an argument mismatch
-function validateArgumentsExt(MemberFunctionStub case) returns Error? = @java:Method {
+isolated function validateArgumentsExt(MemberFunctionStub case) returns Error? = @java:Method {
     name: "validateArguments",
-    class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
+    'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
 
 # Inter-op to register the return value
 #
 # + case - case to register
 # + return - error if case registration failed
-function thenReturnExt(MemberFunctionStub|MemberVariableStub case) returns Error? = @java:Method {
+isolated function thenReturnExt(MemberFunctionStub|MemberVariableStub case) returns Error? = @java:Method {
     name: "thenReturn",
-    class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
+    'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
 
 # Inter-op to register the sequence of return values;
 #
 # + case - case to register
 # + return - error if case registration failed
-function thenReturnSeqExt(MemberFunctionStub case) returns Error? = @java:Method {
+isolated function thenReturnSeqExt(MemberFunctionStub case) returns Error? = @java:Method {
     name: "thenReturnSequence",
-    class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
+    'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
 
 # Inter-op to register return value
 #
 # + case - case to register
 # + return - error if case registration failed
-function thenReturnFuncExt(FunctionStub case) returns Error? = @java:Method {
+isolated function thenReturnFuncExt(FunctionStub case) returns Error? = @java:Method {
     name: "thenReturn",
-    class: "org.ballerinalang.testerina.natives.mock.FunctionMock"
+    'class: "org.ballerinalang.testerina.natives.mock.FunctionMock"
 } external;
 
 # Inter-op to handle function mocking.
@@ -374,7 +374,7 @@ function thenReturnFuncExt(FunctionStub case) returns Error? = @java:Method {
 # + mockFunction - mockFunction object
 # + args - function arguments
 # + return - function return value or error if case registration failed
-public function mockHandler(MockFunction mockFunction, (any|error)... args) returns any|Error = @java:Method {
+public isolated function mockHandler(MockFunction mockFunction, (any|error)... args) returns any|Error = @java:Method {
     name: "mockHandler",
-    class: "org.ballerinalang.testerina.natives.mock.FunctionMock"
+    'class: "org.ballerinalang.testerina.natives.mock.FunctionMock"
 } external;

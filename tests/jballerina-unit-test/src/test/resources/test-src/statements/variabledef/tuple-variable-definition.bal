@@ -69,7 +69,7 @@ type Bar record {
     boolean flag;
 };
 
-type FooObj object {
+class FooObj {
     public string s;
     public float f;
     public byte b;
@@ -78,16 +78,16 @@ type FooObj object {
         self.f = f;
         self.b = b;
     }
-};
+}
 
-type BarObj object {
+class BarObj {
     public boolean b;
     public int i;
     public function init(boolean b, int i) {
         self.b = b;
         self.i = i;
     }
-};
+}
 
 function testRecordInsideTuple() returns [string, int, boolean] {
     [string, Foo, boolean] [a, {name, age: theAge}, b] = ["Peter", {name: "Parker", age: 12}, true];

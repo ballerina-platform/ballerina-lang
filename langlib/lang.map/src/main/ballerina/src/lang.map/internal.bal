@@ -14,18 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/java;
+
 # Represent the iterator type returned when `iterator` method is invoked.
-type MapIterator object {
+class MapIterator {
 
     private map<Type> m;
 
-    public function init(map<Type> m) {
+    public isolated function init(map<Type> m) {
         self.m = m;
     }
 
     # Return the next member in map iterator, nil if end of iterator is reached.
     # + return - iterator result
-    public function next() returns record {|
-        Type value;
-    |}? = external;
-};
+    public isolated function next() returns record {| Type value; |}? {
+        return externNext(self);
+    }
+}
+
+isolated function externNext(MapIterator iterator) returns record {| Type value; |}? = @java:Method {
+    'class: "org.ballerinalang.langlib.map.Next",
+    name: "next"
+} external;

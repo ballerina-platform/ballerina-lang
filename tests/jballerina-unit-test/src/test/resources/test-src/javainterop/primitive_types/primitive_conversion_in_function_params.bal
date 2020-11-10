@@ -6,7 +6,7 @@ public function testCreateJShortFromBByte(byte value)  returns handle {
 }
 
 public function createJShortFromBByte(byte value) returns handle = @java:Constructor {
-    class:"java.lang.Short",
+    'class:"java.lang.Short",
     paramTypes:["short"]
 } external;
 
@@ -17,7 +17,7 @@ public function testCreateJCharacterFromBByte(byte value)  returns handle {
 }
 
 public function createJCharacterFromBByte(byte value) returns handle = @java:Constructor {
-    class:"java.lang.Character",
+    'class:"java.lang.Character",
     paramTypes:["char"]
 } external;
 
@@ -28,7 +28,7 @@ public function testCreateJIntegerFromBByte(byte value)  returns handle {
 }
 
 public function createJIntegerFromBByte(byte value) returns handle = @java:Constructor {
-    class:"java.lang.Integer",
+    'class:"java.lang.Integer",
     paramTypes:["int"]
 } external;
 
@@ -39,7 +39,7 @@ public function testCreateJLongFromBByte(byte value)  returns handle {
 }
 
 public function createJLongFromBByte(byte value) returns handle = @java:Constructor {
-    class:"java.lang.Long",
+    'class:"java.lang.Long",
     paramTypes:["long"]
 } external;
 
@@ -50,7 +50,7 @@ public function testCreateJFloatFromBByte(byte value)  returns handle {
 }
 
 public function createJFloatFromBByte(byte value) returns handle = @java:Constructor {
-    class:"java.lang.Float",
+    'class:"java.lang.Float",
     paramTypes:["float"]
 } external;
 
@@ -61,7 +61,7 @@ public function testCreateJDoubleFromBByte(byte value)  returns handle {
 }
 
 public function createJDoubleFromBByte(byte value) returns handle = @java:Constructor {
-    class:"java.lang.Double",
+    'class:"java.lang.Double",
     paramTypes:["double"]
 } external;
 
@@ -72,7 +72,7 @@ public function testCreateJByteFromBInt(int value)  returns handle {
 }
 
 public function createJByteFromBInt(int value) returns handle = @java:Constructor {
-    class:"java.lang.Byte",
+    'class:"java.lang.Byte",
     paramTypes:["byte"]
 } external;
 
@@ -83,7 +83,7 @@ public function testCreateJShortFromBInt(int value)  returns handle {
 }
 
 public function createJShortFromBInt(int value) returns handle = @java:Constructor {
-    class:"java.lang.Short",
+    'class:"java.lang.Short",
     paramTypes:["short"]
 } external;
 
@@ -94,7 +94,7 @@ public function testCreateJCharacterFromBInt(int value)  returns handle {
 }
 
 public function createJCharacterFromBInt(int value) returns handle = @java:Constructor {
-    class:"java.lang.Character",
+    'class:"java.lang.Character",
     paramTypes:["char"]
 } external;
 
@@ -105,7 +105,7 @@ public function testCreateJIntFromBInt(int value)  returns handle {
 }
 
 public function createJIntFromBInt(int value) returns handle = @java:Constructor {
-    class:"java.lang.Integer",
+    'class:"java.lang.Integer",
     paramTypes:["int"]
 } external;
 
@@ -116,7 +116,7 @@ public function testCreateJFloatFromBInt(int value)  returns handle {
 }
 
 public function createJFloatFromBInt(int value) returns handle = @java:Constructor {
-    class:"java.lang.Float",
+    'class:"java.lang.Float",
     paramTypes:["float"]
 } external;
 
@@ -127,7 +127,7 @@ public function testCreateJDoubleFromBInt(int value)  returns handle {
 }
 
 public function createJDoubleFromBInt(int value) returns handle = @java:Constructor {
-    class:"java.lang.Double",
+    'class:"java.lang.Double",
     paramTypes:["double"]
 } external;
 
@@ -138,7 +138,7 @@ public function testCreateJByteFromBFloat(float value)  returns handle {
 }
 
 public function createJByteFromBFloat(float value) returns handle = @java:Constructor {
-    class:"java.lang.Byte",
+    'class:"java.lang.Byte",
     paramTypes:["byte"]
 } external;
 
@@ -149,7 +149,7 @@ public function testCreateJShortFromBFloat(float value)  returns handle {
 }
 
 public function createJShortFromBFloat(float value) returns handle = @java:Constructor {
-    class:"java.lang.Short",
+    'class:"java.lang.Short",
     paramTypes:["short"]
 } external;
 
@@ -160,7 +160,7 @@ public function testCreateJCharacterFromBFloat(float value)  returns handle {
 }
 
 public function createJCharacterFromBFloat(float value) returns handle = @java:Constructor {
-    class:"java.lang.Character",
+    'class:"java.lang.Character",
     paramTypes:["char"]
 } external;
 
@@ -171,7 +171,7 @@ public function testCreateJIntFromBFloat(float value)  returns handle {
 }
 
 public function createJIntFromBFloat(float value) returns handle = @java:Constructor {
-    class:"java.lang.Integer",
+    'class:"java.lang.Integer",
     paramTypes:["int"]
 } external;
 
@@ -182,7 +182,7 @@ public function testCreateJLongFromBFloat(float value)  returns handle {
 }
 
 public function createJLongFromBFloat(float value) returns handle = @java:Constructor {
-    class:"java.lang.Long",
+    'class:"java.lang.Long",
     paramTypes:["long"]
 } external;
 
@@ -193,6 +193,6 @@ public function testCreateJFloatFromBFloat(float value)  returns handle {
 }
 
 public function createJFloatFromBFloat(float value) returns handle = @java:Constructor {
-    class:"java.lang.Float",
+    'class:"java.lang.Float",
     paramTypes:["float"]
 } external;

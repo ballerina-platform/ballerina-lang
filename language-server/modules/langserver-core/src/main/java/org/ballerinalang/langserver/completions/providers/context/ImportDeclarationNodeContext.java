@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
-import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -178,7 +178,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
 
         packagesList.forEach(pkg -> {
-            if (isAnnotationLangLib(pkg)) {
+            if (isPreDeclaredLangLib(pkg)) {
                 return;
             }
             String fullPkgNameLabel = pkg.getOrgName() + "/" + pkg.getPackageName();
@@ -226,7 +226,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         List<String> pkgNameLabels = new ArrayList<>();
 
         packagesList.forEach(ballerinaPackage -> {
-            if (isAnnotationLangLib(ballerinaPackage)) {
+            if (isPreDeclaredLangLib(ballerinaPackage)) {
                 return;
             }
             String packageName = ballerinaPackage.getPackageName();
@@ -274,11 +274,6 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
 
         return !endModuleNameComponent.isMissing()
                 && endModuleNameComponent.lineRange().endLine().offset() < cursor.getCharacter();
-    }
-
-    private boolean isAnnotationLangLib(BallerinaPackage ballerinaPackage) {
-        return "ballerina".equals(ballerinaPackage.getOrgName())
-                && "lang.annotations".equals(ballerinaPackage.getPackageName());
     }
 
     private enum ContextScope {

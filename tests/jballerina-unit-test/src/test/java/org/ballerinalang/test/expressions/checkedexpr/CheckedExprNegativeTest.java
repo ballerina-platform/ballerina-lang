@@ -26,7 +26,6 @@ import org.testng.annotations.Test;
 /**
  * This class contains a set of negative test cases related to the checked operator.
  */
-@Test(groups = { "brokenOnNewParser" })
 public class CheckedExprNegativeTest {
 
     private static final String ERROR_MISMATCH_ERR_MSG = "invalid usage of the 'check' expression operator: no " +
@@ -55,7 +54,7 @@ public class CheckedExprNegativeTest {
         BAssertUtil.validateError(compile, 0, ERROR_MISMATCH_ERR_MSG, 11, 19);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testSemanticErrorsWithResources() {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expr_within_resource_negative.bal");

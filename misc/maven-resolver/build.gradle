@@ -17,6 +17,10 @@
 
 apply from: "$rootDir/gradle/javaProject.gradle"
 
+configurations {
+    implementation.exclude group: "org.slf4j"
+}
+
 jar {
     manifest {
         attributes(
@@ -40,10 +44,6 @@ dependencies {
     implementation 'org.apache.maven.resolver:maven-resolver-transport-http:1.4.2'
     implementation 'me.tongfei:progressbar'
     testCompile 'org.testng:testng'
-}
-
-test {
-    useTestNG()
 }
 
 description = 'Ballerina - Maven dependency resolver'

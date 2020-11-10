@@ -415,7 +415,7 @@ function desugarInteropFuncs(bir:Package module, JMethodFunctionWrapper extFuncW
         JErrorEntry ee = { trapBB:beginBB, endBB:thenBB, errorOp:retRef, targetBB:catchBB, catchIns:[] };
         foreach var exception in extFuncWrapper.jMethod.throws {
             bir:Return exceptionRet = {pos:{}, kind:bir:TERMINATOR_RETURN};
-            CatchIns catchIns = { errorClass:exception, term:exceptionRet };
+            CatchIns catchIns = { error'class:exception, term:exceptionRet };
             ee.catchIns[ee.catchIns.length()] = catchIns;
         }
 

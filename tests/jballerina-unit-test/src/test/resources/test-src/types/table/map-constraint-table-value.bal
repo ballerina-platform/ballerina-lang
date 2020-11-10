@@ -11,7 +11,7 @@ function testTableConstructExprWithAnyMap() {
     CustomerTable customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
                                                 { id: 23 , name: "James" , lname: "Clark" }];
 
-    assertEquality("id=13 name=Sanjiva lname=Weerawarana\nid=23 name=James lname=Clark", customerTable.toString());
+    assertEquality("[{\"id\":13,\"name\":\"Sanjiva\",\"lname\":\"Weerawarana\"},{\"id\":23,\"name\":\"James\",\"lname\":\"Clark\"}]", customerTable.toString());
 }
 
 type TableWithAnydata table<map<anydata>>;
@@ -21,7 +21,7 @@ function testTableConstructExprWithAnydataMap() {
     TableWithAnydata customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
                                                 { id: 23 , name: "James" , lname: "Clark" }];
 
-    assertEquality("id=13 name=Sanjiva lname=Weerawarana\nid=23 name=James lname=Clark", customerTable.toString());
+    assertEquality("[{\"id\":13,\"name\":\"Sanjiva\",\"lname\":\"Weerawarana\"},{\"id\":23,\"name\":\"James\",\"lname\":\"Clark\"}]", customerTable.toString());
 }
 
 type AssertionError distinct error;

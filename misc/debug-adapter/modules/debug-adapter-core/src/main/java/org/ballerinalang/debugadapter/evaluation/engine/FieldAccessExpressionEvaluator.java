@@ -17,7 +17,7 @@
 package org.ballerinalang.debugadapter.evaluation.engine;
 
 import com.sun.jdi.Value;
-import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -47,6 +47,11 @@ public class FieldAccessExpressionEvaluator extends Evaluator {
 
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
+        // expression is evaluated resulting in a value v
+        // if v has basic type error, the result is v
+        // otherwise, if v does not have basic type mapping, the result is a new error value
+        // otherwise, if v does not have a member whose key is field-name, the result is a new error value
+        // otherwise, the result is the member of v whose key is field-name.
         try {
             BExpressionValue result = objectExpressionEvaluator.evaluate();
             BVariable resultVar = VariableFactory.getVariable(context, result.getJdiValue());

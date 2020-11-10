@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.DocReferenceErrorType;
@@ -25,6 +26,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -33,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
@@ -58,8 +61,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -78,7 +79,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     private static final CompilerContext.Key<DocumentationAnalyzer> DOCUMENTATION_ANALYZER_KEY =
             new CompilerContext.Key<>();
 
-    private BLangDiagnosticLogHelper dlog;
+    private BLangDiagnosticLog dlog;
     private final SymbolResolver symResolver;
     private final SymbolTable symTable;
     private SymbolEnv env;
@@ -95,12 +96,13 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     private DocumentationAnalyzer(CompilerContext context) {
         context.put(DOCUMENTATION_ANALYZER_KEY, this);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.names = Names.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
+        this.dlog.setCurrentPackageId(pkgNode.packageID);
         this.env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode));
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
@@ -193,7 +195,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 validateReferences(field);
                 validateDeprecationDocumentation(field.getMarkdownDocumentationAttachment(),
                         Symbols.isFlagOn(((BLangSimpleVariable) field).symbol.flags, Flags.DEPRECATED),
-                        (DiagnosticPos) field.getPosition());
+                        field.getPosition());
             }
 
             ((BLangObjectTypeNode) typeDefinition.getTypeNode()).getFunctions().forEach(this::analyzeNode);
@@ -208,10 +210,32 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 validateReferences(field);
             }
         }
-
-        validateDeprecationDocumentation(typeDefinition.markdownDocumentationAttachment,
-                Symbols.isFlagOn(typeDefinition.symbol.flags, Flags.DEPRECATED), typeDefinition.pos);
+        if (typeDefinition.symbol != null) {
+            validateDeprecationDocumentation(typeDefinition.markdownDocumentationAttachment,
+                    Symbols.isFlagOn(typeDefinition.symbol.flags, Flags.DEPRECATED), typeDefinition.pos);
+        }
         validateDeprecatedParametersDocumentation(typeDefinition.markdownDocumentationAttachment, typeDefinition.pos);
+    }
+
+    @Override
+    public void visit(BLangClassDefinition classDefinition) {
+        validateParameters(classDefinition, classDefinition.fields, null, DiagnosticCode.UNDOCUMENTED_FIELD,
+                DiagnosticCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticCode.FIELD_ALREADY_DOCUMENTED);
+        validateReturnParameter(classDefinition, null, false);
+        validateReferences(classDefinition);
+        for (SimpleVariableNode field : classDefinition.fields) {
+            validateReferences(field);
+            validateDeprecationDocumentation(field.getMarkdownDocumentationAttachment(),
+                    Symbols.isFlagOn(((BLangSimpleVariable) field).symbol.flags, Flags.DEPRECATED),
+                    field.getPosition());
+        }
+
+        classDefinition.functions.forEach(this::analyzeNode);
+
+        validateDeprecationDocumentation(classDefinition.markdownDocumentationAttachment,
+                Symbols.isFlagOn(classDefinition.symbol.flags, Flags.DEPRECATED), classDefinition.pos);
+        validateDeprecatedParametersDocumentation(classDefinition.markdownDocumentationAttachment, classDefinition.pos);
+
     }
 
     @Override
@@ -227,7 +251,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
     private void validateDeprecationDocumentation(BLangMarkdownDocumentation documentation,
                                                   boolean isDeprecationAnnotationAvailable,
-                                                  DiagnosticPos pos) {
+                                                  Location pos) {
         if (documentation == null) {
             return;
         }
@@ -247,7 +271,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    public void validateDeprecatedParametersDocumentation(BLangMarkdownDocumentation documentation, DiagnosticPos pos) {
+    public void validateDeprecatedParametersDocumentation(BLangMarkdownDocumentation documentation,
+                                                          Location location) {
         if (documentation == null) {
             return;
         }
@@ -255,7 +280,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         BLangMarkDownDeprecatedParametersDocumentation deprecatedParametersDocumentation =
                 documentation.getDeprecatedParametersDocumentation();
         if (deprecatedParametersDocumentation != null) {
-            dlog.error(pos, DiagnosticCode.DEPRECATED_PARAMETERS_DOCUMENTATION_NOT_ALLOWED);
+            dlog.error(location, DiagnosticCode.DEPRECATED_PARAMETERS_DOCUMENTATION_NOT_ALLOWED);
         }
     }
 
@@ -330,8 +355,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 DocReferenceErrorType.NO_ERROR : DocReferenceErrorType.REFERENCE_ERROR;
     }
 
-    private BSymbol resolveFullyQualifiedSymbol(DiagnosticPos pos, SymbolEnv env, String packageId, String type,
-                                                String identifier, int tag) {
+    private BSymbol resolveFullyQualifiedSymbol(Location location, SymbolEnv env, String packageId,
+                                                String type, String identifier, int tag) {
         Name identifierName = names.fromString(identifier);
         Name pkgName = names.fromString(packageId);
         Name typeName = names.fromString(type);
@@ -339,7 +364,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
         if (pkgName != Names.EMPTY) {
             BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(env, pkgName,
-                    names.fromString(pos.getSource().getCompilationUnitName()));
+                    names.fromString(location.lineRange().filePath()));
 
             if (pkgSymbol == symTable.notFoundSymbol) {
                 return symTable.notFoundSymbol;
@@ -354,16 +379,16 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         // If there is no type in the reference we need to search in the package level and the current scope only.
         if (typeName == Names.EMPTY) {
             if ((tag & SymTag.IMPORT) == SymTag.IMPORT) {
-                return symResolver.lookupPrefixSpaceSymbolInPackage(pos, env, pkgName, identifierName);
+                return symResolver.lookupPrefixSpaceSymbolInPackage(location, env, pkgName, identifierName);
             } else if ((tag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
-                return symResolver.lookupAnnotationSpaceSymbolInPackage(pos, env, pkgName, identifierName);
+                return symResolver.lookupAnnotationSpaceSymbolInPackage(location, env, pkgName, identifierName);
             } else if ((tag & SymTag.MAIN) == SymTag.MAIN) {
-                return symResolver.lookupMainSpaceSymbolInPackage(pos, env, pkgName, identifierName);
+                return symResolver.lookupMainSpaceSymbolInPackage(location, env, pkgName, identifierName);
             }
         }
 
         // Check for type in the environment.
-        BSymbol typeSymbol = symResolver.lookupMainSpaceSymbolInPackage(pos, env, pkgName, typeName);
+        BSymbol typeSymbol = symResolver.lookupMainSpaceSymbolInPackage(location, env, pkgName, typeName);
         if (typeSymbol == symTable.notFoundSymbol) {
             return symTable.notFoundSymbol;
         }
@@ -374,7 +399,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             // `pkgEnv` is `env` if no package was identified or else it's the package's environment
             String functionID = typeName + "." + identifierName;
             Name functionName = names.fromString(functionID);
-            return symResolver.lookupMemberSymbol(pos, objectTypeSymbol.methodScope, pkgEnv, functionName, tag);
+            return symResolver.lookupMemberSymbol(location, objectTypeSymbol.scope, pkgEnv, functionName, tag);
         }
 
         return symTable.notFoundSymbol;

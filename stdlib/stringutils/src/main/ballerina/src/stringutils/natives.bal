@@ -183,65 +183,65 @@ public function toBoolean(string stringValue) returns boolean {
 // Interoperable external functions.
 function containsExternal(handle originalString, handle substring) returns boolean = @java:Method {
     name: "contains",
-    class: "java.lang.String",
+    'class: "java.lang.String",
     paramTypes: ["java.lang.String"]
 } external;
 
 function equalsIgnoreCaseExternal(handle firstString, handle secondString) returns boolean = @java:Method {
     name: "equalsIgnoreCase",
-    class: "java.lang.String",
+    'class: "java.lang.String",
     paramTypes: ["java.lang.String"]
 } external;
 
 function lastIndexOfExternal(handle originalString, handle substring) returns int = @java:Method {
     name: "lastIndexOf",
-    class: "java.lang.String",
+    'class: "java.lang.String",
     paramTypes: ["java.lang.String"]
 } external;
 
 function matchesExternal(handle stringToMatch, handle regex) returns boolean = @java:Method {
     name: "matches",
-    class: "java.lang.String",
+    'class: "java.lang.String",
     paramTypes: ["java.lang.String"]
 } external;
 
 function replaceExternal(handle originalString, handle stringToReplace, handle replacement)
                          returns handle = @java:Method {
     name: "replace",
-    class: "java.lang.String",
+    'class: "java.lang.String",
     paramTypes: ["java.lang.String", "java.lang.String"]
 } external;
 
 function replaceAllExternal(handle originalString, handle regex, handle replacement) returns handle = @java:Method {
     name: "replaceAll",
-    class: "java.lang.String",
+    'class: "java.lang.String",
     paramTypes: ["java.lang.String", "java.lang.String"]
 } external;
 
 function replaceFirstExternal(handle originalString, handle regex, handle replacement) returns handle = @java:Method {
     name: "replaceFirst",
-    class: "java.lang.String",
+    'class: "java.lang.String",
     paramTypes: ["java.lang.String", "java.lang.String"]
 } external;
 
 function splitExternal(handle receiver, handle delimiter) returns handle = @java:Method {
     name: "split",
-    class: "java.lang.String",
+    'class: "java.lang.String",
     paramTypes: ["java.lang.String"]
 } external;
 
 function hashCodeExternal(handle stringValue) returns int = @java:Method {
     name: "hashCode",
-    class: "java.lang.String"
+    'class: "java.lang.String"
 } external;
 
 function toBooleanExternal(handle stringValue) returns boolean = @java:Method {
     name: "valueOf",
-    class: "java.lang.Boolean",
+    'class: "java.lang.Boolean",
     paramTypes: ["java.lang.String"]
 } external;
 
 function getBallerinaStringArray(handle h) returns string[] = @java:Constructor {
-    class:"org/ballerinalang/jvm/values/ArrayValueImpl",
+    'class:"io/ballerina/runtime/values/ArrayValueImpl",
     paramTypes:["[Ljava.lang.String;"]
 } external;

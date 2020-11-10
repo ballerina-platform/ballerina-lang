@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.cachingclient;
 
+import io.ballerina.runtime.api.values.BObject;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -82,7 +82,7 @@ public class HttpCachingClientTest {
     @Test(description = "Tests whether the Age header is parsed correctly, according to the specification",
           enabled = false)
     public void testGetResponseAge() {
-        ObjectValue cachedResponse = createResponseObject();
+        BObject cachedResponse = createResponseObject();
         HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         inResponseMsg.setHeader(AGE, "10");
         inResponseMsg.setHttpStatusCode(200);
@@ -105,7 +105,7 @@ public class HttpCachingClientTest {
     @Test(description = "Tests whether the Date header is parsed correctly to an integer value", enabled = false)
     public void testGetDateValue() {
         String expectedDate = "Thu, 01 Mar 2018 15:36:34 GMT";
-        ObjectValue inResponse = createResponseObject();
+        BObject inResponse = createResponseObject();
 
         HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         inResponseMsg.setHeader(DATE, expectedDate);
@@ -127,7 +127,7 @@ public class HttpCachingClientTest {
     public void testRetain2xxWarnings() {
         final String warning214 = "Warning: 214 - \"Transformation Applied\"";
         final String warning299 = "Warning: 299 - \"Miscellaneous Persistent Warning\"";
-        ObjectValue inResponse = createResponseObject();
+        BObject inResponse = createResponseObject();
 
         HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpHeaders httpHeaders = inResponseMsg.getHeaders();
@@ -161,7 +161,7 @@ public class HttpCachingClientTest {
         final String cacheControlHeader = "no-cache=\"Set-Cookie\",max-age=120";
         final String etagHeader = "1sps79e:q0efehi8";
 
-        ObjectValue cachedResponse = createResponseObject();
+        BObject cachedResponse = createResponseObject();
         HttpCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         cachedResponseMsg.setHttpStatusCode(200);
         cachedResponseMsg.setHeader(DATE, cachedDateHeader);
@@ -170,7 +170,7 @@ public class HttpCachingClientTest {
         cachedResponseMsg.setHeader(ETAG, etagHeader);
         initInboundResponse(cachedResponse, cachedResponseMsg);
 
-        ObjectValue validationResponse = createResponseObject();
+        BObject validationResponse = createResponseObject();
         HttpCarbonMessage validationResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         validationResponseMsg.setHttpStatusCode(304);
         validationResponseMsg.setHeader(DATE, validationDateHeader);
@@ -219,7 +219,7 @@ public class HttpCachingClientTest {
         final String lastModifiedHeader = "Thu, 01 Mar 2018 15:36:34 GMT";
         final String etagHeader = "1sps79e:q0efehi8";
 
-        ObjectValue validationResponse = createResponseObject();
+        BObject validationResponse = createResponseObject();
         HttpCarbonMessage validationResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         validationResponseMsg.setHttpStatusCode(200);
         validationResponseMsg.setHeader(LAST_MODIFIED, lastModifiedHeader);
@@ -254,7 +254,7 @@ public class HttpCachingClientTest {
         RequestCacheControlObj requestCacheControl = new RequestCacheControlObj(createRequestCacheControlObject());
         requestCacheControl.setMaxStale(Long.MAX_VALUE);
 
-        ObjectValue cachedResponse = createResponseObject();
+        BObject cachedResponse = createResponseObject();
 
         ResponseCacheControlObj responseCacheControl = new ResponseCacheControlObj(createResponseCacheControlObject());
 
@@ -331,7 +331,7 @@ public class HttpCachingClientTest {
         final String dateHeader = "Thu, 01 Mar 2018 15:36:34 GMT";
         final String expiresHeader = "Thu, 01 Mar 2018 15:46:34 GMT"; // 600 second difference
 
-        ObjectValue cachedResponse = createResponseObject();
+        BObject cachedResponse = createResponseObject();
         ResponseCacheControlObj responseCacheControl = new ResponseCacheControlObj(createResponseCacheControlObject());
         responseCacheControl.setSMaxAge(20).setMaxAge(15);
 
@@ -388,7 +388,7 @@ public class HttpCachingClientTest {
         final String dateHeader = "Thu, 01 Mar 2018 15:36:34 GMT";
         final String expiresHeader = "Thu, 01 Mar 2018 15:46:34 GMT"; // 600 second difference
 
-        ObjectValue cachedResponse = createResponseObject();
+        BObject cachedResponse = createResponseObject();
         ResponseCacheControlObj responseCacheControl = new ResponseCacheControlObj(createResponseCacheControlObject());
         responseCacheControl.setMaxAge(300).setSMaxAge(300);
 
@@ -438,14 +438,14 @@ public class HttpCachingClientTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    private void initInboundResponse(ObjectValue inResponse, HttpCarbonMessage inResponseMsg) {
+    private void initInboundResponse(BObject inResponse, HttpCarbonMessage inResponseMsg) {
         HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
-        ObjectValue entity = createEntityObject();
+        BObject entity = createEntityObject();
         HttpUtil.populateInboundResponse(inResponse, entity, inResponseMsg);
     }
 
-    private void initOutboundRequest(ObjectValue outRequest, RequestCacheControlObj cacheControl) {
-        ObjectValue entity = createEntityObject();
+    private void initOutboundRequest(BObject outRequest, RequestCacheControlObj cacheControl) {
+        BObject entity = createEntityObject();
         outRequest.set(REQUEST_ENTITY_FIELD, entity);
 
         outRequest.set(REQUEST_CACHE_CONTROL_FIELD, cacheControl.getObj());

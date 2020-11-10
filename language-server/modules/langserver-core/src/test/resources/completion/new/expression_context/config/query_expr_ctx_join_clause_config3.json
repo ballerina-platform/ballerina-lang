@@ -1,0 +1,16 @@
+{
+  "position": {
+    "line": 16,
+    "character": 34
+  },
+  "source": "expression_context/source/query_expr_ctx_join_clause_source3.bal",
+  "items": [
+    {
+      "label": "in",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "in ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

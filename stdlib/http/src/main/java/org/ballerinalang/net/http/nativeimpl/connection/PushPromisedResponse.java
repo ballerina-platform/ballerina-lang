@@ -18,11 +18,12 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BalEnv;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpUtil;
@@ -41,16 +42,16 @@ import static org.ballerinalang.net.http.HttpUtil.extractEntity;
  */
 public class PushPromisedResponse extends ConnectionAction {
 
-    public static Object pushPromisedResponse(ObjectValue connectionObj, ObjectValue pushPromiseObj,
-                                     ObjectValue outboundResponseObj) {
+    public static Object pushPromisedResponse(BalEnv env, BObject connectionObj, BObject pushPromiseObj,
+                                              BObject outboundResponseObj) {
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
         Strand strand = Scheduler.getStrand();
-        DataContext dataContext = new DataContext(strand, new NonBlockingCallback(strand), inboundRequestMsg);
+        DataContext dataContext = new DataContext(strand, env.markAsync(), inboundRequestMsg);
         HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
 
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseObj, null);
         if (http2PushPromise == null) {
-            throw BallerinaErrors.createError("invalid push promise");
+            throw BErrorCreator.createError(BStringUtils.fromString(("invalid push promise")));
         }
 
         HttpCarbonMessage outboundResponseMsg = HttpUtil
@@ -62,7 +63,7 @@ public class PushPromisedResponse extends ConnectionAction {
     }
 
     private static void pushResponseRobust(DataContext dataContext, HttpCarbonMessage requestMessage,
-                                    ObjectValue outboundResponseObj, HttpCarbonMessage responseMessage,
+                                    BObject outboundResponseObj, HttpCarbonMessage responseMessage,
                                     Http2PushPromise http2PushPromise) {
         HttpResponseFuture outboundRespStatusFuture =
                 HttpUtil.pushResponse(requestMessage, responseMessage, http2PushPromise);
@@ -72,7 +73,7 @@ public class PushPromisedResponse extends ConnectionAction {
         outboundRespStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
         OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
 
-        ObjectValue entityObj = extractEntity(outboundResponseObj);
+        BObject entityObj = extractEntity(outboundResponseObj);
         if (entityObj != null) {
             Object outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityObj);
             serializeMsgDataSource(outboundMessageSource, entityObj, messageOutputStream);

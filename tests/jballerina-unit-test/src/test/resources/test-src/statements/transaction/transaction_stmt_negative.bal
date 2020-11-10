@@ -279,7 +279,7 @@ transactional function func2(string str) returns string {
  return str + " -> within Trx Func";
 }
 
-type Bank client object {
+client class Bank {
     remote transactional function deposit(string str) returns string {
         return str + "-> deposit trx func ";
     }
@@ -292,7 +292,7 @@ type Bank client object {
             var amount = self->deposit(str);
         }
     }
-};
+}
 
 transactional function checkBalance(string str) returns string {
     return str + "-> check balance function ";

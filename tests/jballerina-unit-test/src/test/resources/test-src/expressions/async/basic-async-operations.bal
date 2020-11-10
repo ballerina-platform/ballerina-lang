@@ -138,7 +138,7 @@ function testAsyncObjectAttachedFunctions() returns int {
     return a;
 }
 
-type foo object {
+class foo {
 
     bar b = new;
 
@@ -153,13 +153,13 @@ type foo object {
     function doFoo1(int x) returns int {
         return x;
     }
-};
+}
 
-type bar object {
+class bar {
     function doBar(int x) returns int {
         return x;
     }
-};
+}
 
 public function testAsyncInvWithoutDefaultParams() returns int {
    future<int> aa = start asyncTest("example value!!!!!!!!");
@@ -187,16 +187,16 @@ public function testAttachedAsyncInvWithDefaultParams() returns int {
    return wait aa;
 }
 
-public type Person object {
+public class Person {
 
    public function asyncTest(string a, Emp e = new Emp(val = 40)) returns int {
        return e.val;
    }
-};
+}
 
-public type Emp object {
+public class Emp {
     public int val;
     public function init(int val = 9) {
         self.val = val;
     }
-};
+}

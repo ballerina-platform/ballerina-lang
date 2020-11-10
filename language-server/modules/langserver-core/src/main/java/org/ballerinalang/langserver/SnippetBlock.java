@@ -115,6 +115,8 @@ public class SnippetBlock {
         switch (kind) {
             case KEYWORD:
                 return CompletionItemKind.Keyword;
+            case TYPE:
+                return CompletionItemKind.Unit;
             case SNIPPET:
             case STATEMENT:
             default:
@@ -134,6 +136,6 @@ public class SnippetBlock {
      * Represents Snippet Types in B7a LS.
      */
     public enum Kind {
-        KEYWORD, SNIPPET, STATEMENT;
+        KEYWORD, SNIPPET, STATEMENT, TYPE;
     }
 }

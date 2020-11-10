@@ -33,8 +33,8 @@
               "kind": "CLIENT_KEYWORD",
               "hasDiagnostics": true,
               "diagnostics": [
-                "ERROR_SAME_OBJECT_TYPE_QUALIFIER",
-                "ERROR_SAME_OBJECT_TYPE_QUALIFIER"
+                "ERROR_DUPLICATE_QUALIFIER",
+                "ERROR_DUPLICATE_QUALIFIER"
               ],
               "trailingMinutiae": [
                 {

@@ -14,12 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/java;
+
 # Get elements matching at least one of `elemNames`
 #
 # + x - The xml source
 # + elemNames - ualified name of the elements to filter
 # + return - All elements that match elemNames
-public function getElements(xml x, string... elemNames) returns xml = external;
+public function getElements(xml x, string... elemNames) returns xml = @java:Method {
+    'class: "org.ballerinalang.langlib.internal.GetElements",
+    name: "getElements"
+} external;
 
 # Get childElements matching `elemNames` and childIndex for each children sequence.
 # xml x = xml `<a><a0>x</a0><a0>y</a0></a><b><a0>j</a0><a0>k</a0></b>`;
@@ -30,7 +35,10 @@ public function getElements(xml x, string... elemNames) returns xml = external;
 # + index - child index to select from each child sequence, -1 to select all elements
 # + elemNames - Qualified name of the elements to filter,
 # + return - All child elements matching `index` condition and  `elemNames` condition.
-public function getFilteredChildrenFlat(xml x, int index, string... elemNames) returns xml = external;
+public function getFilteredChildrenFlat(xml x, int index, string... elemNames) returns xml = @java:Method {
+    'class: "org.ballerinalang.langlib.internal.GetFilteredChildrenFlat",
+    name: "getFilteredChildrenFlat"
+} external;
 
 # Searches in children recursively for elements matching the qualified name and returns a sequence containing them
 # all. Does not search within a matched result.
@@ -38,7 +46,10 @@ public function getFilteredChildrenFlat(xml x, int index, string... elemNames) r
 # + x - The xml source
 # + qname - Qualified name of the element
 # + return - All the descendants that matches the given qualified name, as a sequence
-public function selectDescendants(xml x, string... qname) returns xml = external;
+public function selectDescendants(xml x, string... qname) returns xml = @java:Method {
+    'class: "org.ballerinalang.langlib.internal.SelectDescendants",
+    name: "selectDescendants"
+} external;
 
 # Return attribute matching expanded attribute name
 #
@@ -46,37 +57,16 @@ public function selectDescendants(xml x, string... qname) returns xml = external
 # + attributeName - Attribute name in expanded from
 # + isOptionalAccess - Is this a optoinal access expression or not
 # + return - Attribute value
-public function getAttribute(xml x, string attributeName, boolean isOptionalAccess) returns string|error? = external;
+public function getAttribute(xml x, string attributeName, boolean isOptionalAccess) returns string|error? = @java:Method {
+    'class: "org.ballerinalang.langlib.internal.GetAttribute",
+    name: "getAttribute"
+} external;
 
 # Return name of the element if `x` is a element or nil if element name is not set, else error.
 #
 # + x - The xml value
 # + return - Element name
-public function getElementNameNilLifting(xml x) returns string|error? = external;
-
-# Functional constructor for xml:Element subtype.
-#
-# + name - Name of element
-# + attributeMap - Optional attribute map
-# + children - Optional children
-# + return - Constructed Element value
-public function elementCtor(string name, map<string> attributeMap = {}, xml children = textCtor()) returns xml = external;
-
-# Functional constructor for xml:ProcessingInstruction subtype.
-#
-# + target - Target potion
-# + content - Content potion
-# + return - Constructed ProcessingInstruction value
-public function processingInstructionCtor(string target, string content = "") returns xml = external;
-
-# Functional constructor for xml:Comment subtype.
-#
-# + content - Comment content
-# + return - Constructed Comment value
-public function commentCtor(string content = "") returns xml = external;
-
-# Functional constructor for xml:Text subtype.
-#
-# + characters - Text content
-# + return - Constructed Text value
-public function textCtor(string characters = "") returns xml = external;
+public function getElementNameNilLifting(xml x) returns string|error? = @java:Method {
+    'class: "org.ballerinalang.langlib.internal.GetElementNameNilLifting",
+    name: "getElementNameNilLifting"
+} external;

@@ -27,6 +27,9 @@ function testReadonlyRecordFields() {
     testSubTypingWithReadOnlyFields();
     testSubTypingWithReadOnlyFieldsViaReadOnlyType();
     testSubTypingWithReadOnlyFieldsNegative();
+    testSubTypingWithReadOnlyFieldsPositiveComposite();
+    testSubTypingWithReadOnlyFieldsNegativeComposite();
+    testSubTypingMapAsRecordWithReadOnlyFields();
 }
 
 type Student record {
@@ -356,6 +359,320 @@ function testSubTypingWithReadOnlyFieldsNegative() {
     assertTrue(grad is Graduate);
     assertFalse(undergrad is Person);
     assertFalse(grad is Person);
+}
+
+const HUNDRED = 100;
+
+type Baz record {|
+    HUNDRED i;
+    float|string f;
+    boolean b;
+    object {} a1;
+    json a2;
+    decimal d?;
+    () ad;
+    map<int>|boolean[] u;
+    readonly r;
+    Quuz q;
+    string|int...;
+|};
+
+type Qux record {|
+    readonly string|int i;
+    float f;
+    readonly boolean b?;
+    readonly int|Quux a1;
+    readonly any a2;
+    readonly int[] d?;
+    readonly anydata ad;
+    readonly map<any> u;
+    readonly int[] r;
+    readonly anydata|object {} q;
+    readonly json z;
+    string...;
+|};
+
+type Quux object {
+    map<string> m;
+
+    function getMap() returns map<string>;
+};
+
+type Quuz record {|
+    int i;
+    float f;
+|};
+
+readonly class ReadonlyQuux {
+    map<string> & readonly m;
+
+    function init(map<string> & readonly m) {
+        self.m = m;
+    }
+
+    function getMap() returns map<string> & readonly {
+        return self.m;
+    }
+}
+
+function testSubTypingWithReadOnlyFieldsPositiveComposite() {
+    int[] & readonly arr = [1, 2];
+    readonly & record {|json|xml...;|} rec = {
+        "i": 123,
+        "f": 988.42
+    };
+
+    Qux b = {
+        i: 100,
+        b: true,
+        f: 12.0,
+        a1: new ReadonlyQuux({a: "hello", b: "world"}),
+        a2: "anydata value",
+        ad: (),
+        u: {
+            a: 1,
+            b: 2
+        },
+        r: arr,
+        q: rec,
+        z: 1111
+    };
+
+    any a = b;
+    assertTrue(a is Qux);
+    assertTrue(a is Baz);
+
+    Baz f = <Baz> a;
+    assertEquality(HUNDRED, f.i);
+    assertEquality(12.0, f.f);
+    assertTrue(f.b);
+    assertTrue(f["a1"] is ReadonlyQuux);
+    assertEquality(<map<string>> {a: "hello", b: "world"}, (<ReadonlyQuux> f["a1"]).getMap());
+    assertEquality("anydata value", f["a2"]);
+    assertEquality((), f?.d);
+    assertEquality((), f.ad);
+    assertTrue(f.u is map<int> & readonly);
+    assertEquality(<map<int>> {a: 1, b: 2}, f.u);
+    assertTrue(f.r is int[] & readonly);
+    assertEquality(arr, f.r);
+    assertEquality(rec, f.q);
+    assertEquality(<Quuz> {i: 123, f: 988.42}, f.q);
+    assertEquality((), f["y"]);
+    assertEquality(1111, f["z"]);
+}
+
+function testSubTypingWithReadOnlyFieldsNegativeComposite() {
+    int[] & readonly arr = [1, 2];
+    readonly & record {|json|xml...;|} rec = {
+        "i": 123,
+        "f": 988.42
+    };
+
+    Qux b1 = {
+        i: 101, // doesn't match, expected `HUNDRED`
+        b: true,
+        f: 12.0,
+        a1: new ReadonlyQuux({a: "hello", b: "world"}),
+        a2: "anydata value",
+        ad: (),
+        u: {
+            a: 1,
+            b: 2
+        },
+        r: arr,
+        q: rec,
+        z: 1111
+    };
+
+    any a = b1;
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
+
+    Qux b2 = {
+        i: 100,
+         // doesn't match because no `b`
+        f: 12.0,
+        a1: new ReadonlyQuux({a: "hello", b: "world"}),
+        a2: "anydata value",
+        ad: (),
+        u: {
+            a: 1,
+            b: 2
+        },
+        r: arr,
+        q: rec,
+        z: 1111
+    };
+
+    a = b2;
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
+
+    Qux b3 = {
+        i: 100,
+        b: true,
+        f: 12.0,
+        a1: 123, // doesn't match, expected `object {}`
+        a2: "anydata value",
+        ad: (),
+        u: {
+            a: 1,
+            b: 2
+        },
+        r: arr,
+        q: rec,
+        z: 1111
+    };
+
+    a = b3;
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
+
+    Qux b4 = {
+        i: 100,
+        b: true,
+        f: 12.0,
+        a1: new ReadonlyQuux({a: "hello", b: "world"}),
+        a2: xml `<foo>FOO</foo>`, // doesn't match, expected `json`
+        ad: (),
+        u: {
+            a: 1,
+            b: 2
+        },
+        r: arr,
+        q: rec,
+        z: 1111
+    };
+
+    a = b4;
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
+
+    Qux b5 = {
+        i: 100,
+        b: true,
+        f: 12.0,
+        a1: new ReadonlyQuux({a: "hello", b: "world"}),
+        a2: "anydata value",
+        ad: 1.2, // doesn't match, expected `()`
+        u: {
+            a: 1,
+            b: 2
+        },
+        r: arr,
+        q: rec,
+        z: 1111
+    };
+
+    a = b5;
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
+
+    Qux b6 = {
+        i: 100,
+        b: true,
+        f: 12.0,
+        a1: new ReadonlyQuux({a: "hello", b: "world"}),
+        a2: "anydata value",
+        ad: (),
+        u: {  // doesn't match, expected `map<int>`
+            a: 1,
+            b: "str"
+        },
+        r: arr,
+        q: rec,
+        z: 1111
+    };
+
+    a = b6;
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
+
+    Qux b7 = {
+        i: 100,
+        b: true,
+        f: 12.0,
+        a1: new ReadonlyQuux({a: "hello", b: "world"}),
+        a2: "anydata value",
+        ad: (),
+        u: {
+            a: 1,
+            b: 2
+        },
+        r: arr,
+        q: {i: 112},  // doesn't match, expected `Quuz`
+        z: 1111
+    };
+
+    a = b7;
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
+
+    Qux b8 = {
+        i: 100,
+        b: true,
+        f: 12.0,
+        a1: new ReadonlyQuux({a: "hello", b: "world"}),
+        a2: "anydata value",
+        ad: (),
+        u: {
+            a: 1,
+            b: 2
+        },
+        r: arr,
+        q: rec,
+        z: 1.0 // doesn't match, expected `int|string`
+    };
+
+    a = b8;
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
+}
+
+type StudentParticulars record {|
+    readonly string name;
+    int id;
+|};
+
+type StudentParticularsWithMarks record {|
+    readonly string name;
+    float id?;
+    float...;
+|};
+
+function testSubTypingMapAsRecordWithReadOnlyFields() {
+    map<string|int> mutableMap = {
+        name: "Maryam",
+        id: 1234
+    };
+
+    map<string|int> & readonly immutableMap = {
+        name: "Maryam",
+        id: 1234
+    };
+
+    map<string|float> & readonly immutableMapWithFloatId = {
+        name: "Maryam",
+        id: 123.4
+    };
+
+    map<string|int|float> & readonly immutableMapWithMarks = {
+        name: "Maryam",
+        id: 123.4,
+        physics: 85.0
+    };
+
+    assertFalse(<any> mutableMap is StudentParticulars);
+    assertFalse(<any> mutableMap is StudentParticularsWithMarks);
+
+    assertTrue(<any> immutableMap is StudentParticulars);
+    assertFalse(<any> immutableMap is StudentParticularsWithMarks);
+
+    assertFalse(<any> immutableMapWithFloatId is StudentParticulars);
+    assertTrue(<any> immutableMapWithFloatId is StudentParticularsWithMarks);
+
+    assertFalse(<any> immutableMapWithMarks is StudentParticulars);
+    assertTrue(<any> immutableMapWithMarks is StudentParticularsWithMarks);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

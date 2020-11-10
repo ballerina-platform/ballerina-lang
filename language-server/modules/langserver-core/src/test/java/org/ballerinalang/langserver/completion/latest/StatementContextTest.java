@@ -36,7 +36,12 @@ public class StatementContextTest extends CompletionTestNew {
 
     @Override
     public List<String> skipList() {
-        return Arrays.asList("if_stmt_ctx_config3.json", "elseif_stmt_ctx_config3.json");
+        return Arrays.asList(
+                "if_stmt_ctx_config3.json",
+                "elseif_stmt_ctx_config3.json",
+                "if_stmt_ctx_config3.json", // Blocked By #26317
+                "match_stmt_ctx_config1.json" // Blocked by #26455
+        );
     }
 
     @Override

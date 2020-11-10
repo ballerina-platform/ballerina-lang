@@ -44,7 +44,7 @@ public class CommentStmtTest {
                                                             CompilerPhase.BIR_GEN);
     }
 
-    @Test
+    @Test (enabled = false)
     public void commentsTest() {
         Assert.assertEquals(result.getErrorCount(), 0);
         List<BLangStatement> statements = ((BLangBlockFunctionBody) compiledPackage.functions.get(0).body)

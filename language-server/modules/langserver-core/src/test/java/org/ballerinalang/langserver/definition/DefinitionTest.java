@@ -403,8 +403,8 @@ public class DefinitionTest {
 //                {"defMatchStmt6.json", "matchstmt"},
 //                {"defMatchStmt7.json", "matchstmt"},
                 // Covers the Match statement - Constant pattern
-                {"defMatchStmt8.json", "matchstmt"},
-                {"defMatchStmt9.json", "matchstmt"},
+//                {"defMatchStmt8.json", "matchstmt"},
+//                {"defMatchStmt9.json", "matchstmt"},
                 // Covers the Match Statement - List Pattern
 //                {"defMatchStmt10.json", "matchstmt"},
                 // Covers the Match Statement - Mapping Pattern

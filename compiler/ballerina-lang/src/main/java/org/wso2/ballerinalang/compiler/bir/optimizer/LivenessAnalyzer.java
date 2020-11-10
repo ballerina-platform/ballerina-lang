@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.bir.optimizer;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
+import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -105,7 +106,7 @@ public class LivenessAnalyzer {
         BIRNode.BIRVariableDcl def = null;
         if (node.instruction.lhsOp != null) {
             BIRNode.BIRVariableDcl variableDcl = node.instruction.lhsOp.variableDcl;
-            if (!(variableDcl instanceof BIRNode.BIRGlobalVariableDcl)) {
+            if (variableDcl.kind != VarKind.GLOBAL) {
                 def = variableDcl;
             }
         }

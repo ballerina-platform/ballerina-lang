@@ -188,7 +188,7 @@ public function workerAsAFutureTest() returns int {
     return wait wy;
 }
 
-type ObjFuncUsingWorkersAsFutureValues object {
+class ObjFuncUsingWorkersAsFutureValues {
     function foo() returns int {
         worker wx returns int {
             any a = <- wy;
@@ -229,7 +229,7 @@ type ObjFuncUsingWorkersAsFutureValues object {
         return wait wy;
     }
 
-};
+}
 
 
 

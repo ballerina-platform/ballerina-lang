@@ -23,7 +23,7 @@ import ballerina/runtime;
 #
 # + positiveAuthzCache - The `cache:Cache` instance, which holds positive authorizations
 # + negativeAuthzCache - The `cache:Cache` instance, which holds negative authorizations
-public type AuthzHandler object {
+public class AuthzHandler {
 
     public cache:Cache? positiveAuthzCache;
     public cache:Cache? negativeAuthzCache;
@@ -77,7 +77,7 @@ public type AuthzHandler object {
         }
         return authorized;
     }
-};
+}
 
 function generateAuthzCacheKey(string username, string[] userScopes, string serviceName, string resourceName,
                                string requestMethod) returns string {

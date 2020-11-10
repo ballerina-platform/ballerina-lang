@@ -35,7 +35,7 @@ dependencies {
 
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
@@ -43,7 +43,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-config-api')
-    interopImports project(':ballerina-http')
+//    interopImports project(':ballerina-http')
     interopImports project(':ballerina-io')
     interopImports project(':ballerina-log-api')
     interopImports project(':ballerina-system')
@@ -60,7 +60,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+
 
     interopImports project(':ballerina-io')
 
@@ -75,7 +75,7 @@ dependencies {
     implementation project(':ballerina-cache')
     implementation project(':ballerina-system')
     implementation project(':ballerina-task')
-    implementation project(':ballerina-http')
+//    implementation project(':ballerina-http')
 
     interopImports project(':ballerina-crypto')
 }

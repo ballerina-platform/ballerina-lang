@@ -71,7 +71,7 @@ function constantAssignment () {
     aa = "mad";
 }
 
-public type Client client object {
+public client class Client {
     public remote function foo() returns [int, int] {
         return [0, 0];
     }
@@ -83,7 +83,7 @@ public type Client client object {
     public remote function foo2() returns error {
         return error("the error reason");
     }
-};
+}
 
 public function restActionResultAssignment() {
     Client c = new();

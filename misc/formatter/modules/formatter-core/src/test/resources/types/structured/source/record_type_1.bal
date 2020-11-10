@@ -1,4 +1,3 @@
-function foo() {
     type Student   record
     {
        string name;
@@ -10,4 +9,3 @@ function foo() {
     {|
        int maths;  int...;
     |};
-}

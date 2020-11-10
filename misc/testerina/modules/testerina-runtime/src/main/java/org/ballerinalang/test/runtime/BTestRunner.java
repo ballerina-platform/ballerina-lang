@@ -19,29 +19,30 @@
 package org.ballerinalang.test.runtime;
 
 import com.google.gson.Gson;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BBooleanType;
-import org.ballerinalang.jvm.types.BByteType;
-import org.ballerinalang.jvm.types.BDecimalType;
-import org.ballerinalang.jvm.types.BFloatType;
-import org.ballerinalang.jvm.types.BIntegerType;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BStringType;
-import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BXMLType;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.DecimalValue;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.BooleanType;
+import io.ballerina.runtime.api.types.ByteType;
+import io.ballerina.runtime.api.types.DecimalType;
+import io.ballerina.runtime.api.types.FloatType;
+import io.ballerina.runtime.api.types.IntegerType;
+import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.StringType;
+import io.ballerina.runtime.api.types.TupleType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.XMLType;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
+import io.ballerina.runtime.values.ArrayValue;
+import io.ballerina.runtime.values.DecimalValue;
+import io.ballerina.runtime.values.MapValue;
+import io.ballerina.runtime.values.ObjectValue;
+import io.ballerina.runtime.values.XMLValue;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.entity.TesterinaFunction;
@@ -72,7 +73,7 @@ import java.util.stream.Collectors;
  */
 public class BTestRunner {
 
-    public static final String MODULE_INIT_CLASS_NAME = "___init";
+    public static final String MODULE_INIT_CLASS_NAME = "$_init";
     private static final String FILE_NAME_PERIOD_SEPARATOR = "$$$";
 
     private PrintStream errStream;
@@ -413,12 +414,6 @@ public class BTestRunner {
                                  Scheduler scheduler, AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest,
                                  List<String> failedOrSkippedTests, List<String> failedAfterFuncTests) {
         TesterinaResult functionResult;
-        Path sourceRootPath = Paths.get(suite.getSourceRootPath());
-        Path jsonCacheDir = sourceRootPath.resolve("target").resolve("caches").resolve("json_cache");
-        Path rerunJson =
-                jsonCacheDir.resolve(suite.getOrgName()).resolve(suite.getPackageID()).resolve(suite.getVersion());
-        Path jsonPath = Paths.get(rerunJson.toString(), TesterinaConstants.RERUN_TEST_JSON_FILE);
-        File jsonFile = new File(jsonPath.toString());
 
         try {
             if (isTestDependsOnFailedFunctions(test.getDependsOnTestFunctions(), failedOrSkippedTests) ||
@@ -467,7 +462,15 @@ public class BTestRunner {
             suite.getGroups().get(groupName).incrementExecutedCount();
         }
 
-        writeFailedTestsToJson(failedOrSkippedTests, jsonFile);
+        if (!packageName.equals(TesterinaConstants.DOT)) {
+            Path sourceRootPath = Paths.get(suite.getSourceRootPath()).resolve(TesterinaConstants.TARGET_DIR_NAME)
+                    .resolve(TesterinaConstants.CACHES_DIR_NAME).resolve(TesterinaConstants.JSON_CACHE_DIR_NAME);
+            Path rerunJson = sourceRootPath.resolve(suite.getOrgName()).resolve(suite.getPackageID())
+                    .resolve(suite.getVersion());
+            Path jsonPath = Paths.get(rerunJson.toString(), TesterinaConstants.RERUN_TEST_JSON_FILE);
+            File jsonFile = new File(jsonPath.toString());
+            writeFailedTestsToJson(failedOrSkippedTests, jsonFile);
+        }
 
     }
 
@@ -516,7 +519,6 @@ public class BTestRunner {
                     String errorMsg;
                     for (String afterGroupFunc : suite.getGroups().get(groupName).getAfterGroupsFunctions()) {
                         try {
-
                             invokeTestFunction(suite, afterGroupFunc, classLoader, scheduler);
                         } catch (Throwable e) {
                             shouldSkip.set(true);
@@ -611,9 +613,9 @@ public class BTestRunner {
 
     private String formatErrorMessage(Throwable e) {
         String message;
-        if (e.getCause() instanceof ErrorValue) {
+        if (e.getCause() instanceof BError) {
             try {
-                message = ((ErrorValue) e.getCause()).getPrintableStackTrace();
+                message = ((BError) e.getCause()).getPrintableStackTrace();
             } catch (ClassCastException castException) {
                 // throw the exception to top
                 throw new BallerinaException(e);
@@ -639,17 +641,17 @@ public class BTestRunner {
     private List<Object[]> extractArguments(Object valueSets) {
         List<Object[]> argsList = new ArrayList<>();
 
-        if (valueSets instanceof ArrayValue) {
-            ArrayValue arrayValue = (ArrayValue) valueSets;
-            if (arrayValue.getElementType() instanceof BArrayType) {
+        if (valueSets instanceof BArray) {
+            BArray bArray = (BArray) valueSets;
+            if (bArray.getElementType() instanceof ArrayType) {
                 // Ok we have an array of an array
-                for (int i = 0; i < arrayValue.size(); i++) {
+                for (int i = 0; i < bArray.size(); i++) {
                     // Iterate array elements and set parameters
-                    setTestFunctionParams(argsList, (ArrayValue) arrayValue.get(i));
+                    setTestFunctionParams(argsList, (BArray) bArray.get(i));
                 }
             } else {
                 // Iterate array elements and set parameters
-                setTestFunctionParams(argsList, arrayValue);
+                setTestFunctionParams(argsList, bArray);
             }
         }
         return argsList;
@@ -663,16 +665,16 @@ public class BTestRunner {
     private static Class<?>[] extractArgumentTypes(Object valueSets) {
         List<Class<?>> typeList = new ArrayList<>();
         typeList.add(Strand.class);
-        if (valueSets instanceof ArrayValue) {
-            ArrayValue arrayValue = (ArrayValue) valueSets;
-            if (arrayValue.getElementType() instanceof BArrayType) {
+        if (valueSets instanceof BArray) {
+            BArray bArray = (BArray) valueSets;
+            if (bArray.getElementType() instanceof ArrayType) {
                 // Ok we have an array of an array
                 // Get the first entry
                 // Iterate elements and get class types.
-                setTestFunctionSignature(typeList, (ArrayValue) arrayValue.get(0));
+                setTestFunctionSignature(typeList, (BArray) bArray.get(0));
             } else {
                 // Iterate elements and get class types.
-                setTestFunctionSignature(typeList, arrayValue);
+                setTestFunctionSignature(typeList, bArray);
             }
         }
         Class<?>[] typeListArray = new Class[typeList.size()];
@@ -680,9 +682,9 @@ public class BTestRunner {
         return typeListArray;
     }
 
-    private static void setTestFunctionSignature(List<Class<?>> typeList, ArrayValue arrayValue) {
-        Class<?> type = getArgTypeToClassMapping(arrayValue.getElementType());
-        for (int i = 0; i < arrayValue.size(); i++) {
+    private static void setTestFunctionSignature(List<Class<?>> typeList, BArray bArray) {
+        Class<?> type = getArgTypeToClassMapping(bArray.getElementType());
+        for (int i = 0; i < bArray.size(); i++) {
             // Add the param type.
             typeList.add(type);
             // This is in jvm function signature to tel if args is passed or not.
@@ -690,41 +692,41 @@ public class BTestRunner {
         }
     }
 
-    private static void setTestFunctionParams(List<Object[]> valueList, ArrayValue arrayValue) {
+    private static void setTestFunctionParams(List<Object[]> valueList, BArray bArray) {
         List<Object> params = new ArrayList<>();
         // Add a place holder to Strand
         params.add(new Object());
-        for (int i = 0; i < arrayValue.size(); i++) {
+        for (int i = 0; i < bArray.size(); i++) {
             // Add the param type.
-            params.add(arrayValue.get(i));
+            params.add(bArray.get(i));
             // This is in jvm function signature to tel if args is passed or not.
             params.add(Boolean.TRUE);
         }
         valueList.add(params.toArray());
     }
 
-    private static Class<?> getArgTypeToClassMapping(BType elementType) {
+    private static Class<?> getArgTypeToClassMapping(Type elementType) {
         Class<?> type;
         // Refer jvm_method_gen.bal getArgTypeSignature for proper type matching
-        if (elementType instanceof BStringType) {
+        if (elementType instanceof StringType) {
             type = BString.class;
-        } else if (elementType instanceof BIntegerType) {
+        } else if (elementType instanceof IntegerType) {
             type = Long.TYPE;
-        } else if (elementType instanceof BBooleanType) {
+        } else if (elementType instanceof BooleanType) {
             type = Boolean.TYPE;
-        } else if (elementType instanceof BDecimalType) {
+        } else if (elementType instanceof DecimalType) {
             type = DecimalValue.class;
-        } else if (elementType instanceof BByteType) {
+        } else if (elementType instanceof ByteType) {
             type = Integer.TYPE;
-        } else if (elementType instanceof BArrayType || elementType instanceof BTupleType) {
+        } else if (elementType instanceof ArrayType || elementType instanceof TupleType) {
             type = ArrayValue.class;
-        } else if (elementType instanceof BFloatType) {
+        } else if (elementType instanceof FloatType) {
             type = Double.TYPE;
-        } else if (elementType instanceof BMapType || elementType instanceof BRecordType) {
+        } else if (elementType instanceof MapType || elementType instanceof RecordType) {
             type = MapValue.class;
-        } else if (elementType instanceof BXMLType) {
+        } else if (elementType instanceof XMLType) {
             type = XMLValue.class;
-        } else if (elementType instanceof BObjectType) {
+        } else if (elementType instanceof ObjectType) {
             type = ObjectValue.class;
         } else {
             // default case
@@ -762,4 +764,3 @@ public class BTestRunner {
     }
 
 }
-

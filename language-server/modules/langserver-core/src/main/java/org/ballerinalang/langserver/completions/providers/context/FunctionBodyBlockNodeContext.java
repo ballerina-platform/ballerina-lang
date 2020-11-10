@@ -15,9 +15,9 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
@@ -54,6 +54,9 @@ public class FunctionBodyBlockNodeContext extends BlockNodeContextProvider<Funct
 
     @Override
     public boolean onPreValidation(LSContext context, FunctionBodyBlockNode node) {
-        return !node.openBraceToken().isMissing() && !node.closeBraceToken().isMissing();
+        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        return !node.openBraceToken().isMissing() && !node.closeBraceToken().isMissing()
+                && node.closeBraceToken().textRange().startOffset() >= cursor
+                && node.openBraceToken().textRange().endOffset() <= cursor;
     }
 }

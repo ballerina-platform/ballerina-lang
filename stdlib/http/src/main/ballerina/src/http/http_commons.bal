@@ -132,7 +132,7 @@ public type CommonClientConfiguration record {|
 # + return - A tuple containing the value and its parameter map or else an `http:ClientError` if the header parsing fails
 //TODO: Make the error nillable
 public function parseHeader(string headerValue) returns [string, map<any>]|ClientError = @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ParseHeader",
+    'class: "org.ballerinalang.net.http.nativeimpl.ParseHeader",
     name: "parseHeader"
 } external;
 
@@ -349,33 +349,33 @@ function addObservabilityInformation(string path, string method, int statusCode,
 
 //Resolve a given path against a given URI.
 function resolve(string baseUrl, string path) returns string|ClientError = @java:Method {
-    class: "org.ballerinalang.net.uri.nativeimpl.Resolve",
+    'class: "org.ballerinalang.net.uri.nativeimpl.Resolve",
     name: "resolve"
 } external;
 
 // Non-blocking payload retrieval common external functions
 function externGetJson(mime:Entity entity) returns @tainted json|mime:ParserError = @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternHttpDataSourceBuilder",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternHttpDataSourceBuilder",
     name: "getNonBlockingJson"
 } external;
 
 function externGetXml(mime:Entity entity) returns @tainted xml|mime:ParserError = @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternHttpDataSourceBuilder",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternHttpDataSourceBuilder",
     name: "getNonBlockingXml"
 } external;
 
 function externGetText(mime:Entity entity) returns @tainted string|mime:ParserError = @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternHttpDataSourceBuilder",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternHttpDataSourceBuilder",
     name: "getNonBlockingText"
 } external;
 
 function externGetByteArray(mime:Entity entity) returns @tainted byte[]|mime:ParserError = @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternHttpDataSourceBuilder",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternHttpDataSourceBuilder",
     name: "getNonBlockingByteArray"
 } external;
 
 function externGetByteChannel(mime:Entity entity) returns @tainted io:ReadableByteChannel|mime:ParserError =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternHttpDataSourceBuilder",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternHttpDataSourceBuilder",
     name: "getByteChannel"
 } external;

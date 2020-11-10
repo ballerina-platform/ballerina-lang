@@ -1,7 +1,7 @@
-import ballerina/io;
-import ballerina/http;
-import ballerina/io;
+import ballerina/lang.'int;
+import ballerina/lang.'float;
+import ballerina/lang.'int;
 
 public function foo() {
-    io:println("Hello world!");
+    int|error i3 = 'int:fromString("100");
 }

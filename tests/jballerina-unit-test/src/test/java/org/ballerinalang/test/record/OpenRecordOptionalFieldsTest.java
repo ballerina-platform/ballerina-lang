@@ -17,14 +17,14 @@
  */
 package org.ballerinalang.test.record;
 
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.types.TypeTags;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -112,15 +112,15 @@ public class OpenRecordOptionalFieldsTest {
 
     @Test(description = "Test non-defaultable optional field access",
           expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: '\\(\\)' cannot be cast to " +
-                  "'Address3'.*")
+          expectedExceptionsMessageRegExp = ".*TypeCastError \\{\"message\":\"incompatible types: '\\(\\)' " +
+                  "cannot be cast to 'Address3'.*")
     public void testOptionalNonDefField2() {
         BRunUtil.invoke(compileResult, "testOptionalNonDefField2");
     }
 
     @Test(description = "Test non-defaultable optional field access",
           expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*KeyNotFound message=cannot find key 'adrs'.*")
+          expectedExceptionsMessageRegExp = ".*KeyNotFound \\{\"message\":\"cannot find key 'adrs'.*")
     public void testOptionalNonDefField3() {
         BRunUtil.invoke(compileResult, "testOptionalNonDefField3");
     }

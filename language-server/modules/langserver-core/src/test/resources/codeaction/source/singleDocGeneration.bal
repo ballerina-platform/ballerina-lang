@@ -33,6 +33,6 @@ type testDocObject object {
     }
 };
 
-type testDocAbstractObject abstract object {
+type testDocAbstractObject object {
     function testFunction();
 };

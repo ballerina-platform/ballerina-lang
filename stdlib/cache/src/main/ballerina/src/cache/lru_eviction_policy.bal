@@ -16,7 +16,7 @@
 
 # The `cache:LruEvictionPolicy` object consists of the LRU eviction algorithm related operations based on a linked
 # list data structure.
-public type LruEvictionPolicy object {
+public class LruEvictionPolicy {
 
     *AbstractEvictionPolicy;
 
@@ -70,4 +70,4 @@ public type LruEvictionPolicy object {
         return removeLast(list);
     }
 
-};
+}

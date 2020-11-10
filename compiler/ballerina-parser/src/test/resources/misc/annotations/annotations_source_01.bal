@@ -1,48 +1,44 @@
-@annot1{} 
+@annot1 {}
 public function foo() {
 }
 
-
-@annot2{} 
+@annot2 {}
 type foo record {
 
-    @annot3{}
+    @annot3 {}
     int a;
-    
-    @annot4{}
+
+    @annot4 {}
     int b = 3;
 };
 
-
-@annot5{} 
+@annot5 {}
 type foo object {
 
-    @annot6{}
+    @annot6 {}
     int a;
-    
-    @annot7{}
-    private function bar() {
-    }
+
+    @annot7 {}
+    public function bar();
 };
 
-
-@annot8{} 
+@annot8 {}
 service foo on bar {
 
-    @annot9{}
+    @annot9 {}
     resource function getName() {
     }
-    
-    @annot10{}
+
+    @annot10 {}
     function getName() {
     }
 }
 
-@annot11{} 
+@annot11 {}
 const a = "hello";
 
-@annot12{} 
+@annot12 {}
 int b = 4;
 
-@annot13{} 
+@annot13 {}
 listener string c = "http://ballerinalang.io";

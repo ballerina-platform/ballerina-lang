@@ -32,6 +32,7 @@ dependencies {
     
     // Lang lib Bir
     dist project(path: ':ballerina-lang:internal', configuration: 'birJar')
+    dist project(path: ':ballerina-lang:java', configuration: 'birJar')
     dist project(path: ':ballerina-lang:annotations', configuration: 'birJar')
     dist project(path: ':ballerina-lang:array', configuration: 'birJar')
     dist project(path: ':ballerina-lang:decimal', configuration: 'birJar')
@@ -51,7 +52,6 @@ dependencies {
     dist project(path: ':ballerina-lang:query', configuration: 'birJar')
     dist project(path: ':ballerina-lang:transaction', configuration: 'birJar')
     dist project(path: ':ballerina-observability', configuration: 'birJar')
-    dist project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'birJar')
 
     // Lang libs
     dist project(':ballerina-lang:internal')
@@ -73,6 +73,7 @@ dependencies {
     dist project(':ballerina-lang:bool')
     dist project(':ballerina-lang:query')
     dist project(':ballerina-lang:transaction')
+    dist project(':ballerina-lang:java')
     dist project(':ballerina-observability')
     
     // Third party jars
@@ -80,7 +81,6 @@ dependencies {
     dist 'org.slf4j:slf4j-jdk14:1.7.22'
     dist 'org.slf4j:slf4j-api:1.7.22'
     dist 'com.moandjiezana.toml:toml4j:0.7.2'
-    dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
     dist 'org.apache.commons:commons-lang3:3.8.1'
     dist 'org.codehaus.woodstox:woodstox-core-asl:4.4.1'
     dist 'org.codehaus.woodstox:stax2-api:4.2'
@@ -101,7 +101,6 @@ dependencies {
     // observability extensions
     //// metrics
     dist project(':metrics-extensions:ballerina-metrics-extension')
-    dist project(':metrics-extensions:ballerina-prometheus-extension')
     //// tracing
     dist project(':tracing-extensions:ballerina-jaeger-extension')
     dist 'io.jaegertracing:jaeger-core:0.31.0'
@@ -112,6 +111,13 @@ dependencies {
 
     // Temporary adding . Need to Remove once fix #17878
     dist 'com.google.code.gson:gson:2.7'
+
+    // Transaction related third party jars
+    dist 'com.atomikos:transactions-jta:5.0.8'
+    dist 'com.atomikos:atomikos-util:5.0.8'
+    dist 'com.atomikos:transactions-api:5.0.8'
+    dist 'com.atomikos:transactions:5.0.8'
+    dist 'javax.transaction:javax.transaction-api:1.3'
 
     // Other Runtime Libs
     dist project(':ballerina-runtime')

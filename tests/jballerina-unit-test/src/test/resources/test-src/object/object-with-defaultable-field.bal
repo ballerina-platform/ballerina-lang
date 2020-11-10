@@ -4,7 +4,7 @@ public function testObjectWithSimpleInit () returns [int, string, int, string] {
     return [p.age, p.name, p.year, p.month];
 }
 
-type Person object {
+class Person {
     public int age = 10;
     public string name = "";
 
@@ -17,4 +17,4 @@ type Person object {
         self.age = self.age + count;
         self.month = val1;
     }
-};
+}

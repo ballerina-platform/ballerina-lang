@@ -23,7 +23,7 @@ function testIncompatibleListConstructorExprs2() {
     [[int, int], [NoFillerObject, NoFillerObject]] b = [];
 }
 
-type NoFillerObject abstract object {
+type NoFillerObject object {
 };
 
 function testInvalidAssignmentForInferredTuple() {

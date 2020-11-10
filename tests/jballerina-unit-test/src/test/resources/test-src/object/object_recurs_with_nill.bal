@@ -4,12 +4,12 @@ function testRecursiveObjectWithNill() returns int {
     return (p.age);
 }
 
-type Person object {
+class Person {
     public int age = 90;
     public Employee ep = new;
-};
+}
 
-type Employee object {
+class Employee {
     public int pp = 0;
     public Person? p = ();
-};
+}

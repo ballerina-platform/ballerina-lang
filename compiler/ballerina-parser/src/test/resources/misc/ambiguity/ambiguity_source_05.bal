@@ -2,6 +2,6 @@ function foo() {
     {
         [a] b = c;
     }
-    
-    { [a] : b } -> w1;
+
+    {[a] : b} -> w1;
 }

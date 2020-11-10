@@ -125,7 +125,7 @@ function assignFiniteValueAsDefaultParam(State cd = "on") returns State {
    return c.b ?: "off";
 }
 
-type Channel object {
+class Channel {
 
     public State? b;
 
@@ -136,7 +136,7 @@ type Channel object {
            int i = 4;
         }
     }
-};
+}
 
 type CombinedState "on"|"off"|int;
 

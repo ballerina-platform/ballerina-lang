@@ -1,0 +1,62 @@
+{{#partial "sidebarName" }}
+    Classes
+{{/partial}}
+
+{{#partial "sidebarLists" }}
+    {{#each module.classes}}
+        <li {{#equals bClass.name name}}class="active"{{/equals}}>
+            <a href="{{name}}.html" onclick="menuLinkClick()">{{name}}</a>
+        </li>
+    {{/each}}
+{{/partial}}
+
+{{#partial "titleType" }}
+    Class
+{{/partial}}
+{{#partial "title" }}
+    <span class="classes {{#if bClass.isDeprecated}}strike{{/if}}">{{ bClass.name }}</span>
+{{/partial}}
+
+{{#partial "content" }}
+    <p>
+        {{#if bClass.isDeprecated}}
+            <span class="stab">Deprecated</span>
+        {{/if}}
+        {{{ bClass.description }}}
+    </p>
+
+    <div class="constants">
+        <div class="method-sum">
+            {{#if bClass.initMethod}}
+                {{#bClass.initMethod}}
+                {{> initMethod }}
+                {{/bClass.initMethod}}
+            {{/if}}
+
+        
+            {{#if bClass.otherMethods}}
+                <h2>Methods</h2>
+                <div class="method-list">
+                    {{#each bClass.otherMethods}}
+                        {{> methodSignature }}
+                    {{/each}}
+                </div>
+            {{/if}}
+
+            {{#if bClass.fields}}
+                {{#bClass}}
+                    <h2>Fields</h2>
+                        {{> fields }}
+                {{/bClass}}
+            {{/if}}
+        </div>
+
+        {{#if bClass.otherMethods }}
+            {{#each bClass.otherMethods }}
+                {{> method }}
+            {{/each}}
+        {{/if}}
+    </div>
+{{/partial}}
+
+{{> layout}}

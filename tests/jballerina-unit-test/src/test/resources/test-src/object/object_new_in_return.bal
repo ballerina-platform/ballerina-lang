@@ -6,21 +6,21 @@ function testCreateObjectInReturnDifferentType () returns int {
     return returnDifferentObectInit().age;
 }
 
-type Person object {
+class Person {
     public int age = 0;
 
     function init (int age) {
         self.age = age;
     }
-};
+}
 
-type Employee object {
+class Employee {
     public int age = 0;
 
     function init (int age, int addVal) {
         self.age = age + addVal;
     }
-};
+}
 
 function returnSameObectInit() returns Person {
     return new (5);

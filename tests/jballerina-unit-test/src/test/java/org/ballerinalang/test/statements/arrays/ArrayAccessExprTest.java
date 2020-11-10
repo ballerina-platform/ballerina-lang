@@ -17,16 +17,16 @@
 */
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.types.BTypes;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -48,8 +48,8 @@ public class ArrayAccessExprTest {
     //TODO try to validate all the lines in the exception message
     @Test(description = "Test access an non-initialized arrays",
             expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IndexOutOfRange message=array index " +
-                    "out of range: index: 5, size: 0.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IndexOutOfRange " +
+                    "\\{\"message\":\"array index out of range: index: 5, size: 0.*")
     public void testNonInitArrayAccess() {
         BRunUtil.invoke(compileResult, "testNonInitArrayAccess");
         Assert.fail("Test should fail at this point.");

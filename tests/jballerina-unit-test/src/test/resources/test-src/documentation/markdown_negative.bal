@@ -1,4 +1,4 @@
-import ballerina/http;
+import ballerina/lang.test;
 
 # Documentation for Test annotation
 # function `9invalidFunc`
@@ -41,7 +41,7 @@ type Test record {
 # const `9invalidConst`
 # const `invalidConst`
 # parameter `invalidParameter`
-public type File object {
+public class File {
     public string path = "";
     public string path3 = "";
 
@@ -55,7 +55,7 @@ public type File object {
         boolean successful = false;
         return successful;
     }
-};
+}
 
 type Person record {
     string firstName;
@@ -87,21 +87,14 @@ type TestConnector record {
 # parameter `invalidParameter`
 # + conn - HTTP connection.
 # + return - description
-@http:ServiceConfig {
-    basePath:"/hello"
-}
-service PizzaService on new http:MockListener(9090) {
+service PizzaService on new test:MockListener(9090) {
 
     # Check orderPizza resource.
     # + req - In request.
     # + req - In request.
     # + reqest - In request.
-    @http:ResourceConfig {
-        path:"/"
-    }
-    resource function orderPizza(http:Caller conn, http:Request req) {
-        http:Response res = new;
-        checkpanic conn->respond(res);
+    resource function orderPizza(string conn, string req) {
+
     }
 }
 

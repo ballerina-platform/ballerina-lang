@@ -50,14 +50,14 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-tool')
-    implementation project(':ballerina-http')
-    implementation project(':ballerina-transactions')
+//    implementation project(':ballerina-http')
+//    implementation project(':ballerina-transactions')
     implementation project(':ballerina-packerina')
-    implementation project(':ballerina-transactions')
+//    implementation project(':ballerina-transactions')
     implementation project(':ballerina-time')
     implementation project(':ballerina-observability')
     implementation project(':ballerina-stringutils')
-    implementation project(':ballerina-java')
+    implementation project(':ballerina-lang:java')
     implementation project(':observability-test-utils')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     implementation 'io.netty:netty-tcnative-boringssl-static'
@@ -67,8 +67,8 @@ dependencies {
 
     balRuntime project(':ballerina-runtime')
 
-    baloTestImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
@@ -83,7 +83,7 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
 
     testCompile project(':ballerina-mime')
     testCompile project(':ballerina-runtime')

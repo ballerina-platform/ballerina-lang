@@ -52,9 +52,9 @@ type Subscription record{|
     string degree;
 |};
 
-type NumberGenerator object {
+class NumberGenerator {
     int i = 0;
-    public function next() returns record {|int value;|}|error? {
+    public isolated function next() returns record {|int value;|}|error? {
         //closes the stream after 5 events
         if (self.i == 5) {
             return ();
@@ -62,18 +62,18 @@ type NumberGenerator object {
         self.i += 1;
         return {value: self.i};
     }
-};
+}
 
-type NumberGeneratorWithError object {
+class NumberGeneratorWithError {
     int i = 0;
-    public function next() returns record {|int value;|}|error? {
+    public isolated function next() returns record {|int value;|}|error? {
         if (self.i == 3) {
             return error("Custom error thrown explicitly.");
         }
         self.i += 1;
         return {value: self.i};
     }
-};
+}
 
 type ResultValue record {|
     Person value;

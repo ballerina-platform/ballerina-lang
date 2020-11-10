@@ -24,50 +24,13 @@ import org.testng.annotations.Test;
  */
 public class LocalTypeDefinitionStatement extends AbstractStatementTest {
 
-    // Valid syntax tests
+    // Local type definitions are not allowed in new spec. This test is only to check what happens if user mistakenly
+    // declare a local type def
 
     @Test
-    public void testComplexLocalTypeDefStmt() {
+    public void testLocalTypedef() {
         testFile("local-type-defn-stmt/local_type_defn_stmt_source_01.bal",
         "local-type-defn-stmt/local_type_defn_stmt_assert_01.json");
-    }
-
-    @Test
-    public void testEmptyObjectLocalTypeDefStmt() {
-        testFile("local-type-defn-stmt/local_type_defn_stmt_source_02.bal",
-        "local-type-defn-stmt/local_type_defn_stmt_assert_02.json");
-    }
-
-    @Test
-    public void testLocalTypeDefStmtWithFieldsOnly() {
-        testFile("local-type-defn-stmt/local_type_defn_stmt_source_03.bal",
-        "local-type-defn-stmt/local_type_defn_stmt_assert_03.json");
-    }
-
-    @Test
-    public void testLocalTypeDefStmtWithMethodsOnly() {
-        testFile("local-type-defn-stmt/local_type_defn_stmt_source_04.bal",
-        "local-type-defn-stmt/local_type_defn_stmt_assert_04.json");
-    }
-
-    // Recovery tests
-
-    @Test
-    public void testObjectMembersWithExtraTokens() {
-        testFile("local-type-defn-stmt/local_type_defn_stmt_source_05.bal",
-        "local-type-defn-stmt/local_type_defn_stmt_assert_05.json");
-    }
-
-    @Test
-    public void testObjectFieldWithMissingEqual() {
-        testFile("local-type-defn-stmt/local_type_defn_stmt_source_06.bal",
-        "local-type-defn-stmt/local_type_defn_stmt_assert_06.json");
-    }
-
-    @Test
-    public void testNestedObjectRecovery() {
-        testFile("local-type-defn-stmt/local_type_defn_stmt_source_07.bal",
-        "local-type-defn-stmt/local_type_defn_stmt_assert_07.json");
     }
 
 }

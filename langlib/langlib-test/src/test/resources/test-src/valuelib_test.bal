@@ -100,7 +100,11 @@ function testFromJsonString() returns map<json|error> {
     string aNull = "null";
     string aString = "\"aString\"";
     string aNumber = "10";
-    //string aFloatNumber = "10.5";
+    string aFloatNumber = "10.5";
+    string positiveZero = "0";
+    string negativeZero = "-0";
+    string negativeNumber = "-25";
+    string negativeFloatNumber = "-10.5";
     string anArray = "[\"hello\", \"world\"]";
     string anObject = "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}";
     string anInvalid = "{\"name\":\"anObject\",";
@@ -110,10 +114,98 @@ function testFromJsonString() returns map<json|error> {
     result["aNull"] = aNull.fromJsonString();
     result["aString"] = aString.fromJsonString();
     result["aNumber"] = aNumber.fromJsonString();
-    //result["aFloatNumber"] = aFloatNumber.fromJsonString();
+    result["aFloatNumber"] = aFloatNumber.fromJsonString();
+    result["positiveZero"] = positiveZero.fromJsonString();
+    result["negativeZero"] = negativeZero.fromJsonString();
+    result["negativeNumber"] = negativeNumber.fromJsonString();
+    result["negativeFloatNumber"] = negativeFloatNumber.fromJsonString();
     result["anArray"] = anArray.fromJsonString();
     result["anObject"] = anObject.fromJsonString();
     result["anInvalid"] = anInvalid.fromJsonString();
+
+    assert(result["aNumber"] is int, true);
+    assert(result["aFloatNumber"] is decimal, true);
+    assert(result["positiveZero"] is int, true);
+    assert(result["negativeZero"] is float, true);
+    assert(result["negativeNumber"] is int, true);
+    assert(result["negativeFloatNumber"] is decimal, true);
+
+    return result;
+}
+
+function testFromJsonFloatString() returns map<json|error> {
+    string aNil = "()";
+    string aNull = "null";
+    string aString = "\"aString\"";
+    string aNumber = "10";
+    string aFloatNumber = "10.5";
+    string positiveZero = "0";
+    string negativeZero = "-0";
+    string negativeNumber = "-25";
+    string negativeFloatNumber = "-10.5";
+    string anArray = "[\"hello\", \"world\"]";
+    string anObject = "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}";
+    string anInvalid = "{\"name\":\"anObject\",";
+    map<json|error> result = {};
+
+    result["aNil"] = aNil.fromJsonFloatString();
+    result["aNull"] = aNull.fromJsonFloatString();
+    result["aString"] = aString.fromJsonFloatString();
+    result["aNumber"] = aNumber.fromJsonFloatString();
+    result["aFloatNumber"] = aFloatNumber.fromJsonFloatString();
+    result["positiveZero"] = positiveZero.fromJsonFloatString();
+    result["negativeZero"] = negativeZero.fromJsonFloatString();
+    result["negativeNumber"] = negativeNumber.fromJsonFloatString();
+    result["negativeFloatNumber"] = negativeFloatNumber.fromJsonFloatString();
+    result["anArray"] = anArray.fromJsonFloatString();
+    result["anObject"] = anObject.fromJsonFloatString();
+    result["anInvalid"] = anInvalid.fromJsonFloatString();
+
+    assert(result["aNumber"] is float, true);
+    assert(result["aFloatNumber"] is float, true);
+    assert(result["positiveZero"] is float, true);
+    assert(result["negativeZero"] is float, true);
+    assert(result["negativeNumber"] is float, true);
+    assert(result["negativeFloatNumber"] is float, true);
+
+    return result;
+}
+
+function testFromJsonDecimalString() returns map<json|error> {
+    string aNil = "()";
+    string aNull = "null";
+    string aString = "\"aString\"";
+    string aNumber = "10";
+    string aFloatNumber = "10.5";
+    string positiveZero = "0";
+    string negativeZero = "-0";
+    string negativeNumber = "-25";
+    string negativeFloatNumber = "-10.5";
+    string anArray = "[\"hello\", \"world\"]";
+    string anObject = "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}";
+    string anInvalid = "{\"name\":\"anObject\",";
+    map<json|error> result = {};
+
+    result["aNil"] = aNil.fromJsonDecimalString();
+    result["aNull"] = aNull.fromJsonDecimalString();
+    result["aString"] = aString.fromJsonDecimalString();
+    result["aNumber"] = aNumber.fromJsonDecimalString();
+    result["aFloatNumber"] = aFloatNumber.fromJsonDecimalString();
+    result["positiveZero"] = positiveZero.fromJsonDecimalString();
+    result["negativeZero"] = negativeZero.fromJsonDecimalString();
+    result["negativeNumber"] = negativeNumber.fromJsonDecimalString();
+    result["negativeFloatNumber"] = negativeFloatNumber.fromJsonDecimalString();
+    result["anArray"] = anArray.fromJsonDecimalString();
+    result["anObject"] = anObject.fromJsonDecimalString();
+    result["anInvalid"] = anInvalid.fromJsonDecimalString();
+
+    assert(result["aNumber"] is decimal, true);
+    assert(result["aFloatNumber"] is decimal, true);
+    assert(result["positiveZero"] is decimal, true);
+    assert(result["negativeZero"] is decimal, true);
+    assert(result["negativeNumber"] is decimal, true);
+    assert(result["negativeFloatNumber"] is decimal, true);
+
     return result;
 }
 
@@ -279,7 +371,7 @@ public type AnotherDetail record {
 public const REASON_1 = "Reason1";
 public type FirstError distinct error<AnotherDetail>;
 
-public type Student object {
+public class Student {
 
     string name;
     string school;
@@ -292,9 +384,9 @@ public type Student object {
     public function getDetails() returns string {
         return self.name + " from " + self.school;
     }
-};
+}
 
-public type Teacher object {
+public class Teacher {
 
     string name;
     string school;
@@ -311,7 +403,7 @@ public type Teacher object {
     public function toString() returns string {
         return self.getDetails();
     }
-};
+}
 
 function testToString() returns string[] {
     int varInt = 6;
@@ -357,7 +449,8 @@ function testToStringMethodForTable() {
             { id: 2, age: 20,  salary: 300.5, name: "John", married: true }
         ];
 
-    assertEquality("id=1 age=30 salary=300.5 name=Mary married=true\nid=2 age=20 salary=300.5 name=John married=true", employeeTable.toString());
+    assertEquality("[{\"id\":1,\"age\":30,\"salary\":300.5,\"name\":\"Mary\",\"married\":true},"
+    + "{\"id\":2,\"age\":20,\"salary\":300.5,\"name\":\"John\",\"married\":true}]", employeeTable.toString());
 }
 
 public function xmlSequenceFragmentToString() returns string {
@@ -594,12 +687,12 @@ function testFromJsonWIthTypeNegative() {
 }
 
 function testFromJsonWithTypeRecord1() {
-    string str = "{\"name\":\"Name\", \"age\":35}";
+    string str = "{\"name\":\"Name\",\"age\":35}";
     json j = <json> str.fromJsonString();
     Student2|error p = j.fromJsonWithType(Student2);
 
     assert(p is Student2, true);
-    assert(p.toString(), "name=Name age=35");
+    assert(p.toString(), "{\"name\":\"Name\",\"age\":35}");
 }
 
 type Student3 record {
@@ -632,12 +725,12 @@ type Foo6 record {
 };
 
 function testFromJsonWithTypeRecord2() {
-    string str = "{\"name\":\"Name\", \"age\":35}";
+    string str = "{\"name\":\"Name\",\"age\":35}";
     json j = <json> str.fromJsonString();
     Student3|error p = j.fromJsonWithType(Student3);
 
     assert(p is Student3, true);
-    assert(p.toString(), "name=Name age=35");
+    assert(p.toString(), "{\"name\":\"Name\",\"age\":35}");
 }
 
 function testFromJsonWithTypeRecord3() {
@@ -659,7 +752,7 @@ function testFromJsonWithTypeRecord3() {
 type Student2Or3 Student2|Student3;
 
 function testFromJsonWithTypeAmbiguousTargetType() {
-    string str = "{\"name\":\"Name\", \"age\":35}";
+    string str = "{\"name\":\"Name\",\"age\":35}";
     json j = <json> str.fromJsonString();
     Student3|error p = j.fromJsonWithType(Student2Or3);
     assert(p is error, true);
@@ -799,7 +892,7 @@ function testFromJsonStringWithTypeJson() {
 }
 
 function testFromJsonStringWithTypeRecord() {
-    string str = "{\"name\":\"Name\", \"age\":35}";
+    string str = "{\"name\":\"Name\",\"age\":35}";
     Student3|error studentOrError = str.fromJsonStringWithType(Student3);
 
     assert(studentOrError is Student3, true);
@@ -808,13 +901,13 @@ function testFromJsonStringWithTypeRecord() {
 }
 
 function testFromJsonStringWithAmbiguousType() {
-    string str = "{\"name\":\"Name\", \"age\":35}";
+    string str = "{\"name\":\"Name\",\"age\":35}";
     Student3|error p = str.fromJsonStringWithType(Student2Or3);
     assert(p is error, true);
 }
 
 function testFromJsonStringWithTypeMap() {
-    string s = "{\"title\":\"Some\", \"year\":2010}";
+    string s = "{\"title\":\"Some\",\"year\":2010}";
     map<anydata>|error movieMap = s.fromJsonStringWithType(MapOfAnyData);
     map<anydata> movieMap2 = <map<anydata>> movieMap;
     assert(movieMap2["title"], "Some");
@@ -822,7 +915,7 @@ function testFromJsonStringWithTypeMap() {
 }
 
 function testFromJsonStringWithTypeStringArray() {
-    string s = "[\"Hello\", \"World\"]";
+    string s = "[\"Hello\",\"World\"]";
     string[]|error a = s.fromJsonStringWithType(StringArray);
     string[] a2 = <string[]> a;
     assert(a2.length(), 2);
@@ -936,6 +1029,17 @@ function testToJsonWithTable() {
     assert(j.toJsonString(), "[{\"id\":12, \"str\":\"abc\"}, {\"id\":34, \"str\":\"def\"}]");
 }
 
+function testToStringOnCycles() {
+     map<anydata> x = {"ee" : 3};
+     map<anydata> y = {"qq" : 5};
+     anydata[] arr = [2 , 3, 5];
+     x["1"] = y;
+     y["1"] = x;
+     y["2"] = arr;
+     arr.push(x);
+     assert(x.toString(), "{\"ee\":3,\"1\":{\"qq\":5,\"1\":...,\"2\":[2,3,5,...]}}");
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;
@@ -945,4 +1049,199 @@ function assert(anydata actual, anydata expected) {
         error e = error(reason);
         panic e;
     }
+}
+
+///////////////////////// Tests for `ensureType()` ///////////////////////////
+
+json  p = {
+    name: "Chiran",
+    age: 24,
+    email: "chirans",
+    height: 178.5,
+    weight: 72.5,
+    property: (), 
+    address: [
+        125.0/3,
+        "xyz street",
+        {province: "southern", Country: "Sri Lanka"},
+        81000
+    ],
+    married: false,
+    bloodType: {
+        group: "O",
+        RHD: "+"
+    }
+};
+
+function testEnsureTypeWithInt() returns int|error {
+    int age = check p.age;
+    return age;
+}
+
+function testEnsureTypeWithInt2() returns int|error {
+    int height = check p.height;
+    return height;
+}
+
+function testEnsureTypeWithInt3() returns int|error {
+    int married = check p.married;
+    return married;
+}
+
+function testEnsureTypeWithDecimal() returns decimal|error {
+    decimal height = check p.height;
+    return height;
+}
+
+function testEnsureTypeWithDecimal2() returns decimal|error {
+    decimal age = check p.age;
+    return age;
+}
+
+function testEnsureTypeWithNil() returns ()|error {
+    () property = check p.property;
+    return property;
+}
+
+function testEnsureTypeWithString() returns string|error {
+    string name = check p.name;
+    return name;
+}
+
+function testEnsureTypeWithFloat() returns float|error {
+    float weight = check p.weight;
+    return weight;
+}
+
+function testEnsureTypeWithUnion1() returns float|int|error {
+    float|int weight = check p.weight;
+    return weight;
+}
+
+function testEnsureTypeWithUnion2() returns float|string|error {
+    float|string name = check p.name;
+    return name;
+}
+
+function testEnsureTypeWithJson1() returns json|error {
+    json age = check p.age;
+    return age;
+}
+
+function testEnsureTypeWithJson2() returns json|error {
+    json height = check p.height;
+    return height;
+}
+
+function testEnsureTypeWithJson3() returns json|error {
+    json bloodType = check p.bloodType;
+    return bloodType;
+}
+
+function testEnsureTypeWithJson4() returns json|error {
+    json address = check p.address;
+    return address;
+}
+
+function testEnsureTypeWithJson5() returns json|error {
+    json weight = check p.weight;
+    return weight;
+}
+
+function testEnsureTypeWithJson6() returns json|error {
+    json isMarried = check p.married;
+    return isMarried;
+}
+
+function testEnsureTypeWithCast1() returns boolean|error {
+    boolean isMarried = <boolean> check p.married;
+    return isMarried;
+}
+
+function testEnsureTypeWithCast2() returns json[]|error {
+    json[] address = <json[]> check p.address;
+    return address;
+}
+
+function testEnsureTypeWithCast3() returns map<json>|error {
+    map<json> bloodType = <map<json>> check p.bloodType;
+    return bloodType;
+}
+
+function testEnsureType() {
+    decimal h = 178.5;
+    float h1 = 178.5;
+    decimal w = 72.5;
+    json name = "Chiran";
+    json w1 = 72.5;
+    float|int w2 = 72.5;
+    float|string name2 = "Chiran";
+    assert(<int>testEnsureTypeWithInt(), 24);
+    assert(<int>testEnsureTypeWithInt2(), 178);
+    assert(<int>testEnsureTypeWithInt3(), 0);
+    assert(<decimal>testEnsureTypeWithDecimal(), h);
+    assert(<decimal>testEnsureTypeWithDecimal2(), 24);
+    assert(<()>testEnsureTypeWithNil(), ());
+    assert( <string>testEnsureTypeWithString(), "Chiran");
+    assert(<float>testEnsureTypeWithFloat(), w1);
+    assert(<float|int>testEnsureTypeWithUnion1(), w2);
+    assert(<float|string>testEnsureTypeWithUnion2(), name2);
+    assert(<json>testEnsureTypeWithJson1(), 24);
+    assert(<json>testEnsureTypeWithJson2(),h1);
+    assert(<json>testEnsureTypeWithJson3(), {group: "O", RHD: "+"});
+    assert(<json>testEnsureTypeWithJson4(), [125.0/3, "xyz street",
+    {province: "southern", Country: "Sri Lanka"}, 81000]);
+    assert(<json>testEnsureTypeWithJson5(), 72.5);
+    assert(<json>testEnsureTypeWithJson6(), false);
+    assert(<boolean>testEnsureTypeWithCast1(), false);
+    assert(<json[]>testEnsureTypeWithCast2(), [125.0/3, "xyz street",
+    {province: "southern", Country: "Sri Lanka"}, 81000]);
+    assert(<map<json>>testEnsureTypeWithJson3(), {group: "O", RHD: "+"});
+}
+
+function testRequiredTypeWithInvalidCast1() returns error? {
+    int age = check p.name;
+}
+
+function testRequiredTypeWithInvalidCast2() returns error? {
+    decimal name = check p.name;
+}
+
+function testRequiredTypeWithInvalidCast3() returns error? {
+    float price = check p.name;
+}
+
+function testRequiredTypeWithInvalidCast4() returns error? {
+    float[] quality = <float[]> check p.name;
+}
+
+function testRequiredTypeWithInvalidCast5() returns error? {
+    int property = check p.property;
+}
+
+function testRequiredTypeWithInvalidCast6() returns error? {
+    int property = check p.children;
+}
+
+function testEnsureTypeNegative() {
+    error? err1 = testRequiredTypeWithInvalidCast1();
+    error? err2 = testRequiredTypeWithInvalidCast2();
+    error? err3 = testRequiredTypeWithInvalidCast3();
+    error? err4 = trap testRequiredTypeWithInvalidCast4();
+    error? err5 = testRequiredTypeWithInvalidCast5();
+    error? err6 = testRequiredTypeWithInvalidCast6();
+
+    error e1 = <error> err1;
+    error e2 = <error> err2;
+    error e3 = <error> err3;
+    error e4 = <error> err4;
+    error e5 = <error> err5;
+    error e6 = <error> err6;
+
+    assertEquality("error(\"{ballerina}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'int'\")", e1.toString());
+    assertEquality("error(\"{ballerina}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'decimal'\")", e2.toString());
+    assertEquality("error(\"{ballerina}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'float'\")", e3.toString());
+    assertEquality("error(\"{ballerina}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'float[]'\")", e4.toString());
+    assertEquality("error(\"{ballerina}TypeCastError\",message=\"incompatible types: '()' cannot be cast to 'int'\")", e5.toString());
+    assertEquality("error(\"{ballerina/lang.map}KeyNotFound\",message=\"Key 'children' not found in JSON mapping\")", e6.toString());
 }

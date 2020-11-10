@@ -14,12 +14,12 @@ public type user record {
     string zipcode = "23468";
 };
 
-public type userObject object {
+public class userObject {
     public int age = 0;
     public string name = "";
     public string address = "";
     public string zipcode = "23468";
-};
+}
 
 public type person record {
     int age = 0;

@@ -14,19 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/test;
-import ballerina/time;
 
 # Before Suite Function
 @test:BeforeSuite
 function beforeSuiteFunc() {
-    io:println("I'm the before suite function!");
+    int x = 0;
 }
 
 # Before test function
 function beforeFunc() {
-    io:println("I'm the before function!");
+    int y = 0;
 }
 
 # Test function
@@ -35,7 +33,6 @@ function beforeFunc() {
     after: "afterFunc"
 }
 function testMain() {
-    io:println("I'm calling the main function in source file!");
     main();
     test:assertTrue(true, msg = "Failed!");
 }
@@ -44,28 +41,25 @@ function testMain() {
     dependsOn: ["testMain"]
 }
 function testFunction() {
-    time:Time time = time:currentTime();
-    test:when(sqrtMockFn).call("mockSqrt");
-    test:assertEquals(time:getYear(time), 125);
+    test:when(intAddMockFn).call("mockAdd");
+    test:assertEquals(intAdd(10, 6), 125, msg = "function mocking failed");
+
 }
 
 # After test function
 function afterFunc() {
-    io:println("I'm the after function!");
+    int z = 0;
 }
 
 # After Suite Function
 @test:AfterSuite {}
 function afterSuiteFunc() {
-    io:println("I'm the after suite function!");
+    int a = 0;
 }
 
-@test:Mock {
-    moduleName: "ballerina/time",
-    functionName: "getYear"
-}
-test:MockFunction sqrtMockFn = new();
+@test:Mock { functionName: "intAdd" }
+test:MockFunction intAddMockFn = new();
 
-function mockSqrt(time:Time val) returns int {
+function mockAdd(int a, int b) returns int {
     return 125;
 }
