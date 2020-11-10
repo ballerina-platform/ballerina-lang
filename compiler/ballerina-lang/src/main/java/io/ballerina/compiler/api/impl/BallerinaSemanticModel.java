@@ -19,6 +19,7 @@ package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.symbols.BallerinaSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -45,6 +46,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -153,8 +155,19 @@ public class BallerinaSemanticModel implements SemanticModel {
      * {@inheritDoc}
      */
     @Override
-    public List<Location> allReferences(Symbol symbol) {
-        return new ArrayList<>();
+    public List<Location> allReferences(String fileName, LinePosition position) {
+        BLangCompilationUnit compilationUnit = getCompilationUnit(fileName);
+        Optional<Symbol> symbol = symbol(fileName, position);
+
+        if (symbol.isEmpty()) {
+            return Collections.unmodifiableList(new ArrayList<>());
+        }
+
+        BLangNode node = new NodeFinder().lookupEnclosingContainer(this.bLangPackage, compilationUnit,
+                                                                   symbol.get().location().lineRange());
+
+        ReferenceFinder refFinder = new ReferenceFinder();
+        return refFinder.findReferences(node, ((BallerinaSymbol) symbol.get()).getInternalSymbol());
     }
 
     /**
