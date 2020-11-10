@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.semantic.api.test;
+package io.ballerina.semantic.api.test.allreferences;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
@@ -43,45 +43,36 @@ import static org.testng.Assert.assertEquals;
  *
  * @since 2.0.0
  */
-public class FindAllReferencesTest {
+public abstract class FindAllReferencesTest {
 
-    private static final List<Location> EMPTY_LIST = Collections.unmodifiableList(new ArrayList<>());
-    private static final String FILE_NAME = "find_all_ref_test.bal";
+    public static final List<Location> EMPTY_LIST = Collections.unmodifiableList(new ArrayList<>());
     private SemanticModel model;
 
     @BeforeClass
     public void setup() {
         CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/find_all_ref_test.bal", context, COMPILER_PLUGIN);
+        CompileResult result = compile(getTestSourcePath(), context, COMPILER_PLUGIN);
         BLangPackage pkg = (BLangPackage) result.getAST();
         model = new BallerinaSemanticModel(pkg, context);
     }
 
-    @Test(dataProvider = "Provider1")
+    @Test(dataProvider = "PositionProvider")
     public void testFindAllRef(int line, int col, List<Location> expLocations) {
-        List<Location> locations = model.allReferences(FILE_NAME, LinePosition.from(line, col));
+        List<Location> locations = model.allReferences(getFileName(), LinePosition.from(line, col));
         assertLocations(locations, expLocations);
     }
 
-    @DataProvider(name = "Provider1")
-    public Object[][] getPos1() {
-        return new Object[][]{
-                {22, 12, List.of(location(22, 12, 13),
-                                 location(23, 21, 22),
-                                 location(29, 37, 38),
-                                 location(32, 25, 26))
-                },
-                {23, 25, List.of(location(19, 8, 9),
-                                 location(23, 25, 26),
-                                 location(29, 29, 30),
-                                 location(35, 21, 22))
-                },
-                {16, 4, List.of(location(16, 4, 5),
-                                location(19, 17, 18)),
-                },
-                {29, 20, List.of(location(29, 20, 21))},
-                {29, 19, EMPTY_LIST}
-        };
+    @DataProvider(name = "PositionProvider")
+    public abstract Object[][] getLookupPositions();
+
+    public abstract String getFileName();
+
+    public abstract String getTestSourcePath();
+
+    // Util methods
+
+    protected Location location(int line, int startCol, int endCol) {
+        return new BLangDiagnosticLocation(getFileName(), line, line, startCol, endCol);
     }
 
     private void assertLocations(List<Location> locations, List<Location> expLocations) {
@@ -93,9 +84,5 @@ public class FindAllReferencesTest {
 
             assertEquals(location.lineRange(), expLocation.lineRange());
         }
-    }
-
-    private Location location(int line, int startCol, int endCol) {
-        return new BLangDiagnosticLocation(FILE_NAME, line, line, startCol, endCol);
     }
 }
