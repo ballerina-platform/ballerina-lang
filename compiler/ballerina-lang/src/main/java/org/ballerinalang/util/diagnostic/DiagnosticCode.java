@@ -123,6 +123,8 @@ public enum DiagnosticCode {
     REDECLARED_TYPE_REFERENCE("redeclared.type.reference"),
     REDECLARED_FUNCTION_FROM_TYPE_REFERENCE("redeclared.function.from.type.reference"),
     REFERRED_FUNCTION_SIGNATURE_MISMATCH("referred.function.signature.mismatch"),
+    CONFIGURABLE_VARIABLE_CANNOT_BE_DECLARED_WITH_VAR("configurable.variable.cannot.be.declared.with.var"),
+    CONFIGURABLE_VARIABLE_SHOULD_BE_ANYDATA("configurable.variable.should.be.anydata"),
 
     INVOKABLE_MUST_RETURN("invokable.must.return"),
     MAIN_SHOULD_BE_PUBLIC("main.should.be.public"),

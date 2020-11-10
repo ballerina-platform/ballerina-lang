@@ -611,7 +611,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangSimpleVariable varNode) {
 
+        boolean configurable = false;
+        if (Symbols.isFlagOn(varNode.symbol.flags, Flags.CONFIGURABLE)) {
+            configurable = true;
+        }
+
         if (varNode.isDeclaredWithVar) {
+            // Configurable variable cannot be declared with var
+            if (configurable) {
+                dlog.error(varNode.pos, DiagnosticCode.CONFIGURABLE_VARIABLE_CANNOT_BE_DECLARED_WITH_VAR);
+                return;
+            }
             validateWorkerAnnAttachments(varNode.expr);
             handleDeclaredWithVar(varNode);
             transferForkFlag(varNode);
@@ -666,6 +676,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BType lhsType = varNode.symbol.type;
         varNode.type = lhsType;
 
+        // Configurable variable type must be a subtype of anydata.
+        if (configurable && !lhsType.isAnydata()) {
+            dlog.error(varNode.pos, DiagnosticCode.CONFIGURABLE_VARIABLE_SHOULD_BE_ANYDATA);
+            return;
+        }
         // Analyze the init expression
         BLangExpression rhsExpr = varNode.expr;
         if (rhsExpr == null) {

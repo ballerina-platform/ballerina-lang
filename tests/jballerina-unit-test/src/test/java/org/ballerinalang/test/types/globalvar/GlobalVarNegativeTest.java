@@ -73,4 +73,15 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, "variable(s) 'i, s' not initialized", 21, 9);
         BAssertUtil.validateError(result, i, "variable(s) 's' not initialized", 22, 9);
     }
+
+    @Test
+    public void testConfigurableModuleVarDeclNegative() {
+        CompileResult result = BCompileUtil.compile
+                ("test-src/statements/variabledef/configurable_global_var_decl_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "configurable variable must be initialized", 18, 19);
+        BAssertUtil.validateError(result, i++, "configurable variable cannot be declared with var", 20, 1);
+        BAssertUtil.validateError(result, i++, "type of configurable variable should be anydata", 22, 1);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
 }

@@ -4378,10 +4378,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         }
 
-        // TODO use a single method to mark all the flags
         if (isConfigurable) {
-            markVariableAsConfigurable(bLSimpleVar);
+            bLSimpleVar.flagSet.add(Flag.CONFIGURABLE);
+            // Configurable variables are readonly, hence add the readonly flag as well
+            bLSimpleVar.flagSet.add(Flag.READONLY);
+            if(initializer.kind() == SyntaxKind.REQUIRED_EXPRESSION) {
+                bLSimpleVar.flagSet.add(Flag.REQUIRED);
+                initializer = null;
+            }
         }
+
         if (isFinal) {
             markVariableAsFinal(bLSimpleVar);
         }
@@ -5061,45 +5067,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 break;
         }
     }
-
-    // TODO use a single method to mark all the flags
-    private void markVariableAsConfigurable(BLangVariable variable) {
-        // Set the configurable flag to the variable.
-        variable.flagSet.add(Flag.CONFIGURABLE);
-        // Configurable variables are readonly, hence add the readonly flag as well
-        variable.flagSet.add(Flag.READONLY);
-
-        switch (variable.getKind()) {
-            case TUPLE_VARIABLE:
-                // If the variable is a tuple variable, we need to set the configurable flag to the all member
-                // variables.
-                BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
-                tupleVariable.memberVariables.forEach(this::markVariableAsConfigurable);
-                if (tupleVariable.restVariable != null) {
-                    markVariableAsConfigurable(tupleVariable.restVariable);
-                }
-                break;
-            case RECORD_VARIABLE:
-                // If the variable is a record variable, we need to set the configurable flag to the all the variables
-                // in the record.
-                BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
-                recordVariable.variableList.stream().map(BLangRecordVariable.BLangRecordVariableKeyValue::getValue)
-                        .forEach(this::markVariableAsConfigurable);
-                if (recordVariable.restParam != null) {
-                    markVariableAsConfigurable((BLangVariable) recordVariable.restParam);
-                }
-                break;
-            case ERROR_VARIABLE:
-                BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
-                markVariableAsFinal(errorVariable.message);
-                errorVariable.detail.forEach(entry -> markVariableAsConfigurable(entry.valueBindingPattern));
-                if (errorVariable.restDetail != null) {
-                    markVariableAsConfigurable(errorVariable.restDetail);
-                }
-                break;
-        }
-    }
-
 
     private boolean isSimpleLiteral(SyntaxKind syntaxKind) {
         switch (syntaxKind) {
