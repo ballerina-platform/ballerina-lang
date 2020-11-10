@@ -283,7 +283,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangFieldBindingPattern;
-import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
@@ -4281,20 +4280,32 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLangMappingBindingPattern.pos = pos;
 
                 for (Node fieldBindingPattern : mappingBindingPatternNode.fieldBindingPatterns()) {
+                    if (fieldBindingPattern.kind() == SyntaxKind.REST_BINDING_PATTERN) {
+                        bLangMappingBindingPattern.restBindingPattern =
+                                (BLangRestBindingPattern) transformBindingPattern(fieldBindingPattern);
+                        continue;
+                    }
                     bLangMappingBindingPattern.fieldBindingPatterns.add(
                             (BLangFieldBindingPattern) transformBindingPattern(fieldBindingPattern));
                 }
-                if (mappingBindingPatternNode.restBindingPattern().isPresent()) {
-                    bLangMappingBindingPattern.restBindingPattern =
-                            (BLangRestBindingPattern) transformBindingPattern(
-                                    mappingBindingPatternNode.restBindingPattern().get());
-                }
                 return bLangMappingBindingPattern;
             case FIELD_BINDING_PATTERN:
-                FieldBindingPatternFullNode fieldBindingPatternNode = (FieldBindingPatternFullNode) bindingPattern;
                 BLangFieldBindingPattern bLangFieldBindingPattern =
                         (BLangFieldBindingPattern) TreeBuilder.createFieldBindingPattern();
                 bLangFieldBindingPattern.pos = pos;
+                if (bindingPattern instanceof FieldBindingPatternVarnameNode) {
+                    FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode =
+                            (FieldBindingPatternVarnameNode) bindingPattern;
+                    BLangIdentifier fieldName = createIdentifier(fieldBindingPatternVarnameNode.variableName().name());
+                    bLangFieldBindingPattern.fieldName = fieldName;
+                    BLangCaptureBindingPattern bLangCaptureBindingPatternInFieldBindingPattern =
+                            (BLangCaptureBindingPattern) TreeBuilder.createCaptureBindingPattern();
+                    bLangCaptureBindingPatternInFieldBindingPattern.setIdentifier(fieldName);
+
+                    bLangFieldBindingPattern.bindingPattern = bLangCaptureBindingPatternInFieldBindingPattern;
+                    return bLangFieldBindingPattern;
+                }
+                FieldBindingPatternFullNode fieldBindingPatternNode = (FieldBindingPatternFullNode) bindingPattern;
                 bLangFieldBindingPattern.fieldName = createIdentifier(fieldBindingPatternNode.variableName().name());
                 bLangFieldBindingPattern.bindingPattern =
                         transformBindingPattern(fieldBindingPatternNode.bindingPattern());

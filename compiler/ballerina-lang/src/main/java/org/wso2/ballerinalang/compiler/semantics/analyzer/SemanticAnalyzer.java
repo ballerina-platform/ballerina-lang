@@ -2822,19 +2822,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BMapType restVarSymbolMapType = (BMapType) restVarSymbol.type;
                 restPatternMapType.constraint = restVarSymbolMapType.constraint =
                         this.types.mergeTypes(restVarSymbolMapType.constraint, recordType.restFieldType);
+                return;
             default:
                 return;
-        }
-    }
-
-    @Override
-    public void visit(BLangRestMatchPattern restMatchPattern) {
-        Name name = new Name(restMatchPattern.variableName.value);
-        BSymbol symbol = symResolver.lookupSymbolInMainSpace(env, name);
-        if (symbol == symTable.notFoundSymbol) {
-            symbol = new BVarSymbol(0, name, env.enclPkg.packageID, restMatchPattern.type, env.scope.owner,
-                    restMatchPattern.pos, SOURCE);
-            symbolEnter.defineSymbol(restMatchPattern.pos, symbol, env);
         }
     }
 
@@ -2876,8 +2866,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case MAPPING_BINDING_PATTERN:
                 BLangMappingBindingPattern mappingBindingPattern = (BLangMappingBindingPattern) bindingPattern;
                 analyzeNode(mappingBindingPattern, env);
-                mappingBindingPattern.type = types.resolvePatternTypeFromMatchExpr(mappingBindingPattern, varBindingPattern, env);
+                mappingBindingPattern.type = types.resolvePatternTypeFromMatchExpr(mappingBindingPattern,
+                        varBindingPattern, env);
                 assignTypesToMemberPatterns(mappingBindingPattern, mappingBindingPattern.type);
+                break;
+            default:
         }
         varBindingPattern.declaredVars.putAll(bindingPattern.declaredVars);
         varBindingPattern.type = bindingPattern.type;
@@ -2890,7 +2883,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
         BType bindingPatternType = wildCardBindingPattern.type;
-        BType intersectionType = types.getTypeIntersection(bindingPatternType, symTable.anyType);
+        BType intersectionType = types.getTypeIntersection(bindingPatternType, symTable.anyType, this.env);
         if (intersectionType == symTable.semanticError) {
             wildCardBindingPattern.type = symTable.noType;
             return;

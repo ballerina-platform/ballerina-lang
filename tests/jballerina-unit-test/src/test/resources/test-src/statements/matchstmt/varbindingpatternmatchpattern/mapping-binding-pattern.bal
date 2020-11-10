@@ -320,6 +320,19 @@ function testMappingBindingPattern14() {
     assertEquals(3, mappingBindingPattern14({ x : 3, y : 3 }));
 }
 
+function mappingBindingPattern15(record { int i; string? s; } v) returns string? {
+    match v {
+        var {i, s} => {
+            return s;
+        }
+    }
+    return "No match";
+}
+
+function testMappingBindingPattern15() {
+    assertEquals("str", mappingBindingPattern15({ i : 2, s : "str" }));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

@@ -1,10 +1,28 @@
+/*
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -18,7 +36,6 @@ public class MappingBindingPatternTest {
     private CompileResult result, restMatchPatternResult, resultNegative;
     private String patternNotMatched = "pattern will not be matched";
     private String unreachablePattern = "unreachable pattern";
-    private String unreachableCode = "unreachable code";
 
     @BeforeClass
     public void setup() {
@@ -101,6 +118,11 @@ public class MappingBindingPatternTest {
     }
 
     @Test
+    public void testMappingBindingPattern15() {
+        BRunUtil.invoke(result, "testMappingBindingPattern15");
+    }
+
+    @Test
     public void testMappingBindingPatternWithRest1() {
         BRunUtil.invoke(restMatchPatternResult, "testMappingBindingPatternWithRest1");
     }
@@ -122,8 +144,6 @@ public class MappingBindingPatternTest {
 
     @Test
     public void testMappingBindingPatternNegative() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 7);
-
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 20, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 27, 9);
@@ -132,5 +152,13 @@ public class MappingBindingPatternTest {
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 46, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 54, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 61, 9);
+        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        restMatchPatternResult = null;
+        resultNegative = null;
     }
 }

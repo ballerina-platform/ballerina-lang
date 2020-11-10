@@ -36,7 +36,7 @@ function testMappingBindingPatternWithRest1() {
 
 function mappingBindingPatternRest2(record { int x; int y; int z1; int z2; } v) returns anydata {
     match v {
-        var { x : a, y : b, z1 : b, ...r } => {
+        var { x : a, y : b, z1 : c, ...r } => {
             return r["z2"];
         }
         var _ => {

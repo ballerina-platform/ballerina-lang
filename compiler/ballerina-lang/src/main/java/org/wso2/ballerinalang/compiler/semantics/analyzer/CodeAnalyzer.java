@@ -87,7 +87,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangFieldBindingPattern;
-import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
@@ -886,12 +885,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     }
 
-    @Override
-    public void visit(BLangMappingMatchPattern mappingMatchPattern) {}
-
-    @Override
-    public void visit(BLangFieldMatchPattern fieldMatchPattern) {}
-
     private void checkSimilarMatchPatternsBetweenClauses(BLangMatchClause firstClause, BLangMatchClause secondClause) {
         for (BLangMatchPattern firstMatchPattern : firstClause.matchPatterns) {
             for (BLangMatchPattern secondMatchPattern : secondClause.matchPatterns) {
@@ -1222,11 +1215,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean checkSimilarMappingBindingPattern(BLangMappingBindingPattern firstMappingBindingPattern, BLangMappingBindingPattern secondMappingBindingPattern) {
-        if (firstMappingBindingPattern.restBindingPattern != null && secondMappingBindingPattern.restBindingPattern == null) {
+    private boolean checkSimilarMappingBindingPattern(BLangMappingBindingPattern firstMappingBindingPattern,
+                                                      BLangMappingBindingPattern secondMappingBindingPattern) {
+        if (firstMappingBindingPattern.restBindingPattern != null &&
+                secondMappingBindingPattern.restBindingPattern == null) {
             return false;
         }
-        if (firstMappingBindingPattern.restBindingPattern == null && secondMappingBindingPattern.restBindingPattern != null) {
+        if (firstMappingBindingPattern.restBindingPattern == null &&
+                secondMappingBindingPattern.restBindingPattern != null) {
             return false;
         }
         List<BLangFieldBindingPattern> firstFieldBindingPatterns = firstMappingBindingPattern.fieldBindingPatterns;
@@ -1247,7 +1243,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 secondMappingBindingPattern.restBindingPattern);
     }
 
-    private boolean checkSimilarFieldBindingPatterns(List<BLangFieldBindingPattern> firstFieldBindingPatterns, List<BLangFieldBindingPattern> secondFieldBindingPatterns) {
+    private boolean checkSimilarFieldBindingPatterns(List<BLangFieldBindingPattern> firstFieldBindingPatterns,
+                                                     List<BLangFieldBindingPattern> secondFieldBindingPatterns) {
         for (BLangFieldBindingPattern firstFieldBindingPattern : firstFieldBindingPatterns) {
             boolean isSamePattern = false;
             for (BLangFieldBindingPattern secondFieldBindingPattern : secondFieldBindingPatterns) {
@@ -1363,6 +1360,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeNode(bindingPattern, env);
         switch (bindingPattern.getKind()) {
             case WILDCARD_BINDING_PATTERN:
+                varBindingPattern.isLastPattern =
+                        varBindingPattern.matchExpr != null && types.isAssignable(varBindingPattern.matchExpr.type,
+                        symTable.anyType);
                 return;
             case CAPTURE_BINDING_PATTERN:
                 varBindingPattern.isLastPattern =
@@ -1379,7 +1379,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangMappingBindingPattern mappingBindingPattern) {
+
+    }
+
+    @Override
     public void visit(BLangWildCardBindingPattern wildCardBindingPattern) {
+
     }
 
     @Override

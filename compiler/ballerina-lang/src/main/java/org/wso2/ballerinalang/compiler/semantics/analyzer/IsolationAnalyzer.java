@@ -641,19 +641,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMappingMatchPattern mappingMatchPattern) {
-        for (BLangFieldMatchPattern fieldMatchPattern : mappingMatchPattern.fieldMatchPatterns) {
-            analyzeNode(fieldMatchPattern, env);
-        }
-    }
-
-    @Override
-    public void visit(BLangFieldMatchPattern fieldMatchPattern) {
-        analyzeNode(fieldMatchPattern.fieldName, env);
-        analyzeNode(fieldMatchPattern.matchPattern, env);
-    }
-
-    @Override
     public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
         analyzeNode(varBindingPattern.getBindingPattern(), env);
     }

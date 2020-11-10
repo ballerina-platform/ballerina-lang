@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testMappingBindingPatternNegative() returns string {
+function testMappingBindingPatternNegative1() returns string {
     boolean v1 = true;
     match v1 {
         var { a : b } => { // pattern will not be matched
