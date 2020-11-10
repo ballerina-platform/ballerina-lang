@@ -42,7 +42,7 @@ public class FiniteTypeTest {
 
     @BeforeClass
     public void setup() {
-//        BCompileUtil.compile("test-src/balo/test_projects/finite_type_project", "finiteTypeTest", "foo");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/finite_type_project/finitetypetest");
         result = BCompileUtil.compile("test-src/balo/test_balo/types/finite_type_test.bal");
     }
 

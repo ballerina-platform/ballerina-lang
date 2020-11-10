@@ -38,7 +38,7 @@ public class ErrorTypeTest {
 
     @BeforeClass
     public void setup() {
-//        BCompileUtil.compile("test-src/balo/test_projects/test_project", "testorg", "errors");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_errors");
         result = BCompileUtil.compile("test-src/balo/test_balo/types/error_type_test.bal");
         negativeResult = BCompileUtil.compile("test-src/balo/test_balo/types/error_type_negative_test.bal");
     }

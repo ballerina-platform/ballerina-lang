@@ -21,8 +21,9 @@ import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.environment.DefaultProjectEnvironment;
+import io.ballerina.projects.repos.BuildProjectCompilationCache;
+import io.ballerina.projects.repos.TempDirCompilationCache;
 
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,41 +55,24 @@ public class ProjectEnvironmentBuilder {
     }
 
     public ProjectEnvironment build(Project project) {
+        CompilationCache compilationCache;
         if (compilationCacheFactory != null) {
-            services.put(CompilationCache.class, compilationCacheFactory.createCompilationCache(project));
+            compilationCache = compilationCacheFactory.createCompilationCache(project);
         } else {
-            // TODO Set the Project specific cache impl
-            // TargetCache for the BuildProject
-            // TempCache for the SingleFileProject
-            services.put(CompilationCache.class, new DoNothingCompilationCache(project));
+            switch (project.kind()) {
+                case BUILD_PROJECT:
+                    compilationCache = BuildProjectCompilationCache.from(project);
+                    break;
+                case SINGLE_FILE_PROJECT:
+                    compilationCache = TempDirCompilationCache.from(project);
+                    break;
+                case BALR_PROJECT:
+                    throw new IllegalStateException("BALRProject should always be created with a CompilationCache");
+                default:
+                    throw new UnsupportedOperationException("Unsupported ProjectKind: " + project.kind());
+            }
         }
+        services.put(CompilationCache.class, compilationCache);
         return new DefaultProjectEnvironment(project, environment, services);
-    }
-
-    /**
-     * No-op compilation cache implementation.
-     *
-     * @since 2.0.0
-     */
-    private static class DoNothingCompilationCache extends CompilationCache {
-
-        public DoNothingCompilationCache(Project project) {
-            super(project);
-        }
-
-        @Override
-        public byte[] getBir(ModuleName moduleName) {
-            return new byte[0];
-        }
-
-        @Override
-        public void cacheBir(ModuleName moduleName, byte[] bir) {
-
-        }
-
-        @Override
-        public Path getPlatformSpecificLibrary(ModuleName moduleName) {
-            return null;
-        }
     }
 }

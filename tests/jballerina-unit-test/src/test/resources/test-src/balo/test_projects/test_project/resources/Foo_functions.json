@@ -1,0 +1,1 @@
+{"testorg/foo:1.0.0" : [{"function":{"name":"baz","requiredParams":[{"s":"string"},{"f":"float"}],"returnType":"null"}}]}

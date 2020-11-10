@@ -20,6 +20,7 @@ package io.ballerina.projects.test;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
@@ -40,7 +41,6 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -129,12 +129,11 @@ public class TestBuildProject {
 
         // 3) Compile the current package
         PackageCompilation compilation = currentPackage.getCompilation();
-        List<Diagnostic> diagnostics = compilation.diagnostics();
 
         // The current package has 4 modules and each module has one semantic or syntactic error.
         // This shows that all 4 modules has been compiled, even though the `utils`
         //   module is not imported by any of the other modules.
-        Assert.assertEquals(diagnostics.size(), 4);
+        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 4);
     }
 
     @Test(description = "tests codegen with native libraries", enabled = false)
@@ -154,11 +153,11 @@ public class TestBuildProject {
         // 3) Compile the current package
         PackageCompilation compilation = currentPackage.getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JdkVersion.JAVA_11);
-        List<Diagnostic> diagnostics = jBallerinaBackend.diagnostics();
+        DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
 
-        Assert.assertEquals(diagnostics.size(), 1);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
 
-        Collection<PlatformLibrary> platformLibraries = jBallerinaBackend.platformLibraries(currentPackage.packageId());
+        Collection<PlatformLibrary> platformLibraries = jBallerinaBackend.platformLibraryDependencies(currentPackage.packageId());
         Assert.assertEquals(platformLibraries.size(), 1);
     }
 
@@ -178,11 +177,10 @@ public class TestBuildProject {
 
         // 3) Compile the current package
         PackageCompilation compilation = currentPackage.getCompilation();
-        List<Diagnostic> diagnostics = compilation.diagnostics();
 
         // The current package has e test modules and each module has one semantic or syntactic error.
         // This shows that all 3 modules has been compiled
-        Assert.assertEquals(diagnostics.size(), 3);
+        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 3);
     }
 
     @Test(description = "tests loading a valid build project using project compilation", enabled = false)
