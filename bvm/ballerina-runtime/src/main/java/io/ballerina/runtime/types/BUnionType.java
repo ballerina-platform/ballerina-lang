@@ -44,7 +44,6 @@ public class BUnionType extends BType implements UnionType {
     private final boolean readonly;
     private IntersectionType immutableType;
     private boolean resolving = false;
-    private boolean isCyclic;
 
     /**
      * Create a {@code BUnionType} which represents the union type.
