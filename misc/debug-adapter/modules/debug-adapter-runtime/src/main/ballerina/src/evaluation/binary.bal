@@ -214,12 +214,83 @@ function greaterThanOrEquals(any lhs, any rhs) returns boolean|error {
     return result is boolean ? (!result) : result;
 }
 
-function getType(any value) returns string|error {
-    var result = trap (typeof value);
-    if(result is typedesc) {
-        string typeString = result.toString();
-        return typeString.startsWith("typedesc ") ? typeString.substring(9) : typeString;
+function bitwiseAND(any lhs, any rhs) returns int|error {
+    int|error result;
+    if (lhs is int && rhs is int) {
+        result = lhs & rhs;
     } else {
-        return result;
+        result = error("operator '&' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
     }
+    return result;
 }
+
+function bitwiseOR(any lhs, any rhs) returns int|error {
+    int|error result;
+    if (lhs is int && rhs is int) {
+        result = lhs | rhs;
+    } else {
+        result = error("operator '|' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
+    }
+    return result;
+}
+
+function bitwiseXOR(any lhs, any rhs) returns int|error {
+    int|error result;
+    if (lhs is int && rhs is int) {
+        result = lhs ^ rhs;
+    } else {
+        result = error("operator '^' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
+    }
+    return result;
+}
+
+function leftShift(any lhs, any rhs) returns int|error {
+    int|error result;
+    if (lhs is int && rhs is int) {
+        result = lhs << rhs;
+    } else {
+        result = error("operator '<<' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
+    }
+    return result;
+}
+
+function signedRightShift(any lhs, any rhs) returns int|error {
+    int|error result;
+    if (lhs is int && rhs is int) {
+        result = lhs >> rhs;
+    } else {
+        result = error("operator '>>' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
+    }
+    return result;
+}
+
+function unsignedRightShift(any lhs, any rhs) returns int|error {
+    int|error result;
+    if (lhs is int && rhs is int) {
+        result = lhs >>> rhs;
+    } else {
+        result = error("operator '>>>' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
+    }
+    return result;
+}
+
+function logicalOR(any lhs, any rhs) returns boolean|error {
+    boolean|error result;
+    if (lhs is boolean && rhs is boolean) {
+        result = lhs || rhs;
+    } else {
+        result = error("operator '||' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
+    }
+    return result;
+}
+
+function logicalAND(any lhs, any rhs) returns boolean|error {
+    boolean|error result;
+    if (lhs is boolean && rhs is boolean) {
+        result = lhs && rhs;
+    } else {
+        result = error("operator '&&' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
+    }
+    return result;
+}
+
