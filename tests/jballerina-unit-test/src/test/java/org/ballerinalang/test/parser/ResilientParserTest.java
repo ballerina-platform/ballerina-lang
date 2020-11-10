@@ -18,7 +18,6 @@
 
 package org.ballerinalang.test.parser;
 
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;

@@ -70,7 +70,7 @@ public class SymbolBIRTest {
                                                       "StrandData", "typeParam", "Thread", "builtinSubtype",
                                                       "isolatedParam");
         List<String> moduleLevelSymbols = asList("aString", "anInt", "HELLO", "testAnonTypes");
-        List<String> moduleSymbols = asList("xml", "foo", "object", "error", "boolean", "decimal", "typedesc", "float",
+        List<String> moduleSymbols = asList("xml", "testproject", "object", "error", "boolean", "decimal", "typedesc", "float",
                                             "future", "int", "map", "stream", "string", "table");
         List<String> expSymbolNames = getSymbolNames(annotationModuleSymbols, moduleLevelSymbols, moduleSymbols);
 
@@ -79,7 +79,7 @@ public class SymbolBIRTest {
                         .stream().collect(Collectors.toMap(Symbol::name, s -> s));
         assertList(symbolsInScope, expSymbolNames);
 
-        BallerinaModule fooModule = (BallerinaModule) symbolsInScope.get("foo");
+        BallerinaModule fooModule = (BallerinaModule) symbolsInScope.get("testproject");
         List<String> fooFunctions = getSymbolNames(fooPkgSymbol, SymTag.FUNCTION);
         assertList(fooModule.functions(), fooFunctions);
 
@@ -113,7 +113,7 @@ public class SymbolBIRTest {
                 {16, 6, null},
                 {16, 10, "testproject"},
                 {16, 16, "testproject"},
-                {16, 18, null},
+                {16, 26, null},
 //                {19, 17, "foo"}, // TODO: issue #25841
                 {20, 13, "testproject"},
                 {22, 5, "testproject"},

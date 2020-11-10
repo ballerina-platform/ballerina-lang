@@ -1,35 +1,35 @@
-import testorg/foo;
+import testorg/test_project;
 
 // -----------------------------------------------------------
 
 function testNilWithoutType() returns () {
-    return foo:NilWithoutType;
+    return test_project:NilWithoutType;
 }
 
 function testNilWithType() returns () {
-    return foo:NilWithType;
+    return test_project:NilWithType;
 }
 
 // -----------------------------------------------------------
 
 function testConstWithTypeInReturn() returns string {
-    return foo:nameWithType;
+    return test_project:nameWithType;
 }
 
 // -----------------------------------------------------------
 
 function testConstWithoutTypeInReturn() returns string {
-    return foo:nameWithType;
+    return test_project:nameWithType;
 }
 
 // -----------------------------------------------------------
 
 function testConstWithTypeAsParam() returns string {
-    return testParam(foo:nameWithType);
+    return testParam(test_project:nameWithType);
 }
 
 function testConstWithoutTypeAsParam() returns string {
-    return testParam(foo:nameWithoutType);
+    return testParam(test_project:nameWithoutType);
 }
 
 function testParam(string s) returns string {
@@ -50,11 +50,11 @@ function testConstInRecord() returns string {
 // -----------------------------------------------------------
 
 function testConstWithTypeAssignmentToGlobalVariable() returns string {
-    return foo:getSgvWithType();
+    return test_project:getSgvWithType();
 }
 
 function testConstWithTypeAssignmentToLocalVariable() returns string {
-    string slv = foo:nameWithType;
+    string slv = test_project:nameWithType;
     return slv;
 }
 
@@ -62,65 +62,65 @@ function testConstWithTypeAssignmentToLocalVariable() returns string {
 
 
 function testConstWithoutTypeAssignmentToGlobalVariable() returns string {
-    return foo:getSgvWithoutType();
+    return test_project:getSgvWithoutType();
 }
 
 function testConstWithoutTypeAssignmentToLocalVariable() returns string {
-    string slv = foo:nameWithoutType;
+    string slv = test_project:nameWithoutType;
     return slv;
 }
 
 // -----------------------------------------------------------
 
 function testConstWithTypeConcat() returns string {
-    return foo:nameWithType + " rocks";
+    return test_project:nameWithType + " rocks";
 }
 
 // -----------------------------------------------------------
 
 function testConstWithoutTypeConcat() returns string {
-    return foo:nameWithoutType + " rocks";
+    return test_project:nameWithoutType + " rocks";
 }
 
 // -----------------------------------------------------------
 
-function testTypeConstants() returns foo:ACTION {
-    return foo:GET;
+function testTypeConstants() returns test_project:ACTION {
+    return test_project:GET;
 }
 
-function testConstWithTypeAssignmentToType() returns foo:ACTION {
-    foo:ACTION action = foo:constActionWithType;
+function testConstWithTypeAssignmentToType() returns test_project:ACTION {
+    test_project:ACTION action = test_project:constActionWithType;
     return action;
 }
 
 
-function testConstWithoutTypeAssignmentToType() returns foo:ACTION {
-    foo:ACTION action = foo:constActionWithoutType;
+function testConstWithoutTypeAssignmentToType() returns test_project:ACTION {
+    test_project:ACTION action = test_project:constActionWithoutType;
     return action;
 }
 
 function testConstAndTypeComparison() returns boolean {
-    return "GET" == foo:GET;
+    return "GET" == test_project:GET;
 }
 
 function testTypeConstAsParam() returns boolean {
-    return typeConstAsParam(foo:GET);
+    return typeConstAsParam(test_project:GET);
 }
 
-function typeConstAsParam(foo:ACTION a) returns boolean {
+function typeConstAsParam(test_project:ACTION a) returns boolean {
     return "GET" == a;
 }
 
 // -----------------------------------------------------------
 
 function testEqualityWithConstWithType() returns boolean {
-    return foo:nameWithType == "Ballerina";
+    return test_project:nameWithType == "Ballerina";
 }
 
 // -----------------------------------------------------------
 
 function testConstWithTypeInCondition() returns boolean {
-    if (foo:conditionWithType) {
+    if (test_project:conditionWithType) {
         return true;
     }
     return false;
@@ -129,7 +129,7 @@ function testConstWithTypeInCondition() returns boolean {
 // -----------------------------------------------------------
 
 function testConstWithoutTypeInCondition() returns boolean {
-    if (foo:conditionWithoutType) {
+    if (test_project:conditionWithoutType) {
         return true;
     }
     return false;
@@ -138,60 +138,60 @@ function testConstWithoutTypeInCondition() returns boolean {
 // -----------------------------------------------------------
 
 function testBooleanWithType() returns boolean {
-    return foo:booleanWithType;
+    return test_project:booleanWithType;
 }
 
 function testBooleanWithoutType() returns boolean {
-    return foo:booleanWithoutType;
+    return test_project:booleanWithoutType;
 }
 
 // -----------------------------------------------------------
 
 function testIntWithType() returns int {
-    return foo:intWithType;
+    return test_project:intWithType;
 }
 
 function testIntWithoutType() returns int {
-    return foo:intWithoutType;
+    return test_project:intWithoutType;
 }
 
 // -----------------------------------------------------------
 
 function testByteWithType() returns byte {
-    return foo:byteWithType;
+    return test_project:byteWithType;
 }
 
 // -----------------------------------------------------------
 
 function testFloatWithType() returns float {
-    return foo:floatWithType;
+    return test_project:floatWithType;
 }
 
 function testFloatWithoutType() returns float {
-    return foo:floatWithoutType;
+    return test_project:floatWithoutType;
 }
 
 // -----------------------------------------------------------
 
 function testDecimalWithType() returns decimal {
-    return foo:decimalWithType;
+    return test_project:decimalWithType;
 }
 
 // -----------------------------------------------------------
 
 function testStringWithType() returns string {
-    return foo:stringWithType;
+    return test_project:stringWithType;
 }
 
 function testStringWithoutType() returns string {
-    return foo:stringWithoutType;
+    return test_project:stringWithoutType;
 }
 
 // -----------------------------------------------------------
 
-function testFloatAsFiniteType() returns [foo:FiniteFloatType, foo:FiniteFloatType] {
-    foo:FiniteFloatType f1 = 2.0;
-    foo:FiniteFloatType f2 = 4.0;
+function testFloatAsFiniteType() returns [test_project:FiniteFloatType, test_project:FiniteFloatType] {
+    test_project:FiniteFloatType f1 = 2.0;
+    test_project:FiniteFloatType f2 = 4.0;
 
     return [f1, f2];
 }
@@ -199,25 +199,25 @@ function testFloatAsFiniteType() returns [foo:FiniteFloatType, foo:FiniteFloatTy
 // -----------------------------------------------------------
 
 function testConstInMapKey() returns string {
-    string key = foo:KEY;
+    string key = test_project:KEY;
     map<string> m = { key: "value" };
     return <string>m["key"];
 }
 
 function testConstInMapValue() returns string {
-    string value = foo:VALUE;
+    string value = test_project:VALUE;
     map<string> m = { "key": value };
     return <string>m["key"];
 }
 
 function testConstInJsonKey() returns json {
-    string key = foo:KEY;
+    string key = test_project:KEY;
     json j = { key: "value" };
     return <json>j.key;
 }
 
 function testConstInJsonValue() returns json {
-    string value = foo:VALUE;
+    string value = test_project:VALUE;
     json j = { "key": value };
     return <json>j.key;
 }
@@ -225,86 +225,86 @@ function testConstInJsonValue() returns json {
 // -----------------------------------------------------------
 
 function testBooleanConstInUnion() returns any {
-    boolean|int v = foo:booleanWithType;
+    boolean|int v = test_project:booleanWithType;
     return v;
 }
 
 function testIntConstInUnion() returns any {
-    int|boolean v = foo:intWithType;
+    int|boolean v = test_project:intWithType;
     return v;
 }
 
 function testByteConstInUnion() returns any {
-    byte|boolean v = foo:byteWithType;
+    byte|boolean v = test_project:byteWithType;
     return v;
 }
 
 function testFloatConstInUnion() returns any {
-    float|boolean v = foo:floatWithType;
+    float|boolean v = test_project:floatWithType;
     return v;
 }
 
 function testStringConstInUnion() returns any {
-    string|boolean v = foo:stringWithType;
+    string|boolean v = test_project:stringWithType;
     return v;
 }
 
 // -----------------------------------------------------------
 
 function testBooleanConstInTuple() returns boolean {
-    [boolean, int] v = [foo:booleanWithType, 1];
+    [boolean, int] v = [test_project:booleanWithType, 1];
     return v[0];
 }
 
 function testIntConstInTuple() returns int {
-    [int, boolean] v = [foo:intWithType, true];
+    [int, boolean] v = [test_project:intWithType, true];
     return v[0];
 }
 
 function testByteConstInTuple() returns byte {
-    [byte, boolean] v = [foo:byteWithType, true];
+    [byte, boolean] v = [test_project:byteWithType, true];
     return v[0];
 }
 
 function testFloatConstInTuple() returns float {
-    [float, boolean] v = [foo:floatWithType, true];
+    [float, boolean] v = [test_project:floatWithType, true];
     return v[0];
 }
 
 function testStringConstInTuple() returns string {
-    [string, boolean] v = [foo:stringWithType, true];
+    [string, boolean] v = [test_project:stringWithType, true];
     return v[0];
 }
 
 // -----------------------------------------------------------
 
-function testProperSubset() returns foo:G {
-    foo:G g = foo:h;
+function testProperSubset() returns test_project:G {
+    test_project:G g = test_project:h;
     return g;
 }
 
 // -----------------------------------------------------------
 
 function testBuiltinFunctionInvocation() returns boolean {
-    return foo:SHA1.toUpperAscii() == "SHA1";
+    return test_project:SHA1.toUpperAscii() == "SHA1";
 }
 
 // -----------------------------------------------------------
 
 function testBuiltinFunctionInvocationOnArrayElement() returns boolean {
-    string[] arr = [foo:SHA1];
+    string[] arr = [test_project:SHA1];
     return arr[0].toUpperAscii() == "SHA1";
 }
 
 // -----------------------------------------------------------
 
 function testBuiltinFunctionInvocationOnField() returns boolean {
-    foo:TestRecord tr = { 'field: foo:SHA1 };
+    test_project:TestRecord tr = { 'field: test_project:SHA1 };
     return tr.'field.toUpperAscii() == "SHA1";
 }
 
 // -----------------------------------------------------------
 
 function testLabeling() returns string {
-    return foo:labeledString;
+    return test_project:labeledString;
 }

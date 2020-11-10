@@ -1,4 +1,4 @@
-import testorg/foo;
+import testorg/foo as foo;
 
 //------------ Testing a function with all types of parameters ---------
 
