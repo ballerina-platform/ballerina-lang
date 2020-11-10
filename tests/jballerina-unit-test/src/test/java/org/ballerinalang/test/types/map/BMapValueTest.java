@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.types.map;
 
-import io.ballerina.runtime.XMLFactory;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.values.MapValue;
-import io.ballerina.runtime.values.MapValueImpl;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.values.MapValue;
+import io.ballerina.runtime.internal.values.MapValueImpl;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BRefType;
@@ -207,7 +207,7 @@ public class BMapValueTest {
         MapValue<io.ballerina.runtime.api.values.BString, Object> map = new MapValueImpl<>();
         map.put(StringUtils.fromString("key1"), 1);
         map.put(StringUtils.fromString("key2"), StringUtils.fromString("foo"));
-        map.put(StringUtils.fromString("key3"), XMLFactory.parse("<bar>hello</bar>"));
+        map.put(StringUtils.fromString("key3"), XmlFactory.parse("<bar>hello</bar>"));
         Assert.assertEquals(map.stringValue(null), "{\"key1\":1,\"key2\":\"foo\",\"key3\":`<bar>hello</bar>`}");
     }
 

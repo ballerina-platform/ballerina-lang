@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.table;
 
 import io.ballerina.runtime.api.values.BTable;
-import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.internal.scheduling.Strand;
 
 /**
  * Native implementation of lang.table:add(table&lt;Type&gt;, (any|error)...).

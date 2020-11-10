@@ -18,13 +18,14 @@
 
 package org.ballerinalang.stdlib.file.nativeimpl;
 
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.TypeCreator;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.util.exceptions.BallerinaException;
 import org.ballerinalang.stdlib.file.utils.FileConstants;
 import org.ballerinalang.stdlib.file.utils.FileUtils;
 import org.slf4j.Logger;
@@ -248,11 +249,11 @@ public class Utils {
                     fileInfoType = bObject.getType();
                     return bObject;
                 } catch (IOException e) {
-                    throw new BallerinaException("Error while accessing file info", e);
+                    throw ErrorCreator.createError(StringUtils.fromString("Error while accessing file info"), e);
                 }
             }).skip(1).toArray(BObject[]::new);
             return ValueCreator.createArrayValue(results, TypeCreator.createArrayType(fileInfoType));
-        } catch (IOException | BallerinaException ex) {
+        } catch (IOException | BError ex) {
             return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, ex);
         } catch (SecurityException ex) {
             return FileUtils.getBallerinaError(FileConstants.PERMISSION_ERROR, ex);

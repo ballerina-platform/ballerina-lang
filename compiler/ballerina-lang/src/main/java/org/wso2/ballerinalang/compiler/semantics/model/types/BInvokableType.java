@@ -57,6 +57,10 @@ public class BInvokableType extends BType implements InvokableType {
         return retType;
     }
 
+    @Override
+    public TypeKind getKind() {
+        return TypeKind.FUNCTION;
+    }
 
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {

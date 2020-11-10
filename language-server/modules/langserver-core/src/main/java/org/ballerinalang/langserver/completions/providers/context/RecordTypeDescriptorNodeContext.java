@@ -63,7 +63,8 @@ public class RecordTypeDescriptorNodeContext extends AbstractCompletionProvider<
         NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
 
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.TYPE;
+            Predicate<Symbol> predicate =
+                    symbol -> symbol.kind() == SymbolKind.TYPE || symbol.kind() == SymbolKind.CLASS;
             List<Symbol> types = QNameReferenceUtil.getModuleContent(context,
                     (QualifiedNameReferenceNode) nodeAtCursor, predicate);
             return this.getCompletionItemList(types, context);

@@ -90,11 +90,6 @@
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
-                    "name": "version",
-                    "type": "ImportVersionNode",
-                    "isOptional": true
-                },
-                {
                     "name": "prefix",
                     "type": "ImportPrefixNode",
                     "isOptional": true
@@ -1000,22 +995,6 @@
             ]
         },
         {
-            "name": "ImportVersionNode",
-            "base": "Node",
-            "kind": "IMPORT_VERSION",
-            "attributes": [
-                {
-                    "name": "versionKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "versionNumber",
-                    "type": "Token",
-                    "occurrences": "MULTIPLE_SEPARATED"
-                }
-            ]
-        },
-        {
             "name": "MappingFieldNode",
             "base": "Node",
             "isAbstract": true
@@ -1479,9 +1458,9 @@
                     "isOptional": true
                 },
                 {
-                    "name": "finalKeyword",
+                    "name": "qualifiers",
                     "type": "Token",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "typedBindingPattern",

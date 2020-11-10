@@ -141,7 +141,6 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
 
         public NamedWorkerDeclarationNodeModifier withTransactionalKeyword(
                 Token transactionalKeyword) {
-            Objects.requireNonNull(transactionalKeyword, "transactionalKeyword must not be null");
             this.transactionalKeyword = transactionalKeyword;
             return this;
         }
@@ -162,7 +161,6 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
 
         public NamedWorkerDeclarationNodeModifier withReturnTypeDesc(
                 Node returnTypeDesc) {
-            Objects.requireNonNull(returnTypeDesc, "returnTypeDesc must not be null");
             this.returnTypeDesc = returnTypeDesc;
             return this;
         }

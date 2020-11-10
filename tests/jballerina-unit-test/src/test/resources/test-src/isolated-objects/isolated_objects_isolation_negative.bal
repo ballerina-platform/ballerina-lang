@@ -25,7 +25,9 @@ isolated class InvalidIsolatedClassWithNonPrivateMutableFields {
     }
 }
 
-isolated object {} invalidIsolatedObjectConstructorWithNonPrivateMutableFields = object {
+type IsolatedObject isolated object {};
+
+IsolatedObject invalidIsolatedObjectConstructorWithNonPrivateMutableFields = object {
     int a;
     public map<int> b;
     private final string c = "invalid";
@@ -50,7 +52,7 @@ isolated class InvalidIsolatedClassNotOverridingMutableFieldsInIncludedIsolatedO
     }
 }
 
-isolated object {} invalidIsolatedObjectNotOverridingMutableFieldsInIncludedIsolatedObject = object IsolatedObjectType {
+IsolatedObject invalidIsolatedObjectNotOverridingMutableFieldsInIncludedIsolatedObject = object IsolatedObjectType {
    function init() {
        self.a = 1;
        self.b = [];
@@ -196,7 +198,7 @@ isolated class InvalidIsolatedClassWithInvalidCopyIn {
     }
 }
 
-isolated object {} invalidIsolatedObjectWithInvalidCopyIn = object {
+IsolatedObject invalidIsolatedObjectWithInvalidCopyIn = object {
     public final record {} & readonly a = {"type": "final"};
     private int b = 0;
     private map<boolean>[] c = [];
@@ -312,7 +314,7 @@ isolated class InvalidIsolatedClassWithNonIsolatedFunctionInvocation {
     }
 }
 
-isolated object {} invalidIsolatedObjectWithNonIsolatedFunctionInvocation = object {
+IsolatedObject invalidIsolatedObjectWithNonIsolatedFunctionInvocation = object {
     private int[] x = [];
 
     function testInvalidNonIsolatedInvocation() {

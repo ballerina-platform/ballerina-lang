@@ -18,11 +18,11 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXml;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
@@ -192,7 +192,7 @@ public class MimeEntityBody {
         MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType.getValue() : TEXT_PLAIN);
     }
 
-    public static void setXml(BObject entityObj, BXML xmlContent, BString contentType) {
+    public static void setXml(BObject entityObj, BXml xmlContent, BString contentType) {
         EntityBodyHandler.addMessageDataSource(entityObj, xmlContent);
         MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType.getValue() : APPLICATION_XML);
     }

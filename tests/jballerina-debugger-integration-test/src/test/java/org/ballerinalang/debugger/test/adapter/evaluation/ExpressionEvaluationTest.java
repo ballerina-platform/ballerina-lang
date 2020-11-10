@@ -572,7 +572,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // Todo
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     private void cleanup() {
         terminateDebugSession();
         this.context = null;

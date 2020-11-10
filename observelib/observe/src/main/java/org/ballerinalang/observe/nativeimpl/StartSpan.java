@@ -19,27 +19,28 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import io.ballerina.runtime.api.ErrorCreator;
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.observability.ObservabilityConstants;
-import io.ballerina.runtime.scheduling.Scheduler;
 
 /**
  * This function which implements the startSpan method for observe.
  */
 
 public class StartSpan {
-    public static Object startSpan(BString spanName, Object tags, long parentSpanId) {
+    public static Object startSpan(Environment env, BString spanName, Object tags, long parentSpanId) {
         if (parentSpanId < -1) {
             return ErrorCreator.createError(
                     StringUtils.fromString(("The given parent span ID " + parentSpanId + " " + "is invalid.")));
         } else {
             long spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(
-                    (String) Scheduler.getStrand().getProperty(ObservabilityConstants.SERVICE_NAME),
+                    env,
+                    (String) env.getStrandLocal(ObservabilityConstants.SERVICE_NAME),
                     spanName.getValue(),
-                    Utils.toStringMap((BMap<BString, ?>) tags), parentSpanId, Scheduler.getStrand());
+                    Utils.toStringMap((BMap<BString, ?>) tags), parentSpanId);
             if (spanId == -1) {
                 return ErrorCreator.createError(StringUtils.fromString((
                         "No parent span for ID " + parentSpanId + " found. Please recheck the parent span Id")));

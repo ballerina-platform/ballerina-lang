@@ -1,5 +1,5 @@
 function foo() {
-    "hello"|"world";
+    "hello" | "world";
     ["hello", "world"];
 
     "hello"|"world" x;

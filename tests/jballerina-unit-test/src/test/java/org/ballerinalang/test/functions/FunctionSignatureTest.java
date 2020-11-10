@@ -18,9 +18,9 @@
 package org.ballerinalang.test.functions;
 
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.types.BTupleType;
-import io.ballerina.runtime.values.ArrayValue;
-import io.ballerina.runtime.values.TupleValueImpl;
+import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BString;

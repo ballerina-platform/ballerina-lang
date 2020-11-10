@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http;
 
-import io.ballerina.runtime.util.exceptions.BallerinaConnectorException;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaConnectorException;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler;

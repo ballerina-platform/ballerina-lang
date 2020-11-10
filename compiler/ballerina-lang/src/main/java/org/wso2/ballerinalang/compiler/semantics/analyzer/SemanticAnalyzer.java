@@ -99,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
@@ -435,6 +436,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         validateAnnotationAttachmentCount(classDefinition.annAttachments);
 
         analyzeClassDefinition(classDefinition);
+    }
+
+    @Override
+    public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
+        visit(objectConstructorExpression.typeInit);
     }
 
     private void analyzeClassDefinition(BLangClassDefinition classDefinition) {
@@ -1251,7 +1257,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
 
                 if (possibleTypes.size() > 1) {
-                    BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0,
+                    BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.ANONYMOUS,
                                                                                 names.fromString(ANONYMOUS_RECORD_NAME),
                                                                                 env.enclPkg.symbol.pkgID, null,
                                                                                 env.scope.owner, recordVar.pos, SOURCE);
@@ -1624,7 +1630,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             fieldType = BUnionType.create(null, fieldTypes, symTable.nilType);
         }
 
-        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, names.fromString(ANONYMOUS_RECORD_NAME),
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.ANONYMOUS,
+                                                                    names.fromString(ANONYMOUS_RECORD_NAME),
                                                                     env.enclPkg.symbol.pkgID, null, env.scope.owner,
                                                                     recordVar.pos, SOURCE);
         //TODO check below field position

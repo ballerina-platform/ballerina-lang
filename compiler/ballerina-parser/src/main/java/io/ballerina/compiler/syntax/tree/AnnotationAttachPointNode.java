@@ -104,7 +104,6 @@ public class AnnotationAttachPointNode extends NonTerminalNode {
 
         public AnnotationAttachPointNodeModifier withSourceKeyword(
                 Token sourceKeyword) {
-            Objects.requireNonNull(sourceKeyword, "sourceKeyword must not be null");
             this.sourceKeyword = sourceKeyword;
             return this;
         }
@@ -118,7 +117,6 @@ public class AnnotationAttachPointNode extends NonTerminalNode {
 
         public AnnotationAttachPointNodeModifier withSecondIdent(
                 Token secondIdent) {
-            Objects.requireNonNull(secondIdent, "secondIdent must not be null");
             this.secondIdent = secondIdent;
             return this;
         }

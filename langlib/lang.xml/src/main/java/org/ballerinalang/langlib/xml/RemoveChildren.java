@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.values.BXML;
-import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 
 /**
  * Remove any children that matches a given name, from an XML.
@@ -38,7 +38,7 @@ public class RemoveChildren {
 
     private static final String OPERATION = "remove children from xml element";
 
-    public static void removeChildren(Strand strand, BXML xml, String qname) {
+    public static void removeChildren(Strand strand, BXml xml, String qname) {
         try {
             xml.removeChildren(qname);
         } catch (Throwable e) {

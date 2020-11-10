@@ -128,7 +128,6 @@ public class ArrayTypeDescriptorNode extends TypeDescriptorNode {
 
         public ArrayTypeDescriptorNodeModifier withArrayLength(
                 Node arrayLength) {
-            Objects.requireNonNull(arrayLength, "arrayLength must not be null");
             this.arrayLength = arrayLength;
             return this;
         }

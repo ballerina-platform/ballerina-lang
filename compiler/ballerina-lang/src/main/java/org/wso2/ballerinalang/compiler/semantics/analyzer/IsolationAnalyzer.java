@@ -107,6 +107,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -1448,6 +1449,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
+        visit(objectConstructorExpression.typeInit);
+    }
+
+    @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
         SymbolEnv typeEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
 
@@ -1624,6 +1630,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (inLockStatement && isInIsolatedObjectMethod(env, true)) {
             copyInLockInfoStack.peek().invocations.add(invocationExpr);
+        }
+
+        if (Symbols.isFlagOn(symbol.flags, Flags.ISOLATED_PARAM)) {
+            return;
         }
 
         inferredIsolated = false;
@@ -2300,6 +2310,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     return true;
                 }
 
+                return isReferenceOrIsolatedExpression(typeInitInvocation, refList, logErrors);
+            case OBJECT_CTOR_EXPRESSION:
+                var objectConstructorExpression = (BLangObjectConstructorExpression) expression;
+                typeInitExpr = objectConstructorExpression.typeInit;
+                typeInitInvocation = typeInitExpr.initInvocation;
+
+                if (typeInitExpr == null) {
+                    return true;
+                }
                 return isReferenceOrIsolatedExpression(typeInitInvocation, refList, logErrors);
             case INVOCATION:
                 BLangInvocation invocation = (BLangInvocation) expression;

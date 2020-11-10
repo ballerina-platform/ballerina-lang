@@ -114,7 +114,6 @@ public class SpecificFieldNode extends MappingFieldNode {
 
         public SpecificFieldNodeModifier withReadonlyKeyword(
                 Token readonlyKeyword) {
-            Objects.requireNonNull(readonlyKeyword, "readonlyKeyword must not be null");
             this.readonlyKeyword = readonlyKeyword;
             return this;
         }
@@ -128,14 +127,12 @@ public class SpecificFieldNode extends MappingFieldNode {
 
         public SpecificFieldNodeModifier withColon(
                 Token colon) {
-            Objects.requireNonNull(colon, "colon must not be null");
             this.colon = colon;
             return this;
         }
 
         public SpecificFieldNodeModifier withValueExpr(
                 ExpressionNode valueExpr) {
-            Objects.requireNonNull(valueExpr, "valueExpr must not be null");
             this.valueExpr = valueExpr;
             return this;
         }
