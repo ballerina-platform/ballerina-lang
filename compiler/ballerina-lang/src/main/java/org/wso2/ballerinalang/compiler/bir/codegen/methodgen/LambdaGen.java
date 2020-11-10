@@ -71,7 +71,7 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.INITIAL_MEHOD_DESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.INITIAL_METHOD_DESC;
 
 /**
  * Generates Jvm byte code for the lambda method.
@@ -268,8 +268,7 @@ public class LambdaGen {
     private MethodVisitor getMethodVisitorAndLoadFirst(ClassWriter cw, String lambdaName,
                                                        LambdaDetails lambdaDetails, BIRInstruction ins) {
         String closureMapsDesc = getMapValueDesc(lambdaDetails.closureMapsCount);
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC,
-                                          JvmCodeGenUtil.cleanupFunctionName(lambdaName),
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, lambdaName,
                                           String.format("(%s[L%s;)L%s;", closureMapsDesc, JvmConstants.OBJECT,
                                                         JvmConstants.OBJECT), null, null);
 
@@ -375,7 +374,7 @@ public class LambdaGen {
     }
 
     private void populateLambdaFunctionDetails(LambdaDetails lambdaDetails) {
-        lambdaDetails.encodedFuncName = IdentifierUtils.encodeIdentifier(lambdaDetails.funcName);
+        lambdaDetails.encodedFuncName = IdentifierUtils.encodeFunctionIdentifier(lambdaDetails.funcName);
         lambdaDetails.lookupKey = JvmCodeGenUtil.getPackageName(
                 lambdaDetails.orgName, lambdaDetails.moduleName, lambdaDetails.version) + lambdaDetails.encodedFuncName;
         lambdaDetails.functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lambdaDetails.lookupKey);
@@ -453,7 +452,7 @@ public class LambdaGen {
     }
 
     private String getLambdaMethodDesc(List<BType> paramTypes, BType retType, int closureMapsCount) {
-        StringBuilder desc = new StringBuilder(INITIAL_MEHOD_DESC);
+        StringBuilder desc = new StringBuilder(INITIAL_METHOD_DESC);
         appendClosureMaps(closureMapsCount, desc);
         appendParamTypes(paramTypes, desc);
         desc.append(JvmCodeGenUtil.generateReturnType(retType));

@@ -36,7 +36,7 @@ module io.ballerina.runtime {
     // export only for Langlib , Cli and Testerina
     exports io.ballerina.runtime.internal to io.ballerina.testerina.core, io.ballerina.testerina.runtime,
             io.ballerina.lang, io.ballerina.lang.map, io.ballerina.lang.test, io.ballerina.lang.array,
-            io.ballerina.lang.table, io.ballerina.lang.value, io.ballerina.lang.xml, ballerina.debug.adapter.core;
+            io.ballerina.lang.table, io.ballerina.lang.value, io.ballerina.lang.xml, ballerina.debug.adapter.core, io.ballerina.tool;
     exports io.ballerina.runtime.internal.commons to io.ballerina.lang.value;
     exports io.ballerina.runtime.internal.launch to io.ballerina.testerina.runtime, io.ballerina.packerina,
             ballerina.test.listener;

@@ -92,14 +92,12 @@ import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERROR_REASONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_EXCEPTION_HELPER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_ON_EXTERN_FIELD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
@@ -684,8 +682,7 @@ public class JvmTerminatorGen {
 
     private void genFuncCall(BIRTerminator.Call callIns, String orgName, String moduleName, String version,
                              int localVarOffset) {
-
-        String methodName = IdentifierUtils.encodeIdentifier(callIns.name.value);
+        String methodName = callIns.name.value;
         this.genStaticCall(callIns, orgName, moduleName, version, localVarOffset, methodName, methodName);
     }
 
@@ -704,7 +701,8 @@ public class JvmTerminatorGen {
                                String methodName, String methodLookupName) {
         // load strand
         this.mv.visitVarInsn(ALOAD, localVarOffset);
-        String lookupKey = JvmCodeGenUtil.getPackageName(orgName, moduleName, version) + methodLookupName;
+        String encodedMethodName = IdentifierUtils.encodeFunctionIdentifier(methodLookupName);
+        String lookupKey = JvmCodeGenUtil.getPackageName(orgName, moduleName, version) + encodedMethodName;
 
         int argsCount = callIns.args.size();
         int i = 0;
@@ -714,7 +712,6 @@ public class JvmTerminatorGen {
             this.loadBooleanArgToIndicateUserProvidedArg(orgName, moduleName, userProvidedArg);
             i += 1;
         }
-        String cleanMethodName = JvmCodeGenUtil.cleanupFunctionName(methodName);
         BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lookupKey);
         String methodDesc;
         String jvmClass;
@@ -723,7 +720,8 @@ public class JvmTerminatorGen {
             methodDesc = functionWrapper.jvmMethodDescription;
         } else {
             BPackageSymbol symbol = packageCache.getSymbol(orgName + "/" + moduleName);
-            BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(new Name(methodName)).symbol;
+            Name decodedMethodName = new Name(IdentifierUtils.decodeIdentifier(methodName));
+            BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(decodedMethodName).symbol;
             BInvokableType type = (BInvokableType) funcSymbol.type;
             ArrayList<BType> params = new ArrayList<>(type.paramTypes);
             if (type.restType != null) {
@@ -745,7 +743,7 @@ public class JvmTerminatorGen {
             BType retType = typeBuilder.build(type.retType);
             methodDesc = JvmCodeGenUtil.getMethodDesc(params, retType);
         }
-        this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanMethodName, methodDesc, false);
+        this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, encodedMethodName, methodDesc, false);
     }
 
     private void genVirtualCall(BIRTerminator.Call callIns, String orgName, String moduleName, int localVarOffset) {
@@ -876,8 +874,8 @@ public class JvmTerminatorGen {
             this.mv.visitInsn(AASTORE);
             paramIndex += 1;
         }
-        String funcName = IdentifierUtils.encodeIdentifier(callIns.name.value);
-        String lambdaName = "$" + funcName + "$lambda$" + asyncDataCollector.getLambdaIndex() + "$";
+        String funcName = IdentifierUtils.encodeFunctionIdentifier(callIns.name.value);
+        String lambdaName = "$" + funcName + "$lambda$_" + asyncDataCollector.getLambdaIndex() + "$";
 
         JvmCodeGenUtil.createFunctionPointer(this.mv, asyncDataCollector.getEnclosingClass(), lambdaName);
         asyncDataCollector.add(lambdaName, callIns);
@@ -890,8 +888,7 @@ public class JvmTerminatorGen {
             for (BIRNode.BIRAnnotationAttachment annotationAttachment : callIns.annotAttachments) {
                 if (annotationAttachment == null ||
                         !STRAND.equals(annotationAttachment.annotTagRef.value) ||
-                        !BALLERINA.equals(annotationAttachment.packageID.orgName.value) ||
-                        !BUILT_IN_PACKAGE_NAME.equals(annotationAttachment.packageID.name.value)) {
+                        !JvmCodeGenUtil.isBuiltInPackage(annotationAttachment.packageID)) {
                     continue;
                 }
 
@@ -1237,7 +1234,7 @@ public class JvmTerminatorGen {
     }
 
     static String getStrandMetadataVarName(String typeName, String parentFunction) {
-        return STRAND_METADATA_VAR_PREFIX + JvmCodeGenUtil.cleanupReadOnlyTypeName(typeName) + "$" + parentFunction +
+        return STRAND_METADATA_VAR_PREFIX + typeName + "$" + parentFunction +
                 "$";
     }
 

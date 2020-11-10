@@ -15,23 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.ballerinalang.compiler.bir.codegen.internal;
 
+import io.ballerina.runtime.internal.IdentifierUtils;
 import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 
 import java.util.Comparator;
 
 /**
- * BIR name comparator to sort names according its hash code.
+ * BIR Param name comparator to sort according its hash code.
  *
- * @since 1.2.0
+ * @since 2.0.0
  */
-public class NameHashComparator implements Comparator<NamedNode> {
+public class FieldNameHashComparator implements Comparator<NamedNode> {
 
     @Override
     public int compare(NamedNode o1, NamedNode o2) {
-        String name1 = o1.getName().value;
-        String name2 = o2.getName().value;
+        String name1 = IdentifierUtils.decodeIdentifier(o1.getName().value);
+        String name2 = IdentifierUtils.decodeIdentifier(o2.getName().value);
         return Integer.compare(name1.hashCode(), name2.hashCode());
     }
 }
