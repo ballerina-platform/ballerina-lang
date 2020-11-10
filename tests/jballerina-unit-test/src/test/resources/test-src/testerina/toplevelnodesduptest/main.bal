@@ -1,11 +1,8 @@
-import ballerina/io;
-
 public function main() {
   testDuplicate();
 }
 
 public function testDuplicate() {
-  io:println("module");
 }
 
 string testString = "test";
