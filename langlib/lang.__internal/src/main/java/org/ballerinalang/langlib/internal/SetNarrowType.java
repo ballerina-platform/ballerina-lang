@@ -18,14 +18,14 @@
 
 package org.ballerinalang.langlib.internal;
 
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.TypeCreator;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.util.Flags;
 
 import java.util.HashMap;
 
@@ -42,7 +42,8 @@ public class SetNarrowType {
                 TypeCreator.createRecordType("narrowType", recordType.getPackage(), recordType.getTypeFlags(),
                                              recordType.isSealed(), recordType.getTypeFlags());
         newRecordType.setFields(new HashMap() {{
-            put("value", TypeCreator.createField(td.getDescribingType(), "value", Flags.PUBLIC + Flags.REQUIRED));
+            put("value", TypeCreator.createField(td.getDescribingType(), "value",
+                                                 SymbolFlags.PUBLIC + SymbolFlags.REQUIRED));
         }});
 
         BMap<BString, Object> newRecord = ValueCreator.createMapValue(newRecordType);

@@ -18,20 +18,20 @@
 
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.api.values.BXML;
-import io.ballerina.runtime.scheduling.AsyncUtils;
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.scheduling.AsyncUtils;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.runtime.util.BLangConstants.XML_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
@@ -52,20 +52,20 @@ public class Filter {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
                                                                       XML_VERSION, "filter");
 
-    public static BXML filter(BXML x, BFunctionPointer<Object, Boolean> func) {
+    public static BXml filter(BXml x, BFunctionPointer<Object, Boolean> func) {
         if (x.isSingleton()) {
             Object[] args = new Object[]{Scheduler.getStrand(), x, true};
             func.asyncCall(args,
                       result -> {
                           if ((Boolean) result) {
-                              return ValueCreator.createXMLSequence(x);
+                              return ValueCreator.createXmlSequence(x);
                           }
-                          return ValueCreator.createXMLSequence();
+                          return ValueCreator.createXmlSequence();
                       }, METADATA);
-            return ValueCreator.createXMLSequence();
+            return ValueCreator.createXmlSequence();
         }
 
-        List<BXML> elements = new ArrayList<>();
+        List<BXml> elements = new ArrayList<>();
         int size = x.size();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
@@ -77,9 +77,9 @@ public class Filter {
                                                            if ((Boolean) result) {
                                                                elements.add(x.getItem(index.get()));
                                                            }
-                                                       }, () -> ValueCreator.createXMLSequence(elements),
+                                                       }, () -> ValueCreator.createXmlSequence(elements),
                                                        Scheduler.getStrand().scheduler);
 
-        return ValueCreator.createXMLSequence(elements);
+        return ValueCreator.createXmlSequence(elements);
     }
 }

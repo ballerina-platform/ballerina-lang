@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.string;
 
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 import java.util.StringJoiner;

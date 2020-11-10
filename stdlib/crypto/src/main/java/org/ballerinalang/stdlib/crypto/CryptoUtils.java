@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.stdlib.crypto;
 
-import io.ballerina.runtime.api.ErrorCreator;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 
 import java.security.InvalidAlgorithmParameterException;

@@ -17,9 +17,11 @@
  */
 package io.ballerina.runtime.api;
 
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.scheduling.State;
-import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.internal.scheduling.State;
+import io.ballerina.runtime.internal.scheduling.Strand;
+
+import java.util.Optional;
 
 /**
  * When this class is used as the first argument of an interop method, Ballerina
@@ -29,6 +31,7 @@ import io.ballerina.runtime.scheduling.Strand;
  * @since 2.0.0
  */
 public class Environment {
+
     private Strand strand;
 
     public Environment(Strand strand) {
@@ -44,7 +47,6 @@ public class Environment {
      * @return BalFuture which will resume the current strand when completed.
      */
     public Future markAsync() {
-        Strand strand = Scheduler.getStrand();
         strand.blockedOnExtern = true;
         strand.setState(State.BLOCK_AND_YIELD);
         return new Future(this.strand);
@@ -52,5 +54,53 @@ public class Environment {
 
     public Runtime getRuntime() {
         return new Runtime(strand.scheduler);
+    }
+
+    /**
+     * Gets the strand id. This will be generated on strand initialization.
+     *
+     * @return Strand id.
+     */
+    public int getStrandId() {
+        return strand.getId();
+    }
+
+    /**
+     * Gets the strand name. This will be optional. Strand name can be either name given in strand annotation or async
+     * call or function pointer variable name.
+     *
+     * @return Optional strand name.
+     */
+    public Optional<String> getStrandName() {
+        return strand.getName();
+    }
+
+    /**
+     * Gets @{@link StrandMetadata}.
+     *
+     * @return metadata of the strand.
+     */
+    public StrandMetadata getStrandMetadata() {
+        return strand.getMetadata();
+    }
+
+    /**
+     * Sets given local key value pair in strand.
+     *
+     * @param key   string key
+     * @param value value to be store in the strand
+     */
+    public void setStrandLocal(String key, Object value) {
+        strand.setProperty(key, value);
+    }
+
+    /**
+     * Gets the value stored in the strand on given key.
+     *
+     * @param key key
+     * @return value stored in the strand.
+     */
+    public Object getStrandLocal(String key) {
+        return strand.getProperty(key);
     }
 }

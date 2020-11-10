@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BString;
 
 import java.util.Arrays;
 
-import static io.ballerina.runtime.api.ErrorCreator.createError;
+import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 
 /**
  * A string lib utility class.
@@ -31,7 +31,7 @@ import static io.ballerina.runtime.api.ErrorCreator.createError;
  */
 public class StringUtils {
 
-    private static final BString NULL_REF_EXCEPTION = io.ballerina.runtime.api.StringUtils
+    private static final BString NULL_REF_EXCEPTION = io.ballerina.runtime.api.utils.StringUtils
             .fromString("NullReferenceException");
 
     public static void checkForNull(String... values) {

@@ -19,8 +19,8 @@ package org.ballerinalang.debugadapter.evaluation;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.TreeModifier;
 
-import static io.ballerina.runtime.IdentifierUtils.encodeIdentifier;
-import static io.ballerina.runtime.IdentifierUtils.unescapeUnicodeCodepoints;
+import static io.ballerina.runtime.internal.IdentifierUtils.encodeIdentifier;
+import static io.ballerina.runtime.internal.IdentifierUtils.unescapeUnicodeCodepoints;
 
 /**
  * Identifier specific expression modifier implementation.

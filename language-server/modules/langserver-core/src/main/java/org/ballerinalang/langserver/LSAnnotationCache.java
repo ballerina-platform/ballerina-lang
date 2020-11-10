@@ -19,7 +19,7 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.runtime.util.Flags;
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContextManager;
@@ -230,7 +230,7 @@ public class LSAnnotationCache {
 
         scopeEntries.forEach(annotationEntry -> {
             if (annotationEntry.symbol instanceof BAnnotationSymbol
-                    && ((annotationEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC)) {
+                    && ((annotationEntry.symbol.flags & SymbolFlags.PUBLIC) == SymbolFlags.PUBLIC)) {
                 BAnnotationSymbol annotationSymbol = ((BAnnotationSymbol) annotationEntry.symbol);
                 int attachPoints = ((BAnnotationSymbol) annotationEntry.symbol).maskedPoints;
 

@@ -22,9 +22,9 @@ import io.ballerina.runtime.api.BStringUtils;
 import io.ballerina.runtime.api.runtime.Module;
 import io.ballerina.runtime.api.values.BString;
 
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG;
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.runtime.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static io.ballerina.runtime.internal.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+import static io.ballerina.runtime.internal.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.internal.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * Constants for HTTP.

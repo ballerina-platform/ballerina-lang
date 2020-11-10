@@ -18,20 +18,20 @@
 
 package org.ballerinalang.langlib.java;
 
-import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypedescType;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BHandle;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 
-import static io.ballerina.runtime.api.ErrorCreator.createError;
-import static io.ballerina.runtime.api.ValueCreator.createHandleValue;
-import static io.ballerina.runtime.api.ValueCreator.createObjectValue;
+import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
+import static io.ballerina.runtime.api.creators.ValueCreator.createHandleValue;
+import static io.ballerina.runtime.api.creators.ValueCreator.createObjectValue;
 
 /**
  * This class contains the implementation of the "cast" Ballerina function in ballerina/java module.
