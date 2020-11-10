@@ -34,7 +34,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import static io.ballerina.runtime.IdentifierUtils.encodeNonFunctionIdentifier;
+import static io.ballerina.runtime.internal.IdentifierUtils.encodeNonFunctionIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.ANON_ORG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 
