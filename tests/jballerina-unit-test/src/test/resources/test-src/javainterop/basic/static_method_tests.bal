@@ -268,26 +268,6 @@ function getCurrentModule(int a) returns string  = @java:Method {
         'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
-public function testBalEnvSlowAsyncVoidSig() {
-    int added = addTwoNumbersSlowAsyncVoidSig(1, 2);
-    assertEquality(3, added);
-}
-
-public function testBalEnvFastAsyncVoidSig() {
-    int added = addTwoNumbersFastAsyncVoidSig(1, 2);
-    assertEquality(3, added);
-}
-
-public function testBalEnvSlowAsync() {
-    int added = addTwoNumbersSlowAsync(1, 2);
-    assertEquality(3, added);
-}
-
-public function testBalEnvFastAsync() {
-    int added = addTwoNumbersFastAsync(1, 2);
-    assertEquality(3, added);
-}
-
 public function returnNullString(boolean nullVal) returns string? = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
@@ -306,3 +286,16 @@ function hashCode(int receiver) returns int = @java:Method {
 function getValue() returns MyType = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+    if expected === actual {
+        return;
+    }
+    panic error(ASSERTION_ERROR_REASON,
+                message = "found '" + expected.toString() + "', expected '" + actual.toString () + "'");
+}

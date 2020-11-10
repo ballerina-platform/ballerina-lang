@@ -286,8 +286,8 @@ public class JvmPackageGen {
         fv.visitEnd();
         mv.visitTypeInsn(Opcodes.NEW, MODULE);
         mv.visitInsn(Opcodes.DUP);
-        mv.visitLdcInsn(module.org.value);
-        mv.visitLdcInsn(module.name.value);
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.org.value));
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.name.value));
         mv.visitLdcInsn(module.version.value);
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, MODULE,
                            JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE,
