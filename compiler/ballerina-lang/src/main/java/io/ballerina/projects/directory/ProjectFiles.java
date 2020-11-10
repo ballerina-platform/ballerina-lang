@@ -33,6 +33,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.ballerina.projects.util.ProjectConstants.DOT;
+
 /**
  * Contains a set of utility methods that create an in-memory representation of a Ballerina project directory.
  *
@@ -48,8 +50,8 @@ public class ProjectFiles {
         // Handle single file project
         if (singleFileProject) {
             DocumentData documentData = loadDocument(filePath);
-            ModuleData defaultModule = ModuleData.from(filePath, Collections.singletonList(documentData),
-                    Collections.emptyList());
+            ModuleData defaultModule = ModuleData
+                    .from(filePath, DOT, Collections.singletonList(documentData), Collections.emptyList());
             return PackageData.from(filePath, defaultModule, Collections.emptyList());
         }
 
@@ -123,7 +125,7 @@ public class ProjectFiles {
             testSrcDocs = Collections.emptyList();
         }
         // TODO Read Module.md file. Do we need to? Balo creator may need to package Module.md
-        return ModuleData.from(moduleDirPath, srcDocs, testSrcDocs);
+        return ModuleData.from(moduleDirPath, moduleDirPath.toFile().getName(), srcDocs, testSrcDocs);
     }
 
     public static List<DocumentData> loadDocuments(Path dirPath) {

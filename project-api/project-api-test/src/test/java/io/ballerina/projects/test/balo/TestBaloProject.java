@@ -31,6 +31,8 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 /**
@@ -58,15 +60,23 @@ public class TestBaloProject {
         Package currentPackage = baloProject.currentPackage();
         // 3) Load the default module
         Module defaultModule = currentPackage.getDefaultModule();
+        Assert.assertEquals(defaultModule.moduleName().toString(), "winery");
         Assert.assertEquals(defaultModule.documentIds().size(), 2);
 
         // TODO find an easy way to test the project structure. e.g. serialize the structure in a json file.
         int noOfSrcDocuments = 0;
         int noOfTestDocuments = 0;
+        final ArrayList<String> moduleNames = new ArrayList<>(
+                Arrays.asList("winery.services", "winery.storage", "winery"));
         final Collection<ModuleId> moduleIds = currentPackage.moduleIds();
         Assert.assertEquals(moduleIds.size(), 3);
+
         for (ModuleId moduleId : moduleIds) {
             Module module = currentPackage.module(moduleId);
+            // test module names
+            if (!moduleNames.contains(module.moduleName().toString())) {
+                Assert.fail("module name '" + module.moduleName().toString() + "' is not valid");
+            }
             for (DocumentId documentId : module.documentIds()) {
                 noOfSrcDocuments++;
             }
