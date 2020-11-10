@@ -1,5 +1,5 @@
 
-import pkg.variable;
+import testproject.variable;
 
 function getVarsInOtherPkg() returns [int, string, float, any] {
     return [variable: 'getVariable\ Int(), variable: 'getVariable\ String(), variable: 'getVariable\ Float(),
