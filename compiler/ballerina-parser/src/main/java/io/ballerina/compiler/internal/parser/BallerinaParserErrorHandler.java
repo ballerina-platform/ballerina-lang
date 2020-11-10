@@ -3409,7 +3409,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             // start the context.
             startContext(ParserRuleContext.ERROR_MATCH_PATTERN);
             return ParserRuleContext.ERROR_ARG_LIST_MATCH_PATTERN_FIRST_ARG;
-        } else if (parentCtx == ParserRuleContext.ERROR_BINDING_PATTERN) {
+        } else if (parentCtx == ParserRuleContext.ERROR_BINDING_PATTERN ||
+                parentCtx == ParserRuleContext.ERROR_BP_OR_ERROR_CONSTRUCTOR) {
             return ParserRuleContext.ERROR_ARG_LIST_BINDING_PATTERN_START;
         }
         return ParserRuleContext.EXPRESSION;
@@ -4492,6 +4493,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.OPEN_BRACE;
             case ERROR_MATCH_PATTERN:
             case ERROR_BINDING_PATTERN:
+            case ERROR_BP_OR_ERROR_CONSTRUCTOR:
                 return ParserRuleContext.OPEN_PARENTHESIS;
             default:
                 throw new IllegalStateException(parentCtx.toString());
@@ -4513,6 +4515,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ERROR_MATCH_PATTERN:
                 return ParserRuleContext.ERROR_MATCH_PATTERN_ERROR_KEYWORD_RHS;
             case ERROR_BINDING_PATTERN:
+            case ERROR_BP_OR_ERROR_CONSTRUCTOR:
                 return ParserRuleContext.ERROR_BINDING_PATTERN_ERROR_KEYWORD_RHS;
             case ERROR_CONSTRUCTOR:
                 return ParserRuleContext.ERROR_CONSTRUCTOR_RHS;
