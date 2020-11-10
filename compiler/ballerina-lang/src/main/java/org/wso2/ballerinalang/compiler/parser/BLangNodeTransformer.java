@@ -613,7 +613,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ImportDeclarationNode importDeclaration) {
         ImportOrgNameNode orgNameNode = importDeclaration.orgName().orElse(null);
-        ImportPrefixNode prefixNode = importDeclaration.prefix().orElse(null);
+        Optional<ImportPrefixNode> prefixNode = importDeclaration.prefix();
+        Token prefix = prefixNode.isPresent() ? prefixNode.get().prefix() : null;
 
         Token orgName = null;
         if (orgNameNode != null) {
@@ -632,8 +633,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         importDcl.pkgNameComps = pkgNameComps;
         importDcl.orgName = this.createIdentifier(getPosition(orgNameNode), orgName);
         importDcl.version = this.createIdentifier(null, version);
-        importDcl.alias = (prefixNode != null) ? this.createIdentifier(getPosition(prefixNode), prefixNode.prefix())
-                                               : pkgNameComps.get(pkgNameComps.size() - 1);
+        importDcl.alias = (prefix != null) ? this.createIdentifier(getPosition(prefix), prefix)
+                : pkgNameComps.get(pkgNameComps.size() - 1);
 
         return importDcl;
     }

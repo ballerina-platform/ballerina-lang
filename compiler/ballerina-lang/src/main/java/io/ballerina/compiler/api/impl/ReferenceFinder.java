@@ -217,7 +217,7 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangImportPackage importPkgNode) {
-        addIfSameSymbol(importPkgNode.symbol, importPkgNode.pos);
+        addIfSameSymbol(importPkgNode.symbol, importPkgNode.alias.pos);
     }
 
     @Override
@@ -278,6 +278,7 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
+        find(varNode.typeNode);
         find(varNode.expr);
         addIfSameSymbol(varNode.symbol, varNode.name.pos);
     }
@@ -603,6 +604,7 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangConstRef constRef) {
+        addIfSameSymbol(constRef.symbol.owner, constRef.pkgAlias.pos);
         addIfSameSymbol(constRef.symbol, constRef.variableName.pos);
     }
 
@@ -639,6 +641,12 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
+        // Becomes null for fields in a record literal.
+        if (varRefExpr.symbol == null) {
+            return;
+        }
+
+        addIfSameSymbol(varRefExpr.symbol.owner, varRefExpr.pkgAlias.pos);
         addIfSameSymbol(varRefExpr.symbol, varRefExpr.pos);
     }
 
@@ -660,6 +668,7 @@ public class ReferenceFinder extends BaseVisitor {
         find(invocationExpr.requiredArgs);
         find(invocationExpr.annAttachments);
         find(invocationExpr.restArgs);
+        addIfSameSymbol(invocationExpr.symbol.owner, invocationExpr.pkgAlias.pos);
         addIfSameSymbol(invocationExpr.symbol, invocationExpr.name.pos);
     }
 
@@ -675,6 +684,7 @@ public class ReferenceFinder extends BaseVisitor {
         find(actionInvocationExpr.requiredArgs);
         find(actionInvocationExpr.annAttachments);
         find(actionInvocationExpr.restArgs);
+        addIfSameSymbol(actionInvocationExpr.symbol.owner, actionInvocationExpr.pkgAlias.pos);
         addIfSameSymbol(actionInvocationExpr.symbol, actionInvocationExpr.name.pos);
     }
 
@@ -918,6 +928,7 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
+        addIfSameSymbol(userDefinedType.type.tsymbol.owner, userDefinedType.pkgAlias.pos);
         addIfSameSymbol(userDefinedType.type.tsymbol, userDefinedType.typeName.pos);
     }
 
@@ -1113,7 +1124,10 @@ public class ReferenceFinder extends BaseVisitor {
     // Private methods
 
     private void addIfSameSymbol(BSymbol symbol, Location location) {
-        if (symbol == this.targetSymbol) {
+        if (symbol != null
+                && this.targetSymbol.name.equals(symbol.name)
+                && this.targetSymbol.pkgID.equals(symbol.pkgID)
+                && this.targetSymbol.pos.equals(symbol.pos)) {
             this.referenceLocations.add(location);
         }
     }
