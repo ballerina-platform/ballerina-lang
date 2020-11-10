@@ -80,6 +80,7 @@ public class FindAllReferencesTest {
                                 location(19, 17, 18)),
                 },
                 {29, 20, List.of(location(29, 20, 21))},
+                {29, 19, EMPTY_LIST}
         };
     }
 
