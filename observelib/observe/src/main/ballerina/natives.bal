@@ -58,7 +58,7 @@ public isolated function addTagToSpan(string tagKey, string tagValue, int spanId
 #
 # + tagKey - Key of the tag
 # + tagValue - Value of the tag
-# + return - An error if an error occurred while attaching tag to the span
+# + return - An error if an error occurred while attaching tag to System Metrics
 public isolated function addTagToMetrics(string tagKey, string tagValue) returns error? = @java:Method {
     'class: "org.ballerinalang.observe.nativeimpl.AddTagToMetrics",
     name: "addTagToMetrics"
