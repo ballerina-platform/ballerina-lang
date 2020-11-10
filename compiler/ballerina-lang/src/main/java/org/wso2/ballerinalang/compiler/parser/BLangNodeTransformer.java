@@ -1962,9 +1962,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
-    public BLangNode transform(ErrorConstructorExpressionNode errorConstructor) {
-        return createBLangInvocation(errorConstructor.errorKeyword(), errorConstructor.arguments(),
-                getPosition(errorConstructor), false);
+    public BLangNode transform(ErrorConstructorExpressionNode errorConstructorExprNode) {
+        return createBLangInvocation(errorConstructorExprNode.errorKeyword(), errorConstructorExprNode.arguments(),
+                getPosition(errorConstructorExprNode), false);
     }
 
     public BLangNode transform(MethodCallExpressionNode methodCallExprNode) {
