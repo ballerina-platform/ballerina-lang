@@ -19,11 +19,11 @@
 package org.ballerinalang.mime.util;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_PACKAGE_PREFIX;
 
 /**
  * Constants related to MIME.

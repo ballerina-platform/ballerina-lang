@@ -18,14 +18,14 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import io.ballerina.runtime.JSONParser;
-import io.ballerina.runtime.XMLFactory;
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.utils.JsonUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.XmlUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BXML;
-import io.ballerina.runtime.util.exceptions.BallerinaException;
+import io.ballerina.runtime.api.values.BXml;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.readers.CharacterChannelReader;
@@ -85,13 +85,13 @@ public class CharacterChannelUtils {
         CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(CHARACTER_CHANNEL_NAME);
         CharacterChannelReader reader = new CharacterChannelReader(charChannel);
         try {
-            Object returnValue = JSONParser.parse(reader, JSONParser.NonStringValueProcessingMode.FROM_JSON_STRING);
+            Object returnValue = JsonUtils.parse(reader, JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING);
             if (returnValue instanceof String) {
 
                 return StringUtils.fromString((String) returnValue);
             }
             return returnValue;
-        } catch (BallerinaException e) {
+        } catch (BError e) {
             log.error("unable to read json from character channel", e);
             return IOUtils.createError(e);
         }
@@ -101,8 +101,8 @@ public class CharacterChannelUtils {
         CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(CHARACTER_CHANNEL_NAME);
         CharacterChannelReader reader = new CharacterChannelReader(charChannel);
         try {
-            return XMLFactory.parse(reader);
-        } catch (BallerinaException e) {
+            return XmlUtils.parse(reader);
+        } catch (BError e) {
             return IOUtils.createError(e);
         }
     }
@@ -159,7 +159,7 @@ public class CharacterChannelUtils {
         return null;
     }
 
-    public static Object writeXml(BObject characterChannelObj, BXML content) {
+    public static Object writeXml(BObject characterChannelObj, BXml content) {
         try {
             CharacterChannel characterChannel = (CharacterChannel) characterChannelObj
                     .getNativeData(CHARACTER_CHANNEL_NAME);

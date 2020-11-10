@@ -41,6 +41,13 @@ public interface ModuleSymbol extends Symbol {
     List<TypeDefinitionSymbol> typeDefinitions();
 
     /**
+     * Get the public class definitions defined within the module.
+     *
+     * @return {@link List} of class definitions
+     */
+    List<ClassSymbol> classes();
+
+    /**
      * Get the public constants defined within the module.
      *
      * @return {@link List} of type definitions
@@ -52,7 +59,7 @@ public interface ModuleSymbol extends Symbol {
      *
      * @return {@link List} of listeners
      */
-    List<TypeDefinitionSymbol> listeners();
+    List<ObjectTypeSymbol> listeners();
 
     /**
      * Get the module service definitions.

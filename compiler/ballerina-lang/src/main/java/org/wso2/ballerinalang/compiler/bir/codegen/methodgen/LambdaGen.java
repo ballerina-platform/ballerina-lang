@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
-import io.ballerina.runtime.IdentifierUtils;
+import io.ballerina.runtime.internal.IdentifierUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -71,6 +71,7 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.INITIAL_MEHOD_DESC;
 
 /**
  * Generates Jvm byte code for the lambda method.
@@ -451,7 +452,7 @@ public class LambdaGen {
     }
 
     private String getLambdaMethodDesc(List<BType> paramTypes, BType retType, int closureMapsCount) {
-        StringBuilder desc = new StringBuilder("(Lio/ballerina/runtime/scheduling/Strand;");
+        StringBuilder desc = new StringBuilder(INITIAL_MEHOD_DESC);
         appendClosureMaps(closureMapsCount, desc);
         appendParamTypes(paramTypes, desc);
         desc.append(JvmCodeGenUtil.generateReturnType(retType));

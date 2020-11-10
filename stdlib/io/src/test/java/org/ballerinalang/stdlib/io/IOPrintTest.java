@@ -365,7 +365,7 @@ public class IOPrintTest {
         BRunUtil.invoke(compileResult, "testSprintfNilFloat");
     }
 
-//    @Test(expectedExceptions = BallerinaException.class)
+//    @Test(expectedExceptions = BError.class)
 //    public void testGetEnvNonExisting() throws IOException {
 //        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
 //            System.setOut(new PrintStream(outContent));

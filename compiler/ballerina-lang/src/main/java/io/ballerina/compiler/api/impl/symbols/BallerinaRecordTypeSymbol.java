@@ -17,7 +17,6 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;

@@ -208,4 +208,6 @@ public interface BArray extends BRefValue, BCollection {
     BArray slice(long startIndex, long endIndex);
 
     void setLength(long i);
+
+    long getLength();
 }

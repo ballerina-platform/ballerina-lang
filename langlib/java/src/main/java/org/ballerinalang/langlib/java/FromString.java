@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langlib.java;
 
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BHandle;
 import io.ballerina.runtime.api.values.BString;
 

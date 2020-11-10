@@ -20,19 +20,19 @@
         <Package name="io.ballerina.runtime"/>
     </Match>
     <Match>
-        <Package name="io.ballerina.runtime.values"/>
+        <Package name="io.ballerina.runtime.internal.values"/>
     </Match>
     <Match>
-        <Package name="io.ballerina.runtime.types"/>
+        <Package name="io.ballerina.runtime.internal.types"/>
     </Match>
     <Match>
-        <Package name="io.ballerina.runtime.util.exceptions"/>
+        <Package name="io.ballerina.runtime.internal.util.exceptions"/>
     </Match>
     <Match>
-        <Package name="io.ballerina.runtime.commons"/>
+        <Package name="io.ballerina.runtime.internal.commons"/>
     </Match>
     <Match>
-        <Package name="io.ballerina.runtime.values.connector"/>
+        <Package name="io.ballerina.runtime.internal.values.connector"/>
     </Match>
     <Match>
         <Package name="io.ballerina.runtime.observability.metrics"/>
@@ -44,7 +44,7 @@
         <Package name="io.ballerina.runtime.observability.tracer"/>
     </Match>
     <Match>
-        <Class name="io.ballerina.runtime.util.ArgumentParser"/>
+        <Class name="io.ballerina.runtime.internal.util.ArgumentParser"/>
     </Match>
     <Match>
         <OR>

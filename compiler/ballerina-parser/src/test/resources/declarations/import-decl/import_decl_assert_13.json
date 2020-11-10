@@ -19,7 +19,13 @@
           "value": "foo"
         },
         {
-          "kind": "SLASH_TOKEN"
+          "kind": "SLASH_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
+            }
+          ]
         }
       ]
     },

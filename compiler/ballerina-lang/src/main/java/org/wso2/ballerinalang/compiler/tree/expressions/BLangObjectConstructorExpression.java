@@ -18,7 +18,6 @@
 
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import io.ballerina.runtime.util.exceptions.BallerinaException;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
@@ -85,6 +84,6 @@ public class BLangObjectConstructorExpression extends BLangExpression {
             this.classNode.addTypeReference(type);
             return;
         }
-        throw new BallerinaException("object-constructor-expr can only have one type-reference");
+        throw new RuntimeException("object-constructor-expr can only have one type-reference");
     }
 }

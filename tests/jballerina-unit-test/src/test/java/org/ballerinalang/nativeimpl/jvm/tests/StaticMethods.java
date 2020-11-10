@@ -17,42 +17,42 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.api.values.BXML;
-import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.types.BTupleType;
-import io.ballerina.runtime.types.BUnionType;
-import io.ballerina.runtime.util.exceptions.BallerinaException;
-import io.ballerina.runtime.values.ArrayValue;
-import io.ballerina.runtime.values.ArrayValueImpl;
-import io.ballerina.runtime.values.BmpStringValue;
-import io.ballerina.runtime.values.DecimalValue;
-import io.ballerina.runtime.values.ErrorValue;
-import io.ballerina.runtime.values.FPValue;
-import io.ballerina.runtime.values.HandleValue;
-import io.ballerina.runtime.values.ListInitialValueEntry;
-import io.ballerina.runtime.values.MapValue;
-import io.ballerina.runtime.values.MapValueImpl;
-import io.ballerina.runtime.values.ObjectValue;
-import io.ballerina.runtime.values.StringValue;
-import io.ballerina.runtime.values.TableValue;
-import io.ballerina.runtime.values.TupleValueImpl;
-import io.ballerina.runtime.values.TypedescValue;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.types.BUnionType;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.values.BmpStringValue;
+import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.FPValue;
+import io.ballerina.runtime.internal.values.HandleValue;
+import io.ballerina.runtime.internal.values.ListInitialValueEntry;
+import io.ballerina.runtime.internal.values.MapValue;
+import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.ObjectValue;
+import io.ballerina.runtime.internal.values.StringValue;
+import io.ballerina.runtime.internal.values.TableValue;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
+import io.ballerina.runtime.internal.values.TypedescValue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -556,7 +556,7 @@ public class StaticMethods {
         return h;
     }
 
-    public static BXML getXmlAsReadOnly(BXML x) {
+    public static BXml getXmlAsReadOnly(BXml x) {
         return x;
     }
 

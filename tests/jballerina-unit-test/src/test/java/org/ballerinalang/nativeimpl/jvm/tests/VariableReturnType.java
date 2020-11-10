@@ -26,19 +26,19 @@ import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
-import io.ballerina.runtime.api.values.BXML;
-import io.ballerina.runtime.types.BMapType;
-import io.ballerina.runtime.types.BRecordType;
-import io.ballerina.runtime.types.BTupleType;
-import io.ballerina.runtime.values.ArrayValue;
-import io.ballerina.runtime.values.ArrayValueImpl;
-import io.ballerina.runtime.values.BmpStringValue;
-import io.ballerina.runtime.values.DecimalValue;
-import io.ballerina.runtime.values.MapValue;
-import io.ballerina.runtime.values.MapValueImpl;
-import io.ballerina.runtime.values.ObjectValue;
-import io.ballerina.runtime.values.TableValue;
-import io.ballerina.runtime.values.TupleValueImpl;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.types.BMapType;
+import io.ballerina.runtime.internal.types.BRecordType;
+import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.values.BmpStringValue;
+import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.runtime.internal.values.MapValue;
+import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.ObjectValue;
+import io.ballerina.runtime.internal.values.TableValue;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +70,7 @@ public class VariableReturnType {
         return value;
     }
 
-    public static BXML getXML(BTypedesc td, BXML value) {
+    public static BXml getXML(BTypedesc td, BXml value) {
         return value;
     }
 

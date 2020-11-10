@@ -25,60 +25,61 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 public class JvmConstants {
 
     // jvm values public API classes
-    public static final String B_XML_QNAME = "io/ballerina/runtime/api/values/BXMLQName";
+    public static final String B_XML_QNAME = "io/ballerina/runtime/api/values/BXmlQName";
     public static final String B_FUNCTION_POINTER = "io/ballerina/runtime/api/values/BFunctionPointer";
     public static final String B_MAP = "io/ballerina/runtime/api/values/BMap";
     public static final String B_OBJECT = "io/ballerina/runtime/api/values/BObject";
 
     // jvm runtime values related classes
-    public static final String MAP_VALUE = "io/ballerina/runtime/values/MapValue";
-    public static final String MAP_VALUE_IMPL = "io/ballerina/runtime/values/MapValueImpl";
-    public static final String STREAM_VALUE = "io/ballerina/runtime/values/StreamValue";
-    public static final String TABLE_VALUE = "io/ballerina/runtime/values/TableValue";
-    public static final String ARRAY_VALUE = "io/ballerina/runtime/values/ArrayValue";
-    public static final String OBJECT_VALUE = "io/ballerina/runtime/values/ObjectValue";
-    public static final String ABSTRACT_OBJECT_VALUE = "io/ballerina/runtime/values/AbstractObjectValue";
-    public static final String REF_VALUE = "io/ballerina/runtime/values/RefValue";
-    public static final String ERROR_VALUE = "io/ballerina/runtime/values/ErrorValue";
+    public static final String MAP_VALUE = "io/ballerina/runtime/internal/values/MapValue";
+    public static final String MAP_VALUE_IMPL = "io/ballerina/runtime/internal/values/MapValueImpl";
+    public static final String STREAM_VALUE = "io/ballerina/runtime/internal/values/StreamValue";
+    public static final String TABLE_VALUE = "io/ballerina/runtime/internal/values/TableValue";
+    public static final String ARRAY_VALUE = "io/ballerina/runtime/internal/values/ArrayValue";
+    public static final String OBJECT_VALUE = "io/ballerina/runtime/internal/values/ObjectValue";
+    public static final String ABSTRACT_OBJECT_VALUE = "io/ballerina/runtime/internal/values/AbstractObjectValue";
+    public static final String REF_VALUE = "io/ballerina/runtime/internal/values/RefValue";
+    public static final String ERROR_VALUE = "io/ballerina/runtime/internal/values/ErrorValue";
     public static final String BERROR = "io/ballerina/runtime/api/values/BError";
     public static final String STRING_VALUE = "java/lang/String";
     public static final String B_STRING_VALUE = "io/ballerina/runtime/api/values/BString";
-    public static final String NON_BMP_STRING_VALUE = "io/ballerina/runtime/values/NonBmpStringValue";
-    public static final String BMP_STRING_VALUE = "io/ballerina/runtime/values/BmpStringValue";
+    public static final String NON_BMP_STRING_VALUE = "io/ballerina/runtime/internal/values/NonBmpStringValue";
+    public static final String BMP_STRING_VALUE = "io/ballerina/runtime/internal/values/BmpStringValue";
     public static final String LONG_VALUE = "java/lang/Long";
     public static final String BYTE_VALUE = "java/lang/Byte";
     public static final String SHORT_VALUE = "java/lang/Short";
     public static final String BOOLEAN_VALUE = "java/lang/Boolean";
     public static final String DOUBLE_VALUE = "java/lang/Double";
-    public static final String DECIMAL_VALUE = "io/ballerina/runtime/values/DecimalValue";
+    public static final String DECIMAL_VALUE = "io/ballerina/runtime/internal/values/DecimalValue";
     public static final String INT_VALUE = "java/lang/Integer";
-    public static final String XML_VALUE = "io/ballerina/runtime/values/XMLValue";
-    public static final String XML_QNAME = "io/ballerina/runtime/values/XMLQName";
-    public static final String FUTURE_VALUE = "io/ballerina/runtime/values/FutureValue";
-    public static final String TYPEDESC_VALUE_IMPL = "io/ballerina/runtime/values/TypedescValueImpl";
+    public static final String XML_VALUE = "io/ballerina/runtime/internal/values/XmlValue";
+    public static final String XML_QNAME = "io/ballerina/runtime/internal/values/XmlQName";
+    public static final String FUTURE_VALUE = "io/ballerina/runtime/internal/values/FutureValue";
+    public static final String TYPEDESC_VALUE_IMPL = "io/ballerina/runtime/internal/values/TypedescValueImpl";
     public static final String TYPEDESC_VALUE_IMPL_CLOSURES = "closures";
-    public static final String TYPEDESC_VALUE = "io/ballerina/runtime/values/TypedescValue";
-    public static final String HANDLE_VALUE = "io/ballerina/runtime/values/HandleValue";
-    public static final String LOCK_VALUE = "io/ballerina/runtime/BLock";
-    public static final String LOCK_STORE = "io/ballerina/runtime/BLockStore";
-    public static final String FUNCTION_POINTER = "io/ballerina/runtime/values/FPValue";
-    public static final String ARRAY_VALUE_IMPL = "io/ballerina/runtime/values/ArrayValueImpl";
-    public static final String TUPLE_VALUE_IMPL = "io/ballerina/runtime/values/TupleValueImpl";
-    public static final String TABLE_VALUE_IMPL = "io/ballerina/runtime/values/TableValueImpl";
-    public static final String SIMPLE_VALUE = "io/ballerina/runtime/values/SimpleValue";
+    public static final String TYPEDESC_VALUE = "io/ballerina/runtime/internal/values/TypedescValue";
+    public static final String HANDLE_VALUE = "io/ballerina/runtime/internal/values/HandleValue";
+    public static final String LOCK_VALUE = "io/ballerina/runtime/internal/BLock";
+    public static final String LOCK_STORE = "io/ballerina/runtime/internal/BLockStore";
+    public static final String FUNCTION_POINTER = "io/ballerina/runtime/internal/values/FPValue";
+    public static final String ARRAY_VALUE_IMPL = "io/ballerina/runtime/internal/values/ArrayValueImpl";
+    public static final String TUPLE_VALUE_IMPL = "io/ballerina/runtime/internal/values/TupleValueImpl";
+    public static final String TABLE_VALUE_IMPL = "io/ballerina/runtime/internal/values/TableValueImpl";
+    public static final String SIMPLE_VALUE = "io/ballerina/runtime/internal/values/SimpleValue";
 
     public static final String B_HANDLE = "io/ballerina/runtime/api/values/BHandle";
 
     public static final String B_INITIAL_VALUE_ENTRY = "io/ballerina/runtime/api/values/BInitialValueEntry";
     public static final String B_MAPPING_INITIAL_VALUE_ENTRY = "io/ballerina/runtime/api/values/BMapInitialValueEntry";
-    public static final String MAPPING_INITIAL_VALUE_ENTRY = "io/ballerina/runtime/values/MappingInitialValueEntry";
+    public static final String MAPPING_INITIAL_VALUE_ENTRY =
+            "io/ballerina/runtime/internal/values/MappingInitialValueEntry";
     public static final String MAPPING_INITIAL_KEY_VALUE_ENTRY =
-            "io/ballerina/runtime/values/MappingInitialValueEntry$KeyValueEntry";
+            "io/ballerina/runtime/internal/values/MappingInitialValueEntry$KeyValueEntry";
     public static final String MAPPING_INITIAL_SPREAD_FIELD_ENTRY =
-            "io/ballerina/runtime/values/MappingInitialValueEntry$SpreadFieldEntry";
-    public static final String LIST_INITIAL_VALUE_ENTRY = "io/ballerina/runtime/values/ListInitialValueEntry";
+            "io/ballerina/runtime/internal/values/MappingInitialValueEntry$SpreadFieldEntry";
+    public static final String LIST_INITIAL_VALUE_ENTRY = "io/ballerina/runtime/internal/values/ListInitialValueEntry";
     public static final String LIST_INITIAL_EXPRESSION_ENTRY =
-            "io/ballerina/runtime/values/ListInitialValueEntry$ExpressionEntry";
+            "io/ballerina/runtime/internal/values/ListInitialValueEntry$ExpressionEntry";
 
     // types related classes
     public static final String TYPE = "io/ballerina/runtime/api/types/Type";
@@ -86,8 +87,8 @@ public class JvmConstants {
 
     public static final String ARRAY_TYPE = "io/ballerina/runtime/api/types/ArrayType";
     public static final String MAP_TYPE = "io/ballerina/runtime/api/types/MapType";
-    public static final String XML_TYPE = "io/ballerina/runtime/api/types/XMLType";
-    public static final String JSON_TYPE = "io/ballerina/runtime/api/types/JSONType";
+    public static final String XML_TYPE = "io/ballerina/runtime/api/types/XmlType";
+    public static final String JSON_TYPE = "io/ballerina/runtime/api/types/JsonType";
     public static final String STREAM_TYPE = "io/ballerina/runtime/api/types/StreamType";
     public static final String TABLE_TYPE = "io/ballerina/runtime/api/types/TableType";
     public static final String UNION_TYPE = "io/ballerina/runtime/api/types/UnionType";
@@ -117,58 +118,60 @@ public class JvmConstants {
     public static final String HANDLE_TYPE = "io/ballerina/runtime/api/types/HandleType";
 
 
-    public static final String TYPE_IMPL = "io/ballerina/runtime/types/BType";
-    public static final String ARRAY_TYPE_IMPL = "io/ballerina/runtime/types/BArrayType";
-    public static final String MAP_TYPE_IMPL = "io/ballerina/runtime/types/BMapType";
-    public static final String XML_TYPE_IMPL = "io/ballerina/runtime/types/BXMLType";
-    public static final String STREAM_TYPE_IMPL = "io/ballerina/runtime/types/BStreamType";
-    public static final String TABLE_TYPE_IMPL = "io/ballerina/runtime/types/BTableType";
-    public static final String UNION_TYPE_IMPL = "io/ballerina/runtime/types/BUnionType";
-    public static final String INTERSECTION_TYPE_IMPL = "io/ballerina/runtime/types/BIntersectionType";
-    public static final String RECORD_TYPE_IMPL = "io/ballerina/runtime/types/BRecordType";
-    public static final String OBJECT_TYPE_IMPL = "io/ballerina/runtime/types/BObjectType";
-    public static final String SERVICE_TYPE_IMPL = "io/ballerina/runtime/types/BServiceType";
-    public static final String ERROR_TYPE_IMPL = "io/ballerina/runtime/types/BErrorType";
-    public static final String TUPLE_TYPE_IMPL = "io/ballerina/runtime/types/BTupleType";
-    public static final String FUNCTION_TYPE_IMPL = "io/ballerina/runtime/types/BFunctionType";
-    public static final String TYPEDESC_TYPE_IMPL = "io/ballerina/runtime/types/BTypedescType";
-    public static final String FIELD_IMPL = "io/ballerina/runtime/types/BField";
-    public static final String ATTACHED_FUNCTION_IMPL = "io/ballerina/runtime/types/AttachedFunction";
-    public static final String FINITE_TYPE_IMPL = "io/ballerina/runtime/types/BFiniteType";
-    public static final String FUTURE_TYPE_IMPL = "io/ballerina/runtime/types/BFutureType";
+    public static final String TYPE_IMPL = "io/ballerina/runtime/internal/types/BType";
+    public static final String ARRAY_TYPE_IMPL = "io/ballerina/runtime/internal/types/BArrayType";
+    public static final String MAP_TYPE_IMPL = "io/ballerina/runtime/internal/types/BMapType";
+    public static final String XML_TYPE_IMPL = "io/ballerina/runtime/internal/types/BXmlType";
+    public static final String STREAM_TYPE_IMPL = "io/ballerina/runtime/internal/types/BStreamType";
+    public static final String TABLE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BTableType";
+    public static final String UNION_TYPE_IMPL = "io/ballerina/runtime/internal/types/BUnionType";
+    public static final String INTERSECTION_TYPE_IMPL = "io/ballerina/runtime/internal/types/BIntersectionType";
+    public static final String RECORD_TYPE_IMPL = "io/ballerina/runtime/internal/types/BRecordType";
+    public static final String OBJECT_TYPE_IMPL = "io/ballerina/runtime/internal/types/BObjectType";
+    public static final String SERVICE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BServiceType";
+    public static final String ERROR_TYPE_IMPL = "io/ballerina/runtime/internal/types/BErrorType";
+    public static final String TUPLE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BTupleType";
+    public static final String FUNCTION_TYPE_IMPL = "io/ballerina/runtime/internal/types/BFunctionType";
+    public static final String TYPEDESC_TYPE_IMPL = "io/ballerina/runtime/internal/types/BTypedescType";
+    public static final String FIELD_IMPL = "io/ballerina/runtime/internal/types/BField";
+    public static final String ATTACHED_FUNCTION_IMPL = "io/ballerina/runtime/internal/types/AttachedFunction";
+    public static final String FINITE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BFiniteType";
+    public static final String FUTURE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BFutureType";
     public static final String MODULE = "io/ballerina/runtime/api/Module";
-    public static final String TYPE_ID_SET = "io/ballerina/runtime/types/BTypeIdSet";
-    public static final String TYPE_ID = "io/ballerina/runtime/types/BTypeIdSet$TypeId";
+    public static final String TYPE_ID_SET = "io/ballerina/runtime/internal/types/BTypeIdSet";
+    public static final String TYPE_ID = "io/ballerina/runtime/internal/types/BTypeIdSet$TypeId";
 
     // other jvm-specific classes
-    public static final String TYPE_CHECKER = "io/ballerina/runtime/TypeChecker";
-    public static final String SCHEDULER = "io/ballerina/runtime/scheduling/Scheduler";
-    public static final String JSON_UTILS = "io/ballerina/runtime/JSONUtils";
-    public static final String STRAND_CLASS = "io/ballerina/runtime/scheduling/Strand";
+    public static final String TYPE_CHECKER = "io/ballerina/runtime/internal/TypeChecker";
+    public static final String SCHEDULER = "io/ballerina/runtime/internal/scheduling/Scheduler";
+    public static final String JSON_UTILS = "io/ballerina/runtime/internal/JsonUtils";
+    public static final String STRAND_CLASS = "io/ballerina/runtime/internal/scheduling/Strand";
     public static final String STRAND_METADATA = "io/ballerina/runtime/api/async/StrandMetadata";
     public static final String BAL_ENV = "io/ballerina/runtime/api/Environment";
     public static final String BAL_FUTURE = "io/ballerina/runtime/api/Future";
-    public static final String TYPE_CONVERTER = "io/ballerina/runtime/TypeConverter";
-    public static final String STRAND_STATE = "io/ballerina/runtime/scheduling/State";
-    public static final String VALUE_CREATOR = "io/ballerina/runtime/values/ValueCreator";
-    public static final String XML_FACTORY = "io/ballerina/runtime/XMLFactory";
-    public static final String WD_CHANNELS = "io/ballerina/runtime/scheduling/WDChannels";
-    public static final String WORKER_DATA_CHANNEL = "io/ballerina/runtime/scheduling/WorkerDataChannel";
-    public static final String CHANNEL_DETAILS = "io/ballerina/runtime/values/ChannelDetails";
-    public static final String WORKER_UTILS = "io/ballerina/runtime/scheduling/WorkerUtils";
-    public static final String MAP_UTILS = "io/ballerina/runtime/MapUtils";
-    public static final String TABLE_UTILS = "io/ballerina/runtime/TableUtils";
-    public static final String STRING_UTILS = "io/ballerina/runtime/api/StringUtils";
+    public static final String TYPE_CONVERTER = "io/ballerina/runtime/internal/TypeConverter";
+    public static final String STRAND_STATE = "io/ballerina/runtime/internal/scheduling/State";
+    public static final String VALUE_CREATOR = "io/ballerina/runtime/internal/values/ValueCreator";
+    public static final String XML_FACTORY = "io/ballerina/runtime/internal/XmlFactory";
+    public static final String WD_CHANNELS = "io/ballerina/runtime/internal/scheduling/WDChannels";
+    public static final String WORKER_DATA_CHANNEL = "io/ballerina/runtime/internal/scheduling/WorkerDataChannel";
+    public static final String CHANNEL_DETAILS = "io/ballerina/runtime/internal/values/ChannelDetails";
+    public static final String WORKER_UTILS = "io/ballerina/runtime/internal/scheduling/WorkerUtils";
+    public static final String MAP_UTILS = "io/ballerina/runtime/internal/MapUtils";
+    public static final String TABLE_UTILS = "io/ballerina/runtime/internal/TableUtils";
+    public static final String STRING_UTILS = "io/ballerina/runtime/api/utils/StringUtils";
     public static final String ERROR_UTILS = "io/ballerina/runtime/internal/ErrorUtils";
     public static final String ERROR_CREATOR = "io/ballerina/runtime/api/ErrorCreator";
-    public static final String RUNTIME_UTILS = "io/ballerina/runtime/util/RuntimeUtils";
-    public static final String ARGUMENT_PARSER = "io/ballerina/runtime/util/ArgumentParser";
-    public static final String LAUNCH_UTILS = "io/ballerina/runtime/launch/LaunchUtils";
-    public static final String MATH_UTILS = "io/ballerina/runtime/MathUtils";
-    public static final String BAL_ERROR_REASONS = "io/ballerina/runtime/util/exceptions/BallerinaErrorReasons";
-    public static final String RUNTIME_ERRORS = "io/ballerina/runtime/util/exceptions/RuntimeErrors";
-    public static final String BLANG_EXCEPTION_HELPER = "io/ballerina/runtime/util/exceptions/BLangExceptionHelper";
-    public static final String COMPATIBILITY_CHECKER = "io/ballerina/runtime/util/CompatibilityChecker";
+    public static final String RUNTIME_UTILS = "io/ballerina/runtime/internal/util/RuntimeUtils";
+    public static final String ARGUMENT_PARSER = "io/ballerina/runtime/internal/util/ArgumentParser";
+    public static final String LAUNCH_UTILS = "io/ballerina/runtime/internal/launch/LaunchUtils";
+    public static final String MATH_UTILS = "io/ballerina/runtime/internal/MathUtils";
+    public static final String BAL_ERROR_REASONS =
+            "io/ballerina/runtime/internal/util/exceptions/BallerinaErrorReasons";
+    public static final String RUNTIME_ERRORS = "io/ballerina/runtime/internal/util/exceptions/RuntimeErrors";
+    public static final String BLANG_EXCEPTION_HELPER =
+            "io/ballerina/runtime/internal/util/exceptions/BLangExceptionHelper";
+    public static final String COMPATIBILITY_CHECKER = "io/ballerina/runtime/internal/util/CompatibilityChecker";
 
     // other java classes
     public static final String OBJECT = "java/lang/Object";
@@ -191,7 +194,7 @@ public class JvmConstants {
     public static final String HASH_MAP = "java/util/HashMap";
 
     // service objects, annotation processing related classes
-    public static final String ANNOTATION_UTILS = "io/ballerina/runtime/AnnotationUtils";
+    public static final String ANNOTATION_UTILS = "io/ballerina/runtime/internal/AnnotationUtils";
     public static final String ANNOTATION_MAP_NAME = "$annotation_data";
     public static final String DEFAULTABLE_ARGS_ANOT_NAME = "DefaultableArgs";
     public static final String DEFAULTABLE_ARGS_ANOT_FIELD = "args";
@@ -212,7 +215,8 @@ public class JvmConstants {
     public static final String SET_IMMUTABLE_TYPE_METHOD = "setImmutableType";
 
     // exception classes
-    public static final String BLANG_RUNTIME_EXCEPTION = "io/ballerina/runtime/util/exceptions/BLangRuntimeException";
+    public static final String BLANG_RUNTIME_EXCEPTION =
+            "io/ballerina/runtime/internal/util/exceptions/BLangRuntimeException";
     public static final String THROWABLE = "java/lang/Throwable";
     public static final String STACK_OVERFLOW_ERROR = "java/lang/StackOverflowError";
     public static final String HANDLE_THROWABLE_METHOD = "handleRuntimeErrorsAndExit";

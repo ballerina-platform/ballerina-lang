@@ -235,6 +235,8 @@ import io.ballerina.compiler.syntax.tree.XMLTextNode;
 import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -248,6 +250,8 @@ import static org.ballerinalang.formatter.core.FormatterUtils.isInLineRange;
  * @since 2.0.0
  */
 public class FormattingTreeModifier extends TreeModifier {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FormattingTreeModifier.class);
 
     // Formatting configurations of the current session. These configurations
     // are fixed for the given session.
@@ -1263,8 +1267,16 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public TypeCastParamNode transform(TypeCastParamNode typeCastParamNode) {
-        NodeList<AnnotationNode> annotations = formatNodeList(typeCastParamNode.annotations(), 0, 1, 1, 0);
-        Node type = formatNode(typeCastParamNode.type().orElse(null), env.trailingWS, env.trailingNL);
+        NodeList<AnnotationNode> annotations;
+        Node type = null;
+
+        if (typeCastParamNode.type().isPresent()) {
+            annotations = formatNodeList(typeCastParamNode.annotations(), 1, 0, 1, 0);
+            type = formatNode(typeCastParamNode.type().get(), env.trailingWS, env.trailingNL);
+        } else {
+            annotations = formatNodeList(typeCastParamNode.annotations(), 1, 0, env.trailingWS, env.trailingNL);
+        }
+
         return typeCastParamNode.modify()
                 .withAnnotations(annotations)
                 .withType(type)
@@ -3425,32 +3437,40 @@ public class FormattingTreeModifier extends TreeModifier {
      */
     @SuppressWarnings("unchecked")
     private <T extends Node> T formatNode(T node, int trailingWS, int trailingNL) {
-        if (node == null) {
-            return node;
-        }
+        try {
+            if (node == null) {
+                return node;
+            }
 
-        if (!isInLineRange(node, lineRange)) {
+            if (!isInLineRange(node, lineRange)) {
+                checkForNewline(node);
+                return node;
+            }
+
+            int prevTrailingNL = env.trailingNL;
+            int prevTrailingWS = env.trailingWS;
+            env.trailingNL = trailingNL;
+            env.trailingWS = trailingWS;
+
+            // Cache the current node and parent before format.
+            // Because reference to the nodes will change after modifying.
+            T oldNode = node;
+            Node parent = node.parent();
+
+            node = (T) node.apply(this);
+            if (shouldWrapLine(oldNode, parent)) {
+                node = wrapLine(oldNode, parent);
+            }
+
+            env.trailingNL = prevTrailingNL;
+            env.trailingWS = prevTrailingWS;
+        } catch (Exception e) {
             checkForNewline(node);
-            return node;
+            LOGGER.error(String.format("Error while formatting [kind: %s] [line: %s] [column:%s]: %s",
+                    node.kind().name(), node.lineRange().startLine().line() + 1,
+                    node.lineRange().startLine().offset(), e));
         }
 
-        int prevTrailingNL = env.trailingNL;
-        int prevTrailingWS = env.trailingWS;
-        env.trailingNL = trailingNL;
-        env.trailingWS = trailingWS;
-
-        // Cache the current node and parent before format.
-        // Because reference to the nodes will change after modifying.
-        T oldNode = node;
-        Node parent = node.parent();
-
-        node = (T) node.apply(this);
-        if (shouldWrapLine(oldNode, parent)) {
-            node = wrapLine(oldNode, parent);
-        }
-
-        env.trailingNL = prevTrailingNL;
-        env.trailingWS = prevTrailingWS;
         return node;
     }
 
@@ -3464,32 +3484,41 @@ public class FormattingTreeModifier extends TreeModifier {
      * @return Formatted token
      */
     private <T extends Token> T formatToken(T token, int trailingWS, int trailingNL) {
-        if (token == null) {
-            return token;
-        }
+        try {
+            if (token == null) {
+                return token;
+            }
 
-        if (!isInLineRange(token, lineRange)) {
+            if (!isInLineRange(token, lineRange)) {
+                checkForNewline(token);
+                return token;
+            }
+
+            int prevTrailingNL = env.trailingNL;
+            int prevTrailingWS = env.trailingWS;
+
+            // Trailing newlines can be at-most 1. Rest will go as newlines for the next token
+            env.trailingNL = trailingNL > 0 ? 1 : 0;
+            env.trailingWS = trailingWS;
+
+            token = formatTokenInternal(token);
+
+            // Set the leading newlines for the next token
+            env.leadingNL = trailingNL > 0 ? trailingNL - 1 : 0;
+
+            // If this node has a trailing new line, then the next immediate token
+            // will become the first token the the next line
+            env.hasNewline = trailingNL > 0;
+            env.trailingNL = prevTrailingNL;
+            env.trailingWS = prevTrailingWS;
+            env.prevTokensTrailingWS = trailingWS;
+        } catch (Exception e) {
             checkForNewline(token);
-            return token;
+            LOGGER.error(String.format("Error while formatting [kind: %s] [line: %s] [column:%s]: %s",
+                    token.kind().name(), token.lineRange().startLine().line() + 1,
+                    token.lineRange().startLine().offset(), e));
         }
 
-        int prevTrailingNL = env.trailingNL;
-        int prevTrailingWS = env.trailingWS;
-
-        // Trailing newlines can be at-most 1. Rest will go as newlines for the next token
-        env.trailingNL = trailingNL > 0 ? 1 : 0;
-        env.trailingWS = trailingWS;
-
-        token = formatTokenInternal(token);
-
-        // Set the leading newlines for the next token
-        env.leadingNL = trailingNL > 0 ? trailingNL - 1 : 0;
-
-        // If this node has a trailing new line, then the next immediate token
-        // will become the first token the the next line
-        env.hasNewline = trailingNL > 0;
-        env.trailingNL = prevTrailingNL;
-        env.trailingWS = prevTrailingWS;
         return token;
     }
 
@@ -3994,7 +4023,10 @@ public class FormattingTreeModifier extends TreeModifier {
     private MinutiaeList getTrailingMinutiae(Token token) {
         List<Minutiae> trailingMinutiae = new ArrayList<>();
         Minutiae prevMinutiae = null;
-        if (env.trailingWS > 0) {
+
+        // If the token is a missing token and if the previous token has trailing whitespaces,
+        // new whitespaces are not added.
+        if (env.trailingWS > 0 && !(token.isMissing() && env.prevTokensTrailingWS > 0)) {
             addWhitespace(env.trailingWS, trailingMinutiae);
         }
 

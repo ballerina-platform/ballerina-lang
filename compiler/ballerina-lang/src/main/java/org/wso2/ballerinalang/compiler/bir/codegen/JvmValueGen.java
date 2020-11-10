@@ -54,7 +54,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.runtime.IdentifierUtils.decodeIdentifier;
+import static io.ballerina.runtime.internal.IdentifierUtils.decodeIdentifier;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.AALOAD;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
@@ -432,7 +432,8 @@ class JvmValueGen {
                 mv.visitInsn(ACONST_NULL);
             } else {
                 JvmCastGen.addBoxInsn(mv, retType);
-                if (io.ballerina.runtime.util.Flags.isFlagOn(func.flags, io.ballerina.runtime.util.Flags.RESOURCE)) {
+                if (io.ballerina.runtime.api.flags.SymbolFlags.
+                        isFlagOn(func.flags, io.ballerina.runtime.api.flags.SymbolFlags.RESOURCE)) {
                     mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, "handleResourceError",
                                        String.format("(L%s;)L%s;", OBJECT, OBJECT), false);
                 }

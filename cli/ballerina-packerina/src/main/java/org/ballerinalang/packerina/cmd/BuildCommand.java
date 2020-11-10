@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.packerina.cmd;
 
-import io.ballerina.runtime.launch.LaunchUtils;
-import io.ballerina.runtime.util.BLangConstants;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
+import io.ballerina.runtime.internal.launch.LaunchUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.packerina.JarResolverImpl;
@@ -37,6 +37,7 @@ import org.ballerinalang.packerina.task.CreateJarTask;
 import org.ballerinalang.packerina.task.CreateLockFileTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.packerina.task.PrintExecutablePathTask;
+import org.ballerinalang.packerina.task.ResolveMavenDependenciesTask;
 import org.ballerinalang.packerina.task.RunCompilerPluginTask;
 import org.ballerinalang.packerina.task.RunTestsTask;
 import org.ballerinalang.tool.BLauncherCmd;
@@ -56,7 +57,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 
-import static io.ballerina.runtime.util.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR_FILE;
@@ -260,7 +261,7 @@ public class BuildCommand implements BLauncherCmd {
 
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
 
-        } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+        } else if (this.argList.get(0).endsWith(RuntimeConstants.BLANG_SRC_FILE_SUFFIX)) {
             // TODO: remove this once code cov is implemented to support single bal file
             if (coverage) {
                 coverage = false;
@@ -370,7 +371,7 @@ public class BuildCommand implements BLauncherCmd {
         } else {
             CommandUtil.printError(this.errStream,
                                    "invalid Ballerina source path. It should either be a name of a module in a " +
-                                   "Ballerina project or a file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX +
+                                   "Ballerina project or a file with a \'" + RuntimeConstants.BLANG_SRC_FILE_SUFFIX +
                                    "\' extension. Use -a or --all " +
                                    "to build or compile all modules.",
                                    "ballerina build {<ballerina-file> | <module-name> | -a | --all}",
@@ -413,7 +414,7 @@ public class BuildCommand implements BLauncherCmd {
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory
-                //.addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
+                .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask()) // compile the modules
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CreateLockFileTask(), this.skipLock || isSingleFileBuild)  // create a lock file if

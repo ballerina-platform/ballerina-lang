@@ -77,7 +77,8 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                     symbol.kind() == SymbolKind.TYPE
                             || symbol.kind() == SymbolKind.VARIABLE
                             || symbol.kind() == SymbolKind.CONSTANT
-                            || symbol.kind() == SymbolKind.FUNCTION;
+                            || symbol.kind() == SymbolKind.FUNCTION
+                            || symbol.kind() == SymbolKind.CLASS;
             List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, nameRef, filter);
 
             return this.getCompletionItemList(moduleContent, context);

@@ -94,8 +94,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
  */
 public class JvmCodeGenUtil {
     public static final ResolvedTypeBuilder TYPE_BUILDER = new ResolvedTypeBuilder();
-    public static final String INITIAL_METHOD_DESC = "(Lio/ballerina/runtime/scheduling/Strand;";
-
+    public static final String INITIAL_METHOD_DESC = String.format("(L%s;", STRAND_CLASS);
     public static final String SCOPE_PREFIX = "_SCOPE_";
 
     static void visitInvokeDynamic(MethodVisitor mv, String currentClass, String lambdaName, int size) {
@@ -115,7 +114,7 @@ public class JvmCodeGenUtil {
     private static String getMapsDesc(long count) {
         StringBuilder builder = new StringBuilder();
         for (long i = count; i > 0; i--) {
-            builder.append("Lio/ballerina/runtime/values/MapValue;");
+            builder.append("Lio/ballerina/runtime/internal/values/MapValue;");
         }
         return builder.toString();
     }
