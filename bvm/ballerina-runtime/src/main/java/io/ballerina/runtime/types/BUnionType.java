@@ -35,6 +35,7 @@ import java.util.Objects;
  */
 public class BUnionType extends BType implements UnionType {
 
+    public boolean isCyclic;
     public static final char PIPE = '|';
     private List<Type> memberTypes;
     private Boolean nullable;

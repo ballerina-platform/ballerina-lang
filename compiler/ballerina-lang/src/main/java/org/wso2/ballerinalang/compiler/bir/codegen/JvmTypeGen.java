@@ -372,7 +372,7 @@ public class JvmTypeGen {
                     mv.visitInsn(DUP);
 
                     // populate member fields
-                    addUnionMembers(mv, unionType.getMemberTypes());
+                    addUnionMembers(mv, unionType);
                     addImmutableType(mv, unionType);
                     break;
             }
@@ -1257,7 +1257,7 @@ public class JvmTypeGen {
                     if (unionType.isCyclic) {
                         loadUserDefinedType(mv, bType);
                     } else {
-                        loadUnionType(mv, (BUnionType) bType);
+                        loadUnionType(mv, unionType);
                     }
                     return;
                 case TypeTags.INTERSECTION:
@@ -1530,16 +1530,16 @@ public class JvmTypeGen {
      * Generate code to load an instance of the given union type
      * to the top of the stack.
      *
-     * @param mv    method visitor
-     * @param bType union type to load
+     * @param mv        method visitor
+     * @param unionType union type to load
      */
-    private static void loadUnionType(MethodVisitor mv, BUnionType bType) {
+    private static void loadUnionType(MethodVisitor mv, BUnionType unionType) {
         // Create the union type
         mv.visitTypeInsn(NEW, UNION_TYPE_IMPL);
         mv.visitInsn(DUP);
 
         // Create the members array
-        Set<BType> memberTypes = bType.getMemberTypes();
+        Set<BType> memberTypes = unionType.getMemberTypes();
         mv.visitLdcInsn((long) memberTypes.size());
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, TYPE);
@@ -1558,9 +1558,9 @@ public class JvmTypeGen {
         }
 
         // Load type flags
-        mv.visitLdcInsn(typeFlag(bType));
+        mv.visitLdcInsn(typeFlag(unionType));
 
-        loadReadonlyFlag(mv, bType);
+        loadReadonlyFlag(mv, unionType);
 
         // initialize the union type using the members array
         mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, String.format("([L%s;IZ)V", TYPE), false);
