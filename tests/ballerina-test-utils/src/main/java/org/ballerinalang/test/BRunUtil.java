@@ -1259,7 +1259,7 @@ public class BRunUtil {
                 compiledPkg.packageID.name.value,
                 compiledPkg.packageID.version.value,
                 MODULE_INIT_CLASS_NAME);
-        URLClassLoader classLoader = compileResult.getClassLoader();
+        URLClassLoader classLoader = (URLClassLoader) compileResult.getClassLoader();
 
         try {
             final List<String> actualArgs = new ArrayList<>();

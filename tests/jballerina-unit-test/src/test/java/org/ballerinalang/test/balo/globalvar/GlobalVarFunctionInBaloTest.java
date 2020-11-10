@@ -25,13 +25,11 @@ import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -47,8 +45,8 @@ public class GlobalVarFunctionInBaloTest {
     CompileResult result;
 
     @BeforeClass
-    public void setup() throws IOException {
-//        BCompileUtil.compile("test-src/balo/test_projects/test_project", "testorg", "foo");
+    public void setup() {
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project");
         result = BCompileUtil.compile("test-src/balo/test_balo/globalvar/test_global_var_function.bal");
     }
 

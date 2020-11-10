@@ -23,7 +23,7 @@ package io.ballerina.projects;
  * @since 2.0.0
  */
 // TODO move this class to a separate Java package. e.g. io.ballerina.projects.platform.jballerina
-public enum JdkVersion {
+public enum JdkVersion implements CompilerBackend.TargetPlatform {
     JAVA_11("java11"),
     ;
 
