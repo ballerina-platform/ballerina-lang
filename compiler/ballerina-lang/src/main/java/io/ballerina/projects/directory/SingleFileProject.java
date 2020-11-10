@@ -24,6 +24,7 @@ import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 
@@ -59,14 +60,13 @@ public class SingleFileProject extends Project {
     }
 
     private SingleFileProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
-        super(environmentBuilder);
+        super(ProjectKind.SINGLE_FILE_PROJECT, createTempProjectRoot(), environmentBuilder);
 
-        this.sourceRoot = createTempProjectRoot(); // create a temp directory and assign to source root
         addPackage(projectPath);
         this.setBuildOptions(new BuildOptions()); // Set default build options
     }
 
-    private Path createTempProjectRoot() {
+    private static Path createTempProjectRoot() {
         try {
             return Files.createTempDirectory("ballerina-project" + System.nanoTime());
         } catch (IOException e) {

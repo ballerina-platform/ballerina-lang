@@ -165,9 +165,9 @@ public class Bootstrap {
         modules.forEach(module -> {
             Package pkg = packageResolver.getPackage(module.packageId());
             PackageCompilation compilation = pkg.getCompilation();
-            if (compilation.diagnostics().size() > 0) {
+            if (compilation.diagnosticResult().hasErrors()) {
                 throw new RuntimeException("Error while bootstrapping :" + pkg.packageId().toString() +
-                        " diagnostics: " + compilation.diagnostics());
+                        " diagnostics: " + compilation.diagnosticResult());
             }
         });
     }

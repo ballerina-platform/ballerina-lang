@@ -254,27 +254,7 @@
             </class>
             <class name="org.ballerinalang.test.balo.object.RemoteObjectBaloTest">
                 <methods>
-                    <exclude name="testRemoteObject"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.constant.SimpleConstantAccessInBaloTest">
-                <methods>
-                    <exclude name="testAccessConstantWithType"/>
-                    <exclude name="testAccessConstantWithoutType"/>
-                    <exclude name="testAccessConstantWithoutTypeAsString"/>
-                    <exclude name="testAccessFiniteType"/>
-                    <exclude name="testAccessTypeWithContInDef"/>
-                    <exclude name="testBooleanTypeWithType"/>
-                    <exclude name="testBooleanTypeWithoutType"/>
-                    <exclude name="testByteTypeWithType"/>
-                    <exclude name="testDecimalTypeWithType"/>
-                    <exclude name="testFloatTypeWithType"/>
-                    <exclude name="testFloatTypeWithoutType"/>
-                    <exclude name="testIntTypeWithType"/>
-                    <exclude name="testIntTypeWithoutType"/>
-                    <exclude name="testReturnFiniteType"/>
-                    <exclude name="testStringTypeWithType"/>
-                    <exclude name="testStringTypeWithoutType"/>
+<!--                    <exclude name="testRemoteObject"/>-->
                 </methods>
             </class>
             <class name="org.ballerinalang.test.worker.WorkerSyncSendTest">
@@ -298,99 +278,6 @@
                     <exclude name="testSyncSendAfterSend"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.javainterop.basic.InstanceMethodTest">
-                <methods>
-                    <exclude name="handleOrErrorReturn"/>
-                    <exclude name="handleOrErrorWithObjectReturn"/>
-                    <exclude name="testAcceptNothingAndReturnNothing"/>
-                    <exclude name="testAcceptNothingButReturnSomething"/>
-                    <exclude name="testAcceptSomethingAndReturnSomething"/>
-                    <exclude name="testAcceptSomethingButReturnNothing"/>
-                    <exclude name="testAcceptTwoParamsAndReturnSomething"/>
-                    <exclude name="testErrorDetail"/>
-                    <exclude name="testInstanceResolve"/>
-                    <exclude name="testInteropFunctionWithDifferentName"/>
-                    <exclude name="testPrimitiveOrErrorReturn"/>
-                    <exclude name="testUncheckedErrorDetail"/>
-                    <exclude name="testUnionWithErrorReturn"/>
-                    <exclude name="testVoidWithThrows"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.functions.FunctionSignatureTest">
-                <methods>
-                    <exclude name="defaultValueForObjectFunctionParam"/>
-                    <exclude name="funcInvocAsRestArgs"/>
-                    <exclude name="testAttachedFunction"/>
-                    <exclude name="testFuncWithNilDefaultParamExpr"/>
-                    <exclude name="testFuncWithUnionTypedDefaultParam"/>
-                    <exclude name="testFunctionWithFunctionTypedParamWithOnlyRestParam1"/>
-                    <exclude name="testFunctionWithFunctionTypedParamWithOnlyRestParam2"/>
-                    <exclude name="testInvokeFuncWithAnyRestParam1"/>
-                    <exclude name="testInvokeFuncWithOnlyNamedParams1"/>
-                    <exclude name="testInvokeFuncWithOnlyNamedParams2"/>
-                    <exclude name="testInvokeFuncWithOnlyNamedParams3"/>
-                    <exclude name="testInvokeFuncWithOnlyRestParam1"/>
-                    <exclude name="testInvokeFuncWithOnlyRestParam2"/>
-                    <exclude name="testInvokeFuncWithOnlyRestParam3"/>
-                    <exclude name="testInvokeFuncWithoutRestParamsAndMissingDefaultableParam"/>
-                    <exclude name="testInvokeFunctionInMixOrder1"/>
-                    <exclude name="testInvokeFunctionInMixOrder2"/>
-                    <exclude name="testInvokeFunctionInOrder1"/>
-                    <exclude name="testInvokeFunctionInOrder2"/>
-                    <exclude name="testInvokeFunctionWithAllParamsAndRestArgs"/>
-                    <exclude name="testInvokeFunctionWithRequiredArgsOnly"/>
-                    <exclude name="testInvokeFunctionWithoutSomeNamedArgs"/>
-                    <exclude name="testInvokePkgFunctionInMixOrder"/>
-                    <exclude name="testInvokePkgFunctionInOrderWithRestParams"/>
-                    <exclude name="testInvokePkgFunctionWithRequiredArgsOnly"/>
-                    <exclude name="testOptionalArgsInNativeFunc"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.types.FiniteTypeTest">
-                <methods>
-                    <exclude name="finiteAssignmentIntArrayType"/>
-                    <exclude name="finiteAssignmentIntSetType"/>
-                    <exclude name="finiteAssignmentNumberSetType"/>
-                    <exclude name="finiteAssignmentRefValueType"/>
-                    <exclude name="finiteAssignmentRefValueTypeCaseTwo"/>
-                    <exclude name="finiteAssignmentStateSameTypeComparison"/>
-                    <exclude name="finiteAssignmentStateSameTypeComparisonCaseTwo"/>
-                    <exclude name="finiteAssignmentStateType"/>
-                    <exclude name="finiteAssignmentStringOrIntSetType"/>
-                    <exclude name="finiteAssignmentStringOrIntSetTypeCaseTwo"/>
-                    <exclude name="testByteTypeDefinitionWithVarArgs"/>
-                    <exclude name="testFiniteAssignmentByteType"/>
-                    <exclude name="testFiniteTypeAssignmentToBroaderType"/>
-                    <exclude name="testFiniteTypeAssignmentToBroaderType"/>
-                    <exclude name="testFiniteTypeAssignmentToBroaderType"/>
-                    <exclude name="testFiniteTypeAssignmentToBroaderType"/>
-                    <exclude name="testFiniteTypeAssignmentToBroaderType"/>
-                    <exclude name="testFiniteTypeAssignmentToBroaderType"/>
-                    <exclude name="testFiniteTypeAssignmentToBroaderType"/>
-                    <exclude name="testFiniteTypeAssignmentToBroaderType"/>
-                    <exclude name="testFiniteTypeAssignmentToBroaderType"/>
-                    <exclude name="testFiniteTypeAssignmentToBroaderType"/>
-                    <exclude name="testFiniteTypeWithMatch"/>
-                    <exclude name="testFiniteTypesWithDefaultValues"/>
-                    <exclude name="testFiniteTypesWithTuple"/>
-                    <exclude name="testFiniteTypesWithUnion"/>
-                    <exclude name="testFiniteTypesWithUnionCaseOne"/>
-                    <exclude name="testFiniteTypesWithUnionCaseThree"/>
-                    <exclude name="testFiniteTypesWithUnionCaseTwo"/>
-                    <exclude name="testTypeAliasing"/>
-                    <exclude name="testTypeAliasingCaseOne"/>
-                    <exclude name="testTypeDefWithFunctions"/>
-                    <exclude name="testTypeDefWithFunctions2"/>
-                    <exclude name="testTypeDefinitionWithArray"/>
-                    <exclude name="testTypeDefinitionWithByteArray"/>
-                    <exclude name="testTypeDefinitionWithVarArgs"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.object.DistinctObjectTest">
-                <methods>
-                    <exclude name="testDistinctObjectAssignability"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.javainterop.basic.StaticMethodTest">
                 <methods>
                     <exclude name="testAcceptNothingAndReturnNothing"/>
@@ -412,11 +299,6 @@
                     <exclude name="testStringParamAndReturn"/>
                     <exclude name="testTupleReturn"/>
                     <exclude name="testUsingParamValues"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.listener.ListenerBaloTest">
-                <methods>
-                    <exclude name="testBasicStructAsObject"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.action.start.StartActionTest">
@@ -453,11 +335,6 @@
                     <exclude name="waitTest7"/>
                     <exclude name="waitTest8"/>
                     <exclude name="waitTest9"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.testerina.TopLevelNodesTest">
-                <methods>
-                    <exclude name="testModule"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.record.AnonymousClosedRecordTest">
@@ -633,12 +510,6 @@
                     <exclude name="testTupleConversion2"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.documentation.DocumentationTest">
-                <methods>
-                    <exclude name="testAnnotationDoc"/>
-                    <exclude name="testDocAttachmentBalo"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.worker.WaitForAnyActionsTest">
                 <methods>
                     <exclude name="waitTest1"/>
@@ -675,89 +546,6 @@
             <class name="org.ballerinalang.test.worker.WorkerCancelledTest">
                 <methods>
                     <exclude name="workerCancelledBeforeSend"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.record.ClosedRecordTypeReferenceTest">
-                <methods>
-                    <exclude name="testDefaultValueInit"/>
-                    <exclude name="testDefaultValueInitInBALOs"/>
-                    <exclude name="testOrdering"/>
-                    <exclude name="testRefTypes"/>
-                    <exclude name="testReferenceChains"/>
-                    <exclude name="testTypeReferencingInBALOs"/>
-                    <exclude name="testValRefType"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.constant.SimpleConstantInBaloTest">
-                <methods>
-                    <exclude name="testBooleanConstInTuple"/>
-                    <exclude name="testBooleanConstInUnion"/>
-                    <exclude name="testBooleanWithType"/>
-                    <exclude name="testBooleanWithoutType"/>
-                    <exclude name="testBuiltinFunctionInvocation"/>
-                    <exclude name="testBuiltinFunctionInvocationOnArrayElement"/>
-                    <exclude name="testBuiltinFunctionInvocationOnField"/>
-                    <exclude name="testByteConstInTuple"/>
-                    <exclude name="testByteConstInUnion"/>
-                    <exclude name="testByteWithType"/>
-                    <exclude name="testConstAndTypeComparison"/>
-                    <exclude name="testConstInJsonKey"/>
-                    <exclude name="testConstInJsonValue"/>
-                    <exclude name="testConstInMapKey"/>
-                    <exclude name="testConstInMapValue"/>
-                    <exclude name="testConstInRecord"/>
-                    <exclude name="testConstWithTypeAsParam"/>
-                    <exclude name="testConstWithTypeAssignmentToGlobalVariable"/>
-                    <exclude name="testConstWithTypeAssignmentToLocalVariable"/>
-                    <exclude name="testConstWithTypeAssignmentToType"/>
-                    <exclude name="testConstWithTypeConcat"/>
-                    <exclude name="testConstWithTypeInCondition"/>
-                    <exclude name="testConstWithTypeInReturn"/>
-                    <exclude name="testConstWithoutTypeAsParam"/>
-                    <exclude name="testConstWithoutTypeAssignmentToGlobalVariable"/>
-                    <exclude name="testConstWithoutTypeAssignmentToLocalVariable"/>
-                    <exclude name="testConstWithoutTypeAssignmentToType"/>
-                    <exclude name="testConstWithoutTypeConcat"/>
-                    <exclude name="testConstWithoutTypeInCondition"/>
-                    <exclude name="testConstWithoutTypeInReturn"/>
-                    <exclude name="testDecimalWithType"/>
-                    <exclude name="testEqualityWithConstWithType"/>
-                    <exclude name="testFloatAsFiniteType"/>
-                    <exclude name="testFloatConstInTuple"/>
-                    <exclude name="testFloatConstInUnion"/>
-                    <exclude name="testFloatWithType"/>
-                    <exclude name="testFloatWithoutType"/>
-                    <exclude name="testIntConstInTuple"/>
-                    <exclude name="testIntConstInUnion"/>
-                    <exclude name="testIntWithType"/>
-                    <exclude name="testIntWithoutType"/>
-                    <exclude name="testLabeling"/>
-                    <exclude name="testNilWithType"/>
-                    <exclude name="testNilWithoutType"/>
-                    <exclude name="testProperSubset"/>
-                    <exclude name="testStringConstInTuple"/>
-                    <exclude name="testStringConstInUnion"/>
-                    <exclude name="testStringWithType"/>
-                    <exclude name="testStringWithoutType"/>
-                    <exclude name="testTypeConstAsParam"/>
-                    <exclude name="testTypeConstants"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.documentation.FieldLevelDocsTest">
-                <methods>
-                    <exclude name="testObjWithModuleLevelAndFieldLevelFieldDocs"/>
-                    <exclude name="testObjectDocsWithMarkdownStyles"/>
-                    <exclude name="testObjectWithFieldLevelFieldDocs"/>
-                    <exclude name="testObjectWithModuleLevelFieldDocs"/>
-                    <exclude name="testRecordDocsWithMarkdownStyles"/>
-                    <exclude name="testRecordWithFieldLevelFieldDocs"/>
-                    <exclude name="testRecordWithModuleLevelAndFieldLevelFieldDocs"/>
-                    <exclude name="testRecordWithModuleLevelFieldDocs"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.listener.ListenerBaloTestExtPackage">
-                <methods>
-                    <exclude name="testListenerObjectDefinedInDifferentPackage"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.types.constant.ConstantAssignmentTest">
@@ -804,165 +592,6 @@
                     <exclude name="testUsingParamValuesInAttachedFunc"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.expressions.literals.IdentifierLiteralPackageTest">
-                <methods>
-                    <exclude name="testAccessStructGlobalVarWithIdentifierLiteralInOtherPackage"/>
-                    <exclude name="testAccessingVarsInOtherPackage"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.types.NeverTypeBaloTest">
-                <methods>
-                    <exclude name="testExclusiveRecordTypeWithNeverTypedField"/>
-                    <exclude name="testInclusiveRecordTypeWithNeverTypedField"/>
-                    <exclude name="testNeverReturnTypedFunctionCall"/>
-                    <exclude name="testNeverWithKeyLessTable"/>
-                    <exclude name="testTypeOfNeverReturnTypedFunction"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.constant.MapConstantEqualityInDifferentBaloTest">
-                <methods>
-                    <exclude name="testComplexBooleanMapReferenceEquality"/>
-                    <exclude name="testComplexBooleanMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexBooleanMapReferenceEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexBooleanMapReferenceEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexBooleanMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testComplexBooleanMapValueEquality"/>
-                    <exclude name="testComplexBooleanMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexBooleanMapValueEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexBooleanMapValueEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexBooleanMapValueEqualityUsingSameReference"/>
-                    <exclude name="testComplexByteMapReferenceEquality"/>
-                    <exclude name="testComplexByteMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexByteMapReferenceEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexByteMapReferenceEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexByteMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testComplexByteMapValueEquality"/>
-                    <exclude name="testComplexByteMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexByteMapValueEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexByteMapValueEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexByteMapValueEqualityUsingSameReference"/>
-                    <exclude name="testComplexDecimalMapReferenceEquality"/>
-                    <exclude name="testComplexDecimalMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexDecimalMapReferenceEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexDecimalMapReferenceEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexDecimalMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testComplexDecimalMapValueEquality"/>
-                    <exclude name="testComplexDecimalMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexDecimalMapValueEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexDecimalMapValueEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexDecimalMapValueEqualityUsingSameReference"/>
-                    <exclude name="testComplexFloatMapReferenceEquality"/>
-                    <exclude name="testComplexFloatMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexFloatMapReferenceEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexFloatMapReferenceEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexFloatMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testComplexFloatMapValueEquality"/>
-                    <exclude name="testComplexFloatMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexFloatMapValueEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexFloatMapValueEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexFloatMapValueEqualityUsingSameReference"/>
-                    <exclude name="testComplexIntMapReferenceEquality"/>
-                    <exclude name="testComplexIntMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexIntMapReferenceEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexIntMapReferenceEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexIntMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testComplexIntMapValueEquality"/>
-                    <exclude name="testComplexIntMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexIntMapValueEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexIntMapValueEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexIntMapValueEqualityUsingSameReference"/>
-                    <exclude name="testComplexNilMapReferenceEquality"/>
-                    <exclude name="testComplexNilMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexNilMapReferenceEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexNilMapReferenceEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexNilMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testComplexNilMapValueEquality"/>
-                    <exclude name="testComplexNilMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexNilMapValueEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexNilMapValueEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexNilMapValueEqualityUsingSameReference"/>
-                    <exclude name="testComplexStringMapReferenceEquality"/>
-                    <exclude name="testComplexStringMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexStringMapReferenceEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexStringMapReferenceEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexStringMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testComplexStringMapValueEquality"/>
-                    <exclude name="testComplexStringMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexStringMapValueEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexStringMapValueEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexStringMapValueEqualityUsingSameReference"/>
-                    <exclude name="testSimpleBooleanMapReferenceEqualityInDifferentMap"/>
-                    <exclude name="testSimpleBooleanMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleBooleanMapReferenceEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleBooleanMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testSimpleBooleanMapReferenceEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleBooleanMapValueEqualityInDifferentMap"/>
-                    <exclude name="testSimpleBooleanMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleBooleanMapValueEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleBooleanMapValueEqualityUsingSameReference"/>
-                    <exclude name="testSimpleBooleanMapValueEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleByteMapReferenceEqualityInDifferentMap"/>
-                    <exclude name="testSimpleByteMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleByteMapReferenceEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleByteMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testSimpleByteMapReferenceEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleByteMapValueEqualityInDifferentMap"/>
-                    <exclude name="testSimpleByteMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleByteMapValueEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleByteMapValueEqualityUsingSameReference"/>
-                    <exclude name="testSimpleByteMapValueEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleDecimalMapReferenceEqualityInDifferentMap"/>
-                    <exclude name="testSimpleDecimalMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleDecimalMapReferenceEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleDecimalMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testSimpleDecimalMapReferenceEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleDecimalMapValueEqualityInDifferentMap"/>
-                    <exclude name="testSimpleDecimalMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleDecimalMapValueEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleDecimalMapValueEqualityUsingSameReference"/>
-                    <exclude name="testSimpleDecimalMapValueEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleFloatMapReferenceEqualityInDifferentMap"/>
-                    <exclude name="testSimpleFloatMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleFloatMapReferenceEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleFloatMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testSimpleFloatMapReferenceEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleFloatMapValueEqualityInDifferentMap"/>
-                    <exclude name="testSimpleFloatMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleFloatMapValueEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleFloatMapValueEqualityUsingSameReference"/>
-                    <exclude name="testSimpleFloatMapValueEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleIntMapReferenceEqualityInDifferentMap"/>
-                    <exclude name="testSimpleIntMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleIntMapReferenceEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleIntMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testSimpleIntMapReferenceEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleIntMapValueEqualityInDifferentMap"/>
-                    <exclude name="testSimpleIntMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleIntMapValueEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleIntMapValueEqualityUsingSameReference"/>
-                    <exclude name="testSimpleIntMapValueEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleNilMapReferenceEqualityInDifferentMap"/>
-                    <exclude name="testSimpleNilMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleNilMapReferenceEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleNilMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testSimpleNilMapReferenceEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleNilMapValueEqualityInDifferentMap"/>
-                    <exclude name="testSimpleNilMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleNilMapValueEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleNilMapValueEqualityUsingSameReference"/>
-                    <exclude name="testSimpleNilMapValueEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleStringMapReferenceEqualityInDifferentMap"/>
-                    <exclude name="testSimpleStringMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleStringMapReferenceEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleStringMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testSimpleStringMapReferenceEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleStringMapValueEqualityInDifferentMap"/>
-                    <exclude name="testSimpleStringMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleStringMapValueEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleStringMapValueEqualityUsingSameReference"/>
-                    <exclude name="testSimpleStringMapValueEqualityUsingSameReferenceInMap"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.expressions.async.BasicAsyncOperationsTest">
                 <methods>
                     <exclude name="testAsyncInvWithDefaultParams"/>
@@ -976,28 +605,6 @@
                     <exclude name="testAsyncObjectAttachedFunctions"/>
                     <exclude name="testAttachedAsyncInvWithDefaultParams"/>
                     <exclude name="testAttachedAsyncInvWithoutDefaultParams"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.annotation.AnnotationTests">
-                <methods>
-                    <exclude name="testDeprecation"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.types.ErrorTypeTest">
-                <methods>
-                    <exclude name="errorFromAnotherPkg"/>
-                    <exclude name="indirectErrorCtorFromAnotherPkg"/>
-                    <exclude name="testDistinctErrorTypeNegative"/>
-                    <exclude name="testDistinctTypeFromAnotherPackageInATypeDef"/>
-                    <exclude name="testDistinctTypeFromAnotherPackageInATypeDefWithACast"/>
-                    <exclude name="testErrorDetailDefinedAfterErrorDef"/>
-                    <exclude name="testPerformInvalidCastWithDistinctErrorType"/>
-                    <exclude name="testUsageOfDistinctTypeFromAnotherPackage"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.services.ErrorReturnTest">
-                <methods>
-                    <exclude name="testErrorReturnFunction"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.statements.variabledef.ForwardReferencingGlobalDefinitionTest">
@@ -1023,53 +630,6 @@
                     <exclude name="testConnectorAction1"/>
                     <exclude name="testConnectorAction2"/>
                     <exclude name="testDefaultErrorBeforeSend"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.readonly.SelectivelyImmutableTypeBaloTest">
-                <methods>
-                    <exclude name="testImmutableTypesNegative"/>
-                    <exclude name="testReadonlyType"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.documentation.MultilineDocsTest">
-                <methods>
-                    <exclude name="testMultilineDocs"/>
-                    <exclude name="testMultilineDocsWithDeprecation"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtListMatchPatternTest">
-                <methods>
-                    <exclude name="testListMatchPattern1"/>
-                    <exclude name="testListMatchPattern10"/>
-                    <exclude name="testListMatchPattern11"/>
-                    <exclude name="testListMatchPattern12"/>
-                    <exclude name="testListMatchPattern13"/>
-                    <exclude name="testListMatchPattern14"/>
-                    <exclude name="testListMatchPattern15"/>
-                    <exclude name="testListMatchPattern16"/>
-                    <exclude name="testListMatchPattern17"/>
-                    <exclude name="testListMatchPattern18"/>
-                    <exclude name="testListMatchPattern19"/>
-                    <exclude name="testListMatchPattern2"/>
-                    <exclude name="testListMatchPattern3"/>
-                    <exclude name="testListMatchPattern4"/>
-                    <exclude name="testListMatchPattern5"/>
-                    <exclude name="testListMatchPattern6"/>
-                    <exclude name="testListMatchPattern7"/>
-                    <exclude name="testListMatchPattern8"/>
-                    <exclude name="testListMatchPattern9"/>
-                    <exclude name="testListMatchPatternNegative"/>
-                    <exclude name="testNegativeSemantics"/>
-                    <exclude name="testRestMatchPattern1"/>
-                    <exclude name="testRestMatchPattern2"/>
-                    <exclude name="testRestMatchPattern3"/>
-                    <exclude name="testRestMatchPattern4"/>
-                    <exclude name="testRestMatchPattern5"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.constant.SimpleConstantBaloNegativeTests">
-                <methods>
-                    <exclude name="testNegative"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.worker.WorkerTest">
@@ -1111,65 +671,6 @@
                     <exclude name="workerWithFutureTest3"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.documentation.DeprecatedAnnotationTest">
-                <methods>
-                    <exclude name="testDeprecatedAnnotationDef"/>
-                    <exclude name="testDeprecatedConstantDecl"/>
-                    <exclude name="testDeprecatedErrorTypeDef"/>
-                    <exclude name="testDeprecatedFiniteTypeDef"/>
-                    <exclude name="testDeprecatedFunctionDef"/>
-                    <exclude name="testDeprecatedObjectMemberField"/>
-                    <exclude name="testDeprecatedObjectMemberMethod"/>
-                    <exclude name="testDeprecatedObjectTypeDef"/>
-                    <exclude name="testDeprecatedRecordTypeDef"/>
-                    <exclude name="testDeprecatedUnionTypeDef"/>
-                    <exclude name="testFunctionParams"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.constant.MapConstantPanicInBaloTest">
-                <methods>
-                    <exclude name="updateConstantBooleanMapValueInArrayWithExistingKey"/>
-                    <exclude name="updateConstantBooleanMapValueInArrayWithNewKey"/>
-                    <exclude name="updateConstantByteMapValueInArrayWithExistingKey"/>
-                    <exclude name="updateConstantByteMapValueInArrayWithNewKey"/>
-                    <exclude name="updateConstantDecimalMapValueInArrayWithExistingKey"/>
-                    <exclude name="updateConstantDecimalMapValueInArrayWithNewKey"/>
-                    <exclude name="updateConstantFloatMapValueInArrayWithExistingKey"/>
-                    <exclude name="updateConstantFloatMapValueInArrayWithNewKey"/>
-                    <exclude name="updateConstantIntMapValueInArrayWithExistingKey"/>
-                    <exclude name="updateConstantIntMapValueInArrayWithNewKey"/>
-                    <exclude name="updateConstantNilMapValueInArrayWithExistingKey"/>
-                    <exclude name="updateConstantNilMapValueInArrayWithNewKey"/>
-                    <exclude name="updateConstantStringMapValueInArrayWithExistingKey"/>
-                    <exclude name="updateConstantStringMapValueInArrayWithNewKey"/>
-                    <exclude name="updateNestedConstantByteMapValueWithExistingKey"/>
-                    <exclude name="updateNestedConstantByteMapValueWithNewKey"/>
-                    <exclude name="updateNestedConstantDecimalMapValueWithExistingKey"/>
-                    <exclude name="updateNestedConstantDecimalMapValueWithNewKey"/>
-                    <exclude name="updateNestedConstantFloatMapValueWithExistingKey"/>
-                    <exclude name="updateNestedConstantFloatMapValueWithNewKey"/>
-                    <exclude name="updateNestedConstantIntMapValueWithExistingKey"/>
-                    <exclude name="updateNestedConstantIntMapValueWithNewKey"/>
-                    <exclude name="updateNestedConstantNilMapValueWithExistingKey"/>
-                    <exclude name="updateNestedConstantNilMapValueWithNewKey"/>
-                    <exclude name="updateNestedConstantStringMapValueWithExistingKey"/>
-                    <exclude name="updateNestedConstantStringMapValueWithNewKey"/>
-                    <exclude name="updateReturnedConstantBooleanMap2WithNewKey"/>
-                    <exclude name="updateReturnedConstantBooleanMapWithExistingKey"/>
-                    <exclude name="updateReturnedConstantByteMap2WithNewKey"/>
-                    <exclude name="updateReturnedConstantByteMapWithExistingKey"/>
-                    <exclude name="updateReturnedConstantDecimalMap2WithNewKey"/>
-                    <exclude name="updateReturnedConstantDecimalMapWithExistingKey"/>
-                    <exclude name="updateReturnedConstantFloatMap2WithNewKey"/>
-                    <exclude name="updateReturnedConstantFloatMapWithExistingKey"/>
-                    <exclude name="updateReturnedConstantIntMap2WithNewKey"/>
-                    <exclude name="updateReturnedConstantIntMapWithExistingKey"/>
-                    <exclude name="updateReturnedConstantNilMap2WithNewKey"/>
-                    <exclude name="updateReturnedConstantNilMapWithExistingKey"/>
-                    <exclude name="updateReturnedConstantStringMap2WithNewKey"/>
-                    <exclude name="updateReturnedConstantStringMapWithExistingKey"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest">
                 <methods>
                     <exclude name="testCreatingRecordWithOverriddenFields"/>
@@ -1182,41 +683,9 @@
                     <exclude name="testValRefType"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.object.ReadOnlyObjectBaloTest">
-                <methods>
-                    <exclude name="testReadonlyRecordFieldsNegative"/>
-                    <exclude name="testReadonlyType"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.record.RecordInBaloTest">
-                <methods>
-                    <exclude name="testRestFieldTypeDefAfterRecordDef"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.globalvar.GlobalVarFunctionInBaloTest">
-                <methods>
-                    <exclude name="testAccessGlobalVarWithinFunctions"/>
-                    <exclude name="testAssignGlobalVarToAnotherGlobalVar"/>
-                    <exclude name="testChangeGlobalVarWithinFunction"/>
-                    <exclude name="testDefiningGlobalVar"/>
-                    <exclude name="testGlobalArraysWithinFunction"/>
-                    <exclude name="testGlobalVarByte"/>
-                    <exclude name="testGlobalVarByteArray1"/>
-                    <exclude name="testGlobalVarByteArray2"/>
-                    <exclude name="testGlobalVarByteArray3"/>
-                    <exclude name="testInitializingGlobalVarWithinFunction"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.worker.PackageInitWorkerTest">
                 <methods>
                     <exclude name="testPackageInitWorkerTest"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.documentation.ObjectFieldDefaultValueTest">
-                <methods>
-                    <exclude name="testDefValInitInt"/>
-                    <exclude name="testDefValInitObject"/>
-                    <exclude name="testDefValInitString"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.lock.FieldLockTest">
@@ -1224,172 +693,6 @@
                     <exclude name="testLockInAttachedFunc"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.expressions.invocations.PackageInitTest">
-                <methods>
-                    <exclude name="testPackageInitsInDependantPackages"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.object.ObjectIncludeOverrideBaloTest">
-                <methods>
-                    <exclude name="testObjectOverrideInterfaceWithInterface"/>
-                    <exclude name="testObjectWithOverriddenFieldsAndMethods"/>
-                    <exclude name="testSimpleObjectOverridingSimilarObject"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.constant.MapConstantEqualityInBaloTest">
-                <methods>
-                    <exclude name="testComplexBooleanMapReferenceEquality"/>
-                    <exclude name="testComplexBooleanMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexBooleanMapReferenceEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexBooleanMapReferenceEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexBooleanMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testComplexBooleanMapValueEquality"/>
-                    <exclude name="testComplexBooleanMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexBooleanMapValueEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexBooleanMapValueEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexBooleanMapValueEqualityUsingSameReference"/>
-                    <exclude name="testComplexByteMapReferenceEquality"/>
-                    <exclude name="testComplexByteMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexByteMapReferenceEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexByteMapReferenceEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexByteMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testComplexByteMapValueEquality"/>
-                    <exclude name="testComplexByteMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexByteMapValueEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexByteMapValueEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexByteMapValueEqualityUsingSameReference"/>
-                    <exclude name="testComplexDecimalMapReferenceEquality"/>
-                    <exclude name="testComplexDecimalMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexDecimalMapReferenceEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexDecimalMapReferenceEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexDecimalMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testComplexDecimalMapValueEquality"/>
-                    <exclude name="testComplexDecimalMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexDecimalMapValueEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexDecimalMapValueEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexDecimalMapValueEqualityUsingSameReference"/>
-                    <exclude name="testComplexFloatMapReferenceEquality"/>
-                    <exclude name="testComplexFloatMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexFloatMapReferenceEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexFloatMapReferenceEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexFloatMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testComplexFloatMapValueEquality"/>
-                    <exclude name="testComplexFloatMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexFloatMapValueEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexFloatMapValueEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexFloatMapValueEqualityUsingSameReference"/>
-                    <exclude name="testComplexIntMapReferenceEquality"/>
-                    <exclude name="testComplexIntMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexIntMapReferenceEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexIntMapReferenceEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexIntMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testComplexIntMapValueEquality"/>
-                    <exclude name="testComplexIntMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexIntMapValueEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexIntMapValueEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexIntMapValueEqualityUsingSameReference"/>
-                    <exclude name="testComplexNilMapReferenceEquality"/>
-                    <exclude name="testComplexNilMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexNilMapReferenceEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexNilMapReferenceEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexNilMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testComplexNilMapValueEquality"/>
-                    <exclude name="testComplexNilMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexNilMapValueEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexNilMapValueEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexNilMapValueEqualityUsingSameReference"/>
-                    <exclude name="testComplexStringMapReferenceEquality"/>
-                    <exclude name="testComplexStringMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexStringMapReferenceEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexStringMapReferenceEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexStringMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testComplexStringMapValueEquality"/>
-                    <exclude name="testComplexStringMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testComplexStringMapValueEqualityUsingMapAccessDifferentReference"/>
-                    <exclude name="testComplexStringMapValueEqualityUsingMapAccessSameReference"/>
-                    <exclude name="testComplexStringMapValueEqualityUsingSameReference"/>
-                    <exclude name="testSimpleBooleanMapReferenceEqualityInDifferentMap"/>
-                    <exclude name="testSimpleBooleanMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleBooleanMapReferenceEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleBooleanMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testSimpleBooleanMapReferenceEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleBooleanMapValueEqualityInDifferentMap"/>
-                    <exclude name="testSimpleBooleanMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleBooleanMapValueEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleBooleanMapValueEqualityUsingSameReference"/>
-                    <exclude name="testSimpleBooleanMapValueEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleByteMapReferenceEqualityInDifferentMap"/>
-                    <exclude name="testSimpleByteMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleByteMapReferenceEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleByteMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testSimpleByteMapReferenceEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleByteMapValueEqualityInDifferentMap"/>
-                    <exclude name="testSimpleByteMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleByteMapValueEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleByteMapValueEqualityUsingSameReference"/>
-                    <exclude name="testSimpleByteMapValueEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleDecimalMapReferenceEqualityInDifferentMap"/>
-                    <exclude name="testSimpleDecimalMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleDecimalMapReferenceEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleDecimalMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testSimpleDecimalMapReferenceEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleDecimalMapValueEqualityInDifferentMap"/>
-                    <exclude name="testSimpleDecimalMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleDecimalMapValueEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleDecimalMapValueEqualityUsingSameReference"/>
-                    <exclude name="testSimpleDecimalMapValueEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleFloatMapReferenceEqualityInDifferentMap"/>
-                    <exclude name="testSimpleFloatMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleFloatMapReferenceEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleFloatMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testSimpleFloatMapReferenceEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleFloatMapValueEqualityInDifferentMap"/>
-                    <exclude name="testSimpleFloatMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleFloatMapValueEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleFloatMapValueEqualityUsingSameReference"/>
-                    <exclude name="testSimpleFloatMapValueEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleIntMapReferenceEqualityInDifferentMap"/>
-                    <exclude name="testSimpleIntMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleIntMapReferenceEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleIntMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testSimpleIntMapReferenceEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleIntMapValueEqualityInDifferentMap"/>
-                    <exclude name="testSimpleIntMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleIntMapValueEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleIntMapValueEqualityUsingSameReference"/>
-                    <exclude name="testSimpleIntMapValueEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleNilMapReferenceEqualityInDifferentMap"/>
-                    <exclude name="testSimpleNilMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleNilMapReferenceEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleNilMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testSimpleNilMapReferenceEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleNilMapValueEqualityInDifferentMap"/>
-                    <exclude name="testSimpleNilMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleNilMapValueEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleNilMapValueEqualityUsingSameReference"/>
-                    <exclude name="testSimpleNilMapValueEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleStringMapReferenceEqualityInDifferentMap"/>
-                    <exclude name="testSimpleStringMapReferenceEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleStringMapReferenceEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleStringMapReferenceEqualityUsingSameReference"/>
-                    <exclude name="testSimpleStringMapReferenceEqualityUsingSameReferenceInMap"/>
-                    <exclude name="testSimpleStringMapValueEqualityInDifferentMap"/>
-                    <exclude name="testSimpleStringMapValueEqualityUsingDifferentReference"/>
-                    <exclude name="testSimpleStringMapValueEqualityUsingDifferentReferenceInMap"/>
-                    <exclude name="testSimpleStringMapValueEqualityUsingSameReference"/>
-                    <exclude name="testSimpleStringMapValueEqualityUsingSameReferenceInMap"/>
-                </methods>
-            </class>
-<!--            <class name="org.ballerinalang.test.statements.packageimport.PackageImportTest">-->
-<!--                <methods>-->
-<!--                    <exclude name="testImportsPerfile"/>-->
-<!--                </methods>-->
-<!--            </class>-->
-            <!--            <class name="org.ballerinalang.test.expressions.typecast.TypeCastExprTest">-->
-            <!--                <methods>-->
-            <!--                    <exclude name="testCastToStructInDifferentPkg"/>-->
-            <!--                </methods>-->
-            <!--            </class>-->
             <class name="org.ballerinalang.test.documentation.ErrorsTest">
                 <methods>
                     <exclude name="testErrorAsAType"/>
@@ -1403,35 +706,6 @@
             <class name="org.ballerinalang.test.javainterop.basic.JavaToBallerinaTest">
                 <methods>
                     <exclude name="testUsingExistingBallerinaRuntime"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.documentation.MarkdownDocumentationTest">
-                <methods>
-                    <exclude name="testDocNativeFunction"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.functions.FunctionSignatureInBaloTest">
-                <methods>
-                    <exclude name="defaultValueForObjectFunctionParam"/>
-                    <exclude name="defaultValueForObjectOuterFunctionParam"/>
-                    <exclude name="funcInvocAsRestArgs"/>
-                    <exclude name="testAttachedFunction"/>
-                    <exclude name="testFuncWithNilDefaultParamExpr"/>
-                    <exclude name="testFuncWithUnionTypedDefaultParam"/>
-                    <exclude name="testInvocationWithArgVarargMix"/>
-                    <exclude name="testInvokeFuncWithAnyRestParam1"/>
-                    <exclude name="testInvokeFuncWithOnlyNamedParams1"/>
-                    <exclude name="testInvokeFuncWithOnlyNamedParams2"/>
-                    <exclude name="testInvokeFuncWithOnlyNamedParams3"/>
-                    <exclude name="testInvokeFuncWithOnlyRestParam1"/>
-                    <exclude name="testInvokeFuncWithOnlyRestParam2"/>
-                    <exclude name="testInvokeFuncWithOnlyRestParam3"/>
-                    <exclude name="testInvokeFuncWithoutRestParams"/>
-                    <exclude name="testInvokeFunctionInOrder1"/>
-                    <exclude name="testInvokeFunctionInOrder2"/>
-                    <exclude name="testInvokeFunctionWithRequiredArgsOnly"/>
-                    <exclude name="testInvokeFunctionWithoutRestArgs"/>
-                    <exclude name="testInvokeFunctionWithoutSomeNamedArgs"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.worker.NotSoBasicWorkerTest">
@@ -1448,46 +722,6 @@
                     <exclude name="forkWithinWorkers"/>
                     <exclude name="largeForkCreationTest"/>
                     <exclude name="testVoidFunctionWorkers"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.balo.object.ObjectInBaloTest">
-                <methods>
-                    <exclude name="testBasicStructAsObject"/>
-                    <exclude name="testBasicStructAsObjectWithJustNew"/>
-                    <exclude name="testFieldWithExpr"/>
-                    <exclude name="testInitializingInterfaceObject"/>
-                    <exclude name="testInitializingObjectWithStructLiteral"/>
-                    <exclude name="testNewAsReturnWithDifferentType"/>
-                    <exclude name="testNewAsReturnWithSameType"/>
-                    <exclude name="testObjectCallAttachedFunctions"/>
-                    <exclude name="testObjectFieldDefaultable"/>
-                    <exclude name="testObjectInsideObject"/>
-                    <exclude name="testObjectNegativeSemanticTestForNonInitializable"/>
-                    <exclude name="testObjectNegativeTestForAttachFunctions"/>
-                    <exclude name="testObjectNegativeTestForNonInitializable"/>
-                    <exclude name="testObjectNegativeTestForReturnDifferentType"/>
-                    <exclude name="testObjectPassSelfAsValue"/>
-                    <exclude name="testObjectReferingNonAbstractObjFromBalo"/>
-                    <exclude name="testObjectReferingNonAbstractObjLoadedFromBalo"/>
-                    <exclude name="testObjectReferingTypeFromBalo_1"/>
-                    <exclude name="testObjectReferingTypeFromBalo_2"/>
-                    <exclude name="testObjectReferingTypeFromBalo_3"/>
-                    <exclude name="testObjectSelfreferenceWithDefaultable"/>
-                    <exclude name="testObjectWithAttachedFunction"/>
-                    <exclude name="testObjectWithAttachedFunction1"/>
-                    <exclude name="testObjectWithByteTypeFields"/>
-                    <exclude name="testObjectWithDefaultInitializeGlobalVar"/>
-                    <exclude name="testObjectWithDefaultableField"/>
-                    <exclude name="testObjectWithSelfKeyword"/>
-                    <exclude name="testObjectWithSimpleInit"/>
-                    <exclude name="testObjectWithSimpleInitWithDiffValues"/>
-                    <exclude name="testObjectWithWithDefaultInitialize"/>
-                    <exclude name="testObjectWithoutRHSType"/>
-                    <exclude name="testPassingValueForDefaultableObjectField"/>
-                    <exclude name="testRecursiveObjectRefWithNillable"/>
-                    <exclude name="testReferUndefinedFieldBal"/>
-                    <exclude name="testShadowingObjectField"/>
-                    <exclude name="testUnInitializableObjFieldAsParam"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.bir.BirVariableOptimizationTest">

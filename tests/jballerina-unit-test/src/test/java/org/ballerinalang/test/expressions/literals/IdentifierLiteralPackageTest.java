@@ -40,8 +40,8 @@ public class IdentifierLiteralPackageTest {
     @BeforeClass
     public void setup() {
 
-//        result = BCompileUtil.compile("test-src/expressions/literals/identifierliteral/TestProject", "pkg.main");
-        result = BCompileUtil.compile("test-src/expressions/literals/identifierliteral/TestProject/pkg.main");
+        result = BCompileUtil.compile("test-src/expressions/literals/identifierliteral/testproject/" +
+                                        "identifier-literal-pkg.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 

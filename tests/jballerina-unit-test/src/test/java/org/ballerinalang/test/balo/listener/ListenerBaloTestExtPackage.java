@@ -17,11 +17,9 @@
 */
 package org.ballerinalang.test.balo.listener;
 
-import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -34,7 +32,7 @@ public class ListenerBaloTestExtPackage {
 
     @BeforeClass
     public void setup() {
-//        BCompileUtil.compile("test-src/balo/test_projects/test_listener", "listenerProject", "ext");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_listener");
         compileResult = BCompileUtil.compile("test-src/balo/test_balo/listener/external_packaged_listener_access.bal");
     }
 

@@ -1,0 +1,4 @@
+[package]
+org= "testorg"
+name="readonly_objects"
+version= "1.0.0"

@@ -18,24 +18,27 @@
 
 package org.ballerinalang.stdlib.utils;
 
-import io.ballerina.projects.EmitResult;
+import io.ballerina.projects.CompilationCache;
+import io.ballerina.projects.CompilerBackend;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.model.Target;
+import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 
-import java.io.File;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -68,55 +71,39 @@ public class BuildLangLib {
         if (!skipBootstrap) {
             System.setProperty("BOOTSTRAP_LANG_LIB", pkgName);
         }
-        Project project = BuildProject.load(projectDir);
-        Target target = new Target(projectDir);
+
+        Path targetPath = projectDir.resolve(ProjectConstants.TARGET_DIR_NAME);
+        Path pkgTargetPath = targetPath.resolve(pkgName);
+        ProjectEnvironmentBuilder environmentBuilder = createProjectEnvBuilder(pkgTargetPath);
+
+        Project project = BuildProject.load(environmentBuilder, projectDir);
         Package pkg = project.currentPackage();
         PackageCompilation packageCompilation = pkg.getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
-        EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR, target.path());
-        if (!emitResult.successful()) {
-            out.println("Error building module");
-            emitResult.diagnostics().forEach(d -> out.println(d.toString()));
+        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
+            out.println("Error building Ballerina package: " + pkg.packageName());
+            jBallerinaBackend.diagnosticResult().diagnostics().forEach(d -> out.println(d.toString()));
             System.exit(1);
         }
-        new LangLibArchive(target.path(), pkg);
-    }
-}
 
+        PackageDescriptor pkgDesc = pkg.packageDescriptor();
+        String baloName = ProjectUtils.getBaloName(pkgDesc);
+        Path baloDirPath = pkgTargetPath.resolve("balo");
 
-class LangLibArchive {
-    Path archive;
-    Path balos;
-    Path cache;
-    Path bir;
-    Path jar;
-    Package aPackage;
-    Path zipFile;
+        // Create balo cache directory
+        Path balrPath = baloDirPath.resolve(pkgDesc.org().toString())
+                .resolve(pkgDesc.name().value())
+                .resolve(pkgDesc.version().toString());
+        Files.createDirectories(balrPath);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, balrPath.resolve(baloName));
 
-    LangLibArchive(Path target, Package pkg) throws IOException {
-        archive = target.resolve(pkg.getDefaultModule().moduleName().toString());
-        Files.createDirectories(archive);
-        aPackage = pkg;
-        zipFile = target.resolve(pkg.packageName().value() + ".zip");
-        createDirectoryStructure();
-        createArtafacts();
-        createZip();
-        deleteFiles();
-    }
-
-    private void deleteFiles() throws IOException {
-        Files.walk(archive)
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .forEach(File::delete);
-    }
-
-    private void createZip() throws IOException {
-        try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(zipFile))) {
-            Files.walk(archive)
+        // Create zip file
+        Path zipFilePath = targetPath.resolve(pkgDesc.name().value() + ".zip");
+        try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(zipFilePath))) {
+            Files.walk(pkgTargetPath)
                     .filter(path -> !Files.isDirectory(path))
                     .forEach(path -> {
-                        ZipEntry zipEntry = new ZipEntry(archive.relativize(path).toString());
+                        ZipEntry zipEntry = new ZipEntry(pkgTargetPath.relativize(path).toString());
                         try {
                             zs.putNextEntry(zipEntry);
                             Files.copy(path, zs);
@@ -127,48 +114,48 @@ class LangLibArchive {
                         }
                     });
         }
+
+        // Copy generated jar to the target dir
+        Path cacheDirPath = pkgTargetPath.resolve("cache");
+        String jarFileName = pkgDesc.name().value() + ".jar";
+        Path generatedJarFilePath = cacheDirPath.resolve(pkgDesc.org().toString())
+                .resolve(pkgDesc.name().value())
+                .resolve(pkgDesc.version().toString())
+                .resolve(jBallerinaBackend.targetPlatform().code())
+                .resolve(jarFileName);
+        Path targetJarFilePath = targetPath.resolve(jarFileName);
+        Files.copy(generatedJarFilePath, targetJarFilePath);
     }
 
-    private void createArtafacts() {
-        String baloName = ProjectUtils.getBaloName(aPackage);
-        PackageCompilation packageCompilation = aPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, balos.resolve(baloName));
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BIR, bir);
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.JAR, jar);
-    }
+    private static ProjectEnvironmentBuilder createProjectEnvBuilder(Path targetPath) {
+        ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        environmentBuilder.addCompilationCacheFactory(project -> new CompilationCache(project) {
+            private final FileSystemCache fsCache = new FileSystemCache(project, targetPath);
 
-    void createDirectoryStructure() throws IOException {
-        /* The exported archive will contain the following
-         * lang.annotations.zip
-         * - balo
-         *    - org
-         *      - package-name
-         *         - version
-         *            - org-package-name-version-any.balo
-         * - cache
-         *    - org
-         *       - package-name
-         *          - version
-         *            - bir
-         *               - mod1.bir
-         *               - mod2.bir
-         *            - jar
-         *               - org-package-name-version.jar
-         */
-        this.balos = archive.resolve("balo")
-                .resolve(aPackage.packageOrg().toString())
-                .resolve(aPackage.packageName().value())
-                .resolve(aPackage.packageVersion().version().toString());
-        this.cache = archive.resolve("cache")
-                .resolve(aPackage.packageOrg().toString())
-                .resolve(aPackage.packageName().value())
-                .resolve(aPackage.packageVersion().version().toString());
-        this.bir = this.cache.resolve("bir");
-        this.jar = this.cache.resolve("jar");
-        Files.createDirectories(this.cache);
-        Files.createDirectories(this.balos);
-        Files.createDirectories(this.bir);
-        Files.createDirectories(this.jar);
+            @Override
+            public byte[] getBir(ModuleName moduleName) {
+                return new byte[0];
+            }
+
+            @Override
+            public void cacheBir(ModuleName moduleName, ByteArrayOutputStream birContent) {
+                fsCache.cacheBir(moduleName, birContent);
+            }
+
+            @Override
+            public Optional<Path> getPlatformSpecificLibrary(CompilerBackend compilerBackend,
+                                                             String libraryName) {
+                return Optional.empty();
+            }
+
+            @Override
+            public void cachePlatformSpecificLibrary(CompilerBackend compilerBackend,
+                                                     String libraryName,
+                                                     ByteArrayOutputStream libraryContent) {
+                fsCache.cachePlatformSpecificLibrary(compilerBackend, libraryName, libraryContent);
+            }
+        });
+
+        return environmentBuilder;
     }
 }

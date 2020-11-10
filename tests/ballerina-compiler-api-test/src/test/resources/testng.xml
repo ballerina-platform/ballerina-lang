@@ -35,12 +35,6 @@
                     <exclude name="testCheckingExprs"/>
                 </methods>
             </class>
-            <class name="io.ballerina.semantic.api.test.SymbolBIRTest">
-                <methods>
-                    <exclude name="testImportSymbols"/>
-                    <exclude name="testSymbolLookupInBIR"/>
-                </methods>
-            </class>
 
             <!-- ########################## END ############################# -->
         </classes>

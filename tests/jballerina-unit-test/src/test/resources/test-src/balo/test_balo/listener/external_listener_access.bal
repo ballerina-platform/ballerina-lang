@@ -1,6 +1,6 @@
-import listenerProject/bee;
+import listenerproject/test_listener;
 
-service sample2 on bee:ep {
+service sample2 on test_listener:ep {
 
     resource function foo(string b) {
     }
@@ -9,10 +9,10 @@ service sample2 on bee:ep {
     }
 }
 
-service sample3 on bee:ep1 {
+service sample3 on test_listener:ep1 {
     resource function foo(string b) {}
 }
 
 public function getStartAndAttachCount() returns string {
-    return bee:getStartAndAttachCount();
+    return test_listener:getStartAndAttachCount();
 }
