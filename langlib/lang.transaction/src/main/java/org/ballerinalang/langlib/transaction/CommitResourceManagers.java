@@ -30,7 +30,7 @@ import io.ballerina.runtime.transactions.TransactionResourceManager;
 public class CommitResourceManagers {
 
     public static boolean commitResourceManagers(BString transactionId, BString transactionBlockId) {
-        return TransactionResourceManager.getInstance().notifyCommit(Scheduler.getStrand(), transactionId.getValue(),
+        return TransactionResourceManager.getInstance().notifyCommit(transactionId.getValue(),
                                                                      transactionBlockId.getValue());
     }
 }
