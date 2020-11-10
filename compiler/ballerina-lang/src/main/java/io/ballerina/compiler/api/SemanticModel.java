@@ -60,12 +60,14 @@ public interface SemanticModel {
     List<Symbol> moduleLevelSymbols();
 
     /**
-     * Finds all the references of the specified symbol within the module.
+     * If there's an identifier associated with a symbol at the specified cursor position, finds all the references of
+     * the specified symbol within the relevant scope.
      *
-     * @param symbol Symbol for which the references are looked up
+     * @param fileName name of the file in which to look up the specified position
+     * @param position a cursor position in the source
      * @return A {@link List} of line ranges of all the references
      */
-    List<Location> allReferences(Symbol symbol);
+    List<Location> allReferences(String fileName, LinePosition position);
 
     /**
      * Retrieves the type of the expression in the specified text range. If it's not a valid expression, returns an

@@ -43,6 +43,7 @@ public class BallerinaSymbol implements Symbol {
     private final Documentation docAttachment;
     private final boolean isLangLib;
     private final Location position;
+    private final BSymbol internalSymbol;
 
     protected BallerinaSymbol(String name, PackageID moduleID, SymbolKind symbolKind, BSymbol symbol) {
         this.name = name;
@@ -54,6 +55,7 @@ public class BallerinaSymbol implements Symbol {
             throw new IllegalArgumentException("'symbol' cannot be null");
         }
 
+        this.internalSymbol = symbol;
         this.isLangLib = (symbol.flags & Flags.LANG_LIB) == Flags.LANG_LIB;
         this.position = new BLangDiagnosticLocation(symbol.pos.lineRange().filePath(),
                                                     symbol.pos.lineRange().startLine().line(),
@@ -106,6 +108,10 @@ public class BallerinaSymbol implements Symbol {
      */
     public boolean isLangLib() {
         return isLangLib;
+    }
+
+    public BSymbol getInternalSymbol() {
+        return this.internalSymbol;
     }
 
     private Documentation getDocAttachment(BSymbol symbol) {
