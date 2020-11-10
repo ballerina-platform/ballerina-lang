@@ -106,8 +106,8 @@ public class ProjectLoader {
                     }
 
                     for (DocumentId documentId : module.testDocumentIds()) {
-                        if (module.document(documentId).name().equals(
-                                Optional.of(documentFilePath.getFileName()).get().toString())) {
+                        if (module.document(documentId).name().equals(ProjectConstants.TEST_DIR_NAME + "/"
+                                + Optional.of(documentFilePath.getFileName()).get().toString())) {
                             return Optional.of(documentId);
                         }
                     }
