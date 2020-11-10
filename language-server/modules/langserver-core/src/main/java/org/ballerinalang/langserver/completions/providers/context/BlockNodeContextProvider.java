@@ -17,10 +17,10 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.TypeSymbol;
-import io.ballerina.compiler.api.types.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -77,7 +77,8 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                     symbol.kind() == SymbolKind.TYPE
                             || symbol.kind() == SymbolKind.VARIABLE
                             || symbol.kind() == SymbolKind.CONSTANT
-                            || symbol.kind() == SymbolKind.FUNCTION;
+                            || symbol.kind() == SymbolKind.FUNCTION
+                            || symbol.kind() == SymbolKind.CLASS;
             List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, nameRef, filter);
 
             return this.getCompletionItemList(moduleContent, context);
@@ -105,7 +106,6 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
 
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_NAMESPACE_DECLARATION.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_ON_FAIL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_XMLNS.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_WAIT.get()));
@@ -138,9 +138,22 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_PANIC.get()));
         Optional<Node> nodeBeforeCursor = this.nodeBeforeCursor(context, node);
-        if (nodeBeforeCursor.isPresent() && nodeBeforeCursor.get().kind() == SyntaxKind.IF_ELSE_STATEMENT) {
-            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_ELSE_IF.get()));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_ELSE.get()));
+        if (nodeBeforeCursor.isPresent()) {
+            switch (nodeBeforeCursor.get().kind()) {
+                case IF_ELSE_STATEMENT:
+                    completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_ELSE_IF.get()));
+                    completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_ELSE.get()));
+                    break;
+                case DO_STATEMENT:
+                case MATCH_STATEMENT:
+                case FOREACH_STATEMENT:
+                case WHILE_STATEMENT:
+                case LOCK_STATEMENT:
+                    completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_ON_FAIL.get()));
+                    break;
+                default:
+                    break;
+            }
         }
         if (withinLoop) {
             /*

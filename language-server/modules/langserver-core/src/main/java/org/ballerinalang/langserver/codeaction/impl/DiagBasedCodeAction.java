@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction.impl;
 
-import io.ballerina.compiler.api.types.TypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.LSContext;

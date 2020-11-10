@@ -17,6 +17,10 @@
  */
 package io.ballerina.runtime.observability;
 
+import io.ballerina.runtime.api.Module;
+
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+
 /**
  * All constants related to observability.
  * <p>
@@ -83,4 +87,6 @@ public class ObservabilityConstants {
 
     // Tracing Configs
     public static final String CONFIG_TRACING_ENABLED = CONFIG_TABLE_TRACING + ".enabled";
+
+    public static final Module OBSERVABILITY_PACKAGE_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "observe", "0.8.0");
 }

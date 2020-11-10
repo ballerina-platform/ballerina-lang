@@ -18,7 +18,10 @@
                     "parameters": [
                         {
                             "label": {
-                                "left": "float n"
+                                "right": {
+                                    "first": 10,
+                                    "second": 11
+                                }
                             },
                             "documentation": {
                                 "right": {

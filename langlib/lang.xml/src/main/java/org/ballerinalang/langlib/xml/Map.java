@@ -18,20 +18,20 @@
 
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.api.values.BXML;
-import io.ballerina.runtime.scheduling.AsyncUtils;
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.scheduling.AsyncUtils;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.runtime.util.BLangConstants.XML_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
@@ -52,20 +52,20 @@ public class Map {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
                                                                       XML_VERSION, "filter");
 
-    public static BXML map(BXML x, BFunctionPointer<Object, Object> func) {
+    public static BXml map(BXml x, BFunctionPointer<Object, Object> func) {
         if (x.isSingleton()) {
             func.asyncCall(new Object[]{Scheduler.getStrand(), x, true}, METADATA);
             return null;
         }
-        List<BXML> elements = new ArrayList<>();
+        List<BXml> elements = new ArrayList<>();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
         AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, x.size(),
                         () -> new Object[]{parentStrand, x.getItem(index.incrementAndGet()),
                                 true},
-                        result -> elements.add((BXML) result),
-                                                       () -> ValueCreator.createXMLSequence(elements),
+                        result -> elements.add((BXml) result),
+                                                       () -> ValueCreator.createXmlSequence(elements),
                                                        Scheduler.getStrand().scheduler);
-        return ValueCreator.createXMLSequence(elements);
+        return ValueCreator.createXmlSequence(elements);
     }
 }

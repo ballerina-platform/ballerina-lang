@@ -15,6 +15,10 @@
           "hasDiagnostics": true,
           "children": [
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
               "children": [
@@ -220,6 +224,10 @@
           "kind": "MODULE_VAR_DECL",
           "children": [
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
@@ -267,6 +275,10 @@
         {
           "kind": "MODULE_VAR_DECL",
           "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
             {
               "kind": "TYPED_BINDING_PATTERN",
               "children": [

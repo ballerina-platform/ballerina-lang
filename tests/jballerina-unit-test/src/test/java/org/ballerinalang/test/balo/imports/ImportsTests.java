@@ -35,6 +35,7 @@ import java.nio.file.Paths;
 /**
  * Test cases for multiple version support.
  */
+@Test(groups = { "brokenOnSpecDeviation" })
 public class ImportsTests {
 
     private static final String USER_HOME = "user.home";

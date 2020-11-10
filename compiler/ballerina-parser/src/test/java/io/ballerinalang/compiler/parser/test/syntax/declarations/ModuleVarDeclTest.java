@@ -38,6 +38,11 @@ public class ModuleVarDeclTest extends AbstractDeclarationTest {
         testFile("module-var-decl/module_var_decl_source_08.bal", "module-var-decl/module_var_decl_assert_08.json");
     }
 
+    @Test
+    public void testIsolatedVarDecl() {
+        testFile("module-var-decl/module_var_decl_source_11.bal", "module-var-decl/module_var_decl_assert_11.json");
+    }
+
     // Recovery tests
 
     @Test

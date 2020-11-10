@@ -34,7 +34,13 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "annot1"
+                              "value": "annot1",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -167,10 +173,6 @@
                             {
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
-                            },
-                            {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
                             }
                           ]
                         },
@@ -179,7 +181,13 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "annot2"
+                              "value": "annot2",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
                             }
                           ]
                         }
@@ -289,7 +297,13 @@
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "value": "annot3"
+                                          "value": "annot3",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -395,10 +409,6 @@
                         {
                           "kind": "AT_TOKEN",
                           "leadingMinutiae": [
-                            {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
-                            },
                             {
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
@@ -509,7 +519,13 @@
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "value": "annot6"
+                                          "value": "annot6",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -607,6 +623,12 @@
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
                                           "value": "    "
+                                        }
+                                      ],
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
                                         }
                                       ]
                                     },
@@ -746,10 +768,6 @@
                             {
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
-                            },
-                            {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
                             }
                           ]
                         },
@@ -758,7 +776,13 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "annot8"
+                              "value": "annot8",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -894,7 +918,13 @@
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "value": "annot9"
+                                          "value": "annot9",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -1054,7 +1084,13 @@
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "value": "annot10"
+                                          "value": "annot10",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -1215,7 +1251,13 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "annot11"
+                              "value": "annot11",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -1330,7 +1372,13 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "annot12"
+                              "value": "annot12",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -1366,6 +1414,10 @@
                   ]
                 }
               ]
+            },
+            {
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "TYPED_BINDING_PATTERN",
@@ -1460,7 +1512,13 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "annot13"
+                              "value": "annot13",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },

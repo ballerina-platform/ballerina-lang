@@ -80,8 +80,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(importDeclarationNode.orgName().orElse(null));
         SeparatedNodeList<IdentifierToken> moduleName =
                 modifySeparatedNodeList(importDeclarationNode.moduleName());
-        ImportVersionNode version =
-                modifyNode(importDeclarationNode.version().orElse(null));
         ImportPrefixNode prefix =
                 modifyNode(importDeclarationNode.prefix().orElse(null));
         Token semicolon =
@@ -90,7 +88,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 importKeyword,
                 orgName,
                 moduleName,
-                version,
                 prefix,
                 semicolon);
     }
@@ -766,18 +763,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public ImportVersionNode transform(
-            ImportVersionNode importVersionNode) {
-        Token versionKeyword =
-                modifyToken(importVersionNode.versionKeyword());
-        SeparatedNodeList<Token> versionNumber =
-                modifySeparatedNodeList(importVersionNode.versionNumber());
-        return importVersionNode.modify(
-                versionKeyword,
-                versionNumber);
-    }
-
-    @Override
     public SpecificFieldNode transform(
             SpecificFieldNode specificFieldNode) {
         Token readonlyKeyword =
@@ -1109,8 +1094,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
         MetadataNode metadata =
                 modifyNode(moduleVariableDeclarationNode.metadata().orElse(null));
-        Token finalKeyword =
-                modifyToken(moduleVariableDeclarationNode.finalKeyword().orElse(null));
+        NodeList<Token> qualifiers =
+                modifyNodeList(moduleVariableDeclarationNode.qualifiers());
         TypedBindingPatternNode typedBindingPattern =
                 modifyNode(moduleVariableDeclarationNode.typedBindingPattern());
         Token equalsToken =
@@ -1121,7 +1106,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(moduleVariableDeclarationNode.semicolonToken());
         return moduleVariableDeclarationNode.modify(
                 metadata,
-                finalKeyword,
+                qualifiers,
                 typedBindingPattern,
                 equalsToken,
                 initializer,

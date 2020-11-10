@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 import java.nio.charset.Charset;

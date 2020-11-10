@@ -91,7 +91,10 @@ public class SymbolBIRTest {
 
         List<String> fooTypeDefs = getSymbolNames(getSymbolNames(fooPkgSymbol, SymTag.TYPE_DEF), "FileNotFoundError",
                                                   "EofError", "Digit");
+        fooTypeDefs.remove("PersonObj");
         assertList(fooModule.typeDefinitions(), fooTypeDefs);
+
+        assertList(fooModule.classes(), List.of("PersonObj"));
 
         List<String> allSymbols = getSymbolNames(fooPkgSymbol, 0);
         assertList(fooModule.allSymbols(), allSymbols);

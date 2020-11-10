@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.internal;
 
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BTypedesc;

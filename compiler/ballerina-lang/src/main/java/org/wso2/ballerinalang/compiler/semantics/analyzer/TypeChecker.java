@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import io.ballerina.runtime.IdentifierUtils;
+import io.ballerina.runtime.internal.IdentifierUtils;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.OrderKeyNode;
@@ -1667,7 +1667,7 @@ public class TypeChecker extends BLangNodeVisitor {
             recordSymbol.scope.define(fieldName, fieldSymbol);
         }
 
-        BRecordType recordType = new BRecordType(recordSymbol);
+        BRecordType recordType = new BRecordType(recordSymbol, recordSymbol.flags);
         if (applicableMappingType.tag == TypeTags.MAP) {
             recordType.sealed = false;
             recordType.restFieldType = ((BMapType) applicableMappingType).constraint;
@@ -2183,7 +2183,7 @@ public class TypeChecker extends BLangNodeVisitor {
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
 
         String recordName = this.anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.symbol.pkgID);
-        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, names.fromString(recordName),
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.ANONYMOUS, names.fromString(recordName),
                                                                     env.enclPkg.symbol.pkgID, null, env.scope.owner,
                                                                     varRefExpr.pos, SOURCE);
         symbolEnter.defineSymbol(varRefExpr.pos, recordSymbol, env);
@@ -3072,7 +3072,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BUnionType createNextReturnType(Location pos, BStreamType streamType) {
-        BRecordType recordType = new BRecordType(null);
+        BRecordType recordType = new BRecordType(null, Flags.ANONYMOUS);
         recordType.restFieldType = symTable.noType;
         recordType.sealed = true;
 
@@ -3083,7 +3083,7 @@ public class TypeChecker extends BLangNodeVisitor {
         field.type = streamType.constraint;
         recordType.fields.put(field.name.value, field);
 
-        recordType.tsymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.packageID,
+        recordType.tsymbol = Symbols.createRecordSymbol(Flags.ANONYMOUS, Names.EMPTY, env.enclPkg.packageID,
                                                         recordType, env.scope.owner, pos, VIRTUAL);
         recordType.tsymbol.scope = new Scope(env.scope.owner);
         recordType.tsymbol.scope.define(fieldName, field.symbol);
@@ -3324,7 +3324,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BRecordType getWaitForAllExprReturnType(List<BLangWaitForAllExpr.BLangWaitKeyValue> keyVals,
                                                     Location pos) {
-        BRecordType retType = new BRecordType(null);
+        BRecordType retType = new BRecordType(null, Flags.ANONYMOUS);
 
         for (BLangWaitForAllExpr.BLangWaitKeyValue keyVal : keyVals) {
             BLangIdentifier fieldName;
@@ -3344,8 +3344,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         retType.restFieldType = symTable.noType;
         retType.sealed = true;
-        retType.tsymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.packageID, retType, null, pos,
-                                                     VIRTUAL);
+        retType.tsymbol = Symbols.createRecordSymbol(Flags.ANONYMOUS, Names.EMPTY, env.enclPkg.packageID, retType, null,
+                                                     pos, VIRTUAL);
         return retType;
     }
 
@@ -7245,7 +7245,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private BRecordTypeSymbol createRecordTypeSymbol(PackageID pkgID, Location location,
                                                      SymbolOrigin origin) {
         BRecordTypeSymbol recordSymbol =
-                Symbols.createRecordSymbol(0, names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(pkgID)),
+                Symbols.createRecordSymbol(Flags.ANONYMOUS,
+                                           names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(pkgID)),
                                            pkgID, null, env.scope.owner, location, origin);
 
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
