@@ -1,6 +1,6 @@
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXml;
 import org.apache.axiom.om.OMComment;
 import org.apache.axiom.om.OMProcessingInstruction;
 
@@ -15,7 +15,7 @@ public class XMLValueUtil {
      * @param xmlValue xml processing instruction.
      * @return target.
      */
-    public static String getTarget(BXML xmlValue) {
+    public static String getTarget(BXml xmlValue) {
        return ((OMProcessingInstruction) xmlValue.value()).getTarget();
     }
 
@@ -25,7 +25,7 @@ public class XMLValueUtil {
      * @param value xml value.
      * @return processing instruction content.
      */
-    public static String getPIContent(BXML value) {
+    public static String getPIContent(BXml value) {
         return ((OMProcessingInstruction) value.value()).getValue();
     }
 
@@ -35,7 +35,7 @@ public class XMLValueUtil {
      * @param value xml value.
      * @return comment content.
      */
-    public static String getCommentContent(BXML value) {
+    public static String getCommentContent(BXml value) {
         return ((OMComment) value.value()).getValue();
     }
 }

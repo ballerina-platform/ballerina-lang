@@ -465,7 +465,7 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
             throws BallerinaTestException {
         Variable result = evaluateExpression(context, expression);
         Assert.assertEquals(result.getValue(), errorMessage);
-        Assert.assertEquals(result.getType(), "string");
+        Assert.assertTrue(result.getType().equals("string") || result.getType().equals("error"));
     }
 
     /**

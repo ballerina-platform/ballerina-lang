@@ -18,12 +18,11 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.util.exceptions.BallerinaException;
 import org.ballerinalang.stdlib.io.channels.AbstractNativeChannel;
 import org.ballerinalang.stdlib.io.channels.BlobChannel;
 import org.ballerinalang.stdlib.io.channels.BlobIOChannel;
@@ -140,7 +139,7 @@ public class ByteChannelUtils extends AbstractNativeChannel {
     public static Object openWritableFile(BString pathUrl, boolean accessMode) {
         try {
             return createChannel(inFlow(pathUrl.getValue(), accessMode));
-        } catch (BallerinaIOException | BallerinaException e) {
+        } catch (BallerinaIOException e) {
             return IOUtils.createError(e);
         } catch (BError e) {
             return e;
