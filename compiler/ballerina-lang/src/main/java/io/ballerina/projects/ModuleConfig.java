@@ -17,9 +17,7 @@
  */
 package io.ballerina.projects;
 
-import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * {@code ModuleConfig} contains necessary configuration elements required to create an instance of a {@code Module}.
@@ -30,28 +28,24 @@ public class ModuleConfig {
     // This class should contain project-agnostic information
     private final ModuleId moduleId;
     private final ModuleDescriptor moduleDescriptor;
-    private final Path moduleDirPath;
     private final List<DocumentConfig> srcDocs;
     private final List<DocumentConfig> testSrcDocs;
 
     private ModuleConfig(ModuleId moduleId,
                          ModuleDescriptor moduleDescriptor,
-                         Path moduleDirPath,
                          List<DocumentConfig> srcDocs,
                          List<DocumentConfig> testSrcDocs) {
         this.moduleId = moduleId;
         this.moduleDescriptor = moduleDescriptor;
-        this.moduleDirPath = moduleDirPath;
         this.srcDocs = srcDocs;
         this.testSrcDocs = testSrcDocs;
     }
 
     public static ModuleConfig from(ModuleId moduleId,
                                     ModuleDescriptor moduleDescriptor,
-                                    Path moduleDirPath,
                                     List<DocumentConfig> srcDocs,
                                     List<DocumentConfig> testSrcDocs) {
-        return new ModuleConfig(moduleId, moduleDescriptor, moduleDirPath, srcDocs, testSrcDocs);
+        return new ModuleConfig(moduleId, moduleDescriptor, srcDocs, testSrcDocs);
     }
 
     public ModuleId moduleId() {
@@ -64,10 +58,6 @@ public class ModuleConfig {
 
     public boolean isDefaultModule() {
         return moduleDescriptor.name().isDefaultModuleName();
-    }
-
-    public Optional<Path> moduleDirectoryPath() {
-        return Optional.ofNullable(moduleDirPath);
     }
 
     public List<DocumentConfig> sourceDocs() {

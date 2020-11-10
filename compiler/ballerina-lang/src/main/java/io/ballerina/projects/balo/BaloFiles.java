@@ -164,7 +164,7 @@ public class BaloFiles {
         List<DocumentData> testSrcDocs = Collections.emptyList();
 
         // TODO Read Module.md file. Do we need to? Balo creator may need to package Module.md
-        return ModuleData.from(modulePath, srcDocs, testSrcDocs);
+        return ModuleData.from(modulePath, moduleName, srcDocs, testSrcDocs);
     }
 
     private static List<ModuleData> loadOtherModules(Path modulesDirPath,

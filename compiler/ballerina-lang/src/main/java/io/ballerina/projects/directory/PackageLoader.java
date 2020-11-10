@@ -84,19 +84,18 @@ public class PackageLoader {
             // TODO Proper error handling
             throw new IllegalStateException("This branch cannot be reached");
         }
-        ModuleName moduleName = ModuleName.from(pkgDescriptor.name(), fileName.toString());
+        ModuleName moduleName = ModuleName.from(pkgDescriptor.name(), moduleData.moduleName());
         return createModuleConfig(createModuleDescriptor(pkgDescriptor, moduleName), moduleData, packageId);
     }
 
     private static ModuleConfig createModuleConfig(ModuleDescriptor moduleDescriptor,
                                                    ModuleData moduleData,
                                                    PackageId packageId) {
-        Path moduleDirPath = moduleData.moduleDirectoryPath();
         ModuleId moduleId = ModuleId.create(moduleDescriptor.name().toString(), packageId);
 
         List<DocumentConfig> srcDocs = getDocumentConfigs(moduleId, moduleData.sourceDocs());
         List<DocumentConfig> testSrcDocs = getDocumentConfigs(moduleId, moduleData.testSourceDocs());
-        return ModuleConfig.from(moduleId, moduleDescriptor, moduleDirPath, srcDocs, testSrcDocs);
+        return ModuleConfig.from(moduleId, moduleDescriptor, srcDocs, testSrcDocs);
     }
 
     private static List<DocumentConfig> getDocumentConfigs(ModuleId moduleId, List<DocumentData> documentData) {
