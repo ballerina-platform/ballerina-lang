@@ -71,7 +71,7 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.INITIAL_MEHOD_DESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.INITIAL_METHOD_DESC;
 
 /**
  * Generates Jvm byte code for the lambda method.
@@ -452,7 +452,7 @@ public class LambdaGen {
     }
 
     private String getLambdaMethodDesc(List<BType> paramTypes, BType retType, int closureMapsCount) {
-        StringBuilder desc = new StringBuilder(INITIAL_MEHOD_DESC);
+        StringBuilder desc = new StringBuilder(INITIAL_METHOD_DESC);
         appendClosureMaps(closureMapsCount, desc);
         appendParamTypes(paramTypes, desc);
         desc.append(JvmCodeGenUtil.generateReturnType(retType));
