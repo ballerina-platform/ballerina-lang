@@ -528,7 +528,6 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting a struct to another struct in a different package")
     public void testCastToStructInDifferentPkg() {
-//        CompileResult res = BCompileUtil.compile("test-src/expressions.typecast.foo", "expressions.typecast.foo");
         CompileResult res = BCompileUtil.compile("test-src/expressions.typecast.foo");
         BRunUtil.invoke(res, "testCastToStructInDifferentPkg");
     }
