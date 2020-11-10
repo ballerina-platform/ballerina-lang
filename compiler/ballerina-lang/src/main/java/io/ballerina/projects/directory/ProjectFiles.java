@@ -18,6 +18,7 @@
 package io.ballerina.projects.directory;
 
 import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.toml.exceptions.TomlException;
 
@@ -102,6 +103,15 @@ public class ProjectFiles {
             return pathStream
                     .filter(path -> !path.equals(modulesDirPath))
                     .filter(Files::isDirectory)
+                    .filter(path -> {
+                        // validate moduleName
+                        if (!ProjectUtils.validateModuleName(path.toFile().getName())) {
+                            throw new RuntimeException("Invalid module name : '" + path.getFileName() + "' :\n" +
+                                    "Module name can only contain alphanumerics, underscores and periods " +
+                                    "and the maximum length is 256 characters");
+                        }
+                        return true;
+                    })
                     .map(ProjectFiles::loadModule)
                     .collect(Collectors.toList());
         } catch (IOException e) {
@@ -110,17 +120,11 @@ public class ProjectFiles {
     }
 
     private static ModuleData loadModule(Path moduleDirPath) {
-        // validate moduleName
-        if (!ProjectUtils.validateModuleName(moduleDirPath.toFile().getName())) {
-            throw new RuntimeException("Invalid module name : '" + moduleDirPath.getFileName() + "' :\n" +
-                    "Module name can only contain alphanumerics, underscores and periods " +
-                    "and the maximum length is 256 characters");
-        }
         List<DocumentData> srcDocs = loadDocuments(moduleDirPath);
         List<DocumentData> testSrcDocs;
         Path testDirPath = moduleDirPath.resolve("tests");
         if (Files.isDirectory(testDirPath)) {
-            testSrcDocs = loadDocuments(testDirPath);
+            testSrcDocs = loadTestDocuments(testDirPath);
         } else {
             testSrcDocs = Collections.emptyList();
         }
@@ -139,17 +143,42 @@ public class ProjectFiles {
         }
     }
 
+    private static List<DocumentData> loadTestDocuments(Path dirPath) {
+        try (Stream<Path> pathStream = Files.walk(dirPath, 1)) {
+            return pathStream
+                    .filter(matcher::matches)
+                    .map(ProjectFiles::loadTestDocument)
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static DocumentData loadDocument(Path documentFilePath) {
         String content;
         if (documentFilePath == null) {
             throw new RuntimeException("document path cannot be null");
         }
         try {
-            content = new String(Files.readAllBytes(documentFilePath), Charset.defaultCharset());
+            content = Files.readString(documentFilePath, Charset.defaultCharset());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         return DocumentData.from(Optional.of(documentFilePath.getFileName()).get().toString(), content);
+    }
+
+    private static DocumentData loadTestDocument(Path documentFilePath) {
+        String content;
+        if (documentFilePath == null) {
+            throw new RuntimeException("document path cannot be null");
+        }
+        try {
+            content = Files.readString(documentFilePath, Charset.defaultCharset());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String documentName = Optional.of(documentFilePath.getFileName()).get().toString();
+        return DocumentData.from(ProjectConstants.TEST_DIR_NAME + "/" + documentName, content);
     }
 
     public static PackageDescriptor createPackageDescriptor(Path ballerinaTomlFilePath) {

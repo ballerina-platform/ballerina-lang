@@ -36,7 +36,7 @@ public class RunCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Run a valid ballerina file", enabled = false)
+    @Test(description = "Run a valid ballerina file")
     public void testRunValidBalFile() throws IOException {
         Path validBalFilePath = this.testResources.resolve("valid-run-bal-file").resolve("file_create.bal");
 
@@ -133,7 +133,7 @@ public class RunCommandTest extends BaseCommandTest {
         Files.delete(tempFile);
     }
 
-    @Test(description = "Run a valid ballerina file from a different directory", enabled = false)
+    @Test(description = "Run a valid ballerina file from a different directory")
     public void testRunValidBalProjectFromDifferentDirectory() throws IOException {
         Path projectPath = this.testResources.resolve("validRunProject");
 

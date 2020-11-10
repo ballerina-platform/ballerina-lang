@@ -68,23 +68,23 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
     private boolean helpFlag;
 
-//    @CommandLine.Option(names = {"--offline"}, description = "Builds offline without downloading dependencies and " +
-//            "then run.")
+    @CommandLine.Option(names = {"--offline"}, description = "Builds offline without downloading dependencies and " +
+            "then run.")
     private boolean offline;
 
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
 
 
-//    @CommandLine.Option(names = "--dump-bir", hidden = true)
+    @CommandLine.Option(names = "--dump-bir", hidden = true)
     private boolean dumpBIR;
 
-//    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
+    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
 
-//    @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
-//            "when run is used with a source file or a module.")
-//    private boolean observabilityIncluded;
+    @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
+            "when run is used with a source file or a module.")
+    private boolean observabilityIncluded;
 
     public RunCommand() {
         this.outStream = System.err;

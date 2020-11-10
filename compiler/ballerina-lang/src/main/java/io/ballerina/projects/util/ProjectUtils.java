@@ -38,9 +38,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -52,10 +52,21 @@ import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
+import static io.ballerina.projects.util.ProjectConstants.ASM_COMMONS_JAR;
+import static io.ballerina.projects.util.ProjectConstants.ASM_JAR;
+import static io.ballerina.projects.util.ProjectConstants.ASM_TREE_JAR;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_HOME;
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_HOME_BRE;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_PACK_VERSION;
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
+import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT;
+import static io.ballerina.projects.util.ProjectConstants.JACOCO_CORE_JAR;
+import static io.ballerina.projects.util.ProjectConstants.JACOCO_REPORT_JAR;
+import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
 import static io.ballerina.projects.util.ProjectConstants.PROPERTIES_FILE;
+import static io.ballerina.projects.util.ProjectConstants.TEST_RUNTIME_JAR_PREFIX;
+import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
 /**
  * Project related util methods.
@@ -111,7 +122,7 @@ public class ProjectUtils {
         if (filePath != null) {
             filePath = filePath.toAbsolutePath().normalize();
             if (filePath.toFile().isDirectory()) {
-                if (Files.exists(filePath.resolve(ProjectConstants.BALLERINA_TOML))) {
+                if (Files.exists(filePath.resolve(BALLERINA_TOML))) {
                     return filePath;
                 }
             }
@@ -127,7 +138,7 @@ public class ProjectUtils {
      * @return true if the directory is a project repo, false if its the home repo
      */
     public static boolean isBallerinaProject(Path sourceRoot) {
-        Path ballerinaToml = sourceRoot.resolve(ProjectConstants.BALLERINA_TOML);
+        Path ballerinaToml = sourceRoot.resolve(BALLERINA_TOML);
         return Files.isDirectory(sourceRoot)
                 && Files.exists(ballerinaToml)
                 && Files.isRegularFile(ballerinaToml);
@@ -139,7 +150,7 @@ public class ProjectUtils {
      * @return organization name
      */
     public static String guessOrgName() {
-        String guessOrgName = System.getProperty(ProjectConstants.USER_NAME);
+        String guessOrgName = System.getProperty(USER_NAME);
         if (guessOrgName == null) {
             guessOrgName = "my_org";
         } else {
@@ -174,7 +185,7 @@ public class ProjectUtils {
         if (platform == null || "".equals(platform)) {
             platform = "any";
         }
-        return org + "-" + pkgName + "-" + platform + "-" + version + ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT;
+        return org + "-" + pkgName + "-" + platform + "-" + version + BLANG_COMPILED_PKG_BINARY_EXT;
     }
 
     public static String getJarName(Package pkg) {
@@ -188,47 +199,6 @@ public class ProjectUtils {
         return pkg.packageName().toString() + BLANG_COMPILED_JAR_EXT;
     }
 
-
-    public static Path getBirCacheFromHome() {
-        return createAndGetHomeReposPath().resolve(ProjectConstants.BIR_CACHE_DIR_NAME + "-" +
-                RepoUtils.getBallerinaVersion());
-    }
-
-    public static Path getJarCacheFromHome() {
-        return createAndGetHomeReposPath().resolve(ProjectConstants.JAR_CACHE_DIR_NAME + "-" +
-                RepoUtils.getBallerinaVersion());
-    }
-
-    public static Path getBaloCacheFromHome() {
-        return createAndGetHomeReposPath().resolve(ProjectConstants.BALO_CACHE_DIR_NAME);
-    }
-
-    /**
-     * Create and get the home repository path.
-     *
-     * @return home repository path
-     */
-    public static Path createAndGetHomeReposPath() {
-        Path homeRepoPath;
-        String homeRepoDir = System.getenv(ProjectConstants.HOME_REPO_ENV_KEY);
-        if (homeRepoDir == null || homeRepoDir.isEmpty()) {
-            String userHomeDir = System.getProperty(USER_HOME);
-            if (userHomeDir == null || userHomeDir.isEmpty()) {
-                throw new RuntimeException("Error creating home repository: unable to get user home directory");
-            }
-            homeRepoPath = Paths.get(userHomeDir, ProjectConstants.HOME_REPO_DEFAULT_DIRNAME);
-        } else {
-            // User has specified the home repo path with env variable.
-            homeRepoPath = Paths.get(homeRepoDir);
-        }
-
-        homeRepoPath = homeRepoPath.toAbsolutePath();
-        if (Files.exists(homeRepoPath) && !Files.isDirectory(homeRepoPath, LinkOption.NOFOLLOW_LINKS)) {
-            throw new RuntimeException("Home repository is not a directory: " + homeRepoPath.toString());
-        }
-        return homeRepoPath;
-    }
-
     public static String getOrgFromBaloName(String baloName) {
         return baloName.split("-")[0];
     }
@@ -240,7 +210,7 @@ public class ProjectUtils {
     public static String getVersionFromBaloName(String baloName) {
         // TODO validate this method of getting the version of the balo
         String versionAndExtension = baloName.split("-")[3];
-        int extensionIndex = versionAndExtension.indexOf(ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT);
+        int extensionIndex = versionAndExtension.indexOf(BLANG_COMPILED_PKG_BINARY_EXT);
         return versionAndExtension.substring(0, extensionIndex);
     }
 
@@ -266,15 +236,29 @@ public class ProjectUtils {
         return getBalHomePath().resolve("bre").resolve("lib").resolve(runtimeJarName);
     }
 
-    /**
-     * Returns the testerina-runtime jar path.
-     *
-     * @return jar path
-     */
-    public static Path getTesterinaRuntimeJarPath() {
+    public static List<Path> testDependencies() {
+        List<Path> dependencies = new ArrayList<>();
         String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
-        String runtimeJarName = "testerina-runtime-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
-        return getBalHomePath().resolve("bre").resolve("lib").resolve(runtimeJarName);
+        Path homeLibPath = getBalHomePath().resolve(BALLERINA_HOME_BRE).resolve(LIB_DIR);
+        String testRuntimeJarName = TEST_RUNTIME_JAR_PREFIX + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
+        String langJarName = "ballerina-lang-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
+
+        Path testRuntimeJarPath = homeLibPath.resolve(testRuntimeJarName);
+        Path langJarPath = homeLibPath.resolve(langJarName);
+        Path jacocoCoreJarPath =  homeLibPath.resolve(JACOCO_CORE_JAR);
+        Path jacocoReportJarPath = homeLibPath.resolve(JACOCO_REPORT_JAR);
+        Path asmJarPath = homeLibPath.resolve(ASM_JAR);
+        Path asmTreeJarPath = homeLibPath.resolve(ASM_TREE_JAR);
+        Path asmCommonsJarPath = homeLibPath.resolve(ASM_COMMONS_JAR);
+
+        dependencies.add(testRuntimeJarPath);
+        dependencies.add(langJarPath);
+        dependencies.add(jacocoCoreJarPath);
+        dependencies.add(jacocoReportJarPath);
+        dependencies.add(asmJarPath);
+        dependencies.add(asmTreeJarPath);
+        dependencies.add(asmCommonsJarPath);
+        return dependencies;
     }
 
     public static void assembleExecutableJar(Manifest manifest,

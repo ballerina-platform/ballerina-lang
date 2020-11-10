@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -143,12 +142,11 @@ public class CodeGenerator {
 
     public CompiledJarFile generateTestModule(ModuleId moduleId,
                                               CompilerBackend compilerBackend,
-                                              BLangTestablePackage bLangTestablePackage) {
+                                              BLangPackage bLangTestablePackage) {
 
         Set<Path> moduleDependencies = getPlatformDependencyPaths(moduleId, compilerBackend, null);
         Set<Path> testDependencies = getPlatformDependencyPaths(moduleId, compilerBackend, "testOnly");
         testDependencies.addAll(moduleDependencies);
-        generate(bLangTestablePackage.symbol, testDependencies);
         return generate(bLangTestablePackage.symbol, testDependencies);
     }
 

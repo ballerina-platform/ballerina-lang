@@ -1,6 +1,6 @@
 import ballerina/test;
 
-@test:Config {}
-public function testRunMain() {
+@test:Config{}
+function beforeFunc() {
     test:assertTrue(true, msg = "Failed!");
 }

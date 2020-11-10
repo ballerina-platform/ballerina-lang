@@ -374,13 +374,16 @@ class ModuleContext {
     }
 
     /**
-     * Generate testsuite.
+     * Generate and return the testsuite for module tests.
+     *
+     * @param compilerContext compiler context
+     * @return test suite
      */
     TestSuite generateTestSuite(CompilerContext compilerContext) {
-        TestSuite testSuite = new TestSuite(bLangPackage.getTestablePkg().packageID.name.value,
-                bLangPackage.getTestablePkg().packageID.toString(),
-                bLangPackage.getTestablePkg().packageID.orgName.value,
-                bLangPackage.getTestablePkg().packageID.version.value);
+        TestSuite testSuite = new TestSuite(bLangPackage.packageID.name.value,
+                bLangPackage.packageID.toString(),
+                bLangPackage.packageID.orgName.value,
+                bLangPackage.packageID.version.value);
         TesterinaRegistry.getInstance().getTestSuites().put(moduleDescriptor.name().toString(), testSuite);
 
         // set data
@@ -389,7 +392,8 @@ class ModuleContext {
         testSuite.setStopFunctionName(bLangPackage.stopFunction.name.value);
         testSuite.setPackageName(bLangPackage.packageID.toString());
         testSuite.setSourceRootPath(this.project.sourceRoot().toString());
-        // add module functions
+
+        // add functions of module/standalone file
         bLangPackage.functions.forEach(function -> {
             // Remove the duplicated annotations.
             String className = function.pos.lineRange().filePath().replace(".bal", "").replace("/", ".");
@@ -400,25 +404,33 @@ class ModuleContext {
                     className);
             testSuite.addTestUtilityFunction(function.name.value, functionClassName);
         });
-        // add test functions
+
+        BLangPackage testablePkg;
+        if (this.project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            testablePkg = bLangPackage;
+        } else {
+            testablePkg = bLangPackage.getTestablePkg();
+            testSuite.setTestInitFunctionName(testablePkg.initFunction.name.value);
+            testSuite.setTestStartFunctionName(testablePkg.startFunction.name.value);
+            testSuite.setTestStopFunctionName(testablePkg.stopFunction.name.value);
+
+            testablePkg.functions.forEach(function -> {
+                String className = function.pos.lineRange().filePath().replace(".bal", "").replace("/", ".");
+                String functionClassName = ProjectUtils.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                        bLangPackage.packageID.name.value,
+                        bLangPackage.packageID.version.value,
+                        className);
+                testSuite.addTestUtilityFunction(function.name.value, functionClassName);
+
+            });
+        }
+
+        // process annotations in test functions
         TestAnnotationProcessor testAnnotationProcessor = new TestAnnotationProcessor();
-        testAnnotationProcessor.init(compilerContext, bLangPackage.getTestablePkg());
+        testAnnotationProcessor.init(compilerContext, testablePkg);
+        testablePkg.functions.forEach(testAnnotationProcessor::processFunction);
 
-        testSuite.setTestInitFunctionName(bLangPackage.getTestablePkg().initFunction.name.value);
-        testSuite.setTestStartFunctionName(bLangPackage.getTestablePkg().startFunction.name.value);
-        testSuite.setTestStopFunctionName(bLangPackage.getTestablePkg().stopFunction.name.value);
-        bLangPackage.getTestablePkg().functions.forEach(function -> {
-            String className = function.pos.lineRange().filePath().replace(".bal", "").replace("/", ".");
-            String functionClassName = ProjectUtils.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                    bLangPackage.packageID.name.value,
-                    bLangPackage.packageID.version.value,
-                    className);
-            testSuite.addTestUtilityFunction(function.name.value, functionClassName);
-
-            // process annotations
-            testAnnotationProcessor.processFunction(function);
-        });
-        bLangPackage.getTestablePkg().topLevelNodes.stream().filter(topLevelNode ->
+        testablePkg.topLevelNodes.stream().filter(topLevelNode ->
                 topLevelNode instanceof BLangSimpleVariable).map(topLevelNode ->
                 (SimpleVariableNode) topLevelNode).forEach(testAnnotationProcessor::processMockFunction);
         return testSuite;
