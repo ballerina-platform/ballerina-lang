@@ -54,6 +54,7 @@ task updateVersion {
             replace: "${project.name}-${project.version}.jar"
     )
 }
+
 ballerinaLangLibBuild {
     skipBootstrap = 'true'
 }

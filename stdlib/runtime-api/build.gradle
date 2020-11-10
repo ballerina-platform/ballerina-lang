@@ -14,9 +14,8 @@
  * limitations under the License.
  *
  */
- 
-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
-apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+
+apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
 
 configurations.testCompileClasspath {
     resolutionStrategy {
@@ -41,12 +40,16 @@ dependencies {
     testCompile project(':ballerina-core')
     testCompile project(':ballerina-file')
 
-    bir project(path: ':ballerina-lang:annotations', configuration: 'bir')
 }
 
-createBalo {
-    jvmTarget = 'true'
+task updateVersion {
+    ant.replaceregexp(
+            file: "${projectDir}/src/main/ballerina/Ballerina.toml",
+            match: "${project.name}-(.*).jar",
+            replace: "${project.name}-${project.version}.jar"
+    )
 }
+
 
 description = 'Ballerina - Runtime API'
 
