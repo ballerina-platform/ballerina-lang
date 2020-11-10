@@ -37,7 +37,8 @@ public class TransactionalResourceFunctionTest {
         compileResult = BCompileUtil.compile("test-src/functions/transactional_resource_functions.bal");
     }
 
-    @Test(description = "Test transactional resource functions")
+    //TODO: Enable once the ballerinai-transaction PRs are merged
+    @Test(description = "Test transactional resource functions", enabled = false)
     public void testTransactionalResourceFunc() {
         BValue[] result = BRunUtil.invoke(compileResult, "test");
         Assert.assertEquals(result.length, 2, "expected two return type");
