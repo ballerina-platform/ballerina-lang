@@ -566,18 +566,6 @@
                     <exclude name="workerCancelledBeforeSend"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.documentation.FieldLevelDocsTest">
-                <methods>
-                    <exclude name="testObjWithModuleLevelAndFieldLevelFieldDocs"/>
-                    <exclude name="testObjectDocsWithMarkdownStyles"/>
-                    <exclude name="testObjectWithFieldLevelFieldDocs"/>
-                    <exclude name="testObjectWithModuleLevelFieldDocs"/>
-                    <exclude name="testRecordDocsWithMarkdownStyles"/>
-                    <exclude name="testRecordWithFieldLevelFieldDocs"/>
-                    <exclude name="testRecordWithModuleLevelAndFieldLevelFieldDocs"/>
-                    <exclude name="testRecordWithModuleLevelFieldDocs"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.types.constant.ConstantAssignmentTest">
                 <methods>
                     <exclude name="testConstantAssignmentExpression"/>
@@ -673,12 +661,6 @@
                     <exclude name="testDefaultErrorBeforeSend"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.documentation.MultilineDocsTest">
-                <methods>
-                    <exclude name="testMultilineDocs"/>
-                    <exclude name="testMultilineDocsWithDeprecation"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.worker.WorkerTest">
                 <methods>
                     <exclude name="innerWorkerPanicTest"/>
@@ -718,21 +700,6 @@
                     <exclude name="workerWithFutureTest3"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.documentation.DeprecatedAnnotationTest">
-                <methods>
-                    <exclude name="testDeprecatedAnnotationDef"/>
-                    <exclude name="testDeprecatedConstantDecl"/>
-                    <exclude name="testDeprecatedErrorTypeDef"/>
-                    <exclude name="testDeprecatedFiniteTypeDef"/>
-                    <exclude name="testDeprecatedFunctionDef"/>
-                    <exclude name="testDeprecatedObjectMemberField"/>
-                    <exclude name="testDeprecatedObjectMemberMethod"/>
-                    <exclude name="testDeprecatedObjectTypeDef"/>
-                    <exclude name="testDeprecatedRecordTypeDef"/>
-                    <exclude name="testDeprecatedUnionTypeDef"/>
-                    <exclude name="testFunctionParams"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest">
                 <methods>
                     <exclude name="testCreatingRecordWithOverriddenFields"/>
@@ -748,13 +715,6 @@
             <class name="org.ballerinalang.test.worker.PackageInitWorkerTest">
                 <methods>
                     <exclude name="testPackageInitWorkerTest"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.documentation.ObjectFieldDefaultValueTest">
-                <methods>
-                    <exclude name="testDefValInitInt"/>
-                    <exclude name="testDefValInitObject"/>
-                    <exclude name="testDefValInitString"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.lock.FieldLockTest">
