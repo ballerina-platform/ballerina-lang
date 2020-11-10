@@ -32,8 +32,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURE
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
-import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 
 /**
  * This class represents the "ballerina test" command.
@@ -47,24 +45,14 @@ public class TestCommand implements BLauncherCmd {
     private final PrintStream errStream;
     private Path projectPath;
     private boolean exitWhenFinish;
-    private boolean skipCopyLibsFromDist;
 
     public TestCommand() {
         this.projectPath = Paths.get(System.getProperty("user.dir"));
         this.outStream = System.out;
         this.errStream = System.err;
         this.exitWhenFinish = true;
-        this.skipCopyLibsFromDist = false;
     }
 
-    public TestCommand(Path userDir, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                       boolean skipCopyLibsFromDist) {
-        this.projectPath = projectPath;
-        this.outStream = outStream;
-        this.errStream = errStream;
-        this.exitWhenFinish = exitWhenFinish;
-        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
-    }
 
     @CommandLine.Option(names = {"--offline"}, description = "Builds/Compiles offline without downloading " +
             "dependencies.")
@@ -145,7 +133,7 @@ public class TestCommand implements BLauncherCmd {
 
         // load project
         Project project;
-        boolean isSingleFileBuild = false;
+        boolean isSingleFile = false;
         if (FileUtils.hasExtension(this.projectPath)) {
             try {
                 project = SingleFileProject.load(this.projectPath);
@@ -154,7 +142,7 @@ public class TestCommand implements BLauncherCmd {
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
-            isSingleFileBuild = true;
+            isSingleFile = true;
         } else {
             try {
                 project = BuildProject.load(this.projectPath);
@@ -174,11 +162,11 @@ public class TestCommand implements BLauncherCmd {
         options.put(PRESERVE_WHITESPACE, "true");
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
+                .addTask(new CleanTargetDirTask(), isSingleFile)   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory
 //                .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream)) // compile the modules
-                .addTask(new CreateBaloTask(outStream), isSingleFileBuild || listGroups) // create the BALO ( build projects only)
+                .addTask(new CreateBaloTask(outStream), isSingleFile || listGroups) // create the BALO (projects only)
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new ListTestGroupsTask(outStream), !listGroups) // list the available test groups
                 .addTask(new RunTestsTask(outStream, errStream, args, rerunTests, groupList, disableGroupList,

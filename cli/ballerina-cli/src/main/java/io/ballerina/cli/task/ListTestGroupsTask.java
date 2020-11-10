@@ -24,8 +24,6 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.testsuite.Test;
 import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.projects.testsuite.TesterinaRegistry;
-import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.PrintStream;
 import java.util.ArrayList;

@@ -28,7 +28,6 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.model.Target;
 import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.projects.testsuite.TesterinaRegistry;
@@ -58,7 +57,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -310,7 +308,6 @@ public class RunTestsTask implements Task {
                             Module module) {
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(System.getProperty("java.command"));
-        cmdArgs.addAll(Lists.of("-Xdebug", "-Xrunjdwp:transport=dt_socket,address=5005,server=y"));
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
         String orgName = module.packageInstance().packageOrg().toString();
         String packageName = module.packageInstance().packageName().toString();
@@ -331,7 +328,7 @@ public class RunTestsTask implements Task {
                 cmdArgs.add(agentCommand);
             }
 
-            String classPath = getClassPath(testDependencies, module.project());
+            String classPath = getClassPath(testDependencies);
             cmdArgs.addAll(Lists.of("-cp", classPath));
             if (isInDebugMode()) {
                 cmdArgs.add(getDebugArgs(this.err));
@@ -360,7 +357,7 @@ public class RunTestsTask implements Task {
         String packageName = module.packageInstance().packageName().toString();
         String version = module.packageInstance().packageVersion().toString();
         try {
-            String classPath = getClassPath(dependencies, project);
+            String classPath = getClassPath(dependencies);
             String testJarName = ProjectUtils.getJarName(module) + "-testable" + BLANG_COMPILED_JAR_EXT;
 
             cmdArgs.addAll(Lists.of("-cp", classPath, mainClassName, jsonPath.toString()));
@@ -378,14 +375,9 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private String getClassPath(Collection<Path> dependencies, Project project) {
+    private String getClassPath(Collection<Path> dependencies) {
         StringJoiner cp = new StringJoiner(File.pathSeparator);
-        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            cp.add(getBalHomePath() + "/bre/lib/*");
-        } else {
-            dependencies.stream().map(Path::toString).forEach(cp::add);
-        }
-
+        dependencies.stream().map(Path::toString).forEach(cp::add);
         return cp.toString();
     }
 

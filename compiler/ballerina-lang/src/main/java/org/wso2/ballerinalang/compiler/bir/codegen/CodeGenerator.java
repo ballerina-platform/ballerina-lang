@@ -143,7 +143,7 @@ public class CodeGenerator {
 
     public CompiledJarFile generateTestModule(ModuleId moduleId,
                                               CompilerBackend compilerBackend,
-                                              BLangTestablePackage bLangTestablePackage) {
+                                              BLangPackage bLangTestablePackage) {
 
         Set<Path> moduleDependencies = getPlatformDependencyPaths(moduleId, compilerBackend, null);
         Set<Path> testDependencies = getPlatformDependencyPaths(moduleId, compilerBackend, "testOnly");

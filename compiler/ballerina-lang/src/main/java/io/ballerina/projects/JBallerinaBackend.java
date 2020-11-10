@@ -209,25 +209,23 @@ public class JBallerinaBackend extends CompilerBackend {
 //        if (skipTests) {
 //            return;
 //        }
-        if (!bLangPackage.hasTestablePackage()) {
-            return;
-        }
 
         String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
-        CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(
-                moduleContext.moduleId(), this, bLangPackage.testablePkgs.get(0));
+        CompiledJarFile compiledTestJarFile;
 
-        TestSuite testSuite = null;
-        if (moduleContext.project().kind() == ProjectKind.BUILD_PROJECT) {
-            testSuite = moduleContext.generateTestSuite(compilerContext);
-        } else if (moduleContext.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            testSuite = moduleContext.generateSingleFileTestSuite(compilerContext);
-        }
 
-        try {
-            if (testSuite != null) {
-                compiledTestJarFile.getJarEntries().put(ProjectConstants.TEST_SUITE, testSuite.serialize());
+        if (moduleContext.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            compiledTestJarFile = compiledJarFile;
+        } else {
+            if (!bLangPackage.hasTestablePackage()) {
+                return;
             }
+            compiledTestJarFile = jvmCodeGenerator.generateTestModule(
+                    moduleContext.moduleId(), this, bLangPackage.testablePkgs.get(0));
+        }
+        TestSuite testSuite = moduleContext.generateTestSuite(compilerContext);
+        try {
+            compiledTestJarFile.getJarEntries().put(ProjectConstants.TEST_SUITE, testSuite.serialize());
             ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile);
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
         } catch (IOException e) {

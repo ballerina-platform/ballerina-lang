@@ -82,7 +82,7 @@ public class ProjectConstants {
 
     // Test framework related constants
     public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";
-    public static final String TEST_SUITE = "test_suit.json";
+    public static final String TEST_SUITE = "test_suite";
 
     public static final String JACOCO_CORE_JAR = "org.jacoco.core-0.8.5.jar";
     public static final String JACOCO_REPORT_JAR = "org.jacoco.report-0.8.5.jar";

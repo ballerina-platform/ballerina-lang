@@ -19,6 +19,7 @@ package org.ballerinalang.test.runtime;
 
 import com.google.gson.Gson;
 import io.ballerina.projects.testsuite.TestSuite;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.runtime.launch.LaunchUtils;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
@@ -43,7 +44,8 @@ import java.util.Arrays;
  */
 public class Main {
     public static void main(String[] args) throws IOException {
-        InputStream jsonCachePath = ClassLoader.getSystemClassLoader().getResourceAsStream("test_suit.json");
+        InputStream jsonCachePath = ClassLoader.getSystemClassLoader()
+                .getResourceAsStream(ProjectConstants.TEST_SUITE);
         Path jsonTmpSummaryPath = Paths.get(args[0], TesterinaConstants.STATUS_FILE);
         String[] configArgs = Arrays.copyOfRange(args, 1, args.length);
         LaunchUtils.initConfigurations(configArgs);
