@@ -35,23 +35,25 @@ import java.nio.file.Paths;
 public final class BallerinaDistribution {
     private static final String BALLERINA_HOME_KEY = "ballerina.home";
 
-    private final Path distributionPath;
+    private final Path ballerinaHomeDirPath;
     private final BallerinaDistributionRepository distributionRepository;
 
-    public BallerinaDistribution(Environment environment) {
-        this(environment, System.getProperty(BALLERINA_HOME_KEY));
+    private BallerinaDistribution(Environment environment, Path ballerinaHomeDirPath) {
+        this.ballerinaHomeDirPath = ballerinaHomeDirPath;
+        this.distributionRepository = new BallerinaDistributionRepository(environment, this.ballerinaHomeDirPath);
     }
 
-    public BallerinaDistribution(Environment environment, String ballerinaDistributionPath) {
-        if (ballerinaDistributionPath == null) {
+    public static BallerinaDistribution from(Environment environment) {
+        String ballerinaHome = System.getProperty(BALLERINA_HOME_KEY);
+        if (ballerinaHome == null) {
             throw new IllegalStateException("ballerina.home property is not set");
         }
+        return from(environment, Paths.get(ballerinaHome));
+    }
 
-        // TODO Validate whether the given path is a valid Ballerina distribution home
-        this.distributionPath = Paths.get(ballerinaDistributionPath);
-        this.distributionRepository = new BallerinaDistributionRepository(environment, distributionPath);
-
-        // TODO init compilationContext
+    public static BallerinaDistribution from(Environment environment, Path ballerinaHomeDirPath) {
+        validateBallerinaHomeDir(ballerinaHomeDirPath);
+        return new BallerinaDistribution(environment, ballerinaHomeDirPath);
     }
 
     public BallerinaDistributionRepository packageRepository() {
@@ -64,5 +66,9 @@ public final class BallerinaDistribution {
             Bootstrap bootstrap = new Bootstrap(new LangLibResolver(distributionRepository, packageCache));
             bootstrap.loadLangLibSymbols(compilerContext);
         }
+    }
+
+    private static void validateBallerinaHomeDir(Path ballerinaHomeDirPath) {
+        // TODO
     }
 }
