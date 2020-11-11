@@ -138,7 +138,6 @@ public class Types {
     private int finiteTypeCount = 0;
     private BUnionType expandedXMLBuiltinSubtypes;
     private final BLangAnonymousModelHelper anonymousModelHelper;
-    private SymbolEnv env;
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
@@ -301,12 +300,14 @@ public class Types {
         return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfList);
     }
 
-    public BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BTupleType listMatchPatternType) {
+    public BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BTupleType listMatchPatternType,
+                                                 SymbolEnv pkgEnv) {
+
         if (matchExpr == null) {
             return listMatchPatternType;
         }
         BType matchExprType = matchExpr.type;
-        BType intersectionType = getTypeIntersection(matchExprType, listMatchPatternType);
+        BType intersectionType = getTypeIntersection(matchExprType, listMatchPatternType, pkgEnv);
         if (intersectionType != symTable.semanticError) {
             return intersectionType;
         }
@@ -3090,7 +3091,7 @@ public class Types {
         }
     }
 
-    BType getTypeIntersection(BType lhsType, BType rhsType) {
+    BType getTypeIntersection(BType lhsType, BType rhsType, SymbolEnv pkgEnv) {
         List<BType> narrowingTypes = getAllTypes(rhsType);
         LinkedHashSet<BType> intersection = narrowingTypes.stream().map(type -> {
             if (isAssignable(type, lhsType)) {
@@ -3120,27 +3121,27 @@ public class Types {
             } else if (type.tag == TypeTags.NULL_SET) {
                 return type;
             } else if (type.tag == TypeTags.ERROR && lhsType.tag == TypeTags.ERROR) {
-                BType intersectionType = getIntersectionForErrorTypes(lhsType, type);
+                BType intersectionType = getIntersectionForErrorTypes(lhsType, type, pkgEnv);
                 if (intersectionType != symTable.semanticError) {
                     return intersectionType;
                 }
             } else if (type.tag == TypeTags.RECORD && lhsType.tag == TypeTags.RECORD) {
-                BType intersectionType = createRecordIntersection(lhsType, type);
+                BType intersectionType = createRecordIntersection(lhsType, type, pkgEnv);
                 if (intersectionType != symTable.semanticError) {
                     return intersectionType;
                 }
             } else if (type.tag == TypeTags.MAP && lhsType.tag == TypeTags.RECORD) {
-                BType intersectionType = createRecordAndMapIntersection(lhsType, type);
+                BType intersectionType = createRecordAndMapIntersection(lhsType, type, pkgEnv);
                 if (intersectionType != symTable.semanticError) {
                     return intersectionType;
                 }
             } else if (type.tag == TypeTags.RECORD && lhsType.tag == TypeTags.MAP) {
-                BType intersectionType = createRecordAndMapIntersection(type, lhsType);
+                BType intersectionType = createRecordAndMapIntersection(type, lhsType, pkgEnv);
                 if (intersectionType != symTable.semanticError) {
                     return intersectionType;
                 }
             } else if (type.tag == TypeTags.MAP && lhsType.tag == TypeTags.MAP) {
-                BType intersectionType = createRecordAndMapIntersection(type, lhsType);
+                BType intersectionType = createRecordAndMapIntersection(type, lhsType, pkgEnv);
                 if (intersectionType != symTable.semanticError) {
                     return intersectionType;
                 }
@@ -3164,7 +3165,7 @@ public class Types {
         }
     }
 
-    private BType getIntersectionForErrorTypes(BType lhsType, BType rhsType) {
+    private BType getIntersectionForErrorTypes(BType lhsType, BType rhsType, SymbolEnv env) {
 
         BType detailTypeOne = ((BErrorType) lhsType).detailType;
         BType detailTypeTwo = ((BErrorType) rhsType).detailType;
@@ -3173,30 +3174,27 @@ public class Types {
             return symTable.semanticError;
         }
 
-        SymbolEnv prevEnv = this.env;
-        this.env = symTable.pkgEnvMap.get(lhsType.tsymbol.owner);
-
-        BType detailIntersectionType = getTypeIntersection(detailTypeOne, detailTypeTwo);
+        BType detailIntersectionType = getTypeIntersection(detailTypeOne, detailTypeTwo, env);
         if (detailIntersectionType == symTable.semanticError) {
             return symTable.semanticError;
         }
 
-        BErrorType intersectionErrorType = createErrorType(lhsType, rhsType, detailIntersectionType);
-        this.env = prevEnv;
+        BErrorType intersectionErrorType = createErrorType(lhsType, rhsType, detailIntersectionType, env);
 
         return intersectionErrorType;
     }
 
-    private BType createRecordIntersection(BType recordTypeOne, BType recordTypeTwo) {
+    private BType createRecordIntersection(BType recordTypeOne, BType recordTypeTwo, SymbolEnv env) {
 
-        BRecordType recordType = createAnonymousRecord();
+        BRecordType recordType = createAnonymousRecord(env);
 
-        if (!populateRecordFields(recordType, recordTypeOne) || !populateRecordFields(recordType, recordTypeTwo)) {
+        if (!populateRecordFields(recordType, recordTypeOne, env) ||
+                !populateRecordFields(recordType, recordTypeTwo, env)) {
             return symTable.semanticError;
         }
 
         recordType.restFieldType = getTypeIntersection(((BRecordType) recordTypeOne).restFieldType,
-                                                       ((BRecordType) recordTypeTwo).restFieldType);
+                                                       ((BRecordType) recordTypeTwo).restFieldType, env);
 
         if (recordType.restFieldType == symTable.semanticError) {
             return symTable.semanticError;
@@ -3205,16 +3203,16 @@ public class Types {
         return recordType;
     }
 
-    private BRecordType createAnonymousRecord() {
+    private BRecordType createAnonymousRecord(SymbolEnv env) {
         EnumSet<Flag> flags = EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS);
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
-                                                                                this.env.enclPkg.packageID, null,
-                                                                                this.env.scope.owner, null, VIRTUAL);
+                                                                                env.enclPkg.packageID, null,
+                                                                                env.scope.owner, null, VIRTUAL);
         recordSymbol.name = names.fromString(
-                anonymousModelHelper.getNextAnonymousTypeKey(this.env.enclPkg.packageID));
+                anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
-                Flags.PUBLIC, Names.EMPTY, this.env.enclPkg.symbol.pkgID, bInvokableType, this.env.scope.owner, false,
+                Flags.PUBLIC, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner, false,
                 symTable.builtinPos, VIRTUAL);
         initFuncSymbol.retType = symTable.nilType;
         recordSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol,
@@ -3228,12 +3226,12 @@ public class Types {
         return recordType;
     }
 
-    private BType createRecordAndMapIntersection(BType type, BType mapType) {
-        BRecordType intersectionRecord = createAnonymousRecord();
-        if (!populateRecordFields(intersectionRecord, type)) {
+    private BType createRecordAndMapIntersection(BType type, BType mapType, SymbolEnv env) {
+        BRecordType intersectionRecord = createAnonymousRecord(env);
+        if (!populateRecordFields(intersectionRecord, type, env)) {
             return symTable.semanticError;
         }
-        intersectionRecord.restFieldType = getRestFieldIntersectionType(type, (BMapType) mapType);
+        intersectionRecord.restFieldType = getRestFieldIntersectionType(type, (BMapType) mapType, env);
 
         if (intersectionRecord.restFieldType == symTable.semanticError) {
             return symTable.semanticError;
@@ -3242,16 +3240,16 @@ public class Types {
         return intersectionRecord;
     }
 
-    private BType getRestFieldIntersectionType(BType type, BMapType mapType) {
+    private BType getRestFieldIntersectionType(BType type, BMapType mapType, SymbolEnv env) {
         if (type.tag == TypeTags.RECORD) {
-            return getTypeIntersection(((BRecordType) type).restFieldType, mapType.constraint);
+            return getTypeIntersection(((BRecordType) type).restFieldType, mapType.constraint, env);
         } else {
-            return getTypeIntersection(((BMapType) type).constraint, mapType.constraint);
+            return getTypeIntersection(((BMapType) type).constraint, mapType.constraint, env);
         }
     }
 
-    private BErrorType createErrorType(BType lhsType, BType rhsType, BType detailType) {
-        BErrorType errorType = createErrorType(detailType, lhsType.flags, this.env);
+    private BErrorType createErrorType(BType lhsType, BType rhsType, BType detailType, SymbolEnv env) {
+        BErrorType errorType = createErrorType(detailType, lhsType.flags, env);
         errorType.tsymbol.flags |= rhsType.flags;
 
         return errorType;
@@ -3270,7 +3268,7 @@ public class Types {
         return errorType;
     }
 
-    private boolean populateRecordFields(BRecordType recordType, BType originalType) {
+    private boolean populateRecordFields(BRecordType recordType, BType originalType, SymbolEnv env) {
         BTypeSymbol intersectionRecordSymbol = recordType.tsymbol;
         // If the detail type is BMapType simply ignore since the resulting detail type has `anydata` as rest type.
         if (originalType.getKind() != TypeKind.RECORD) {
@@ -3288,7 +3286,7 @@ public class Types {
             }
 
             BVarSymbol recordFieldSymbol = new BVarSymbol(origField.symbol.flags, origFieldName,
-                                                          this.env.enclPkg.packageID, recordFieldType,
+                                                          env.enclPkg.packageID, recordFieldType,
                                                           intersectionRecordSymbol, origField.pos, SOURCE);
             if (recordFieldType.tag == TypeTags.INVOKABLE && recordFieldType.tsymbol != null) {
                 BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) recordFieldType.tsymbol;

@@ -1677,7 +1677,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return symTable.errorIntersectionType;
         }
 
-        BType potentialIntersectionType = getPotentialReadOnlyIntersection(typeOne, typeTwo);
+        BType potentialIntersectionType = getPotentialReadOnlyIntersection(typeOne, typeTwo, this.env);
 
         if (potentialIntersectionType == symTable.semanticError) {
             validIntersection = false;
@@ -1698,7 +1698,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     return symTable.noType;
                 }
 
-                potentialIntersectionType = getPotentialReadOnlyIntersection(potentialIntersectionType, type);
+                potentialIntersectionType = getPotentialReadOnlyIntersection(potentialIntersectionType, type, this.env);
                 if (potentialIntersectionType == symTable.semanticError) {
                     validIntersection = false;
                     break;
@@ -1749,7 +1749,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                                                                 env, symTable, anonymousModelHelper, names, flagSet);
     }
 
-    private BType getPotentialReadOnlyIntersection(BType lhsType, BType rhsType) {
+    private BType getPotentialReadOnlyIntersection(BType lhsType, BType rhsType, SymbolEnv env) {
         if (lhsType == symTable.readonlyType) {
             return rhsType;
         }
@@ -1758,7 +1758,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return lhsType;
         }
 
-        return types.getTypeIntersection(lhsType, rhsType);
+        return types.getTypeIntersection(lhsType, rhsType, env);
     }
 
     private static class ParameterizedTypeInfo {

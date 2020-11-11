@@ -454,7 +454,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 populateSecondaryTypeIdSet(secondaryTypeIds, (BErrorType) typeTwo);
             }
 
-            BType potentialIntersectionType = types.getTypeIntersection(typeOne, typeTwo);
+            BType potentialIntersectionType = types.getTypeIntersection(typeOne, typeTwo, env);
             if (potentialIntersectionType == symTable.semanticError) {
                 dlog.error(typeDefinition.typeNode.pos, INVALID_INTERSECTION_TYPE, typeDefinition.typeNode);
                 continue;
@@ -480,7 +480,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     populateSecondaryTypeIdSet(secondaryTypeIds, (BErrorType) bType);
                 }
 
-                BType tempIntersection = types.getTypeIntersection(potentialIntersectionType, bType);
+                BType tempIntersection = types.getTypeIntersection(potentialIntersectionType, bType, env);
                 if (potentialIntersectionType == symTable.semanticError) {
                     dlog.error(typeDefinition.typeNode.pos, INVALID_INTERSECTION_TYPE, typeDefinition.typeNode);
                     isValidIntersection = false;

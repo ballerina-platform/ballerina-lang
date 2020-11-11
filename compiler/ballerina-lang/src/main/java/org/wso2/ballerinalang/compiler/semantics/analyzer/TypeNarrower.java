@@ -191,7 +191,8 @@ public class TypeNarrower extends BLangNodeVisitor {
             return;
         }
 
-        BType trueType = types.getTypeIntersection(varSymbol.type, typeTestExpr.typeNode.type);
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(this.env.enclPkg.symbol);
+        BType trueType = types.getTypeIntersection(varSymbol.type, typeTestExpr.typeNode.type, pkgEnv);
         BType falseType = types.getRemainingType(varSymbol.type, typeTestExpr.typeNode.type);
         typeTestExpr.narrowedTypeInfo.put(getOriginalVarSymbol(varSymbol), new NarrowedTypes(trueType, falseType));
     }
@@ -256,16 +257,16 @@ public class TypeNarrower extends BLangNodeVisitor {
         } else {
             rhsTrueType = rhsFalseType = symbol.type;
         }
-
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(this.env.enclPkg.symbol);
         BType trueType, falseType;
         if (operator == OperatorKind.AND) {
-            trueType = types.getTypeIntersection(lhsTrueType, rhsTrueType);
-            BType tmpType = types.getTypeIntersection(lhsTrueType, rhsFalseType);
+            trueType = types.getTypeIntersection(lhsTrueType, rhsTrueType, pkgEnv);
+            BType tmpType = types.getTypeIntersection(lhsTrueType, rhsFalseType, pkgEnv);
             falseType = getTypeUnion(lhsFalseType, tmpType);
         } else {
-            BType tmpType = types.getTypeIntersection(lhsFalseType, rhsTrueType);
+            BType tmpType = types.getTypeIntersection(lhsFalseType, rhsTrueType, pkgEnv);
             trueType = getTypeUnion(lhsTrueType, tmpType);
-            falseType = types.getTypeIntersection(lhsFalseType, rhsFalseType);
+            falseType = types.getTypeIntersection(lhsFalseType, rhsFalseType, pkgEnv);
         }
         return new NarrowedTypes(trueType, falseType);
     }
