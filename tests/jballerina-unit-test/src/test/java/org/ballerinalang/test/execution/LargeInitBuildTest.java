@@ -33,7 +33,8 @@ public class LargeInitBuildTest {
     public void testFileWithLargeInitMethod() {
         CompileResult compileResult = BCompileUtil.compile("test-src/execution/large_init.bal");
 
-        Assert.assertEquals(compileResult.toString(), "Compilation Successful");
+        Assert.assertEquals(compileResult.getErrorCount(), 0);
+        Assert.assertEquals(compileResult.getWarnCount(), 0);
     }
 }
 
