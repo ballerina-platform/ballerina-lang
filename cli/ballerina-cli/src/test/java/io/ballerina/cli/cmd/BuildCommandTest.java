@@ -208,7 +208,7 @@ public class BuildCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Build bal file containing syntax error")
-    public void testBalFileWithSyntaxError() {
+    public void testBalFileWithSyntaxError() throws IOException {
         // valid source root path
         Path balFilePath = this.testResources.resolve("bal-file-with-syntax-error").resolve("hello_world.bal");
         BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false, true);
@@ -217,6 +217,11 @@ public class BuildCommandTest extends BaseCommandTest {
         try {
             buildCommand.execute();
         } catch (BLauncherException e) {
+            String buildLog = readOutput(true);
+            Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                    "\nCompiling source\n" +
+                            "\thello_world.bal\n" +
+                            "ERROR [hello_world.bal:(2:0,2:0)] invalid token ';'\n");
             Assert.assertTrue(e.getDetailedMessages().get(0).contains("compilation contains errors"));
         }
     }
@@ -366,7 +371,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
-                .resolve("storage.jar").toFile().exists());
+                .resolve("winery.storage.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("bir")
                 .resolve("winery.storage.bir").toFile().exists());
