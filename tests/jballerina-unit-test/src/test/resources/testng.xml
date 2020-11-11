@@ -252,11 +252,6 @@
                     <exclude name="testAnonStructAsStructField"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.object.RemoteObjectBaloTest">
-                <methods>
-<!--                    <exclude name="testRemoteObject"/>-->
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.worker.WorkerSyncSendTest">
                 <methods>
                     <exclude name="basicSyncSendTest"/>

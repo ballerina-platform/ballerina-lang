@@ -38,8 +38,8 @@ public class MapConstantEqualityInDifferentBaloTest {
     public void setup() {
         BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project");
         BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_bar");
-        compileResult = BCompileUtil.compile("test-src/balo/test_balo/constant/" +
-                "map-literal-constant-equality-different-modules.bal");
+        compileResult = BCompileUtil.compile(
+                "test-src/balo/test_balo/constant/map-literal-constant-equality-different-modules.bal");
     }
 
     // boolean type.
