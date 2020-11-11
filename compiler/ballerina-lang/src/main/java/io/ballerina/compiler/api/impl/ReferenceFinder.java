@@ -211,6 +211,7 @@ public class ReferenceFinder extends BaseVisitor {
         find(pkgNode.services);
         find(pkgNode.functions.stream().filter(f -> !f.flagSet.contains(Flag.LAMBDA)).collect(Collectors.toList()));
         find(pkgNode.typeDefinitions);
+        find(pkgNode.classDefinitions);
         find(pkgNode.annotations);
         find(pkgNode.annotations);
     }
@@ -668,7 +669,11 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
-        find(invocationExpr.expr);
+        // Skipping lang libs because in lang lib function calls, the expr gets added as an argument.
+        if (!invocationExpr.langLibInvocation) {
+            find(invocationExpr.expr);
+        }
+
         find(invocationExpr.requiredArgs);
         find(invocationExpr.annAttachments);
         find(invocationExpr.restArgs);
