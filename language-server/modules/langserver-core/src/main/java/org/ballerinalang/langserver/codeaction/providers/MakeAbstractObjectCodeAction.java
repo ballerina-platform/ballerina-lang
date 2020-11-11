@@ -17,7 +17,6 @@ package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -25,8 +24,6 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.model.tree.TypeDefinition;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 
@@ -61,9 +58,9 @@ public class MakeAbstractObjectCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+//        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
 
-        TypeSymbol objType = positionDetails.matchedSymbolTypeDesc();
+//        TypeSymbol objType = positionDetails.matchedSymbolTypeDesc();
         Symbol symbol = positionDetails.matchedSymbol();
         NonTerminalNode node = positionDetails.matchedNode();
         if (symbol.kind() != SymbolKind.CLASS &&
@@ -71,7 +68,7 @@ public class MakeAbstractObjectCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        TypeDefinition typeSymbol = (TypeDefinition) symbol;
+//        TypeDefinition typeSymbol = (TypeDefinition) symbol;
 //        List<Qualifier> qualifiers = new ArrayList<>(typeSymbol.());
 
         String simpleObjName = extractObjectName(diagnostic.getMessage());
@@ -83,7 +80,7 @@ public class MakeAbstractObjectCodeAction extends AbstractCodeActionProvider {
 //        whitespaces.addAll(objType.get().typeNode.getWS());
 //        Iterator<Whitespace> iterator = whitespaces.iterator();
 //
-        String commandTitle = String.format(CommandConstants.MAKE_OBJ_ABSTRACT_TITLE, simpleObjName);
+//        String commandTitle = String.format(CommandConstants.MAKE_OBJ_ABSTRACT_TITLE, simpleObjName);
 //        int colBeforeObjKeyword = objType.get().pos.sCol;
 //        boolean isFirst = true;
 //        StringBuilder str = new StringBuilder();
@@ -101,7 +98,7 @@ public class MakeAbstractObjectCodeAction extends AbstractCodeActionProvider {
 //        }
 //        colBeforeObjKeyword += str.toString().length();
 //
-        String editText = " abstract";
+//        String editText = " abstract";
 //        Position pos = new Position(objType.get().pos.sLine - 1, colBeforeObjKeyword - 1);
 
 //        List<TextEdit> edits = Collections.singletonList(new TextEdit(new Range(pos, pos), editText));

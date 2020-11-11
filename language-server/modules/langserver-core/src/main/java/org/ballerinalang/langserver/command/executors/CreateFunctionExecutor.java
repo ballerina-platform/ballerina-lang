@@ -16,22 +16,16 @@
 package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.JsonObject;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.model.elements.PackageID;
@@ -44,15 +38,10 @@ import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
-import java.io.File;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -76,9 +65,9 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
     @Override
     public Object execute(LSContext context) throws LSCommandExecutorException {
         String uri = null;
-        String returnType;
-        String returnValue;
-        String funcArgs = "";
+//        String returnType;
+//        String returnValue;
+//        String funcArgs = "";
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
 
         int line = -1;
@@ -107,42 +96,43 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Invalid parameters received for the create function command!");
         }
 
-        Path path = CommonUtil.getPathFromURI(uri).get();
-        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        SyntaxTree syntaxTree = null;
-        try {
-            syntaxTree = docManager.getTree(path);
-        } catch (WorkspaceDocumentException e) {
-            throw new LSCommandExecutorException("Error while retrieving syntax tree for path: " + path.toString());
-        }
+//        Path path = CommonUtil.getPathFromURI(uri).get();
+//        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+//        SyntaxTree syntaxTree;
+//        try {
+//            syntaxTree = docManager.getTree(path);
+//        } catch (WorkspaceDocumentException e) {
+//            throw new LSCommandExecutorException("Error while retrieving syntax tree for path: " + path.toString());
+//        }
 
-        BLangInvocation functionNode = null;
-        Position pos = new Position(line, column + 1);
-        PositionDetails cursorDetails = CodeActionUtil.findCursorDetails(new Range(pos, pos), syntaxTree, context);
+//        BLangInvocation functionNode = null;
+//        Position pos = new Position(line, column + 1);
+//        PositionDetails cursorDetails = CodeActionUtil.findCursorDetails(new Range(pos, pos), syntaxTree, context);
 
-        if (functionNode == null) {
-            throw new LSCommandExecutorException("Couldn't find the function node!");
-        }
+//        if (functionNode == null) {
+//            throw new LSCommandExecutorException("Couldn't find the function node!");
+//        }
 //        String functionName = functionNode.name.getValue();
 
-        BLangNode parent = functionNode.parent;
-        BLangPackage packageNode = CommonUtil.getPackageNode(functionNode);
+//        BLangNode parent = functionNode.parent;
+//        BLangPackage packageNode = CommonUtil.getPackageNode(functionNode);
 
         int eLine = 0;
         int eCol = 0;
 
-        BLangCompilationUnit cUnit = getCurrentCUnit(context, packageNode);
-        for (TopLevelNode topLevelNode : cUnit.topLevelNodes) {
-            if (topLevelNode.getPosition().lineRange().endLine().line() > eLine) {
-                eLine = topLevelNode.getPosition().lineRange().endLine().line();
-            }
-        }
+//        BLangCompilationUnit cUnit = getCurrentCUnit(context, packageNode);
+//        for (TopLevelNode topLevelNode : cUnit.topLevelNodes) {
+//            if (topLevelNode.getPosition().lineRange().endLine().line() > eLine) {
+//                eLine = topLevelNode.getPosition().lineRange().endLine().line();
+//            }
+//        }
 
         List<TextEdit> edits = new ArrayList<>();
-        if (parent != null && packageNode != null) {
+//        if (parent != null && packageNode != null) {
 //            PackageID currentPkgId = packageNode.packageID;
-            ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
-            //TODO: Fix this when #26382 is avaialble
+//            ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+        //TODO: Fix this when #26382 is avaialble
+
 //            returnType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, parent, context);
 //            returnValue = FunctionGenerator.generateReturnValue(importsAcceptor, currentPkgId, parent,
 //                                                                "    return {%1};", context);
@@ -151,33 +141,33 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
 //            if (arguments != null) {
 //                funcArgs = String.join(", ", arguments);
 //            }
-            edits.addAll(importsAcceptor.getNewImportTextEdits());
-        } else {
-            throw new LSCommandExecutorException("Error occurred when retrieving function node!");
-        }
+//            edits.addAll(importsAcceptor.getNewImportTextEdits());
+//        } else {
+//            throw new LSCommandExecutorException("Error occurred when retrieving function node!");
+//        }
         LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
 //        String modifiers = "";
 //        boolean prependLineFeed = true;
 //        String padding = "";
-        if (functionNode.expr != null) {
+//        if (functionNode.expr != null) {
 //            padding = StringUtils.repeat(' ', 4);
-            BTypeSymbol tSymbol = functionNode.expr.type.tsymbol;
-            Triple<Location, PackageID, Boolean> nodeLocation =
-                    getNodeLocationAndHasFunctions(tSymbol.name.value, context);
+//            BTypeSymbol tSymbol = functionNode.expr.type.tsymbol;
+//            Triple<Location, PackageID, Boolean> nodeLocation =
+//                    getNodeLocationAndHasFunctions(tSymbol.name.value, context);
 //            if (!nodeLocation.getRight()) {
 //                prependLineFeed = false;
 //            }
-            eLine = nodeLocation.getLeft().lineRange().endLine().line() - 1;
-            String cUnitName = nodeLocation.getLeft().lineRange().filePath();
-            String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
-            String pkgName = tSymbol.pkgID.name.value;
-            String docUri = new File(sourceRoot).toPath().resolve("src").resolve(pkgName)
-                    .resolve(cUnitName).toUri().toString();
-            textDocumentIdentifier.setUri(docUri);
+//            eLine = nodeLocation.getLeft().lineRange().endLine().line() - 1;
+//            String cUnitName = nodeLocation.getLeft().lineRange().filePath();
+//            String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
+//            String pkgName = tSymbol.pkgID.name.value;
+//            String docUri = new File(sourceRoot).toPath().resolve("src").resolve(pkgName)
+//                    .resolve(cUnitName).toUri().toString();
+//            textDocumentIdentifier.setUri(docUri);
 //            if (!nodeLocation.getMiddle().equals(packageNode.packageID)) {
 //                modifiers += "public ";
 //            }
-        }
+//        }
         //TODO: Fix this
 //        String editText = FunctionGenerator.createFunction(functionName, funcArgs, returnType, returnValue, modifiers,
 //                                                           prependLineFeed, padding);
