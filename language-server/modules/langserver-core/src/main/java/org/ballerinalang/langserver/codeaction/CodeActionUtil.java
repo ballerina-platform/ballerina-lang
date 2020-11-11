@@ -504,6 +504,11 @@ public class CodeActionUtil {
             case TYPE: {
                 return Optional.of(((TypeDefinitionSymbol) matchedSymbol).typeDescriptor());
             }
+            default: {
+                if (matchedSymbol instanceof TypeSymbol) {
+                    return Optional.of((TypeSymbol) matchedSymbol);
+                }
+            }
         }
         return Optional.empty();
     }

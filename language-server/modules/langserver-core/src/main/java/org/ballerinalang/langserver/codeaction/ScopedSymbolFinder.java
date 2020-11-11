@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
@@ -105,6 +106,12 @@ public class ScopedSymbolFinder extends NodeVisitor {
     public void visit(ExplicitNewExpressionNode explicitNewExpressionNode) {
         this.currentNode = explicitNewExpressionNode;
         this.currentIdentifierPos = explicitNewExpressionNode.typeDescriptor().lineRange().startLine();
+    }
+
+    @Override
+    public void visit(ClassDefinitionNode classDefinitionNode) {
+        this.currentNode = classDefinitionNode;
+        this.currentIdentifierPos = classDefinitionNode.className().lineRange().startLine();
     }
 
     public void visit(Node node) {
