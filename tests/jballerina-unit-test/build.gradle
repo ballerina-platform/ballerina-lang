@@ -37,7 +37,6 @@ dependencies {
     implementation project(':ballerina-packerina')
     implementation project(':ballerina-logging')
 //    implementation project(':ballerina-http')
-    implementation project(':ballerina-mime')
     implementation project(':ballerina-lang:java')
     implementation project(':ballerina-lang-test')
     implementation project(':ballerina-runtime')

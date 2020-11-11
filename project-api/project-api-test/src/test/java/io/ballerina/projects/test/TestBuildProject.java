@@ -157,7 +157,8 @@ public class TestBuildProject {
 
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
 
-        Collection<PlatformLibrary> platformLibraries = jBallerinaBackend.platformLibraryDependencies(currentPackage.packageId());
+        Collection<PlatformLibrary> platformLibraries = jBallerinaBackend
+                                                            .platformLibraryDependencies(currentPackage.packageId());
         Assert.assertEquals(platformLibraries.size(), 1);
     }
 

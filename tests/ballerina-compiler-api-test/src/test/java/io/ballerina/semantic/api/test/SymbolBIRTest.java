@@ -70,8 +70,8 @@ public class SymbolBIRTest {
                                                       "StrandData", "typeParam", "Thread", "builtinSubtype",
                                                       "isolatedParam");
         List<String> moduleLevelSymbols = asList("aString", "anInt", "HELLO", "testAnonTypes");
-        List<String> moduleSymbols = asList("xml", "testproject", "object", "error", "boolean", "decimal", "typedesc", "float",
-                                            "future", "int", "map", "stream", "string", "table");
+        List<String> moduleSymbols = asList("xml", "testproject", "object", "error", "boolean", "decimal", "typedesc",
+                                            "float", "future", "int", "map", "stream", "string", "table");
         List<String> expSymbolNames = getSymbolNames(annotationModuleSymbols, moduleLevelSymbols, moduleSymbols);
 
         Map<String, Symbol> symbolsInScope =

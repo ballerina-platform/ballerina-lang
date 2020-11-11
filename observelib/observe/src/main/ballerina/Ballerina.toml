@@ -8,6 +8,6 @@ target = "java11"
     [[platform.libraries]]
     artifactId = "observability"
     version = "0.8.0"
-    path = "./lib/ballerina-observe-0.8.0-java.jar"
+    path = "<PATH>/ballerina-observability-<VERSION>.jar"
     groupId = "ballerina"
     modules = ["observe"]
