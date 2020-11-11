@@ -604,7 +604,9 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangConstRef constRef) {
-        addIfSameSymbol(constRef.symbol.owner, constRef.pkgAlias.pos);
+        if (!constRef.pkgAlias.value.isEmpty()) {
+            addIfSameSymbol(constRef.symbol.owner, constRef.pkgAlias.pos);
+        }
         addIfSameSymbol(constRef.symbol, constRef.variableName.pos);
     }
 
@@ -646,7 +648,9 @@ public class ReferenceFinder extends BaseVisitor {
             return;
         }
 
-        addIfSameSymbol(varRefExpr.symbol.owner, varRefExpr.pkgAlias.pos);
+        if (!varRefExpr.pkgAlias.value.isEmpty()) {
+            addIfSameSymbol(varRefExpr.symbol.owner, varRefExpr.pkgAlias.pos);
+        }
         addIfSameSymbol(varRefExpr.symbol, varRefExpr.pos);
     }
 
@@ -668,7 +672,10 @@ public class ReferenceFinder extends BaseVisitor {
         find(invocationExpr.requiredArgs);
         find(invocationExpr.annAttachments);
         find(invocationExpr.restArgs);
-        addIfSameSymbol(invocationExpr.symbol.owner, invocationExpr.pkgAlias.pos);
+
+        if (!invocationExpr.pkgAlias.value.isEmpty()) {
+            addIfSameSymbol(invocationExpr.symbol.owner, invocationExpr.pkgAlias.pos);
+        }
         addIfSameSymbol(invocationExpr.symbol, invocationExpr.name.pos);
     }
 
@@ -684,7 +691,10 @@ public class ReferenceFinder extends BaseVisitor {
         find(actionInvocationExpr.requiredArgs);
         find(actionInvocationExpr.annAttachments);
         find(actionInvocationExpr.restArgs);
-        addIfSameSymbol(actionInvocationExpr.symbol.owner, actionInvocationExpr.pkgAlias.pos);
+
+        if (!actionInvocationExpr.pkgAlias.value.isEmpty()) {
+            addIfSameSymbol(actionInvocationExpr.symbol.owner, actionInvocationExpr.pkgAlias.pos);
+        }
         addIfSameSymbol(actionInvocationExpr.symbol, actionInvocationExpr.name.pos);
     }
 
@@ -928,7 +938,9 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
-        addIfSameSymbol(userDefinedType.type.tsymbol.owner, userDefinedType.pkgAlias.pos);
+        if (!userDefinedType.pkgAlias.value.isEmpty()) {
+            addIfSameSymbol(userDefinedType.type.tsymbol.owner, userDefinedType.pkgAlias.pos);
+        }
         addIfSameSymbol(userDefinedType.type.tsymbol, userDefinedType.typeName.pos);
     }
 

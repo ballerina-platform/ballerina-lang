@@ -16,7 +16,7 @@
 
 int z = 0;
 
-function foo() {
+function testBinaryExpAndVarRef() {
     int a = 10 + z;
 
     if (true) {
@@ -37,3 +37,21 @@ function foo() {
         int h = 80;
     }
 }
+
+function testFuncCall() {
+    foo(10);
+
+    if (true) {
+        foo(20);
+    }
+}
+
+function testFuncCall2() {
+    () v = 1 is int ? foo(30) : foo(40);
+}
+
+// utils
+
+function foo(int x) {
+}
+

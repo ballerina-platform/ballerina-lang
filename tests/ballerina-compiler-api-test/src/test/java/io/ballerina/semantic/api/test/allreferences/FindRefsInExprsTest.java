@@ -29,7 +29,7 @@ import java.util.List;
  * @since 2.0.0
  */
 @Test
-public class FindRefInBinaryExprTest extends FindAllReferencesTest {
+public class FindRefsInExprsTest extends FindAllReferencesTest {
 
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
