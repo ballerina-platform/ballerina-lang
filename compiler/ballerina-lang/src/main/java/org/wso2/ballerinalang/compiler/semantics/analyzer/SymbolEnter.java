@@ -2354,6 +2354,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             paramSymbols.add(symbol);
         }
+        if (hasIncRecordParamAllowAdditionalFields(inclusiveIncludedRecordParams, requiredParamNames)) {
+            invokableSymbol.incRecordParamAllowAdditionalFields = inclusiveIncludedRecordParams.get(0);
+        }
 
         if (!invokableNode.desugaredReturnType) {
             symResolver.resolveTypeNode(invokableNode.returnTypeNode, invokableEnv);
@@ -2392,6 +2395,26 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
             env.scope.define(symbol.name, symbol);
         }
+    }
+
+    private boolean hasIncRecordParamAllowAdditionalFields(List<BVarSymbol> inclusiveIncludedRecordParams,
+                                                          Set<String> requiredParamNames) {
+        if (inclusiveIncludedRecordParams.size() != 1) {
+            return false;
+        }
+
+        LinkedHashMap<String, BField> fields = ((BRecordType) inclusiveIncludedRecordParams.get(0).type).fields;
+        if (fields.size() != requiredParamNames.size()) {
+            return false;
+        } else {
+            for (String field : fields.keySet()) {
+                if (!Symbols.isFlagOn(Flags.asMask(fields.get(field).symbol.getFlags()), Flags.OPTIONAL)
+                        || requiredParamNames.add(field)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public void defineSymbol(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
