@@ -213,7 +213,6 @@ public class JBallerinaBackend extends CompilerBackend {
         String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
         CompiledJarFile compiledTestJarFile;
 
-
         if (moduleContext.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             compiledTestJarFile = compiledJarFile;
         } else {
@@ -222,6 +221,9 @@ public class JBallerinaBackend extends CompilerBackend {
             }
             compiledTestJarFile = jvmCodeGenerator.generateTestModule(
                     moduleContext.moduleId(), this, bLangPackage.testablePkgs.get(0));
+        }
+        if (compiledTestJarFile.getJarEntries().isEmpty()) {
+            return;
         }
         TestSuite testSuite = moduleContext.generateTestSuite(compilerContext);
         try {
