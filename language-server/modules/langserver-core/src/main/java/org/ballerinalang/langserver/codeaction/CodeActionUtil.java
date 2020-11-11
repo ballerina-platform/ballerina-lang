@@ -58,7 +58,6 @@ import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -91,8 +90,7 @@ public class CodeActionUtil {
      * @return {@link String}   Top level node type
      */
     public static Optional<Pair<CodeActionNodeType, NonTerminalNode>> codeActionNodeType(SyntaxTree syntaxTree,
-                                                                                         LSContext context)
-            throws CompilationFailedException {
+                                                                                         LSContext context) {
         Position position = context.get(CodeActionKeys.POSITION_START_KEY);
 
         ModulePartNode modulePartNode = syntaxTree.rootNode();
