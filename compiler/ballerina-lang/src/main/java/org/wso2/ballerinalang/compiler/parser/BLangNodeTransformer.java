@@ -2106,7 +2106,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         switch (kind) {
             case XML_TEMPLATE_EXPRESSION:
                 SyntaxKind contentKind;
-                if (expressionNode.content().size() == 0) {
+                if (expressionNode.content().isEmpty()) {
                     contentKind = SyntaxKind.XML_TEXT;
                 } else {
                     contentKind = expressionNode.content().get(0).kind();
@@ -4399,16 +4399,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private BLangLiteral createSimpleLiteral(TemplateExpressionNode expressionNode) {
         BLangLiteral bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-
         int typeTag = TypeTags.STRING;
-        Object value = "";
-        String originalValue = "";
-
         bLiteral.pos = getPosition(expressionNode);
         bLiteral.type = symTable.getTypeFromTag(typeTag);
         bLiteral.type.tag = typeTag;
-        bLiteral.value = value;
-        bLiteral.originalValue = originalValue;
+        bLiteral.value = "";
+        bLiteral.originalValue = "";
         return bLiteral;
     }
 

@@ -43,6 +43,10 @@ public class XMLText extends XMLNonElementItem {
     public XMLText(String data) {
         // data is the content of xml comment or text node
         this.data = data;
+        if (data.isEmpty()) {
+            this.type = PredefinedTypes.TYPE_XML_NEVER;
+        }
+        this.type = PredefinedTypes.TYPE_TEXT;
     }
 
     @Override
@@ -138,13 +142,5 @@ public class XMLText extends XMLNonElementItem {
     @Override
     public int hashCode() {
         return Objects.hash(data);
-    }
-
-    @Override
-    public Type getType() {
-        if (this.data.isEmpty()) {
-            return PredefinedTypes.TYPE_TEXT_NEVER;
-        }
-        return PredefinedTypes.TYPE_TEXT;
     }
 }

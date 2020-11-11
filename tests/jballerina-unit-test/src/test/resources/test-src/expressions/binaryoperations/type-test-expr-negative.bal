@@ -261,3 +261,12 @@ function testNonIntersectingUnions() {
     string|int x = 1;
     _ = x is float|boolean;
 }
+
+function testXMLNeverType() {
+    xml<never> c = xml ``;
+    'xml:Text d = xml ``;
+    xml e = xml ``;
+    _ = c is string;
+    _ = d is string;
+    _ = e is string;
+}

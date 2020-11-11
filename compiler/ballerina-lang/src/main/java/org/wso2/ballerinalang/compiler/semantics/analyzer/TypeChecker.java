@@ -3945,15 +3945,13 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
         checkStringTemplateExprs(bLangXMLTextLiteral.textFragments, false);
         List<BLangExpression> literalValues = bLangXMLTextLiteral.textFragments;
-        if (literalValues.get(0) instanceof BLangLiteral) {
-            if (((String) ((BLangLiteral) literalValues.get(0)).value).isEmpty()) {
-                resultType = types.checkType(bLangXMLTextLiteral,
-                        createXMLNeverType(null, bLangXMLTextLiteral), expType);
-                return;
-            }
+        if (literalValues.get(0).getKind() == NodeKind.LITERAL &&
+                ((String) ((BLangLiteral) literalValues.get(0)).value).isEmpty()) {
+            resultType = types.checkType(bLangXMLTextLiteral,
+                    symTable.xmlNeverType, expType);
+            return;
         }
-        BXMLSubType actualType = symTable.xmlTextType;
-        resultType = types.checkType(bLangXMLTextLiteral, actualType, expType);
+        resultType = types.checkType(bLangXMLTextLiteral, symTable.xmlTextType, expType);
     }
 
     public void visit(BLangXMLCommentLiteral bLangXMLCommentLiteral) {
@@ -5203,31 +5201,12 @@ public class TypeChecker extends BLangNodeVisitor {
         return funcSymbol;
     }
 
-    private BType createXMLNeverType(BLangInvocation iExpr, BLangXMLTextLiteral bLangXMLTextLiteral) {
-        Scope.ScopeEntry entry = symTable.rootScope.lookup(names.fromTypeKind(TypeKind.NEVER));
-        BType constraintType = (entry.symbol).type;
-        BType constrainedType = new BXMLType(constraintType, null);
-        BType type = (symTable.rootScope.lookup(names.fromTypeKind(TypeKind.XML))).symbol.type;
-        BTypeSymbol typeSymbol = type.tsymbol;
-        if (iExpr != null) {
-            constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                    typeSymbol.pkgID, constrainedType, typeSymbol.owner,
-                    iExpr.pos, SOURCE);
-            return constrainedType;
-        }
-        constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                typeSymbol.pkgID, constrainedType, typeSymbol.owner,
-                bLangXMLTextLiteral.pos, SOURCE);
-        return constrainedType;
-    }
-
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
         BType actualType = checkInvocationParam(iExpr);
-        if (actualType.tag == symTable.xmlTextType.tag) {
-            if (((String) ((BLangLiteral) iExpr.argExprs.get(0)).value).isEmpty()) {
-                resultType = types.checkType(iExpr, createXMLNeverType(iExpr, null), this.expType);
-                return;
-            }
+        if (actualType.tag == symTable.xmlTextType.tag &&
+                ((String) ((BLangLiteral) iExpr.argExprs.get(0)).value).isEmpty()) {
+            resultType = types.checkType(iExpr, symTable.xmlNeverType, this.expType);
+            return;
         }
         resultType = types.checkType(iExpr, actualType, this.expType);
     }

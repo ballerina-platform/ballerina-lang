@@ -101,7 +101,7 @@ public class NeverTypeTest {
 
     @Test
     public void testNeverTypeNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 19);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 22);
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "cannot define a variable of type 'never'", 2, 5);
@@ -142,5 +142,11 @@ public class NeverTypeTest {
                 "table key specifier '[name]' does not match with key constraint type '[never]'", 129, 34);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "table key specifier mismatch with key constraint. expected: '1' fields but found '0'", 138, 37);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'xml:Text', found 'never'", 147, 19);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'xml<never>', found 'never'", 148, 20);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'xml<never>', found 'xml:Text'", 150, 25);
     }
 }

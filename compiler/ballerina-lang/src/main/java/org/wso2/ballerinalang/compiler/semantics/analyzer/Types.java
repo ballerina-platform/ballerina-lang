@@ -589,10 +589,6 @@ public class Types {
             return true;
         }
 
-        if (sourceTag == TypeTags.NEVER && targetTag == TypeTags.XML_TEXT) {
-            return true;
-        }
-
         if (sourceTag == TypeTags.XML_TEXT && targetTag == TypeTags.STRING) {
             return true;
         }
@@ -880,15 +876,20 @@ public class Types {
                     return isAssignable(sourceType, target.constraint, unresolvedTypes);
                 }
                 BXMLType source = (BXMLType) sourceType;
+                if (source.constraint.tag == TypeTags.NEVER) {
+                    if (sourceTag == targetTag) {
+                        return true;
+                    }
+                    return isAssignable(source, target.constraint, unresolvedTypes);
+                }
                 return isAssignable(source.constraint, target.constraint, unresolvedTypes);
             }
             return true;
         }
         if (targetTag == TypeTags.XML_TEXT && sourceTag == TypeTags.XML) {
             BXMLType source = (BXMLType) sourceType;
-            BXMLSubType target = (BXMLSubType) targetType;
             if (source.constraint != null) {
-                return isAssignable(source.constraint, target, unresolvedTypes);
+                return source.constraint.tag == TypeTags.NEVER;
             }
         }
         return sourceTag == targetTag;

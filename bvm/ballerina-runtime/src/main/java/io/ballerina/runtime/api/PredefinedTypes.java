@@ -140,7 +140,7 @@ public class PredefinedTypes {
                                                          new Module(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, null),
                                                          TypeTags.XML_TEXT_TAG, true);
 
-    public static final XMLType TYPE_TEXT_NEVER = new BXMLType(TypeConstants.XML_TEXT,
+    public static final XMLType TYPE_XML_NEVER = new BXMLType(TypeConstants.XML_TEXT,
                                                         new Module(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, null),
                                                         TypeTags.XML_TEXT_TAG, new BNeverType(EMPTY_MODULE), true);
 

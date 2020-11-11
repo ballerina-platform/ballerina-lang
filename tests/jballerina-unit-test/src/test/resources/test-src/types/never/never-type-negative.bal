@@ -140,3 +140,12 @@ function testNeverInUnionTypedKeyConstraints() {
         { name: "PP", age: 34}
     ];
 }
+
+//------------ Testing a never type assignment ---------
+function testNeverAssignment() {
+     never[] arr = [];
+     'xml:Text a = arr[0];
+     xml<never> b = arr[0];
+     string empty = "";
+     xml<never> c = xml `${empty}`;
+}

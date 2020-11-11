@@ -75,6 +75,11 @@ function testXMLWithNeverType() {
     'xml:Text d = xml ``;
     xml<'xml:Text> e = a;
     xml f = a;
+    xml<xml<never>> g = xml ``;
+    xml<xml<'xml:Text>> h = xml ``;
+    string empty = "";
+    'xml:Text j = xml `${empty}`;
+    xml k = xml `${empty}`;
 }
 
 //---------------Test 'never' types with 'union-type' descriptors ------------
