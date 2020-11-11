@@ -502,7 +502,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 this.uninitializedVars.remove(variable.symbol);
                 return;
             }
-
+            // Required configurations will be initialized at the run time
+            int varFlags = variable.symbol.flags;
+            if (Symbols.isFlagOn(varFlags, Flags.CONFIGURABLE) && Symbols.isFlagOn(varFlags, Flags.REQUIRED)) {
+                return;
+            }
             // Handle package/object level variables
             BSymbol owner = variable.symbol.owner;
             if (owner.tag != SymTag.PACKAGE && owner.tag != SymTag.OBJECT) {

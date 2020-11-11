@@ -4085,6 +4085,7 @@ public class BallerinaParser extends AbstractParser {
             case SERVICE_KEYWORD:
             case ISOLATED_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
+            case OBJECT_KEYWORD:
                 return true;
             default:
                 return isSimpleType(tokenKind);

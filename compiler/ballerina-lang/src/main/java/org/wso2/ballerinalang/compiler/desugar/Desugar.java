@@ -725,12 +725,22 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         pkgNode.globalVars.forEach(globalVar -> {
+            int globalVarFlags = globalVar.symbol.flags;
+            if (globalVar.expr != null || Symbols.isFlagOn(globalVarFlags, Flags.CONFIGURABLE)) {
 
-            if (globalVar.expr != null) {
-                // Create ternary expression for configurable variables
-                if (Symbols.isFlagOn(globalVar.symbol.flags, Flags.CONFIGURABLE)) {
-                    globalVar.expr  = createIfElseFromConfigurable(globalVar);
+                if (Symbols.isFlagOn(globalVarFlags, Flags.CONFIGURABLE)) {
+                    if (Symbols.isFlagOn(globalVarFlags, Flags.REQUIRED)) {
+                        // If it is required configuration get directly
+                        List<BLangExpression> args = getConfigurableLangLibInvocationParam(globalVar);
+                        BLangInvocation getValueInvocation = createLangLibInvocationNode("getConfigurableValue",
+                                args, symTable.anydataType, globalVar.pos);
+                        globalVar.expr = getValueInvocation;
+                    } else {
+                        // If it is optional configuration create if else
+                        globalVar.expr  = createIfElseFromConfigurable(globalVar);
+                    }
                 }
+
                 BLangAssignment assignment = createAssignmentStmt(globalVar);
                 initFnBody.stmts.add(assignment);
             }
@@ -790,21 +800,7 @@ public class Desugar extends BLangNodeVisitor {
          * key = orgName + "." + moduleName + "." + version + "." + configVarName
          */
 
-        // Prepare parameters
-        String orgName = env.enclPkg.packageID.orgName.getValue();
-        BLangLiteral orgLiteral = ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, orgName);
-        String moduleName = env.enclPkg.packageID.name.getValue();
-        BLangLiteral moduleNameLiteral =
-                ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, moduleName);
-        String versionNumber = env.enclPkg.packageID.version.getValue();
-        BLangLiteral versionLiteral =
-                ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, versionNumber);
-        String configVarName = configurableVar.name.getValue();
-        BLangLiteral configNameLiteral =
-                ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, configVarName);
-
-        List<BLangExpression> args = new ArrayList<>
-                (Arrays.asList(orgLiteral, moduleNameLiteral, versionLiteral, configNameLiteral));
+        List<BLangExpression> args = getConfigurableLangLibInvocationParam(configurableVar);
 
         // Check if value is configured
         BLangInvocation hasValueInvocation = createLangLibInvocationNode("hasConfigurableValue",
@@ -838,6 +834,23 @@ public class Desugar extends BLangNodeVisitor {
         stmtExpr.type = configurableVar.type;
 
         return rewriteExpr(stmtExpr);
+    }
+
+    private List<BLangExpression> getConfigurableLangLibInvocationParam(BLangSimpleVariable configurableVar) {
+        // Prepare parameters
+        String orgName = env.enclPkg.packageID.orgName.getValue();
+        BLangLiteral orgLiteral = ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, orgName);
+        String moduleName = env.enclPkg.packageID.name.getValue();
+        BLangLiteral moduleNameLiteral =
+                ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, moduleName);
+        String versionNumber = env.enclPkg.packageID.version.getValue();
+        BLangLiteral versionLiteral =
+                ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, versionNumber);
+        String configVarName = configurableVar.name.getValue();
+        BLangLiteral configNameLiteral =
+                ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, configVarName);
+
+        return new ArrayList<>(Arrays.asList(orgLiteral, moduleNameLiteral, versionLiteral, configNameLiteral));
     }
 
     private void desugarClassDefinitions(List<TopLevelNode> topLevelNodes) {
