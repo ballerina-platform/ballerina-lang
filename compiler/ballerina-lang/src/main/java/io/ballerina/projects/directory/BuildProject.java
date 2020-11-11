@@ -24,6 +24,7 @@ import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.model.BallerinaToml;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -75,8 +76,7 @@ public class BuildProject extends Project {
     }
 
     private BuildProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
-        super(environmentBuilder);
-        this.sourceRoot = projectPath;
+        super(ProjectKind.BUILD_PROJECT, projectPath, environmentBuilder);
 
         // load Ballerina.toml
         Path ballerinaTomlPath = this.sourceRoot.resolve(ProjectConstants.BALLERINA_TOML);

@@ -24,6 +24,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
@@ -111,7 +112,7 @@ public class CodeGenerator {
         return compilerOptions.isSet(optionName) && Boolean.parseBoolean(compilerOptions.get(optionName));
     }
 
-    public void generate(ModuleId moduleId, CompilerBackend compilerBackend, BLangPackage bLangPackage) {
+    public CompiledJarFile generate(ModuleId moduleId, CompilerBackend compilerBackend, BLangPackage bLangPackage) {
         if (dumbBIR) {
             birEmitter.emit(bLangPackage.symbol.bir);
         }
@@ -136,30 +137,30 @@ public class CodeGenerator {
         }
 
         // generate module
-        generate(bLangPackage.symbol, moduleDependencies);
-        if (skipTests || !bLangPackage.hasTestablePackage()) {
-            return;
-        }
+        return generate(bLangPackage.symbol, moduleDependencies);
+    }
 
-        bLangPackage.getTestablePkgs().forEach(testablePackage -> {
-            // find module dependencies path
-            Set<Path> testDependencies = getPlatformDependencyPaths(moduleId, compilerBackend, "testOnly");
-            testDependencies.addAll(moduleDependencies);
-            // generate test module jar
-            generate(testablePackage.symbol, testDependencies);
-        });
+    public CompiledJarFile generateTestModule(ModuleId moduleId,
+                                              CompilerBackend compilerBackend,
+                                              BLangPackage bLangTestablePackage) {
+
+        Set<Path> moduleDependencies = getPlatformDependencyPaths(moduleId, compilerBackend, null);
+        Set<Path> testDependencies = getPlatformDependencyPaths(moduleId, compilerBackend, "testOnly");
+        testDependencies.addAll(moduleDependencies);
+        return generate(bLangTestablePackage.symbol, testDependencies);
     }
 
     private Set<Path> getPlatformDependencyPaths(ModuleId moduleId,
                                                  CompilerBackend compilerBackend,
                                                  String scope) {
-        Collection<PlatformLibrary> platformLibraries = compilerBackend.platformLibraries(moduleId.packageId());
+        Collection<PlatformLibrary> platformLibraries =
+                compilerBackend.platformLibraryDependencies(moduleId.packageId());
         // Add the runtime jar to the platforms
         return platformLibraries.stream().map(PlatformLibrary::path)
                 .collect(Collectors.toSet());
     }
 
-    private void generate(BPackageSymbol packageSymbol, Set<Path> moduleDependencies) {
+    private CompiledJarFile generate(BPackageSymbol packageSymbol, Set<Path> moduleDependencies) {
 
         dlog.setCurrentPackageId(packageSymbol.pkgID);
         final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog);
@@ -172,7 +173,9 @@ public class CodeGenerator {
         //Rewrite identiifier names with encoding special characters
         encodeModuleIdentifiers(packageSymbol.bir, Names.getInstance(this.compilerContext));
 
+        // TODO Get-rid of the following assignment
         packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, interopValidator, true);
+        return packageSymbol.compiledJarFile;
     }
 
     private Set<Path> findDependencies(PackageID packageID) {

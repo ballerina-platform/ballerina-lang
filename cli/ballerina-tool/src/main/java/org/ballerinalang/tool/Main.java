@@ -97,13 +97,9 @@ public class Main {
             }
 
             // set stop at positional to run command
-            cmdParser.getSubcommands().get("run").setStopAtPositional(true);
-            cmdParser.getSubcommands().get("build").setStopAtPositional(true);
-            cmdParser.getSubcommands().get("test").setStopAtPositional(true);
-
-            //TODO: remove and update the existing once the migration is done
-            cmdParser.getSubcommands().get("runNew").setUnmatchedArgumentsAllowed(true).setStopAtPositional(true);
-            cmdParser.getSubcommands().get("buildNew").setUnmatchedArgumentsAllowed(true).setStopAtPositional(true);
+            cmdParser.getSubcommands().get("run").setUnmatchedArgumentsAllowed(true).setStopAtPositional(true);
+            cmdParser.getSubcommands().get("build").setUnmatchedArgumentsAllowed(true).setStopAtPositional(true);
+            cmdParser.getSubcommands().get("test").setUnmatchedArgumentsAllowed(true).setStopAtPositional(true);
 
             // Build Version Command
             VersionCmd versionCmd = new VersionCmd();

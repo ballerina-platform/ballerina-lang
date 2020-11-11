@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/java;
-import ballerina/test;
 
 function testAcceptNothingAndReturnNothing(handle receiver) {
     increaseCounterByOne(receiver);
@@ -83,7 +82,7 @@ function testUnionWithErrorReturnHandle(handle receiver) returns error|int|boole
 
 function testInstanceResolve() {
     int val = hashCode(newByte(2));
-    test:assertEquals(val, 2);
+    assertEquals(val, 2);
 }
 
 // Interop functions
@@ -191,3 +190,10 @@ function newByte(int val) returns handle = @java:Constructor {
    'class: "java.lang.Byte"
 } external;
 
+function assertEquals(anydata|error expected, anydata|error actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

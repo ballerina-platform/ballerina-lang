@@ -26,7 +26,61 @@ import java.util.Collection;
  * @since 2.0.0
  */
 public abstract class CompilerBackend {
-    public abstract Collection<PlatformLibrary> platformLibraries(PackageId packageId);
 
+    /**
+     * Returns a collection of platform-specific library dependencies of a given Package.
+     * <p>
+     * Typically these library dependencies are specified in Ballerina.toml file.
+     *
+     * @param packageId the {@code PackageId} of the package.
+     * @return a collection of required platform-specific library dependencies of a given Package
+     */
+    public abstract Collection<PlatformLibrary> platformLibraryDependencies(PackageId packageId);
+
+    /**
+     * Returns the generated platform library of the specified module.
+     *
+     * @param packageId  the {@code PackageId} of the package
+     * @param moduleName the name of the module in the package
+     * @return the generated platform library of the specified module
+     */
+    public abstract PlatformLibrary codeGeneratedLibrary(PackageId packageId, ModuleName moduleName);
+
+    /**
+     * Returns the generated platform library of the specified module required to run tests.
+     *
+     * @param packageId  the {@code PackageId} of the package
+     * @param moduleName the name of the module in the package
+     * @return the generated platform library of the specified module
+     */
+    public abstract PlatformLibrary codeGeneratedTestLibrary(PackageId packageId, ModuleName moduleName);
+
+    /**
+     * Returns the platform-specific runtime library.
+     *
+     * @return the platform-specific runtime library
+     */
     public abstract PlatformLibrary runtimeLibrary();
+
+    /**
+     * Returns the supported target platform of this compiler backend.
+     *
+     * @return the supported target platform of this compiler backend
+     */
+    public abstract TargetPlatform targetPlatform();
+
+    // TODO this method should be moved to some other class owned by the CompilerBackend
+    public abstract void performCodeGen(ModuleContext moduleContext, CompilationCache compilationCache);
+
+    public abstract String libraryFileExtension();
+
+    /**
+     * Represent the unique name of a supported compiler backed target.
+     *
+     * @see JdkVersion
+     * @since 2.0.0
+     */
+    public interface TargetPlatform {
+        String code();
+    }
 }

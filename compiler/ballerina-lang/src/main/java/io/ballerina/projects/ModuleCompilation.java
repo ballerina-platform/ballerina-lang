@@ -21,13 +21,12 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
+import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -44,7 +43,7 @@ public class ModuleCompilation {
     private final CompilerContext compilerContext;
 
     private final DependencyGraph<ModuleId> dependencyGraph;
-    private List<Diagnostic> diagnostics;
+    private DiagnosticResult diagnosticResult;
 
     ModuleCompilation(PackageContext packageContext, ModuleContext moduleContext) {
         this.packageContext = packageContext;
@@ -91,7 +90,7 @@ public class ModuleCompilation {
 
     private void compile() {
         // Compile all the modules
-        diagnostics = new ArrayList<>();
+        List<Diagnostic> diagnostics = new ArrayList<>();
         List<ModuleId> sortedModuleIds = dependencyGraph.toTopologicallySortedList();
         for (ModuleId sortedModuleId : sortedModuleIds) {
             Package pkg = packageResolver.getPackage(sortedModuleId.packageId());
@@ -101,19 +100,15 @@ public class ModuleCompilation {
         }
 
         // Create an immutable list
-        diagnostics = Collections.unmodifiableList(diagnostics);
+        diagnosticResult = new DefaultDiagnosticResult(diagnostics);
     }
 
     public SemanticModel getSemanticModel() {
         return new BallerinaSemanticModel(this.moduleContext.bLangPackage(), this.compilerContext);
     }
 
-    BLangPackage bLangPackage() {
-        return this.moduleContext.bLangPackage();
-    }
-
-    public List<Diagnostic> diagnostics() {
-        return diagnostics;
+    public DiagnosticResult diagnostics() {
+        return diagnosticResult;
     }
 
     public boolean entryPointExists() {

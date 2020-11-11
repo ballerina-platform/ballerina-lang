@@ -104,8 +104,9 @@ artifacts {
     distributionBalo file("$buildDir/new-project/" + modName + "/target/" + modName + ".zip"), {
         builtBy(ballerinaLangLibBuild)
     }
-    distributionBirJar file("$buildDir/new-project/" + modName + "/target/" +
-            modName + ".jar"), { builtBy(ballerinaLangLibBuild) }
+    distributionBirJar file("$buildDir/new-project/" + modName + "/target/" + modName + ".jar"), {
+        builtBy(ballerinaLangLibBuild)
+    }
 }
 
 build.dependsOn ballerinaLangLibBuild

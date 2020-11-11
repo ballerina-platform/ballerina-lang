@@ -17,11 +17,9 @@
 */
 package org.ballerinalang.test.balo.readonly;
 
-import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -40,8 +38,8 @@ public class SelectivelyImmutableTypeBaloTest {
 
     @BeforeClass
     public void setup() {
-//        BCompileUtil.compile("test-src/balo/test_projects/test_project", "testorg", "selectively_immutable");
-//        BCompileUtil.compile("test-src/balo/test_projects/test_project", "testorg", "records");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_selectively_immutable");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_records");
         result = BCompileUtil.compile("test-src/balo/test_balo/readonly/test_selectively_immutable_type.bal");
     }
 

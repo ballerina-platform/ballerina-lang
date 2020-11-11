@@ -2,6 +2,6 @@
 org= "testorg"
 name="foo"
 version= "1.0.0"
-exported=["testpkg.foo"]
+exported=["foo", "foo.records"]
 
 [dependencies]

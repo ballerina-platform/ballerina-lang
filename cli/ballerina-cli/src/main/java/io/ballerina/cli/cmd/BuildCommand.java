@@ -21,10 +21,9 @@ import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateBaloTask;
-import io.ballerina.cli.task.CreateBirTask;
 import io.ballerina.cli.task.CreateExecutableTask;
-import io.ballerina.cli.task.CreateJarTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
+import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
@@ -43,6 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
+import static io.ballerina.runtime.util.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
@@ -102,14 +102,14 @@ public class BuildCommand implements BLauncherCmd {
                                                                   "'.jar' extension.")
     private String output;
 
-//    @CommandLine.Option(names = {"--offline"}, description = "Build/Compile offline without downloading " +
-//                                                              "dependencies.")
+    @CommandLine.Option(names = {"--offline"}, description = "Build/Compile offline without downloading " +
+                                                              "dependencies.")
     private boolean offline;
-//
-//    @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies.")
+
+    @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies.")
     private boolean skipLock;
-//
-//    @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
+
+    @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
     private boolean skipTests;
 
     @CommandLine.Parameters
@@ -127,21 +127,26 @@ public class BuildCommand implements BLauncherCmd {
     private static final String buildCmd = "ballerina build [-o <output>] [--sourceroot] [--offline] [--skip-tests]\n" +
             "                    [--skip-lock] {<ballerina-file | module-name> | -a | --all} [--] [(--key=value)...]";
 
-//    @CommandLine.Option(names = "--test-report", description = "enable test report generation")
-//    private boolean testReport;
-//
-//    @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
-//    private boolean coverage;
+    @CommandLine.Option(names = "--test-report", description = "enable test report generation")
+    private boolean testReport;
 
-//    @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
-//            "JAR file(s).")
-//    private boolean observabilityIncluded;
+    @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
+    private boolean coverage;
+
+    @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
+            "JAR file(s).")
+    private boolean observabilityIncluded;
 
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
             this.errStream.println(commandUsageInfo);
             return;
+        }
+
+        // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
+        if (!this.skipTests && this.debugPort != null) {
+            System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
 
         String[] args;
@@ -216,15 +221,13 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory
 //                .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
-                .addTask(new CompileTask(outStream, errStream)) // compile the modules
-                .addTask(new CreateBirTask(), isSingleFileBuild)   // create the bir
+                .addTask(new CompileTask(outStream)) // compile the modules
 //                .addTask(new CreateLockFileTask(), this.skipLock || isSingleFileBuild)  // create a lock file if
                                                             // the given skipLock flag does not exist(projects only)
                 .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO ( build projects only)
-                .addTask(new CreateJarTask(), isSingleFileBuild)   // create the jar
 //                .addTask(new CopyResourcesTask()) // merged with CreateJarTask
 //                .addTask(new CopyObservabilitySymbolsTask(), isSingleFileBuild)
-//                .addTask(new RunTestsTask(outStream, errStream, args), this.skipTests || isSingleFileBuild)
+                .addTask(new RunTestsTask(outStream, errStream, args), this.skipTests || isSingleFileBuild)
                     // run tests (projects only)
                 .addTask(new CreateExecutableTask(outStream, this.output), this.compile) //create the executable jar
 //                .addTask(new RunCompilerPluginTask(), this.compile) // run compiler plugins

@@ -1,4 +1,4 @@
-import testorg/simple_literal;
+import testorg/foo as simple_literal;
 
 // -----------------------------------------------------------
 

@@ -27,13 +27,22 @@ import java.nio.file.Path;
  * @since 2.0.0
  */
 public abstract class Project {
-    protected Path sourceRoot;
+    protected final Path sourceRoot;
     private Package currentPackage;
     private BuildOptions buildOptions;
     private final ProjectEnvironment projectEnvironment;
+    private final ProjectKind projectKind;
 
-    protected Project(ProjectEnvironmentBuilder projectEnvironmentBuilder) {
+    protected Project(ProjectKind projectKind,
+                      Path projectPath,
+                      ProjectEnvironmentBuilder projectEnvironmentBuilder) {
+        this.projectKind = projectKind;
+        this.sourceRoot = projectPath;
         this.projectEnvironment = projectEnvironmentBuilder.build(this);
+    }
+
+    public ProjectKind kind() {
+        return projectKind;
     }
 
     public Package currentPackage() {

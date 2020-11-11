@@ -28,27 +28,35 @@ import java.util.List;
 public class ModuleData {
     // Just the module name without the package name
     private final Path moduleDirPath;
+    private final String moduleName;
     private final List<DocumentData> srcDocs;
     private final List<DocumentData> testSrcDocs;
 
     // TODO do we need to maintain resources and test resources
 
     private ModuleData(Path moduleDirPath,
+                       String moduleName,
                        List<DocumentData> srcDocs,
                        List<DocumentData> testSrcDocs) {
         this.moduleDirPath = moduleDirPath;
+        this.moduleName = moduleName;
         this.srcDocs = srcDocs;
         this.testSrcDocs = testSrcDocs;
     }
 
     public static ModuleData from(Path path,
+                                  String moduleName,
                                   List<DocumentData> srcDocuments,
                                   List<DocumentData> testSrcDocuments) {
-        return new ModuleData(path, srcDocuments, testSrcDocuments);
+        return new ModuleData(path, moduleName, srcDocuments, testSrcDocuments);
     }
 
     public Path moduleDirectoryPath() {
         return moduleDirPath;
+    }
+
+    public String moduleName() {
+        return moduleName;
     }
 
     public List<DocumentData> sourceDocs() {

@@ -20,8 +20,11 @@ package org.ballerinalang.test.balo.types;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.Arrays;
 
 
 /**
@@ -33,8 +36,11 @@ public class NeverTypeBaloTest {
 
     @BeforeClass
     public void setup() {
-//        BCompileUtil.compile("test-src/balo/test_projects/test_project", "testorg", "foo");
-//        BCompileUtil.compile("test-src/balo/test_projects/test_project", "testorg", "records");
+        CompileResult compileResult = BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project");
+        if (compileResult.getErrorCount() > 0) {
+            Arrays.stream(compileResult.getDiagnostics()).forEach(System.out::println);
+            Assert.fail("Compilation contains errors");
+        }
         result = BCompileUtil.compile("test-src/balo/test_balo/types/never_type_test.bal");
     }
 

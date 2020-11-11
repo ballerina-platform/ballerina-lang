@@ -17,10 +17,6 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.tools.diagnostics.Diagnostic;
-
-import java.util.List;
-
 /**
  * This class represent the results of the emit operation.
  *
@@ -29,9 +25,9 @@ import java.util.List;
 public class EmitResult {
 
     private final boolean success;
-    private final List<Diagnostic> diagnostics;
+    private final DiagnosticResult diagnostics;
 
-    EmitResult(boolean success, List<Diagnostic> diagnostics) {
+    EmitResult(boolean success, DiagnosticResult diagnostics) {
         this.success = success;
         this.diagnostics = diagnostics;
     }
@@ -40,7 +36,7 @@ public class EmitResult {
         return success;
     }
 
-    public List<Diagnostic> diagnostics() {
+    public DiagnosticResult diagnostics() {
         return diagnostics;
     }
 }

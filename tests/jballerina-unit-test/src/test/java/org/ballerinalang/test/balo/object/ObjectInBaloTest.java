@@ -40,9 +40,9 @@ public class ObjectInBaloTest {
 
     @BeforeClass
     public void setup() {
-        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project/testorg/foo");
-        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_two/testorgtwo/foo");
-        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project/testorg/utils");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_two");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_utils");
 
         result = BCompileUtil.compile("test-src/balo/test_balo/object/test_objects.bal");
     }

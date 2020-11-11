@@ -18,16 +18,14 @@
 
 package io.ballerina.cli.task;
 
+import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.io.PrintStream;
-import java.util.List;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
@@ -38,11 +36,9 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
  */
 public class CompileTask implements Task {
     private final transient PrintStream out;
-    private final transient PrintStream err;
 
-    public CompileTask(PrintStream out, PrintStream err) {
+    public CompileTask(PrintStream out) {
         this.out = out;
-        this.err = err;
     }
 
     @Override
@@ -64,16 +60,8 @@ public class CompileTask implements Task {
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
-        List<Diagnostic> diagnostics = jBallerinaBackend.diagnostics();
-        boolean hasError = false;
-        for (Diagnostic diagnostic : diagnostics) {
-            // log the dignostics, fail if contains errors
-            this.err.println(diagnostic.toString());
-            if (!hasError && diagnostic.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
-                hasError = true;
-            }
-        }
-        if (hasError) {
+        DiagnosticResult diagnostics = jBallerinaBackend.diagnosticResult();
+        if (diagnostics.hasErrors()) {
             throw createLauncherException("compilation contains errors");
         }
     }
