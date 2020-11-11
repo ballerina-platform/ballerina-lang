@@ -20,7 +20,6 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
@@ -66,7 +65,6 @@ public class MarkAsUntaintedCodeAction extends AbstractCodeActionProvider {
             String commandTitle = String.format(CommandConstants.MARK_UNTAINTED_TITLE, param);
             // Extract specific content range
             Range range = diagnostic.getRange();
-            WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
             String content = positionDetails.matchedNode().toSourceCode();
             // Add `untaint` keyword
             matcher = CommandConstants.NO_CONCAT_PATTERN.matcher(content);

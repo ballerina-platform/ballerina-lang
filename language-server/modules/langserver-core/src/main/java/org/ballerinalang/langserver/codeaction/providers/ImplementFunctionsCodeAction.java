@@ -65,7 +65,7 @@ public class ImplementFunctionsCodeAction extends AbstractCodeActionProvider {
                                                     PositionDetails positionDetails, List<Diagnostic> allDiagnostics,
                                                     SyntaxTree syntaxTree, LSContext context) {
         if (!(diagnostic.getMessage().startsWith(NO_IMPL_FOUND_FOR_FUNCTION))) {
-            new ArrayList<>();
+            return Collections.emptyList();
         }
 //        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
 //        Position position = diagnostic.getRange().getStart();
