@@ -4380,7 +4380,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         if (isConfigurable) {
             bLSimpleVar.flagSet.add(Flag.CONFIGURABLE);
-            if(initializer.kind() == SyntaxKind.REQUIRED_EXPRESSION) {
+            if (initializer.kind() == SyntaxKind.REQUIRED_EXPRESSION) {
                 bLSimpleVar.flagSet.add(Flag.REQUIRED);
                 initializer = null;
             }
