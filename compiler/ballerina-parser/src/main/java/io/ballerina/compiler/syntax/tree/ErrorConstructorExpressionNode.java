@@ -131,7 +131,6 @@ public class ErrorConstructorExpressionNode extends ExpressionNode {
 
         public ErrorConstructorExpressionNodeModifier withTypeReference(
                 TypeDescriptorNode typeReference) {
-            Objects.requireNonNull(typeReference, "typeReference must not be null");
             this.typeReference = typeReference;
             return this;
         }

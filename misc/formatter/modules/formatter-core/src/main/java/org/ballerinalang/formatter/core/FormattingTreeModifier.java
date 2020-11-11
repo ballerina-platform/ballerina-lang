@@ -50,6 +50,7 @@ import io.ballerina.compiler.syntax.tree.ElseBlockNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.EnumMemberNode;
 import io.ballerina.compiler.syntax.tree.ErrorBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorMatchPatternNode;
 import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ErrorTypeParamsNode;
@@ -962,6 +963,27 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withOpenParenToken(functionCallOpenPara)
                 .withCloseParenToken(functionCallClosePara)
                 .withArguments(arguments)
+                .apply();
+    }
+
+    @Override
+    public ErrorConstructorExpressionNode transform(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
+        boolean hasTypeReference = errorConstructorExpressionNode.typeReference().isPresent();
+        Token errorKeyword = formatToken(errorConstructorExpressionNode.errorKeyword(), hasTypeReference ? 1 : 0, 0);
+        TypeDescriptorNode typeReference = formatNode(errorConstructorExpressionNode.typeReference().orElse(null),
+                0, 0);
+        Token openParenthesis = formatToken(errorConstructorExpressionNode.openParenToken(), 0, 0);
+        SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(errorConstructorExpressionNode
+                .arguments(), 0, 0, 0, 0);
+        Token closeParenthesis = formatToken(errorConstructorExpressionNode.closeParenToken(),
+                env.trailingWS, env.trailingNL);
+
+        return errorConstructorExpressionNode.modify()
+                .withErrorKeyword(errorKeyword)
+                .withTypeReference(typeReference)
+                .withOpenParenToken(openParenthesis)
+                .withArguments(arguments)
+                .withCloseParenToken(closeParenthesis)
                 .apply();
     }
 
