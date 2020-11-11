@@ -18,8 +18,10 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -90,6 +92,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private final Names names;
+    private final PackageLoader pkgLoader;
 
     private BSymbol transactionError;
     private BLangExpression retryStmt;
@@ -112,6 +115,11 @@ public class TransactionDesugar extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
         this.desugar = Desugar.getInstance(context);
+        this.pkgLoader = PackageLoader.getInstance(context);
+        if (this.symTable.internalTransactionModuleSymbol == null) {
+            this.symTable.internalTransactionModuleSymbol =
+                    pkgLoader.loadPackageSymbol(PackageID.TRANSACTION_INTERNAL, null, null);
+        }
     }
 
     public static TransactionDesugar getInstance(CompilerContext context) {
