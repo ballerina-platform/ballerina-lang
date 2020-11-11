@@ -1,3 +1,4 @@
+// Detail types
 type Detail record {
     string x;
 };
@@ -11,15 +12,27 @@ type DetailThree record {
     int z;
 };
 
+// Error Types
+type DetailFour map<string>;
+
 type ErrorOne error<Detail>;
 
 type ErrorTwo error<DetailTwo>;
 
 type ErrorThree error<DetailThree>;
 
+type ErrorFour error<record { string z;}>;
+
+type ErrorFive error<DetailFour>;
+
+//ErrorIntersections
 type IntersectionError ErrorOne & ErrorTwo;
 
 type IntersectionErrorTwo ErrorOne & ErrorTwo & ErrorThree;
+
+type IntersectionErrorThree ErrorOne & ErrorFour;
+
+type IntersectionErrorFour ErrorOne & ErrorFive;
 
 function testIntersectionForExistingDetail() {
     var err = IntersectionError("message", x = "x", y = "y");
@@ -33,6 +46,19 @@ function testIntersectionForExisitingAndNewDetail() {
     assertEquality(err.detail().y, "y");
     assertEquality(err.detail().z, 10);
 }
+
+function testIntersectionForAnonymousDetail() {
+    var err = IntersectionErrorThree("message", x = "x", z = "z");
+    assertEquality(err.detail().x, "x");
+    assertEquality(err.detail().z, "z");
+}
+
+function testIntersectionForDetailRecordAndDetailMap() {
+    var err = IntersectionErrorFour("message", x = "x", z = "z");
+    assertEquality(err.detail().x, "x");
+    assertEquality(err.detail()["z"], "z");
+}
+
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 

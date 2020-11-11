@@ -490,7 +490,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (bType == tempIntersection) {
                     potentialIntersectionType = bType;
                     isAlreadyExistingErrorType = true;
-                } else if (potentialIntersectionType != tempIntersection){
+                } else if (potentialIntersectionType != tempIntersection) {
                     potentialIntersectionType = tempIntersection;
                     isAlreadyExistingErrorType = false;
                 }

@@ -71,4 +71,24 @@ public class IntersectionTypeTest {
     public void testErrorIntersectionWithExistingAndNewDetail() {
         BRunUtil.invoke(errorIntersectionResults, "testIntersectionForExisitingAndNewDetail");
     }
+
+    @Test
+    public void testErrorIntersectionWithDetailRecordAndMap() {
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionForDetailRecordAndDetailMap");
+    }
+
+    @Test
+    public void testErrorIntersectionNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/types/intersection/error_intersection_type_negative.bal");
+
+        int index = 0;
+        validateError(result, index++, "invalid intersection type 'ErrorOne & ErrorTwo': no intersection", 29, 24);
+        validateError(result, index++, "invalid intersection type 'ErrorOne & ErrorThree': no intersection", 31, 27);
+        validateError(result, index++, "invalid intersection type 'ErrorOne & ErrorFour': no intersection", 33, 29);
+        validateError(result, index++,
+                      "invalid error detail rest arg 'z' passed to open detail record '"
+                              + "record {| string x; string...; |}'", 38, 15);
+
+        assertEquals(result.getErrorCount(), index);
+    }
 }
