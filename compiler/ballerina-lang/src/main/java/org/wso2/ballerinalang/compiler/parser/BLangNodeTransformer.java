@@ -4380,8 +4380,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         if (isConfigurable) {
             bLSimpleVar.flagSet.add(Flag.CONFIGURABLE);
-            // Configurable variables are readonly, hence add the readonly flag as well
-            bLSimpleVar.flagSet.add(Flag.READONLY);
             if(initializer.kind() == SyntaxKind.REQUIRED_EXPRESSION) {
                 bLSimpleVar.flagSet.add(Flag.REQUIRED);
                 initializer = null;
