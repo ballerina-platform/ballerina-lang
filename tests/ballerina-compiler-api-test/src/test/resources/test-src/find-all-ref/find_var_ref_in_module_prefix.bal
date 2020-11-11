@@ -38,5 +38,6 @@ function test() {
         }
 
         float circum  = 2 * foo:PI * 10;
+        int xum = foo:add(10, 20);
     }
 }

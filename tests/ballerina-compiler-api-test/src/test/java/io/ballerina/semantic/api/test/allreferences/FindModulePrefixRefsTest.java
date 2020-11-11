@@ -48,7 +48,8 @@ public class FindModulePrefixRefsTest extends FindAllReferencesTest {
                                  location(19, 0, 3),
                                  location(22, 4, 7),
                                  location(36, 27, 30),
-                                 location(39, 28, 31))
+                                 location(39, 28, 31),
+                                 location(40, 18, 21))
                 },
                 {25, 16, List.of(location(25, 16, 20),
                                  location(31, 24, 28)),

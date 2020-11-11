@@ -50,8 +50,15 @@ function testFuncCall2() {
     () v = 1 is int ? foo(30) : foo(40);
 }
 
-// utils
-
 function foo(int x) {
 }
 
+function sum(int a, int b) returns int => a + b;
+
+function testAction() {
+    var v1 = start sum(10, 20);
+    int x = wait v1;
+
+    var v2 = start sum(20, 30);
+    map<int> m = wait {v1, v2};
+}
