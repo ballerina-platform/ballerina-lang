@@ -517,7 +517,6 @@ public class ObjectTest {
 
     @Test(description = "Negative test to test object visibility modifiers")
     public void testObjectVisibilityModifiers() {
-//        CompileResult result = BCompileUtil.compile("test-src/object/ObjectProject", "mod");
         CompileResult result = BCompileUtil.compile("test-src/object/test_pkg2");
         Assert.assertEquals(result.getErrorCount(), 12);
         int index = 0;
