@@ -19,17 +19,16 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -118,7 +117,7 @@ public class PullCommand implements BLauncherCmd {
             version = Names.EMPTY.getValue();
         }
 
-        Path packagePathInBaloCache = RepoUtils.createAndGetHomeReposPath()
+        Path packagePathInBaloCache = ProjectUtils.createAndGetHomeReposPath()
                 .resolve(ProjectConstants.BALO_CACHE_DIR_NAME).resolve(orgName).resolve(packageName);
         // create directory path in balo cache
         try {

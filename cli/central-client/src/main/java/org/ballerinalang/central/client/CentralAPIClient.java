@@ -21,6 +21,7 @@ package org.ballerinalang.central.client;
 import com.google.gson.Gson;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.balo.BaloProject;
+import io.ballerina.projects.repos.TempDirCompilationCache;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.ballerinalang.central.client.model.Error;
@@ -183,7 +184,9 @@ public class CentralAPIClient {
         setRequestMethod(conn, Utils.RequestMethod.POST);
 
         // Load balo project
-        BaloProject baloProject = BaloProject.loadProject(ProjectEnvironmentBuilder.getDefaultBuilder(), baloPath);
+        ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+        BaloProject baloProject = BaloProject.loadProject(defaultBuilder, baloPath);
         String org = baloProject.currentPackage().packageDescriptor().org().toString();
         String name = baloProject.currentPackage().packageDescriptor().name().toString();
         String version = baloProject.currentPackage().packageDescriptor().version().toString();

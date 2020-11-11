@@ -23,7 +23,6 @@ import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientException;
 import org.ballerinalang.central.client.NoPackageException;
@@ -46,7 +45,6 @@ import java.util.stream.Stream;
 import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
 import static io.ballerina.runtime.util.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTATION_VERSION;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 import static org.wso2.ballerinalang.util.RepoUtils.getRemoteRepoURL;
 
@@ -99,25 +97,13 @@ public class PushCommand implements BLauncherCmd {
             return;
         }
 
-        // Get source root path.
-        Path sourceRootPath = userDir;
-
-        // Push command only works inside a project
-        if (!ProjectUtils.isBallerinaProject(sourceRootPath)) {
-            Path findRoot = ProjectUtils.findProjectRoot(sourceRootPath);
-            if (null == findRoot) {
-                CommandUtil.printError(errStream,
-                        "Push command can be only run inside a Ballerina project",
-                        null,
-                        false);
-                return;
-            }
-            sourceRootPath = findRoot;
+        BuildProject project;
+        try {
+            project = BuildProject.load(userDir);
+        } catch (RuntimeException e) {
+            CommandUtil.printError(errStream, e.getMessage(), null, false);
+            return;
         }
-
-        // todo: load project and get src path and all other stuff
-        // todo: get target path and balo path using project
-        BuildProject project = BuildProject.load(sourceRootPath);
 
         // Enable remote debugging
         if (null != debugPort) {
