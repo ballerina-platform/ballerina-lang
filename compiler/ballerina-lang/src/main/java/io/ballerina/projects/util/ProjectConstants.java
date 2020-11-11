@@ -99,4 +99,5 @@ public class ProjectConstants {
     public static final String ASM_TREE_JAR = "asm-tree-7.2.jar";
     public static final String ASM_COMMONS_JAR = "asm-commons-7.2.jar";
     public static final String DIFF_UTILS_JAR = "java-diff-utils-4.5.jar";
+    public static final String REPORT_DIR_NAME = "report";
 }

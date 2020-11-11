@@ -48,7 +48,7 @@ public class TestReportTest extends BaseTestCase {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
-        projectPath = projectBasedTestsPath.toString();
+        projectPath = projectBasedTestsPath.resolve("test-report-tests").toString();
         resultsJsonPath = projectBasedTestsPath.resolve("test-report-tests").resolve("target")
                 .resolve("test_results.json");
     }
@@ -92,7 +92,7 @@ public class TestReportTest extends BaseTestCase {
         // Verify module level numbers
         for (JsonElement obj : resultObj.get("moduleStatus").getAsJsonArray()) {
             JsonObject moduleObj = ((JsonObject) obj);
-            if ("math".equals(moduleObj.get("name").getAsString())) {
+            if ("foo.math".equals(moduleObj.get("name").getAsString())) {
                 Assert.assertEquals(mathTotal, moduleObj.get("totalTests").getAsInt());
                 Assert.assertEquals(mathPassed, moduleObj.get("passed").getAsInt());
                 Assert.assertEquals(mathFailed, moduleObj.get("failed").getAsInt());
@@ -102,12 +102,12 @@ public class TestReportTest extends BaseTestCase {
                 Assert.assertEquals(fooPassed, moduleObj.get("passed").getAsInt());
                 Assert.assertEquals(fooFailed, moduleObj.get("failed").getAsInt());
                 Assert.assertEquals(fooSkipped, moduleObj.get("skipped").getAsInt());
-            } else if ("bar.tests".equals(moduleObj.get("name").getAsString())) {
+            } else if ("foo.bar.tests".equals(moduleObj.get("name").getAsString())) {
                 Assert.assertEquals(bartestTotal, moduleObj.get("totalTests").getAsInt());
                 Assert.assertEquals(barPassed, moduleObj.get("passed").getAsInt());
                 Assert.assertEquals(barFailed, moduleObj.get("failed").getAsInt());
                 Assert.assertEquals(barSkipped, moduleObj.get("skipped").getAsInt());
-            } else if ("bar".equals(moduleObj.get("name").getAsString())) {
+            } else if ("foo.bar".equals(moduleObj.get("name").getAsString())) {
                 // No module status for bar
             } else {
                 Assert.fail("unrecognized module found: " + moduleObj.get("name").getAsString());
@@ -169,7 +169,7 @@ public class TestReportTest extends BaseTestCase {
         for (JsonElement element : resultObj.get("moduleCoverage").getAsJsonArray()) {
             JsonObject moduleObj = ((JsonObject) element);
 
-            if ("math".equals(moduleObj.get("name").getAsString())) {
+            if ("foo.math".equals(moduleObj.get("name").getAsString())) {
                 // Verify coverage of individual source file
                 for (JsonElement element1 :  moduleObj.get("sourceFiles").getAsJsonArray()) {
                     JsonObject fileObj = (JsonObject) element1;
@@ -199,7 +199,7 @@ public class TestReportTest extends BaseTestCase {
             } else if ("foo".equals(moduleObj.get("name").getAsString())) {
                 // Verify coverage of source file
                 JsonObject fileObj = (JsonObject) moduleObj.get("sourceFiles").getAsJsonArray().get(0);
-                Assert.assertEquals("mainBal/main.bal", fileObj.get("name").getAsString());
+                Assert.assertEquals("main.bal", fileObj.get("name").getAsString());
                 Assert.assertEquals(parser.parse(Arrays.toString(fooMainCovered)),
                         parser.parse(fileObj.get("coveredLines").getAsJsonArray().toString()));
                 Assert.assertEquals(parser.parse(Arrays.toString(fooMainMissed)),
@@ -210,7 +210,7 @@ public class TestReportTest extends BaseTestCase {
                 Assert.assertEquals(fooCovered, moduleObj.get("coveredLines").getAsInt());
                 Assert.assertEquals(fooMissed, moduleObj.get("missedLines").getAsInt());
                 Assert.assertEquals(fooMainPercentage, moduleObj.get("coveragePercentage").getAsFloat());
-            } else if ("bar".equals(moduleObj.get("name").getAsString())) {
+            } else if ("foo.bar".equals(moduleObj.get("name").getAsString())) {
                 JsonObject fileObj = (JsonObject) moduleObj.get("sourceFiles").getAsJsonArray().get(0);
                 Assert.assertEquals("main.bal", fileObj.get("name").getAsString());
                 Assert.assertEquals(parser.parse(Arrays.toString(barMainCovered)),
@@ -223,7 +223,7 @@ public class TestReportTest extends BaseTestCase {
                 Assert.assertEquals(barCovered, moduleObj.get("coveredLines").getAsInt());
                 Assert.assertEquals(barMissed, moduleObj.get("missedLines").getAsInt());
                 Assert.assertEquals(barMainPercentage, moduleObj.get("coveragePercentage").getAsFloat());
-            } else if ("bar.tests".equals(moduleObj.get("name").getAsString())) {
+            } else if ("foo.bar.tests".equals(moduleObj.get("name").getAsString())) {
                 // No module coverage for bar_tests
             } else {
                 Assert.fail("unrecognized module: " + moduleObj.get("name").getAsString());

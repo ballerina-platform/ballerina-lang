@@ -1,4 +1,4 @@
 [package]
-org = "intg_tests"
-name = "test_report"
+org = "testerina_report"
+name = "foo"
 version = "0.0.0"

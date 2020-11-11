@@ -227,7 +227,8 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO ( build projects only)
 //                .addTask(new CopyResourcesTask()) // merged with CreateJarTask
 //                .addTask(new CopyObservabilitySymbolsTask(), isSingleFileBuild)
-                .addTask(new RunTestsTask(outStream, errStream, args), this.skipTests || isSingleFileBuild)
+                .addTask(new RunTestsTask(outStream, errStream, args, testReport, coverage),
+                        this.skipTests || isSingleFileBuild)
                     // run tests (projects only)
                 .addTask(new CreateExecutableTask(outStream, this.output), this.compile) //create the executable jar
 //                .addTask(new RunCompilerPluginTask(), this.compile) // run compiler plugins
