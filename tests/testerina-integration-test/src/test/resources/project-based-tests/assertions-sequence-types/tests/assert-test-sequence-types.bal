@@ -89,3 +89,7 @@ function testAssertXmlNotEqualsNegative() {
     error? err = trap test:assertNotEquals(x5, x6);
     test:assertTrue(err is error);
 }
+
+function stringConcat(string a, string b) returns (string) {
+    return a + b;
+}

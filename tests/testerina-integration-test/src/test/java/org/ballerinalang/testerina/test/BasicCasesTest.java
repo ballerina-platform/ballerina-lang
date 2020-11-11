@@ -39,9 +39,54 @@ public class BasicCasesTest extends BaseTestCase {
 
     @Test
     public void testAssertions() throws BallerinaTestException {
-        String msg = "111 passing";
+        String msg = "33 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"assertions"}, null, new String[]{},
+                new LogLeecher[]{clientLeecher}, projectPath);
+        clientLeecher.waitForText(20000);
+    }
+
+    @Test
+    public void testAssertDiffError() throws BallerinaTestException {
+        String msg = "13 passing";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]{"assertions-diff-error"}, null, new String[]{},
+                new LogLeecher[]{clientLeecher}, projectPath);
+        clientLeecher.waitForText(20000);
+    }
+
+    @Test
+    public void testAssertionErrorMessage() throws BallerinaTestException {
+        String msg = "9 passing";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]{"assertions-error-messages"}, null, new String[]{},
+                new LogLeecher[]{clientLeecher}, projectPath);
+        clientLeecher.waitForText(20000);
+    }
+
+    @Test
+    public void testAssertBehavioralTypes() throws BallerinaTestException {
+        String msg = "12 passing";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]{"assertions-behavioral-types"}, null, new String[]{},
+                new LogLeecher[]{clientLeecher}, projectPath);
+        clientLeecher.waitForText(20000);
+    }
+
+    @Test
+    public void testAssertStructuralTypes() throws BallerinaTestException {
+        String msg = "36 passing";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]{"assertions-structural-types"}, null, new String[]{},
+                new LogLeecher[]{clientLeecher}, projectPath);
+        clientLeecher.waitForText(20000);
+    }
+
+    @Test
+    public void testAssertSequenceTypes() throws BallerinaTestException {
+        String msg = "8 passing";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]{"assertions-sequence-types"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);
         clientLeecher.waitForText(20000);
     }

@@ -18,6 +18,14 @@ import ballerina/test;
 
 # Execute tests with Behavioral type value assertions
 
+class Person {
+    public string name = "";
+    public int age = 0;
+    public Person? parent = ();
+    private string email = "default@abc.com";
+    string address = "No 20, Palm grove";
+}
+
 type EnrolledStudent record {
     int id;
     Person person;
