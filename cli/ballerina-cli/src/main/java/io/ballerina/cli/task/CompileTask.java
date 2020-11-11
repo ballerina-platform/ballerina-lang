@@ -36,9 +36,11 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
  */
 public class CompileTask implements Task {
     private final transient PrintStream out;
+    private final transient PrintStream err;
 
-    public CompileTask(PrintStream out) {
+    public CompileTask(PrintStream out, PrintStream err) {
         this.out = out;
+        this.err = err;
     }
 
     @Override
@@ -60,8 +62,9 @@ public class CompileTask implements Task {
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
-        DiagnosticResult diagnostics = jBallerinaBackend.diagnosticResult();
-        if (diagnostics.hasErrors()) {
+        DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
+        diagnosticResult.diagnostics().forEach(d -> err.println(d.toString()));
+        if (diagnosticResult.hasErrors()) {
             throw createLauncherException("compilation contains errors");
         }
     }
