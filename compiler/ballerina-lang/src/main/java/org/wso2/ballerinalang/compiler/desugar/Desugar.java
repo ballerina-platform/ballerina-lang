@@ -2587,7 +2587,7 @@ public class Desugar extends BLangNodeVisitor {
                     retryLambdaVarRef, retryLambdaVariable.symbol, retryLambdaReturnType.type);
             retryLambdaInvocation.argExprs = new ArrayList<>();
 
-            retryFunc.capturedClosureEnv = env.createClone();
+            retryFunc.capturedClosureEnv = env;
 
             BVarSymbol retryFunctionVarSymbol = new BVarSymbol(0, new Name("$result$"),
                     env.scope.owner.pkgID, retryLambdaReturnType.type,
