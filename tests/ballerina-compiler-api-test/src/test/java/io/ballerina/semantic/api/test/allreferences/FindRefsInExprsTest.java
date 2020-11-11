@@ -34,6 +34,7 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
         return new Object[][]{
+                // Simple var refs, binary exprs
                 {22, 12, List.of(location(22, 12, 13),
                                  location(23, 21, 22),
                                  location(29, 37, 38),
@@ -48,17 +49,33 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                                 location(19, 17, 18)),
                 },
                 {29, 20, List.of(location(29, 20, 21))},
-                {29, 19, EMPTY_LIST}
+                {29, 19, EMPTY_LIST},
+
+                // function and action invocations
+                {41, 4, List.of(location(41, 4, 7),
+                                location(44, 8, 11),
+                                location(49, 22, 25),
+                                location(49, 32, 35),
+                                location(52, 9, 12))
+                },
+                {58, 19, List.of(location(55, 9, 12),
+                                 location(58, 19, 22),
+                                 location(61, 19, 22))
+                },
+                {58, 8, List.of(location(58, 8, 10),
+                                location(59, 17, 19),
+                                location(62, 23, 25))
+                },
         };
     }
 
     @Override
     public String getFileName() {
-        return "find_var_ref_in_binary_expr.bal";
+        return "find_var_ref_in_exprs.bal";
     }
 
     @Override
     public String getTestSourcePath() {
-        return "test-src/find-all-ref/find_var_ref_in_binary_expr.bal";
+        return "test-src/find-all-ref/find_var_ref_in_exprs.bal";
     }
 }
