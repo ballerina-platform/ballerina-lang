@@ -16,20 +16,13 @@
 package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.JsonObject;
-import io.ballerina.tools.diagnostics.Location;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.apache.commons.lang3.tuple.Triple;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.exception.UserErrorException;
-import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
@@ -37,15 +30,10 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdit;
 
@@ -178,50 +166,50 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         return applyWorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)), client);
     }
 
-    private BLangCompilationUnit getCurrentCUnit(LSContext context, BLangPackage packageNode) {
-    /*
-    In windows platform, relative file path key components are separated with "\" while antlr always uses "/"
-     */
-        String relativePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        String currentCUnitName = relativePath.replace("\\", "/");
-        BLangPackage sourceOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, packageNode);
+//    private BLangCompilationUnit getCurrentCUnit(LSContext context, BLangPackage packageNode) {
+//    /*
+//    In windows platform, relative file path key components are separated with "\" while antlr always uses "/"
+//     */
+//        String relativePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+//        String currentCUnitName = relativePath.replace("\\", "/");
+//        BLangPackage sourceOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, packageNode);
+//
+//        Optional<BLangCompilationUnit> currentCUnit = sourceOwnerPkg.getCompilationUnits().stream()
+//                .filter(cUnit -> cUnit.name.equals(currentCUnitName))
+//                .findAny();
+//
+//        if (!currentCUnit.isPresent()) {
+//            throw new UserErrorException("Not supported due to compilation failures!");
+//        }
+//        return currentCUnit.get();
+//    }
 
-        Optional<BLangCompilationUnit> currentCUnit = sourceOwnerPkg.getCompilationUnits().stream()
-                .filter(cUnit -> cUnit.name.equals(currentCUnitName))
-                .findAny();
-
-        if (!currentCUnit.isPresent()) {
-            throw new UserErrorException("Not supported due to compilation failures!");
-        }
-        return currentCUnit.get();
-    }
-
-    private Triple<Location, PackageID, Boolean> getNodeLocationAndHasFunctions(String name,
-                                                                                               LSContext context) {
-        List<BLangPackage> bLangPackages = context.get(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY);
-        Location pos;
-        PackageID pkgId;
-        boolean hasFunctions = false;
-        for (BLangPackage bLangPackage : bLangPackages) {
-            for (BLangCompilationUnit cUnit : bLangPackage.getCompilationUnits()) {
-                for (TopLevelNode node : cUnit.getTopLevelNodes()) {
-                    if (node instanceof BLangTypeDefinition) {
-                        BLangTypeDefinition typeDefinition = (BLangTypeDefinition) node;
-                        if (typeDefinition.name.value.equals(name)) {
-                            pos = typeDefinition.getPosition();
-                            pkgId = bLangPackage.packageID;
-                            if (typeDefinition.symbol instanceof BObjectTypeSymbol) {
-                                BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) typeDefinition.symbol;
-                                hasFunctions = typeSymbol.attachedFuncs.size() > 0;
-                            }
-                            return new ImmutableTriple<>(pos, pkgId, hasFunctions);
-                        }
-                    }
-                }
-            }
-        }
-        return new ImmutableTriple<>(null, null, hasFunctions);
-    }
+//    private Triple<Location, PackageID, Boolean> getNodeLocationAndHasFunctions(String name,
+//                                                                                               LSContext context) {
+//        List<BLangPackage> bLangPackages = context.get(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY);
+//        Location pos;
+//        PackageID pkgId;
+//        boolean hasFunctions = false;
+//        for (BLangPackage bLangPackage : bLangPackages) {
+//            for (BLangCompilationUnit cUnit : bLangPackage.getCompilationUnits()) {
+//                for (TopLevelNode node : cUnit.getTopLevelNodes()) {
+//                    if (node instanceof BLangTypeDefinition) {
+//                        BLangTypeDefinition typeDefinition = (BLangTypeDefinition) node;
+//                        if (typeDefinition.name.value.equals(name)) {
+//                            pos = typeDefinition.getPosition();
+//                            pkgId = bLangPackage.packageID;
+//                            if (typeDefinition.symbol instanceof BObjectTypeSymbol) {
+//                                BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) typeDefinition.symbol;
+//                                hasFunctions = typeSymbol.attachedFuncs.size() > 0;
+//                            }
+//                            return new ImmutableTriple<>(pos, pkgId, hasFunctions);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        return new ImmutableTriple<>(null, null, hasFunctions);
+//    }
 
     /**
      * {@inheritDoc}

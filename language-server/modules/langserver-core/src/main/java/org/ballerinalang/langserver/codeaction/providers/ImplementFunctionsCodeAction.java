@@ -16,28 +16,14 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
-import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -91,39 +77,39 @@ public class ImplementFunctionsCodeAction extends AbstractCodeActionProvider {
         return null;
     }
 
-    private static List<TextEdit> getNewFunctionEditText(BAttachedFunction function, BLangTypeDefinition object,
-                                                         BLangPackage packageNode, LSContext context) {
-        String funcArgs = "";
-        PackageID currentPkgId = packageNode.packageID;
-        List<TextEdit> edits = new ArrayList<>();
-        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
-        //TODO: Fix this
-        String returnType = "";
-        String returnValue = "";
-
-//        String returnType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
-//                                                                     function.type.retType, context);
-//        String returnValue = FunctionGenerator.generateReturnValue(importsAcceptor, currentPkgId, function.type
-//        .retType,
-//                                                                   "        return {%1};", context);
-        List<String> arguments = getFuncArguments(importsAcceptor, currentPkgId, function.symbol, context);
-        if (arguments != null) {
-            funcArgs = String.join(", ", arguments);
-        }
-        boolean prependLineFeed = false;
-        if (object.typeNode instanceof BLangObjectTypeNode) {
-            BLangObjectTypeNode typeNode = (BLangObjectTypeNode) object.typeNode;
-            prependLineFeed = typeNode.functions.size() > 0;
-        }
-        boolean isPublic = (function.type.tsymbol.flags & Flags.PUBLIC) == Flags.PUBLIC;
-        String modifiers = (isPublic) ? "public " : "";
-        String editText = FunctionGenerator.createFunction(function.funcName.value, funcArgs, returnType, returnValue,
-                                                           modifiers, false, StringUtils.repeat(' ', 4));
-        Position editPos = new Position(object.pos.lineRange().endLine().line() - 1, 0);
-        edits.addAll(importsAcceptor.getNewImportTextEdits());
-        edits.add(new TextEdit(new Range(editPos, editPos), editText));
-        return edits;
-    }
+//    private static List<TextEdit> getNewFunctionEditText(BAttachedFunction function, BLangTypeDefinition object,
+//                                                         BLangPackage packageNode, LSContext context) {
+//        String funcArgs = "";
+//        PackageID currentPkgId = packageNode.packageID;
+//        List<TextEdit> edits = new ArrayList<>();
+//        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+//        //TODO: Fix this
+//        String returnType = "";
+//        String returnValue = "";
+//
+////        String returnType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
+////                                                                     function.type.retType, context);
+////        String returnValue = FunctionGenerator.generateReturnValue(importsAcceptor, currentPkgId, function.type
+////        .retType,
+////                                                                   "        return {%1};", context);
+//        List<String> arguments = getFuncArguments(importsAcceptor, currentPkgId, function.symbol, context);
+//        if (arguments != null) {
+//            funcArgs = String.join(", ", arguments);
+//        }
+//        boolean prependLineFeed = false;
+//        if (object.typeNode instanceof BLangObjectTypeNode) {
+//            BLangObjectTypeNode typeNode = (BLangObjectTypeNode) object.typeNode;
+//            prependLineFeed = typeNode.functions.size() > 0;
+//        }
+//        boolean isPublic = (function.type.tsymbol.flags & Flags.PUBLIC) == Flags.PUBLIC;
+//        String modifiers = (isPublic) ? "public " : "";
+//        String editText = FunctionGenerator.createFunction(function.funcName.value, funcArgs, returnType, returnValue,
+//                                                           modifiers, false, StringUtils.repeat(' ', 4));
+//        Position editPos = new Position(object.pos.lineRange().endLine().line() - 1, 0);
+//        edits.addAll(importsAcceptor.getNewImportTextEdits());
+//        edits.add(new TextEdit(new Range(editPos, editPos), editText));
+//        return edits;
+//    }
 
     /**
      * Get the function arguments from the function.
@@ -134,29 +120,29 @@ public class ImplementFunctionsCodeAction extends AbstractCodeActionProvider {
      * @param context         {@link LSContext}
      * @return {@link List} List of arguments
      */
-    private static List<String> getFuncArguments(ImportsAcceptor importsAcceptor,
-                                                 PackageID currentPkgId, BInvokableSymbol bLangInvocation,
-                                                 LSContext context) {
-        List<String> list = new ArrayList<>();
-        if (bLangInvocation.params.isEmpty()) {
-            return null;
-        }
-        for (BVarSymbol bVarSymbol : bLangInvocation.params) {
-            //TODO: Fix this
+//    private static List<String> getFuncArguments(ImportsAcceptor importsAcceptor,
+//                                                 PackageID currentPkgId, BInvokableSymbol bLangInvocation,
+//                                                 LSContext context) {
+//        List<String> list = new ArrayList<>();
+//        if (bLangInvocation.params.isEmpty()) {
+//            return null;
+//        }
+//        for (BVarSymbol bVarSymbol : bLangInvocation.params) {
+//            //TODO: Fix this
 //            String argType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bVarSymbol.type,
 //                                                                      context);
-            String argType = "";
-            String argName = bVarSymbol.name.value;
-            list.add(argType + " " + argName);
-        }
-        BVarSymbol restParam = bLangInvocation.restParam;
-        if (restParam != null && (restParam.type instanceof BArrayType)) {
-            //TODO: Fix this
-//            String argType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
-//                                                                      ((BArrayType) restParam.type).eType, context);
-            String argType = "";
-            list.add(argType + "... " + restParam.getName().getValue());
-        }
-        return (!list.isEmpty()) ? list : null;
-    }
+//            String argType = "";
+//            String argName = bVarSymbol.name.value;
+//            list.add(argType + " " + argName);
+//        }
+//        BVarSymbol restParam = bLangInvocation.restParam;
+//        if (restParam != null && (restParam.type instanceof BArrayType)) {
+//            //TODO: Fix this
+////            String argType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
+////                                                                      ((BArrayType) restParam.type).eType, context);
+//            String argType = "";
+//            list.add(argType + "... " + restParam.getName().getValue());
+//        }
+//        return (!list.isEmpty()) ? list : null;
+//    }
 }
