@@ -470,7 +470,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 BLangType bLangType = constituentTypes.get(i);
                 BType bType = symResolver.resolveTypeNode(bLangType, env);
 
-                if (bType.getKind() != TypeKind.ERROR && typeTwo.tag != TypeTags.READONLY) {
+                if (bType.tag != TypeTags.ERROR && typeTwo.tag != TypeTags.READONLY) {
                     dlog.error(bLangType.pos, INVALID_ERROR_INTERSECTION, bLangType);
                     isValidIntersection = false;
                     break;
