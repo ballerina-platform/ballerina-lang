@@ -5310,7 +5310,16 @@ public class TypeChecker extends BLangNodeVisitor {
                     errored = true;
                 }
             }
-            errored = true;
+        }
+
+        if (!requiredIncludedRecordParams.isEmpty() && !requiredParams.isEmpty()) {
+            // Log errors if any non-defaultable required record fields of included record parameters are not given as
+            // named args.
+            for (BVarSymbol requiredIncludedRecordParam : requiredIncludedRecordParams) {
+                dlog.error(iExpr.pos, DiagnosticCode.MISSING_REQUIRED_INCLUDED_RECORD_PARAMETER_FIELD,
+                            requiredIncludedRecordParam.name, iExpr.name.value);
+                errored = true;
+            }
         }
 
         if (restParam == null &&

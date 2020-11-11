@@ -90,6 +90,7 @@ public enum DiagnosticCode {
     POSITIONAL_ARG_DEFINED_AFTER_NAMED_ARG("positional.arg.defined.after.named.arg"),
     REST_ARG_DEFINED_AFTER_NAMED_ARG("rest.arg.defined.after.named.arg"),
     MISSING_REQUIRED_PARAMETER("missing.required.parameter"),
+    MISSING_REQUIRED_INCLUDED_RECORD_PARAMETER_FIELD("missing.required.included.record.parameter.field"),
     MISSING_REQUIRED_ARG_ERROR_MESSAGE("missing.required.parameter.error.message"),
     OBJECT_CTOR_INIT_CANNOT_HAVE_PARAMETERS("object.constructor.init.function.cannot.have.parameters"),
     OBJECT_CTOR_DOES_NOT_SUPPORT_TYPE_REFERENCE_MEMBERS("object.constructor.does.not.support.type.reference.members"),
