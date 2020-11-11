@@ -16,7 +16,7 @@ Search Ballerina Central and local repositories and show the search results.
 Executes a compiled Ballerina program.
 
 **Ballerina build**
-Compiles a single module without including transitive dependencies into a .balo file (if its a project) and a .balx file.
+Compiles a single module without including transitive dependencies into a .balo file (if it's a project) and a .balx file.
 
 **Ballerina list <module-name>**
 Lists dependencies of a single module.
