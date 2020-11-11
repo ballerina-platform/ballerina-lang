@@ -33,16 +33,18 @@ import static org.testng.Assert.assertEquals;
  */
 public class IntersectionTypeTest {
 
-    private CompileResult result;
+    private CompileResult readOnlyIntersectionResults;
+    private CompileResult errorIntersectionResults;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/intersection/test_intersection_type.bal");
+        readOnlyIntersectionResults = BCompileUtil.compile("test-src/types/intersection/test_intersection_type.bal");
+        errorIntersectionResults = BCompileUtil.compile("test-src/types/intersection/error_intersection_type.bal");
     }
 
     @Test(groups = "brokenOnNewParser")
     public void testImmutableTypes() {
-        BRunUtil.invoke(result, "testIntersectionTypes");
+        BRunUtil.invoke(readOnlyIntersectionResults, "testIntersectionTypes");
     }
 
     @Test
@@ -58,5 +60,15 @@ public class IntersectionTypeTest {
         validateError(result, index++, "invalid intersection type '(Baz & readonly)': no intersection", 32, 45);
 
         assertEquals(result.getErrorCount(), index);
+    }
+
+    @Test
+    public void testErrorIntersectionWithExistingDetail() {
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionForExistingDetail");
+    }
+
+    @Test
+    public void testErrorIntersectionWithExistingAndNewDetail() {
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionForExisitingAndNewDetail");
     }
 }

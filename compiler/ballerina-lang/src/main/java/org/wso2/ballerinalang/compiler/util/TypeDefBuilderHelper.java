@@ -219,14 +219,14 @@ public class TypeDefBuilderHelper {
         return classDefNode;
     }
 
-    public static BLangErrorType createBLangErrorType(Location pos, BLangTypeDefinition detailTypeDef) {
+    public static BLangErrorType createBLangErrorType(Location pos, BType detailType, String name) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
-        BLangUserDefinedType detailType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-        detailType.pos = pos;
-        detailType.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        detailType.typeName = createIdentifier(pos, detailTypeDef.symbol.name.value);
-        detailType.type = detailTypeDef.type;
-        errorType.detailType = detailType;
+        BLangUserDefinedType userDefinedTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+        userDefinedTypeNode.pos = pos;
+        userDefinedTypeNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        userDefinedTypeNode.typeName = createIdentifier(pos, name);
+        userDefinedTypeNode.type = detailType;
+        errorType.detailType = userDefinedTypeNode;
 
         return errorType;
     }

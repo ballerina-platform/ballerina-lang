@@ -3191,8 +3191,9 @@ public class Types {
 
         BRecordType recordType = createAnonymousRecord();
 
-        populateRecordFields(recordType, recordTypeOne);
-        populateRecordFields(recordType, recordTypeTwo);
+        if (!populateRecordFields(recordType, recordTypeOne) || !populateRecordFields(recordType, recordTypeTwo)) {
+            return symTable.semanticError;
+        }
 
         recordType.restFieldType = getTypeIntersection(((BRecordType) recordTypeOne).restFieldType,
                                                        ((BRecordType) recordTypeTwo).restFieldType);
@@ -3229,7 +3230,9 @@ public class Types {
 
     private BType createRecordAndMapIntersection(BType type, BType mapType) {
         BRecordType intersectionRecord = createAnonymousRecord();
-        populateRecordFields(intersectionRecord, type);
+        if (!populateRecordFields(intersectionRecord, type)) {
+            return symTable.semanticError;
+        }
         intersectionRecord.restFieldType = getRestFieldIntersectionType(type, (BMapType) mapType);
 
         if (intersectionRecord.restFieldType == symTable.semanticError) {
@@ -3248,10 +3251,16 @@ public class Types {
     }
 
     private BErrorType createErrorType(BType lhsType, BType rhsType, BType detailType) {
-        BErrorTypeSymbol errorTypeSymbol = Symbols.createErrorSymbol(lhsType.flags, Names.EMPTY,
-                                                                     this.env.enclPkg.symbol.pkgID, null,
-                                                                     this.env.scope.owner, null, VIRTUAL);
-        errorTypeSymbol.flags |= rhsType.flags;
+        BErrorType errorType = createErrorType(detailType, lhsType.flags, this.env);
+        errorType.tsymbol.flags |= rhsType.flags;
+
+        return errorType;
+    }
+
+    public BErrorType createErrorType(BType detailType, int flags, SymbolEnv env) {
+        BErrorTypeSymbol errorTypeSymbol = Symbols.createErrorSymbol(flags, Names.EMPTY,
+                                                                     env.enclPkg.symbol.pkgID, null,
+                                                                     env.scope.owner, null, VIRTUAL);
         BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
         errorType.flags |= errorTypeSymbol.flags;
         errorTypeSymbol.type = errorType;
@@ -3261,17 +3270,23 @@ public class Types {
         return errorType;
     }
 
-    private void populateRecordFields(BRecordType recordType, BType originalType) {
+    private boolean populateRecordFields(BRecordType recordType, BType originalType) {
         BTypeSymbol intersectionRecordSymbol = recordType.tsymbol;
         // If the detail type is BMapType simply ignore since the resulting detail type has `anydata` as rest type.
         if (originalType.getKind() != TypeKind.RECORD) {
-            return;
+            return true;
         }
         BRecordType originalRecordType = (BRecordType) originalType;
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
         for (BField origField : originalRecordType.fields.values()) {
             org.wso2.ballerinalang.compiler.util.Name origFieldName = origField.name;
-            BType recordFieldType = origField.type;
+            String nameString = origFieldName.value;
+
+            BType recordFieldType = validateOverlappingFields(recordType, origField);
+            if (recordFieldType == symTable.semanticError) {
+                return false;
+            }
+
             BVarSymbol recordFieldSymbol = new BVarSymbol(origField.symbol.flags, origFieldName,
                                                           this.env.enclPkg.packageID, recordFieldType,
                                                           intersectionRecordSymbol, origField.pos, SOURCE);
@@ -3283,10 +3298,28 @@ public class Types {
                 invokableSymbol.retType = tsymbol.returnType;
                 invokableSymbol.flags = tsymbol.flags;
             }
-            String nameString = origFieldName.value;
+
+
             fields.put(nameString, new BField(origFieldName, null, recordFieldSymbol));
         }
         recordType.fields.putAll(fields);
+
+        return true;
+    }
+
+    private BType validateOverlappingFields(BRecordType recordType, BField origField) {
+        BField overlappingField = recordType.fields.get(origField.name.value);
+        if (overlappingField == null) {
+            return origField.type;
+        }
+
+        if (isAssignable(overlappingField.type, origField.type)) {
+            return overlappingField.type;
+        } else if (isAssignable(origField.type, overlappingField.type)) {
+            return origField.type;
+        } else {
+            return symTable.semanticError;
+        }
     }
 
     private BType getRemainingType(BUnionType originalType, List<BType> removeTypes) {
