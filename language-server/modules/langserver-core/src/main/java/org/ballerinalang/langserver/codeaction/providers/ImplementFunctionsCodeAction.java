@@ -15,8 +15,6 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -27,7 +25,6 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.ClassDefinition;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
@@ -70,15 +67,14 @@ public class ImplementFunctionsCodeAction extends AbstractCodeActionProvider {
         if (!(diagnostic.getMessage().startsWith(NO_IMPL_FOUND_FOR_FUNCTION))) {
             new ArrayList<>();
         }
-        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        Position position = diagnostic.getRange().getStart();
+//        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+//        Position position = diagnostic.getRange().getStart();
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-        NonTerminalNode classType = positionDetails.matchedNode();
+//        NonTerminalNode classType = positionDetails.matchedNode();
 
         List<TextEdit> edits = new ArrayList<>();
-        if (classType.kind() == SyntaxKind.CLASS_DEFINITION) {
-            ClassDefinition classDefinition = (ClassDefinition) classType;
-            int one = 1;
+//        if (classType.kind() == SyntaxKind.CLASS_DEFINITION) {
+//            ClassDefinition classDefinition = (ClassDefinition) classType;
 //            if (symbol instanceof BObjectTypeSymbol) {
 //                BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) symbol;
 //                typeSymbol.referencedFunctions.stream()
@@ -86,7 +82,7 @@ public class ImplementFunctionsCodeAction extends AbstractCodeActionProvider {
 //                        .forEach(func -> edits
 //                                .addAll(getNewFunctionEditText(func, classType.get(), bLangPackage, context)));
 //            }
-        }
+//        }
 
         if (!edits.isEmpty()) {
             String commandTitle = CommandConstants.IMPLEMENT_FUNCS_TITLE;

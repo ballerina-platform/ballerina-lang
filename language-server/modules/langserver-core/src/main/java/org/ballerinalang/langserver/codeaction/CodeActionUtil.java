@@ -253,55 +253,36 @@ public class CodeActionUtil {
             case OBJECT_METHOD_DEFINITION:
                 FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
                 Optional<MetadataNode> functionMetadata = functionDefinitionNode.metadata();
-                int functionStartOffset = functionMetadata.map(metadataNode
-                                                                       -> metadataNode.textRange().endOffset())
-                        .orElseGet(()
-                                           -> functionDefinitionNode.textRange().startOffset() - 1);
+                int functionStartOffset = functionMetadata.map(metadataNode -> metadataNode.textRange().endOffset())
+                        .orElseGet(() -> functionDefinitionNode.textRange().startOffset() - 1);
                 return isWithinRange(positionOffset, functionStartOffset,
                                      functionDefinitionNode.functionBody().textRange().startOffset());
             case SERVICE_DECLARATION:
                 ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) node;
                 Optional<MetadataNode> serviceMetadata = serviceDeclarationNode.metadata();
-                int serviceStartOffset = serviceMetadata.map(metadataNode
-                                                                     -> metadataNode.textRange().endOffset()).orElseGet(
-                        ()
-                                -> serviceDeclarationNode.textRange().startOffset() - 1);
+                int serviceStartOffset = serviceMetadata.map(metadataNode -> metadataNode.textRange().endOffset())
+                        .orElseGet(() -> serviceDeclarationNode.textRange().startOffset() - 1);
                 return isWithinRange(positionOffset, serviceStartOffset,
                                      serviceDeclarationNode.serviceBody().textRange().startOffset());
             case METHOD_DECLARATION:
                 MethodDeclarationNode methodDeclarationNode = (MethodDeclarationNode) node;
                 Optional<MetadataNode> methodMetadata = methodDeclarationNode.metadata();
-                int methodStartOffset = methodMetadata.map(metadataNode
-                                                                   -> metadataNode.textRange().endOffset()).orElseGet(()
-                                                                                                                              ->
-                                                                                                                              methodDeclarationNode
-                                                                                                                                      .textRange()
-                                                                                                                                      .startOffset() -
-                                                                                                                                      1);
+                int methodStartOffset = methodMetadata.map(metadataNode -> metadataNode.textRange().endOffset())
+                        .orElseGet(() -> methodDeclarationNode.textRange().startOffset() - 1);
                 return isWithinRange(positionOffset, methodStartOffset,
                                      methodDeclarationNode.semicolon().textRange().endOffset());
             case CLASS_DEFINITION:
                 ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) node;
                 Optional<MetadataNode> classMetadata = classDefinitionNode.metadata();
-                int classStartOffset = classMetadata.map(metadataNode
-                                                                 -> metadataNode.textRange().endOffset()).orElseGet(()
-                                                                                                                            ->
-                                                                                                                            classDefinitionNode
-                                                                                                                                    .textRange()
-                                                                                                                                    .startOffset() -
-                                                                                                                                    1);
+                int classStartOffset = classMetadata.map(metadataNode -> metadataNode.textRange().endOffset())
+                        .orElseGet(() -> classDefinitionNode.textRange().startOffset() - 1);
                 return isWithinRange(positionOffset, classStartOffset,
                                      classDefinitionNode.openBrace().textRange().endOffset());
             case TYPE_DEFINITION:
                 TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) node;
                 Optional<MetadataNode> typeMetadata = typeDefinitionNode.metadata();
-                int typeStartOffset = typeMetadata.map(metadataNode
-                                                               -> metadataNode.textRange().endOffset()).orElseGet(()
-                                                                                                                          ->
-                                                                                                                          typeDefinitionNode
-                                                                                                                                  .textRange()
-                                                                                                                                  .startOffset() -
-                                                                                                                                  1);
+                int typeStartOffset = typeMetadata.map(metadataNode -> metadataNode.textRange().endOffset())
+                        .orElseGet(() -> typeDefinitionNode.textRange().startOffset() - 1);
                 return isWithinRange(positionOffset, typeStartOffset,
                                      typeDefinitionNode.typeDescriptor().textRange().startOffset());
             default:
@@ -448,8 +429,7 @@ public class CodeActionUtil {
         String relPath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         SemanticModel semanticModel = new BallerinaSemanticModel(bLangPackage, compilerContext);
 
-        Optional<Pair<NonTerminalNode, Symbol>> nodeAndSymbol = getMatchedNodeAndSymbol(cursorNode,
-                                                                                        range,
+        Optional<Pair<NonTerminalNode, Symbol>> nodeAndSymbol = getMatchedNodeAndSymbol(cursorNode, range,
                                                                                         semanticModel, relPath);
         Symbol matchedSymbol;
         NonTerminalNode matchedNode;
