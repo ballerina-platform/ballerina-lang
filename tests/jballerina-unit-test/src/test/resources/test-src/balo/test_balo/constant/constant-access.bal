@@ -1,4 +1,4 @@
-import testorg/test_project;
+import testorg/foo as test_project;
 
 // -----------------------------------------------------------
 
