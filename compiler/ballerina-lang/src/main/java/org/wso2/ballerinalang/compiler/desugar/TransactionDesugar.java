@@ -116,10 +116,10 @@ public class TransactionDesugar extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
-        if (this.symTable.internalTransactionModuleSymbol == null) {
-            this.symTable.internalTransactionModuleSymbol =
-                    pkgLoader.loadPackageSymbol(PackageID.TRANSACTION_INTERNAL, null, null);
-        }
+    //    if (this.symTable.internalTransactionModuleSymbol == null) {
+    //        this.symTable.internalTransactionModuleSymbol =
+    //                pkgLoader.loadPackageSymbol(PackageID.TRANSACTION_INTERNAL, null, null);
+    //    }
     }
 
     public static TransactionDesugar getInstance(CompilerContext context) {

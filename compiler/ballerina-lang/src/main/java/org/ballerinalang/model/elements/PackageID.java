@@ -103,8 +103,8 @@ public class PackageID {
             Lists.of(Names.LANG, Names.QUERY), QUERY_VERSION);
     public static final PackageID TRANSACTION = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.TRANSACTION), TRANSACTION_VERSION);
-    public static final PackageID TRANSACTION_INTERNAL = new PackageID(Names.BALLERINA_INTERNAL_ORG,
-            Lists.of(Names.TRANSACTION), TRANSACTION_INTERNAL_VERSION);
+   // public static final PackageID TRANSACTION_INTERNAL = new PackageID(Names.BALLERINA_INTERNAL_ORG,
+   //         Lists.of(Names.TRANSACTION), TRANSACTION_INTERNAL_VERSION);
 
     public final Name orgName;
     public Name name;
