@@ -1,4 +1,4 @@
 [package]
 org = "intg_tests"
-name = "pre_declared_imports"
+name = "path_verification"
 version = "0.0.0"

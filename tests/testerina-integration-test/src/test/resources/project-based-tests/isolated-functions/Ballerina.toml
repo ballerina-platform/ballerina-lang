@@ -1,4 +1,4 @@
 [package]
 org = "intg_tests"
-name = "pre_declared_imports"
+name = "isolated_functions"
 version = "0.0.0"

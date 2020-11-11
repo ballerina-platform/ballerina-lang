@@ -238,6 +238,12 @@ public class BTestRunner {
      *
      */
     private void execute(TestSuite suite) {
+        // Check if there are tests in the test suite
+        if (suite.getTests().size() == 0) {
+            outStream.println("\tNo tests found\n");
+            return;
+        }
+
         AtomicBoolean shouldSkip = new AtomicBoolean();
         AtomicBoolean shouldSkipAfterSuite = new AtomicBoolean();
         AtomicBoolean shouldSkipAfterGroups = new AtomicBoolean();

@@ -118,9 +118,9 @@ public class FunctionMock {
                                        String originalMethodName, String originalPackageName)
             throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
 
+        // Get the list of classes in classLoader and find the class that has the mock method
         Field f = ClassLoader.class.getDeclaredField("classes");
         f.setAccessible(true);
-
         Vector<Class> classes =  (Vector<Class>) f.get(ClassLoader.getSystemClassLoader());
         List<Class> classList = classes.stream().filter(aClass ->
                 aClass.getName().contains(orgName + "." + packageName)
@@ -203,7 +203,6 @@ public class FunctionMock {
     }
 
     private static Method getClassDeclaredMethod(String className, String methodName) throws ClassNotFoundException {
-//        String className = file.replace('/', '.').substring(0, file.length() - 6);
         Class<?> clazz = Class.forName(className);
 
         for (Method method : clazz.getDeclaredMethods()) {
