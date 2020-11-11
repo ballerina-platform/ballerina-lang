@@ -185,6 +185,9 @@ import static org.ballerinalang.model.tree.NodeKind.IMPORT;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REDECLARED_SYMBOL;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM;
+import static org.ballerinalang.util.diagnostic.DiagnosticCode.INVALID_ERROR_INTERSECTION;
+import static org.ballerinalang.util.diagnostic.DiagnosticCode.INVALID_INTERSECTION_TYPE;
+import static org.ballerinalang.util.diagnostic.DiagnosticCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
 /**
@@ -432,14 +435,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             BLangType bLangTypeOne = constituentTypes.get(0);
             BType typeOne = symResolver.resolveTypeNode(bLangTypeOne, env);
             if (typeOne.tag != TypeTags.ERROR && typeOne.tag != TypeTags.READONLY) {
-                // TODO: log error for intersection type with other types.
+                dlog.error(bLangTypeOne.pos, INVALID_ERROR_INTERSECTION, bLangTypeOne);
                 continue;
             }
 
             BLangType bLangTypeTwo = constituentTypes.get(1);
             BType typeTwo = symResolver.resolveTypeNode(bLangTypeTwo, env);
             if (typeTwo.tag != TypeTags.ERROR && typeTwo.tag != TypeTags.READONLY) {
-                // TODO: log error for intersection type with other types.
+                dlog.error(bLangTypeTwo.pos, INVALID_ERROR_INTERSECTION, bLangTypeTwo);
                 continue;
             }
 
@@ -459,7 +462,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 BType bType = symResolver.resolveTypeNode(bLangType, env);
 
                 if (bType.getKind() != TypeKind.ERROR && typeTwo.tag != TypeTags.READONLY) {
-                    // TODO: Log error for invalid intersection
+                    dlog.error(bLangType.pos, INVALID_ERROR_INTERSECTION, bLangType);
                     isValidIntersection = false;
                     break;
                 }
@@ -470,7 +473,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                 potentialIntersectionType = types.getTypeIntersection(potentialIntersectionType, bType);
                 if (potentialIntersectionType == symTable.semanticError) {
-                    // TODO: Log invalid intersection
+                    dlog.error(typeDefinition.typeNode.pos, INVALID_INTERSECTION_TYPE, typeDefinition.typeNode);
                     isValidIntersection = false;
                     break;
                 }
@@ -518,7 +521,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private BLangTypeDefinition defineErrorDetailRecord(BRecordType detailRecord, Location pos, SymbolEnv env) {
-        // TODO: need to support map intersection.
         BRecordTypeSymbol detailRecordSymbol = (BRecordTypeSymbol) detailRecord.tsymbol;
         detailRecordSymbol.scope.define(names.fromString(
                 detailRecordSymbol.name.value + "." + detailRecordSymbol.initializerFunc.funcName.value),

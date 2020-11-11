@@ -3174,8 +3174,13 @@ public class Types {
         }
 
         SymbolEnv prevEnv = this.env;
-        this.env = symTable.pkgEnvMap.get(lhsType.tsymbol.owner);;
+        this.env = symTable.pkgEnvMap.get(lhsType.tsymbol.owner);
+
         BType detailIntersectionType = getTypeIntersection(detailTypeOne, detailTypeTwo);
+        if (detailIntersectionType == symTable.semanticError) {
+            return symTable.semanticError;
+        }
+
         BErrorType intersectionErrorType = createErrorType(lhsType, rhsType, detailIntersectionType);
         this.env = prevEnv;
 
