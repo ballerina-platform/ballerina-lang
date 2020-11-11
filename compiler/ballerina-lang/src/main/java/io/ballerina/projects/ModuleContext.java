@@ -26,6 +26,7 @@ import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.projects.testsuite.TesterinaRegistry;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -395,14 +396,18 @@ class ModuleContext {
 
         // add functions of module/standalone file
         bLangPackage.functions.forEach(function -> {
-            // Remove the duplicated annotations.
-            String className = function.pos.lineRange().filePath().replace(".bal", "").replace("/", ".");
-            String functionClassName = ProjectUtils.getQualifiedClassName(
-                    bLangPackage.packageID.orgName.value,
-                    bLangPackage.packageID.name.value,
-                    bLangPackage.packageID.version.value,
-                    className);
-            testSuite.addTestUtilityFunction(function.name.value, functionClassName);
+            Location pos = function.pos;
+            if (pos != null) {
+                // Remove the duplicated annotations.
+                String className = pos.lineRange().filePath().replace(".bal", "")
+                        .replace("/", ".");
+                String functionClassName = ProjectUtils.getQualifiedClassName(
+                        bLangPackage.packageID.orgName.value,
+                        bLangPackage.packageID.name.value,
+                        bLangPackage.packageID.version.value,
+                        className);
+                testSuite.addTestUtilityFunction(function.name.value, functionClassName);
+            }
         });
 
         BLangPackage testablePkg;
@@ -415,13 +420,16 @@ class ModuleContext {
             testSuite.setTestStopFunctionName(testablePkg.stopFunction.name.value);
 
             testablePkg.functions.forEach(function -> {
-                String className = function.pos.lineRange().filePath().replace(".bal", "").replace("/", ".");
-                String functionClassName = ProjectUtils.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                        bLangPackage.packageID.name.value,
-                        bLangPackage.packageID.version.value,
-                        className);
-                testSuite.addTestUtilityFunction(function.name.value, functionClassName);
-
+                Location location = function.pos;
+                if (location != null) {
+                    String className = location.lineRange().filePath().replace(".bal", "").
+                            replace("/", ".");
+                    String functionClassName = ProjectUtils.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                            bLangPackage.packageID.name.value,
+                            bLangPackage.packageID.version.value,
+                            className);
+                    testSuite.addTestUtilityFunction(function.name.value, functionClassName);
+                }
             });
         }
 
