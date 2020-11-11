@@ -285,6 +285,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_NAMED_ARG_FOLLOWED_BY_POSITIONAL_ARG("BCE302", "error.named.arg.followed.by.positional.arg"),
     ERROR_ARG_FOLLOWED_BY_REST_ARG("BCE303", "error.arg.followed.by.rest.arg"),
     ERROR_BINDING_PATTERN_NOT_ALLOWED("BCE304", "error.binding.pattern.not.allowed"),
+    ERROR_DEFAULTABLE_PARAMETER_CANNOT_BE_INCLUDED_RECORD_PARAMETER("BCE305",
+            "error.defaultable.parameter.cannot.be.included.record.parameter"),
 
     ERROR_INVALID_BASE16_CONTENT_IN_BYTE_ARRAY_LITERAL("BCE401",
             "error.invalid.base16.content.in.byte.array.literal"),
