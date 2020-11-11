@@ -37,7 +37,6 @@ import java.util.function.Supplier;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static io.ballerina.runtime.observability.ObservabilityConstants.KEY_OBSERVER_CONTEXT;
-import static io.ballerina.runtime.observability.ObservabilityConstants.OBSERVABILITY_PACKAGE_ID;
 import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ACTION;
@@ -258,7 +257,7 @@ public class ObserveUtils {
         if (!tracingEnabled) {
             return;
         }
-        Environment balEnv = new Environment(Scheduler.getStrand(), OBSERVABILITY_PACKAGE_ID);
+        Environment balEnv = new Environment(Scheduler.getStrand(), null);
         ObserverContext observerContext = (ObserverContext) balEnv.getStrandLocal(KEY_OBSERVER_CONTEXT);
         if (observerContext == null) {
             return;
