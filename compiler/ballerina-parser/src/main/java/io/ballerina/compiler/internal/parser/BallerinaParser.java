@@ -1367,7 +1367,7 @@ public class BallerinaParser extends AbstractParser {
          * Validate qualifier list.
          * Rules:
          * - Isolated, transactional and resource are allowed.
-         * - Remote not allowed.
+         * - Remote is not allowed.
          * - Visibility qualifier is not allowed
          */
         List<STNode> validatedList = new ArrayList<>();
@@ -1411,7 +1411,6 @@ public class BallerinaParser extends AbstractParser {
         }
 
         if (visibilityQualifier != null) {
-            // visibility qualifier is not allowed with resource
             updateFirstNodeInListWithInvalidNode(validatedList, visibilityQualifier,
                     DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) visibilityQualifier).text());
         }

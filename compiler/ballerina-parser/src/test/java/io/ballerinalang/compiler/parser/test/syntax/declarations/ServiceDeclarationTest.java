@@ -38,9 +38,9 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
         test("service-decl/service_decl_source_02.bal", "service-decl/service_decl_assert_02.json");
     }
 
-    @Test(enabled = false) // TODO: remove test when eliminating resource fields
-    public void testResourceFields() {
-        test("service-decl/service_decl_source_15.bal", "service-decl/service_decl_assert_15.json");
+    @Test
+    public void testResourceFuncQualifiers() {
+        test("service-decl/service_decl_source_14.bal", "service-decl/service_decl_assert_14.json");
     }
 
     // Service function tests
@@ -110,9 +110,9 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
         test("service-decl/service_decl_source_10.bal", "service-decl/service_decl_assert_10.json");
     }
 
-    @Test(enabled = false) // TODO: remove test when eliminating resource fields
-    public void testResourceFieldNegative() {
-        testFile("service-decl/service_decl_source_14.bal", "service-decl/service_decl_assert_14.json");
+    @Test
+    public void testFuncQualifiersNegative() {
+        test("service-decl/service_decl_source_15.bal", "service-decl/service_decl_assert_15.json");
     }
 
     // Service function recovery tests
