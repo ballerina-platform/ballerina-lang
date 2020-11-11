@@ -81,7 +81,9 @@ public class GlobalVarNegativeTest {
         int i = 0;
         BAssertUtil.validateError(result, i++, "configurable variable must be initialized", 18, 19);
         BAssertUtil.validateError(result, i++, "configurable variable cannot be declared with var", 20, 1);
-        BAssertUtil.validateError(result, i++, "type of configurable variable should be anydata", 22, 1);
+        BAssertUtil.validateError(result, i++, "type of configurable variable must be anydata&readonly", 22, 22);
+        BAssertUtil.validateError(result, i++, "type of configurable variable must be anydata&readonly", 24, 14);
+        BAssertUtil.validateError(result, i++, "invalid token 'configurable'", 28, 18);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }

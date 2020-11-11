@@ -19,4 +19,13 @@ configurable int x;
 // Configurable variable cannot be declared with var
 configurable var a = 5;
 // Configurable variable type must be a subtype of anydata.
-configurable object {int a;} b = {a:5};
+configurable object {int a;} b = object {int a = 5;};
+// Configurable variable type must be a subtype of readonly.
+configurable record {int c;} d = {c:5};
+
+function foo() {
+    // Cannot declare configurable variable locally
+    configurable int e = 6;
+}
+
+// TODO: validate configurable var decl for tuple, record and error var once they are supported.
