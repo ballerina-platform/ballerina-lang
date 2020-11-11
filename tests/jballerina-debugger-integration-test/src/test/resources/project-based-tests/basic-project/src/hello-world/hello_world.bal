@@ -14,9 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 // The `main` function, which acts as the entry point.
 public function main() {
-    io:println("Hello, World!");
+    int x = 0;
 }

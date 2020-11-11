@@ -164,21 +164,18 @@ public class AnnotationDeclarationNode extends ModuleMemberDeclarationNode {
 
         public AnnotationDeclarationNodeModifier withMetadata(
                 MetadataNode metadata) {
-            Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
         public AnnotationDeclarationNodeModifier withVisibilityQualifier(
                 Token visibilityQualifier) {
-            Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
             this.visibilityQualifier = visibilityQualifier;
             return this;
         }
 
         public AnnotationDeclarationNodeModifier withConstKeyword(
                 Token constKeyword) {
-            Objects.requireNonNull(constKeyword, "constKeyword must not be null");
             this.constKeyword = constKeyword;
             return this;
         }
@@ -192,7 +189,6 @@ public class AnnotationDeclarationNode extends ModuleMemberDeclarationNode {
 
         public AnnotationDeclarationNodeModifier withTypeDescriptor(
                 Node typeDescriptor) {
-            Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
             this.typeDescriptor = typeDescriptor;
             return this;
         }
@@ -206,7 +202,6 @@ public class AnnotationDeclarationNode extends ModuleMemberDeclarationNode {
 
         public AnnotationDeclarationNodeModifier withOnKeyword(
                 Token onKeyword) {
-            Objects.requireNonNull(onKeyword, "onKeyword must not be null");
             this.onKeyword = onKeyword;
             return this;
         }

@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.completion.latest;
 
 import org.testng.annotations.DataProvider;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -36,7 +36,7 @@ public class AnnotationTest extends CompletionTestNew {
 
     @Override
     public List<String> skipList() {
-        return Arrays.asList("anonFuncExprAnnotation5.json");
+        return Collections.singletonList("anonFuncExprAnnotation5.json");
     }
 
     @Override

@@ -134,7 +134,6 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
 
         public ServiceDeclarationNodeModifier withMetadata(
                 MetadataNode metadata) {
-            Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
@@ -148,7 +147,6 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
 
         public ServiceDeclarationNodeModifier withServiceName(
                 IdentifierToken serviceName) {
-            Objects.requireNonNull(serviceName, "serviceName must not be null");
             this.serviceName = serviceName;
             return this;
         }

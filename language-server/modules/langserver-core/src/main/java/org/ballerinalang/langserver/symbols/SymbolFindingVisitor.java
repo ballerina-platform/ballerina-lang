@@ -207,10 +207,10 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
     private Range getRange(BLangNode node) {
         Range r = new Range();
 
-        int startLine = node.getPosition().getStartLine() - 1; // LSP range is 0 based
-        int startChar = node.getPosition().getStartColumn() - 1;
-        int endLine = node.getPosition().getEndLine() - 1;
-        int endChar = node.getPosition().getEndColumn() - 1;
+        int startLine = node.getPosition().lineRange().startLine().line() - 1; // LSP range is 0 based
+        int startChar = node.getPosition().lineRange().startLine().offset() - 1;
+        int endLine = node.getPosition().lineRange().endLine().line() - 1;
+        int endChar = node.getPosition().lineRange().endLine().offset() - 1;
 
         if (endLine <= 0) {
             endLine = startLine;

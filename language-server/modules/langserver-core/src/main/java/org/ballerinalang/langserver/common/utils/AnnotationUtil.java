@@ -18,12 +18,12 @@ package org.ballerinalang.langserver.common.utils;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.AnnotationAttachPoint;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
-import io.ballerina.compiler.api.types.ArrayTypeDescriptor;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-import io.ballerina.compiler.api.types.FieldDescriptor;
-import io.ballerina.compiler.api.types.RecordTypeDescriptor;
-import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -174,20 +174,20 @@ public class AnnotationUtil {
         }
         if (annotationSymbol.typeDescriptor().isPresent()) {
             annotationStart.append(annotationSymbol.name());
-            Optional<BallerinaTypeDescriptor> attachedType
+            Optional<TypeSymbol> attachedType
                     = Optional.ofNullable(CommonUtil.getRawType(annotationSymbol.typeDescriptor().get()));
-            Optional<BallerinaTypeDescriptor> resultType;
-            if (attachedType.isPresent() && attachedType.get().kind() == TypeDescKind.ARRAY) {
-                resultType = Optional.of(((ArrayTypeDescriptor) attachedType.get()).memberTypeDescriptor());
+            Optional<TypeSymbol> resultType;
+            if (attachedType.isPresent() && attachedType.get().typeKind() == TypeDescKind.ARRAY) {
+                resultType = Optional.of(((ArrayTypeSymbol) attachedType.get()).memberTypeDescriptor());
             } else {
                 resultType = attachedType;
             }
-            if (resultType.isPresent() && (resultType.get().kind() == TypeDescKind.RECORD
-                    || resultType.get().kind() == TypeDescKind.MAP)) {
-                List<FieldDescriptor> requiredFields = new ArrayList<>();
+            if (resultType.isPresent() && (resultType.get().typeKind() == TypeDescKind.RECORD
+                    || resultType.get().typeKind() == TypeDescKind.MAP)) {
+                List<FieldSymbol> requiredFields = new ArrayList<>();
                 annotationStart.append(" ").append(CommonKeys.OPEN_BRACE_KEY).append(LINE_SEPARATOR);
-                if (resultType.get().kind() == TypeDescKind.RECORD) {
-                    requiredFields.addAll(CommonUtil.getMandatoryRecordFields((RecordTypeDescriptor) resultType.get()));
+                if (resultType.get().typeKind() == TypeDescKind.RECORD) {
+                    requiredFields.addAll(CommonUtil.getMandatoryRecordFields((RecordTypeSymbol) resultType.get()));
                 }
                 List<String> insertTexts = new ArrayList<>();
                 requiredFields.forEach(field -> {

@@ -269,7 +269,7 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
         assertVariable(jsonChildVariables, "price", "40", "int");
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     private void cleanup() {
         terminateDebugSession();
         globalVariables.clear();

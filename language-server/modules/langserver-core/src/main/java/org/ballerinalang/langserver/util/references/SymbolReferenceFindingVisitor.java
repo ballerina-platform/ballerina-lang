@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.util.references;
 
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -24,6 +25,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -131,7 +133,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -160,7 +161,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     protected List<TopLevelNode> topLevelNodes = new ArrayList<>();
     private List<BLangFunction> workerLambdas = new ArrayList<>();
     private List<BLangTypeDefinition> anonTypeDefinitions = new ArrayList<>();
-    private HashMap<BSymbol, DiagnosticPos> workerVarDefMap = new HashMap<>();
+    private HashMap<BSymbol, Location> workerVarDefMap = new HashMap<>();
 
     public SymbolReferenceFindingVisitor(LSContext lsContext, Token tokenAtCursor, String pkgName,
                                          boolean currentCUnitMode) {
@@ -226,7 +227,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
         if (xmlnsNode.prefix.value.equals(this.tokenName)) {
-            DiagnosticPos pos = xmlnsNode.getPrefix().getPosition();
+            Location pos = xmlnsNode.getPrefix().getPosition();
             this.addSymbol(xmlnsNode, xmlnsNode.symbol, true, pos);
         }
     }
@@ -234,7 +235,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangConstant constant) {
         if (constant.name.value.equals(this.tokenName)) {
-            DiagnosticPos pos = (DiagnosticPos) constant.getName().getPosition();
+            Location pos = (Location) constant.getName().getPosition();
             this.addSymbol(constant, constant.symbol, true, pos);
         }
         this.acceptNode(constant.typeNode);
@@ -247,7 +248,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             if (!serviceVarSymbol.isPresent()) {
                 return;
             }
-            DiagnosticPos pos = serviceNode.getName().getPosition();
+            Location pos = serviceNode.getName().getPosition();
             this.addSymbol(serviceNode, serviceVarSymbol.get(), true, pos);
         }
         serviceNode.annAttachments.forEach(this::acceptNode);
@@ -297,7 +298,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             If the type definition is an object type definition and it doesn't have an init function,
             then go to definition from new keyword will jump to the Type Definition. Otherwise it will jump to the init
              */
-            DiagnosticPos pos = typeDefinition.getName().getPosition();
+            Location pos = typeDefinition.getName().getPosition();
             this.addSymbol(typeDefinition, typeDefinition.symbol, true, pos);
         }
         typeDefinition.annAttachments.forEach(this::acceptNode);
@@ -406,7 +407,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             return;
         }
         if (varNode.name.value.equals(this.tokenName)) {
-            DiagnosticPos pos = varNode.name.getPosition();
+            Location pos = varNode.name.getPosition();
             this.addSymbol(varNode, varNode.symbol, true, pos);
         } else {
             this.acceptNode(typeNode);
@@ -447,7 +448,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             workerFunction.ifPresent(this::acceptNode);
             return;
         } else if (variable.name.value.equals(this.tokenName)) {
-            DiagnosticPos pos = variable.getName().getPosition();
+            Location pos = variable.getName().getPosition();
             this.addSymbol(variable, variable.symbol, true, pos);
         } else {
             // In the foreach's variable definition node, type becomes null and will be handled by the acceptNode
@@ -513,10 +514,10 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
         if (varRefExpr.getVariableName().value.equals(this.tokenName)) {
-            DiagnosticPos pos = varRefExpr.getVariableName().getPosition();
+            Location pos = varRefExpr.getVariableName().getPosition();
             this.addSymbol(varRefExpr, varRefExpr.symbol, false, pos);
         } else if (varRefExpr.pkgAlias != null && varRefExpr.pkgAlias.value.equals(this.tokenName)) {
-            DiagnosticPos pos = varRefExpr.pkgAlias.getPosition();
+            Location pos = varRefExpr.pkgAlias.getPosition();
             this.addSymbol(varRefExpr, varRefExpr.pkgSymbol, false, pos);
         }
     }
@@ -536,7 +537,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         // e is expr and name is the symbol of fieldAccessExpr
         this.acceptNode(fieldAccessExpr.expr);
         if (fieldAccessExpr.field.value.equals(this.tokenName)) {
-            DiagnosticPos symbolPos = fieldAccessExpr.getFieldName().getPosition();
+            Location symbolPos = fieldAccessExpr.getFieldName().getPosition();
             this.addSymbol(fieldAccessExpr, fieldAccessExpr.symbol, false, symbolPos);
         }
     }
@@ -593,7 +594,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         if (!this.isMatchingUserDefinedType(userDefinedType)) {
             return;
         }
-        DiagnosticPos position = userDefinedType.getTypeName().getPosition();
+        Location position = userDefinedType.getTypeName().getPosition();
         this.addSymbol(userDefinedType, userDefinedType.type.tsymbol, false, position);
     }
 
@@ -686,7 +687,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         this.acceptNode(invocationExpr.expr);
         if (invocationExpr.getName().getValue().equals(this.tokenName)) {
             // Ex: int test = returnIntFunc() - returnInt() or e.getName() is a BLangInvocation and name is getName
-            DiagnosticPos symbolPos = (DiagnosticPos) invocationExpr.getName().getPosition();
+            Location symbolPos = (Location) invocationExpr.getName().getPosition();
             if (invocationExpr.symbol != null && invocationExpr.type.tsymbol != null
                     && invocationExpr.symbol.type.tag == TypeTags.ERROR) {
                 this.addSymbol(invocationExpr, invocationExpr.type.tsymbol, false, symbolPos);
@@ -786,7 +787,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangAnnotation annotationNode) {
         annotationNode.annAttachments.forEach(this::acceptNode);
         if (annotationNode.name.value.equals(this.tokenName)) {
-            DiagnosticPos pos = (DiagnosticPos) annotationNode.getName().getPosition();
+            Location pos = (Location) annotationNode.getName().getPosition();
             this.addSymbol(annotationNode, annotationNode.symbol, true, pos);
         }
         this.acceptNode(annotationNode.typeNode);
@@ -795,7 +796,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
         if (annAttachmentNode.annotationName.value.equals(this.tokenName)) {
-            DiagnosticPos pos = (DiagnosticPos) annAttachmentNode.getAnnotationName().getPosition();
+            Location pos = (Location) annAttachmentNode.getAnnotationName().getPosition();
             this.addSymbol(annAttachmentNode, annAttachmentNode.annotationSymbol, false, pos);
         }
         this.acceptNode(annAttachmentNode.expr);
@@ -815,7 +816,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangWorkerSend workerSendNode) {
         this.acceptNode(workerSendNode.expr);
         if (workerSendNode.workerIdentifier.value.equals(this.tokenName)) {
-            DiagnosticPos pos = workerSendNode.getWorkerName().getPosition();
+            Location pos = workerSendNode.getWorkerName().getPosition();
             this.addSymbol(workerSendNode, this.getWorkerSymbolForName(this.tokenName), false, pos);
         }
     }
@@ -824,7 +825,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
         this.acceptNode(syncSendExpr.expr);
         if (syncSendExpr.workerIdentifier.value.equals(this.tokenName)) {
-            DiagnosticPos pos = (DiagnosticPos) syncSendExpr.getWorkerName().getPosition();
+            Location pos = (Location) syncSendExpr.getWorkerName().getPosition();
             this.addSymbol(syncSendExpr, this.getWorkerSymbolForName(this.tokenName), false, pos);
         }
     }
@@ -832,7 +833,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
         if (workerReceiveNode.workerIdentifier.value.equals(this.tokenName)) {
-            DiagnosticPos pos = workerReceiveNode.getWorkerName().getPosition();
+            Location pos = workerReceiveNode.getWorkerName().getPosition();
             this.addSymbol(workerReceiveNode, this.getWorkerSymbolForName(this.tokenName), false, pos);
         }
     }
@@ -840,7 +841,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
         if (workerFlushExpr.workerIdentifier.value.equals(this.tokenName)) {
-            DiagnosticPos pos = workerFlushExpr.workerIdentifier.getPosition();
+            Location pos = workerFlushExpr.workerIdentifier.getPosition();
             this.addSymbol(workerFlushExpr, this.getWorkerSymbolForName(this.tokenName), false, pos);
         }
     }
@@ -996,7 +997,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
         if (actionInvocationExpr.name.getValue().equals(this.tokenName)) {
-            DiagnosticPos pos = actionInvocationExpr.name.getPosition();
+            Location pos = actionInvocationExpr.name.getPosition();
             this.addSymbol(actionInvocationExpr, actionInvocationExpr.symbol, false, pos);
         }
         this.acceptNode(actionInvocationExpr.expr);
@@ -1014,12 +1015,13 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         return bType.typeName.value.equals(this.tokenName);
     }
 
-    protected SymbolReferencesModel.Reference getSymbolReference(DiagnosticPos position, BSymbol symbol,
+    protected SymbolReferencesModel.Reference getSymbolReference(Location position, BSymbol symbol,
                                                                  BLangNode bLangNode) {
         return new SymbolReferencesModel.Reference(position, symbol, bLangNode);
     }
 
-    protected void addSymbol(BLangNode bLangNode, BSymbol bSymbol, boolean isDefinition, DiagnosticPos position) {
+    protected void addSymbol(BLangNode bLangNode, BSymbol bSymbol, boolean isDefinition,
+                             Location position) {
         SymbolReferencesModel.Reference symbolAtCursor = this.symbolReferences.getReferenceAtCursor();
         // Here, tsymbol check has been added in order to support the finite types
         // TODO: Handle finite type. After the fix check if it falsely capture symbols in other files with same name
@@ -1029,13 +1031,14 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         if ((!this.currentCUnitMode && (symbolAtCursor.getSymbol() != bSymbol))) {
             return;
         }
-        DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(position);
+        Location zeroBasedPos = CommonUtil.toZeroBasedPosition(position);
         bSymbol = (bSymbol instanceof BVarSymbol && ((BVarSymbol) bSymbol).originalSymbol != null)
                 ? ((BVarSymbol) bSymbol).originalSymbol
                 : bSymbol;
         SymbolReferencesModel.Reference ref = this.getSymbolReference(zeroBasedPos, bSymbol, bLangNode);
-        if (this.currentCUnitMode && this.cursorLine == zeroBasedPos.sLine && this.cursorCol >= zeroBasedPos.sCol
-                && this.cursorCol <= zeroBasedPos.eCol) {
+        if (this.currentCUnitMode && this.cursorLine == zeroBasedPos.lineRange().startLine().line()
+                && this.cursorCol >= zeroBasedPos.lineRange().startLine().offset()
+                && this.cursorCol <= zeroBasedPos.lineRange().endLine().offset()) {
             // This is the symbol at current cursor position
             this.symbolReferences.setReferenceAtCursor(ref);
             if (isDefinition) {
@@ -1061,7 +1064,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     
     private void addBLangFunctionSymbol(BLangFunction funcNode) {
         boolean isDefinition = !funcNode.flagSet.contains(Flag.INTERFACE);
-        DiagnosticPos pos = funcNode.flagSet.contains(Flag.WORKER) ? funcNode.defaultWorkerName.pos
+        Location pos = funcNode.flagSet.contains(Flag.WORKER) ? funcNode.defaultWorkerName.pos
                 : funcNode.getName().getPosition();
 
         BSymbol symbol = funcNode.flagSet.contains(Flag.WORKER)
@@ -1069,17 +1072,19 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         this.addSymbol(funcNode, symbol, isDefinition, pos);
     }
     
-    private Optional<BLangFunction> getWorkerFunctionFromPosition(DiagnosticPos position) {
+    private Optional<BLangFunction> getWorkerFunctionFromPosition(Location loc) {
         return this.workerLambdas.stream()
                 .filter(function -> {
-                    DiagnosticPos namePosition = function.defaultWorkerName.getPosition();
-                    return namePosition.sLine == position.sLine && namePosition.eLine == position.eLine
-                            && namePosition.sCol == position.sCol && namePosition.eCol == position.eCol;
+                    Location nameLoc = function.defaultWorkerName.getPosition();
+                    return nameLoc.lineRange().startLine().line() == loc.lineRange().startLine().line()
+                            && nameLoc.lineRange().endLine().line() == loc.lineRange().endLine().line()
+                            && nameLoc.lineRange().startLine().offset() == loc.lineRange().startLine().offset()
+                            && nameLoc.lineRange().endLine().offset() == loc.lineRange().endLine().offset();
                 })
                 .findAny();
     }
     
-    private Optional<BLangTypeDefinition> getAnonTypeFromPosition(DiagnosticPos position) {
+    private Optional<BLangTypeDefinition> getAnonTypeFromPosition(Location position) {
         return this.anonTypeDefinitions.stream().filter(anonTypeDef -> anonTypeDef.getPosition() == position).findAny();
     }
     
@@ -1093,12 +1098,14 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         });
     }
 
-    private BSymbol getWorkerSymbolForPosition(DiagnosticPos pos) {
+    private BSymbol getWorkerSymbolForPosition(Location pos) {
         return this.workerVarDefMap.entrySet().stream()
                 .filter(workerPos -> {
-                    DiagnosticPos posValue = workerPos.getValue();
-                    return posValue.sLine == pos.sLine && posValue.eLine == pos.eLine
-                            && posValue.sCol == pos.sCol && posValue.eCol == pos.eCol;
+                    Location posValue = workerPos.getValue();
+                    return posValue.lineRange().startLine().line() == pos.lineRange().startLine().line()
+                            && posValue.lineRange().endLine().line() == pos.lineRange().endLine().line()
+                            && posValue.lineRange().startLine().offset() == pos.lineRange().startLine().offset()
+                            && posValue.lineRange().endLine().offset() == pos.lineRange().endLine().offset();
                 })
                 .findAny()
                 .map(Map.Entry::getKey)
@@ -1117,10 +1124,13 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                 || !(bLangType.type instanceof BObjectType)) {
             return;
         }
-        DiagnosticPos diagnosticPos = bLangType.pos;
+        Location diagnosticLocation = bLangType.pos;
         BObjectType objectType = (BObjectType) bLangType.type;
-        DiagnosticPos pos = new DiagnosticPos(diagnosticPos.src, diagnosticPos.sLine, diagnosticPos.eLine,
-                diagnosticPos.sCol, diagnosticPos.eCol);
+        Location pos = new BLangDiagnosticLocation(diagnosticLocation.lineRange().filePath(),
+                                              diagnosticLocation.lineRange().startLine().line(),
+                                              diagnosticLocation.lineRange().endLine().line(),
+                                              diagnosticLocation.lineRange().startLine().offset(),
+                                              diagnosticLocation.lineRange().endLine().offset());
         this.addSymbol(bLangType, objectType.tsymbol, false, pos);
     }
 }

@@ -154,14 +154,12 @@ public class ListenerDeclarationNode extends ModuleMemberDeclarationNode {
 
         public ListenerDeclarationNodeModifier withMetadata(
                 MetadataNode metadata) {
-            Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
         public ListenerDeclarationNodeModifier withVisibilityQualifier(
                 Token visibilityQualifier) {
-            Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
             this.visibilityQualifier = visibilityQualifier;
             return this;
         }

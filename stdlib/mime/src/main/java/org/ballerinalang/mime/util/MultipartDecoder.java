@@ -18,8 +18,8 @@
 
 package org.ballerinalang.mime.util;
 
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
 import org.jvnet.mimepull.MIMEConfig;
 import org.jvnet.mimepull.MIMEMessage;

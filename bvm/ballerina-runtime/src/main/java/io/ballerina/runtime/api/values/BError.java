@@ -33,11 +33,6 @@ public abstract class BError extends RuntimeException implements BValue {
 
     public static final String CALL_STACK_ELEMENT = "CallStackElement";
 
-    @Deprecated
-    public BError(String message) {
-        super(message);
-    }
-
     public BError(BString message) {
         super(message.getValue());
     }

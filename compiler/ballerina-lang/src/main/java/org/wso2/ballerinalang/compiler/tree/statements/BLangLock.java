@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree.statements;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.clauses.OnFailClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.BlockStatementNode;
@@ -24,7 +25,6 @@ import org.ballerinalang.model.tree.statements.LockNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -91,7 +91,7 @@ public class BLangLock extends BLangStatement implements LockNode {
 
         public Set<BVarSymbol> lockVariables = new HashSet<>();
 
-        public BLangLockStmt(DiagnosticPos pos) {
+        public BLangLockStmt(Location pos) {
             this.pos = pos;
         }
 
@@ -123,7 +123,7 @@ public class BLangLock extends BLangStatement implements LockNode {
 
         public BLangLockStmt relatedLock;
 
-        public BLangUnLockStmt(DiagnosticPos pos) {
+        public BLangUnLockStmt(Location pos) {
             this.pos = pos;
         }
 

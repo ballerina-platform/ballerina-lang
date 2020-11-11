@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXml;
 
 /**
  * Native implementation of lang.xml:length(xml).
@@ -33,7 +33,7 @@ import io.ballerina.runtime.api.values.BXML;
 //)
 public class Length {
 
-    public static long length(BXML xml) {
+    public static long length(BXml xml) {
         return xml.size();
     }
 

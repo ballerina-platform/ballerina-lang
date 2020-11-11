@@ -200,6 +200,7 @@
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtConstPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStatementSyntaxErrorsTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.CaptureBindingPatternTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtListMatchPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStatementOnFailTest"></class>
             <class name="org.ballerinalang.test.lock.LocksWithOnFailTest"></class>
             <!--<class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />-->

@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.document.visitor;
 
+import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.extensions.ballerina.document.ASTModification;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -164,13 +165,13 @@ import java.util.Set;
 public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     private String unitName;
-    private Map<Diagnostic.DiagnosticPosition, ASTModification> deleteRanges;
-    private Map<Diagnostic.DiagnosticPosition, ASTModification> toBeDeletedRanges = new HashMap<>();
+    private Map<LineRange, ASTModification> deleteRanges;
+    private Map<LineRange, ASTModification> toBeDeletedRanges = new HashMap<>();
     private Map<String, BLangImportPackage> unusedImports = new HashMap<>();
     private Set<String> usedImports = new HashSet<>();
-    private Map<String, Diagnostic.DiagnosticPosition> variables = new HashMap<>();
+    private Map<String, LineRange> variables = new HashMap<>();
 
-    public UnusedNodeVisitor(String unitName, Map<Diagnostic.DiagnosticPosition, ASTModification> deleteRanges) {
+    public UnusedNodeVisitor(String unitName, Map<LineRange, ASTModification> deleteRanges) {
         this.unitName = unitName;
         this.deleteRanges = deleteRanges;
         this.toBeDeletedRanges.putAll(deleteRanges);
@@ -193,7 +194,7 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
     }
 
     private void removeImportNode(BLangIdentifier identifierNode) {
-        Diagnostic.DiagnosticPosition range = getDeleteRange(identifierNode.getPosition());
+        LineRange range = getDeleteRange(identifierNode.getPosition());
         if (range == null) {
             BLangImportPackage bLangImportPackage = unusedImports.remove(identifierNode.getValue());
             if (bLangImportPackage != null) {
@@ -204,7 +205,7 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     //Monitor only the variables that are in deleted range
     private void addVariableNode(BLangSimpleVariable varNode) {
-        Diagnostic.DiagnosticPosition range = getDeleteRange(varNode.getPosition());
+        LineRange range = getDeleteRange(varNode.getPosition());
         if (range != null) {
             variables.put(varNode.getName().getValue(), range);
         }
@@ -212,22 +213,22 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     //Remove the delete range when the reference is not from any given delete ranges
     private void removeVariableNode(BLangIdentifier identifierNode) {
-        Diagnostic.DiagnosticPosition range = getDeleteRange(identifierNode.getPosition());
+        LineRange range = getDeleteRange(identifierNode.getPosition());
         if (range == null) {
-            Diagnostic.DiagnosticPosition variableDeleteRange = variables.remove(identifierNode.getValue());
+            LineRange variableDeleteRange = variables.remove(identifierNode.getValue());
             if (variableDeleteRange != null) {
                 toBeDeletedRanges.remove(variableDeleteRange);
             }
         }
     }
 
-    private Diagnostic.DiagnosticPosition getDeleteRange(Diagnostic.DiagnosticPosition position) {
+    private LineRange getDeleteRange(Location position) {
         if (position != null) {
-            for (Diagnostic.DiagnosticPosition aPosition : deleteRanges.keySet()) {
-                if (aPosition.getStartLine() <= position.getStartLine() &&
-                        aPosition.getEndLine() >= position.getEndLine() &&
-                        aPosition.getStartColumn() <= position.getStartColumn() &&
-                        aPosition.getEndColumn() >= position.getEndColumn()) {
+            for (LineRange aPosition : deleteRanges.keySet()) {
+                if (aPosition.startLine().line() <= position.lineRange().startLine().line() &&
+                        aPosition.endLine().line() >= position.lineRange().endLine().line() &&
+                        aPosition.startLine().offset() <= position.lineRange().startLine().offset() &&
+                        aPosition.endLine().offset() >= position.lineRange().endLine().offset()) {
                     return aPosition;
                 }
             }

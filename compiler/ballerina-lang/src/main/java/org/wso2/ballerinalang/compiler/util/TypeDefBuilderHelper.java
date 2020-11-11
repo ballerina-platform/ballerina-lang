@@ -16,6 +16,7 @@
  */
 package org.wso2.ballerinalang.compiler.util;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -46,7 +47,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 public class TypeDefBuilderHelper {
 
     public static BLangRecordTypeNode createRecordTypeNode(BRecordType recordType, PackageID packageID,
-                                                           SymbolTable symTable, DiagnosticPos pos) {
+                                                           SymbolTable symTable, Location pos) {
         List<BLangSimpleVariable> fieldList = new ArrayList<>();
         for (BField field : recordType.fields.values()) {
             BVarSymbol symbol = field.symbol;
@@ -80,7 +80,7 @@ public class TypeDefBuilderHelper {
         return createRecordTypeNode(fieldList, recordType, pos);
     }
 
-    public static BLangObjectTypeNode createObjectTypeNode(BObjectType objectType, DiagnosticPos pos) {
+    public static BLangObjectTypeNode createObjectTypeNode(BObjectType objectType, Location pos) {
         List<BLangSimpleVariable> fieldList = new ArrayList<>();
         for (BField field : objectType.fields.values()) {
             BVarSymbol symbol = field.symbol;
@@ -92,7 +92,7 @@ public class TypeDefBuilderHelper {
     }
 
     public static BLangRecordTypeNode createRecordTypeNode(List<BLangSimpleVariable> typeDefFields,
-                                                           BRecordType recordType, DiagnosticPos pos) {
+                                                           BRecordType recordType, Location pos) {
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
         recordTypeNode.type = recordType;
         recordTypeNode.fields = typeDefFields;
@@ -103,7 +103,7 @@ public class TypeDefBuilderHelper {
     }
 
     public static BLangObjectTypeNode createObjectTypeNode(List<BLangSimpleVariable> typeDefFields,
-                                                           BObjectType objectType, DiagnosticPos pos) {
+                                                           BObjectType objectType, Location pos) {
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
         objectTypeNode.type = objectType;
         objectTypeNode.fields = typeDefFields;
@@ -126,18 +126,22 @@ public class TypeDefBuilderHelper {
         return initFunction;
     }
 
-    public static BLangFunction createInitFunctionForStructureType(DiagnosticPos pos, BSymbol symbol, SymbolEnv env,
-                                                                   Names names, Name suffix,
-                                                                   SymbolTable symTable, BType type) {
+    public static BLangFunction createInitFunctionForStructureType(Location location,
+                                                                   BSymbol symbol,
+                                                                   SymbolEnv env,
+                                                                   Names names,
+                                                                   Name suffix,
+                                                                   SymbolTable symTable,
+                                                                   BType type) {
         String structTypeName = type.tsymbol.name.value;
         BLangFunction initFunction = ASTBuilderUtil
-                .createInitFunctionWithNilReturn(pos, structTypeName, suffix);
+                .createInitFunctionWithNilReturn(location, structTypeName, suffix);
 
         // Create the receiver and add receiver details to the node
-        initFunction.receiver = ASTBuilderUtil.createReceiver(pos, type);
+        initFunction.receiver = ASTBuilderUtil.createReceiver(location, type);
         BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
                                                    names.fromIdNode(initFunction.receiver.name),
-                                                   env.enclPkg.symbol.pkgID, type, null, pos, VIRTUAL);
+                                                   env.enclPkg.symbol.pkgID, type, null, location, VIRTUAL);
         initFunction.receiver.symbol = receiverSymbol;
         initFunction.attachedFunction = true;
         initFunction.flagSet.add(Flag.ATTACHED);
@@ -154,7 +158,7 @@ public class TypeDefBuilderHelper {
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
-        initFunction.name = ASTBuilderUtil.createIdentifier(pos, funcSymbolName.value);
+        initFunction.name = ASTBuilderUtil.createIdentifier(location, funcSymbolName.value);
 
         // Create the function type symbol
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
@@ -190,7 +194,7 @@ public class TypeDefBuilderHelper {
         return typeDefinition;
     }
 
-    public static BLangClassDefinition createClassDef(DiagnosticPos pos, BObjectTypeSymbol classTSymbol,
+    public static BLangClassDefinition createClassDef(Location pos, BObjectTypeSymbol classTSymbol,
                                                       SymbolEnv env) {
         BObjectType objType = (BObjectType) classTSymbol.type;
         List<BLangSimpleVariable> fieldList = new ArrayList<>();
