@@ -27,7 +27,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodTooLargeException;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
@@ -284,15 +283,15 @@ public class JvmPackageGen {
         FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_VAR_NAME,
                                         String.format("L%s;", MODULE), null, null);
         fv.visitEnd();
-        mv.visitTypeInsn(Opcodes.NEW, MODULE);
-        mv.visitInsn(Opcodes.DUP);
+        mv.visitTypeInsn(NEW, MODULE);
+        mv.visitInsn(DUP);
         mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.org.value));
         mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.name.value));
         mv.visitLdcInsn(module.version.value);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, MODULE,
+        mv.visitMethodInsn(INVOKESPECIAL, MODULE,
                            JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE,
                                                           STRING_VALUE), false);
-        mv.visitFieldInsn(Opcodes.PUTSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", MODULE));
+        mv.visitFieldInsn(PUTSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", MODULE));
     }
 
     private static void setModuleStatusField(ClassWriter cw, MethodVisitor mv, String initClass) {
@@ -477,7 +476,7 @@ public class JvmPackageGen {
 
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, lambdaGen);
-        valueGen.generateValueClasses(jarEntries, moduleInitClass);
+        valueGen.generateValueClasses(jarEntries);
 
         // generate frame classes
         frameClassGen.generateFrameClasses(module, jarEntries);
@@ -542,7 +541,7 @@ public class JvmPackageGen {
             cw.visitSource(javaClass.sourceFileName, null);
             // generate methods
             for (BIRFunction func : javaClass.functions) {
-                methodGen.generateMethod(func, cw, module, null, moduleClass, moduleInitClass, asyncDataCollector);
+                methodGen.generateMethod(func, cw, module, null, moduleClass, asyncDataCollector);
             }
             // generate lambdas created during generating methods
             for (Map.Entry<String, BIRInstruction> lambda : asyncDataCollector.getLambdas().entrySet()) {

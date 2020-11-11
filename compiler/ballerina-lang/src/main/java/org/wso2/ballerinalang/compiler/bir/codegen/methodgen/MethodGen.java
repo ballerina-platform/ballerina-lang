@@ -144,18 +144,18 @@ public class MethodGen {
     }
 
     public void generateMethod(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule, BType attachedType,
-                               String moduleClassName, String moduleInitClass, AsyncDataCollector asyncDataCollector) {
+                               String moduleClassName, AsyncDataCollector asyncDataCollector) {
         if (JvmCodeGenUtil.isExternFunc(birFunc)) {
             ExternalMethodGen.genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, this, jvmPackageGen,
-                                                         moduleClassName, moduleInitClass, asyncDataCollector);
+                                                         moduleClassName, asyncDataCollector);
         } else {
-            genJMethodForBFunc(birFunc, cw, birModule, moduleClassName, moduleInitClass, attachedType,
+            genJMethodForBFunc(birFunc, cw, birModule, moduleClassName, attachedType,
                                asyncDataCollector);
         }
     }
 
     public void genJMethodForBFunc(BIRFunction func, ClassWriter cw, BIRPackage module, String moduleClassName,
-                                   String moduleInitClass, BType attachedType, AsyncDataCollector asyncDataCollector) {
+                                   BType attachedType, AsyncDataCollector asyncDataCollector) {
 
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
         BIRVariableDcl strandVar = new BIRVariableDcl(symbolTable.stringType, new Name(STRAND), VarScope.FUNCTION,
@@ -224,8 +224,7 @@ public class MethodGen {
         mv.visitLookupSwitchInsn(yieldLable, toIntArray(states), labels.toArray(new Label[0]));
 
         generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex,
-                            stateVarIndex, localVarOffset, module, attachedType,
-                            moduleClassName, moduleInitClass, asyncDataCollector);
+                            stateVarIndex, localVarOffset, module, attachedType, moduleClassName, asyncDataCollector);
         mv.visitLabel(resumeLabel);
         String frameName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(module), funcName,
                                                             attachedType);
@@ -443,10 +442,10 @@ public class MethodGen {
     }
 
     void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen,
-                                    JvmInstructionGen instGen, JvmTerminatorGen termGen, BIRFunction func,
-                                    int returnVarRefIndex, int stateVarIndex, int localVarOffset, BIRPackage module,
-                                    BType attachedType, String moduleClassName, String moduleInitClass,
-                                    AsyncDataCollector asyncDataCollector) {
+                             JvmInstructionGen instGen, JvmTerminatorGen termGen, BIRFunction func,
+                             int returnVarRefIndex, int stateVarIndex, int localVarOffset, BIRPackage module,
+                             BType attachedType, String moduleClassName,
+                             AsyncDataCollector asyncDataCollector) {
 
         String funcName = func.name.value;
         BirScope lastScope = null;
@@ -476,8 +475,8 @@ public class MethodGen {
             caseIndex += 1;
 
             processTerminator(mv, func, module, funcName, terminator);
-            termGen.genTerminator(terminator, moduleClassName, moduleInitClass, func, funcName, localVarOffset,
-                                  returnVarRefIndex, attachedType, asyncDataCollector);
+            termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset, returnVarRefIndex,
+                                  attachedType, asyncDataCollector);
 
             errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
 

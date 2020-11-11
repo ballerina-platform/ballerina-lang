@@ -36,6 +36,10 @@ public class Environment {
 
     private Module currentModule;
 
+    public Environment(Strand strand) {
+        this.strand = strand;
+    }
+
     public Environment(Strand strand, Module currentModule) {
         this.strand = strand;
         this.currentModule = currentModule;

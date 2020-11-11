@@ -257,7 +257,7 @@ public class ObserveUtils {
         if (!tracingEnabled) {
             return;
         }
-        Environment balEnv = new Environment(Scheduler.getStrand(), null);
+        Environment balEnv = new Environment(Scheduler.getStrand());
         ObserverContext observerContext = (ObserverContext) balEnv.getStrandLocal(KEY_OBSERVER_CONTEXT);
         if (observerContext == null) {
             return;

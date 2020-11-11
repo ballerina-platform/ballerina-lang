@@ -157,6 +157,7 @@ public class JvmTerminatorGen {
     private LabelGenerator labelGen;
     private JvmErrorGen errorGen;
     private String currentPackageName;
+    private String moduleInitClass;
     private JvmPackageGen jvmPackageGen;
     private JvmInstructionGen jvmInstructionGen;
     private PackageCache packageCache;
@@ -176,6 +177,8 @@ public class JvmTerminatorGen {
         this.jvmInstructionGen = jvmInstructionGen;
         this.symbolTable = jvmPackageGen.symbolTable;
         this.currentPackageName = JvmCodeGenUtil.getPackageName(module);
+        this.moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(module.org.value, module.name.value,
+                                                                      module.version.value, MODULE_INIT_CLASS_NAME);
         this.typeBuilder = new ResolvedTypeBuilder();
     }
 
@@ -262,8 +265,8 @@ public class JvmTerminatorGen {
         }
     }
 
-    public void genTerminator(BIRTerminator terminator, String moduleClassName, String moduleInitClass,
-                              BIRNode.BIRFunction func, String funcName, int localVarOffset, int returnVarRefIndex,
+    public void genTerminator(BIRTerminator terminator, String moduleClassName, BIRNode.BIRFunction func,
+                              String funcName, int localVarOffset, int returnVarRefIndex,
                               BType attachedType, AsyncDataCollector asyncDataCollector) {
 
         switch (terminator.kind) {
@@ -316,7 +319,7 @@ public class JvmTerminatorGen {
                     this.genJCallTerm((JavaMethodCall) terminator, attachedType, localVarOffset);
                     return;
                 } else if (terminator instanceof JIMethodCall) {
-                    this.genJICallTerm((JIMethodCall) terminator, localVarOffset, moduleInitClass);
+                    this.genJICallTerm((JIMethodCall) terminator, localVarOffset);
                     return;
                 } else if (terminator instanceof JIConstructorCall) {
                     this.genJIConstructorTerm((JIConstructorCall) terminator,
@@ -484,7 +487,7 @@ public class JvmTerminatorGen {
         this.mv.visitLabel(notBlockedOnExternLabel);
     }
 
-    private void genJICallTerm(JIMethodCall callIns, int localVarOffset, String moduleInitClass) {
+    private void genJICallTerm(JIMethodCall callIns, int localVarOffset) {
         // Load function parameters of the target Java method to the stack..
         Label blockedOnExternLabel = new Label();
         Label notBlockedOnExternLabel = new Label();
@@ -543,7 +546,7 @@ public class JvmTerminatorGen {
             mv.visitInsn(DUP);
             this.mv.visitVarInsn(ALOAD, localVarOffset); // load the strand
             // load the current Module
-            mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", MODULE));
+            mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", MODULE));
             mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, JVM_INIT_METHOD,
                                String.format("(L%s;L%s;)V", STRAND_CLASS, MODULE), false);
         }

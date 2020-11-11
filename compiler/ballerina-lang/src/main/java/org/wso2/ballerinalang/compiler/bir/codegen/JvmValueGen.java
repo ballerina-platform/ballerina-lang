@@ -329,14 +329,14 @@ class JvmValueGen {
     }
 
     private void createObjectMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs,
-                                     String moduleClassName, String moduleInitClass, BObjectType currentObjectType,
+                                     String moduleClassName, BObjectType currentObjectType,
                                      AsyncDataCollector asyncDataCollector) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
                 continue;
             }
-            methodGen.generateMethod(func, cw, module, currentObjectType, moduleClassName, moduleInitClass,
+            methodGen.generateMethod(func, cw, module, currentObjectType, moduleClassName,
                                      asyncDataCollector);
         }
     }
@@ -657,7 +657,7 @@ class JvmValueGen {
         return closureParamSignature;
     }
 
-    private byte[] createRecordValueClass(BRecordType recordType, String className, String moduleInitClass,
+    private byte[] createRecordValueClass(BRecordType recordType, String className,
                                           BIRNode.BIRTypeDefinition typeDef) {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
@@ -673,7 +673,7 @@ class JvmValueGen {
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
-            this.createRecordMethods(cw, attachedFuncs, className, moduleInitClass, asyncDataCollector);
+            this.createRecordMethods(cw, attachedFuncs, className, asyncDataCollector);
         }
 
         Map<String, BField> fields = recordType.fields;
@@ -701,13 +701,13 @@ class JvmValueGen {
     }
 
     private void createRecordMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, String moduleClassName,
-                                     String moduleInitClass, AsyncDataCollector asyncDataCollector) {
+                                     AsyncDataCollector asyncDataCollector) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
                 continue;
             }
-            methodGen.generateMethod(func, cw, this.module, null, moduleClassName, moduleInitClass, asyncDataCollector);
+            methodGen.generateMethod(func, cw, this.module, null, moduleClassName, asyncDataCollector);
         }
     }
 
@@ -1340,19 +1340,19 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    void generateValueClasses(Map<String, byte[]> jarEntries, String moduleInitClass) {
+    void generateValueClasses(Map<String, byte[]> jarEntries) {
 
         module.typeDefs.parallelStream().forEach(optionalTypeDef -> {
             BType bType = optionalTypeDef.type;
             if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) bType;
                 String className = getTypeValueClassName(this.module, optionalTypeDef.name.value);
-                byte[] bytes = this.createObjectValueClass(objectType, className, moduleInitClass, optionalTypeDef);
+                byte[] bytes = this.createObjectValueClass(objectType, className, optionalTypeDef);
                 jarEntries.put(className + ".class", bytes);
             } else if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
                 String className = getTypeValueClassName(this.module, optionalTypeDef.name.value);
-                byte[] bytes = this.createRecordValueClass(recordType, className, moduleInitClass, optionalTypeDef);
+                byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef);
                 jarEntries.put(className + ".class", bytes);
 
                 String typedescClass = getTypeDescClassName(this.module, optionalTypeDef.name.value);
@@ -1362,8 +1362,7 @@ class JvmValueGen {
         });
     }
 
-    private byte[] createObjectValueClass(BObjectType objectType, String className, String moduleInitClass,
-                                          BIRNode.BIRTypeDefinition typeDef) {
+    private byte[] createObjectValueClass(BObjectType objectType, String className, BIRNode.BIRTypeDefinition typeDef) {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.lineRange().filePath(), null);
@@ -1376,8 +1375,7 @@ class JvmValueGen {
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
-            this.createObjectMethods(cw, attachedFuncs, className, moduleInitClass, objectType,
-                                     asyncDataCollector);
+            this.createObjectMethods(cw, attachedFuncs, className, objectType, asyncDataCollector);
         }
 
         this.createObjectInit(cw, fields, className);
