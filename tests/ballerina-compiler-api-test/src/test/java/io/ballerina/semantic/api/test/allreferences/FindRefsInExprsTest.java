@@ -66,6 +66,39 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                                 location(59, 17, 19),
                                 location(62, 23, 25))
                 },
+                // Template literals
+                {76, 8, List.of(location(76, 8, 9),
+                                location(77, 25, 26),
+                                location(77, 29, 30),
+                                location(78, 64, 65),
+                                location(79, 25, 26))
+                },
+                // List and map constructors
+                {82, 44, List.of(location(82, 44, 45),
+                                 location(83, 20, 21),
+                                 location(83, 23, 24),
+                                 location(84, 25, 26))
+                },
+                // Access exprs
+                {88, 14, List.of(location(88, 14, 18),
+                                 location(89, 18, 22))
+                },
+                {89, 23, List.of(location(89, 23, 27),
+                                 location(66, 11, 15),
+                                 location(70, 13, 17))
+                },
+                {92, 15, List.of(location(92, 15, 19),
+                                 location(95, 18, 22))
+                },
+                {93, 12, List.of(location(93, 12, 15),
+                                 location(96, 23, 26))
+                },
+                {94, 7, List.of(location(94, 7, 13),
+                                location(95, 11, 17),
+                                location(96, 15, 21),
+                                location(98, 19, 25))
+                },
+                {98, 26, EMPTY_LIST},
         };
     }
 
