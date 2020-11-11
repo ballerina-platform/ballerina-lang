@@ -260,7 +260,9 @@ public class CentralAPIClient {
         String url = PACKAGES + "/" + org + "/" + name;
         // append version to url if available
         if (null != version && !version.isEmpty()) {
-            url = url + "/" + version;
+            url +="/" + version;
+        } else {
+            url +="/*";
         }
 
         initializeSsl();
