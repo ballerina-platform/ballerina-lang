@@ -21,7 +21,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.runtime.util.BLangConstants;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
@@ -76,7 +76,7 @@ public class ChangeReturnTypeCodeAction extends AbstractCodeActionProvider {
         if (matcher.find() && matcher.groupCount() > 1) {
             String foundType = matcher.group(2);
             FunctionDefinitionNode funcDef = (FunctionDefinitionNode) matchedNode;
-            if (!BLangConstants.MAIN_FUNCTION_NAME.equals(funcDef.functionName().text())) {
+            if (!RuntimeConstants.MAIN_FUNCTION_NAME.equals(funcDef.functionName().text())) {
                 // Process full-qualified BType name  eg. ballerina/http:Client and if required; add
                 // auto-import
                 matcher = CommandConstants.FQ_TYPE_PATTERN.matcher(foundType);

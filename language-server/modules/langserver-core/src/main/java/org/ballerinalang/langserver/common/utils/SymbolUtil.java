@@ -16,16 +16,17 @@
 package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.api.types.ObjectTypeSymbol;
-import io.ballerina.compiler.api.types.RecordTypeSymbol;
-import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.TypeSymbol;
 
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +55,9 @@ public class SymbolUtil {
                 break;
             case VARIABLE:
                 typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
+                break;
+            case CLASS:
+                typeDescriptor = (ClassSymbol) symbol;
                 break;
             default:
                 return false;
@@ -106,6 +110,8 @@ public class SymbolUtil {
                 return Optional.ofNullable(((FunctionSymbol) symbol).typeDescriptor());
             case CONSTANT:
                 return Optional.ofNullable(((ConstantSymbol) symbol).typeDescriptor());
+            case CLASS:
+                return Optional.of((ClassSymbol) symbol);
             default:
                 return Optional.empty();
         }

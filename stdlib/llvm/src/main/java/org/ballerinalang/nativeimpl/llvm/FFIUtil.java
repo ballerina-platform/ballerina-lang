@@ -1,6 +1,6 @@
 package org.ballerinalang.nativeimpl.llvm;
 
-import io.ballerina.runtime.BallerinaValues;
+import io.ballerina.runtime.internal.BallerinaValues;
 import io.ballerina.runtime.api.runtime.Module;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;

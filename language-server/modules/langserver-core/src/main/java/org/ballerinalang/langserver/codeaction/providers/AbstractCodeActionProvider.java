@@ -152,10 +152,7 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
             importPkg.moduleName().forEach(pkgNameBuilder::append);
             String pkgName = pkgNameBuilder.toString();
             String alias = importPkg.prefix().isEmpty() ? "" : importPkg.prefix().get().prefix().text();
-            StringBuilder versionBuilder = new StringBuilder();
-            importPkg.version().ifPresent(v -> v.versionNumber().forEach(versionBuilder::append));
-            String version = versionBuilder.toString();
-            return new ImportModel(orgName, pkgName, alias, version);
+            return new ImportModel(orgName, pkgName, alias, "");
         }
     }
 }

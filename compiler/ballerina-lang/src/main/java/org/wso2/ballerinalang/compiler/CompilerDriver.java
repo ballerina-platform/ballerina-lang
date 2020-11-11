@@ -65,6 +65,7 @@ import static org.ballerinalang.model.elements.PackageID.STREAM;
 import static org.ballerinalang.model.elements.PackageID.STRING;
 import static org.ballerinalang.model.elements.PackageID.TABLE;
 import static org.ballerinalang.model.elements.PackageID.TRANSACTION;
+import static org.ballerinalang.model.elements.PackageID.TRANSACTION_INTERNAL;
 import static org.ballerinalang.model.elements.PackageID.TYPEDESC;
 import static org.ballerinalang.model.elements.PackageID.VALUE;
 import static org.ballerinalang.model.elements.PackageID.XML;
@@ -170,6 +171,8 @@ public class CompilerDriver {
             symbolTable.langBooleanModuleSymbol = pkgLoader.loadPackageSymbol(BOOLEAN, null, null);
             symbolTable.langQueryModuleSymbol = pkgLoader.loadPackageSymbol(QUERY, null, null);
             symbolTable.langTransactionModuleSymbol = pkgLoader.loadPackageSymbol(TRANSACTION, null, null);
+            symbolTable.internalTransactionModuleSymbol = pkgLoader.loadPackageSymbol(TRANSACTION_INTERNAL, null,
+                    null);
             symbolTable.loadPredeclaredModules();
             return;
         }
@@ -225,6 +228,11 @@ public class CompilerDriver {
             symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
+        }
+
+        if (langLib.equals(TRANSACTION_INTERNAL)) {
+            symbolTable.internalTransactionModuleSymbol = pkgLoader.loadPackageSymbol(TRANSACTION_INTERNAL, null,
+                    null);
         }
 
         symResolver.reloadIntRangeType();

@@ -19,8 +19,8 @@
 package org.ballerinalang.langlib.transaction;
 
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.transactions.TransactionLocalContext;
 
 /**
@@ -33,6 +33,6 @@ public class RollbackTransaction {
     public static void rollbackTransaction(BString transactionBlockId, Object err) {
         Strand strand = Scheduler.getStrand();
         TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
-        transactionLocalContext.rollbackTransaction(strand, transactionBlockId.getValue(), err);
+        transactionLocalContext.rollbackTransaction(transactionBlockId.getValue(), err);
     }
 }

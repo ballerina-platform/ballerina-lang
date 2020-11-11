@@ -1,3 +1,3 @@
 public function foo() {
-    {a , import c} = t;
+    {a, import c} = t;
 }

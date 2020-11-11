@@ -37,8 +37,8 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
         return optionalChildInBucket(0);
     }
 
-    public Optional<Token> finalKeyword() {
-        return optionalChildInBucket(1);
+    public NodeList<Token> qualifiers() {
+        return new NodeList<>(childInBucket(1));
     }
 
     public TypedBindingPatternNode typedBindingPattern() {
@@ -71,7 +71,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
     protected String[] childNames() {
         return new String[]{
                 "metadata",
-                "finalKeyword",
+                "qualifiers",
                 "typedBindingPattern",
                 "equalsToken",
                 "initializer",
@@ -80,14 +80,14 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
 
     public ModuleVariableDeclarationNode modify(
             MetadataNode metadata,
-            Token finalKeyword,
+            NodeList<Token> qualifiers,
             TypedBindingPatternNode typedBindingPattern,
             Token equalsToken,
             ExpressionNode initializer,
             Token semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,
-                finalKeyword,
+                qualifiers.underlyingListNode(),
                 typedBindingPattern,
                 equalsToken,
                 initializer,
@@ -97,7 +97,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
 
         return NodeFactory.createModuleVariableDeclarationNode(
                 metadata,
-                finalKeyword,
+                qualifiers,
                 typedBindingPattern,
                 equalsToken,
                 initializer,
@@ -116,7 +116,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
     public static class ModuleVariableDeclarationNodeModifier {
         private final ModuleVariableDeclarationNode oldNode;
         private MetadataNode metadata;
-        private Token finalKeyword;
+        private NodeList<Token> qualifiers;
         private TypedBindingPatternNode typedBindingPattern;
         private Token equalsToken;
         private ExpressionNode initializer;
@@ -125,7 +125,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
         public ModuleVariableDeclarationNodeModifier(ModuleVariableDeclarationNode oldNode) {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata().orElse(null);
-            this.finalKeyword = oldNode.finalKeyword().orElse(null);
+            this.qualifiers = oldNode.qualifiers();
             this.typedBindingPattern = oldNode.typedBindingPattern();
             this.equalsToken = oldNode.equalsToken().orElse(null);
             this.initializer = oldNode.initializer().orElse(null);
@@ -138,9 +138,10 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
             return this;
         }
 
-        public ModuleVariableDeclarationNodeModifier withFinalKeyword(
-                Token finalKeyword) {
-            this.finalKeyword = finalKeyword;
+        public ModuleVariableDeclarationNodeModifier withQualifiers(
+                NodeList<Token> qualifiers) {
+            Objects.requireNonNull(qualifiers, "qualifiers must not be null");
+            this.qualifiers = qualifiers;
             return this;
         }
 
@@ -173,7 +174,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
         public ModuleVariableDeclarationNode apply() {
             return oldNode.modify(
                     metadata,
-                    finalKeyword,
+                    qualifiers,
                     typedBindingPattern,
                     equalsToken,
                     initializer,

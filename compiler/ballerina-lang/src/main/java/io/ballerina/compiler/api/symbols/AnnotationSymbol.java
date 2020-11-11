@@ -17,8 +17,6 @@
  */
 package io.ballerina.compiler.api.symbols;
 
-import io.ballerina.compiler.api.types.TypeSymbol;
-
 import java.util.List;
 import java.util.Optional;
 
