@@ -38,13 +38,13 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.TextEdit;
 
-import javax.annotation.Nonnull;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.getRecordFieldCompletionInsertText;
@@ -70,7 +70,7 @@ public class AnnotationUtil {
     public static LSCompletionItem getModuleQualifiedAnnotationItem(ModuleID moduleID,
                                                                     AnnotationSymbol annotationSymbol,
                                                                     CompletionContext ctx) {
-        Optional<Module> currentModule = ctx.workspace().module(ctx.fileUri());
+        Optional<Module> currentModule = ctx.workspace().module(ctx.filePath());
         if (currentModule.isEmpty()) {
             throw new RuntimeException("Cannot find a valid module");
         }
@@ -131,7 +131,7 @@ public class AnnotationUtil {
      * @return {@link List} of text edits
      */
     public static List<TextEdit> getAdditionalTextEdits(NewLSContext context, ModuleID moduleID) {
-        Optional<Module> currentModule = context.workspace().module(context.fileUri());
+        Optional<Module> currentModule = context.workspace().module(context.filePath());
         if (currentModule.isEmpty()) {
             return Collections.emptyList();
         }

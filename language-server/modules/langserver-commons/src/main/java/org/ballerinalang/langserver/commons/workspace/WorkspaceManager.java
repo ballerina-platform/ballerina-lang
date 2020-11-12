@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.commons.workspace;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
@@ -44,28 +45,12 @@ public interface WorkspaceManager {
     Path projectRoot(Path path);
 
     /**
-     * Returns a project root from the uri provided.
-     *
-     * @param uri ballerina project or standalone file uri
-     * @return project root
-     */
-    Path projectRoot(String uri);
-
-    /**
      * Returns project from the path provided.
      *
      * @param filePath ballerina project or standalone file path
      * @return project of applicable type
      */
     Optional<Project> project(Path filePath);
-
-    /**
-     * Returns project from the uri provided.
-     *
-     * @param uri ballerina project or standalone file uri
-     * @return project of applicable type
-     */
-    Optional<Project> project(String uri);
 
     /**
      * Returns module from the path provided.
@@ -76,30 +61,6 @@ public interface WorkspaceManager {
     Optional<Module> module(Path filePath);
 
     /**
-     * Returns module from the uri provided.
-     *
-     * @param uri ballerina project or standalone file uri
-     * @return project of applicable type
-     */
-    Optional<Module> module(String uri);
-
-    /**
-     * Returns semantic model from the path provided.
-     *
-     * @param filePath ballerina project or standalone file path
-     * @return project of applicable type
-     */
-    Optional<SemanticModel> semanticModel(Path filePath);
-
-    /**
-     * Returns semantic model from the uri provided.
-     *
-     * @param uri ballerina project or standalone file uri
-     * @return project of applicable type
-     */
-    Optional<SemanticModel> semanticModel(String uri);
-
-    /**
      * Returns document of the project of this path.
      *
      * @param filePath file path of the document
@@ -108,12 +69,20 @@ public interface WorkspaceManager {
     Optional<Document> document(Path filePath);
 
     /**
-     * Returns document of the project of this uri.
+     * Returns syntax tree from the path provided.
      *
-     * @param uri file uri of the document
-     * @return {@link Document}
+     * @param filePath ballerina project or standalone file path
+     * @return {@link io.ballerina.compiler.syntax.tree.SyntaxTree}
      */
-    Optional<Document> document(String uri);
+    Optional<SyntaxTree> syntaxTree(Path filePath);
+
+    /**
+     * Returns semantic model from the path provided.
+     *
+     * @param filePath ballerina project or standalone file path
+     * @return project of applicable type
+     */
+    Optional<SemanticModel> semanticModel(Path filePath);
 
     /**
      * The document open notification is sent from the client to the server to signal newly opened text documents.

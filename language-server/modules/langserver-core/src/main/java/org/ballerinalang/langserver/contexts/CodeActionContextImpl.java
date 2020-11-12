@@ -26,7 +26,6 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,7 +63,7 @@ public class CodeActionContextImpl extends AbstractLSContext implements CodeActi
     @Override
     public List<Diagnostic> getDiagnostics() {
         if (diagnostics == null) {
-            Optional<SemanticModel> semanticModel = this.workspace().semanticModel(this.fileUri());
+            Optional<SemanticModel> semanticModel = this.workspace().semanticModel(this.filePath());
             semanticModel.ifPresent(model -> this.diagnostics = CodeActionUtil.toDiagnostics(model.diagnostics()));
         }
 

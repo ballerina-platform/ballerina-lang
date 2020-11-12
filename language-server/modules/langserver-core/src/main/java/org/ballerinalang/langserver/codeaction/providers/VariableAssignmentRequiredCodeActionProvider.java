@@ -52,7 +52,6 @@ import org.eclipse.lsp4j.Range;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.util.Names;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -130,7 +129,7 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
                                                                            NonTerminalNode cursorNode,
                                                                            Range diagRange) {
 
-        Optional<SemanticModel> semanticModel = context.workspace().semanticModel(context.fileUri());
+        Optional<SemanticModel> semanticModel = context.workspace().semanticModel(context.filePath());
         if (semanticModel.isEmpty()) {
             return Optional.empty();
         }

@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.workspace;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -74,11 +75,6 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         return pathToSourceRootCache.computeIfAbsent(path, this::computeProjectRoot);
     }
 
-    @Override
-    public Path projectRoot(String uri) {
-        return this.projectRoot(CommonUtil.getPathFromURI(uri).orElse(null));
-    }
-
     /**
      * Returns project from the path provided.
      *
@@ -89,66 +85,22 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         return Optional.ofNullable(sourceRootToProject.get(projectRoot(filePath)));
     }
 
-    @Override
-    public Optional<Project> project(String uri) {
-        Optional<Path> path = CommonUtil.getPathFromURI(uri);
-        if (path.isEmpty()) {
-            return Optional.empty();
-        }
-
-        return this.project(path.get());
-    }
-
     /**
      * Returns module from the path provided.
-     *
-     * @param uri ballerina project or standalone file path
-     * @return project of applicable type
-     */
-    public Optional<Module> module(Path uri) {
-        Optional<Project> project = project(uri);
-        if (project.isEmpty()) {
-            return Optional.empty();
-        }
-        Optional<DocumentId> documentId = documentId(uri, project.get());
-        if (documentId.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(project.get().currentPackage().module(documentId.get().moduleId()));
-    }
-
-    @Override
-    public Optional<Module> module(String uri) {
-        Optional<Path> path = CommonUtil.getPathFromURI(uri);
-        if (path.isEmpty()) {
-            return Optional.empty();
-        }
-
-        return this.module(path.get());
-    }
-
-    /**
-     * Returns semantic model from the path provided.
      *
      * @param filePath ballerina project or standalone file path
      * @return project of applicable type
      */
-    public Optional<SemanticModel> semanticModel(Path filePath) {
-        Optional<Module> module = this.module(filePath);
-        if (module.isEmpty()) {
+    public Optional<Module> module(Path filePath) {
+        Optional<Project> project = project(filePath);
+        if (project.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.ofNullable(this.project(filePath).get().currentPackage().getCompilation().getSemanticModel(module.get().moduleId()));
-    }
-
-    @Override
-    public Optional<SemanticModel> semanticModel(String uri) {
-        Optional<Path> path = CommonUtil.getPathFromURI(uri);
-        if (path.isEmpty()) {
+        Optional<Document> document = document(filePath, project.get());
+        if (document.isEmpty()) {
             return Optional.empty();
         }
-
-        return this.semanticModel(path.get());
+        return Optional.of(document.get().module());
     }
 
     /**
@@ -162,14 +114,32 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         return project.isPresent() ? document(filePath, project.get()) : Optional.empty();
     }
 
-    @Override
-    public Optional<Document> document(String uri) {
-        Optional<Path> path = CommonUtil.getPathFromURI(uri);
-        if (path.isEmpty()) {
+    /**
+     * Returns syntax tree from the path provided.
+     *
+     * @param filePath ballerina project or standalone file path
+     * @return {@link io.ballerina.compiler.syntax.tree.SyntaxTree}
+     */
+    public Optional<SyntaxTree> syntaxTree(Path filePath) {
+        Optional<Document> document = this.document(filePath);
+        if (document.isEmpty()) {
             return Optional.empty();
         }
+        return Optional.ofNullable(document.get().syntaxTree());
+    }
 
-        return this.document(path.get());
+    /**
+     * Returns semantic model from the path provided.
+     *
+     * @param filePath ballerina project or standalone file path
+     * @return {@link SemanticModel}
+     */
+    public Optional<SemanticModel> semanticModel(Path filePath) {
+        Optional<Module> module = this.module(filePath);
+        if (module.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(module.get().getCompilation().getSemanticModel());
     }
 
     /**

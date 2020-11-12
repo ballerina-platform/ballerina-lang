@@ -256,7 +256,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     }
                 }
 
-                Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(uri);
+                Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(sigFilePath.get());
                 Position cursor = position.getPosition();
 //                String filePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
 //                context.put(CommonKeys.VISIBLE_SYMBOLS_KEY, semanticModel
@@ -447,7 +447,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             }
             try {
                 CommonUtil.getPathFromURI(fileUri);
-                Optional<Document> document = workspaceManager.document(fileUri);
+                Optional<Document> document = workspaceManager.document(formattingFilePath.get());
                 if (document.isEmpty()) {
                     return new ArrayList<>();
                 }
@@ -487,7 +487,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             }
             try {
                 CommonUtil.getPathFromURI(fileUri);
-                Optional<Document> document = workspaceManager.document(fileUri);
+                Optional<Document> document = workspaceManager.document(formattingFilePath.get());
                 if (document.isEmpty()) {
                     return new ArrayList<>();
                 }
