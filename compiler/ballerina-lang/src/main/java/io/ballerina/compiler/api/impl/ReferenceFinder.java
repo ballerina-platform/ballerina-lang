@@ -589,13 +589,12 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
         find(workerSendNode.expr);
-        find(workerSendNode.keyExpr);
+        addIfSameSymbol(workerSendNode.workerSymbol, workerSendNode.workerIdentifier.pos);
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        find(workerReceiveNode.sendExpression);
-        find(workerReceiveNode.keyExpr);
+        addIfSameSymbol(workerReceiveNode.workerSymbol, workerReceiveNode.workerIdentifier.pos);
     }
 
     @Override
