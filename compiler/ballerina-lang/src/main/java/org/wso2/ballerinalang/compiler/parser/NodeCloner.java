@@ -915,7 +915,6 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
 
         clone.workerIdentifier = source.workerIdentifier;
-        clone.keyExpr = clone(source.keyExpr);
         clone.isChannel = source.isChannel;
     }
 
