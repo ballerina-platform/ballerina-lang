@@ -28,10 +28,6 @@ import org.wso2.ballerinalang.compiler.packaging.converters.URIDryConverter;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,6 +44,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_REQUESTED_URI;
 import static org.ballerinalang.central.client.CentralClientConstants.SSL;
@@ -268,7 +269,8 @@ public class Utils {
      */
     static void validatePackageVersion(String pkgVersion, LogFormatter logFormatter) {
         if (!pkgVersion.matches(VERSION_REGEX)) {
-            throw ErrorUtil.createCentralClientException(logFormatter.formatLog("package version could not be detected"));
+            throw ErrorUtil
+                    .createCentralClientException(logFormatter.formatLog("package version could not be detected"));
         }
     }
 
@@ -298,7 +300,8 @@ public class Utils {
         try {
             Files.createDirectories(fullPathToStoreBalo);
         } catch (IOException e) {
-            throw ErrorUtil.createCentralClientException(logFormatter.formatLog("error creating directory for balo file"));
+            throw ErrorUtil
+                    .createCentralClientException(logFormatter.formatLog("error creating directory for balo file"));
         }
     }
 

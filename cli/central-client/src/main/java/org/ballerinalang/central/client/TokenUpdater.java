@@ -61,8 +61,8 @@ public class TokenUpdater {
             throw ErrorUtil.createCentralClientException(
                     "error occurred while creating the server: " + e.getMessage() + "Access token is missing in "
                             + settingsTomlFilePath
-                            + "\nAuto update failed. Please visit https://central.ballerina.io, get token and add it to the"
-                            + settingsTomlFilePath + " file.");
+                            + "\nAuto update failed. Please visit https://central.ballerina.io, "
+                            + "get token and add it to the" + settingsTomlFilePath + " file.");
         }
         server.createContext("/update-settings", new TokenUpdateHandler());
         server.setExecutor(null); // creates a default executor
@@ -85,7 +85,8 @@ public class TokenUpdater {
                 String str = "[central]\naccesstoken=\"" + token + "\"";
                 outputStream.write(str.getBytes(StandardCharsets.UTF_8));
             } catch (FileNotFoundException e) {
-                throw ErrorUtil.createCentralClientException("Settings.toml file could not be found: " + settingsTomlPath);
+                throw ErrorUtil.createCentralClientException("Settings.toml file could not be found: "
+                        + settingsTomlPath);
             } catch (IOException e) {
                 throw ErrorUtil.createCentralClientException(
                         "error occurred while writing to the Settings.toml file: " + e.getMessage());
@@ -109,8 +110,8 @@ public class TokenUpdater {
                 os = httpExchange.getResponseBody();
                 os.write(response.getBytes(StandardCharsets.UTF_8));
             } catch (IOException e) {
-                throw ErrorUtil
-                        .createCentralClientException("error occurred while generating the response: " + e.getMessage());
+                throw ErrorUtil.createCentralClientException("error occurred while generating the response: "
+                        + e.getMessage());
             } finally {
                 try {
                     if (os != null) {
