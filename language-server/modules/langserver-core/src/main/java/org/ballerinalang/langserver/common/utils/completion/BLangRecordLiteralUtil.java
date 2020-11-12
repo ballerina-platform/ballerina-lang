@@ -17,17 +17,17 @@
  */
 package org.ballerinalang.langserver.common.utils.completion;
 
+import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-import io.ballerina.compiler.api.types.FieldDescriptor;
-import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
-import io.ballerina.compiler.api.types.MapTypeDescriptor;
-import io.ballerina.compiler.api.types.RecordTypeDescriptor;
-import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.UnionTypeDescriptor;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -52,9 +52,9 @@ public class BLangRecordLiteralUtil {
     private BLangRecordLiteralUtil() {
     }
 
-    public static List<LSCompletionItem> getSpreadCompletionItems(LSContext context, BallerinaTypeDescriptor evalType) {
+    public static List<LSCompletionItem> getSpreadCompletionItems(LSContext context, TypeSymbol evalType) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<BallerinaTypeDescriptor> typeList = getTypeListForMapAndRecords(evalType);
+        List<TypeSymbol> typeList = getTypeListForMapAndRecords(evalType);
         List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
 
         for (Symbol symbol : visibleSymbols) {
@@ -65,10 +65,10 @@ public class BLangRecordLiteralUtil {
     }
 
     private static Optional<LSCompletionItem> getSpreadableCompletionItem(LSContext context, Symbol symbol,
-                                                                          List<BallerinaTypeDescriptor> refTypeList) {
-        Optional<BallerinaTypeDescriptor> typeDescriptor = Optional.empty();
+                                                                          List<TypeSymbol> refTypeList) {
+        Optional<TypeSymbol> typeDescriptor = Optional.empty();
         if (symbol.kind() == SymbolKind.FUNCTION) {
-            FunctionTypeDescriptor fTypeDesc = ((FunctionSymbol) symbol).typeDescriptor();
+            FunctionTypeSymbol fTypeDesc = ((FunctionSymbol) symbol).typeDescriptor();
             typeDescriptor = fTypeDesc.returnTypeDescriptor();
         } else if (symbol.kind() == SymbolKind.VARIABLE) {
             typeDescriptor = Optional.of(((VariableSymbol) symbol).typeDescriptor());
@@ -78,7 +78,7 @@ public class BLangRecordLiteralUtil {
             return Optional.empty();
         }
 
-        List<BallerinaTypeDescriptor> symbolTypeList = getTypeListForMapAndRecords(typeDescriptor.get());
+        List<TypeSymbol> symbolTypeList = getTypeListForMapAndRecords(typeDescriptor.get());
         // if bType is not a map or record, then the symbol type list is empty 
         boolean canSpread = !symbolTypeList.isEmpty() && refTypeList.containsAll(symbolTypeList);
 
@@ -98,19 +98,19 @@ public class BLangRecordLiteralUtil {
         return Optional.of(new SymbolCompletionItem(context, symbol, cItem));
     }
 
-    private static List<BallerinaTypeDescriptor> getTypeListForMapAndRecords(BallerinaTypeDescriptor typeDesc) {
-        if (typeDesc.kind() == TypeDescKind.MAP) {
-            Optional<BallerinaTypeDescriptor> memberType = ((MapTypeDescriptor) typeDesc).typeParameter();
+    private static List<TypeSymbol> getTypeListForMapAndRecords(TypeSymbol typeDesc) {
+        if (typeDesc.typeKind() == TypeDescKind.MAP) {
+            Optional<TypeSymbol> memberType = ((MapTypeSymbol) typeDesc).typeParameter();
             if (memberType.isEmpty()) {
                 return new ArrayList<>();
             }
-            if (memberType.get().kind() == TypeDescKind.UNION) {
-                return new ArrayList<>(((UnionTypeDescriptor) memberType.get()).memberTypeDescriptors());
+            if (memberType.get().typeKind() == TypeDescKind.UNION) {
+                return new ArrayList<>(((UnionTypeSymbol) memberType.get()).memberTypeDescriptors());
             }
             return Collections.singletonList(memberType.get());
-        } else if (typeDesc.kind() == TypeDescKind.RECORD) {
-            return ((RecordTypeDescriptor) typeDesc).fieldDescriptors().stream()
-                    .map(FieldDescriptor::typeDescriptor)
+        } else if (typeDesc.typeKind() == TypeDescKind.RECORD) {
+            return ((RecordTypeSymbol) typeDesc).fieldDescriptors().stream()
+                    .map(FieldSymbol::typeDescriptor)
                     .collect(Collectors.toList());
         }
 

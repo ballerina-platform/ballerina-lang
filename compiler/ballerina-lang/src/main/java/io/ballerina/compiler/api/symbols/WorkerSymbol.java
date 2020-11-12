@@ -17,8 +17,6 @@
  */
 package io.ballerina.compiler.api.symbols;
 
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-
 /**
  * Represents a ballerina worker.
  *
@@ -29,7 +27,7 @@ public interface WorkerSymbol extends Symbol {
     /**
      * Get the return type.
      *
-     * @return {@link BallerinaTypeDescriptor} return type of the worker.
+     * @return {@link TypeSymbol} return type of the worker.
      */
-    BallerinaTypeDescriptor returnType();
+    TypeSymbol returnType();
 }

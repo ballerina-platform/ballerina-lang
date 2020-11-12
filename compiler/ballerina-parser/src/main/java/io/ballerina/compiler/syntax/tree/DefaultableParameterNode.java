@@ -138,7 +138,6 @@ public class DefaultableParameterNode extends ParameterNode {
 
         public DefaultableParameterNodeModifier withParamName(
                 Token paramName) {
-            Objects.requireNonNull(paramName, "paramName must not be null");
             this.paramName = paramName;
             return this;
         }

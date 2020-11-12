@@ -174,10 +174,10 @@ function testIndirectErrorDestructuring() returns [string?, boolean, map<anydata
     return [m, f, rest];
 }
 
-type SealedErrorDetail record {|
+type SealedErrorDetail record {
     string message;
     error cause?;
-|};
+};
 
 type SealedError error<SealedErrorDetail>;
 

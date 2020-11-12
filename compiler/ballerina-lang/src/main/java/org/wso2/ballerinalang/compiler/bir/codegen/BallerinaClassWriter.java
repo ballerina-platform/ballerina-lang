@@ -28,8 +28,7 @@ public class BallerinaClassWriter extends ClassWriter {
 
     private static final String OBJECT_CLASS = "java/lang/Object";
 
-    BallerinaClassWriter(int flags) {
-
+    public BallerinaClassWriter(int flags) {
         super(flags);
     }
 

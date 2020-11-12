@@ -163,7 +163,7 @@ class PersonObj {
     function getObjectValueWithParamTypes(typedesc<int|float|decimal|string|boolean> td) returns td = @java:Method {
         name: "getObjectValue",
         'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-        paramTypes: ["io.ballerina.runtime.values.ObjectValue", "io.ballerina.runtime.api.values.BTypedesc"]
+        paramTypes: ["io.ballerina.runtime.internal.values.ObjectValue", "io.ballerina.runtime.api.values.BTypedesc"]
     } external;
 }
 
@@ -278,7 +278,7 @@ function getInvalidValue(typedesc<int|Person> td1, typedesc<Person> td2) returns
 function getXML(typedesc<ItemType> td, xml value) returns xml<td> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getXML",
-    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BXML"]
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BXml"]
 } external;
 
 function getStream(typedesc<anydata> td, stream<anydata> value) returns stream<td> = @java:Method {
@@ -290,7 +290,7 @@ function getStream(typedesc<anydata> td, stream<anydata> value) returns stream<t
 function getTable(typedesc<anydata> td, table<anydata> value) returns table<td> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getTable",
-    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.values.TableValue"]
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.internal.values.TableValue"]
 } external;
 
 function getFunction(typedesc<anydata> param, typedesc<anydata> ret, function (string|int) returns anydata fn)

@@ -7,6 +7,10 @@
       "children": []
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "TYPED_BINDING_PATTERN",
       "hasDiagnostics": true,
       "children": [

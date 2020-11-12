@@ -53,7 +53,7 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (withinReturnTypeDescContext(context, node)) {
-            if (!node.returnTypeDesc().isPresent()) {
+            if (node.returnTypeDesc().isEmpty()) {
                 /*
                 Covers the following cases.
                 (1) function test() <cursor>

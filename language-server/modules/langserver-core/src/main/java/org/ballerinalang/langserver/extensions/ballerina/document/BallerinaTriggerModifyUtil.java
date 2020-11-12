@@ -148,10 +148,10 @@ public class BallerinaTriggerModifyUtil {
                 //replace main
                 if (MAIN.equalsIgnoreCase(type)) {
                     edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_START_MODIFY",
-                            mainFunction.get().getPosition().getStartLine() - 1,
-                            mainFunction.get().getPosition().getStartColumn(),
-                            mainFunction.get().getBody().getPosition().getStartLine(),
-                            mainFunction.get().getBody().getPosition().getStartColumn() + 1));
+                            mainFunction.get().getPosition().lineRange().startLine().line() - 1,
+                            mainFunction.get().getPosition().lineRange().startLine().offset(),
+                            mainFunction.get().getBody().getPosition().lineRange().startLine().line(),
+                            mainFunction.get().getBody().getPosition().lineRange().startLine().offset() + 1));
                 } else if (SERVICE.equalsIgnoreCase(type)) {
                     Optional<BLangImportPackage> httpImport = oldTree.getImports().stream().
                             filter(aImport -> aImport.getOrgName().getValue().equalsIgnoreCase("ballerina")
@@ -165,15 +165,15 @@ public class BallerinaTriggerModifyUtil {
                                 1, 1, 1, 1));
                     }
                     edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "SERVICE_START",
-                            mainFunction.get().getPosition().getStartLine(),
-                            mainFunction.get().getPosition().getStartColumn(),
-                            mainFunction.get().getBody().getPosition().getStartLine(),
-                            mainFunction.get().getBody().getPosition().getStartColumn() + 1));
+                            mainFunction.get().getPosition().lineRange().startLine().line(),
+                            mainFunction.get().getPosition().lineRange().startLine().offset(),
+                            mainFunction.get().getBody().getPosition().lineRange().startLine().line(),
+                            mainFunction.get().getBody().getPosition().lineRange().startLine().offset() + 1));
                     edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "SERVICE_END",
-                            mainFunction.get().getBody().getPosition().getEndLine(),
-                            mainFunction.get().getBody().getPosition().getEndColumn() - 1,
-                            mainFunction.get().getPosition().getEndLine(),
-                            mainFunction.get().getPosition().getEndColumn()));
+                            mainFunction.get().getBody().getPosition().lineRange().endLine().line(),
+                            mainFunction.get().getBody().getPosition().lineRange().endLine().offset() - 1,
+                            mainFunction.get().getPosition().lineRange().endLine().line(),
+                            mainFunction.get().getPosition().lineRange().endLine().offset()));
                 }
             } else {
                 Optional<BLangService> service = oldTree.getServices().stream().findFirst();
@@ -181,26 +181,30 @@ public class BallerinaTriggerModifyUtil {
                     //replace service
                     if (MAIN.equalsIgnoreCase(type)) {
                         edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_START",
-                                service.get().getPosition().getStartLine(),
-                                service.get().getPosition().getStartColumn(),
-                                service.get().getResources().get(0).getBody().getPosition().getStartLine(),
-                                service.get().getResources().get(0).getBody().getPosition().
-                                        getStartColumn() + 1));
+                                service.get().getPosition().lineRange().startLine().line(),
+                                service.get().getPosition().lineRange().startLine().offset(),
+                                service.get().getResources().get(0).getBody().getPosition()
+                                        .lineRange().startLine().line(),
+                                service.get().getResources().get(0).getBody().getPosition()
+                                        .lineRange().startLine().offset() + 1));
                         edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_END",
-                                service.get().getResources().get(0).getBody().getPosition().getEndLine(),
-                                service.get().getResources().get(0).getBody().getPosition().
-                                        getEndColumn() - 1,
-                                service.get().getPosition().getEndLine(),
-                                service.get().getPosition().getEndColumn()));
+                                service.get().getResources().get(0).getBody().getPosition()
+                                        .lineRange().endLine().line(),
+                                service.get().getResources().get(0).getBody().getPosition()
+                                        .lineRange().endLine().offset() - 1,
+                                service.get().getPosition().lineRange().endLine().line(),
+                                service.get().getPosition().lineRange().endLine().offset()));
                     } else if (SERVICE.equalsIgnoreCase(type)) {
                         edits.add(BallerinaTreeModifyUtil.createTextEdit(
                                 oldTextDocument,
                                 config,
                                 "SERVICE_START_MODIFY",
-                                service.get().annAttachments.get(0).getPosition().getStartLine(),
-                                service.get().annAttachments.get(0).getPosition().getStartColumn(),
-                                service.get().getResources().get(0).getBody().getPosition().getStartLine(),
-                                service.get().getResources().get(0).getBody().getPosition().getStartColumn() + 1));
+                                service.get().annAttachments.get(0).getPosition().lineRange().startLine().line(),
+                                service.get().annAttachments.get(0).getPosition().lineRange().startLine().offset(),
+                                service.get().getResources().get(0).getBody().getPosition().lineRange()
+                                        .startLine().line(),
+                                service.get().getResources().get(0).getBody().getPosition()
+                                        .lineRange().startLine().offset() + 1));
                     }
                 } else {
                     throw new RuntimeException("Trigger function not found for replacement!");

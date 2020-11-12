@@ -169,7 +169,6 @@ public class ForEachStatementNode extends StatementNode {
 
         public ForEachStatementNodeModifier withOnFailClause(
                 OnFailClauseNode onFailClause) {
-            Objects.requireNonNull(onFailClause, "onFailClause must not be null");
             this.onFailClause = onFailClause;
             return this;
         }

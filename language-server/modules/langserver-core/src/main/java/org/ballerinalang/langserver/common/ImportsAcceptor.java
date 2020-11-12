@@ -15,13 +15,13 @@
  */
 package org.ballerinalang.langserver.common;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -97,7 +97,7 @@ public class ImportsAcceptor {
     }
 
     private TextEdit createImportTextEdit(String pkgName) {
-        DiagnosticPos pos = null;
+        Location pos = null;
 
         if (!currentModuleImports.isEmpty()) {
             BLangImportPackage lastImport = CommonUtil.getLastItem(currentModuleImports);
@@ -105,7 +105,7 @@ public class ImportsAcceptor {
         }
 
         int endCol = 0;
-        int endLine = pos == null ? 0 : pos.getEndLine();
+        int endLine = pos == null ? 0 : pos.lineRange().endLine().line();
 
         String editText = "import " + pkgName + ";\n";
         Range range = new Range(new Position(endLine, endCol), new Position(endLine, endCol));

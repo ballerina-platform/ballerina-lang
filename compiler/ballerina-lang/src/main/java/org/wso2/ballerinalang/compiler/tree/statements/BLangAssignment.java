@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree.statements;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
@@ -24,7 +25,6 @@ import org.ballerinalang.model.tree.statements.AssignmentNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * @since 0.94
@@ -38,7 +38,7 @@ public class BLangAssignment extends BLangStatement implements AssignmentNode {
     public BLangAssignment() {
     }
 
-    public BLangAssignment(DiagnosticPos pos, BLangExpression varRef,
+    public BLangAssignment(Location pos, BLangExpression varRef,
                            BLangExpression expr, boolean declaredWithVar) {
         this.pos = pos;
         this.varRef = varRef;

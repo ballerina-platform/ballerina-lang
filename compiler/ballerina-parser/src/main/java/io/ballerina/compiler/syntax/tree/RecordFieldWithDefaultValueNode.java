@@ -144,14 +144,12 @@ public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
 
         public RecordFieldWithDefaultValueNodeModifier withMetadata(
                 MetadataNode metadata) {
-            Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
         public RecordFieldWithDefaultValueNodeModifier withReadonlyKeyword(
                 Token readonlyKeyword) {
-            Objects.requireNonNull(readonlyKeyword, "readonlyKeyword must not be null");
             this.readonlyKeyword = readonlyKeyword;
             return this;
         }

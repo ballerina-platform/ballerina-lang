@@ -322,6 +322,7 @@ public enum DiagnosticCode {
     INVALID_TYPE_FOR_REST_DESCRIPTOR("invalid.type.for.rest.descriptor"),
     INVALID_TYPE_NEW_LITERAL("invalid.type.new.literal"),
     INVALID_USAGE_OF_KEYWORD("invalid.usage.of.keyword"),
+    INVALID_TYPE_OBJECT_CONSTRUCTOR("invalid.type.object.constructor"),
 
     INVALID_RECORD_BINDING_PATTERN("invalid.record.binding.pattern"),
     NO_MATCHING_RECORD_REF_PATTERN("no.matching.record.ref.found"),
@@ -409,6 +410,10 @@ public enum DiagnosticCode {
     MATCH_STMT_PATTERN_ALWAYS_MATCHES("match.stmt.pattern.always.matches"),
     MATCH_STMT_PATTERN_UNREACHABLE("match.stmt.unreachable.pattern.available"),
     MATCH_PATTERN_NOT_SUPPORTED("match.pattern.not.supported"),
+    MATCH_PATTERNS_SHOULD_CONTAIN_SAME_SET_OF_VARIABLES("match.patterns.should.contain.same.set.of.variables"),
+    MATCH_PATTERN_CANNOT_REPEAT_SAME_VARIABLE("match.pattern.cannot.repeat.same.variable"),
+    REST_MATCH_PATTERN_NOT_SUPPORTED("rest.match.pattern.not.supported"),
+    VARIABLE_SHOULD_BE_DECLARED_AS_CONSTANT("match.pattern.variable.should.declared.as.constant"),
     MATCH_STMT_CONTAINS_TWO_DEFAULT_PATTERNS("match.stmt.contains.two.default.patterns"),
 
     THROW_STMT_NOT_SUPPORTED("throw.stmt.not.supported"),

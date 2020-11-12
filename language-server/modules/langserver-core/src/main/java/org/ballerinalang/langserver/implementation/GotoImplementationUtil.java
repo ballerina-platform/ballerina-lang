@@ -28,7 +28,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -85,11 +84,12 @@ public class GotoImplementationUtil {
     }
 
     private static Location getLocation(String sourceRoot, String pkgName, BLangFunction bLangFunction) {
-        String cUnitName = bLangFunction.getPosition().src.cUnitName;
+        String cUnitName = bLangFunction.getPosition().lineRange().filePath();
         Location location = new Location();
-        DiagnosticPos implPosition = CommonUtil.toZeroBasedPosition(bLangFunction.getPosition());
-        Range range = new Range(new Position(implPosition.sLine, implPosition.sCol),
-                new Position(implPosition.eLine, implPosition.eCol));
+        io.ballerina.tools.diagnostics.Location implPosition = CommonUtil.toZeroBasedPosition(bLangFunction.pos);
+        Range range = new Range(new Position(
+                implPosition.lineRange().startLine().line(), implPosition.lineRange().startLine().offset()),
+                new Position(implPosition.lineRange().endLine().line(), implPosition.lineRange().endLine().offset()));
         location.setRange(range);
         String uri = new File(sourceRoot).toPath().resolve(pkgName).resolve(cUnitName).toUri().toString();
         location.setUri(uri);
@@ -108,11 +108,13 @@ public class GotoImplementationUtil {
     private static Optional<BLangObjectTypeNode> getObjectTypeNode(List<TopLevelNode> topLevelNodes, int line) {
         return topLevelNodes.stream()
                 .filter(node -> {
-                    DiagnosticPos nodePosition = (DiagnosticPos) node.getPosition();
-                    DiagnosticPos zeroBasedPosition = CommonUtil.toZeroBasedPosition(nodePosition);
+                    io.ballerina.tools.diagnostics.Location nodePosition = node.getPosition();
+                    io.ballerina.tools.diagnostics.Location zeroBasedPosition =
+                            CommonUtil.toZeroBasedPosition(nodePosition);
                     return NodeKind.TYPE_DEFINITION.equals(node.getKind())
                             && NodeKind.OBJECT_TYPE.equals(((BLangTypeDefinition) node).typeNode.getKind())
-                            && zeroBasedPosition.sLine <= line && zeroBasedPosition.eLine >= line;
+                            && zeroBasedPosition.lineRange().startLine().line() <= line
+                            && zeroBasedPosition.lineRange().endLine().line() >= line;
                 })
                 .map(topLevelNode -> ((BLangObjectTypeNode) ((BLangTypeDefinition) topLevelNode).typeNode))
                 .findAny();

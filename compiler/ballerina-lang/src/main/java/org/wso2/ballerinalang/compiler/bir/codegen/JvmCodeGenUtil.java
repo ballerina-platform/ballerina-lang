@@ -18,8 +18,8 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
+import io.ballerina.runtime.internal.IdentifierUtils;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -36,19 +36,16 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
-import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -63,11 +60,14 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FILE_NAME_PERIOD_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
@@ -94,10 +94,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
  */
 public class JvmCodeGenUtil {
     public static final ResolvedTypeBuilder TYPE_BUILDER = new ResolvedTypeBuilder();
-    public static final String INITIAL_MEHOD_DESC = "(Lio/ballerina/runtime/scheduling/Strand;";
-    private static final Pattern IMMUTABLE_TYPE_CHAR_PATTERN = Pattern.compile("[/.]");
-    private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[\\.:/<>]");
-
+    public static final String INITIAL_METHOD_DESC = String.format("(L%s;", STRAND_CLASS);
     public static final String SCOPE_PREFIX = "_SCOPE_";
 
     static void visitInvokeDynamic(MethodVisitor mv, String currentClass, String lambdaName, int size) {
@@ -117,15 +114,15 @@ public class JvmCodeGenUtil {
     private static String getMapsDesc(long count) {
         StringBuilder builder = new StringBuilder();
         for (long i = count; i > 0; i--) {
-            builder.append("Lio/ballerina/runtime/values/MapValue;");
+            builder.append("Lio/ballerina/runtime/internal/values/MapValue;");
         }
         return builder.toString();
     }
 
-    static void createFunctionPointer(MethodVisitor mv, String className, String lambdaName) {
+    public static void createFunctionPointer(MethodVisitor mv, String className, String lambdaName) {
         mv.visitTypeInsn(Opcodes.NEW, FUNCTION_POINTER);
         mv.visitInsn(Opcodes.DUP);
-        visitInvokeDynamic(mv, className, cleanupFunctionName(lambdaName), 0);
+        visitInvokeDynamic(mv, className, lambdaName, 0);
 
         // load null here for type, since these are fps created for internal usage.
         mv.visitInsn(Opcodes.ACONST_NULL);
@@ -135,30 +132,20 @@ public class JvmCodeGenUtil {
                            String.format("(L%s;L%s;L%s;Z)V", FUNCTION, TYPE, STRING_VALUE), false);
     }
 
-    /**
-     * Cleanup type name for readonly types by replacing '. /' with '_'.
-     *
-     * @param name type name to be replaced and cleaned
-     * @return cleaned name
-     */
-    static String cleanupReadOnlyTypeName(String name) {
-        return IMMUTABLE_TYPE_CHAR_PATTERN.matcher(name).replaceAll("_");
-    }
-
-    static String cleanupPathSeparators(String name) {
+    public static String cleanupPathSeparators(String name) {
         name = cleanupBalExt(name);
         return name.replace(WINDOWS_PATH_SEPERATOR, JAVA_PACKAGE_SEPERATOR);
     }
 
-    static String rewriteVirtualCallTypeName(String value) {
-        return StringEscapeUtils.unescapeJava(cleanupObjectTypeName(value));
+    public static String rewriteVirtualCallTypeName(String value) {
+        return IdentifierUtils.encodeFunctionIdentifier(cleanupObjectTypeName(value));
     }
 
     private static String cleanupBalExt(String name) {
         return name.replace(BAL_EXTENSION, "");
     }
 
-    static String getFieldTypeSignature(BType bType) {
+    public static String getFieldTypeSignature(BType bType) {
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
@@ -215,7 +202,7 @@ public class JvmCodeGenUtil {
         }
     }
 
-    static void generateDefaultConstructor(ClassWriter cw, String ownerClass) {
+    public static void generateDefaultConstructor(ClassWriter cw, String ownerClass) {
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, JVM_INIT_METHOD, "()V", null, null);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
@@ -236,8 +223,8 @@ public class JvmCodeGenUtil {
 
         mv.visitTypeInsn(Opcodes.NEW, STRAND_METADATA);
         mv.visitInsn(Opcodes.DUP);
-        mv.visitLdcInsn(module.org.value);
-        mv.visitLdcInsn(module.name.value);
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.org.value));
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.name.value));
         mv.visitLdcInsn(module.version.value);
         if (metaData.typeName == null) {
             mv.visitInsn(Opcodes.ACONST_NULL);
@@ -261,17 +248,11 @@ public class JvmCodeGenUtil {
         fv.visitEnd();
     }
 
-    static String getStrandMetadataVarName(String parentFunction) {
+    public static String getStrandMetadataVarName(String parentFunction) {
         return STRAND_METADATA_VAR_PREFIX + parentFunction + "$";
     }
 
-    //TODO:Remove this method after fixing issue #25745
-    public static String cleanupFunctionName(String functionName) {
-        return StringUtils.containsAny(functionName, "\\.:/<>") ?
-                "$" + JVM_RESERVED_CHAR_SET.matcher(functionName).replaceAll("_") : functionName;
-    }
-
-    static boolean isExternFunc(BIRNode.BIRFunction func) {
+    public static boolean isExternFunc(BIRNode.BIRFunction func) {
         return (func.flags & Flags.NATIVE) == Flags.NATIVE;
     }
 
@@ -288,30 +269,37 @@ public class JvmCodeGenUtil {
     }
 
     public static String getPackageName(String orgName, String moduleName, String version) {
+        return getPackageNameWithSeparator(orgName, moduleName, version, "/");
+    }
+
+    private static String getPackageNameWithSeparator(String orgName, String moduleName, String version,
+                                                      String separator) {
         String packageName = "";
-        if (!moduleName.equals(".")) {
+        orgName = IdentifierUtils.encodeNonFunctionIdentifier(orgName);
+        moduleName = IdentifierUtils.encodeNonFunctionIdentifier(moduleName);
+        if (!moduleName.equals(ENCODED_DOT_CHARACTER)) {
             if (!version.equals("")) {
-                packageName = cleanupName(version) + "/";
+                packageName = getVersionDirectoryName(version) + separator;
             }
-            packageName = cleanupName(moduleName) + "/" + packageName;
+            packageName = moduleName + separator + packageName;
         }
 
         if (!orgName.equalsIgnoreCase("$anon")) {
-            packageName = cleanupName(orgName) + "/" + packageName;
+            packageName = orgName + separator + packageName;
         }
-
         return packageName;
     }
 
-    static String cleanupName(String name) {
+    static String getVersionDirectoryName(String name) {
         return name.replace(".", "_");
     }
 
-    static String getModuleLevelClassName(BIRNode.BIRPackage module, String sourceFileName) {
+    public static String getModuleLevelClassName(BIRNode.BIRPackage module, String sourceFileName) {
         return getModuleLevelClassName(module.org.value, module.name.value, module.version.value, sourceFileName);
     }
 
-    static String getModuleLevelClassName(String orgName, String moduleName, String version, String sourceFileName) {
+    public static String getModuleLevelClassName(String orgName, String moduleName, String version,
+                                                 String sourceFileName) {
         return getModuleLevelClassName(orgName, moduleName, version, sourceFileName, "/");
     }
 
@@ -322,19 +310,7 @@ public class JvmCodeGenUtil {
         if (className.startsWith(JAVA_PACKAGE_SEPERATOR)) {
             className = className.substring(1);
         }
-
-        if (!moduleName.equals(".")) {
-            if (!version.equals("")) {
-                className = cleanupName(version) + separator + className;
-            }
-            className = cleanupName(moduleName) + separator + className;
-        }
-
-        if (!orgName.equalsIgnoreCase("$anon")) {
-            className = cleanupName(orgName) + separator + className;
-        }
-
-        return className;
+        return getPackageNameWithSeparator(orgName, moduleName, version, separator) + className;
     }
 
     private static String cleanupSourceFileName(String name) {
@@ -342,11 +318,11 @@ public class JvmCodeGenUtil {
     }
 
     public static String getMethodDesc(List<BType> paramTypes, BType retType) {
-        return INITIAL_MEHOD_DESC + populateMethodDesc(paramTypes) + generateReturnType(retType);
+        return INITIAL_METHOD_DESC + populateMethodDesc(paramTypes) + generateReturnType(retType);
     }
 
     public static String getMethodDesc(List<BType> paramTypes, BType retType, BType attachedType) {
-        return INITIAL_MEHOD_DESC + getArgTypeSignature(attachedType) + populateMethodDesc(paramTypes) +
+        return INITIAL_METHOD_DESC + getArgTypeSignature(attachedType) + populateMethodDesc(paramTypes) +
                 generateReturnType(retType);
     }
 
@@ -479,7 +455,7 @@ public class JvmCodeGenUtil {
         }
     }
 
-    static void loadChannelDetails(MethodVisitor mv, List<BIRNode.ChannelDetails> channels) {
+    public static void loadChannelDetails(MethodVisitor mv, List<BIRNode.ChannelDetails> channels) {
         mv.visitIntInsn(BIPUSH, channels.size());
         mv.visitTypeInsn(ANEWARRAY, CHANNEL_DETAILS);
         int index = 0;
@@ -511,7 +487,7 @@ public class JvmCodeGenUtil {
     }
 
     public static String toNameString(BType t) {
-        return t.tsymbol.name.value;
+        return IdentifierUtils.encodeNonFunctionIdentifier(t.tsymbol.name.value);
     }
 
     public static boolean isBallerinaBuiltinModule(String orgName, String moduleName) {
@@ -528,9 +504,9 @@ public class JvmCodeGenUtil {
         for (int i = 0; i < insCount; i++) {
             Label insLabel = labelGen.getLabel(funcName + bb.id.value + "ins" + i);
             mv.visitLabel(insLabel);
-            BIRInstruction inst = bb.instructions.get(i);
+            BIRAbstractInstruction inst = bb.instructions.get(i);
             if (inst != null) {
-                lastScope = getLastScopeFromDiagnosticGen((BIRAbstractInstruction) inst, funcName, mv, labelGen,
+                lastScope = getLastScopeFromDiagnosticGen(inst, funcName, mv, labelGen,
                                                           visitedScopesSet, lastScope);
                 instGen.generateInstructions(localVarOffset, asyncDataCollector, inst);
             }
@@ -557,16 +533,16 @@ public class JvmCodeGenUtil {
         return lastScope;
     }
 
-    public static void generateDiagnosticPos(DiagnosticPos pos, MethodVisitor mv) {
+    public static void generateDiagnosticPos(Location pos, MethodVisitor mv) {
         Label label = new Label();
         generateDiagnosticPos(pos, mv, label);
     }
 
-    private static void generateDiagnosticPos(DiagnosticPos pos, MethodVisitor mv, Label label) {
-        if (pos != null && pos.sLine != 0x80000000) {
+    private static void generateDiagnosticPos(Location pos, MethodVisitor mv, Label label) {
+        if (pos != null && pos.lineRange().startLine().line() != 0x80000000) {
             mv.visitLabel(label);
             // Adding +1 since 'pos' is 0-based and we want 1-based positions at run time
-            mv.visitLineNumber(pos.sLine + 1, label);
+            mv.visitLineNumber(pos.lineRange().startLine().line() + 1, label);
         }
     }
 
@@ -593,5 +569,19 @@ public class JvmCodeGenUtil {
         // goto thenBB
         Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
         mv.visitJumpInsn(GOTO, gotoLabel);
+    }
+
+    public static PackageID cleanupPackageID(PackageID pkgID) {
+        Name org = new Name(IdentifierUtils.encodeNonFunctionIdentifier(pkgID.orgName.value));
+        Name module = new Name(IdentifierUtils.encodeNonFunctionIdentifier(pkgID.name.value));
+        return new PackageID(org, module, pkgID.version);
+    }
+
+    public static boolean isBuiltInPackage(PackageID packageID) {
+        packageID = cleanupPackageID(packageID);
+        return BALLERINA.equals(packageID.orgName.value) && BUILT_IN_PACKAGE_NAME.equals(packageID.name.value);
+    }
+
+    private JvmCodeGenUtil() {
     }
 }

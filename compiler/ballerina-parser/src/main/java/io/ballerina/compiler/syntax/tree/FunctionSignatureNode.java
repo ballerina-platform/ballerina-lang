@@ -135,7 +135,6 @@ public class FunctionSignatureNode extends NonTerminalNode {
 
         public FunctionSignatureNodeModifier withReturnTypeDesc(
                 ReturnTypeDescriptorNode returnTypeDesc) {
-            Objects.requireNonNull(returnTypeDesc, "returnTypeDesc must not be null");
             this.returnTypeDesc = returnTypeDesc;
             return this;
         }

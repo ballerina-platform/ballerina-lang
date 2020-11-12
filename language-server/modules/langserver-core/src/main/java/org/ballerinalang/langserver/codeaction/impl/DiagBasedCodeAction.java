@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction.impl;
 
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -59,7 +59,7 @@ public interface DiagBasedCodeAction {
 
 
     static List<String> getPossibleTypes(LSContext context,
-                                         BallerinaTypeDescriptor typeDescriptor,
+                                         TypeSymbol typeDescriptor,
                                          List<TextEdit> edits,
                                          CompilerContext compilerContext) {
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);

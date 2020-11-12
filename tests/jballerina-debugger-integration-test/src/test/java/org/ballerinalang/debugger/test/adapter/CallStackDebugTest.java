@@ -84,7 +84,7 @@ public class CallStackDebugTest extends DebugAdapterBaseTestCase {
         assertCallStack(frames[1], "start:anonymous", 10, "mainCallStack.bal");
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     private void cleanup() {
         terminateDebugSession();
     }

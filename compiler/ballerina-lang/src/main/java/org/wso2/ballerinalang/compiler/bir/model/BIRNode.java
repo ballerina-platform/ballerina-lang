@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
@@ -25,7 +26,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -40,9 +40,9 @@ import java.util.TreeSet;
  * @since 0.980.0
  */
 public abstract class BIRNode {
-    public DiagnosticPos pos;
+    public Location pos;
 
-    public BIRNode(DiagnosticPos pos) {
+    public BIRNode(Location pos) {
         this.pos = pos;
     }
 
@@ -65,7 +65,7 @@ public abstract class BIRNode {
         public List<BIRAnnotation> annotations;
         public List<BIRConstant> constants;
 
-        public BIRPackage(DiagnosticPos pos, Name org, Name name, Name version,
+        public BIRPackage(Location pos, Name org, Name name, Name version,
                           Name sourceFileName) {
             super(pos);
             this.org = org;
@@ -100,7 +100,7 @@ public abstract class BIRNode {
         public Name name;
         public Name version;
 
-        public BIRImportModule(DiagnosticPos pos, Name org, Name name, Name version) {
+        public BIRImportModule(Location pos, Name org, Name name, Name version) {
             super(pos);
             this.org = org;
             this.name = name;
@@ -132,7 +132,7 @@ public abstract class BIRNode {
         // Stores the scope of the current instruction with respect to local variables.
         public BirScope insScope;
 
-        public BIRVariableDcl(DiagnosticPos pos, BType type, Name name, VarScope scope,
+        public BIRVariableDcl(Location pos, BType type, Name name, VarScope scope,
                               VarKind kind, String metaVarName) {
             super(pos);
             this.type = type;
@@ -187,7 +187,7 @@ public abstract class BIRNode {
         public Name name;
         public int flags;
 
-        public BIRParameter(DiagnosticPos pos, Name name, int flags) {
+        public BIRParameter(Location pos, Name name, int flags) {
             super(pos);
             this.name = name;
             this.flags = flags;
@@ -212,7 +212,7 @@ public abstract class BIRNode {
         public PackageID pkgId;
         public SymbolOrigin origin;
 
-        public BIRGlobalVariableDcl(DiagnosticPos pos, int flags, BType type, PackageID pkgId, Name name,
+        public BIRGlobalVariableDcl(Location pos, int flags, BType type, PackageID pkgId, Name name,
                                     VarScope scope, VarKind kind, String metaVarName, SymbolOrigin origin) {
             super(pos, type, name, scope, kind, metaVarName);
             this.flags = flags;
@@ -234,7 +234,7 @@ public abstract class BIRNode {
     public static class BIRFunctionParameter extends BIRVariableDcl {
         public final boolean hasDefaultExpr;
 
-        public BIRFunctionParameter(DiagnosticPos pos, BType type, Name name,
+        public BIRFunctionParameter(Location pos, BType type, Name name,
                                     VarScope scope, VarKind kind, String metaVarName, boolean hasDefaultExpr) {
             super(pos, type, name, scope, kind, metaVarName);
             this.hasDefaultExpr = hasDefaultExpr;
@@ -338,7 +338,7 @@ public abstract class BIRNode {
 
         public Set<BIRGlobalVariableDcl> dependentGlobalVars = new TreeSet<>();
 
-        public BIRFunction(DiagnosticPos pos, Name name, int flags, BInvokableType type, Name workerName,
+        public BIRFunction(Location pos, Name name, int flags, BInvokableType type, Name workerName,
                            int sendInsCount, TaintTable taintTable, SymbolOrigin origin) {
             super(pos);
             this.name = name;
@@ -440,7 +440,7 @@ public abstract class BIRNode {
          */
         public int index;
 
-        public BIRTypeDefinition(DiagnosticPos pos, Name name, int flags, boolean isLabel, boolean isBuiltin,
+        public BIRTypeDefinition(Location pos, Name name, int flags, boolean isLabel, boolean isBuiltin,
                                  BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin) {
 
             super(pos);
@@ -553,7 +553,7 @@ public abstract class BIRNode {
          */
         public BType annotationType;
 
-        public BIRAnnotation(DiagnosticPos pos, Name name, int flags,
+        public BIRAnnotation(Location pos, Name name, int flags,
                              Set<AttachPoint> points, BType annotationType, SymbolOrigin origin) {
             super(pos);
             this.name = name;
@@ -601,7 +601,7 @@ public abstract class BIRNode {
          */
         public SymbolOrigin origin;
 
-        public BIRConstant(DiagnosticPos pos, Name name, int flags,
+        public BIRConstant(Location pos, Name name, int flags,
                            BType type, ConstValue constValue, SymbolOrigin origin) {
             super(pos);
             this.name = name;
@@ -632,7 +632,7 @@ public abstract class BIRNode {
         // The length > 1 means that there are one or more attachments of this annotation
         public List<BIRAnnotationValue> annotValues;
 
-        public BIRAnnotationAttachment(DiagnosticPos pos, Name annotTagRef) {
+        public BIRAnnotationAttachment(Location pos, Name annotTagRef) {
             super(pos);
             this.annotTagRef = annotTagRef;
             this.annotValues = new ArrayList<>();
@@ -737,7 +737,7 @@ public abstract class BIRNode {
     public abstract static class BIRDocumentableNode extends BIRNode {
         public MarkdownDocAttachment markdownDocAttachment;
 
-        public BIRDocumentableNode(DiagnosticPos pos) {
+        public BIRDocumentableNode(Location pos) {
             super(pos);
         }
 

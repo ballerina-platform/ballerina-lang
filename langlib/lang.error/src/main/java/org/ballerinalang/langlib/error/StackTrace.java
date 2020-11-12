@@ -17,15 +17,15 @@
  **/
 package org.ballerinalang.langlib.error;
 
-import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.TypeCreator;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
@@ -33,14 +33,14 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_ERROR_PKG_ID;
 import static io.ballerina.runtime.api.values.BError.CALL_STACK_ELEMENT;
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_LANG_ERROR_PKG_ID;
 
 /**
  * Get the stackTrace of an error value.
@@ -111,7 +111,7 @@ public class StackTrace {
 
         @Override
         public String stringValue(BLink parent) {
-            return null;
+            return "object " + type.toString();
         }
 
         @Override

@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.util;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
@@ -60,7 +61,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -83,7 +83,7 @@ public class ImmutableTypeCloner {
 
     private static final String AND_READONLY_SUFFIX = " & readonly";
 
-    public static BType getEffectiveImmutableType(DiagnosticPos pos, Types types,
+    public static BType getEffectiveImmutableType(Location pos, Types types,
                                                   SelectivelyImmutableReferenceType type, SymbolEnv env,
                                                   SymbolTable symTable, BLangAnonymousModelHelper anonymousModelHelper,
                                                   Names names) {
@@ -92,7 +92,7 @@ public class ImmutableTypeCloner {
                                             new HashSet<>()).effectiveType;
     }
 
-    public static BType getEffectiveImmutableType(DiagnosticPos pos, Types types,
+    public static BType getEffectiveImmutableType(Location pos, Types types,
                                                   SelectivelyImmutableReferenceType type, PackageID pkgId,
                                                   BSymbol owner, SymbolTable symTable,
                                                   BLangAnonymousModelHelper anonymousModelHelper, Names names) {
@@ -101,7 +101,7 @@ public class ImmutableTypeCloner {
                                             new HashSet<>()).effectiveType;
     }
 
-    public static BIntersectionType getImmutableIntersectionType(DiagnosticPos pos, Types types,
+    public static BIntersectionType getImmutableIntersectionType(Location pos, Types types,
                                                                  SelectivelyImmutableReferenceType type,
                                                                  SymbolEnv env, SymbolTable symTable,
                                                                  BLangAnonymousModelHelper anonymousModelHelper,
@@ -110,7 +110,8 @@ public class ImmutableTypeCloner {
                                             symTable, anonymousModelHelper, names, origObjFlagSet, new HashSet<>());
     }
 
-    private static BType getImmutableType(DiagnosticPos pos, Types types, BType type, SymbolEnv env, PackageID pkgId,
+    private static BType getImmutableType(Location pos, Types types, BType type, SymbolEnv env,
+                                          PackageID pkgId,
                                           BSymbol owner, SymbolTable symTable,
                                           BLangAnonymousModelHelper anonymousModelHelper, Names names,
                                           Set<BType> unresolvedTypes) {
@@ -127,7 +128,7 @@ public class ImmutableTypeCloner {
                                             unresolvedTypes);
     }
 
-    private static BIntersectionType getImmutableIntersectionType(DiagnosticPos pos,
+    private static BIntersectionType getImmutableIntersectionType(Location pos,
                                                                   Types types, SelectivelyImmutableReferenceType type,
                                                                   SymbolEnv env, PackageID pkgId,
                                                                   BSymbol owner, SymbolTable symTable,
@@ -149,7 +150,7 @@ public class ImmutableTypeCloner {
                                                     anonymousModelHelper, names, origObjFlagSet, unresolvedTypes);
     }
 
-    private static BIntersectionType setImmutableType(DiagnosticPos pos, Types types,
+    private static BIntersectionType setImmutableType(Location pos, Types types,
                                                       SelectivelyImmutableReferenceType selectivelyImmutableRefType,
                                                       SymbolEnv env, PackageID pkgId, BSymbol owner,
                                                       SymbolTable symTable,
@@ -410,7 +411,7 @@ public class ImmutableTypeCloner {
                                                       Types types, SymbolEnv pkgEnv, SymbolTable symTable,
                                                       BLangAnonymousModelHelper anonymousModelHelper,
                                                       Names names) {
-        DiagnosticPos pos = immutableTypeDefinition.pos;
+        Location pos = immutableTypeDefinition.pos;
         SymbolEnv env = SymbolEnv.createTypeEnv(immutableTypeDefinition.typeNode, immutableTypeDefinition.symbol.scope,
                                                 pkgEnv);
         PackageID pkgID = env.enclPkg.symbol.pkgID;
@@ -425,7 +426,8 @@ public class ImmutableTypeCloner {
                                              types, env, symTable, anonymousModelHelper, names);
     }
 
-    private static void defineUndefinedImmutableRecordFields(BRecordType immutableRecordType, DiagnosticPos pos,
+    private static void defineUndefinedImmutableRecordFields(BRecordType immutableRecordType,
+                                                             Location loc,
                                                              PackageID pkgID,
                                                              BLangTypeDefinition immutableTypeDefinition,
                                                              Types types, SymbolEnv env, SymbolTable symTable,
@@ -436,7 +438,7 @@ public class ImmutableTypeCloner {
 
             populateImmutableStructureFields(types, symTable, anonymousModelHelper, names,
                                              (BLangRecordTypeNode) immutableTypeDefinition.typeNode,
-                                             immutableRecordType, origRecordType, pos, env, pkgID, new HashSet<>());
+                                             immutableRecordType, origRecordType, loc, env, pkgID, new HashSet<>());
         }
 
         BType currentRestFieldType = immutableRecordType.restFieldType;
@@ -444,11 +446,12 @@ public class ImmutableTypeCloner {
             return;
         }
 
-        setRestType(types, symTable, anonymousModelHelper, names, immutableRecordType, origRecordType, pos, env,
+        setRestType(types, symTable, anonymousModelHelper, names, immutableRecordType, origRecordType, loc, env,
                     new HashSet<>());
     }
 
-    private static void defineUndefinedImmutableObjectFields(BObjectType immutableObjectType, DiagnosticPos pos,
+    private static void defineUndefinedImmutableObjectFields(BObjectType immutableObjectType,
+                                                             Location location,
                                                              PackageID pkgID,
                                                              BLangTypeDefinition immutableTypeDefinition,
                                                              Types types, SymbolEnv env, SymbolTable symTable,
@@ -460,7 +463,7 @@ public class ImmutableTypeCloner {
             populateImmutableStructureFields(types, symTable, anonymousModelHelper, names,
                                              (BLangObjectTypeNode) immutableTypeDefinition.typeNode,
                                              immutableObjectType, origObjectType,
-                                             pos, env, pkgID, new HashSet<>(), Flags.FINAL);
+                                             location, env, pkgID, new HashSet<>(), Flags.FINAL);
         }
     }
 
@@ -468,7 +471,7 @@ public class ImmutableTypeCloner {
                                                          BLangAnonymousModelHelper anonymousModelHelper, Names names,
                                                          BLangStructureTypeNode immutableStructureTypeNode,
                                                          BStructureType immutableStructureType,
-                                                         BStructureType origStructureType, DiagnosticPos pos,
+                                                         BStructureType origStructureType, Location pos,
                                                          SymbolEnv env, PackageID pkgID, Set<BType> unresolvedTypes) {
         populateImmutableStructureFields(types, symTable, anonymousModelHelper, names, immutableStructureTypeNode,
                                          immutableStructureType, origStructureType, pos, env, pkgID, unresolvedTypes,
@@ -479,7 +482,7 @@ public class ImmutableTypeCloner {
                                                          BLangAnonymousModelHelper anonymousModelHelper, Names names,
                                                          BLangStructureTypeNode immutableStructureTypeNode,
                                                          BStructureType immutableStructureType,
-                                                         BStructureType origStructureType, DiagnosticPos pos,
+                                                         BStructureType origStructureType, Location pos,
                                                          SymbolEnv env, PackageID pkgID, Set<BType> unresolvedTypes,
                                                          int flag) {
         BTypeSymbol immutableStructureSymbol = immutableStructureType.tsymbol;
@@ -508,7 +511,7 @@ public class ImmutableTypeCloner {
         immutableStructureType.fields = fields;
 
         BLangUserDefinedType origTypeRef = new BLangUserDefinedType(
-                ASTBuilderUtil.createIdentifier(pos, getPackageAlias(env, pos.getSource().getCompilationUnitName(),
+                ASTBuilderUtil.createIdentifier(pos, getPackageAlias(env, pos.lineRange().filePath(),
                                                                      origStructureType.tsymbol.pkgID)),
                 ASTBuilderUtil.createIdentifier(pos, origStructureType.tsymbol.name.value));
         origTypeRef.pos = pos;
@@ -533,7 +536,7 @@ public class ImmutableTypeCloner {
 
     private static void setRestType(Types types, SymbolTable symTable, BLangAnonymousModelHelper anonymousModelHelper,
                                     Names names, BRecordType immutableRecordType, BRecordType origRecordType,
-                                    DiagnosticPos pos, SymbolEnv env, Set<BType> unresolvedTypes) {
+                                    Location pos, SymbolEnv env, Set<BType> unresolvedTypes) {
         immutableRecordType.sealed = origRecordType.sealed;
 
         BType origRestFieldType = origRecordType.restFieldType;
@@ -547,7 +550,7 @@ public class ImmutableTypeCloner {
                                                              unresolvedTypes);
     }
 
-    private static BIntersectionType defineImmutableRecordType(DiagnosticPos pos, BRecordType origRecordType,
+    private static BIntersectionType defineImmutableRecordType(Location pos, BRecordType origRecordType,
                                                                SymbolEnv env, SymbolTable symTable,
                                                                BLangAnonymousModelHelper anonymousModelHelper,
                                                                Names names, Types types, Set<BType> unresolvedTypes) {
@@ -598,7 +601,7 @@ public class ImmutableTypeCloner {
         return immutableRecordIntersectionType;
     }
 
-    private static BIntersectionType defineImmutableObjectType(DiagnosticPos pos,
+    private static BIntersectionType defineImmutableObjectType(Location pos,
                                                                BObjectType origObjectType, SymbolEnv env,
                                                                SymbolTable symTable,
                                                                BLangAnonymousModelHelper anonymousModelHelper,
