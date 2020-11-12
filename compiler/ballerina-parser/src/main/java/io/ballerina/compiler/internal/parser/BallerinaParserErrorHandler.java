@@ -924,7 +924,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN;
                     break;
                 case OBJECT_CONSTRUCTOR_QUALIFIER:
-                    hasMatch = nextToken.kind == SyntaxKind.CLIENT_KEYWORD;
+                    hasMatch = nextToken.kind == SyntaxKind.CLIENT_KEYWORD ||
+                            nextToken.kind == SyntaxKind.ISOLATED_KEYWORD;
                     break;
                 case OBJECT_TYPE_QUALIFIER:
                     hasMatch = nextToken.kind == SyntaxKind.CLIENT_KEYWORD ||
