@@ -24,11 +24,13 @@ import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.model.BallerinaToml;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -46,20 +48,7 @@ public class BuildProject extends Project {
      * @return build project
      */
     public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
-        Path absProjectPath = Optional.of(projectPath.toAbsolutePath()).get();
-        if (!absProjectPath.toFile().exists()) {
-            throw new RuntimeException("project path does not exist:" + projectPath);
-        }
-
-        if (!ProjectUtils.isBallerinaProject(absProjectPath)) {
-            throw new RuntimeException("provided path is not a valid Ballerina project: " + projectPath);
-        }
-
-        if (ProjectUtils.findProjectRoot(Optional.of(absProjectPath.getParent()).get()) != null) {
-            throw new RuntimeException("provided path is already within a Ballerina project: " +
-                    absProjectPath.getParent());
-        }
-
+        Path absProjectPath = validateAndGetAbsProjectPath(projectPath);
         return new BuildProject(environmentBuilder, absProjectPath);
     }
 
@@ -136,12 +125,35 @@ public class BuildProject extends Project {
         this.addPackage(packageConfig);
     }
 
+    private static Path validateAndGetAbsProjectPath(Path projectPath) {
+        Path absProjectPath = Optional.of(projectPath.toAbsolutePath()).get();
+        if (Files.notExists(absProjectPath)) {
+            throw new ProjectException("The directory does not exist: " + projectPath);
+        }
+
+        if (!Files.isDirectory(absProjectPath)) {
+            throw new ProjectException("Invalid Ballerina package directory: " + projectPath);
+        }
+
+        if (!ProjectUtils.isBallerinaProject(absProjectPath)) {
+            throw new ProjectException("Invalid Ballerina package directory: " + projectPath +
+                    ", cannot find 'Ballerina.toml' file.");
+        }
+
+        if (ProjectUtils.findProjectRoot(Optional.of(absProjectPath.getParent()).get()) != null) {
+            throw new ProjectException("Provided path is already within a Ballerina package: " +
+                    absProjectPath.getParent());
+        }
+        return absProjectPath;
+    }
+
     /**
      * {@code BuildOptions} represents build options specific to a build project.
      */
     public static class BuildOptions extends io.ballerina.projects.BuildOptions {
 
-        private BuildOptions() {}
+        private BuildOptions() {
+        }
 
         public void setObservabilityEnabled(boolean observabilityEnabled) {
             this.observabilityIncluded = observabilityEnabled;
