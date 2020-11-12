@@ -1927,9 +1927,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
         workerSendNode.expr.accept(this);
-        if (workerSendNode.keyExpr != null) {
-            workerSendNode.keyExpr.accept(this);
-        }
     }
 
     @Override

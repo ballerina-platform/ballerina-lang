@@ -979,9 +979,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
         workerSendNode.expr = rewriteExpr(workerSendNode.expr);
-        if (workerSendNode.keyExpr != null) {
-            workerSendNode.keyExpr = rewriteExpr(workerSendNode.keyExpr);
-        }
         result = workerSendNode;
     }
 

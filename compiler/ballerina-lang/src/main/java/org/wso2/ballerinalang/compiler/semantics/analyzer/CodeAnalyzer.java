@@ -2274,9 +2274,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(workerSendNode);
         if (workerSendNode.isChannel) {
             analyzeExpr(workerSendNode.expr);
-            if (workerSendNode.keyExpr != null) {
-                analyzeExpr(workerSendNode.keyExpr);
-            }
             return;
         }
 
