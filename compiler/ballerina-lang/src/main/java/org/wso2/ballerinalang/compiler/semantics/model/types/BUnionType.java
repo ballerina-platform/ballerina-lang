@@ -71,8 +71,7 @@ public class BUnionType extends BType implements UnionType {
         resolveCyclicType(type);
         this.isCyclic = type.isCyclic;
         this.flags = type.flags;
-//        this.immutableType = type.immutableType;
-//        this.tag = type.tag;
+        this.immutableType = type.immutableType;
     }
 
     @Override
@@ -267,34 +266,32 @@ public class BUnionType extends BType implements UnionType {
     }
 
     protected void resolveCyclicType(BUnionType unionType) {
+        if (!unionType.isCyclic) {
+            return;
+        }
         for (BType member : unionType.getMemberTypes()) {
-            if (member.tag == TypeTags.ARRAY) {
-                var arrayType = (BArrayType) member;
+            if (member instanceof BArrayType) {
+                BArrayType arrayType = (BArrayType) member;
                 if (arrayType.eType == unionType) {
                     arrayType.eType = this;
                     isCyclic = true;
                     continue;
                 }
-            }
-
-            if (member.tag == TypeTags.MAP) {
-                var mapType = (BMapType) member;
+            } else if (member instanceof BMapType) {
+                BMapType mapType = (BMapType) member;
                 if (mapType.constraint == unionType) {
                     mapType.constraint = this;
                     isCyclic = true;
                     continue;
                 }
-            }
-
-            if (member.tag == TypeTags.TABLE) {
-                var tableType = (BTableType) member;
+            } else if (member instanceof BTableType) {
+                BTableType tableType = (BTableType) member;
                 if (tableType.constraint == unionType) {
                     tableType.constraint = this;
                     isCyclic = true;
                     continue;
-                }
-                if (tableType.constraint.tag == TypeTags.MAP) {
-                    var mapType = (BMapType) tableType.constraint;
+                } else if (tableType.constraint instanceof BMapType) {
+                    BMapType mapType = (BMapType) tableType.constraint;
                     if (mapType.constraint == unionType) {
                         mapType.constraint = this;
                         isCyclic = true;
