@@ -1,11 +1,5 @@
 service Foo on bar {
+    isolated resource transactional function get x/y/z() {
 
-    // resource qual should come first
-    transactional resource function () a = b;
-
-    // duplicate resource qual
-    resource resource function () a = b;
-
-    // Test incomplete resource field
-    resource function
+    }
 }

@@ -11,12 +11,15 @@ service foo on listner {
     }
 
     // Test with invalid qualifiers
-    transactional resource isolated function get name () {
+    remote resource function get name () {
+
+    }
+    resource remote function get name () {
 
     }
 
     // Test missing accessor name and resource path
-    resource function (){
+    resource function () {
 
     }
 }

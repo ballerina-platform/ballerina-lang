@@ -1,7 +1,22 @@
 service Foo on bar {
-    resource final transactional function() a = b;
-    final resource isolated function() a = b;
-    resource Person person;
-    resource final Animal animal;
-    final resource Vehicle vehicle;
+
+    // Test duplicate qualifiers
+
+    public transactional isolated transactional function foo() {
+
+    }
+
+    isolated isolated resource function get x/y/z() {
+
+    }
+
+    // Test visibility qualifier with remote and resource
+
+    public remote function foo() {
+
+    }
+
+    public resource function get x/y/z() {
+
+    }
 }
