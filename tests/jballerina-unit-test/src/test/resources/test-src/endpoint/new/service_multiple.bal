@@ -8,10 +8,10 @@ int attachCount = -2;
 service on ep, new PQR("pqr") {
 
 
-    resource function foo(string b) {
+    resource function get foo(string b) {
     }
 
-    resource function bar(string b) {
+    resource function get bar(string b) {
     }
 }
 
@@ -31,11 +31,11 @@ public class ABC {
         return ();
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function __attach(service object {} s, string? name = ()) returns error? {
         attachCount += 1;
     }
 
-    public function __detach(service s) returns error? {
+    public function __detach(service object {} s) returns error? {
     }
 }
 
@@ -58,11 +58,11 @@ public class PQR {
         return ();
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function __attach(service object {} s, string? name = ()) returns error? {
         attachCount += 1;
     }
 
-    public function __detach(service s) returns error? {
+    public function __detach(service object {} s) returns error? {
     }
 }
 

@@ -60,6 +60,7 @@ public class IsolationAnalysisTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/isolation-analysis/isolation_analysis.bal");
+        int i = 0;
     }
 
     @Test(dataProvider = "isolatedFunctionTests")

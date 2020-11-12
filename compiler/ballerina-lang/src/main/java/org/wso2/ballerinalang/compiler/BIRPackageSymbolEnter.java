@@ -1271,7 +1271,7 @@ public class BIRPackageSymbolEnter {
                     if (Symbols.isFlagOn(objFlags, Flags.CLASS)) {
                         objectSymbol = Symbols.createClassSymbol(objFlags, names.fromString(objName),
                                                                  env.pkgSymbol.pkgID, null, env.pkgSymbol,
-                                                                 symTable.builtinPos, COMPILED_SOURCE);
+                                                                 symTable.builtinPos, COMPILED_SOURCE, false);
                     } else {
                         objectSymbol = Symbols.createObjectSymbol(objFlags, names.fromString(objName),
                                                                   env.pkgSymbol.pkgID, null, env.pkgSymbol,

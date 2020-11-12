@@ -1080,7 +1080,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         BLangIdentifier pkgAlias = createIdentifier(pos, "");
-        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, anonClass.name);
+        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, createIdentifier(pos, genName));
 
         invocationNode.name = (BLangIdentifier) nameReference.name;
         invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
@@ -1659,6 +1659,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     break;
                 default:
                     bLAttachPoint = AttachPoint.getAttachmentPoint(firstIndent.text(), source);
+                    if (bLAttachPoint == null) {
+                        dlog.error(pos, DiagnosticCode.ANNOTATION_UNKNOWN_ATTACH_POINT, firstIndent.text());
+                    }
             }
             annotationDecl.addAttachPoint(bLAttachPoint);
         }
@@ -3613,7 +3616,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         BLangIdentifier pkgAlias = createIdentifier(pos, "");
-        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, annonClassDef.name);
+        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, createIdentifier(pos, genName));
 
         invocationNode.name = (BLangIdentifier) nameReference.name;
         invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
@@ -3634,6 +3637,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         service.serviceClass = annonClassDef;
         service.absoluteResourcePath = absResourcePathPath;
         service.pos = pos;
+        service.name = createIdentifier(pos, anonymousModelHelper.getNextAnonymousServiceVarKey(packageID));
         return service;
     }
 

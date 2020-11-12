@@ -95,6 +95,11 @@ public class BLangService extends BLangNode implements ServiceNode {
     }
 
     @Override
+    public List<String> getAbsolutePath() {
+        return this.absoluteResourcePath;
+    }
+
+    @Override
     public Set<Flag> getFlags() {
         return null;
     }
