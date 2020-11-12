@@ -18,8 +18,6 @@
 
 package org.ballerinalang.central.client;
 
-import org.ballerinalang.central.client.CentralClientException;
-
 /**
  * Class contains utility methods for error handling.
  *

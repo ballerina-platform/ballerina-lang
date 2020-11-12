@@ -71,7 +71,7 @@ public class BaloFiles {
 
             // load other modules
             Path modulesPathInBalo = zipFileSystem.getPath(MODULES_ROOT);
-            List<ModuleData> otherModules = loadOtherModules(modulesPathInBalo,defaultModulePathInBalo, zipFileSystem,
+            List<ModuleData> otherModules = loadOtherModules(modulesPathInBalo, defaultModulePathInBalo, zipFileSystem,
                     pkgName);
             return PackageData.from(absBaloPath, defaultModule, otherModules);
         } catch (IOException e) {
