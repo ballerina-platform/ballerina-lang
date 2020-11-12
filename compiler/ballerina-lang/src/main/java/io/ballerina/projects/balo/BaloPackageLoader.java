@@ -19,17 +19,8 @@ package io.ballerina.projects.balo;
 
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.PackageDescriptor;
-import io.ballerina.projects.PackageName;
-import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.directory.PackageData;
 import io.ballerina.projects.directory.PackageLoader;
-
-import java.nio.file.Path;
-
-import static io.ballerina.projects.util.ProjectUtils.getOrgFromBaloName;
-import static io.ballerina.projects.util.ProjectUtils.getPackageNameFromBaloName;
-import static io.ballerina.projects.util.ProjectUtils.getVersionFromBaloName;
 
 /**
  * Contains a set of utility methods that creates the config hierarchy from balo file.
@@ -38,15 +29,9 @@ import static io.ballerina.projects.util.ProjectUtils.getVersionFromBaloName;
  */
 public class BaloPackageLoader extends PackageLoader {
 
-    public static PackageConfig loadPackage(String packageDir) {
+    public static PackageConfig loadPackage(String packageDir, PackageDescriptor packageDescriptor) {
         // TODO Refactor this code
-        PackageData packageData = BaloFiles.loadPackageData(packageDir);
-        Path baloName = packageData.packagePath().getFileName();
-        PackageName packageName = PackageName.from(getPackageNameFromBaloName(String.valueOf(baloName)));
-        PackageOrg packageOrg = PackageOrg.from(getOrgFromBaloName(String.valueOf(baloName)));
-        PackageVersion packageVersion = PackageVersion.from(getVersionFromBaloName(String.valueOf(baloName)));
-        PackageDescriptor packageDescriptor = PackageDescriptor.from(packageName, packageOrg, packageVersion);
-
+        PackageData packageData = BaloFiles.loadPackageData(packageDir, packageDescriptor);
         return createPackageConfig(packageData, packageDescriptor);
     }
 }
