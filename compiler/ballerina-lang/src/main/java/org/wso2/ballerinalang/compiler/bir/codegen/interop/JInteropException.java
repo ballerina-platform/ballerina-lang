@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 
 /**
  * This error indicates Ballerina Java interoperability related error.
@@ -26,21 +26,21 @@ import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
  */
 public class JInteropException extends RuntimeException {
 
-    private DiagnosticErrorCode code;
+    private DiagnosticCode code;
 
-    JInteropException(DiagnosticErrorCode code, String message) {
+    JInteropException(DiagnosticCode code, String message) {
 
         super(message);
         this.code = code;
     }
 
-    JInteropException(DiagnosticErrorCode code, String message, Throwable cause) {
+    JInteropException(DiagnosticCode code, String message, Throwable cause) {
 
         super(message, cause);
         this.code = code;
     }
 
-    public DiagnosticErrorCode getCode() {
+    public DiagnosticCode getCode() {
 
         return this.code;
     }

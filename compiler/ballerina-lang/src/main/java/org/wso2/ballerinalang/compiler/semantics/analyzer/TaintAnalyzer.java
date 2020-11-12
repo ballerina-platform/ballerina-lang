@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
@@ -2285,7 +2286,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void addTaintError(Location location, String paramName, DiagnosticErrorCode diagnosticCode) {
+    private void addTaintError(Location location, String paramName, DiagnosticCode diagnosticCode) {
         TaintRecord.TaintError taintError = new TaintRecord.TaintError(location, paramName, diagnosticCode);
         getCurrentAnalysisState().taintErrorSet.add(taintError);
         if (!entryPointAnalysis) {
@@ -2294,7 +2295,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private void addTaintError(Location diagnosticLocation, String paramName, String paramName2,
-                               DiagnosticErrorCode diagnosticCode) {
+                               DiagnosticCode diagnosticCode) {
         TaintRecord.TaintError taintError = new TaintRecord.TaintError(diagnosticLocation, paramName, paramName2,
                 diagnosticCode);
         getCurrentAnalysisState().taintErrorSet.add(taintError);

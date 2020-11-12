@@ -17,12 +17,15 @@
  */
 package org.ballerinalang.util.diagnostic;
 
+import io.ballerina.tools.diagnostics.DiagnosticCode;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+
 /**
  * This class contains a list of diagnostic codes.
  *
  * @since 0.94
  */
-public enum DiagnosticErrorCode {
+public enum DiagnosticErrorCode implements DiagnosticCode {
 
     UNDEFINED_MODULE("undefined.module"),
     CYCLIC_MODULE_IMPORTS_DETECTED("cyclic.module.imports.detected"),
@@ -42,7 +45,7 @@ public enum DiagnosticErrorCode {
     UNDEFINED_CONNECTOR("undefined.connector"),
     INVALID_ERROR_REASON_TYPE("invalid.error.reason.type"),
     UNSUPPORTED_ERROR_REASON_CONST_MATCH("error.match.over.const.reason.ref.not.supported"),
-    NON_MODULE_QUALIFIED_ERROR_REASON("non.module.qualified.error.reason"),     // warning msg
+    // NON_MODULE_QUALIFIED_ERROR_REASON("non.module.qualified.error.reason"),     // warning msg
     INVALID_ERROR_DETAIL_TYPE("invalid.error.detail.type"),
     ERROR_DETAIL_ARG_IS_NOT_NAMED_ARG("error.detail.arg.not.named.arg"),
     DIRECT_ERROR_CTOR_REASON_NOT_PROVIDED("missing.error.reason"),
@@ -644,5 +647,25 @@ public enum DiagnosticErrorCode {
 
     public String getValue() {
         return messageKey;
+    }
+
+    @Override
+    public DiagnosticSeverity severity() {
+        return DiagnosticSeverity.ERROR;
+    }
+
+    @Override
+    public String diagnosticId() {
+        return diagnosticId;
+    }
+
+    @Override
+    public String messageKey() {
+        return messageKey;
+    }
+
+    @Override
+    public boolean equals(DiagnosticCode code) {
+        return this.messageKey.equals(code.messageKey());
     }
 }

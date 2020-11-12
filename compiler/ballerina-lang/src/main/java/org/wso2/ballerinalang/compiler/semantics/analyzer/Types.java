@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
@@ -170,7 +171,7 @@ public class Types {
     public BType checkType(BLangExpression expr,
                            BType actualType,
                            BType expType,
-                           DiagnosticErrorCode diagCode) {
+                           DiagnosticCode diagCode) {
         expr.type = checkType(expr.pos, actualType, expType, diagCode);
         if (expr.type.tag == TypeTags.SEMANTIC_ERROR) {
             return expr.type;
@@ -185,7 +186,7 @@ public class Types {
     public BType checkType(Location pos,
                            BType actualType,
                            BType expType,
-                           DiagnosticErrorCode diagCode) {
+                           DiagnosticCode diagCode) {
         if (expType.tag == TypeTags.SEMANTIC_ERROR) {
             return expType;
         } else if (expType.tag == TypeTags.NONE) {
@@ -3304,7 +3305,7 @@ public class Types {
      * @param function          The function of which the return type should be validated
      * @param diagnosticCode    The code to log if the return type is invalid
      */
-    public void validateErrorOrNilReturn(BLangFunction function, DiagnosticErrorCode diagnosticCode) {
+    public void validateErrorOrNilReturn(BLangFunction function, DiagnosticCode diagnosticCode) {
         BType returnType = function.returnTypeNode.type;
 
         if (returnType.tag == TypeTags.NIL) {

@@ -30,4 +30,6 @@ public interface DiagnosticCode {
     String diagnosticId();
 
     String messageKey();
+
+    boolean equals(DiagnosticCode code);
 }

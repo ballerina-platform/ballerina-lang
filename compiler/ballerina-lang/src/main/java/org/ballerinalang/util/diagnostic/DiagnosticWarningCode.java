@@ -17,7 +17,10 @@
  */
 package org.ballerinalang.util.diagnostic;
 
-public enum DiagnosticWarningCode {
+import io.ballerina.tools.diagnostics.DiagnosticCode;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+
+public enum DiagnosticWarningCode implements DiagnosticCode {
 
     NON_MODULE_QUALIFIED_ERROR_REASON("non.module.qualified.error.reason"),
 
@@ -71,5 +74,25 @@ public enum DiagnosticWarningCode {
 
     public String getValue() {
         return messageKey;
+    }
+
+    @Override
+    public DiagnosticSeverity severity() {
+        return DiagnosticSeverity.WARNING;
+    }
+
+    @Override
+    public String diagnosticId() {
+        return diagnosticId;
+    }
+
+    @Override
+    public String messageKey() {
+        return messageKey;
+    }
+
+    @Override
+    public boolean equals(DiagnosticCode code) {
+        return this.messageKey.equals(code.messageKey());
     }
 }

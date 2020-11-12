@@ -52,4 +52,9 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
     public String messageKey() {
         return messageKey;
     }
+
+    @Override
+    public boolean equals(DiagnosticCode code) {
+        return this.messageKey.equals(code.messageKey());
+    }
 }

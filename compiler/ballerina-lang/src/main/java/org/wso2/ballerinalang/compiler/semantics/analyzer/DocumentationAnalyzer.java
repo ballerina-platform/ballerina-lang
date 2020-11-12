@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
@@ -408,8 +409,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     private void validateParameters(DocumentableNode documentableNode,
                                     List<BLangSimpleVariable> actualParameters,
                                     BLangSimpleVariable restParam,
-                                    DiagnosticErrorCode undocumentedParameter, DiagnosticErrorCode noSuchParameter,
-                                    DiagnosticErrorCode parameterAlreadyDefined) {
+                                    DiagnosticCode undocumentedParameter, DiagnosticCode noSuchParameter,
+                                    DiagnosticCode parameterAlreadyDefined) {
         BLangMarkdownDocumentation documentation = documentableNode.getMarkdownDocumentationAttachment();
         if (documentation == null) {
             return;
@@ -514,7 +515,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     private Map<String, BLangMarkdownParameterDocumentation> getDocumentedParameters(
             LinkedList<BLangMarkdownParameterDocumentation> deprecatedParameters,
             List<String> fieldsDocumentedFields,
-            DiagnosticErrorCode parameterAlreadyDefined) {
+            DiagnosticCode parameterAlreadyDefined) {
         Map<String, BLangMarkdownParameterDocumentation> documentedDeprecatedParameterMap = new HashMap<>();
 
         for (BLangMarkdownParameterDocumentation parameter : deprecatedParameters) {
@@ -533,8 +534,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     private void validateDeprecatedParameters(DocumentableNode documentableNode,
                                              List<BLangSimpleVariable> actualParameters,
                                              BLangSimpleVariable restParam,
-                                             DiagnosticErrorCode parameterAlreadyDefined,
-                                             DiagnosticErrorCode noSuchParameter) {
+                                             DiagnosticCode parameterAlreadyDefined,
+                                             DiagnosticCode noSuchParameter) {
         BLangMarkdownDocumentation documentation = documentableNode.getMarkdownDocumentationAttachment();
         if (documentation == null) {
             return;

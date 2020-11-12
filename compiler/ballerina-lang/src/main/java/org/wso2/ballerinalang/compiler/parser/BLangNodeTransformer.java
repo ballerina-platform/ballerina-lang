@@ -218,6 +218,7 @@ import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
 import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
 import io.ballerina.runtime.internal.IdentifierUtils;
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -2536,7 +2537,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return bLCompAssignment;
     }
 
-    private void validateLvexpr(ExpressionNode lExprNode, DiagnosticErrorCode errorCode) {
+    private void validateLvexpr(ExpressionNode lExprNode, DiagnosticCode errorCode) {
         if (lExprNode.getKind() == NodeKind.INVOCATION) {
             dlog.error(((BLangInvocation) lExprNode).pos, errorCode);
         }
@@ -5011,7 +5012,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private Object parseLong(Node literal, String originalNodeValue,
                              String processedNodeValue, int radix, SyntaxKind sign,
-                             DiagnosticErrorCode code1, DiagnosticErrorCode code2) {
+                             DiagnosticCode code1, DiagnosticCode code2) {
         try {
             return Long.parseLong(processedNodeValue, radix);
         } catch (Exception e) {

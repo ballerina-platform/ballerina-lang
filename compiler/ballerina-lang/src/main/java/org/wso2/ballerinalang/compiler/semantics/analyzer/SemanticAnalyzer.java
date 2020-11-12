@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
@@ -212,7 +213,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private SymbolEnv env;
     private BType expType;
-    private DiagnosticErrorCode diagCode;
+    private DiagnosticCode diagCode;
     private BType resType;
 
     private Map<BVarSymbol, BType.NarrowedTypes> narrowedTypeInfo;
@@ -2955,10 +2956,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.typeChecker.checkExpr(panicNode.expr, env, symTable.errorType);
     }
 
-    BType analyzeNode(BLangNode node, SymbolEnv env, BType expType, DiagnosticErrorCode diagCode) {
+    BType analyzeNode(BLangNode node, SymbolEnv env, BType expType, DiagnosticCode diagCode) {
         this.prevEnvs.push(this.env);
         BType preExpType = this.expType;
-        DiagnosticErrorCode preDiagCode = this.diagCode;
+        DiagnosticCode preDiagCode = this.diagCode;
 
         // TODO Check the possibility of using a try/finally here
         this.env = env;

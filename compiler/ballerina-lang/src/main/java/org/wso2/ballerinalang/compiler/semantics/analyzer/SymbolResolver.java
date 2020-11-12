@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -138,7 +139,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private SymbolEnv env;
     private BType resultType;
-    private DiagnosticErrorCode diagCode;
+    private DiagnosticCode diagCode;
     private SymbolEnter symbolEnter;
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
@@ -446,9 +447,9 @@ public class SymbolResolver extends BLangNodeVisitor {
         return resolveTypeNode(typeNode, env, DiagnosticErrorCode.UNKNOWN_TYPE);
     }
 
-    public BType resolveTypeNode(BLangType typeNode, SymbolEnv env, DiagnosticErrorCode diagCode) {
+    public BType resolveTypeNode(BLangType typeNode, SymbolEnv env, DiagnosticCode diagCode) {
         SymbolEnv prevEnv = this.env;
-        DiagnosticErrorCode preDiagCode = this.diagCode;
+        DiagnosticCode preDiagCode = this.diagCode;
 
         this.env = env;
         this.diagCode = diagCode;

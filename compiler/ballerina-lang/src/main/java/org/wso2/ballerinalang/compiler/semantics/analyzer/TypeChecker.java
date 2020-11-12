@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.runtime.internal.IdentifierUtils;
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.OrderKeyNode;
@@ -262,7 +263,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType expType;
     private BType resultType;
 
-    private DiagnosticErrorCode diagCode;
+    private DiagnosticCode diagCode;
 
     static {
         listLengthModifierFunctions.add(FUNCTION_NAME_PUSH);
@@ -345,7 +346,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return checkExpr(expr, env, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
     }
 
-    public BType checkExpr(BLangExpression expr, SymbolEnv env, BType expType, DiagnosticErrorCode diagCode) {
+    public BType checkExpr(BLangExpression expr, SymbolEnv env, BType expType, DiagnosticCode diagCode) {
         if (expr.typeChecked) {
             return expr.type;
         }
@@ -356,7 +357,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         SymbolEnv prevEnv = this.env;
         BType preExpType = this.expType;
-        DiagnosticErrorCode preDiagCode = this.diagCode;
+        DiagnosticCode preDiagCode = this.diagCode;
         this.env = env;
         this.diagCode = diagCode;
         this.expType = expType;
@@ -4136,7 +4137,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean evaluateRawTemplateExprs(List<? extends BLangExpression> exprs, BType fieldType,
-                                             DiagnosticErrorCode code, Location pos) {
+                                             DiagnosticCode code, Location pos) {
         BType listType = getResolvedIntersectionType(fieldType);
         boolean errored = false;
 
