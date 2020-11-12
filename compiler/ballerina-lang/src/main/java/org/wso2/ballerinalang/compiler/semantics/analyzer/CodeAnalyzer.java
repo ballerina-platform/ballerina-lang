@@ -29,6 +29,7 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -2061,7 +2062,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(annAttachmentNode.expr);
         BAnnotationSymbol annotationSymbol = annAttachmentNode.annotationSymbol;
         if (annotationSymbol != null && Symbols.isFlagOn(annotationSymbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(annAttachmentNode.pos, DiagnosticErrorCode.USAGE_OF_DEPRECATED_CONSTRUCT, annotationSymbol);
+            dlog.warning(annAttachmentNode.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, annotationSymbol);
         }
     }
 
@@ -2621,7 +2622,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
         }
         if (varRefExpr.symbol != null && Symbols.isFlagOn(varRefExpr.symbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(varRefExpr.pos, DiagnosticErrorCode.USAGE_OF_DEPRECATED_CONSTRUCT, varRefExpr);
+            dlog.warning(varRefExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, varRefExpr);
         }
     }
 
@@ -2641,7 +2642,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(fieldAccessExpr.expr);
         BSymbol symbol = fieldAccessExpr.symbol;
         if (symbol != null && Symbols.isFlagOn(fieldAccessExpr.symbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(fieldAccessExpr.pos, DiagnosticErrorCode.USAGE_OF_DEPRECATED_CONSTRUCT, fieldAccessExpr);
+            dlog.warning(fieldAccessExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, fieldAccessExpr);
         }
     }
 
@@ -2667,7 +2668,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 return;
             }
             if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
-                dlog.warning(invocationExpr.pos, DiagnosticErrorCode.USAGE_OF_DEPRECATED_CONSTRUCT,
+                dlog.warning(invocationExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT,
                              invocationExpr);
             }
 
@@ -2700,7 +2701,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         if (actionInvocation.symbol.kind == SymbolKind.FUNCTION &&
                 Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(actionInvocation.pos, DiagnosticErrorCode.USAGE_OF_DEPRECATED_CONSTRUCT, actionInvocation);
+            dlog.warning(actionInvocation.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, actionInvocation);
         }
 
         if (actionInvocation.flagSet.contains(Flag.TRANSACTIONAL) && !withinTransactionScope) {
@@ -2778,7 +2779,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(cIExpr.initInvocation);
         BType type = cIExpr.type;
         if (cIExpr.userDefinedType != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(cIExpr.pos, DiagnosticErrorCode.USAGE_OF_DEPRECATED_CONSTRUCT, type);
+            dlog.warning(cIExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, type);
         }
     }
 
@@ -3122,7 +3123,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangUserDefinedType userDefinedType) {
         BTypeSymbol typeSymbol = userDefinedType.type.tsymbol;
         if (typeSymbol != null && Symbols.isFlagOn(typeSymbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(userDefinedType.pos, DiagnosticErrorCode.USAGE_OF_DEPRECATED_CONSTRUCT, userDefinedType);
+            dlog.warning(userDefinedType.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, userDefinedType);
         }
     }
 
@@ -3351,7 +3352,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(annotAccessExpr.expr);
         BAnnotationSymbol annotationSymbol = annotAccessExpr.annotationSymbol;
         if (annotationSymbol != null && Symbols.isFlagOn(annotationSymbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(annotAccessExpr.pos, DiagnosticErrorCode.USAGE_OF_DEPRECATED_CONSTRUCT, annotationSymbol);
+            dlog.warning(annotAccessExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, annotationSymbol);
         }
     }
 

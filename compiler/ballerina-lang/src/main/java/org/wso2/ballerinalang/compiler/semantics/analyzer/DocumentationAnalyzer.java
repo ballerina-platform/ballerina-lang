@@ -27,6 +27,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -152,12 +153,12 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         validateParameters(funcNode, funcNode.getParameters(),
-                funcNode.restParam, DiagnosticErrorCode.UNDOCUMENTED_PARAMETER,
-                DiagnosticErrorCode.NO_SUCH_DOCUMENTABLE_PARAMETER,
-                DiagnosticErrorCode.PARAMETER_ALREADY_DOCUMENTED);
+                funcNode.restParam, DiagnosticWarningCode.UNDOCUMENTED_PARAMETER,
+                DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_PARAMETER,
+                DiagnosticWarningCode.PARAMETER_ALREADY_DOCUMENTED);
 
         validateDeprecatedParameters(funcNode, funcNode.getParameters(), funcNode.restParam,
-                DiagnosticErrorCode.PARAMETER_ALREADY_DOCUMENTED, DiagnosticErrorCode.NO_SUCH_DOCUMENTABLE_PARAMETER);
+                DiagnosticWarningCode.PARAMETER_ALREADY_DOCUMENTED, DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_PARAMETER);
         validateReferences(funcNode);
 
         boolean hasReturn = true;
@@ -188,8 +189,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         BLangType typeNode = typeDefinition.getTypeNode();
         if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
             List<BLangSimpleVariable> fields = ((BLangObjectTypeNode) typeNode).fields;
-            validateParameters(typeDefinition, fields, null, DiagnosticErrorCode.UNDOCUMENTED_FIELD,
-                    DiagnosticErrorCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticErrorCode.FIELD_ALREADY_DOCUMENTED);
+            validateParameters(typeDefinition, fields, null, DiagnosticWarningCode.UNDOCUMENTED_FIELD,
+                    DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticWarningCode.FIELD_ALREADY_DOCUMENTED);
             validateReturnParameter(typeDefinition, null, false);
             validateReferences(typeDefinition);
             for (SimpleVariableNode field : fields) {
@@ -202,8 +203,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             ((BLangObjectTypeNode) typeDefinition.getTypeNode()).getFunctions().forEach(this::analyzeNode);
         } else if (typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
             List<BLangSimpleVariable> fields = ((BLangRecordTypeNode) typeNode).fields;
-            validateParameters(typeDefinition, fields, null, DiagnosticErrorCode.UNDOCUMENTED_FIELD,
-                    DiagnosticErrorCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticErrorCode.FIELD_ALREADY_DOCUMENTED);
+            validateParameters(typeDefinition, fields, null, DiagnosticWarningCode.UNDOCUMENTED_FIELD,
+                    DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticWarningCode.FIELD_ALREADY_DOCUMENTED);
             validateReturnParameter(typeDefinition, null, false);
             validateReferences(typeDefinition);
 
@@ -220,8 +221,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangClassDefinition classDefinition) {
-        validateParameters(classDefinition, classDefinition.fields, null, DiagnosticErrorCode.UNDOCUMENTED_FIELD,
-                DiagnosticErrorCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticErrorCode.FIELD_ALREADY_DOCUMENTED);
+        validateParameters(classDefinition, classDefinition.fields, null, DiagnosticWarningCode.UNDOCUMENTED_FIELD,
+                DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticWarningCode.FIELD_ALREADY_DOCUMENTED);
         validateReturnParameter(classDefinition, null, false);
         validateReferences(classDefinition);
         for (SimpleVariableNode field : classDefinition.fields) {
@@ -242,9 +243,9 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangResource resourceNode) {
         validateParameters(resourceNode, resourceNode.getParameters(),
-                resourceNode.restParam, DiagnosticErrorCode.UNDOCUMENTED_PARAMETER,
-                DiagnosticErrorCode.NO_SUCH_DOCUMENTABLE_PARAMETER,
-                DiagnosticErrorCode.PARAMETER_ALREADY_DOCUMENTED);
+                resourceNode.restParam, DiagnosticWarningCode.UNDOCUMENTED_PARAMETER,
+                DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_PARAMETER,
+                DiagnosticWarningCode.PARAMETER_ALREADY_DOCUMENTED);
 
         validateReturnParameter(resourceNode, null, false);
         validateReferences(resourceNode);
@@ -299,10 +300,10 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             DocReferenceErrorType status = validateIdentifier(reference, documentableNode);
             if (status != DocReferenceErrorType.NO_ERROR) {
                 if (status == DocReferenceErrorType.REFERENCE_ERROR) {
-                    dlog.warning(reference.pos, DiagnosticErrorCode.INVALID_DOCUMENTATION_REFERENCE,
+                    dlog.warning(reference.pos, DiagnosticWarningCode.INVALID_DOCUMENTATION_REFERENCE,
                             reference.referenceName, reference.getType().getValue());
                 } else {
-                    dlog.warning(reference.pos, DiagnosticErrorCode.INVALID_USAGE_OF_PARAMETER_REFERENCE,
+                    dlog.warning(reference.pos, DiagnosticWarningCode.INVALID_USAGE_OF_PARAMETER_REFERENCE,
                             reference.referenceName);
                 }
             }
@@ -481,7 +482,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         }
         parameterDocumentations.forEach((parameter, parameterDocumentation) ->
                 dlog.warning(parameterDocumentation.pos,
-                             DiagnosticErrorCode.NO_SUCH_DOCUMENTABLE_PARAMETER, parameter));
+                             DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_PARAMETER, parameter));
     }
 
     private void validateReturnParameter(DocumentableNode documentableNode, BLangNode node, boolean isExpected) {
@@ -492,9 +493,9 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
         BLangMarkdownReturnParameterDocumentation returnParameter = documentationAttachment.getReturnParameter();
         if (returnParameter == null && isExpected) {
-            dlog.warning(documentationAttachment.pos, DiagnosticErrorCode.UNDOCUMENTED_RETURN_PARAMETER);
+            dlog.warning(documentationAttachment.pos, DiagnosticWarningCode.UNDOCUMENTED_RETURN_PARAMETER);
         } else if (returnParameter != null && !isExpected) {
-            dlog.warning(returnParameter.pos, DiagnosticErrorCode.NO_DOCUMENTABLE_RETURN_PARAMETER);
+            dlog.warning(returnParameter.pos, DiagnosticWarningCode.NO_DOCUMENTABLE_RETURN_PARAMETER);
         } else if (returnParameter != null) {
             returnParameter.setReturnType(((BLangFunction) node).getReturnTypeNode().type);
         }

@@ -45,7 +45,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNDEFINED_CONNECTOR("undefined.connector"),
     INVALID_ERROR_REASON_TYPE("invalid.error.reason.type"),
     UNSUPPORTED_ERROR_REASON_CONST_MATCH("error.match.over.const.reason.ref.not.supported"),
-    // NON_MODULE_QUALIFIED_ERROR_REASON("non.module.qualified.error.reason"),     // warning msg
     INVALID_ERROR_DETAIL_TYPE("invalid.error.detail.type"),
     ERROR_DETAIL_ARG_IS_NOT_NAMED_ARG("error.detail.arg.not.named.arg"),
     DIRECT_ERROR_CTOR_REASON_NOT_PROVIDED("missing.error.reason"),
@@ -365,26 +364,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
     CANNOT_GET_ALL_FIELDS("cannot.get.all.fields"),
 
-    UNDOCUMENTED_PARAMETER("undocumented.parameter"),           // warning msg
-    NO_SUCH_DOCUMENTABLE_PARAMETER("no.such.documentable.parameter"),       // warning msg
-    PARAMETER_ALREADY_DOCUMENTED("parameter.already.documented"),           // warning msg
-    UNDOCUMENTED_FIELD("undocumented.field"),                       // warning msg
-    NO_SUCH_DOCUMENTABLE_FIELD("no.such.documentable.field"),       // warning msg
-    FIELD_ALREADY_DOCUMENTED("field.already.documented"),           // warning msg
-    UNDOCUMENTED_VARIABLE("undocumented.variable"),         // warning msg
-    NO_SUCH_DOCUMENTABLE_VARIABLE("no.such.documentable.variable"),     // warning msg
-    VARIABLE_ALREADY_DOCUMENTED("variable.already.documented"),         // warning msg
-    UNDOCUMENTED_RETURN_PARAMETER("undocumented.return.parameter"),     // warning msg
-    NO_DOCUMENTABLE_RETURN_PARAMETER("no.documentable.return.parameter"),   // warning msg
     INVALID_DOCUMENTATION_IDENTIFIER("invalid.documentation.identifier"),
-    INVALID_DOCUMENTATION_REFERENCE("invalid.documentation.reference"),             // warning msg
-    INVALID_USAGE_OF_PARAMETER_REFERENCE("invalid.use.of.parameter.reference"),     // warning msg
 
-    NO_SUCH_DOCUMENTABLE_ATTRIBUTE("no.such.documentable.attribute"),       // warning msg
-    INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE("invalid.use.of.endpoint.documentation.attribute"),     // warning msg
-    DUPLICATE_DOCUMENTED_ATTRIBUTE("duplicate.documented.attribute"),       // warning msg
-    UNDEFINED_DOCUMENTATION_PUBLIC_FUNCTION("undefined.documentation.public.function"),     // warning msg
-    USAGE_OF_DEPRECATED_CONSTRUCT("usage.of.deprecated.construct"),     // warning msg
     OPERATOR_NOT_SUPPORTED("operator.not.supported"),
     OPERATOR_NOT_ALLOWED_VARIABLE("operator.not.allowed.variable"),
     NEVER_TYPE_NOT_ALLOWED_FOR_REQUIRED_FIELDS("never.type.not.allowed.for.required.fields"),
@@ -447,7 +428,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     MISMATCHED_INPUT("mismatched.input"),
     FAILED_PREDICATE("failed.predicate"),
     SYNTAX_ERROR("syntax.error"),
-    SYNTAX_WARNING("syntax.warning"),       // warning msg
     INVALID_SHIFT_OPERATOR("invalid.shift.operator"),
 
     // Streaming related codes
@@ -594,28 +574,22 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     INVALID_MUTABLE_ACCESS_IN_ISOLATED_FUNCTION("invalid.mutable.access.in.isolated.function"),
     INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT("invalid.mutable.access.as.record.default"),
-    WARNING_INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT("warning.invalid.mutable.access.as.record.default"),   // warning msg
     INVALID_MUTABLE_ACCESS_AS_OBJECT_DEFAULT("invalid.mutable.access.as.object.default"),
 
     INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT("invalid.non.isolated.function.as.argument"),
 
     INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_FUNCTION("invalid.non.isolated.invocation.in.isolated.function"),
     INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT("invalid.non.isolated.invocation.as.record.default"),
-    WARNING_INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT(
-            "warning.invalid.non.isolated.invocation.as.record.default"),       // warning msg
     INVALID_NON_ISOLATED_INVOCATION_AS_OBJECT_DEFAULT("invalid.non.isolated.invocation.as.object.default"),
 
     INVALID_NON_ISOLATED_INIT_EXPRESSION_IN_ISOLATED_FUNCTION(
             "invalid.non.isolated.init.expression.in.isolated.function"),
     INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT("invalid.non.isolated.init.expression.as.record.default"),
-    WARNING_INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT(
-            "warning.invalid.non.isolated.init.expression.as.record.default"),  // warning msg
     INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_OBJECT_DEFAULT("invalid.non.isolated.init.expression.as.object.default"),
 
     INVALID_ASYNC_INVOCATION_IN_ISOLATED_FUNCTION("invalid.async.invocation.in.isolated.function"),
     INVALID_WORKER_DECLARATION_IN_ISOLATED_FUNCTION("invalid.worker.declaration.in.isolated.function"),
     INVALID_FORK_STATEMENT_IN_ISOLATED_FUNCTION("invalid.fork.statement.in.isolated.function"),
-    FUNCTION_CAN_BE_MARKED_ISOLATED("function.can.be.marked.isolated"),     // warning msg
 
     INVALID_NON_PRIVATE_MUTABLE_FIELD_IN_ISOLATED_OBJECT("invalid.non.private.mutable.field.in.isolated.object"),
     INVALID_MUTABLE_FIELD_ACCESS_IN_ISOLATED_OBJECT_OUTSIDE_LOCK(
@@ -630,7 +604,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "invalid.non.isolated.invocation.in.isolated.object.method"),
 
     BINDING_PATTERN_NOT_YET_SUPPORTED_IN_MODULE_VAR_DECL("binding.pattern.not.yet.supported.in.module.var.decl"),
-    COMPILER_PLUGIN_ERROR("compiler.plugin.crashed"),
     ;
 
     private String diagnosticId;

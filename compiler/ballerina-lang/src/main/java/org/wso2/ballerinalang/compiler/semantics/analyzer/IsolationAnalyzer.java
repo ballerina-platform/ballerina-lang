@@ -27,6 +27,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -374,7 +375,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (isBallerinaModule(env.enclPkg) && !isIsolated(funcNode.symbol.flags) &&
                 this.inferredIsolated && !Symbols.isFlagOn(funcNode.symbol.flags, Flags.WORKER)) {
-            dlog.warning(funcNode.pos, DiagnosticErrorCode.FUNCTION_CAN_BE_MARKED_ISOLATED, funcNode.name);
+            dlog.warning(funcNode.pos, DiagnosticWarningCode.FUNCTION_CAN_BE_MARKED_ISOLATED, funcNode.name);
         }
 
         this.inferredIsolated = this.inferredIsolated && prevInferredIsolated;
@@ -1024,7 +1025,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         if (recordFieldDefaultValue) {
             if (isBallerinaModule(env.enclPkg)) {
                 // TODO: 9/13/20 remove this error once stdlibs are migrated
-                dlog.warning(varRefExpr.pos, DiagnosticErrorCode.WARNING_INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
+                dlog.warning(varRefExpr.pos, DiagnosticWarningCode.WARNING_INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
             } else {
                 dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
             }
@@ -1094,7 +1095,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 if (isBallerinaModule(env.enclPkg)) {
                     // TODO: 9/16/20 remove this once stdlibs are migrated
                     dlog.warning(typeInitExpr.pos,
-                                 DiagnosticErrorCode.WARNING_INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT);
+                            DiagnosticWarningCode.WARNING_INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT);
                 } else {
                     dlog.error(typeInitExpr.pos,
                                DiagnosticErrorCode.INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT);
@@ -1652,7 +1653,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             if (isBallerinaModule(env.enclPkg)) {
                 // TODO: 9/13/20 remove this once stdlibs are migrated
                 dlog.warning(invocationExpr.pos,
-                             DiagnosticErrorCode.WARNING_INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
+                        DiagnosticWarningCode.WARNING_INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
             } else {
                 dlog.error(invocationExpr.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
             }
