@@ -4809,6 +4809,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BType bType = paramTypes.get(i);
             BLangValueType valueTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
             valueTypeNode.setTypeKind(bType.getKind());
+            valueTypeNode.pos = symTable.builtinPos;
             paramIdentifier.setTypeNode(valueTypeNode);
             paramIdentifier.type = bType;
         }
