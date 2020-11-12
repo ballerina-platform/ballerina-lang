@@ -115,7 +115,7 @@ class JvmObservabilityGen {
     private int desugaredBBIndex;
     private int constantIndex;
 
-    private Map<Object, BIROperand> compileTimeConstants;
+    private final Map<Object, BIROperand> compileTimeConstants;
 
     JvmObservabilityGen(JvmPackageGen pkgGen) {
         compileTimeConstants = new HashMap<>();
@@ -863,11 +863,7 @@ class JvmObservabilityGen {
      */
     private String cleanUpServiceName(String serviceName) {
         if (serviceName.contains(SERVICE_IDENTIFIER)) {
-            if (serviceName.contains(ANONYMOUS_SERVICE_IDENTIFIER)) {
-                return serviceName.replace(SERVICE_IDENTIFIER, "_");
-            } else {
-                return serviceName.substring(0, serviceName.lastIndexOf(SERVICE_IDENTIFIER));
-            }
+            return serviceName.substring(0, serviceName.indexOf(SERVICE_IDENTIFIER));
         }
         return serviceName;
     }
