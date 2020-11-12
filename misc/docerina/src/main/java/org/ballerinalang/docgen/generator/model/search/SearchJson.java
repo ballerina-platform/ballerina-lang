@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.docgen.model.search;
+package org.ballerinalang.docgen.generator.model.search;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -15,9 +15,10 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.docgen.model;
+package org.ballerinalang.docgen.generator.model;
 
-
+import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.commonmark.node.AbstractVisitor;
@@ -26,12 +27,12 @@ import org.commonmark.node.Node;
 import org.commonmark.node.Paragraph;
 import org.commonmark.node.Text;
 import org.commonmark.renderer.html.HtmlRenderer;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Package documentation.
@@ -39,7 +40,8 @@ import java.util.List;
 public class ModuleDoc {
     public final String description;
     public final String summary;
-    public final BLangPackage bLangPackage;
+    public final Map<String, SyntaxTree> syntaxTreeMap;
+    public final BallerinaSemanticModel semanticModel;
     public final List<Path> resources;
 
     /**
@@ -47,14 +49,17 @@ public class ModuleDoc {
      *
      * @param descriptionPath description of the package in markdown format.
      * @param resources       resources of this package.
-     * @param bLangPackage    package object.
+     * @param syntaxTreeMap a hash map of bal file names and syntax trees.
+     * @param semanticModel the semantic model
      * @throws IOException on error.
      */
-    public ModuleDoc(Path descriptionPath, List<Path> resources, BLangPackage bLangPackage) throws IOException {
+    public ModuleDoc(Path descriptionPath, List<Path> resources, Map<String, SyntaxTree> syntaxTreeMap,
+                     BallerinaSemanticModel semanticModel) throws IOException {
         this.description = getDescription(descriptionPath);
         this.summary = getSummary(descriptionPath);
         this.resources = resources;
-        this.bLangPackage = bLangPackage;
+        this.syntaxTreeMap = syntaxTreeMap;
+        this.semanticModel = semanticModel;
     }
 
     private String getDescription(Path descriptionPath) throws IOException {

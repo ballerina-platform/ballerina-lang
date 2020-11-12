@@ -25,27 +25,20 @@ import org.ballerinalang.docgen.generator.model.Constant;
 import org.ballerinalang.docgen.generator.model.Construct;
 import org.ballerinalang.docgen.generator.model.DefaultableVariable;
 import org.ballerinalang.docgen.generator.model.Error;
-import org.ballerinalang.docgen.generator.model.FiniteType;
 import org.ballerinalang.docgen.generator.model.Function;
 import org.ballerinalang.docgen.generator.model.Module;
+import org.ballerinalang.docgen.generator.model.ModuleDoc;
 import org.ballerinalang.docgen.generator.model.Project;
 import org.ballerinalang.docgen.generator.model.Record;
 import org.ballerinalang.docgen.generator.model.UnionType;
 import org.ballerinalang.docgen.generator.model.Variable;
-import org.ballerinalang.docgen.model.ModuleDoc;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -60,17 +53,11 @@ public class DeprecatedAnnotationTest {
     public void setup() throws IOException {
         String sourceRoot =
                 "test-src" + File.separator + "documentation" + File.separator + "deprecated_annotation_project";
-        CompileResult result = BCompileUtil.compile(sourceRoot);
-
-        List<BLangPackage> modules = new LinkedList<>();
-        modules.add((BLangPackage) result.getAST());
-        Map<String, ModuleDoc> docsMap = BallerinaDocGenerator.generateModuleDocs(
-                Paths.get("src/test/resources", sourceRoot).toAbsolutePath().toString(), modules);
-        List<ModuleDoc> moduleDocList = new ArrayList<>(docsMap.values());
-        moduleDocList.sort(Comparator.comparing(pkg -> pkg.bLangPackage.packageID.toString()));
-
-        Project project = BallerinaDocGenerator.getDocsGenModel(moduleDocList);
-        testModule = project.modules.get(0);
+        io.ballerina.projects.Project project = BCompileUtil.getProject(sourceRoot);
+        Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator.generateModuleDocMap(project);
+        Project docerinaProject = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
+                        .packageOrg().toString(), project.currentPackage().packageVersion().toString());
+        testModule = docerinaProject.modules.get(0);
     }
 
     @Test(description = "Test @deprecated annotation for module-level union type definitions")
@@ -97,16 +84,16 @@ public class DeprecatedAnnotationTest {
 
     @Test(description = "Test @deprecated annotation for module-level finite type definitions")
     public void testDeprecatedFiniteTypeDef() {
-        List<FiniteType> finiteTypes = testModule.finiteTypes;
-        FiniteType depFiniteType = null;
-        FiniteType nonDepFiniteType = null;
+        List<UnionType> unionTypes = testModule.unionTypes;
+        UnionType depFiniteType = null;
+        UnionType nonDepFiniteType = null;
 
-        for (FiniteType finiteType : finiteTypes) {
-            String fTypeName = finiteType.name;
+        for (UnionType unionType : unionTypes) {
+            String fTypeName = unionType.name;
             if ("State".equals(fTypeName)) {
-                depFiniteType = finiteType;
+                depFiniteType = unionType;
             } else if ("NewState".equals(fTypeName)) {
-                nonDepFiniteType = finiteType;
+                nonDepFiniteType = unionType;
             }
         }
 
@@ -243,6 +230,7 @@ public class DeprecatedAnnotationTest {
         for (Function function : functions) {
             if ("getFullName".equals(function.name)) {
                 getFullNameFunc = function;
+                break;
             }
         }
 
