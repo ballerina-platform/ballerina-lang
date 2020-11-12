@@ -44,7 +44,7 @@ public class Package {
     @SerializedName(JSON_PROPERTY_LANGUAGE_SPECIFICATION_VERSION) private String languageSpecificationVersion;
 
     public static final String JSON_PROPERTY_U_R_L = "URL";
-    @SerializedName(JSON_PROPERTY_U_R_L) private String URL;
+    @SerializedName(JSON_PROPERTY_U_R_L) private String url;
 
     public static final String JSON_PROPERTY_BALO_VERSION = "baloVersion";
     @SerializedName(JSON_PROPERTY_BALO_VERSION) private String baloVersion;
@@ -151,18 +151,18 @@ public class Package {
         this.languageSpecificationVersion = languageSpecificationVersion;
     }
 
-    public Package URL(String URL) {
+    public Package url(String url) {
 
-        this.URL = URL;
+        this.url = url;
         return this;
     }
 
-    public String getURL() {
-        return URL;
+    public String getUrl() {
+        return url;
     }
 
-    public void setURL(String URL) {
-        this.URL = URL;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public Package baloVersion(String baloVersion) {
@@ -366,7 +366,7 @@ public class Package {
                 .equals(this.name, packageJsonSchema.name) && Objects.equals(this.version, packageJsonSchema.version)
                 && Objects.equals(this.platform, packageJsonSchema.platform) && Objects
                 .equals(this.languageSpecificationVersion, packageJsonSchema.languageSpecificationVersion) && Objects
-                .equals(this.URL, packageJsonSchema.URL) && Objects
+                .equals(this.url, packageJsonSchema.url) && Objects
                 .equals(this.baloVersion, packageJsonSchema.baloVersion) && Objects
                 .equals(this.baloURL, packageJsonSchema.baloURL) && Objects
                 .equals(this.readme, packageJsonSchema.readme) && Objects
@@ -383,7 +383,7 @@ public class Package {
     @Override
     public int hashCode() {
         return Objects
-                .hash(organization, name, version, platform, languageSpecificationVersion, URL, baloVersion, baloURL,
+                .hash(organization, name, version, platform, languageSpecificationVersion, url, baloVersion, baloURL,
                         readme, template, licenses, authors, sourceCodeLocation, keywords, ballerinaVersion,
                         createdDate, modules);
     }
@@ -398,7 +398,7 @@ public class Package {
         sb.append("    platform: ").append(toIndentedString(platform)).append("\n");
         sb.append("    languageSpecificationVersion: ").append(toIndentedString(languageSpecificationVersion))
                 .append("\n");
-        sb.append("    URL: ").append(toIndentedString(URL)).append("\n");
+        sb.append("    url: ").append(toIndentedString(url)).append("\n");
         sb.append("    baloVersion: ").append(toIndentedString(baloVersion)).append("\n");
         sb.append("    baloURL: ").append(toIndentedString(baloURL)).append("\n");
         sb.append("    readme: ").append(toIndentedString(readme)).append("\n");

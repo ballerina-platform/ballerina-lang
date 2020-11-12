@@ -129,7 +129,8 @@ public class PullCommand implements BLauncherCmd {
 
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
             try {
-                this.client.pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform, false);
+                this.client
+                        .pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform, false);
             } catch (Exception e) {
                 errStream.println("unexpected error occurred while pulling package:" + e.getMessage());
                 // Exit status, zero for OK, non-zero for error

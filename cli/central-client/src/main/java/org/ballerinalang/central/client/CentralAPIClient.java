@@ -98,7 +98,7 @@ public class CentralAPIClient {
     }
 
     /**
-     * Get package with version
+     * Get package with version.
      *
      * @param orgNamePath     The organization name of the package. (required)
      * @param packageNamePath The name of the package. (required)
@@ -175,8 +175,8 @@ public class CentralAPIClient {
      * Pushing a package to registry.
      */
     public void pushPackage(Path baloPath) {
-        final int NO_OF_BYTES = 64;
-        final int BUFFER_SIZE = 1024 * NO_OF_BYTES;
+        final int noOfBytes = 64;
+        final int bufferSize = 1024 * noOfBytes;
 
         initializeSsl();
         HttpURLConnection conn = createHttpUrlConnection(PACKAGES);
@@ -196,11 +196,11 @@ public class CentralAPIClient {
         conn.setRequestProperty(CONTENT_TYPE, APPLICATION_OCTET_STREAM);
 
         conn.setDoOutput(true);
-        conn.setChunkedStreamingMode(BUFFER_SIZE);
+        conn.setChunkedStreamingMode(bufferSize);
 
         try (DataOutputStream outputStream = new DataOutputStream(conn.getOutputStream())) {
             // Send balo content by 1 kb chunks
-            byte[] buffer = new byte[BUFFER_SIZE];
+            byte[] buffer = new byte[bufferSize];
             int count;
             try (ProgressBar progressBar = new ProgressBar(
                     org + "/" + name + ":" + version + " [project repo -> central]", getTotalFileSizeInKB(baloPath),
@@ -209,7 +209,7 @@ public class CentralAPIClient {
                 while ((count = fis.read(buffer)) > 0) {
                     outputStream.write(buffer, 0, count);
                     outputStream.flush();
-                    progressBar.stepBy((long) NO_OF_BYTES);
+                    progressBar.stepBy((long) noOfBytes);
                 }
             }
         } catch (IOException e) {
@@ -263,9 +263,9 @@ public class CentralAPIClient {
         String url = PACKAGES + "/" + org + "/" + name;
         // append version to url if available
         if (null != version && !version.isEmpty()) {
-            url +="/" + version;
+            url += "/" + version;
         } else {
-            url +="/*";
+            url += "/*";
         }
 
         initializeSsl();
@@ -311,7 +311,7 @@ public class CentralAPIClient {
                                     + "'"));
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw ErrorUtil.createCentralClientException(e.getMessage());
         } finally {
             conn.disconnect();
@@ -320,7 +320,7 @@ public class CentralAPIClient {
     }
 
     /**
-     * Search packages in registry
+     * Search packages in registry.
      */
     public PackageSearchResult searchPackage(String query) {
         initializeSsl();

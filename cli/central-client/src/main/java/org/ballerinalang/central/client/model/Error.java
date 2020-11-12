@@ -36,7 +36,7 @@ public class Error {
     }
 
     /**
-     * Get message
+     * Get message.
      *
      * @return message
      **/

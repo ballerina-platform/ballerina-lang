@@ -20,9 +20,9 @@ package org.ballerinalang.central.client.model;
 
 import com.google.gson.annotations.SerializedName;
 
-import javax.annotation.Nullable;
-
 import java.util.Objects;
+
+import javax.annotation.Nullable;
 
 /**
  * {@code Module} represents module json from central.
