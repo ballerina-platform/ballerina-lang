@@ -912,7 +912,7 @@ public class CommonUtil {
     }
 
     public static NonTerminalNode findNode(NewLSContext context, Position position) {
-        Optional<Document> document = context.workspace().document(context.fileUri());
+        Optional<Document> document = context.workspace().document(context.filePath());
         if (document.isEmpty()) {
             throw new RuntimeException("Could not find a valid document");
         }

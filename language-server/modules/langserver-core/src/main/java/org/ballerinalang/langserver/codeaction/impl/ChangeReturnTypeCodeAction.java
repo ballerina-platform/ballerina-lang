@@ -102,7 +102,7 @@ public class ChangeReturnTypeCodeAction implements DiagBasedCodeAction {
                     if (func.returnTypeNode instanceof BLangValueType
                             && TypeKind.NIL.equals(((BLangValueType) func.returnTypeNode).getTypeKind())
                             && !hasReturnKeyword(func.returnTypeNode,
-                            context.workspace().document(context.fileUri()).get().syntaxTree())) {
+                            context.workspace().syntaxTree(context.filePath()).get())) {
                         // eg. function test() {...}
                         start = new Position(func.returnTypeNode.pos.lineRange().startLine().line() - 1,
                                 func.returnTypeNode.pos.lineRange().endLine().offset() - 1);

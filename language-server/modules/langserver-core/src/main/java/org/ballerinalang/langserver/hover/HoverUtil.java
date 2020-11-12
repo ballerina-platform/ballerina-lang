@@ -40,7 +40,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,7 +59,7 @@ public class HoverUtil {
      * @return {@link Hover} Hover content
      */
     public static Hover getHover(HoverContext context, Position cursorPosition) throws TokenOrSymbolNotFoundException {
-        Optional<SemanticModel> semanticModel = context.workspace().semanticModel(context.fileUri());
+        Optional<SemanticModel> semanticModel = context.workspace().semanticModel(context.filePath());
         if (semanticModel.isEmpty()) {
             return HoverUtil.getDefaultHoverObject();
         }

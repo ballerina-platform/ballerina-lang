@@ -51,7 +51,6 @@ import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.Tuple;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -306,7 +305,7 @@ public class SignatureHelpUtil {
      * Find the token at cursor.
      */
     private static Optional<NonTerminalNode> getTokenInfoAtCursor(SignatureContext context) {
-        Optional<Document> document = context.workspace().document(context.fileUri());
+        Optional<Document> document = context.workspace().document(context.filePath());
         if (document.isEmpty()) {
             return Optional.empty();
         }

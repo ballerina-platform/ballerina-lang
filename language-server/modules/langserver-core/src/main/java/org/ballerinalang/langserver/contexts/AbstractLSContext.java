@@ -45,6 +45,8 @@ public class AbstractLSContext implements NewLSContext {
 
     private final LSOperation operation;
 
+    private final Path filePath;
+
     private final String fileUri;
 
     private final WorkspaceManager workspaceManager;
@@ -57,6 +59,11 @@ public class AbstractLSContext implements NewLSContext {
         this.operation = operation;
         this.fileUri = fileUri;
         this.workspaceManager = wsManager;
+        Optional<Path> optFilePath = CommonUtil.getPathFromURI(this.fileUri);
+        if (optFilePath.isEmpty()) {
+            throw new RuntimeException("Invalid file uri: " + this.fileUri);
+        }
+        this.filePath = optFilePath.get();
     }
 
     /**
@@ -68,6 +75,15 @@ public class AbstractLSContext implements NewLSContext {
         return this.fileUri;
     }
 
+    /**
+     * Get the file path.
+     *
+     * @return {@link Path} file path
+     */
+    public Path filePath() {
+        return this.filePath;
+    }
+
     @Override
     public LSOperation operation() {
         return this.operation;
@@ -76,14 +92,13 @@ public class AbstractLSContext implements NewLSContext {
     @Override
     public List<Symbol> getVisibleSymbols(Position position) {
         if (this.visibleSymbols == null) {
-            Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(this.fileUri);
-            Optional<Path> path = CommonUtil.getPathFromURI(fileUri);
-            if (semanticModel.isEmpty() || path.isEmpty()) {
+            Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(this.filePath);
+            if (semanticModel.isEmpty()) {
                 return Collections.emptyList();
             }
             // TODO: file uri here should be the relative file URI
             visibleSymbols = semanticModel.get().visibleSymbols(
-                    path.get().toFile().getName(),
+                    this.filePath.toFile().getName(),
                     LinePosition.from(position.getLine(), position.getCharacter()));
         }
 
@@ -98,7 +113,7 @@ public class AbstractLSContext implements NewLSContext {
     @Override
     public List<ImportDeclarationNode> getCurrentDocImports() {
         if (this.currentDocImports == null) {
-            Optional<Document> document = this.workspace().document(this.fileUri());
+            Optional<Document> document = this.workspace().document(this.filePath);
             if (document.isEmpty()) {
                 throw new RuntimeException("Cannot find a valid document");
             }

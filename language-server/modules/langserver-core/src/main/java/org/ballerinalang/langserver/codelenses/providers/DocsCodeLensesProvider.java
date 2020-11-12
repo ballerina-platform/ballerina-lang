@@ -39,7 +39,6 @@ import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -70,7 +69,7 @@ public class DocsCodeLensesProvider extends AbstractCodeLensesProvider {
     @Override
     public List<CodeLens> getLenses(NewLSContext context) {
         List<CodeLens> lenses = new ArrayList<>();
-        Optional<Document> document = context.workspace().document(context.fileUri());
+        Optional<Document> document = context.workspace().document(context.filePath());
         if (document.isEmpty()) {
             return lenses;
         }

@@ -24,7 +24,6 @@ import org.ballerinalang.langserver.commons.NewLSContext;
 import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.eclipse.lsp4j.Position;
 
-import java.nio.file.Path;
 import java.util.Optional;
 
 
@@ -44,7 +43,7 @@ public class TokensUtil {
      */
     public static Token findTokenAtPosition(NewLSContext context, Position position)
             throws TokenOrSymbolNotFoundException {
-        Optional<Document> document = context.workspace().document(context.fileUri());
+        Optional<Document> document = context.workspace().document(context.filePath());
         if (document.isEmpty()) {
             throw new TokenOrSymbolNotFoundException("Couldn't find a valid document!");
         }

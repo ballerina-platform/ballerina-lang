@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
 
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -53,6 +54,13 @@ public interface NewLSContext {
      * @return {@link String} file uri
      */
     String fileUri();
+
+    /**
+     * Get the file path.
+     *
+     * @return {@link java.nio.file.Path} file path
+     */
+    Path filePath();
 
     /**
      * Get the operation.

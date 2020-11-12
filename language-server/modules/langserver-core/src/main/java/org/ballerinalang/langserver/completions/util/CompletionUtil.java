@@ -31,7 +31,6 @@ import org.ballerinalang.langserver.completions.ProviderFactory;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -103,7 +102,7 @@ public class CompletionUtil {
      * Find the token at cursor.
      */
     public static void fillTokenInfoAtCursor(CompletionContext context) {
-        Optional<Document> document = context.workspace().document(context.fileUri());
+        Optional<Document> document = context.workspace().document(context.filePath());
         if (document.isEmpty()) {
             throw new RuntimeException("Could not find a valid document");
         }

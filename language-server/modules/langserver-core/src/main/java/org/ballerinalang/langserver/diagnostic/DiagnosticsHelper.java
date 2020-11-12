@@ -65,7 +65,7 @@ public class DiagnosticsHelper {
     public synchronized void compileAndSendDiagnostics(ExtendedLanguageClient client, NewLSContext context) {
         // Compile diagnostics
         Map<String, List<Diagnostic>> diagnosticMap = new HashMap<>();
-        Optional<Project> project = context.workspace().project(context.fileUri());
+        Optional<Project> project = context.workspace().project(context.filePath());
         if (project.isEmpty()) {
             return;
         }

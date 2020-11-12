@@ -36,7 +36,6 @@ import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -189,7 +188,7 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
     }
 
     private boolean addAlias(CompletionContext context, AnnotationNode node, ModuleID annotationOwner) {
-        Optional<Module> currentModule = context.workspace().module(context.fileUri());
+        Optional<Module> currentModule = context.workspace().module(context.filePath());
         if (currentModule.isEmpty()) {
             return false;
         }

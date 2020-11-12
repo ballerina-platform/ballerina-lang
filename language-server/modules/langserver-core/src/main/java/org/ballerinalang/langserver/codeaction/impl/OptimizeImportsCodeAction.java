@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.codeaction.impl;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -30,7 +29,6 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -59,7 +57,7 @@ public class OptimizeImportsCodeAction implements NodeBasedCodeAction {
         List<CodeAction> actions = new ArrayList<>();
         String uri = context.fileUri();
 
-        Optional<Document> document = context.workspace().document(context.fileUri());
+        Optional<Document> document = context.workspace().document(context.filePath());
         if (document.isEmpty()) {
             return actions;
         }
