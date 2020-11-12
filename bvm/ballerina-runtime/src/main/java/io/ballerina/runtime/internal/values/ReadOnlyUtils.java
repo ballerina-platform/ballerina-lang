@@ -93,6 +93,10 @@ public class ReadOnlyUtils {
             return type;
         }
 
+        if (!unresolvedTypes.add(type)) {
+            return type;
+        }
+
         return setImmutableIntersectionType(type, unresolvedTypes);
     }
 
