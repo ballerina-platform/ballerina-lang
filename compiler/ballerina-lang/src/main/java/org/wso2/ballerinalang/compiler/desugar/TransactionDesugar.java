@@ -18,6 +18,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.PackageLoader;
@@ -612,6 +613,10 @@ public class TransactionDesugar extends BLangNodeVisitor {
      * @return symbol for the function.
      */
     public BSymbol getInternalTransactionModuleInvokableSymbol(Name name) {
+        if (symTable.internalTransactionModuleSymbol == null) {
+            symTable.internalTransactionModuleSymbol =
+                    pkgLoader.loadPackageSymbol(PackageID.TRANSACTION_INTERNAL, null, null);
+        }
         return symTable.internalTransactionModuleSymbol.scope.lookup(name).symbol;
     }
 }
