@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 

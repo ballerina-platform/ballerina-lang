@@ -19,7 +19,7 @@
 package org.ballerina.testobserve.metrics.extension;
 
 import com.google.gson.Gson;
-import io.ballerina.runtime.JSONParser;
+import io.ballerina.runtime.api.utils.JsonUtils;
 import io.ballerina.runtime.observability.metrics.Counter;
 import io.ballerina.runtime.observability.metrics.DefaultMetricRegistry;
 import io.ballerina.runtime.observability.metrics.Gauge;
@@ -61,6 +61,6 @@ public class MetricsUtils {
                 metrics.addPolledGauge(mockPolledGauge);
             }
         }
-        return JSONParser.parse(new Gson().toJson(metrics));
+        return JsonUtils.parse(new Gson().toJson(metrics));
     }
 }

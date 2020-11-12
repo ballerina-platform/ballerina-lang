@@ -1,10 +1,10 @@
 @Override:annotations
 public enum Color {
-    RED  "read-color",
+    RED "read-color",
     GREEN = "green-color",
-    isMissing  true,
+    isMissing true,
     attributes,
-    value  +5,
+    value +5,
     parents = null,
     other
 }

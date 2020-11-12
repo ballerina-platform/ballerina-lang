@@ -299,7 +299,7 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
         }
 
         @Override
-        public List<MethodSymbol> builtinMethods() {
+        public List<FunctionSymbol> langLibMethods() {
             return Collections.emptyList();
         }
     }

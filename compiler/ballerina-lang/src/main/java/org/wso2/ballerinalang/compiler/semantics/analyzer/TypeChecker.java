@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import io.ballerina.runtime.IdentifierUtils;
+import io.ballerina.runtime.internal.IdentifierUtils;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.OrderKeyNode;

@@ -442,7 +442,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .build();
             try {
                 // Compile and get Top level node
-                CodeActionNodeType nodeType = CodeActionUtil.topLevelNodeInLine(context, identifier, line, docManager);
+                CodeActionNodeType nodeType = CodeActionUtil.topLevelNodeInLine(context, identifier,
+                        new Position(line, col), docManager);
                 List<Diagnostic> rangeDiagnostics = params.getContext().getDiagnostics();
                 List<Diagnostic> allDiagnostics = context.get(CodeActionKeys.DIAGNOSTICS_KEY);
 

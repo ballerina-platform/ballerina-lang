@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.test.types.xml;
 
-import io.ballerina.runtime.XMLFactory;
-import io.ballerina.runtime.values.XMLValue;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.values.XmlValue;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
@@ -192,7 +193,7 @@ public class XMLLiteralWithNamespacesTest {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "getXML");
         Assert.assertTrue(returns[0] instanceof BXML);
 
-        XMLValue xmlItem = (XMLValue) XMLFactory.parse(returns[0].stringValue());
+        XmlValue xmlItem = (XmlValue) XmlFactory.parse(returns[0].stringValue());
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         xmlItem.serialize(baos);
         Assert.assertEquals(new String(baos.toByteArray()),
@@ -201,7 +202,7 @@ public class XMLLiteralWithNamespacesTest {
 
     @Test
     public void testXMLToString() {
-        io.ballerina.runtime.api.values.BXML xml = XMLFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+        BXml xml = XmlFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY data \"Example\" >]><foo>&data;</foo>");
         Assert.assertEquals(xml.toString(), "<foo>Example</foo>");
     }

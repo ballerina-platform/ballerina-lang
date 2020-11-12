@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.langlib.value;
 
-import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.values.ErrorValue;
-import io.ballerina.runtime.values.TypedescValue;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.internal.TypeChecker;
 
 /**
  * Extern function lang.values:ensureType.
@@ -29,7 +29,7 @@ import io.ballerina.runtime.values.TypedescValue;
  * @since 2.0.0
  */
 public class EnsureType {
-    public static Object ensureType(Object value, TypedescValue type) {
+    public static Object ensureType(Object value, BTypedesc type) {
         if (TypeChecker.getType(value).getTag() == TypeTags.ERROR_TAG) {
             return value;
         }
@@ -39,7 +39,7 @@ public class EnsureType {
     public static Object convert(Type convertType, Object inputValue) {
         try {
              return TypeChecker.checkCast(inputValue, convertType);
-        } catch (ErrorValue e) {
+        } catch (BError e) {
             return e;
         }
     }
