@@ -96,7 +96,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
                 }
                 // If the sources reside inside a ballerina module/project, generated class name should start with the
                 // organization name of the ballerina module/project source.
-                if (sourceType == DebugSourceType.MODULE && !cls.name().startsWith(context.getOrgName().get())) {
+                if (sourceType == DebugSourceType.MODULE && !cls.name().startsWith(context.getPackageOrgName().get())) {
                     continue;
                 }
                 List<Method> methods = cls.methodsByName(syntaxNode.functionName().toSourceCode());
@@ -124,8 +124,8 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
         // iterate over all the classes generated for this particular ballerina module and check each class for a
         // matching method.
         if (context.getSourceType() == DebugSourceType.MODULE) {
-            List<String> moduleFileNames = PackageUtils.getAllModuleFileNames(context.getBreakPointSourcePath());
-            for (String fileName : moduleFileNames) {
+            List<String> moduleFiles = PackageUtils.getAllModuleFileNames(context.getBreakPointSourcePath().toString());
+            for (String fileName : moduleFiles) {
                 String className = fileName.replace(BAL_FILE_EXT, "").replace(File.separator, ".");
                 className = className.startsWith(".") ? className.substring(1) : className;
                 String qualifiedClassName = PackageUtils.getQualifiedClassName(context, className);

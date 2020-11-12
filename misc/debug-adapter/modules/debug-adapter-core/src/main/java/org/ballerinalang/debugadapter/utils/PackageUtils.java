@@ -269,8 +269,8 @@ public class PackageUtils {
             return className;
         }
         StringJoiner classNameJoiner = new StringJoiner(".");
-        classNameJoiner.add(context.getOrgName().get()).add(context.getModuleName().get())
-                .add(context.getVersion().get().replace(".", "_")).add(className);
+        classNameJoiner.add(context.getPackageOrgName().get()).add(context.getModuleName().get())
+                .add(context.getPackageVersion().get().replace(".", "_")).add(className);
         return classNameJoiner.toString();
     }
 

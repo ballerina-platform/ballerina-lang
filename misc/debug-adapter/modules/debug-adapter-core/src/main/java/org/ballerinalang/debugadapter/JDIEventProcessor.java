@@ -41,7 +41,6 @@ import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -62,7 +61,6 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.getRelativeSourc
  */
 public class JDIEventProcessor {
 
-    private Path projectRoot;
     private Map<Long, ThreadReference> threadsMap = new HashMap<>();
     private final DebugContext context;
     private final Map<String, Breakpoint[]> breakpointsList = new HashMap<>();
@@ -73,7 +71,6 @@ public class JDIEventProcessor {
 
     JDIEventProcessor(DebugContext context) {
         this.context = context;
-        this.projectRoot = null;
     }
 
     /**
@@ -145,13 +142,6 @@ public class JDIEventProcessor {
             context.getDebuggee().eventRequestManager().deleteAllBreakpoints();
             Arrays.stream(breakpointsList).forEach(breakpoint -> this.context.getDebuggee().allClasses()
                     .forEach(referenceType -> this.addBreakpoint(referenceType, breakpoint)));
-        }
-
-        projectRoot = findProjectRoot(Paths.get(path));
-        if (projectRoot == null) {
-            File file = new File(path);
-            File parentDir = file.getParentFile();
-            projectRoot = parentDir.toPath();
         }
     }
 
