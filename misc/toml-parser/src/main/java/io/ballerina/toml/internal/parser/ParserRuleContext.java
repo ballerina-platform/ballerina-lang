@@ -28,7 +28,7 @@ public enum ParserRuleContext {
     // Productions
     EOF("eof"),
     TOP_LEVEL_NODE("top-level-node"),
-    NEW_LINE("new-line"),
+    NEWLINE("new-line"),
     NEW_LINE_OR_TOP_LEVEL("new-line-or-top-level-node"),
 
     ARRAY_VALUE_LIST_START("["),

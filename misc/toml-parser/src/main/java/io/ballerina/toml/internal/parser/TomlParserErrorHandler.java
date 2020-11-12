@@ -51,7 +51,7 @@ import java.util.ArrayDeque;
 public class TomlParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE = {ParserRuleContext.EOF,
-            ParserRuleContext.NEW_LINE,
+            ParserRuleContext.NEWLINE,
             ParserRuleContext.KEY_VALUE_PAIR,
             ParserRuleContext.TOML_TABLE,
             ParserRuleContext.TOML_TABLE_ARRAY
@@ -164,8 +164,8 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                 case IDENTIFIER_LITERAL:
                     hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_LITERAL;
                     break;
-                case NEW_LINE:
-                    hasMatch = nextToken.kind == SyntaxKind.NEW_LINE;
+                case NEWLINE:
+                    hasMatch = nextToken.kind == SyntaxKind.NEWLINE;
                     break;
                 case SIGN_TOKEN:
                     hasMatch = nextToken.kind == SyntaxKind.PLUS_TOKEN || nextToken.kind == SyntaxKind.MINUS_TOKEN;
@@ -267,11 +267,11 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
             case TABLE_END:
             case ARRAY_VALUE_LIST_END:
                 endContext();
-                return ParserRuleContext.NEW_LINE;
+                return ParserRuleContext.NEWLINE;
             case ASSIGN_OP:
                 endContext();
                 return ParserRuleContext.VALUE;
-            case NEW_LINE:
+            case NEWLINE:
                 return ParserRuleContext.TOP_LEVEL_NODE;
             case KEY_VALUE_PAIR:
             case TABLE_START:
@@ -310,7 +310,7 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                 } else if (parentCtx == ParserRuleContext.KEY_LIST) {
                     return ParserRuleContext.KEY_END;
                 } else {
-                    return ParserRuleContext.NEW_LINE;
+                    return ParserRuleContext.NEWLINE;
                 }
             case IDENTIFIER_LITERAL:
                 return ParserRuleContext.KEY_END;
@@ -364,8 +364,8 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.DECIMAL_FLOAT_TOKEN;
             case BOOLEAN_LITERAL:
                 return SyntaxKind.FALSE_KEYWORD; //Better handling
-            case NEW_LINE:
-                return SyntaxKind.NEW_LINE;
+            case NEWLINE:
+                return SyntaxKind.NEWLINE;
             case DOT:
                 return SyntaxKind.DOT_TOKEN;
             case ARRAY_TABLE_FIRST_END:

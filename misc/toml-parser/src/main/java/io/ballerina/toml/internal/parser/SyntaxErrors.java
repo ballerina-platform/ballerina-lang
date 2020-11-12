@@ -167,7 +167,7 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_DECIMAL_INTEGER_LITERAL;
             case DECIMAL_FLOATING_POINT_LITERAL:
                 return DiagnosticErrorCode.ERROR_MISSING_DECIMAL_FLOATING_POINT_LITERAL;
-            case NEW_LINE:
+            case NEWLINE:
                 return DiagnosticErrorCode.ERROR_MISSING_NEW_LINE;
             case IDENTIFIER_LITERAL:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;

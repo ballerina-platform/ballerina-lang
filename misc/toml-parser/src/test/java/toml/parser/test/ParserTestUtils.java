@@ -392,12 +392,8 @@ public class ParserTestUtils {
 
     private static SyntaxKind getNodeKind(String kind) {
         switch (kind) {
-            case "INITIAL_TRIVIA":
-                return SyntaxKind.INITIAL_TRIVIA;
             case "NEW_LINE":
-                return SyntaxKind.NEW_LINE;
-            case "MODULE_NAME":
-                return SyntaxKind.MODULE_NAME;
+                return SyntaxKind.NEWLINE;
             case "TRUE_KEYWORD":
                 return SyntaxKind.TRUE_KEYWORD;
             case "FALSE_KEYWORD":
@@ -450,20 +446,12 @@ public class ParserTestUtils {
                 return SyntaxKind.KEY_VALUE;
             case "TABLE_ARRAY":
                 return SyntaxKind.TABLE_ARRAY;
-            case "SIGNED_NUMERICAL":
-                return SyntaxKind.SIGNED_NUMERICAL;
-            case "UNSIGNED_NUMERICAL":
-                return SyntaxKind.UNSIGNED_NUMERICAL;
             case "BASIC_LITERAL":
                 return SyntaxKind.BASIC_LITERAL;
             case "KEY":
                 return SyntaxKind.KEY;
             case "DEC_INT":
                 return SyntaxKind.DEC_INT;
-            case "OCT_INT":
-                return SyntaxKind.OCT_INT;
-            case "BIN_INT":
-                return SyntaxKind.BIN_INT;
             case "FLOAT":
                 return SyntaxKind.FLOAT;
             case "INF_TOKEN":

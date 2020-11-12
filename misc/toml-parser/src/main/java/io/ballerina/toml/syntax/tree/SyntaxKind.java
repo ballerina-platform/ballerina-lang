@@ -23,30 +23,27 @@ package io.ballerina.toml.syntax.tree;
  * @since 2.0.0
  */
 public enum SyntaxKind {
-    INITIAL_TRIVIA(200),
-    NEW_LINE(201, "\n"),
+    NEWLINE(100, "\n"),
+    HASH_TOKEN(101, "#"),
 
-    MODULE_NAME(3014),
+    TRUE_KEYWORD(200, "true"),
+    FALSE_KEYWORD(201, "false"),
+    STRING_LITERAL_TOKEN(203),
+    DECIMAL_INT_TOKEN(204),
+    DECIMAL_FLOAT_TOKEN(205),
+    //Separators
+    OPEN_BRACKET_TOKEN(500, "["),
+    CLOSE_BRACKET_TOKEN(501, "]"),
+    DOUBLE_QUOTE_TOKEN(502, "\""),
+    SINGLE_QUOTE_TOKEN(503, "'"),
+    TRIPLE_DOUBLE_QUOTE_TOKEN(504, "\"\"\""),
+    TRIPLE_SINGLE_QUOTE_TOKEN(505, "'''"),
 
-    TRUE_KEYWORD(203, "true"),
-    FALSE_KEYWORD(204, "false"),
-
-    // Separators
-    OPEN_BRACKET_TOKEN(504, "["),
-    CLOSE_BRACKET_TOKEN(505, "]"),
-    DOT_TOKEN(507, "."),
-    COMMA_TOKEN(509, ","),
-    HASH_TOKEN(514, "#"),
-    DOUBLE_QUOTE_TOKEN(516, "\""),
-    SINGLE_QUOTE_TOKEN(517, "'"),
-    TRIPLE_DOUBLE_QUOTE_TOKEN(518, "\"\"\""),
-    TRIPLE_SINGLE_QUOTE_TOKEN(519, "'''"),
-
-    // Operators
-    EQUAL_TOKEN(550, "="),
-    PLUS_TOKEN(553, "+"),
-    MINUS_TOKEN(554, "-"),
-    STRING_LITERAL_TOKEN(555),
+    DOT_TOKEN(520, "."),
+    COMMA_TOKEN(521, ","),
+    EQUAL_TOKEN(522, "="),
+    PLUS_TOKEN(523, "+"),
+    MINUS_TOKEN(524, "-"),
 
     IDENTIFIER_LITERAL(1000),
     STRING_LITERAL(1001),
@@ -61,49 +58,35 @@ public enum SyntaxKind {
     INVALID_TOKEN(1600),
 
     // Documentation
-    MARKDOWN_DOCUMENTATION_LINE(4505),
+    MARKDOWN_DOCUMENTATION_LINE(1504),
 
-    //TOML
-    TABLE(4800),
-    KEY_VALUE(4801),
-    TABLE_ARRAY(4804),
-
-
-    //NEW
-
-    SIGNED_NUMERICAL(4806),
-    UNSIGNED_NUMERICAL(4807),
-
-    BASIC_LITERAL(4808),
-    KEY(4809),
+    KEY(2000),
+    KEY_VALUE(2001),
+    TABLE(2002),
+    TABLE_ARRAY(2003),
+    BASIC_LITERAL(2004),
 
     //Int
-    DEC_INT(4810),
-    HEX_INT(4811),
-    OCT_INT(4812),
-    BIN_INT(4813),
+    DEC_INT(2010),
 
     //Float
-    FLOAT(4814),
-    INF_TOKEN(4815, "inf"),
-    NAN_TOKEN(4816, "nan"),
+    FLOAT(2020),
+    INF_TOKEN(2021, "inf"),
+    NAN_TOKEN(2022, "nan"),
 
     //String
-    ML_STRING_LITERAL(4818),
-
-    DECIMAL_INT_TOKEN(4819),
-    DECIMAL_FLOAT_TOKEN(4819),
+    ML_STRING_LITERAL(2030),
 
     //Bool
-    BOOLEAN (4821),
+    BOOLEAN (2040),
 
     //Date and Time
-    OFFSET_DATE_TIME (4822),
-    LOCAL_DATE_TIME (4823),
-    LOCAL_DATE (4824),
-    LOCAL_TIME (4825),
+    OFFSET_DATE_TIME (2050),
+    LOCAL_DATE_TIME (2051),
+    LOCAL_DATE (2052),
+    LOCAL_TIME (2053),
 
-    ARRAY(4830),
+    ARRAY(2060),
 
     INVALID(4),
     MODULE_PART(3),

@@ -35,6 +35,8 @@ import java.util.List;
  */
 public class TomlLexer extends AbstractLexer {
 
+    public static final String LINE_SEPARATOR = System.lineSeparator();
+
     public TomlLexer(CharReader charReader) {
         super(charReader, ParserMode.DEFAULT);
     }
@@ -55,6 +57,9 @@ public class TomlLexer extends AbstractLexer {
                 break;
             case NEW_LINE:
                 token = readNewlineToken();
+                if (token == null) {
+                    token = nextToken();
+                }
                 break;
             case DEFAULT:
             default:
@@ -211,9 +216,13 @@ public class TomlLexer extends AbstractLexer {
         if (reader.isEOF()) {
             return getSyntaxToken(SyntaxKind.EOF_TOKEN);
         }
-        reader.advance();
+        int c = reader.peek();
         endMode();
-        return getNewlineToken();
+        if (c == LexerTerminals.NEWLINE || c == LexerTerminals.CARRIAGE_RETURN) {
+            reader.advance();
+            return getNewlineToken();
+        }
+        return null;
     }
 
     private STToken readStringToken() {
@@ -281,7 +290,7 @@ public class TomlLexer extends AbstractLexer {
     private STToken getNewlineToken() {
         STNode leadingTrivia = STNodeFactory.createEmptyNodeList();
         STNode trailingTrivia = STNodeFactory.createEmptyNodeList();
-        return STNodeFactory.createToken(SyntaxKind.NEW_LINE, leadingTrivia, trailingTrivia);
+        return STNodeFactory.createToken(SyntaxKind.NEWLINE, leadingTrivia, trailingTrivia);
     }
 
     private STToken getSyntaxToken(SyntaxKind kind) {
@@ -404,12 +413,12 @@ public class TomlLexer extends AbstractLexer {
         char c = reader.peek();
         switch (c) {
             case LexerTerminals.NEWLINE:
-                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, System.lineSeparator());
+                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, LINE_SEPARATOR);
             case LexerTerminals.CARRIAGE_RETURN:
                 if (reader.peek() == LexerTerminals.NEWLINE) {
                     reader.advance();
                 }
-                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, System.lineSeparator());
+                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, LINE_SEPARATOR);
             default:
                 throw new IllegalStateException();
         }

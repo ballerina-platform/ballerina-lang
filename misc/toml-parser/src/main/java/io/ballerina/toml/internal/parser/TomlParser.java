@@ -81,7 +81,7 @@ public class TomlParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
                 return null;
-            case NEW_LINE:
+            case NEWLINE:
                 consume(); //New line is only used for validations. Should be ignored
                 return parseTopLevelNode();
             case OPEN_BRACKET_TOKEN:
@@ -116,7 +116,7 @@ public class TomlParser extends AbstractParser {
     }
 
     private boolean isEndOfStatement(STToken nextToken) {
-        return nextToken.kind == SyntaxKind.EQUAL_TOKEN || nextToken.kind == SyntaxKind.NEW_LINE
+        return nextToken.kind == SyntaxKind.EQUAL_TOKEN || nextToken.kind == SyntaxKind.NEWLINE
                 || nextToken.kind == EOF_TOKEN;
     }
 
@@ -133,9 +133,9 @@ public class TomlParser extends AbstractParser {
         STNode identifierToken = parseKeys();
         STNode firstCloseBracket = parseCloseBracket(ParserRuleContext.ARRAY_TABLE_FIRST_END);
         STNode secondCloesBracket = parseCloseBracket(ParserRuleContext.ARRAY_TABLE_SECOND_END);
-        STNode newLine = parseNewLines();
-        if (newLine.hasDiagnostics()) {
-            secondCloesBracket = SyntaxErrors.addSyntaxDiagnostics(secondCloesBracket, newLine.diagnostics());
+        STNode newline = parseNewlines();
+        if (newline.hasDiagnostics()) {
+            secondCloesBracket = SyntaxErrors.addSyntaxDiagnostics(secondCloesBracket, newline.diagnostics());
         }
         List<STNode> fields = parseTableEntries();
         endContext();
@@ -154,7 +154,7 @@ public class TomlParser extends AbstractParser {
         STNode openBracket = parseOpenBracket(ParserRuleContext.TABLE_START);
         STNode identifierToken = parseKeys();
         STNode closedBracket = parseCloseBracket(ParserRuleContext.TABLE_END);
-        STNode newLine = parseNewLines();
+        STNode newLine = parseNewlines();
         if (newLine.hasDiagnostics()) {
             closedBracket = SyntaxErrors.addSyntaxDiagnostics(closedBracket, newLine.diagnostics());
         }
@@ -211,7 +211,7 @@ public class TomlParser extends AbstractParser {
         STNode identifier = parseKeys();
         STNode equals = parseEquals();
         STNode value = parseValue();
-        STNode newLine = parseNewLines();
+        STNode newLine = parseNewlines();
         if (newLine.hasDiagnostics()) {
             value = SyntaxErrors.addSyntaxDiagnostics(value, newLine.diagnostics());
         }
@@ -223,22 +223,22 @@ public class TomlParser extends AbstractParser {
      * Pares new lines.
      * New lines are appended to trivia from lexer. These tokens are only used for validations purposes.
      */
-    private STNode parseNewLines() {
+    private STNode parseNewlines() {
         STToken token = peek();
-        if (!isNewLine(token.kind)) {
-            recover(peek(), ParserRuleContext.NEW_LINE);
-            return parseNewLines();
+        if (!isNewline(token.kind)) {
+            recover(peek(), ParserRuleContext.NEWLINE);
+            return parseNewlines();
         }
-        STToken recentNewLine = null;
-        while (isNewLine(token.kind)) {
-            recentNewLine = consume();
+        STToken recentNewline = null;
+        while (isNewline(token.kind)) {
+            recentNewline = consume();
             token = peek();
         }
-        return recentNewLine;
+        return recentNewline;
     }
 
-    private boolean isNewLine(SyntaxKind kind) {
-        return kind == SyntaxKind.NEW_LINE;
+    private boolean isNewline(SyntaxKind kind) {
+        return kind == SyntaxKind.NEWLINE;
     }
 
     /**
