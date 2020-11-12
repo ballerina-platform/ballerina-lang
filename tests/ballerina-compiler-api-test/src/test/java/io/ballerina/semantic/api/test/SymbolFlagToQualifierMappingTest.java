@@ -44,7 +44,6 @@ import static io.ballerina.compiler.api.symbols.Qualifier.LISTENER;
 import static io.ballerina.compiler.api.symbols.Qualifier.PUBLIC;
 import static io.ballerina.compiler.api.symbols.Qualifier.READONLY;
 import static io.ballerina.compiler.api.symbols.Qualifier.REMOTE;
-import static io.ballerina.compiler.api.symbols.Qualifier.RESOURCE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.compile;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -85,8 +84,8 @@ public class SymbolFlagToQualifierMappingTest {
                 {53, 20, getQualifiers(ISOLATED)},
                 {56, 22, getQualifiers(READONLY)},
                 {60, 16, getQualifiers(CLIENT)},
-                {61, 22, getQualifiers(REMOTE)},
-                {70, 24, getQualifiers(RESOURCE)},
+                {61, 22, getQualifiers(REMOTE, PUBLIC)},
+//                {70, 24, getQualifiers(RESOURCE)}, // TODO: enable after fixing #26890
 //                {75, 13, getQualifiers(DISTINCT)}, // TODO: enable once issue #26212 is fixed
         };
     }
@@ -103,8 +102,8 @@ public class SymbolFlagToQualifierMappingTest {
     public Object[][] getSymbolKinds() {
         return new Object[][]{
                 {23, 25, SymbolKind.METHOD},
-                {69, 10, SymbolKind.SERVICE},
-                {81, 7, SymbolKind.CONSTANT},
+                // {69, 10, SymbolKind.SERVICE}, // TODO: enable after fixing #26890
+                {85, 7, SymbolKind.CONSTANT},
         };
     }
 

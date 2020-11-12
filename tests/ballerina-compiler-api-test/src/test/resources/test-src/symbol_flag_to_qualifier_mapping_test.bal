@@ -21,10 +21,10 @@ listener CustomListener listen = new CustomListener();
 class CustomListener {
     *'object:Listener;
 
-    public function __attach(service s, string? name) returns error? {
+    public function __attach(service object {} s, string? name) returns error? {
     }
 
-    public function __detach(service s) returns error? {
+    public function __detach(service object {} s) returns error? {
     }
 
     public function __start() returns error? {
@@ -67,8 +67,12 @@ client class TestEP {
     }
 }
 
-service echo on listen {
-    resource function print() {
+service /echo on listen {
+    resource function get print() {
+
+    }
+
+    resource function post print() {
 
     }
 }
