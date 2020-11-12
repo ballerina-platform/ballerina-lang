@@ -47,31 +47,9 @@ public class PackageUtils {
 
     public static final String MODULE_DIR_NAME = "modules";
     public static final String BAL_FILE_EXT = ".bal";
-    public static final String MANIFEST_FILE_NAME = "Ballerina.toml";
     public static final String INIT_CLASS_NAME = "$_init";
     public static final String GENERATED_VAR_PREFIX = "$";
-
-    private static final String MODULE_VERSION_REGEX = "\\d+_\\d+_\\d+";
-    private static final String SERVICE_REGEX = "(\\w+\\.){3}(\\$value\\$)(.*)(__service_)";
     private static final String SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
-
-    /**
-     * Find the project root by recursively up to the root.
-     *
-     * @param projectDir project path
-     * @return project root
-     */
-    public static Path findProjectRoot(Path projectDir) {
-        Path path = projectDir.resolve(MANIFEST_FILE_NAME);
-        if (Files.exists(path)) {
-            return projectDir;
-        }
-        Path parentsParent = projectDir.getParent();
-        if (null != parentsParent) {
-            return findProjectRoot(parentsParent);
-        }
-        return null;
-    }
 
     /**
      * Some additional processing is required to rectify the source path, as the source name will be the
@@ -168,28 +146,6 @@ public class PackageUtils {
         } catch (Exception e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
                     "occurred when trying to retrieve source file names of the current module."));
-        }
-    }
-
-    /**
-     * Returns the module name for a given ballerina module source.
-     *
-     * @param balFilePath ballerina source path
-     * @return module name
-     */
-    public static String getModuleName(String balFilePath) {
-        try {
-            Path path = Paths.get(balFilePath);
-            Path projectRoot = findProjectRoot(path);
-            if (projectRoot == null) {
-                return "";
-            }
-            Path relativePath = projectRoot.relativize(path);
-            String packagePath = relativePath.toString();
-            // Directly using file separator as a regex will fail on windows.
-            return packagePath.split(SEPARATOR_REGEX)[0];
-        } catch (Exception e) {
-            return "";
         }
     }
 

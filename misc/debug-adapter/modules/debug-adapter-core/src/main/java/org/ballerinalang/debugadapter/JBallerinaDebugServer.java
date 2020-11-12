@@ -31,6 +31,7 @@ import com.sun.jdi.request.StepRequest;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.runtime.IdentifierUtils;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.debugadapter.evaluation.ExpressionEvaluator;
@@ -39,8 +40,9 @@ import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
 import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
-import org.ballerinalang.debugadapter.launchrequest.Launch;
-import org.ballerinalang.debugadapter.launchrequest.LaunchFactory;
+import org.ballerinalang.debugadapter.launch.Launcher;
+import org.ballerinalang.debugadapter.launch.PackageLauncher;
+import org.ballerinalang.debugadapter.launch.SingleFileLauncher;
 import org.ballerinalang.debugadapter.terminator.OSUtils;
 import org.ballerinalang.debugadapter.terminator.TerminatorFactory;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
@@ -199,7 +201,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<Void> launch(Map<String, Object> args) {
         clearState();
         loadProjectInfo(args);
-        Launch launcher = new LaunchFactory().getLauncher(args);
+        Launcher launcher = project instanceof SingleFileProject ? new SingleFileLauncher(projectRoot, args) :
+                new PackageLauncher(projectRoot, args);
         try {
             launchedProcess = launcher.start();
         } catch (IOException e) {
