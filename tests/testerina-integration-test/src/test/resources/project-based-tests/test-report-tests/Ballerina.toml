@@ -1,5 +1,4 @@
-[project]
-org-name= "myOrg"
-version= "0.1.0"
-
-[dependencies]
+[package]
+org = "intg_tests"
+name = "test_report"
+version = "0.0.0"
