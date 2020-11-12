@@ -35,11 +35,13 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-tool')
     implementation project(':ballerina-tools-api')
+    implementation project(':central-client')
     implementation 'info.picocli:picocli'
     implementation 'org.apache.commons:commons-compress:1.18'
     implementation 'com.google.code.gson:gson:2.7'
     implementation project(':testerina:testerina-runtime')
     testCompile 'org.testng:testng'
+    testCompile 'org.mockito:mockito-all'
 
     distributionBalo project(path: ':ballerina-langlib:test', configuration: 'distributionBalo')
     distributionBalo project(path: ':testerina:testerina-core', configuration: 'distributionBalo')

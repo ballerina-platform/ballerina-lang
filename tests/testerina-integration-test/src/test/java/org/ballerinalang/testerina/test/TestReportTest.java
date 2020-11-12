@@ -48,8 +48,9 @@ public class TestReportTest extends BaseTestCase {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
-        projectPath = reportTestProjectPath.toString();
-        resultsJsonPath = reportTestProjectPath.resolve("target").resolve("test_results.json");
+        projectPath = projectBasedTestsPath.toString();
+        resultsJsonPath = projectBasedTestsPath.resolve("test-report-tests").resolve("target")
+                .resolve("test_results.json");
     }
 
     @Test ()
@@ -69,9 +70,9 @@ public class TestReportTest extends BaseTestCase {
     private void runCommand(boolean coverage) throws BallerinaTestException, IOException {
         String[] args;
         if (coverage) {
-            args = new String[]{"--code-coverage", "--all"};
+            args = new String[]{"--code-coverage"};
         } else {
-            args = new String[]{"--test-report", "--all"};
+            args = new String[]{"--test-report"};
         }
 
         balClient.runMain("test", args, null, new String[]{},
