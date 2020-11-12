@@ -127,7 +127,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private BufferedReader launchedStdoutStream;
     private BufferedReader launchedErrorStream;
     private Project project;
-    private Path projectRoot;
     private VirtualMachineProxyImpl debuggeeVM;
     private ThreadReferenceProxyImpl activeThread;
     private SuspendedContext suspendedContext;
@@ -295,10 +294,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         activeThread = new ThreadReferenceProxyImpl(debuggeeVM, eventProcessor.getThreadsMap().get(args.getThreadId()));
         StackTraceResponse stackTraceResponse = new StackTraceResponse();
         try {
-            StackFrame[] filteredFrames = activeThread.frames().stream().map(this::toDapStackFrame)
-                    .filter(Objects::nonNull).filter(frame -> frame.getSource().getName().endsWith(BAL_FILE_EXT)
-                            && frame.getLine() > 0)
+            StackFrame[] filteredFrames = activeThread.frames().stream()
+                    .map(this::toDapStackFrame)
+                    .filter(f -> f != null && f.getSource().getName().endsWith(BAL_FILE_EXT) && f.getLine() > 0)
                     .toArray(StackFrame[]::new);
+
             stackTraceResponse.setStackFrames(filteredFrames);
             return CompletableFuture.completedFuture(stackTraceResponse);
         } catch (JdiProxyException e) {
@@ -532,9 +532,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         try {
             long variableReference = nextVarReference.getAndIncrement();
             stackFramesMap.put(variableReference, stackFrame);
-            String sourcePath = getRectifiedSourcePath(stackFrame.location(), projectRoot);
+            Path sourcePath = getRectifiedSourcePath(stackFrame.location(), project);
+            if (sourcePath == null) {
+                return null;
+            }
             Source source = new Source();
-            source.setPath(sourcePath);
+            source.setPath(sourcePath.toString());
             source.setName(stackFrame.location().sourceName());
 
             StackFrame dapStackFrame = new StackFrame();
@@ -676,7 +679,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private void loadProjectInfo(Map<String, Object> clientArgs) {
         String entryFilePath = clientArgs.get("script").toString();
         project = ProjectLoader.loadProject(Paths.get(entryFilePath));
-        projectRoot = project.sourceRoot().getRoot();
     }
 
     /**

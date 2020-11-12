@@ -54,8 +54,9 @@ public class SuspendedContext {
         this.owningThread = threadRef;
         this.frame = frame;
         this.project = project;
-        this.breakPointSourcePath = getSourcePath(frame, project.sourceRoot());
-        this.sourceType = (project instanceof SingleFileProject) ? DebugSourceType.SINGLE_FILE : DebugSourceType.MODULE;
+        this.breakPointSourcePath = getSourcePath(frame);
+        this.sourceType = (project instanceof SingleFileProject) ? DebugSourceType.SINGLE_FILE :
+                DebugSourceType.PACKAGE;
         this.fileName = getFileNameFrom(this.breakPointSourcePath);
         this.lineNumber = -1;
     }
@@ -111,9 +112,9 @@ public class SuspendedContext {
         return Paths.get(breakPointSourcePath);
     }
 
-    private String getSourcePath(StackFrameProxyImpl frame, Path projectRoot) {
+    private String getSourcePath(StackFrameProxyImpl frame) {
         try {
-            return PackageUtils.getRectifiedSourcePath(frame.location(), projectRoot);
+            return PackageUtils.getRectifiedSourcePath(frame.location(), project).toString();
         } catch (AbsentInformationException | InvalidStackFrameException | JdiProxyException e) {
             // Todo - How to handle InvalidStackFrameException?
             return "";
