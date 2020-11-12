@@ -1432,7 +1432,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         Location pos = getPosition(anonFuncExprNode);
 
         // Set function name
-        bLFunction.name = createIdentifier(pos,
+        bLFunction.name = createIdentifier(symTable.builtinPos,
                                            anonymousModelHelper.getNextAnonymousFunctionKey(packageID));
 
         // Set function signature
@@ -2229,6 +2229,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 BLangUserDefinedType userDefinedType = (BLangUserDefinedType) child.apply(this);
                 BLangSimpleVariable parameter = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
                 parameter.name = userDefinedType.typeName;
+                parameter.pos = getPosition(child);
                 arrowFunction.params.add(parameter);
             }
 
@@ -2236,10 +2237,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             BLangUserDefinedType userDefinedType = (BLangUserDefinedType) param.apply(this);
             BLangSimpleVariable parameter = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
             parameter.name = userDefinedType.typeName;
+            parameter.pos = getPosition(param);
             arrowFunction.params.add(parameter);
         }
         arrowFunction.body = new BLangExprFunctionBody();
         arrowFunction.body.expr = createExpression(implicitAnonymousFunctionExpressionNode.expression());
+        arrowFunction.body.pos = arrowFunction.body.expr.pos;
         return arrowFunction;
     }
 
