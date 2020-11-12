@@ -42,18 +42,21 @@ public class SuspendedContext {
     private final ThreadReferenceProxyImpl owningThread;
     private final StackFrameProxyImpl frame;
     private final Project project;
+    private final String projectRoot;
     private final DebugSourceType sourceType;
     private final String breakPointSourcePath;
     private final String fileName;
     private int lineNumber;
     private ClassLoaderReference classLoader;
 
-    SuspendedContext(Project project, VirtualMachineProxyImpl vm, ThreadReferenceProxyImpl threadRef,
-                     StackFrameProxyImpl frame) {
+    SuspendedContext(Project project, String projectRoot, VirtualMachineProxyImpl vm,
+                     ThreadReferenceProxyImpl threadRef, StackFrameProxyImpl frame) {
+
         this.attachedVm = vm;
         this.owningThread = threadRef;
         this.frame = frame;
         this.project = project;
+        this.projectRoot = projectRoot;
         this.breakPointSourcePath = getSourcePath(frame);
         this.sourceType = (project instanceof SingleFileProject) ? DebugSourceType.SINGLE_FILE :
                 DebugSourceType.PACKAGE;
@@ -114,7 +117,7 @@ public class SuspendedContext {
 
     private String getSourcePath(StackFrameProxyImpl frame) {
         try {
-            return PackageUtils.getRectifiedSourcePath(frame.location(), project).toString();
+            return PackageUtils.getRectifiedSourcePath(frame.location(), project, projectRoot).toString();
         } catch (AbsentInformationException | InvalidStackFrameException | JdiProxyException e) {
             // Todo - How to handle InvalidStackFrameException?
             return "";

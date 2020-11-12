@@ -39,8 +39,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Package Utils.
@@ -79,11 +77,18 @@ public class PackageUtils {
      * Some additional processing is required to rectify the source path, as the source name will be the
      * relative path instead of just the file name, for the ballerina module sources.
      */
-    public static Path getRectifiedSourcePath(Location location, Project project) throws AbsentInformationException {
-        if (project instanceof BuildProject) {
+    public static Path getRectifiedSourcePath(Location location, Project project, String projectRoot)
+            throws AbsentInformationException {
+        if (project instanceof SingleFileProject) {
+            DocumentId docId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
+            Document document = project.currentPackage().getDefaultModule().document(docId);
+            if (!document.name().equals(location.sourcePath()) || !document.name().equals(location.sourceName())) {
+                return null;
+            }
+            return Paths.get(projectRoot);
+        } else if (project instanceof BuildProject) {
             String orgName = getOrgName(project);
             String defaultModuleName = getDefaultModuleName(project);
-
             String sourcePath = location.sourcePath();
             String sourceName = location.sourceName();
             String[] srcPaths = getNameParts(sourcePath);
@@ -91,7 +96,6 @@ public class PackageUtils {
             if (!srcPaths[0].equals(orgName)) {
                 return null;
             }
-
             String modulePart = srcPaths[1].replaceFirst(defaultModuleName, "");
             if (modulePart.startsWith("_")) {
                 modulePart = modulePart.replaceFirst("_", "");
@@ -99,11 +103,10 @@ public class PackageUtils {
 
             if (modulePart.isBlank()) {
                 // default module.
-                return Paths.get(project.sourceRoot().toAbsolutePath().toString(), modulePart, sourceName);
+                return Paths.get(projectRoot, sourceName);
             } else {
                 // other modules
-                return Paths.get(project.sourceRoot().toAbsolutePath().toString(), MODULE_DIR_NAME, modulePart,
-                        sourceName);
+                return Paths.get(projectRoot, MODULE_DIR_NAME, modulePart, sourceName);
             }
         }
         return null;
@@ -248,7 +251,12 @@ public class PackageUtils {
         Path path = Paths.get(filePath);
         Project project = ProjectLoader.loadProject(path);
         if (project instanceof SingleFileProject) {
-            return project.currentPackage().getDefaultModule().documents().iterator().next().name();
+            DocumentId documentId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
+            String docName = project.currentPackage().getDefaultModule().document(documentId).name();
+            if (docName.endsWith(BAL_FILE_EXT)) {
+                docName = docName.replace(BAL_FILE_EXT, "");
+            }
+            return docName;
         }
 
         Optional<DocumentId> docId = ProjectLoader.getDocumentId(path, (BuildProject) project);
@@ -261,30 +269,5 @@ public class PackageUtils {
                 .add(document.module().packageInstance().packageVersion().toString().replace(".", "_"))
                 .add(document.name().replace(BAL_FILE_EXT, ""));
         return classNameJoiner.toString();
-    }
-
-    /**
-     * Get relative path when a bal file is inside a directory.
-     *
-     * @param sourcePath source path
-     * @param reference  reference string
-     * @param sourceName source name
-     * @param fileName   file name
-     * @return relative path
-     */
-    private static String getDirectoryRelativePath(String sourcePath, String reference, String sourceName,
-                                                   String fileName) {
-        // When a bal file is inside a directory, the source path is constructed appropriately for services.
-        // But for non service bal files, [directory/file] path occurring twice in source path.
-        // We are handling this by using a service regex. If reference does not contain service regex,
-        // appropriate adjustment is made for source path else not.
-        Pattern pattern = Pattern.compile(SERVICE_REGEX);
-        Matcher matcher = pattern.matcher(reference);
-
-        if (matcher.find()) {
-            return sourcePath;
-        } else {
-            return sourcePath.replace(sourceName, fileName);
-        }
     }
 }

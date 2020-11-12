@@ -29,6 +29,7 @@ import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.runtime.IdentifierUtils;
 import org.apache.commons.compress.utils.IOUtils;
@@ -127,6 +128,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private BufferedReader launchedStdoutStream;
     private BufferedReader launchedErrorStream;
     private Project project;
+    private String projectRoot;
     private VirtualMachineProxyImpl debuggeeVM;
     private ThreadReferenceProxyImpl activeThread;
     private SuspendedContext suspendedContext;
@@ -341,7 +343,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     variablesResponse.setVariables(new Variable[0]);
                     return CompletableFuture.completedFuture(variablesResponse);
                 }
-                suspendedContext = new SuspendedContext(project, debuggeeVM, activeThread, stackFrame);
+                suspendedContext = new SuspendedContext(project, projectRoot, debuggeeVM, activeThread, stackFrame);
                 variablesResponse.setVariables(computeGlobalVariables(suspendedContext, args.getVariablesReference()));
             } else if (frameId != null) {
                 StackFrameProxyImpl stackFrame = stackFramesMap.get(frameId);
@@ -349,7 +351,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     variablesResponse.setVariables(new Variable[0]);
                     return CompletableFuture.completedFuture(variablesResponse);
                 }
-                suspendedContext = new SuspendedContext(project, debuggeeVM, activeThread, stackFrame);
+                suspendedContext = new SuspendedContext(project, projectRoot, debuggeeVM, activeThread, stackFrame);
                 variablesResponse.setVariables(computeStackFrameVariables(args));
             } else {
                 variablesResponse.setVariables(computeChildVariables(args));
@@ -427,7 +429,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         }
         try {
             StackFrameProxyImpl frame = stackFramesMap.get(args.getFrameId());
-            SuspendedContext context = new SuspendedContext(project, debuggeeVM, activeThread, frame);
+            SuspendedContext context = new SuspendedContext(project, projectRoot, debuggeeVM, activeThread, frame);
             if (evaluator == null) {
                 evaluator = new ExpressionEvaluator(context);
             }
@@ -532,7 +534,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         try {
             long variableReference = nextVarReference.getAndIncrement();
             stackFramesMap.put(variableReference, stackFrame);
-            Path sourcePath = getRectifiedSourcePath(stackFrame.location(), project);
+            Path sourcePath = getRectifiedSourcePath(stackFrame.location(), project, projectRoot);
             if (sourcePath == null) {
                 return null;
             }
@@ -679,6 +681,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private void loadProjectInfo(Map<String, Object> clientArgs) {
         String entryFilePath = clientArgs.get("script").toString();
         project = ProjectLoader.loadProject(Paths.get(entryFilePath));
+        if (project instanceof BuildProject) {
+            projectRoot = project.sourceRoot().toAbsolutePath().toString();
+        } else {
+            // Todo - Refactor after SingleFileProject source root is fixed.
+            projectRoot = entryFilePath;
+        }
     }
 
     /**
