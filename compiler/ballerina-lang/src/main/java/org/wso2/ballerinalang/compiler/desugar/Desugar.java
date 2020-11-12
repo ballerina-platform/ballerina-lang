@@ -6375,6 +6375,8 @@ public class Desugar extends BLangNodeVisitor {
             } else if (namedArgs.containsKey(param.name.value)) {
                 // Else check if named arg is given.
                 args.add(namedArgs.get(param.name.value));
+            } else if (param.getFlags().contains(Flag.INCLUDED)) {
+                createIncludedRecordLiteral(iExpr, param, namedArgs, args);
             } else if (varargRef == null) {
                 // Else create a dummy expression with an ignore flag.
                 BLangExpression expr = new BLangIgnoreExpr();
@@ -6395,6 +6397,39 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
         iExpr.requiredArgs = args;
+    }
+
+    private void createIncludedRecordLiteral(BLangInvocation iExpr, BVarSymbol param, Map<String,
+            BLangExpression> namedArgs, List<BLangExpression> args) {
+        BLangRecordLiteral recordLiteral = TreeBuilder.createBLangRecordLiteralNode();
+        recordLiteral.type = param.type;
+        if (param == ((BInvokableSymbol) iExpr.symbol).incRecordParamAllowAdditionalFields) {
+            for (String name : namedArgs.keySet()) {
+                BLangNamedArgsExpression expr = (BLangNamedArgsExpression) namedArgs.get(name);
+                if (!((BRecordType) param.type).fields.containsKey(name)) {
+                    createAndAddRecordFieldForIncludedRecordLiteral(recordLiteral, expr);
+                }
+            }
+        } else {
+            for (String name : namedArgs.keySet()) {
+                BLangNamedArgsExpression expr = (BLangNamedArgsExpression) namedArgs.get(name);
+                LinkedHashMap<String, BField> fields = ((BRecordType) param.type).fields;
+                if (fields.containsKey(name) && ((BInvokableSymbol) iExpr.symbol).includedRecordParams.
+                        contains(fields.get(name).symbol)) {
+                    createAndAddRecordFieldForIncludedRecordLiteral(recordLiteral, expr);
+                }
+            }
+        }
+        args.add(recordLiteral);
+    }
+
+    private void createAndAddRecordFieldForIncludedRecordLiteral(BLangRecordLiteral recordLiteral,
+                                                                 BLangNamedArgsExpression expr) {
+        BLangSimpleVarRef varRef = new BLangSimpleVarRef();
+        varRef.variableName = expr.name;
+        BLangRecordLiteral.BLangRecordKeyValueField recordKeyValueField = ASTBuilderUtil.
+                createBLangRecordKeyValue(varRef, expr.expr);
+        recordLiteral.fields.add(recordKeyValueField);
     }
 
     private BLangMatchTypedBindingPatternClause getSafeAssignErrorPattern(Location location,

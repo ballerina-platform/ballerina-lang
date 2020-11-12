@@ -294,6 +294,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_DOUBLE_HYPHEN_NOT_ALLOWED_WITHIN_XML_COMMENT("BCE0655", "error.double.hyphen.not.allowed.within.xml.comment"),
     ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED("BCE0656",
             "error.version.in.import.declaration.no.longer.supported"),
+    ERROR_DEFAULTABLE_PARAMETER_CANNOT_BE_INCLUDED_RECORD_PARAMETER("BCE657",
+            "error.defaultable.parameter.cannot.be.included.record.parameter"),
     ;
 
     String diagnosticId;
