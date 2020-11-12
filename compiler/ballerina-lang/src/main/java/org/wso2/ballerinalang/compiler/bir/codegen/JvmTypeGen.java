@@ -165,8 +165,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_CYCLIC_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_DETAIL_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_IMMUTABLE_TYPE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_MEMBERS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_TYPEID_SET_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
@@ -226,7 +228,7 @@ public class JvmTypeGen {
                                                 null);
                 fv.visitEnd();
             }
-            // do not generate anything for other types (e.g.: finite type, unions, etc.)
+            // do not generate anything for other types (e.g.: finite type, etc.)
         }
     }
 
@@ -275,7 +277,7 @@ public class JvmTypeGen {
             } else if (bType.tag == TypeTags.UNION) {
                 createUnionType(mv, (BUnionType) bType);
             } else {
-                // do not generate anything for other types (e.g.: finite type, unions, etc.)
+                // do not generate anything for other types (e.g.: finite type, etc.)
                 continue;
             }
 
@@ -294,8 +296,8 @@ public class JvmTypeGen {
         String fieldName;
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
-            if (!(bType.tag == TypeTags.RECORD || bType.tag == TypeTags.OBJECT || bType.tag == TypeTags.ERROR
-                    || isCyclicUnion(bType))) {
+            if (!(bType.tag == TypeTags.RECORD || bType.tag == TypeTags.ERROR || bType.tag == TypeTags.OBJECT
+                    || bType.tag == TypeTags.UNION)) {
                 continue;
             }
 
@@ -365,11 +367,12 @@ public class JvmTypeGen {
                                            String.format("(L%s;)V", TYPE_ID_SET), false);
                     }
                     break;
-                case TypeTags.UNION:
+                 case TypeTags.UNION:
                     BUnionType unionType = (BUnionType) bType;
                     mv.visitTypeInsn(CHECKCAST, UNION_TYPE_IMPL);
                     mv.visitInsn(DUP);
-                    mv.visitInsn(DUP);
+
+                     addCyclicFlag(mv, unionType);
 
                     // populate member fields
                     addUnionMembers(mv, unionType);
@@ -865,45 +868,36 @@ public class JvmTypeGen {
         mv.visitTypeInsn(NEW, UNION_TYPE_IMPL);
         mv.visitInsn(DUP);
 
-//        if (unionType.tsymbol.name != null) {
-//            mv.visitLdcInsn(unionType.tsymbol.name.value);
-//        }
-
-        // Load type flags
         mv.visitLdcInsn(typeFlag(unionType));
 
         loadReadonlyFlag(mv, unionType);
 
+        loadCyclicFlag(mv, unionType);
+
         // initialize the union type using the members array
-        mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, "(IZ)V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, "(IZZ)V", false);
     }
 
     /**
      * Add member type to unions in a type definition.
      *
      * @param mv        method visitor
-     * @param members   members
+     * @param unionType   unionType
      */
-    private static void addUnionMembers(MethodVisitor mv, Set<BType> members) {
-        // Create the members array
-        mv.visitLdcInsn((long) members.size());
-        mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, TYPE);
-        int i = 0;
-        for (BType memberType : members) {
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn((long) i);
-            mv.visitInsn(L2I);
+    private static void addUnionMembers(MethodVisitor mv, BUnionType unionType) {
+        createMembersArray(mv, unionType);
+        mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_MEMBERS_METHOD, String.format("([L%s;)V", TYPE), false);
+    }
 
-            // Load the member type
-            loadType(mv, memberType);
-
-            // Add the member to the array
-            mv.visitInsn(AASTORE);
-            i += 1;
-        }
-
-        mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, "setMemberTypes", String.format("([L%s;)V", TYPE), false);
+    /**
+     * Add cyclic flag to union
+     *
+     * @param mv        method visitor
+     * @param unionType union
+     */
+    private static void addCyclicFlag(MethodVisitor mv, BUnionType unionType) {
+        loadCyclicFlag(mv, unionType);
+        mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
     }
 
     static void duplicateServiceTypeWithAnnots(MethodVisitor mv, BObjectType objectType, String pkgClassName,
@@ -1238,7 +1232,7 @@ public class JvmTypeGen {
                     typeFieldName = "TYPE_HANDLE";
                     break;
                 case TypeTags.ARRAY:
-                    loadArrayType(mv, (BArrayType) bType);
+                    loadArrayType(mv, (BArrayType) bType, false);
                     return;
                 case TypeTags.MAP:
                     loadMapType(mv, (BMapType) bType);
@@ -1362,13 +1356,17 @@ public class JvmTypeGen {
      * @param mv    method visitor
      * @param bType array type to load
      */
-    private static void loadArrayType(MethodVisitor mv, BArrayType bType) {
+    private static void loadArrayType(MethodVisitor mv, BArrayType bType, boolean isCyclic) {
         // Create an new array type
         mv.visitTypeInsn(NEW, ARRAY_TYPE_IMPL);
         mv.visitInsn(DUP);
 
         // Load the element type
-        loadType(mv, bType.eType);
+        if (!isCyclic) {
+            loadType(mv, bType.eType);
+        } else {
+            loadUserDefinedType(mv, bType.eType);
+        }
 
         int arraySize = bType.size;
         mv.visitLdcInsn((long) arraySize);
@@ -1538,16 +1536,66 @@ public class JvmTypeGen {
         mv.visitTypeInsn(NEW, UNION_TYPE_IMPL);
         mv.visitInsn(DUP);
 
-        // Create the members array
-        Set<BType> memberTypes = unionType.getMemberTypes();
-        mv.visitLdcInsn((long) memberTypes.size());
+        createMembersArray(mv, unionType);
+
+        // Load type flags
+        mv.visitLdcInsn(typeFlag(unionType));
+
+        loadReadonlyFlag(mv, unionType);
+
+        loadCyclicFlag(mv, unionType);
+
+        // initialize the union type using the members array
+        mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, String.format("([L%s;IZZ)V", TYPE), false);
+    }
+
+    private static void loadCyclicFlag(MethodVisitor mv, BUnionType unionType) {
+        mv.visitInsn(unionType.isCyclic? ICONST_1 : ICONST_0);
+    }
+
+    private static void createMembersArray(MethodVisitor mv, BUnionType unionType) {
+        Set<BType> members = unionType.getMemberTypes();
+
+        boolean cyclic = unionType.isCyclic;
+//        // create a new members array
+//        if (cyclic) {
+//            mv.visitLdcInsn((long) (members.size() + 1));
+//        } else {
+//            mv.visitLdcInsn((long) members.size());
+//        }
+        mv.visitLdcInsn((long) members.size());
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, TYPE);
+
         int i = 0;
-        for (BType memberType : memberTypes) {
+//        if (cyclic) {
+//            // send my self
+//            mv.visitInsn(DUP);
+//            mv.visitLdcInsn((long) i);
+//            mv.visitInsn(L2I);
+//            loadType(mv, unionType);
+//            mv.visitInsn(AASTORE);
+//            i += 1;
+//        }
+        for (BType memberType : members) {
             mv.visitInsn(DUP);
             mv.visitLdcInsn((long) i);
             mv.visitInsn(L2I);
+
+            boolean cyclicTypeLoaded = false;
+            if (memberType.tag == TypeTags.ARRAY) {
+                var arrayType = (BArrayType) memberType;
+                if (arrayType.eType == unionType) {
+                    loadArrayType(mv, arrayType, true);
+                    cyclicTypeLoaded = true;
+                }
+            }
+
+            if (cyclicTypeLoaded) {
+                mv.visitInsn(AASTORE);
+                i += 1;
+                continue;
+            }
 
             // Load the member type
             loadType(mv, memberType);
@@ -1556,14 +1604,6 @@ public class JvmTypeGen {
             mv.visitInsn(AASTORE);
             i += 1;
         }
-
-        // Load type flags
-        mv.visitLdcInsn(typeFlag(unionType));
-
-        loadReadonlyFlag(mv, unionType);
-
-        // initialize the union type using the members array
-        mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, String.format("([L%s;IZ)V", TYPE), false);
     }
 
     /**
@@ -1865,10 +1905,6 @@ public class JvmTypeGen {
             }
         }
         return false;
-    }
-
-    private static boolean isCyclicUnion(BType bType) {
-        return (bType.tag == TypeTags.UNION) && ((BUnionType) bType).isCyclic;
     }
 
     private JvmTypeGen() {

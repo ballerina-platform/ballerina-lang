@@ -208,6 +208,10 @@ public class JvmConstants {
     public static final String BLOCKED_ON_EXTERN_FIELD = "blockedOnExtern";
     public static final String IS_BLOCKED_ON_EXTERN_FIELD = "isBlockedOnExtern";
 
+    // union related constants
+    public static final String SET_MEMBERS_METHOD = "setMemberTypes";
+    public static final String SET_CYCLIC_METHOD = "setCyclic";
+
     // Immutable type related constants.
     public static final String SET_IMMUTABLE_TYPE_METHOD = "setImmutableType";
 

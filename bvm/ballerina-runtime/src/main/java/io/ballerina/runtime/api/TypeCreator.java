@@ -254,7 +254,7 @@ public class TypeCreator {
      * @return the new union type
      */
     public static UnionType createUnionType(List<Type> memberTypes, int typeFlags) {
-        return new BUnionType(memberTypes, typeFlags, false);
+        return new BUnionType(memberTypes, typeFlags, false, false);
     }
 
     /**
@@ -277,7 +277,7 @@ public class TypeCreator {
      * @return the new union type
      */
     public static UnionType createUnionType(List<Type> memberTypes, int typeFlags, boolean readonly) {
-        return new BUnionType(memberTypes, typeFlags, readonly);
+        return new BUnionType(memberTypes, typeFlags, readonly, false);
     }
 
     /**

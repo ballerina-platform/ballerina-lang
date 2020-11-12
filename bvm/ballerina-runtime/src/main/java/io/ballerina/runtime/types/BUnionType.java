@@ -61,14 +61,15 @@ public class BUnionType extends BType implements UnionType {
      * @param typeFlags flags associated with the type
      */
     public BUnionType(List<Type> memberTypes, int typeFlags) {
-        this(memberTypes, typeFlags, false);
+        this(memberTypes, typeFlags, false, false);
     }
 
-    public BUnionType(List<Type> memberTypes, int typeFlags, boolean readonly) {
+    public BUnionType(List<Type> memberTypes, int typeFlags, boolean readonly, boolean isCyclic) {
         super(null, null, Object.class);
         this.memberTypes = memberTypes;
         this.typeFlags = typeFlags;
         this.readonly = readonly;
+        this.isCyclic = isCyclic;
     }
 
     public BUnionType(List<Type> memberTypes) {
@@ -76,7 +77,7 @@ public class BUnionType extends BType implements UnionType {
     }
 
     public BUnionType(List<Type> memberTypes, boolean readonly) {
-        this(memberTypes, 0, readonly);
+        this(memberTypes, 0, readonly, false);
         setFlagsBasedOnMembers();
     }
 
@@ -85,20 +86,22 @@ public class BUnionType extends BType implements UnionType {
      *
      * @param typeFlags flags associated with the type
      * @param readonly boolean represents if the type is readonly
+     * @param isCyclic boolean represents if the type is cyclic
      */
-    public BUnionType(int typeFlags, boolean readonly) {
+    public BUnionType(int typeFlags, boolean readonly, boolean isCyclic) {
         super(null, null, Object.class);
         this.typeFlags = typeFlags;
         this.readonly = readonly;
         this.memberTypes = new ArrayList<>();
+        this.isCyclic = isCyclic;
     }
 
-    public BUnionType(Type[] memberTypes, int typeFlags, boolean readonly) {
-        this(Arrays.asList(memberTypes), typeFlags, readonly);
+    public BUnionType(Type[] memberTypes, int typeFlags, boolean readonly, boolean isCyclic) {
+        this(Arrays.asList(memberTypes), typeFlags, readonly, isCyclic);
     }
 
     public BUnionType(Type[] memberTypes, int typeFlags) {
-        this(memberTypes, typeFlags, false);
+        this(memberTypes, typeFlags, false, false);
     }
 
     public List<Type> getMemberTypes() {
@@ -110,16 +113,21 @@ public class BUnionType extends BType implements UnionType {
     }
 
     public void setMemberTypes(Type[] memberTypes) {
-        this.memberTypes = Arrays.asList(memberTypes);
-        resolveCyclicType();
+        resolveCyclicType(Arrays.asList(memberTypes));
         setFlagsBasedOnMembers();
     }
 
-    private void resolveCyclicType() {
+    public void setCyclic(boolean isCyclic) {
+        this.isCyclic = isCyclic;
+    }
+
+    private void resolveCyclicType(List<Type> memberTypes) {
+        this.memberTypes = new ArrayList<>(memberTypes.size());
         for (var member : memberTypes) {
             if (member == this) {
                 continue;
             }
+            this.memberTypes.add(member);
         }
     }
 

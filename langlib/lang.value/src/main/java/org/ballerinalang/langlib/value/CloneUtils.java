@@ -68,7 +68,8 @@ public class CloneUtils {
      * @param value The value on which the function is invoked
      * @return String value of the value
      */
-    public static Object cloneReadOnly(Object value) {
+    public static Object
+    cloneReadOnly(Object value) {
         if (value == null) {
             return null;
         }
