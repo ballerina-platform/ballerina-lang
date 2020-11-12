@@ -27,13 +27,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Represent mapping-match-pattern.
+ *
  * @since Swan Lake
  */
 public class BLangMappingMatchPattern extends BLangMatchPattern implements MappingMatchPatternNode {
 
     public List<BLangFieldMatchPattern> fieldMatchPatterns = new ArrayList<>();
     public BLangRestMatchPattern restMatchPattern;
-    // TODO : add rest-match-pattern
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -47,7 +48,6 @@ public class BLangMappingMatchPattern extends BLangMatchPattern implements Mappi
 
     @Override
     public List<? extends FieldMatchPatternNode> getFieldMatchPatterns() {
-
         return fieldMatchPatterns;
     }
 

@@ -2889,23 +2889,22 @@ public class Types {
         }
     }
 
-    BType getTypeForMapTypeMembersAssignableToType(BMapType mapType, BType targetType) {
+    BType getTypeIntersectedWithMapType(BMapType mapType, BType targetType) {
         if (targetType.tag != TypeTags.MAP && targetType.tag != TypeTags.RECORD) {
             return symTable.semanticError;
         }
         if (targetType.tag == TypeTags.MAP) {
             BType intersectionConstraintType = getTypeIntersection(mapType.constraint,
                     ((BMapType) targetType).constraint);
-            if (intersectionConstraintType != symTable.semanticError) {
+            if (intersectionConstraintType == symTable.semanticError) {
                 return symTable.semanticError;
             }
-            mapType.constraint = intersectionConstraintType;
-            return mapType;
+            return new BMapType(TypeTags.MAP, intersectionConstraintType, null);
         }
-        return getTypeForRecordTypeMembersAssignableToType((BRecordType) targetType, mapType);
+        return getTypeIntersectedWithRecordType((BRecordType) targetType, mapType);
     }
 
-    BType getTypeForRecordTypeMembersAssignableToType(BRecordType recordType, BType targetType) {
+    BType getTypeIntersectedWithRecordType(BRecordType recordType, BType targetType) {
         if (targetType.tag != TypeTags.MAP && targetType.tag != TypeTags.RECORD) {
             return symTable.semanticError;
         }

@@ -2618,7 +2618,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
 
         for (BLangFieldMatchPattern fieldMatchPattern : mappingMatchPattern.fieldMatchPatterns) {
-            fieldMatchPattern.accept(this);
+            analyzeNode(fieldMatchPattern, env);
             String fieldName = fieldMatchPattern.fieldName.value;
             BVarSymbol fieldSymbol = new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
                     fieldMatchPattern.matchPattern.type, recordSymbol, fieldMatchPattern.pos, COMPILED_SOURCE);
@@ -2632,7 +2632,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (mappingMatchPattern.restMatchPattern != null) {
             BLangRestMatchPattern restMatchPattern = mappingMatchPattern.restMatchPattern;
             restMatchPattern.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
-            restMatchPattern.accept(this);
+            analyzeNode(restMatchPattern, env);
             mappingMatchPattern.declaredVars.put(restMatchPattern.variableName.value, restMatchPattern.symbol);
         }
 
@@ -2696,10 +2696,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 BRecordType recordType = (BRecordType) patternType;
-                LinkedHashMap<String, BField> fields = recordType.fields;
+                LinkedHashMap<String, BField> fields = new LinkedHashMap<>() {{
+                    putAll(recordType.fields);
+                }};
+
                 for (BLangFieldMatchPattern fieldMatchPattern : mappingMatchPattern.fieldMatchPatterns) {
                     assignTypesToMemberPatterns(fieldMatchPattern.matchPattern,
                             fields.get(fieldMatchPattern.fieldName.value).type);
+                    fields.remove(fieldMatchPattern.fieldName.value);
                 }
 
                 if (mappingMatchPattern.restMatchPattern == null) {
@@ -2712,6 +2716,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BMapType restVarSymbolMapType = (BMapType) restVarSymbol.type;
                 restPatternMapType.constraint = restVarSymbolMapType.constraint =
                         this.types.mergeTypes(restVarSymbolMapType.constraint, recordType.restFieldType);
+                for (BField remainingField : fields.values()) {
+                    restPatternMapType.constraint = this.types.mergeTypes(restPatternMapType.constraint,
+                            remainingField.type);
+                }
         }
     }
 
