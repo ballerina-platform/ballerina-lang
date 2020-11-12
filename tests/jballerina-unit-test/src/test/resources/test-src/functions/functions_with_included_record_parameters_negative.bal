@@ -143,3 +143,14 @@ function functionWithIncludedRecordParam9(int a, int b, int d, *Foo4 foo4, *Foo5
 function testfunctionWithIncludedRecordParam6() {
     anydata a1 = functionWithIncludedRecordParam9(10, 10, 25, abc = 10);
 }
+
+function functionWithIncludedRecordParam10(*Foo5 foo5) returns anydata {
+    return foo5["abc"];
+}
+
+function testfunctionWithIncludedRecordParam7() {
+    Foo5 foo = {
+        b: 23
+    };
+    anydata a1 = functionWithIncludedRecordParam10(foo, c = 19);
+}

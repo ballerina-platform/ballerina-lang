@@ -135,6 +135,10 @@ function functionOfFunctionTypedParamWithIncludedRecordParam16(*Bar2 bar2, *Bar 
     return bar2["b"];
 }
 
+function functionOfFunctionTypedParamWithIncludedRecordParam17(*Foo2 foo2) returns anydata {
+    return foo2["b"];
+}
+
 function testFunctionOfFunctionTypedParamWithIncludedRecordParam() {
     string fullName = functionOfFunctionTypedParamWithIncludedRecordParam(firstName = "chiran", secondName = "sachintha");
     assertEquality("chiran sachintha", fullName);
@@ -222,6 +226,14 @@ function testFunctionOfFunctionTypedParamWithIncludedRecordParam16() {
     assertEquality(anyVal, val);
 }
 
+function testFunctionOfFunctionTypedParamWithIncludedRecordParam17() {
+    anydata anyVal = ();
+    Foo2 foo = {
+        b : "ballerina"
+    };
+    anydata val = functionOfFunctionTypedParamWithIncludedRecordParam17(foo);
+    assertEquality("ballerina", val);
+}
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

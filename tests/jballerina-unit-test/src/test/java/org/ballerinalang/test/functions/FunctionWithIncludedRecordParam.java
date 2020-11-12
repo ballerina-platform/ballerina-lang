@@ -62,6 +62,8 @@ public class FunctionWithIncludedRecordParam {
                                 "'functionWithIncludedRecordParam8'()", 136, 18);
         BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'abc'", 136, 71);
         BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'abc'", 144, 63);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to " +
+                                "'functionWithIncludedRecordParam10()'", 155, 57);
 
         Assert.assertEquals(i, result.getErrorCount());
     }
@@ -146,5 +148,10 @@ public class FunctionWithIncludedRecordParam {
     @Test
     public void testFunctionOfFunctionTypedParamWithIncludedRecordParam16() {
         BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam16");
+    }
+
+    @Test
+    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam17() {
+        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam17");
     }
 }
