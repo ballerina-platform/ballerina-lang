@@ -117,21 +117,21 @@ class JvmObservabilityGen {
 
     private final Map<Object, BIROperand> compileTimeConstants;
 
-    JvmObservabilityGen(JvmPackageGen pkgGen) {
-        compileTimeConstants = new HashMap<>();
-        packageCache = pkgGen.packageCache;
-        symbolTable = pkgGen.symbolTable;
-        lambdaIndex = 0;
-        desugaredBBIndex = 0;
-        constantIndex = 0;
+    JvmObservabilityGen(PackageCache packageCache, SymbolTable symbolTable) {
+        this.compileTimeConstants = new HashMap<>();
+        this.packageCache = packageCache;
+        this.symbolTable = symbolTable;
+        this.lambdaIndex = 0;
+        this.desugaredBBIndex = 0;
+        this.constantIndex = 0;
     }
 
     /**
-     * Rewrite all observable functions in a package.
+     * Instrument the package by rewriting the BIR to add relevant Observability related instructions.
      *
      * @param pkg The package to instrument
      */
-    void rewriteObservableFunctions(BIRPackage pkg) {
+    void instrumentPackage(BIRPackage pkg) {
         for (int i = 0; i < pkg.functions.size(); i++) {
             BIRFunction func = pkg.functions.get(i);
             rewriteAsyncInvocations(func, null, pkg);
