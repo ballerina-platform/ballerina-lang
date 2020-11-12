@@ -28,7 +28,6 @@ import io.ballerina.runtime.observability.ObserverContext;
 import io.ballerina.runtime.observability.metrics.BallerinaMetricsObserver;
 import io.ballerina.runtime.observability.metrics.Tag;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,19 +40,14 @@ public class AddTagToMetrics {
     public static Object addTagToMetrics(Environment env, BString tagKey, BString tagValue) {
 
         ObserverContext observerContext = ObserveUtils.getObserverContextOfCurrentFrame(env);
-        boolean isCustomTagsAvailable = true;
         if (observerContext != null) {
             Map<String, Tag> customTags =
                     (Map<String, Tag>) observerContext.getProperty(BallerinaMetricsObserver.PROPERTY_CUSTOM_TAGS);
             if (customTags == null) {
                 customTags = new HashMap<>();
-                isCustomTagsAvailable = false;
-            }
-            customTags.put(tagKey.getValue(), Tag.of(tagKey.getValue(), tagValue.getValue()));
-
-            if (!isCustomTagsAvailable) {
                 observerContext.addProperty(BallerinaMetricsObserver.PROPERTY_CUSTOM_TAGS, customTags);
             }
+            customTags.put(tagKey.getValue(), Tag.of(tagKey.getValue(), tagValue.getValue()));
             return null;
         }
         return ErrorCreator.createError(
