@@ -42,7 +42,7 @@ public class TestBallerinaTomlProcessor {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
 
     @Test(description = "Test parse `ballerina.toml` file in to `PackageDescriptor` object")
-    public void testParse() throws IOException, TomlException {
+    public void testParse() {
         Path ballerinaTomlPath = RESOURCE_DIRECTORY.resolve("ballerinatoml").resolve("Ballerina.toml");
         PackageDescriptor packageDescriptor = BallerinaTomlProcessor.parseAsPackageDescriptor(ballerinaTomlPath);
 

@@ -26,11 +26,13 @@ import io.ballerina.projects.PackageDescriptor.Platform;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.model.BallerinaToml;
 import io.ballerina.projects.model.Package;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.toml.exceptions.TomlException;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,24 +61,28 @@ public class BallerinaTomlProcessor {
      *
      * @param tomlPath path of the toml file
      * @return `BallerinaToml` object
-     * @throws IOException   exception if the file cannot be found
-     * @throws TomlException exception when parsing toml
      */
-    public static BallerinaToml parse(Path tomlPath) throws IOException, TomlException {
-        InputStream targetStream = new FileInputStream(tomlPath.toFile());
-        Toml toml = parseAsToml(targetStream);
-        BallerinaToml ballerinaToml = parse(toml);
-        return ballerinaToml;
+    public static BallerinaToml parse(Path tomlPath) {
+        Toml toml;
+        try {
+            toml = parseAsToml(tomlPath);
+            return parse(toml);
+        } catch (TomlException e) {
+            throw new ProjectException(e.getMessage(), e);
+        }
     }
 
     @SuppressWarnings("unchecked")
-    public static PackageDescriptor parseAsPackageDescriptor(Path tomlPath) throws IOException, TomlException {
-        InputStream targetStream = new FileInputStream(tomlPath.toFile());
-        Toml toml = parseAsToml(targetStream);
-
-        // TODO Validate `Ballerina.toml`
-        // TODO following parse is done only to validate. We can remove it once we refactor this parser
-        parse(toml);
+    public static PackageDescriptor parseAsPackageDescriptor(Path tomlPath) {
+        Toml toml;
+        try {
+            toml = parseAsToml(tomlPath);
+            // TODO Validate `Ballerina.toml`
+            // TODO following parse is done only to validate. We can remove it once we refactor this parser
+            parse(toml);
+        } catch (TomlException e) {
+            throw new ProjectException(e.getMessage(), e);
+        }
 
         Map<String, Object> otherEntries = toml.toMap();
         Map<String, Object> packageEntry = (Map<String, Object>) otherEntries.remove("package");
@@ -140,28 +146,32 @@ public class BallerinaTomlProcessor {
     /**
      * Parse `ballerina.toml` file stream in to `Toml` object.
      *
-     * @param inputStream input stream of the toml file content
+     * @param tomlPath Ballerina.toml file path
      * @return `Toml` object
-     * @throws TomlException exception when parsing toml
      */
-    private static Toml parseAsToml(InputStream inputStream) throws TomlException {
-        try {
+    private static Toml parseAsToml(Path tomlPath) {
+        // For some reason `try (InputStream inputStream = Files.newInputStream(tomlPath))` raises a spot bug failure
+        // Therefore using the following method
+        File tomlFile = tomlPath.toFile();
+        try (InputStream inputStream = new FileInputStream(tomlFile)) {
             Toml toml = new Toml().read(inputStream);
             if (toml.isEmpty()) {
-                throw new TomlException("invalid Ballerina.toml file: organization, name and the version of the "
+                throw new ProjectException("invalid Ballerina.toml file: organization, name and the version of the "
                         + "package is missing. example: \n" + "[package]\n" + "org=\"my_org\"\n"
                         + "name=\"my_package\"\n" + "version=\"1.0.0\"\n");
             }
 
             if (null == toml.getTable("package")) {
-                throw new TomlException("invalid Ballerina.toml file: cannot find [package]");
+                throw new ProjectException("invalid Ballerina.toml file: cannot find [package]");
             }
 
             return toml;
         } catch (IllegalStateException | JsonSyntaxException ise) {
             String tomlErrMsg = lowerCaseFirstLetter(
                     ise.getMessage().replace("java.lang.IllegalStateException: ", "").toLowerCase(Locale.getDefault()));
-            throw new TomlException("invalid Ballerina.toml file: " + tomlErrMsg);
+            throw new ProjectException("invalid Ballerina.toml file: " + tomlErrMsg);
+        } catch (IOException e) {
+            throw new ProjectException("Failed to read the file: " + tomlPath);
         }
     }
 

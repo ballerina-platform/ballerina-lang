@@ -28,9 +28,7 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.model.BallerinaToml;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import org.ballerinalang.toml.exceptions.TomlException;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -80,12 +78,7 @@ public class BuildProject extends Project {
 
         // load Ballerina.toml
         Path ballerinaTomlPath = this.sourceRoot.resolve(ProjectConstants.BALLERINA_TOML);
-        BallerinaToml ballerinaToml;
-        try {
-            ballerinaToml = BallerinaTomlProcessor.parse(ballerinaTomlPath);
-        } catch (IOException | TomlException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
+        BallerinaToml ballerinaToml = BallerinaTomlProcessor.parse(ballerinaTomlPath);
 
         // Set default build options
         if (ballerinaToml.getBuildOptions() != null) {

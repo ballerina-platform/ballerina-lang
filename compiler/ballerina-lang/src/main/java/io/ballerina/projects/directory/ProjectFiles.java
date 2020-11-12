@@ -20,7 +20,6 @@ package io.ballerina.projects.directory;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import org.ballerinalang.toml.exceptions.TomlException;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -182,10 +181,6 @@ public class ProjectFiles {
     }
 
     public static PackageDescriptor createPackageDescriptor(Path ballerinaTomlFilePath) {
-        try {
-            return BallerinaTomlProcessor.parseAsPackageDescriptor(ballerinaTomlFilePath);
-        } catch (IOException | TomlException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
+        return BallerinaTomlProcessor.parseAsPackageDescriptor(ballerinaTomlFilePath);
     }
 }
