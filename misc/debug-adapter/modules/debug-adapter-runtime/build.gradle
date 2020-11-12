@@ -15,8 +15,22 @@
  *
  */
 
-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
-apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+//apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
+
+//apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+//apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    distributionBalo
+    distributionBirJar
+    balRt
+    testRt
+    testCore
+}
 
 dependencies {
     baloCreat project(':lib-creator')
@@ -27,13 +41,33 @@ dependencies {
     implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
 
-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
 }
 
-createBalo {
-    jvmTarget = 'true'
-    newParser = 'true'
+task createTestDistributionCache(type: Copy) {
+    dependsOn configurations.distributionBalo
+    from configurations.distributionBalo
+    into "$buildDir/distribution-cache"
+}
+
+task createTestBre(type: Copy) {
+    from configurations.balRt
+    from configurations.testRt
+    from configurations.testCore
+    from configurations.distributionBirJar
+    into "$buildDir/bre/lib"
+}
+
+test {
+    dependsOn createTestDistributionCache
+    dependsOn createTestBre
+
+    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+    systemProperty "ballerina.home", "$buildDir"
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
 }
 
 description = 'Debugger adapter runtime utils implementation'

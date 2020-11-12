@@ -39,7 +39,7 @@ module io.ballerina.runtime {
             io.ballerina.lang.table, io.ballerina.lang.value, io.ballerina.lang.xml, ballerina.debug.adapter.core, io.ballerina.tool;
     exports io.ballerina.runtime.internal.commons to io.ballerina.lang.value;
     exports io.ballerina.runtime.internal.launch to io.ballerina.testerina.runtime, io.ballerina.packerina,
-            ballerina.test.listener;
+            ballerina.test.listener, io.ballerina.cli;
     exports io.ballerina.runtime.internal.scheduling to
             io.ballerina.lang.array, io.ballerina.testerina.runtime, io.ballerina.lang.error, io.ballerina.java,
             io.ballerina.lang.map, io.ballerina.lang.table, io.ballerina.lang.value, io.ballerina.lang.xml,
