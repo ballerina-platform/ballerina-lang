@@ -931,11 +931,12 @@ public class JvmTypeGen {
      */
     private static void addUnionMembers(MethodVisitor mv, BUnionType unionType) {
         createMembersArray(mv, unionType);
-        mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_MEMBERS_METHOD, String.format("([L%s;)V", TYPE), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_MEMBERS_METHOD,
+                String.format("([L%s;)V", TYPE), false);
     }
 
     /**
-     * Add cyclic flag to union
+     * Add cyclic flag to union.
      *
      * @param mv        method visitor
      * @param unionType union
@@ -1595,13 +1596,14 @@ public class JvmTypeGen {
     }
 
     private static void loadCyclicFlag(MethodVisitor mv, BUnionType unionType) {
-        mv.visitInsn(unionType.isCyclic? ICONST_1 : ICONST_0);
+        mv.visitInsn(unionType.isCyclic ? ICONST_1 : ICONST_0);
     }
 
+    // TODO: cleanup and fix cyclic loading
     private static void createMembersArray(MethodVisitor mv, BUnionType unionType) {
         Set<BType> members = unionType.getMemberTypes();
 
-        boolean cyclic = unionType.isCyclic;
+//        boolean cyclic = unionType.isCyclic;
 //        // create a new members array
 //        if (cyclic) {
 //            mv.visitLdcInsn((long) (members.size() + 1));
