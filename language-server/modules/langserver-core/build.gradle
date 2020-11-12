@@ -122,7 +122,7 @@ createJavadoc {
 }
 
 test {
-    systemProperty "ballerina.home", "$buildDir"
+    systemProperty "ballerina.home", "$buildDir/ballerina-home/main/"
     systemProperty "experimental", "true"
     systemProperty "ballerina.version", project.version
     useTestNG() {

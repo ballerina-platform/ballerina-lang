@@ -567,44 +567,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
             workspaceManager.didChange(params);
             LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE.getName() + "' {fileUri: '" +
                     compilationPath + "'} updated}");
-
-            // Schedule diagnostics
             ExtendedLanguageClient client = this.languageServer.getClient();
-//            this.diagPushDebouncer.call(compilationPath, () -> {
-//                // Need to lock since debouncer triggers later
-//                Optional<Lock> nLock = docManager.lockFile(compilationPath);
-//                try {
-//                    LSContext context = new DocumentServiceOperationContext
-//                            .ServiceOperationContextBuilder(LSContextOperation.DIAGNOSTICS)
-//                            .withStdLibDefinitionParam(this.enableStdlibDefinition)
-//                            .withCommonParams(null, fileUri, docManager)
-//                            .build();
-//                    String fileURI = params.getTextDocument().getUri();
-//
-//                    LSDocumentIdentifier lsDocument = new LSDocumentIdentifierImpl(fileURI);
-//                    diagnosticsHelper.compileAndSendDiagnostics(client, context, lsDocument, docManager);
-//                    if (clientCapabilities.getExperimentalCapabilities().isSemanticSyntaxEnabled()) {
-//                        SemanticHighlightProvider.sendHighlights(client, context, docManager);
-//                    }
-//                    // Clear current cache upon successful compilation
-//                    // If the compiler fails, still we'll have the cached entry(marked as outdated)
-//                    LSCompilerCache.clear(context, lsDocument.getProjectRoot());
-//                    CommonUtil.updateStdLibCache(context);
-//                } catch (CompilationFailedException e) {
-//                    String msg = "Computing 'diagnostics' failed!";
-//                    logError(msg, e, params.getTextDocument(), (Position) null);
-//                } catch (HighlightingFailedException e) {
-//                    String msg = "Semantic highlighting failed!";
-//                    TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
-//                    logError(msg, e, identifier, (Position) null);
-//                } catch (Throwable e) {
-//                    String msg = "Operation 'text/didChange' failed!";
-//                    TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
-//                    logError(msg, e, identifier, (Position) null);
-//                } finally {
-//                    nLock.ifPresent(Lock::unlock);
-//                }
-//            });
+            NewLSContext context = ContextBuilder.buildBaseContext(fileUri,
+                    this.workspaceManager,
+                    LSContextOperation.TXT_DID_CHANGE);
+            diagnosticsHelper.compileAndSendDiagnostics(client, context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didChange' failed!";
             logError(msg, e, params.getTextDocument(), (Position) null);

@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.diagnostic;
 
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.commons.NewLSContext;
@@ -68,9 +69,15 @@ public class DiagnosticsHelper {
         if (project.isEmpty()) {
             return;
         }
-        String sourceRoot = project.get().sourceRoot().toString();
+        Path projectRoot = context.workspace().projectRoot(context.fileUri());
         for (Module module : project.get().currentPackage().modules()) {
-            populateDiagnostics(diagnosticMap, module, Path.of(sourceRoot));
+            Path sourceRoot;
+            if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+                sourceRoot = projectRoot.getParent();
+            } else {
+                sourceRoot = projectRoot.resolve(module.moduleName().moduleNamePart());
+            }
+            populateDiagnostics(diagnosticMap, module, sourceRoot);
         }
 
         // If the client is null, returns
@@ -93,9 +100,8 @@ public class DiagnosticsHelper {
 
             Location location = diag.location();
             String filePath = location.lineRange().filePath();
-            String moduleName = module.moduleName().moduleNamePart();
 
-            String fileURI = sourceRoot.resolve(moduleName).resolve(filePath).toUri().toString();
+            String fileURI = sourceRoot.resolve(filePath).toUri().toString();
             diagnosticsMap.putIfAbsent(fileURI, new ArrayList<>());
 
             LineRange lineRange = location.lineRange();
