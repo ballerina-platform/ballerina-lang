@@ -61,39 +61,39 @@ public class SymbolAtCursorTest {
     @DataProvider(name = "BasicsPosProvider")
     public Object[][] getPositionsForExactLookup() {
         return new Object[][]{
-                {17, 7, null},
-                {17, 8, "aString"},
-                {17, 10, "aString"},
-                {17, 15, null},
-                {20, 9, null},
-                {20, 10, "test"},
-                {20, 12, "test"},
-                {20, 14, null},
-                {27, 12, null},
-                {27, 13, "a"},
-                {27, 14, null},
-                {24, 8, "greet"},
-                {41, 8, "Person"},
-                {42, 8, "PersonObj"},
-                {43, 21, "pObj"},
-                {43, 30, "PersonObj.getFullName"},
-                {44, 12, "p"},
-                {44, 17, "name"},
-                {45, 20, "p"},
-                {45, 23, "name"},
-                {50, 5, null},
-                {50, 9, "Person"},
-                {50, 15, null},
-                {51, 15, "name"},
-                {54, 11, "PersonObj"},
-                {55, 15, "fname"},
-                {56, 15, "lname"},
-                {59, 16, "fname"},
-                {60, 12, "self"},
-                {64, 24, "fname"},
-                {64, 42, "lname"},
-                {73, 5, "test"},
-                {73, 8, "test"},
+                {16, 6, null},
+                {16, 7, "aString"},
+                {16, 9, "aString"},
+                {16, 14, null},
+                {19, 8, null},
+                {19, 9, "test"},
+                {19, 11, "test"},
+                {19, 13, null},
+                {26, 11, null},
+                {26, 12, "a"},
+                {26, 13, null},
+                {23, 7, "greet"},
+                {40, 7, "Person"},
+                {41, 7, "PersonObj"},
+                {42, 20, "pObj"},
+                {42, 29, "PersonObj.getFullName"},
+                {43, 11, "p"},
+                {43, 15, "name"},
+                {44, 19, "p"},
+                {44, 22, "name"},
+                {49, 4, null},
+                {49, 8, "Person"},
+                {49, 14, null},
+                {50, 14, "name"},
+                {53, 10, "PersonObj"},
+                {54, 14, "fname"},
+                {55, 14, "lname"},
+                {58, 15, "fname"},
+                {59, 11, "self"},
+                {63, 23, "fname"},
+                {63, 41, "lname"},
+                {72, 4, "test"},
+                {72, 7, "test"},
         };
     }
 
@@ -115,12 +115,12 @@ public class SymbolAtCursorTest {
     @DataProvider(name = "EnumPosProvider")
     public Object[][] getEnumPos() {
         return new Object[][]{
-                {18, 7, "RED"},
-//                {22, 19, "RED"}, // TODO: issue #25841
-                {23, 9, "Colour"},
-                {27, 46, "Colour"},
-//                {31, 18, "GREEN"}, // TODO: issue #25841
-//                {32, 29, "BLUE"}, // TODO: issue #25841
+                {17, 6, "RED"},
+//                {21, 18, "RED"}, // TODO: issue #25841
+                {22, 8, "Colour"},
+                {26, 45, "Colour"},
+//                {30, 17, "GREEN"}, // TODO: issue #25841
+//                {31, 28, "BLUE"}, // TODO: issue #25841
         };
     }
 
@@ -142,13 +142,13 @@ public class SymbolAtCursorTest {
     @DataProvider(name = "WorkerSymbolPosProvider")
     public Object[][] getWorkerPos() {
         return new Object[][]{
-                {22, 13, "w1"},
-                {24, 13, "w2"},
-                {27, 14, "w2"},
-                {29, 24, "w2"},
-                {35, 15, "w1"},
-                {37, 21, "w1"},
-                {40, 21, "w2"},
+                {21, 12, "w1"},
+                {23, 12, "w2"},
+                {26, 13, "w2"},
+                {28, 23, "w2"},
+                {34, 14, "w1"},
+                {36, 20, "w1"},
+                {39, 20, "w2"},
         };
     }
 

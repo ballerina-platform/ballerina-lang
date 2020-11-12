@@ -17,14 +17,15 @@
  */
 package org.ballerinalang.test.types.xml;
 
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.values.XmlValue;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.core.model.values.BXML;
 import org.ballerinalang.core.model.values.BXMLItem;
 import org.ballerinalang.core.model.values.BXMLSequence;
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -50,7 +51,7 @@ public class XMLLiteralWithNamespacesTest {
         literalWithNamespacesResult = BCompileUtil.compile("test-src/types/xml/xml-literals-with-namespaces.bal");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testElementLiteralWithNamespaces() {
         BValue[] returns =
                 BRunUtil.invoke(literalWithNamespacesResult, "testElementLiteralWithNamespaces");
@@ -73,7 +74,7 @@ public class XMLLiteralWithNamespacesTest {
         Assert.assertEquals(items.size(), 2);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testElementWithQualifiedName() {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testElementWithQualifiedName");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -88,7 +89,7 @@ public class XMLLiteralWithNamespacesTest {
                 "<ns1:root xmlns:ns1=\"http://ballerina.com/b\" xmlns=\"http://ballerina.com/\">hello</ns1:root>");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testDefineInlineNamespace() {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testDefineInlineNamespace");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -96,7 +97,7 @@ public class XMLLiteralWithNamespacesTest {
                 "<nsx:foo xmlns:nsx=\"http://wso2.com\" nsx:id=\"123\">hello</nsx:foo>");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testDefineInlineDefaultNamespace() {
         BValue[] returns =
                 BRunUtil.invoke(literalWithNamespacesResult, "testDefineInlineDefaultNamespace");
@@ -152,7 +153,7 @@ public class XMLLiteralWithNamespacesTest {
         Assert.assertEquals(returns[2].stringValue(), "{http://ballerina.com/b}foo");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testPackageLevelXML() {
         CompileResult result = BCompileUtil.compile("test-src/types/xml/package_level_xml_literals.bal");
         BValue[] returns = BRunUtil.invoke(result, "testPackageLevelXML");
@@ -165,7 +166,7 @@ public class XMLLiteralWithNamespacesTest {
                 "<ns1:student xmlns:ns1=\"http://ballerina.com/b\">hello</ns1:student>");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testObjectLevelXML() {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testObjectLevelXML");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -187,12 +188,12 @@ public class XMLLiteralWithNamespacesTest {
                         "    </Order>");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testXMLSerialize() {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "getXML");
         Assert.assertTrue(returns[0] instanceof BXML);
 
-        XMLValue xmlItem = (XMLValue) XMLFactory.parse(returns[0].stringValue());
+        XmlValue xmlItem = (XmlValue) XmlFactory.parse(returns[0].stringValue());
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         xmlItem.serialize(baos);
         Assert.assertEquals(new String(baos.toByteArray()),
@@ -201,7 +202,7 @@ public class XMLLiteralWithNamespacesTest {
 
     @Test
     public void testXMLToString() {
-        XMLValue xml = XMLFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+        BXml xml = XmlFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY data \"Example\" >]><foo>&data;</foo>");
         Assert.assertEquals(xml.toString(), "<foo>Example</foo>");
     }

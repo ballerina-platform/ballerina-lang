@@ -91,13 +91,7 @@
                           ]
                         },
                         {
-                          "kind": "OPEN_BRACE_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "OPEN_BRACE_TOKEN"
                         },
                         {
                           "kind": "LIST",
@@ -108,7 +102,7 @@
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
-                              "value": "  "
+                              "value": " "
                             }
                           ]
                         }
@@ -207,13 +201,7 @@
                           ]
                         },
                         {
-                          "kind": "OPEN_BRACE_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "OPEN_BRACE_TOKEN"
                         },
                         {
                           "kind": "LIST",
@@ -224,7 +212,7 @@
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
-                              "value": "  "
+                              "value": " "
                             }
                           ]
                         }
@@ -286,6 +274,10 @@
           "kind": "MODULE_VAR_DECL",
           "children": [
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
@@ -321,13 +313,7 @@
                       ]
                     },
                     {
-                      "kind": "OPEN_BRACE_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "OPEN_BRACE_TOKEN"
                     },
                     {
                       "kind": "LIST",
@@ -426,16 +412,16 @@
                               ]
                             },
                             {
-                              "kind": "OBJECT_KEYWORD"
-                            },
-                            {
-                              "kind": "OPEN_BRACE_TOKEN",
+                              "kind": "OBJECT_KEYWORD",
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
                                   "value": " "
                                 }
                               ]
+                            },
+                            {
+                              "kind": "OPEN_BRACE_TOKEN"
                             },
                             {
                               "kind": "LIST",
@@ -512,13 +498,7 @@
                           ]
                         },
                         {
-                          "kind": "OPEN_BRACE_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "OPEN_BRACE_TOKEN"
                         },
                         {
                           "kind": "LIST",
@@ -597,13 +577,7 @@
                                   ]
                                 },
                                 {
-                                  "kind": "OPEN_BRACE_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "kind": "OPEN_BRACE_TOKEN"
                                 },
                                 {
                                   "kind": "LIST",
@@ -688,13 +662,7 @@
                                       ]
                                     },
                                     {
-                                      "kind": "OPEN_BRACE_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "OPEN_BRACE_TOKEN"
                                     },
                                     {
                                       "kind": "LIST",
@@ -810,13 +778,7 @@
                                           ]
                                         },
                                         {
-                                          "kind": "OPEN_BRACE_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
+                                          "kind": "OPEN_BRACE_TOKEN"
                                         },
                                         {
                                           "kind": "LIST",
@@ -1019,13 +981,7 @@
                                   ]
                                 },
                                 {
-                                  "kind": "OPEN_BRACE_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "kind": "OPEN_BRACE_TOKEN"
                                 },
                                 {
                                   "kind": "LIST",
@@ -1122,13 +1078,7 @@
                                       ]
                                     },
                                     {
-                                      "kind": "OPEN_BRACE_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "OPEN_BRACE_TOKEN"
                                     },
                                     {
                                       "kind": "LIST",
@@ -1142,13 +1092,7 @@
                               ]
                             },
                             {
-                              "kind": "GT_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "GT_TOKEN"
                             },
                             {
                               "kind": "SIMPLE_NAME_REFERENCE",
@@ -1275,13 +1219,7 @@
                               ]
                             },
                             {
-                              "kind": "OPEN_BRACE_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "OPEN_BRACE_TOKEN"
                             },
                             {
                               "kind": "LIST",

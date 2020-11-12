@@ -19,15 +19,17 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.util.Flags;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 /**
  * Represents a ballerina variable.
@@ -36,18 +38,20 @@ import java.util.Optional;
  */
 public class BallerinaVariableSymbol extends BallerinaSymbol implements VariableSymbol {
 
-    private final List<Qualifier> qualifiers;
-    private final BallerinaTypeDescriptor typeDescriptorImpl;
+    private final Set<Qualifier> qualifiers;
+    private final TypeSymbol typeDescriptorImpl;
+    private final boolean deprecated;
 
     protected BallerinaVariableSymbol(String name,
-                                          PackageID moduleID,
-                                          SymbolKind ballerinaSymbolKind,
-                                          List<Qualifier> qualifiers,
-                                          BallerinaTypeDescriptor typeDescriptorImpl,
-                                          BSymbol bSymbol) {
+                                      PackageID moduleID,
+                                      SymbolKind ballerinaSymbolKind,
+                                      Set<Qualifier> qualifiers,
+                                      TypeSymbol typeDescriptorImpl,
+                                      BSymbol bSymbol) {
         super(name, moduleID, ballerinaSymbolKind, bSymbol);
-        this.qualifiers = Collections.unmodifiableList(qualifiers);
+        this.qualifiers = Collections.unmodifiableSet(qualifiers);
         this.typeDescriptorImpl = typeDescriptorImpl;
+        this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
     }
 
     /**
@@ -56,27 +60,32 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
      * @return {@link List} of access modifiers
      */
     @Override
-    public List<Qualifier> qualifiers() {
+    public Set<Qualifier> qualifiers() {
         return qualifiers;
     }
 
     /**
      * Get the Type of the variable.
      *
-     * @return {@link BallerinaTypeDescriptor} of the variable
+     * @return {@link TypeSymbol} of the variable
      */
     @Override
-    public Optional<BallerinaTypeDescriptor> typeDescriptor() {
-        return Optional.ofNullable(typeDescriptorImpl);
+    public TypeSymbol typeDescriptor() {
+        return typeDescriptorImpl;
+    }
+
+    @Override
+    public boolean deprecated() {
+        return this.deprecated;
     }
 
     /**
      * Represents Ballerina XML Namespace Symbol Builder.
      */
-    static class VariableSymbolBuilder extends SymbolBuilder<VariableSymbolBuilder> {
+    public static class VariableSymbolBuilder extends SymbolBuilder<VariableSymbolBuilder> {
 
-        protected List<Qualifier> qualifiers = new ArrayList<>();
-        protected BallerinaTypeDescriptor typeDescriptor;
+        protected Set<Qualifier> qualifiers = new HashSet<>();
+        protected TypeSymbol typeDescriptor;
 
         public VariableSymbolBuilder(String name, PackageID moduleID, BSymbol bSymbol) {
             super(name, moduleID, SymbolKind.VARIABLE, bSymbol);
@@ -92,12 +101,12 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
                     this.bSymbol);
         }
 
-        public VariableSymbolBuilder withTypeDescriptor(BallerinaTypeDescriptor typeDescriptor) {
+        public VariableSymbolBuilder withTypeDescriptor(TypeSymbol typeDescriptor) {
             this.typeDescriptor = typeDescriptor;
             return this;
         }
 
-        public VariableSymbolBuilder withAccessModifier(Qualifier qualifier) {
+        public VariableSymbolBuilder withQualifier(Qualifier qualifier) {
             this.qualifiers.add(qualifier);
             return this;
         }

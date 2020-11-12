@@ -8,14 +8,14 @@
     {
       "label": "w1",
       "kind": "Variable",
-      "detail": "future<()>",
+      "detail": "worker",
       "insertText": "w1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "w2",
       "kind": "Variable",
-      "detail": "future<()>",
+      "detail": "worker",
       "insertText": "w2",
       "insertTextFormat": "Snippet"
     },

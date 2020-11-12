@@ -49,3 +49,11 @@ compileJava {
         classpath = files()
     }
 }
+
+task parserTests(type: Copy) {
+    from "../../../../compiler/ballerina-parser/src/test/resources"
+    into "$buildDir/resources/test/parser-tests"
+    include "**/*.bal"
+}
+
+tasks.test.dependsOn("parserTests")

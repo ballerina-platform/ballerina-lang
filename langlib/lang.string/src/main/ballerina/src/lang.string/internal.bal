@@ -21,7 +21,7 @@ class StringIterator {
 
     private string m;
 
-    public function init(string m) {
+    public isolated function init(string m) {
         self.m = m;
     }
 
@@ -32,7 +32,7 @@ class StringIterator {
     }
 }
 
-function externNext(StringIterator iterator) returns record {| string value; |}? = @java:Method {
+isolated function externNext(StringIterator iterator) returns record {| string value; |}? = @java:Method {
     'class: "org.ballerinalang.langlib.string.Next",
     name: "next"
 } external;

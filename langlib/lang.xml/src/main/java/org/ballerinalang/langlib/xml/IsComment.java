@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.values.BXml;
 
 /**
  * Test xml to be single xml comment.
@@ -28,13 +28,13 @@ import org.ballerinalang.jvm.values.XMLValue;
 //@BallerinaFunction(
 //        orgName = "ballerina", packageName = "lang.xml",
 //        functionName = "isComment",
-//        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
+//        args = {@Argument(name = "bxml", type = TypeKind.XML)},
 //        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
 //        isPublic = true
 //)
 public class IsComment {
 
-    public static boolean isComment(XMLValue xmlValue) {
-        return xmlValue.getNodeType() == XMLNodeType.COMMENT;
+    public static boolean isComment(BXml xmlValue) {
+        return xmlValue.getNodeType() == XmlNodeType.COMMENT;
     }
 }

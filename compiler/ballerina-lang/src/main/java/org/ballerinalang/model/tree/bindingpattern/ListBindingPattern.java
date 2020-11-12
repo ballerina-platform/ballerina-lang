@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * The interface with the APIs to implement the list-binding-pattern.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public interface ListBindingPattern extends Node {
     List<? extends BindingPatternNode> getBindingPatterns();

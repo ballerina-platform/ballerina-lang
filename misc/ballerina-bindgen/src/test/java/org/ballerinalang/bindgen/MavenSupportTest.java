@@ -80,9 +80,7 @@ public class MavenSupportTest extends CommandTest {
         Assert.assertTrue(isJarAvailable(mavenRepoPath, jarName));
     }
 
-    //TODO : Need to enable once jdk11 is merged
-    @Test(description = "Test the maven support in the Bindgen tool to see if the Ballerina.toml is updated",
-            enabled = false)
+    @Test(description = "Test the maven support in the Bindgen tool to see if the Ballerina.toml is updated")
     public void testBindgenMvnToml() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
         String moduleDir = Paths.get(projectDir, "src", "balModule1").toString();

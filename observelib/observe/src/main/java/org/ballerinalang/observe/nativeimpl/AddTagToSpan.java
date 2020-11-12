@@ -19,10 +19,10 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Scheduler;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * This function adds tags to a span.
@@ -30,15 +30,14 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 public class AddTagToSpan {
     private static final OpenTracerBallerinaWrapper otWrapperInstance = OpenTracerBallerinaWrapper.getInstance();
 
-    public static Object addTagToSpan(BString tagKey, BString tagValue, long spanId) {
-        boolean tagAdded = otWrapperInstance.addTag(tagKey.getValue(), tagValue.getValue(),
-                                                    spanId, Scheduler.getStrand());
+    public static Object addTagToSpan(Environment env, BString tagKey, BString tagValue, long spanId) {
+        boolean tagAdded = otWrapperInstance.addTag(env, tagKey.getValue(), tagValue.getValue(), spanId);
 
         if (tagAdded) {
             return null;
         }
 
-        return BErrorCreator.createError(
-                BStringUtils.fromString(("Span already finished. Can not add tag {" + tagKey + ":" + tagValue + "}")));
+        return ErrorCreator.createError(
+                StringUtils.fromString(("Span already finished. Can not add tag {" + tagKey + ":" + tagValue + "}")));
     }
 }

@@ -2,7 +2,8 @@ module io.ballerina.packerina {
     requires io.ballerina.lang;
     requires io.ballerina.cli.module;
     requires io.ballerina.tool;
-    requires io.ballerina.jvm;
+    requires io.ballerina.tools.api;
+    requires io.ballerina.runtime;
     requires toml4j;
     requires info.picocli;
     requires io.ballerina.docerina;
@@ -11,5 +12,4 @@ module io.ballerina.packerina {
     requires io.ballerina.testerina.runtime;
     requires io.ballerina.testerina.core;
     requires gson;
-    requires io.ballerina.maven.resolver;
 }

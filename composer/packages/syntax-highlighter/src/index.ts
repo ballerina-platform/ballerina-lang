@@ -15,7 +15,7 @@ declare global {
 export async function highlightSnippets(selector = "code.language-ballerina") {
     await loadWASM(require("onigasm/lib/onigasm.wasm"));
     // tslint:disable-next-line: max-line-length
-    const content = require("./../../../../misc/ballerina-grammar/syntaxes/ballerina.tmLanguage").default;
+    const content = require("./../../../../misc/grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage").default;
     const registry = new Registry({
         getGrammarDefinition: async (scopeName) => {
             return {
@@ -25,7 +25,7 @@ export async function highlightSnippets(selector = "code.language-ballerina") {
         }
     });
 
-    monaco.languages.register({ id: "ballerina"});
+    monaco.languages.register({ id: "ballerina" });
     // map of monaco "language id's" to TextMate scopeNames
     const grammars = new Map();
     grammars.set("ballerina", "source.ballerina");

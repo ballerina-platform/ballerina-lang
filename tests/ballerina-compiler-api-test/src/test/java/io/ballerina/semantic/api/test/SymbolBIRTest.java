@@ -70,14 +70,15 @@ public class SymbolBIRTest {
         BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
 
         List<String> annotationModuleSymbols = asList("deprecated", "untainted", "tainted", "icon", "strand",
-                                                      "StrandData", "typeParam", "Thread", "builtinSubtype");
+                                                      "StrandData", "typeParam", "Thread", "builtinSubtype",
+                                                      "isolatedParam");
         List<String> moduleLevelSymbols = asList("aString", "anInt", "HELLO", "testAnonTypes");
         List<String> moduleSymbols = asList("xml", "foo", "object", "error", "boolean", "decimal", "typedesc", "float",
                                             "future", "int", "map", "stream", "string", "table");
         List<String> expSymbolNames = getSymbolNames(annotationModuleSymbols, moduleLevelSymbols, moduleSymbols);
 
         Map<String, Symbol> symbolsInScope =
-                model.visibleSymbols("symbol_lookup_with_imports_test.bal", LinePosition.from(19, 1))
+                model.visibleSymbols("symbol_lookup_with_imports_test.bal", LinePosition.from(18, 0))
                         .stream().collect(Collectors.toMap(Symbol::name, s -> s));
         assertList(symbolsInScope, expSymbolNames);
 
@@ -90,7 +91,10 @@ public class SymbolBIRTest {
 
         List<String> fooTypeDefs = getSymbolNames(getSymbolNames(fooPkgSymbol, SymTag.TYPE_DEF), "FileNotFoundError",
                                                   "EofError", "Digit");
+        fooTypeDefs.remove("PersonObj");
         assertList(fooModule.typeDefinitions(), fooTypeDefs);
+
+        assertList(fooModule.classes(), List.of("PersonObj"));
 
         List<String> allSymbols = getSymbolNames(fooPkgSymbol, 0);
         assertList(fooModule.allSymbols(), allSymbols);
@@ -114,15 +118,15 @@ public class SymbolBIRTest {
     @DataProvider(name = "ImportSymbolPosProvider")
     public Object[][] getImportSymbolPos() {
         return new Object[][]{
-                {17, 7, null},
-                {17, 11, "foo"},
-                {17, 17, "foo"},
-                {17, 19, null},
-//                {20, 18, "foo"}, // TODO: issue #25841
-                {21, 14, "foo"},
-                {23, 6, "foo"},
-//                {27, 13, "foo"}, // TODO: issue #25841
-                {32, 21, "PersonObj.getName"},
+                {16, 6, null},
+                {16, 10, "foo"},
+                {16, 16, "foo"},
+                {16, 18, null},
+//                {19, 17, "foo"}, // TODO: issue #25841
+                {20, 13, "foo"},
+                {22, 5, "foo"},
+//                {26, 12, "foo"}, // TODO: issue #25841
+                {31, 20, "PersonObj.getName"},
         };
     }
 

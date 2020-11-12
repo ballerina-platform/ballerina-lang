@@ -37,8 +37,8 @@ public class EnumDeclarationNode extends ModuleMemberDeclarationNode {
         return optionalChildInBucket(0);
     }
 
-    public Token qualifier() {
-        return childInBucket(1);
+    public Optional<Token> qualifier() {
+        return optionalChildInBucket(1);
     }
 
     public Token enumKeywordToken() {
@@ -134,7 +134,7 @@ public class EnumDeclarationNode extends ModuleMemberDeclarationNode {
         public EnumDeclarationNodeModifier(EnumDeclarationNode oldNode) {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata().orElse(null);
-            this.qualifier = oldNode.qualifier();
+            this.qualifier = oldNode.qualifier().orElse(null);
             this.enumKeywordToken = oldNode.enumKeywordToken();
             this.identifier = oldNode.identifier();
             this.openBraceToken = oldNode.openBraceToken();
@@ -144,14 +144,12 @@ public class EnumDeclarationNode extends ModuleMemberDeclarationNode {
 
         public EnumDeclarationNodeModifier withMetadata(
                 MetadataNode metadata) {
-            Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
         public EnumDeclarationNodeModifier withQualifier(
                 Token qualifier) {
-            Objects.requireNonNull(qualifier, "qualifier must not be null");
             this.qualifier = qualifier;
             return this;
         }

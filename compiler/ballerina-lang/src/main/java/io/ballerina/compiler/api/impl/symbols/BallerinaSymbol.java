@@ -55,8 +55,11 @@ public class BallerinaSymbol implements Symbol {
         }
 
         this.isLangLib = (symbol.flags & Flags.LANG_LIB) == Flags.LANG_LIB;
-        this.position = new BLangDiagnosticLocation(symbol.pos.src.getCompilationUnitName(), symbol.pos.sLine,
-                                                    symbol.pos.eLine, symbol.pos.sCol, symbol.pos.eCol);
+        this.position = new BLangDiagnosticLocation(symbol.pos.lineRange().filePath(),
+                                                    symbol.pos.lineRange().startLine().line(),
+                                                    symbol.pos.lineRange().endLine().line(),
+                                                    symbol.pos.lineRange().startLine().offset(),
+                                                    symbol.pos.lineRange().endLine().offset());
     }
 
     /**

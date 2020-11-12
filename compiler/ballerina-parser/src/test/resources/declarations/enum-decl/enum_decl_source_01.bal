@@ -6,23 +6,23 @@ enum SyntaxKind {
 }
 
 public enum Color {
-  RED,
-  #this is green
-  GREEN,
-  @annotationsss
-  BLUE
+    RED,
+    #this is green
+    GREEN,
+    @annotationsss
+    BLUE
 }
 
 @Override:annotations
 public enum Color {
-  RED = "read-color",
-  GREEN = "green-color",
-  @checkmising
-  isMissing = true,
-  attributes,
-  value = +5,
-  #parents can be null
-  @checknull
-  parents = null,
-  other
+    RED = "read-color",
+    GREEN = "green-color",
+    @checkmising
+    isMissing = true,
+    attributes,
+    value = +5,
+    #parents can be null
+    @checknull
+    parents = null,
+    other
 }

@@ -1,3 +1,4 @@
+import ballerina/lang.'int;
 // Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
@@ -86,41 +87,48 @@ class OddNumberGenerator {
 }
 
 // constants
-const gv01_nameWithoutType = "Ballerina";
-const string gv02_nameWithType = "Ballerina";
-const map<string> gv03_nameMap = {"name":"John"};
-const gv04_nilWithoutType = ();
-const () gv05_nilWithType = ();
+const nameWithoutType = "Ballerina";
+const string nameWithType = "Ballerina";
+const map<string> nameMap = {"name":"John"};
+const nilWithoutType = ();
+const () nilWithType = ();
 
 // global variables
-var gv06_stringValue = "Ballerina";
-var gv07_decimalValue = 100.0d;
-var gv08_byteValue = <byte>2;
-var gv09_floatValue = 2.0;
-json gv10_jsonVar = {name:"John", age:20};
-var 'gv11_\ \/\:\@\[\`\{\~\u{2324}_IL = "IL with global var";
+var stringValue = "Ballerina";
+var decimalValue = 100.0d;
+var byteValue = <byte>2;
+var floatValue = 2.0;
+json jsonVar = {name:"John", age:20};
+var '\ \/\:\@\[\`\{\~\u{2324}_IL = "IL with global var";
 
 public function main() {
     //------------------------ basic, simple type variables ------------------------//
 
-    var v01_varVariable = ();
-    boolean v02_booleanVar = true;
-    int v03_intVar = 20;
-    float v04_floatVar = -10.0;
-    decimal v05_decimalVar = 3.5;
+    var varVariable = ();
+    boolean booleanVar = true;
+    int intVar = 20;
+    float floatVar = -10.0;
+    decimal decimalVar = 3.5;
+
+    'int:Unsigned8 unsigned8IntVar = 1;
+    'int:Unsigned16 unsigned16IntVar = 100;
+    'int:Unsigned32 unsigned32IntVar = 1000;
+    'int:Signed8 signed8IntVar = -1;
+    'int:Signed16 signed16IntVar = -100;
+    'int:Signed32 signed32IntVar = -1000;
 
     //------------------------ basic, sequence type variables ------------------------//
 
-    string v06_stringVar = "foo";
-    xml v07_xmlVar = xml `<person gender="male"><firstname>Praveen</firstname><lastname>Nada</lastname></person>`;
+    string stringVar = "foo";
+    xml xmlVar = xml `<person gender="male"><firstname>Praveen</firstname><lastname>Nada</lastname></person>`;
 
     //------------------------ basic, structured type variables ------------------------//
 
-    any[] v08_arrayVar = [1, 20, -10.0, "foo"];
-    [int, string] v09_tupleVar = [20, "foo"];
-    map<string> v10_mapVar = {line1: "No. 20", line2: "Palm Grove", city: "Colombo 03", country: "Sri Lanka"};
+    any[] arrayVar = [1, 20, -10.0, "foo"];
+    [int, string] tupleVar = [20, "foo"];
+    map<string> mapVar = {line1: "No. 20", line2: "Palm Grove", city: "Colombo 03", country: "Sri Lanka"};
 
-    '\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_Student v11_recordVar = {
+    '\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_Student recordVar = {
         '1st_name: "John Doe",
         'Ȧɢέ_\ \/\:\@\[\`\{\~⌤: 20,
         grades: {
@@ -130,45 +138,45 @@ public function main() {
         }
     };
 
-    record {|string city; string country;|} v12_anonRecord = {city: "London", country: "UK"};
+    record {|string city; string country;|} anonRecord = {city: "London", country: "UK"};
 
-    EmployeeTable v25_tableVar = table [
+    EmployeeTable tableVar = table [
       {id: 1, name: "John", salary: 300.50},
       {id: 2, name: "Bella", salary: 500.50},
       {id: 3, name: "Peter", salary: 750.0}
     ];
 
-    error v13_errorVar = error("SimpleErrorType", message = "Simple error occurred");
+    error errorVar = error("SimpleErrorType", message = "Simple error occurred");
 
     //------------------------ basic, behavioral type variables ------------------------//
 
-    function (string, string) returns string v14_anonFunctionVar =
+    function (string, string) returns string anonFunctionVar =
         function (string x, string y) returns string {
         return x + y;
     };
 
-    future<int> v15_futureVar = start sum(40, 50);
-    _ = wait v15_futureVar;
+    future<int> futureVar = start sum(40, 50);
+    _ = wait futureVar;
 
-    'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ v16_objectVar = new;
+    'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ objectVar = new;
 
-    AnonPerson v17_anonObjectVar = new 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ();
+    AnonPerson anonObjectVar = new 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ();
 
-    typedesc<int> v18_typedescVar = int;
-    stream<int, error> v26_oddNumberStream = new stream<int, error>(new OddNumberGenerator());
+    typedesc<int> typedescVar = int;
+    stream<int, error> oddNumberStream = new stream<int, error>(new OddNumberGenerator());
 
     //------------------------ Other types ------------------------//
 
-    string|error v19_unionVar = "foo";
-    string? v20_optionalVar = "foo";
-    any v21_anyVar = 15.0;
-    anydata v22_anydataVar = 619;
-    byte v23_byteVar = 128;
-    json v24_jsonVar = {name: "apple", color: "red", price: 40};
-    xml<never> v27_neverVar = <xml<never>> 'xml:concat();
+    string|error unionVar = "foo";
+    string? optionalVar = "foo";
+    any anyVar = 15.0;
+    anydata anydataVar = 619;
+    byte byteVar = 128;
+    json jsonVar = {name: "apple", color: "red", price: 40};
+    xml<never> neverVar = <xml<never>> 'xml:concat();
 
     // quoted identifiers
-    string 'v28_\ \/\:\@\[\`\{\~\u{2324}_var = "IL with special characters in var";
-    string 'v29_üňĩćőđę_var = "IL with unicode characters in var";
-    json 'v30_ĠĿŐΒȂɭ_\ \/\:\@\[\`\{\~\u{2324}_json = {};
+    string '\ \/\:\@\[\`\{\~\u{2324}_var = "IL with special characters in var";
+    string 'üňĩćőđę_var = "IL with unicode characters in var";
+    json 'ĠĿŐΒȂɭ_\ \/\:\@\[\`\{\~\u{2324}_json = {};
 }

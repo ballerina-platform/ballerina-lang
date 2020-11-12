@@ -17,12 +17,11 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlSequence;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.List;
 
@@ -35,7 +34,7 @@ import java.util.List;
 //@BallerinaFunction(
 //        orgName = "ballerina", packageName = "lang.xml",
 //        functionName = "get",
-//        args = {@Argument(name = "xmlValue", type = TypeKind.XML),
+//        args = {@Argument(name = "BXML", type = TypeKind.XML),
 //                @Argument(name = "i", type = TypeKind.INT)},
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
@@ -44,9 +43,9 @@ public class Get {
 
     public static final int LENGTH_OF_ONE = 1;
 
-    public static XMLValue get(XMLValue xmlVal, long i) {
+    public static BXml get(BXml xmlVal, long i) {
         // Handle single xml items
-        XMLNodeType nodeType = xmlVal.getNodeType();
+        XmlNodeType nodeType = xmlVal.getNodeType();
         switch (nodeType) {
             case ELEMENT:
             case COMMENT:
@@ -60,12 +59,12 @@ public class Get {
         }
 
         // Handle xml sequence
-        List<BXML> childrenList = ((XMLSequence) xmlVal).getChildrenList();
+        List<BXml> childrenList = ((BXmlSequence) xmlVal).getChildrenList();
         int size = childrenList.size();
         if (i < 0 || i >= size) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_SEQUENCE_INDEX_OUT_OF_RANGE, size, i);
         }
 
-        return (XMLValue) childrenList.get((int) i);
+        return (BXml) childrenList.get((int) i);
     }
 }

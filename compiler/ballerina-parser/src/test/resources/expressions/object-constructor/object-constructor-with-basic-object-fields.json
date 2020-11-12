@@ -2,6 +2,10 @@
   "kind": "MODULE_VAR_DECL",
   "children": [
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "TYPED_BINDING_PATTERN",
       "children": [
         {
@@ -87,7 +91,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
+                          "value": "                                   "
                         }
                       ],
                       "trailingMinutiae": [
@@ -125,7 +129,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
+                          "value": "                                   "
                         }
                       ],
                       "trailingMinutiae": [
@@ -201,7 +205,7 @@
                                       "leadingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "        "
+                                          "value": "                                       "
                                         }
                                       ]
                                     }
@@ -263,7 +267,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
+                          "value": "                                   "
                         }
                       ],
                       "trailingMinutiae": [
@@ -280,7 +284,13 @@
           ]
         },
         {
-          "kind": "CLOSE_BRACE_TOKEN"
+          "kind": "CLOSE_BRACE_TOKEN",
+          "leadingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": "                               "
+            }
+          ]
         }
       ]
     },

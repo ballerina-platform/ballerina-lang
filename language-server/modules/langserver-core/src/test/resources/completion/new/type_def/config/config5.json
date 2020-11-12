@@ -47,20 +47,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestRecord3",
-      "kind": "Struct",
-      "detail": "Record",
-      "insertText": "TestRecord3",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap1",
-      "kind": "Unit",
-      "detail": "Map",
-      "insertText": "TestMap1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "TestMap2",
       "kind": "Unit",
       "detail": "Map",

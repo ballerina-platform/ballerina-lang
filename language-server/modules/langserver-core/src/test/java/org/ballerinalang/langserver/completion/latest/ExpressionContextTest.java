@@ -47,6 +47,7 @@ public class ExpressionContextTest extends CompletionTestNew {
                 "query_expr_ctx_config7.json",
                 "query_expr_ctx_config5.json",
                 "query_expr_ctx_join_clause_config4.json",
+                "query_expr_ctx_join_clause_config2a.json",
                 "query_expr_ctx_join_clause_config5a.json",
                 "query_expr_ctx_join_clause_config6.json",
                 "query_expr_ctx_join_clause_config6a.json",
@@ -59,7 +60,21 @@ public class ExpressionContextTest extends CompletionTestNew {
                 "query_expr_ctx_onconflict_clause_config1a.json", // LS fix needed
                 "object_constructor_expr_ctx_config12a.json",
                 "object_constructor_expr_ctx_config6.json", // LS fix needed
-                "object_constructor_expr_ctx_config11.json" // LS fix needed
+                "object_constructor_expr_ctx_config11.json", // LS fix needed
+                "annotation_access_ctx_config1.json",
+                "annotation_access_ctx_config2.json",
+                "annotation_access_ctx_config3.json",
+                "annotation_access_ctx_config4.json",
+                "annotation_access_ctx_config5.json",
+                "annotation_access_ctx_config6.json",
+                "new_expr_ctx_config7.json", // blocked due to the typeref issue
+                "new_expr_ctx_config8.json", // blocked due to the typeref issue
+                "new_expr_ctx_config9.json", // blocked due to the typeref issue
+                "new_expr_ctx_config10.json", // blocked due to the typeref issue
+                "optional_field_access_ctx_config1.json",
+                "optional_field_access_ctx_config2.json",
+                "optional_field_access_ctx_config3.json"
+
         );
     }
 }

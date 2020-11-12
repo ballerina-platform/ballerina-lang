@@ -14,15 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
+import ballerina/lang.test;
 
-listener http:Listener helloWorldEP = new (19093);
-@tainted listener http:Listener helloWorldEP1 = new (19094);
+listener test:MockListener helloWorldEP = new (19093);
+@tainted listener test:MockListener helloWorldEP1 = new (19094);
 
 // Services created using service constructor expressions are dynamically bound to listeners using listener.__attach
 // mechanism hence we consider those services to be tainted.
 service ss = service {
-    resource function x(http:Caller caller, http:Request req) {
+    resource function x(string caller, string req) {
         sensitiveFunc(req);
         sensitiveFunc(caller);
     }
@@ -31,12 +31,7 @@ service ss = service {
 // Service bound to tainted listener is considered tainted.
 service sample on helloWorldEP1 {
 
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/path/{foo}"
-    }
-    resource function params (http:Caller caller, http:Request req, string foo) {
-        var bar = req.getQueryParamValue("bar");
+    resource function params (string foo) {
         sensitiveFunc(foo);
     }
 }

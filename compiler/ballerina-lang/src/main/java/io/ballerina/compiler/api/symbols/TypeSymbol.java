@@ -6,47 +6,52 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.ballerina.compiler.api.symbols;
 
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.ModuleID;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
- * Represents a ballerina type definition.
+ * Represents a Ballerina Type Descriptor.
  *
  * @since 2.0.0
  */
 public interface TypeSymbol extends Symbol {
 
     /**
-     * Get the module qualified name.
-     * 
-     * @return {@link String} name
+     * Get the Type Kind.
+     *
+     * @return {@link TypeDescKind} represented by the model
      */
-    String moduleQualifiedName();
+    TypeDescKind typeKind();
 
     /**
-     * List of qualifiers attached to the type definition.
-     * 
-     * @return {@link List} of qualifiers
+     * Get the module ID.
+     *
+     * @return {@link ModuleID} of the Type
      */
-    List<Qualifier> qualifiers();
+    ModuleID moduleID();
 
     /**
-     * Type descriptor of the definition.
-     * 
-     * @return {@link BallerinaTypeDescriptor} attached
+     * Get the signature of the type descriptor.
+     *
+     * @return {@link String} signature.
      */
-    Optional<BallerinaTypeDescriptor> typeDescriptor();
+    String signature();
+
+    /**
+     * List of lang library functions that can be called using a method call expression.
+     *
+     * @return {@link List} of lang library functions of the type
+     */
+    List<FunctionSymbol> langLibMethods();
 }

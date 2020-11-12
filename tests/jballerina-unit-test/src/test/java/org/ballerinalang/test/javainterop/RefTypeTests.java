@@ -17,6 +17,17 @@
  */
 package org.ballerinalang.test.javainterop;
 
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.FPValue;
+import io.ballerina.runtime.internal.values.FutureValue;
+import io.ballerina.runtime.internal.values.HandleValue;
+import io.ballerina.runtime.internal.values.TypedescValue;
+import io.ballerina.runtime.internal.values.TypedescValueImpl;
+import io.ballerina.runtime.internal.values.XmlItem;
+import io.ballerina.runtime.internal.values.XmlValue;
 import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BHandleValue;
@@ -28,18 +39,7 @@ import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.core.model.values.BValueType;
 import org.ballerinalang.core.model.values.BXML;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.jvm.values.HandleValue;
-import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.TypedescValueImpl;
-import org.ballerinalang.jvm.values.XMLItem;
-import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -57,7 +57,6 @@ import javax.xml.namespace.QName;
  *
  * @since 1.0.0
  */
-@Test(groups = { "brokenOnOldParser" })
 public class RefTypeTests {
 
     private CompileResult result;
@@ -227,7 +226,7 @@ public class RefTypeTests {
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'int' cannot be cast to 'MIX_TYPE'.*", enabled = false)
+                    "types: 'int' cannot be cast to 'MIX_TYPE'.*")
     public void testGetInvalidIntegerAsMixType() {
         BValue[] returns = BRunUtil.invoke(result, "getInvalidIntegerAsMixType");
         Assert.assertTrue(returns[0] instanceof BValueType);
@@ -345,12 +344,12 @@ public class RefTypeTests {
 
     // static methods
 
-    public static XMLValue getXML() {
-        return new XMLItem(new QName("hello"));
+    public static XmlValue getXML() {
+        return new XmlItem(new QName("hello"));
     }
 
-    public static org.ballerinalang.jvm.api.values.BString getStringFromXML(XMLValue x) {
-        return BStringUtils.fromString(x.toString());
+    public static io.ballerina.runtime.api.values.BString getStringFromXML(XmlValue x) {
+        return StringUtils.fromString(x.toString());
     }
 
     public static int getAllInts() {
@@ -389,12 +388,12 @@ public class RefTypeTests {
         return (FPValue) fp;
     }
 
-    public static org.ballerinalang.jvm.api.values.BString useTypeDesc(TypedescValue type) {
-        return BStringUtils.fromString(type.stringValue(null));
+    public static io.ballerina.runtime.api.values.BString useTypeDesc(TypedescValue type) {
+        return StringUtils.fromString(type.stringValue(null));
     }
 
     public static TypedescValue getTypeDesc() {
-        return new TypedescValueImpl(BTypes.typeXML);
+        return new TypedescValueImpl(PredefinedTypes.TYPE_XML);
     }
 
     public static Object useFuture(FutureValue future) {
@@ -411,8 +410,8 @@ public class RefTypeTests {
         return new HandleValue(m);
     }
 
-    public static org.ballerinalang.jvm.api.values.BString useHandle(HandleValue h) {
+    public static io.ballerina.runtime.api.values.BString useHandle(HandleValue h) {
         Map<String, String> m = (Map<String, String>) h.getValue();
-        return BStringUtils.fromString(m.get("name"));
+        return StringUtils.fromString(m.get("name"));
     }
 }

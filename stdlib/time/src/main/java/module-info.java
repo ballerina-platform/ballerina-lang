@@ -1,4 +1,4 @@
 module io.ballerina.time {
-    requires io.ballerina.jvm;
+    requires io.ballerina.runtime;
     exports org.ballerinalang.stdlib.time.util;
 }

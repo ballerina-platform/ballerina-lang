@@ -33,7 +33,7 @@ listener Listener lstnr = new Listener();
 service MyService on lstnr {
 }
 
-class Listener {
+readonly class Listener {
     public isolated function __attach(service s, string? name = ()) returns error? {
     }
 

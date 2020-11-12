@@ -37,19 +37,20 @@ import java.nio.file.Paths;
 public class CoverageMain {
 
     public static void main(String[] args) throws Exception {
-        Path targetDir = Paths.get(args[1]);;
-        Path testJarPath = Paths.get(args[2]);
+        Path coveragePath = Paths.get(args[0]);
+        Path targetDir = Paths.get(args[1]);
         String orgName = args[3];
         String moduleName = args[4];
         String version = args[5];
 
-        CoverageReport coverageReport = new CoverageReport(testJarPath, targetDir, orgName, moduleName, version);
+        CoverageReport coverageReport = new CoverageReport(targetDir, orgName, moduleName,
+                version);
         coverageReport.generateReport();
-        Path jsonTmpSummaryPath = Paths.get(args[0], TesterinaConstants.COVERAGE_FILE);
+        Path jsonTmpSummaryPath = Paths.get(coveragePath.toString(), TesterinaConstants.COVERAGE_FILE);
         writeCoverageToJsonFile(ModuleCoverage.getInstance(), jsonTmpSummaryPath);
     }
 
-    private static void writeCoverageToJsonFile(ModuleCoverage moduleCoverage, Path tmpJsonPath) throws IOException {
+    public static void writeCoverageToJsonFile(ModuleCoverage moduleCoverage, Path tmpJsonPath) throws IOException {
         File jsonFile = new File(tmpJsonPath.toString());
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
             Gson gson = new Gson();

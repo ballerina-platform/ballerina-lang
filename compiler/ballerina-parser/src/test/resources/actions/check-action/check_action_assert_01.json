@@ -98,24 +98,12 @@
                               "children": []
                             },
                             {
-                              "kind": "CLOSE_PAREN_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "CLOSE_PAREN_TOKEN"
                             }
                           ]
                         },
                         {
-                          "kind": "RIGHT_ARROW_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "RIGHT_ARROW_TOKEN"
                         },
                         {
                           "kind": "SIMPLE_NAME_REFERENCE",

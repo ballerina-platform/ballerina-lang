@@ -1,8 +1,6 @@
-import ballerina/io;
 import math;
 
-public function printMyName() {
-    io:println("Hello MyName!!!");
+public function function2() {
+    int x = 0;
     string s = math:joinStrings();
-    io:println(s);
 }

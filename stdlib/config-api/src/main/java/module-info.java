@@ -1,5 +1,5 @@
 module io.ballerina.config.api {
     requires io.ballerina.config;
-    requires io.ballerina.jvm;
+    requires io.ballerina.runtime;
     exports org.ballerinalang.stdlib.config;
 }

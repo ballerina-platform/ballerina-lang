@@ -16,7 +16,7 @@
 
 import ballerina/testobserve;
 
-service testServiceThree on new testobserve:Listener(9094) {
+service testServiceThree on new testobserve:Listener(9093) {
     # Resource function for testing function call with observable annotation
     resource function resourceOne(testobserve:Caller caller) {
         var sum = calculateSumWithObservability(10, 51);

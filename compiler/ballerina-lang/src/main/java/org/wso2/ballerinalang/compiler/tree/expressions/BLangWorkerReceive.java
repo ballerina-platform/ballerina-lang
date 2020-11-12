@@ -17,8 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.ballerinalang.model.symbols.Symbol;
-import org.ballerinalang.model.tree.IdentifiableNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.WorkerReceiveNode;
@@ -33,7 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  *
  * @since 0.94
  */
-public class BLangWorkerReceive extends BLangExpression implements WorkerReceiveNode, IdentifiableNode {
+public class BLangWorkerReceive extends BLangExpression implements WorkerReceiveNode {
 
     public BLangIdentifier workerIdentifier;
     public BSymbol workerSymbol;
@@ -67,16 +65,6 @@ public class BLangWorkerReceive extends BLangExpression implements WorkerReceive
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public Symbol getSymbol() {
-        return this.workerSymbol;
-    }
-
-    @Override
-    public void setSymbol(Symbol symbol) {
-        this.workerSymbol = (BSymbol) symbol;
     }
 
     public String toActionString() {

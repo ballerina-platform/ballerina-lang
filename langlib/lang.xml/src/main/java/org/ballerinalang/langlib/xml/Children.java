@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.values.XMLItem;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlItem;
+import io.ballerina.runtime.api.values.BXmlSequence;
 
 import java.util.ArrayList;
 
@@ -33,23 +33,23 @@ import java.util.ArrayList;
 //@BallerinaFunction(
 //        orgName = "ballerina", packageName = "lang.xml",
 //        functionName = "children",
-//        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
+//        args = {@Argument(name = "BXML", type = TypeKind.XML)},
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
 public class Children {
 
-    public static XMLValue children(XMLValue xmlVal) {
-        if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
-            return ((XMLItem) xmlVal).children();
-        } else if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE) {
-            ArrayList<BXML> liftedChildren = new ArrayList<>();
-            XMLSequence sequence = (XMLSequence) xmlVal.elements();
-            for (BXML bxml : sequence.getChildrenList()) {
-                liftedChildren.addAll(((XMLItem) bxml).getChildrenSeq().getChildrenList());
+    public static BXml children(BXml xmlVal) {
+        if (xmlVal.getNodeType() == XmlNodeType.ELEMENT) {
+            return xmlVal.children();
+        } else if (xmlVal.getNodeType() == XmlNodeType.SEQUENCE) {
+            ArrayList<BXml> liftedChildren = new ArrayList<>();
+            BXmlSequence sequence = (BXmlSequence) xmlVal.elements();
+            for (BXml bxml : sequence.getChildrenList()) {
+                liftedChildren.addAll(((BXmlItem) bxml).getChildrenSeq().getChildrenList());
             }
-            return new XMLSequence(liftedChildren);
+            return ValueCreator.createXmlSequence(liftedChildren);
         }
-        return new XMLSequence();
+        return ValueCreator.createXmlSequence();
     }
 }

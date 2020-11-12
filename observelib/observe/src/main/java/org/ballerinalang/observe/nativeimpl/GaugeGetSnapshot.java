@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.observability.metrics.Gauge;
-import org.ballerinalang.jvm.observability.metrics.Snapshot;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.observability.metrics.Gauge;
+import io.ballerina.runtime.observability.metrics.Snapshot;
 
 /**
  * This is the getSnapshot extern function implementation of the Gauge object.
@@ -29,7 +29,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 
 public class GaugeGetSnapshot {
 
-    public static Object getSnapshot(ObjectValue guageObj) {
+    public static Object getSnapshot(BObject guageObj) {
         Gauge gauge = (Gauge) guageObj.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         Snapshot[] snapshots = gauge.getSnapshots();
         return Utils.createBSnapshots(snapshots);

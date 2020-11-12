@@ -106,3 +106,14 @@ function testOnFailWithUnion (int i) returns string {
    str += "-> Execution continues...";
    return str;
 }
+
+function testErrroDuplication() returns error? {
+    string str = "";
+    int i = 3;
+    while (i > 2) {
+        i -= 1;
+        fail error("Custom Error");
+        str += "-> unreachable";
+    }
+    str += "-> unreachable";
+}

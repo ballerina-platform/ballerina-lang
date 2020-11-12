@@ -6,4 +6,6 @@ function test1(){
     if (x === y) {
         i = 5;
     }
+    typedesc a = byte[];
+    typedesc b = int[]|string[];
 }

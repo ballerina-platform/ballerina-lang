@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionBodyNode;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -181,16 +180,6 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     @Override
     public void setRestParameter(SimpleVariableNode restParam) {
         this.restParam = (BLangSimpleVariable) restParam;
-    }
-
-    @Override
-    public Symbol getSymbol() {
-        return this.symbol;
-    }
-
-    @Override
-    public void setSymbol(Symbol symbol) {
-        this.symbol = (BInvokableSymbol) symbol;
     }
 
     @Override

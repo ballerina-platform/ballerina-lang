@@ -126,4 +126,14 @@ public class TypeTestExprTest {
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
     }
+
+    @Test
+    public void testIsLikeForTupleWithRestDescriptor() {
+        BRunUtil.invoke(compileResult, "testIsLikeForTupleWithRestDescriptor");
+    }
+
+    @Test
+    public void testIsLikeForTupleWithOutRestDescriptor() {
+        BRunUtil.invoke(compileResult, "testIsLikeForTupleWithOutRestDescriptor");
+    }
 }

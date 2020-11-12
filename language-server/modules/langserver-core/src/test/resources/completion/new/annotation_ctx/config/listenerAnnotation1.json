@@ -10,42 +10,48 @@
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "module1:sourceListenerAnnotation1 {\n\tfoo: \"${1}\"\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "module1:sourceListenerAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "module1:sourceListenerAnnotation2",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "tainted",
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "tainted",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "untainted",
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "untainted",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "sourceListenerAnnotation1",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "sourceListenerAnnotation1 {\n\tfoo: \"${1}\"\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "sourceListenerAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
       "insertText": "sourceListenerAnnotation2",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "sourceListenerAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "sourceListenerAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     }
   ]
 }

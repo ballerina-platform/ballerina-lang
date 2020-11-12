@@ -18,14 +18,14 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.api.utils.JsonUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.XmlUtils;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXml;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.readers.CharacterChannelReader;
@@ -72,7 +72,7 @@ public class CharacterChannelUtils {
             return IOUtils.createEoFError();
         } else {
             try {
-                return BStringUtils
+                return StringUtils
                         .fromString(characterChannel.read((int) numberOfCharacters));
             } catch (BallerinaIOException e) {
                 log.error("error occurred while reading characters.", e);
@@ -85,13 +85,13 @@ public class CharacterChannelUtils {
         CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(CHARACTER_CHANNEL_NAME);
         CharacterChannelReader reader = new CharacterChannelReader(charChannel);
         try {
-            Object returnValue = JSONParser.parse(reader, JSONParser.NonStringValueProcessingMode.FROM_JSON_STRING);
+            Object returnValue = JsonUtils.parse(reader, JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING);
             if (returnValue instanceof String) {
 
-                return BStringUtils.fromString((String) returnValue);
+                return StringUtils.fromString((String) returnValue);
             }
             return returnValue;
-        } catch (BallerinaException e) {
+        } catch (BError e) {
             log.error("unable to read json from character channel", e);
             return IOUtils.createError(e);
         }
@@ -101,8 +101,8 @@ public class CharacterChannelUtils {
         CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(CHARACTER_CHANNEL_NAME);
         CharacterChannelReader reader = new CharacterChannelReader(charChannel);
         try {
-            return XMLFactory.parse(reader);
-        } catch (BallerinaException e) {
+            return XmlUtils.parse(reader);
+        } catch (BError e) {
             return IOUtils.createError(e);
         }
     }
@@ -152,14 +152,14 @@ public class CharacterChannelUtils {
         try {
             CharacterChannel characterChannel = (CharacterChannel) characterChannelObj
                     .getNativeData(CHARACTER_CHANNEL_NAME);
-            IOUtils.writeFull(characterChannel, BStringUtils.getJsonString(content));
+            IOUtils.writeFull(characterChannel, StringUtils.getJsonString(content));
         } catch (BallerinaIOException e) {
             return IOUtils.createError(e);
         }
         return null;
     }
 
-    public static Object writeXml(BObject characterChannelObj, XMLValue content) {
+    public static Object writeXml(BObject characterChannelObj, BXml content) {
         try {
             CharacterChannel characterChannel = (CharacterChannel) characterChannelObj
                     .getNativeData(CHARACTER_CHANNEL_NAME);

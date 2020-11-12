@@ -39,7 +39,8 @@ jobs:
             -   name: Trigger Standard Library Module Builds
                 run: |
                     echo "Triggering stdlib module builds"
-                    curl --request POST 'https://api.github.com/repos/ballerina-platform/ballerina-lang/dispatches' \
+                    curl --request \
+                    POST 'https://api.github.com/repos/ballerina-platform/ballerina-standard-library/dispatches' \
                     --header 'Accept: application/vnd.github.v3+json' \
                     --header 'Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN }}' \
                     --header 'Content-Type: application/json' \

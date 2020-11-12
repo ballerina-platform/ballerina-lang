@@ -39,6 +39,7 @@ import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
@@ -166,8 +167,13 @@ public class Generator {
             added = true;
         } else if (kind == NodeKind.USER_DEFINED_TYPE) {
             BLangUserDefinedType userDefinedType = (BLangUserDefinedType) typeNode;
-            module.unionTypes.add(new UnionType(typeName, description(typeDefinition), isDeprecated,
-                    Collections.singletonList(Type.fromTypeNode(userDefinedType, module.id))));
+            if (typeNode.type instanceof BErrorType) {
+                Type detailType = Type.fromTypeNode(userDefinedType, module.id);
+                module.errors.add(new Error(typeName, description(typeDefinition), isDeprecated, detailType));
+            } else {
+                module.unionTypes.add(new UnionType(typeName, description(typeDefinition), isDeprecated,
+                        Collections.singletonList(Type.fromTypeNode(userDefinedType, module.id))));
+            }
             added = true;
         } else if (kind == NodeKind.VALUE_TYPE) {
             // TODO: handle value type nodes

@@ -17,7 +17,7 @@
  **/
 package org.ballerinalang.langlib.error;
 
-import org.ballerinalang.jvm.values.ErrorValue;
+import io.ballerina.runtime.api.values.BError;
 
 /**
  * Get error cause.
@@ -33,7 +33,7 @@ public class Cause {
 
 
     @Deprecated
-    public static Object cause(ErrorValue value) {
+    public static Object cause(BError value) {
         return value.getCause();
     }
 }

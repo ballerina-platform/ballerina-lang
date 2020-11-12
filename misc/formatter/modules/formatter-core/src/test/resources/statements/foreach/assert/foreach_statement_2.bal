@@ -4,6 +4,5 @@ function foo() {
                      </books>`;
 
     foreach var book in books/<*> {
-
     }
 }

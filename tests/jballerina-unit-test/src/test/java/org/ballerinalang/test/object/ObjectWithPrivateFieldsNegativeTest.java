@@ -49,7 +49,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
 
         BAssertUtil.validateError(compileResult, 0, "attempt to refer to non-accessible symbol 'ssn'", 7, 18);
         BAssertUtil.validateError(compileResult, 1, "undefined field 'ssn' in object 'testorg/org.foo:1.0.0:person'",
-                7, 19);
+                7, 20);
     }
 
     @Test(description = "Test private object access in public functions")
@@ -94,7 +94,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
         int i = 0;
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'address'", 10, 13);
         BAssertUtil.validateError(compileResult, i,
-                "undefined field 'address' in object 'testorg/org.foo.baz:1.0.0:FooEmployee'", 10, 17);
+                "undefined field 'address' in object 'testorg/org.foo.baz:1.0.0:FooEmployee'", 10, 18);
     }
 
     @Test(description = "Test private object access in public functions")
@@ -113,6 +113,6 @@ public class ObjectWithPrivateFieldsNegativeTest {
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg2 + "'FooFamily'", 16, 5);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'address'", 10, 13);
         BAssertUtil.validateError(compileResult, i,
-                "undefined field 'address' in object 'testorg/org.foo.baz.sn:1.0.0:FooEmployee'", 10, 17);
+                "undefined field 'address' in object 'testorg/org.foo.baz.sn:1.0.0:FooEmployee'", 10, 18);
     }
 }

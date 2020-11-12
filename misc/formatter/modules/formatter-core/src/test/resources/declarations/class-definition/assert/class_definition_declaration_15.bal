@@ -1,23 +1,26 @@
-client readonly distinct class Foo {
+client readonly distinct class Foo1 {
+
     string name;
 }
 
-client distinct readonly class Foo {
+client distinct readonly class Foo2 {
     string name;
 }
 
-distinct readonly client class Foo {
+distinct readonly client class Foo3 {
     string name;
 }
 
-distinct client readonly class Foo {
+distinct client readonly class Foo4 {
+
     string name;
 }
 
-readonly client distinct class Foo {
+readonly client distinct class Foo5 {
+
     string name;
 }
 
-readonly distinct client class Foo {
+readonly distinct client class Foo6 {
     string name;
 }

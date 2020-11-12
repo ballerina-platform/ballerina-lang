@@ -18,6 +18,7 @@
 package io.ballerina.compiler.api;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -44,11 +45,11 @@ public interface SemanticModel {
     /**
      * Lookup the symbol at the given location.
      *
-     * @param srcFile  path for the file in which we need to look up symbols, relative to the source root path
+     * @param fileName  path for the file in which we need to look up symbols, relative to the source root path
      * @param position text position in the source
      * @return {@link Symbol} in the given location
      */
-    Optional<Symbol> symbol(String srcFile, LinePosition position);
+    Optional<Symbol> symbol(String fileName, LinePosition position);
 
     /**
      * Retrieves the symbols of module-scoped constructs in the semantic model.
@@ -56,6 +57,16 @@ public interface SemanticModel {
      * @return A list of module-scoped symbols
      */
     List<Symbol> moduleLevelSymbols();
+
+    /**
+     * Retrieves the type of the expression in the specified text range. If it's not a valid expression, returns an
+     * empty {@link Optional} value!.
+     *
+     * @param fileName path for the file with the expression
+     * @param range    the text range of the expression
+     * @return the type of the expression
+     */
+    Optional<TypeSymbol> getType(String fileName, LineRange range);
 
     /**
      * Get the diagnostics within the given text Span.

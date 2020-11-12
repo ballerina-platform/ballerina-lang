@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.XmlFactory;
 
 /**
  * Create XML processing instruction.
@@ -37,7 +37,7 @@ import org.ballerinalang.jvm.values.XMLValue;
 //)
 public class CreateProcessingInstruction {
 
-    public static XMLValue createProcessingInstruction(BString target, BString content) {
-        return XMLFactory.createXMLProcessingInstruction(target, content);
+    public static BXml createProcessingInstruction(BString target, BString content) {
+        return XmlFactory.createXMLProcessingInstruction(target, content);
     }
 }

@@ -25,6 +25,7 @@ import org.testng.annotations.DataProvider;
  * @since 2.0.0
  */
 public class ModuleVariableContextTest extends CompletionTestNew {
+    
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {

@@ -162,11 +162,11 @@ function testStreamReturnTypeImplicit() returns boolean {
 
 // ------------------- Error Related Tests -------------------
 
-type CustomErrorData record {|
+type CustomErrorData record {
     string message?;
     error cause?;
     int accountID?;
-|};
+};
 
 type CustomError distinct error<CustomErrorData>;
 boolean closed = false;
@@ -380,5 +380,29 @@ function testStreamOfStreams() returns boolean {
        int? num = val?.value;
        testPassed = testPassed && (num == 1);
     }
+    return testPassed;
+}
+
+function testEmptyStreamConstructs() returns boolean {
+    boolean testPassed = true;
+    stream<int> emptyStream1 = new;
+    stream<int> emptyStream2 = new stream<int>();
+    stream<int, never> emptyStream3 = new;
+    stream<int, error> emptyStream4 = new;
+    stream<int, never> emptyStream5 = new stream<int, never>();
+    stream<int, error> emptyStream6 = new stream<int, error>();
+    var emptyStream7 = new stream<int>();
+    var emptyStream8 = new stream<int, never>();
+    var emptyStream9 = new stream<int, error>();
+
+    testPassed = testPassed && (emptyStream1.next() == ());
+    testPassed = testPassed && (emptyStream2.next() == ());
+    testPassed = testPassed && (emptyStream3.next() == ());
+    testPassed = testPassed && (emptyStream4.next() == ());
+    testPassed = testPassed && (emptyStream5.next() == ());
+    testPassed = testPassed && (emptyStream6.next() == ());
+    testPassed = testPassed && (emptyStream7.next() == ());
+    testPassed = testPassed && (emptyStream8.next() == ());
+    testPassed = testPassed && (emptyStream9.next() == ());
     return testPassed;
 }

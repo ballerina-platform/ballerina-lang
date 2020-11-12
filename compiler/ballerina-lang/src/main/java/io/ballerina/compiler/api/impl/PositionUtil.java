@@ -18,8 +18,9 @@
 
 package io.ballerina.compiler.api.impl;
 
+import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
-import org.ballerinalang.util.diagnostic.Diagnostic;
+import io.ballerina.tools.text.LineRange;
 
 /**
  * A class for holding the common utilities related to positions.
@@ -28,11 +29,11 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
  */
 class PositionUtil {
 
-    static boolean withinBlock(LinePosition cursorPos, Diagnostic.DiagnosticPosition symbolPosition) {
-        int startLine = symbolPosition.getStartLine();
-        int endLine = symbolPosition.getEndLine();
-        int startColumn = symbolPosition.getStartColumn();
-        int endColumn = symbolPosition.getEndColumn();
+    static boolean withinBlock(LinePosition cursorPos, Location symbolPosition) {
+        int startLine = symbolPosition.lineRange().startLine().line();
+        int endLine = symbolPosition.lineRange().endLine().line();
+        int startColumn = symbolPosition.lineRange().startLine().offset();
+        int endColumn = symbolPosition.lineRange().endLine().offset();
         int cursorLine = cursorPos.line();
         int cursorColumn = cursorPos.offset();
 
@@ -41,5 +42,35 @@ class PositionUtil {
                 || (startLine == cursorLine && startColumn < cursorColumn && endLine > cursorLine)
                 || (startLine == endLine && startLine == cursorLine
                 && startColumn <= cursorColumn && endColumn > cursorColumn);
+    }
+
+    static boolean withinRange(LineRange specifiedRange, Location nodePosition) {
+        int nodeStartLine = nodePosition.lineRange().startLine().line();
+        int nodeStartColumn = nodePosition.lineRange().startLine().offset();
+        int nodeEndLine = nodePosition.lineRange().endLine().line();
+        int nodeEndColumn = nodePosition.lineRange().endLine().offset();
+
+        int specifiedStartLine = specifiedRange.startLine().line();
+        int specifiedStartColumn = specifiedRange.startLine().offset();
+        int specifiedEndLine = specifiedRange.endLine().line();
+        int specifiedEndColumn = specifiedRange.endLine().offset();
+
+        if (specifiedStartLine < nodeStartLine || specifiedEndLine > nodeEndLine) {
+            return false;
+        }
+
+        if (specifiedStartLine > nodeStartLine && specifiedEndLine < nodeEndLine) {
+            return true;
+        }
+
+        if (specifiedStartLine == nodeStartLine && specifiedEndLine == nodeEndLine) {
+            return specifiedStartColumn >= nodeStartColumn && specifiedEndColumn <= nodeEndColumn;
+        }
+
+        if (specifiedStartLine == nodeStartLine) {
+            return specifiedStartColumn >= nodeStartColumn;
+        }
+
+        return specifiedEndColumn <= nodeEndColumn;
     }
 }

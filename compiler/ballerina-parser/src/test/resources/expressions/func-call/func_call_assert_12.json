@@ -16,13 +16,7 @@
     },
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "foo",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
-        }
-      ]
+      "value": "foo"
     },
     {
       "kind": "FUNCTION_SIGNATURE",
@@ -186,7 +180,13 @@
                   "kind": "IMPLICIT_NEW_EXPRESSION",
                   "children": [
                     {
-                      "kind": "NEW_KEYWORD"
+                      "kind": "NEW_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     },
                     {
                       "kind": "PARENTHESIZED_ARG_LIST",

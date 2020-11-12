@@ -23,7 +23,7 @@ class TableIterator {
     private KeyType[] keys;
     private int size;
 
-    public function init(table<Type> t) {
+    public isolated function init(table<Type> t) {
        self.t = t;
         self.size = length(t);
        if (t is table<Type> key<KeyType>) {
@@ -39,7 +39,7 @@ class TableIterator {
        return externNext(self);
     }
 }
-function externNext(TableIterator iterator) returns record {| Type value; |}? = @java:Method {
+isolated function externNext(TableIterator iterator) returns record {| Type value; |}? = @java:Method {
     'class: "org.ballerinalang.langlib.table.Next",
     name: "next"
 } external;

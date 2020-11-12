@@ -17,28 +17,31 @@
  */
 package io.ballerina.compiler.api.impl;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.symbols.SymbolFactory;
+import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.tree.IdentifiableNode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -59,6 +62,8 @@ public class BallerinaSemanticModel implements SemanticModel {
     private final BLangPackage bLangPackage;
     private final CompilerContext compilerContext;
     private final EnvironmentResolver envResolver;
+    private final SymbolFactory symbolFactory;
+    private final TypesFactory typesFactory;
 
     public BallerinaSemanticModel(BLangPackage bLangPackage, CompilerContext context) {
         this.compilerContext = context;
@@ -67,6 +72,8 @@ public class BallerinaSemanticModel implements SemanticModel {
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(bLangPackage.symbol);
         this.envResolver = new EnvironmentResolver(pkgEnv);
+        this.symbolFactory = SymbolFactory.getInstance(context);
+        this.typesFactory = TypesFactory.getInstance(context);
     }
 
     /**
@@ -80,7 +87,7 @@ public class BallerinaSemanticModel implements SemanticModel {
         Map<Name, List<Scope.ScopeEntry>> scopeSymbols =
                 symbolResolver.getAllVisibleInScopeSymbols(this.envResolver.lookUp(compilationUnit, linePosition));
 
-        DiagnosticPos cursorPos = new DiagnosticPos(new BDiagnosticSource(bLangPackage.packageID, compilationUnit.name),
+        Location cursorPos = new BLangDiagnosticLocation(compilationUnit.name,
                                                     linePosition.line(), linePosition.line(),
                                                     linePosition.offset(), linePosition.offset());
 
@@ -91,8 +98,8 @@ public class BallerinaSemanticModel implements SemanticModel {
             for (Scope.ScopeEntry scopeEntry : scopeEntries) {
                 BSymbol symbol = scopeEntry.symbol;
 
-                if (isSymbolInUserProject(symbol, cursorPos) || isImportedSymbol(symbol)) {
-                    compiledSymbols.add(SymbolFactory.getBCompiledSymbol(symbol, name.getValue()));
+                if (hasCursorPosPassedSymbolPos(symbol, cursorPos) || isImportedSymbol(symbol)) {
+                    compiledSymbols.add(symbolFactory.getBCompiledSymbol(symbol, name.getValue()));
                 }
             }
         }
@@ -104,20 +111,23 @@ public class BallerinaSemanticModel implements SemanticModel {
      * {@inheritDoc}
      */
     @Override
-    public Optional<Symbol> symbol(String srcFile, LinePosition position) {
-        BLangCompilationUnit compilationUnit = getCompilationUnit(srcFile);
-        NodeResolver nodeResolver = new NodeResolver();
-        BLangNode node = nodeResolver.lookup(compilationUnit, position);
+    public Optional<Symbol> symbol(String fileName, LinePosition position) {
+        BLangCompilationUnit compilationUnit = getCompilationUnit(fileName);
+        SymbolFinder symbolFinder = new SymbolFinder();
+        BSymbol symbolAtCursor = symbolFinder.lookup(compilationUnit, position);
 
-        if (node instanceof IdentifiableNode) {
-            BSymbol symbol = (BSymbol) ((IdentifiableNode) node).getSymbol();
-            return Optional.ofNullable(SymbolFactory.getBCompiledSymbol(symbol, symbol.name.value));
-        } else if (node instanceof BLangUserDefinedType) {
-            return Optional.ofNullable(
-                    SymbolFactory.createTypeDefinition(node.type.tsymbol, node.type.tsymbol.name.value));
+        if (symbolAtCursor == null) {
+            return Optional.empty();
         }
 
-        return Optional.empty();
+        if (isTypeSymbol(symbolAtCursor) && !PositionUtil.withinBlock(position, symbolAtCursor.pos)) {
+            ModuleID moduleID = new BallerinaModuleID(symbolAtCursor.pkgID);
+            return Optional.of(new BallerinaTypeReferenceTypeSymbol(this.compilerContext, moduleID, symbolAtCursor.type,
+                                                                    symbolAtCursor.getName().getValue()));
+        }
+
+        return Optional.ofNullable(symbolFactory.getBCompiledSymbol(symbolAtCursor, symbolAtCursor.name.value));
+
     }
 
     /**
@@ -132,11 +142,27 @@ public class BallerinaSemanticModel implements SemanticModel {
             Scope.ScopeEntry value = e.getValue();
 
             if (value.symbol.origin == SOURCE) {
-                compiledSymbols.add(SymbolFactory.getBCompiledSymbol(value.symbol, key.value));
+                compiledSymbols.add(symbolFactory.getBCompiledSymbol(value.symbol, key.value));
             }
         }
 
         return compiledSymbols;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<TypeSymbol> getType(String fileName, LineRange range) {
+        BLangCompilationUnit compilationUnit = getCompilationUnit(fileName);
+        NodeFinder nodeFinder = new NodeFinder();
+        BLangNode node = nodeFinder.lookup(compilationUnit, range);
+
+        if (node == null) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(typesFactory.getTypeDescriptor(node.type));
     }
 
     /**
@@ -168,11 +194,32 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     // Private helper methods for the public APIs above.
 
-    private boolean isSymbolInUserProject(BSymbol symbol, DiagnosticPos cursorPos) {
-        return symbol.origin == SOURCE &&
-                (cursorPos.compareTo(symbol.pos) > 0
-                        || symbol.owner.getKind() == SymbolKind.PACKAGE
-                        || Symbols.isFlagOn(symbol.flags, Flags.WORKER));
+    private boolean hasCursorPosPassedSymbolPos(BSymbol symbol, Location cursorPos) {
+        if (symbol.origin != SOURCE) {
+            return false;
+        }
+
+        if (symbol.owner.getKind() == SymbolKind.PACKAGE || Symbols.isFlagOn(symbol.flags, Flags.WORKER)) {
+            return true;
+        }
+
+        if (!bLangPackage.packageID.equals(symbol.pkgID)) {
+            return false;
+        }
+
+        // These checks whether the cursor position has passed the symbol position or not
+        LinePosition cursorPosStartLine = cursorPos.lineRange().startLine();
+        LinePosition symbolStartLine = symbol.pos.lineRange().startLine();
+
+        if (cursorPosStartLine.line() < symbolStartLine.line()) {
+            return false;
+        }
+
+        if (cursorPosStartLine.line() > symbolStartLine.line()) {
+            return true;
+        }
+
+        return cursorPosStartLine.offset() > symbolStartLine.offset();
     }
 
     private boolean isImportedSymbol(BSymbol symbol) {
@@ -185,6 +232,10 @@ public class BallerinaSemanticModel implements SemanticModel {
                 .filter(unit -> unit.name.equals(srcFile))
                 .findFirst()
                 .get();
+    }
+
+    private boolean isTypeSymbol(BSymbol symbol) {
+        return symbol instanceof BTypeSymbol && !(symbol instanceof BPackageSymbol);
     }
 
     private boolean withinRange(LineRange range, LineRange specifiedRange) {

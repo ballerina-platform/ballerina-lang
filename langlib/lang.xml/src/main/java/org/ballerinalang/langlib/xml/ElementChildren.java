@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.values.XMLItem;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlItem;
+import io.ballerina.runtime.api.values.BXmlSequence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,29 +35,29 @@ import java.util.List;
 //@BallerinaFunction(
 //        orgName = "ballerina", packageName = "lang.xml",
 //        functionName = "elementChildren",
-//        args = {@Argument(name = "xmlValue", type = TypeKind.XML), @Argument(name = "nm", type = TypeKind.UNION)},
+//        args = {@Argument(name = "BXML", type = TypeKind.XML), @Argument(name = "nm", type = TypeKind.UNION)},
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
 public class ElementChildren {
 
-    public static XMLValue elementChildren(XMLValue xmlVal, Object nameObj) {
+    public static BXml elementChildren(BXml xmlVal, Object nameObj) {
         boolean namedQuery = nameObj != null;
         String name = namedQuery ? ((BString) nameObj).getValue() : null;
-        if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
+        if (xmlVal.getNodeType() == XmlNodeType.ELEMENT) {
             if (namedQuery) {
-                return (XMLValue) ((XMLItem) xmlVal).children().elements(name);
+                return (xmlVal).children().elements(name);
             }
-            return (XMLValue) ((XMLItem) xmlVal).children().elements();
-        } else if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE) {
-            List<BXML> items = new ArrayList<>();
-            XMLSequence sequence = (XMLSequence) xmlVal.elements();
-            for (BXML bxml : sequence.getChildrenList()) {
-                if (bxml.getNodeType() != XMLNodeType.ELEMENT) {
+            return (xmlVal).children().elements();
+        } else if (xmlVal.getNodeType() == XmlNodeType.SEQUENCE) {
+            List<BXml> items = new ArrayList<>();
+            BXmlSequence sequence = (BXmlSequence) xmlVal.elements();
+            for (BXml bxml : sequence.getChildrenList()) {
+                if (bxml.getNodeType() != XmlNodeType.ELEMENT) {
                     continue;
                 }
-                for (BXML childElement : ((XMLItem) bxml).getChildrenSeq().getChildrenList()) {
-                    if (childElement.getNodeType() != XMLNodeType.ELEMENT) {
+                for (BXml childElement : ((BXmlItem) bxml).getChildrenSeq().getChildrenList()) {
+                    if (childElement.getNodeType() != XmlNodeType.ELEMENT) {
                         continue;
                     }
                     if (namedQuery) {
@@ -68,8 +68,8 @@ public class ElementChildren {
                     items.add(childElement);
                 }
             }
-            return new XMLSequence(items);
+            return ValueCreator.createXmlSequence(items);
         }
-        return new XMLSequence();
+        return ValueCreator.createXmlSequence();
     }
 }

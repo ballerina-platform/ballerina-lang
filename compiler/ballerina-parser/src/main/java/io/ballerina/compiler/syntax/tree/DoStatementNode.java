@@ -118,7 +118,6 @@ public class DoStatementNode extends StatementNode {
 
         public DoStatementNodeModifier withOnFailClause(
                 OnFailClauseNode onFailClause) {
-            Objects.requireNonNull(onFailClause, "onFailClause must not be null");
             this.onFailClause = onFailClause;
             return this;
         }

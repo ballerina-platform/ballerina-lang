@@ -566,8 +566,8 @@
                   "kind": "OPEN_BRACE_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
                     }
                   ]
                 },
@@ -1256,8 +1256,8 @@
                   "kind": "OPEN_BRACE_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
                     }
                   ]
                 },

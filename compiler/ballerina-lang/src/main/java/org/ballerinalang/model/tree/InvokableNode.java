@@ -25,8 +25,8 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public interface InvokableNode extends AnnotatableNode, DocumentableNode, IdentifiableNode {
-    
+public interface InvokableNode extends AnnotatableNode, DocumentableNode {
+
     IdentifierNode getName();
 
     void setName(IdentifierNode name);

@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.XMLQName;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlQName;
+import io.ballerina.runtime.internal.XmlFactory;
 
 /**
  * Create XML element from tag name and children sequence.
@@ -39,17 +39,17 @@ import org.ballerinalang.jvm.values.XMLValue;
 //)
 public class CreateElement {
 
-    public static XMLValue createElement(BString name, XMLValue children) {
-        XMLQName xmlqName = new XMLQName(name);
+    public static BXml createElement(BString name, BXml children) {
+        BXmlQName xmlqName = ValueCreator.createXmlQName(name);
         String temp = null;
-        XMLValue xmlElement = XMLFactory.createXMLElement(xmlqName, temp);
+        BXml xmlElement = XmlFactory.createXMLElement(xmlqName, temp);
         xmlElement.setChildren(getChildren(children));
         return xmlElement;
     }
 
-    private static XMLValue getChildren(XMLValue children) {
+    private static BXml getChildren(BXml children) {
         if (children == null) {
-            return new XMLSequence();
+            return ValueCreator.createXmlSequence();
         }
         return children;
     }

@@ -296,6 +296,9 @@ public enum DiagnosticCode {
     DUPLICATE_KEY_IN_RECORD_LITERAL("duplicate.key.in.record.literal"),
     DUPLICATE_KEY_IN_TABLE_LITERAL("duplicate.key.in.table.literal"),
     DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP("duplicate.key.in.record.literal.spread.op"),
+    POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP("possible.duplicate.of.field.specified.via.spread.op"),
+    SPREAD_FIELD_MAY_DULPICATE_ALREADY_SPECIFIED_KEYS("spread.field.may.duplicate.already.specified.keys"),
+    MULTIPLE_INCLUSIVE_TYPES("multiple.inclusive.types"),
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
     INVALID_TUPLE_LITERAL("invalid.tuple.literal"),
     INVALID_LIST_CONSTRUCTOR_ELEMENT_TYPE("invalid.list.constructor.type"),
@@ -320,6 +323,7 @@ public enum DiagnosticCode {
     INVALID_TYPE_FOR_REST_DESCRIPTOR("invalid.type.for.rest.descriptor"),
     INVALID_TYPE_NEW_LITERAL("invalid.type.new.literal"),
     INVALID_USAGE_OF_KEYWORD("invalid.usage.of.keyword"),
+    INVALID_TYPE_OBJECT_CONSTRUCTOR("invalid.type.object.constructor"),
 
     INVALID_RECORD_BINDING_PATTERN("invalid.record.binding.pattern"),
     NO_MATCHING_RECORD_REF_PATTERN("no.matching.record.ref.found"),
@@ -407,6 +411,10 @@ public enum DiagnosticCode {
     MATCH_STMT_PATTERN_ALWAYS_MATCHES("match.stmt.pattern.always.matches"),
     MATCH_STMT_PATTERN_UNREACHABLE("match.stmt.unreachable.pattern.available"),
     MATCH_PATTERN_NOT_SUPPORTED("match.pattern.not.supported"),
+    MATCH_PATTERNS_SHOULD_CONTAIN_SAME_SET_OF_VARIABLES("match.patterns.should.contain.same.set.of.variables"),
+    MATCH_PATTERN_CANNOT_REPEAT_SAME_VARIABLE("match.pattern.cannot.repeat.same.variable"),
+    REST_MATCH_PATTERN_NOT_SUPPORTED("rest.match.pattern.not.supported"),
+    VARIABLE_SHOULD_BE_DECLARED_AS_CONSTANT("match.pattern.variable.should.declared.as.constant"),
     MATCH_STMT_CONTAINS_TWO_DEFAULT_PATTERNS("match.stmt.contains.two.default.patterns"),
 
     THROW_STMT_NOT_SUPPORTED("throw.stmt.not.supported"),
@@ -537,6 +545,9 @@ public enum DiagnosticCode {
     // LangLib related error codes.
     TYPE_PARAM_OUTSIDE_LANG_MODULE("type.param.outside.lang.module"),
     BUILTIN_SUBTYPE_OUTSIDE_LANG_MODULE("builtin.subtype.outside.lang.module"),
+    ISOLATED_PARAM_OUTSIDE_LANG_MODULE("isolated.param.outside.lang.module"),
+    ISOLATED_PARAM_USED_WITH_INVALID_TYPE("isolated.param.used.with.invalid.type"),
+    ISOLATED_PARAM_USED_IN_A_NON_ISOLATED_FUNCTION("isolated.param.used.in.a.non.isolated.function"),
 
     INVALID_INVOCATION_LVALUE_ASSIGNMENT("invalid.lvalue.lhs.of.assignment"),
     INVALID_INVOCATION_LVALUE_COMPOUND_ASSIGNMENT("invalid.lvalue.lhs.of.compound.assignment"),
@@ -584,6 +595,8 @@ public enum DiagnosticCode {
     WARNING_INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT("warning.invalid.mutable.access.as.record.default"),
     INVALID_MUTABLE_ACCESS_AS_OBJECT_DEFAULT("invalid.mutable.access.as.object.default"),
 
+    INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT("invalid.non.isolated.function.as.argument"),
+
     INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_FUNCTION("invalid.non.isolated.invocation.in.isolated.function"),
     INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT("invalid.non.isolated.invocation.as.record.default"),
     WARNING_INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT(
@@ -599,7 +612,20 @@ public enum DiagnosticCode {
 
     INVALID_ASYNC_INVOCATION_IN_ISOLATED_FUNCTION("invalid.async.invocation.in.isolated.function"),
     INVALID_WORKER_DECLARATION_IN_ISOLATED_FUNCTION("invalid.worker.declaration.in.isolated.function"),
+    INVALID_FORK_STATEMENT_IN_ISOLATED_FUNCTION("invalid.fork.statement.in.isolated.function"),
     FUNCTION_CAN_BE_MARKED_ISOLATED("function.can.be.marked.isolated"),
+
+    INVALID_NON_PRIVATE_MUTABLE_FIELD_IN_ISOLATED_OBJECT("invalid.non.private.mutable.field.in.isolated.object"),
+    INVALID_MUTABLE_FIELD_ACCESS_IN_ISOLATED_OBJECT_OUTSIDE_LOCK(
+            "invalid.mutable.field.access.in.isolated.object.outside.lock"),
+    INVALID_REFERENCE_TO_SELF_IN_ISOLATED_OBJECT_OUTSIDE_LOCK(
+            "invalid.reference.to.self.in.isolated.object.outside.lock"),
+    INVALID_NON_UNIQUE_EXPRESSION_AS_INITIAL_VALUE_IN_ISOLATED_OBJECT(
+            "invalid.non.unique.expression.as.initial.value.in.isolated.object"),
+    INVALID_COPY_OUT_OF_MUTABLE_VALUE_FROM_ISOLATED_OBJECT("invalid.copy.out.of.mutable.value.from.isolated.object"),
+    INVALID_COPY_IN_OF_MUTABLE_VALUE_INTO_ISOLATED_OBJECT("invalid.copy.in.of.mutable.value.into.isolated.object"),
+    INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_OBJECT_METHOD(
+            "invalid.non.isolated.invocation.in.isolated.object.method"),
 
     COMPILER_PLUGIN_ERROR("compiler.plugin.crashed"),
     ;

@@ -106,3 +106,29 @@ function testFinalModifierInStringRepresentation() {
 
     Quux y = b;
 }
+
+class Controller {
+    final string id;
+    final map<int> config;
+
+    function init(string id, map<int> config) {
+        self.id = id;
+        self.config = config;
+    }
+}
+
+function testMutabilityOfFinalFieldOnlyObjectWithMutableTypes() {
+    Controller cr = new ("default", {count: 100});
+    readonly rd = cr;
+
+    var ob = object {
+        final string id;
+        final map<int> config;
+
+        function init() {
+            self.id = "inline";
+            self.config = {};
+        }
+    };
+    readonly rd2 = ob;
+}

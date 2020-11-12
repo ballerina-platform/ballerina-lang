@@ -38,6 +38,7 @@ public class BLangOnFailClause extends BLangNode implements OnFailClauseNode {
     public BType varType;
     public boolean isDeclaredWithVar;
     public boolean statementBlockReturns;
+    public boolean bodyContainsFail;
 
     public BLangOnFailClause() {
     }

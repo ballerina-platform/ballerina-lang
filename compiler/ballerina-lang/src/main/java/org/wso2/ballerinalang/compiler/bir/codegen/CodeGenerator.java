@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -144,6 +145,7 @@ public class CodeGenerator {
 
     private void generate(BPackageSymbol packageSymbol, Set<Path> moduleDependencies) {
 
+        dlog.setCurrentPackageId(packageSymbol.pkgID);
         final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog);
 
         populateExternalMap(jvmPackageGen);
@@ -152,7 +154,7 @@ public class CodeGenerator {
         InteropValidator interopValidator = new InteropValidator(interopValidationClassLoader, symbolTable);
 
         //Rewrite identiifier names with encoding special characters
-        encodeModuleIdentifiers(packageSymbol.bir);
+        encodeModuleIdentifiers(packageSymbol.bir, Names.getInstance(this.compilerContext));
 
         packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, interopValidator, true);
     }

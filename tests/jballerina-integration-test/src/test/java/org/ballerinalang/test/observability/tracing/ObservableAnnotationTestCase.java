@@ -37,10 +37,10 @@ import java.util.stream.Collectors;
  * Test cases for observe:Observable annotation.
  */
 @Test(groups = "tracing-test")
-public class ObservableAnnotationTestCase extends BaseTestCase {
+public class ObservableAnnotationTestCase extends TracingBaseTestCase {
     private static final String FILE_NAME = "04_observability_annotation.bal";
     private static final String SERVICE_NAME = "testServiceThree";
-    private static final String BASE_URL = "http://localhost:9094";
+    private static final String BASE_URL = "http://localhost:9093";
 
     @Test
     public void testObservableFunction() throws Exception {

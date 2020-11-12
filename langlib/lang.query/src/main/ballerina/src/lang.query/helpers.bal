@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.__internal as internal;
 import ballerina/lang.'xml;
 import ballerina/java;
 

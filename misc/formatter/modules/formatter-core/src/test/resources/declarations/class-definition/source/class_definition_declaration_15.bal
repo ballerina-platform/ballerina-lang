@@ -2,7 +2,7 @@
    readonly
          distinct
 
-     class  Foo
+     class  Foo1
       {
 
     string
@@ -16,17 +16,17 @@ client
        readonly
 
      class
-     Foo {
+     Foo2 {
     string name;
 }
 
-distinct     readonly    client  class   Foo   {    string   name   ;   }
+distinct     readonly    client  class   Foo3   {    string   name   ;   }
 
 distinct
      client
         readonly
 
-     class     Foo
+     class     Foo4
              {
 
     string   name       ;
@@ -37,7 +37,7 @@ readonly
 
               distinct
 
-     class     Foo
+     class     Foo5
 
        {
 
@@ -53,10 +53,9 @@ readonly
 
      class
 
-     Foo
+     Foo6
 
      {
-
     string
 
     name

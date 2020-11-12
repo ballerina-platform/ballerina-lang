@@ -93,7 +93,6 @@ dependencies {
 //    dist project(':ballerina-transactions')
     dist project(':ballerina-lang:java')
     dist project(':metrics-extensions:ballerina-metrics-extension')
-    dist project(':metrics-extensions:ballerina-prometheus-extension')
     dist project(':tracing-extensions:ballerina-jaeger-extension')
 
     // Lang libs

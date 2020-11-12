@@ -18,9 +18,9 @@
 
 package org.ballerinalang.net.http.websocket;
 
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.types.AttachedFunction;
+import io.ballerina.runtime.api.BRuntime;
+import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.values.BObject;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,27 +31,27 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebSocketService {
 
     protected final BObject service;
-    protected Scheduler scheduler;
-    private final Map<String, AttachedFunction> resourcesMap = new ConcurrentHashMap<>();
+    protected BRuntime runtime;
+    private final Map<String, AttachedFunctionType> resourcesMap = new ConcurrentHashMap<>();
 
-    public WebSocketService(Scheduler scheduler) {
-        this.scheduler = scheduler;
+    public WebSocketService(BRuntime runtime) {
+        this.runtime = runtime;
         service = null;
     }
 
-    public WebSocketService(BObject service, Scheduler scheduler) {
-        this.scheduler = scheduler;
+    public WebSocketService(BObject service, BRuntime runtime) {
+        this.runtime = runtime;
         this.service = service;
         populateResourcesMap(service);
     }
 
     private void populateResourcesMap(BObject service) {
-        for (AttachedFunction resource : service.getType().getAttachedFunctions()) {
+        for (AttachedFunctionType resource : service.getType().getAttachedFunctions()) {
             resourcesMap.put(resource.getName(), resource);
         }
     }
 
-    public AttachedFunction getResourceByName(String resourceName) {
+    public AttachedFunctionType getResourceByName(String resourceName) {
         return resourcesMap.get(resourceName);
     }
 
@@ -59,7 +59,7 @@ public class WebSocketService {
         return service;
     }
 
-    public Scheduler getScheduler() {
-        return scheduler;
+    public BRuntime getRuntime() {
+        return runtime;
     }
 }

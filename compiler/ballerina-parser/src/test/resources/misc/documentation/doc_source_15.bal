@@ -6,4 +6,5 @@
 # line 3
 // a comment in between
 # line 4
-function foo() {}
+function foo() {
+}

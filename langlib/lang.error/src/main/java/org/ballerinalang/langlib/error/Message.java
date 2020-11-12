@@ -17,8 +17,8 @@
  **/
 package org.ballerinalang.langlib.error;
 
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.ErrorValue;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * Get the error message of an error value.
@@ -34,7 +34,7 @@ public class Message {
 
 
     @Deprecated
-    public static BString message(ErrorValue value) {
+    public static BString message(BError value) {
         return value.getErrorMessage();
     }
 }

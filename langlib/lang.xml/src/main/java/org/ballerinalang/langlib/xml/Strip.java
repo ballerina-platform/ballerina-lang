@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 
 /**
  * Strips the insignificant parts of the an xml value.
@@ -40,9 +40,9 @@ public class Strip {
 
     private static final String OPERATION = "strip xml";
 
-    public static XMLValue strip(XMLValue xml) {
+    public static BXml strip(BXml xml) {
         try {
-            return (XMLValue) xml.strip();
+            return (BXml) xml.strip();
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }

@@ -107,7 +107,7 @@ public abstract class BNewArray implements BRefType, BCollection {
 
     protected void ensureCapacity(int requestedCapacity, int currentArraySize) {
         if ((requestedCapacity - currentArraySize) >= 0 && this.arrayType.getTag() == TypeTags.ARRAY_TAG &&
-                ((BArrayType) this.arrayType).getState() == BArrayState.UNSEALED) {
+                ((BArrayType) this.arrayType).getState() == BArrayState.OPEN) {
             // Here the growth rate is 1.5. This value has been used by many other languages
             int newArraySize = currentArraySize + (currentArraySize >> 1);
 

@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 
 /**
  * Append children to an XML if its an element type XML. Error otherwise.
@@ -39,7 +39,7 @@ public class AppendChildren {
     private static final String OPERATION = "add children to xml element";
 
     @Deprecated
-    public static void appendChildren(Strand strand, XMLValue xml, XMLValue children) {
+    public static void appendChildren(Strand strand, BXml xml, BXml children) {
         try {
             xml.addChildren(children);
         } catch (Throwable e) {

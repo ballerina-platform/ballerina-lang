@@ -17,14 +17,14 @@
  */
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.TypedescValue;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.internal.JsonParser;
 
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 
 /**
  * Extern function lang.values:fromJsonWithType.
@@ -34,19 +34,19 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_
  */
 public class FromJsonStringWithType {
 
-    public static Object fromJsonStringWithType(BString value, TypedescValue t) {
+    public static Object fromJsonStringWithType(BString value, BTypedesc t) {
 
         String str = value.getValue();
         try {
             if (str.equals("null")) {
                 return FromJsonWithType.fromJsonWithType(null, t);
             } else {
-                Object jsonFromString = JSONParser.parse(str);
+                Object jsonFromString = JsonParser.parse(str);
                 return FromJsonWithType.fromJsonWithType(jsonFromString, t);
             }
-        } catch (BallerinaException e) {
-            return BErrorCreator.createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                                             BStringUtils.fromString(e.getMessage()));
+        } catch (BError e) {
+            return ErrorCreator.createError(VALUE_LANG_LIB_CONVERSION_ERROR,
+                                            StringUtils.fromString(e.getMessage()));
         }
     }
 }

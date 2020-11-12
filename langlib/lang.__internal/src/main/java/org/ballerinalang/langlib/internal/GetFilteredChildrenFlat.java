@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.values.XMLItem;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlItem;
+import io.ballerina.runtime.api.values.BXmlSequence;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,26 +36,26 @@ import java.util.List;
  */
 public class GetFilteredChildrenFlat {
 
-    public static XMLValue getFilteredChildrenFlat(XMLValue xmlVal, long index, BString[] elemNames) {
-        if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
-            XMLItem element = (XMLItem) xmlVal;
-            return new XMLSequence(filterElementChildren(index, elemNames, element));
-        } else if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE) {
-            XMLSequence sequence = (XMLSequence) xmlVal;
-            ArrayList<BXML> liftedFilteredChildren = new ArrayList<>();
-            for (BXML child : sequence.getChildrenList()) {
-                if (child.getNodeType() == XMLNodeType.ELEMENT) {
-                    liftedFilteredChildren.addAll(filterElementChildren(index, elemNames, (XMLItem) child));
+    public static BXml getFilteredChildrenFlat(BXml xmlVal, long index, BString[] elemNames) {
+        if (xmlVal.getNodeType() == XmlNodeType.ELEMENT) {
+            BXmlItem element = (BXmlItem) xmlVal;
+            return ValueCreator.createXmlSequence(filterElementChildren(index, elemNames, element));
+        } else if (xmlVal.getNodeType() == XmlNodeType.SEQUENCE) {
+            BXmlSequence sequence = (BXmlSequence) xmlVal;
+            ArrayList<BXml> liftedFilteredChildren = new ArrayList<>();
+            for (BXml child : sequence.getChildrenList()) {
+                if (child.getNodeType() == XmlNodeType.ELEMENT) {
+                    liftedFilteredChildren.addAll(filterElementChildren(index, elemNames, (BXmlItem) child));
                 }
             }
-            return new XMLSequence(liftedFilteredChildren);
+            return ValueCreator.createXmlSequence(liftedFilteredChildren);
 
         }
-        return new XMLSequence();
+        return ValueCreator.createXmlSequence();
     }
 
-    private static List<BXML> filterElementChildren(long index, BString[] elemNames, XMLItem element) {
-        XMLSequence elements = (XMLSequence) GetElements.getElements(element.getChildrenSeq(), elemNames);
+    private static List<BXml> filterElementChildren(long index, BString[] elemNames, BXmlItem element) {
+        BXmlSequence elements = (BXmlSequence) GetElements.getElements(element.getChildrenSeq(), elemNames);
         if (index < 0) {
             // Return all elements
             return elements.getChildrenList();

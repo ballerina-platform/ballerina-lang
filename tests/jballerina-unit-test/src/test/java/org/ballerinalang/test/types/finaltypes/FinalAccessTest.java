@@ -43,7 +43,7 @@ public class FinalAccessTest {
         finalLocalNoInitVarResult = BCompileUtil.compile("test-src/types/finaltypes/test_final_local_no_init_var.bal");
     }
 
-    @Test(description = "Test final field access failures", enabled = false)
+    @Test(description = "Test final field access failures")
     public void testFinalFailCase() {
         CompileResult compileResultNegative = BCompileUtil.compile(
                 "test-src/types/finaltypes/test_implicitly_final_negative.bal");

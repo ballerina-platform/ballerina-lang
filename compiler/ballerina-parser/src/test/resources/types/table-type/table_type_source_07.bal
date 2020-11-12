@@ -1,2 +1,1 @@
 type myType table<int>;
-

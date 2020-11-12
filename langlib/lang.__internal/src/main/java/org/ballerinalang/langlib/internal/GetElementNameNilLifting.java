@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BXml;
 
-import static org.ballerinalang.jvm.api.BErrorCreator.createError;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
+import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
 
 /**
  * Return name of the element if `x` is a element or nil if element name is not set, else error.
@@ -30,7 +30,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OP
  */
 public class GetElementNameNilLifting {
 
-    public static Object getElementNameNilLifting(XMLValue xmlVal) {
+    public static Object getElementNameNilLifting(BXml xmlVal) {
         if (IsElement.isElement(xmlVal)) {
             String elementName = xmlVal.getElementName();
             if (elementName.equals("")) {
@@ -40,6 +40,6 @@ public class GetElementNameNilLifting {
         }
         String nodeTypeName = xmlVal.getNodeType().value();
         return createError(XML_OPERATION_ERROR,
-                           BStringUtils.fromString("XML " + nodeTypeName + " does not contain element name"));
+                           StringUtils.fromString("XML " + nodeTypeName + " does not contain element name"));
     }
 }

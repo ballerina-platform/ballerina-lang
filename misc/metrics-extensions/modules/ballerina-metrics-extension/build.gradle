@@ -37,3 +37,15 @@ spotbugsTest {
     //TODO: remove
     ignoreFailures true
 }
+
+ext.moduleName = 'io.ballerina.observe.metrics.extension.defaultimpl'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

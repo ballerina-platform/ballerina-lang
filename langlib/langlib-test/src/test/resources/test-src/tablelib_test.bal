@@ -220,18 +220,11 @@ function testMap() returns boolean {
           return {name: person.name, department : "HR"};
     });
 
-    var personTblKeys = tab.keys();
-    var castedEmpTab = <table<Employee> key(name)> empTab;
-    var empTblKeys = castedEmpTab.keys();
-    testPassed = testPassed && personTblKeys.length() == empTblKeys.length();
-    //check keys of both tables are equal. Cannot check it until KeyType[] is returned
-
-    int index = 0;
-    castedEmpTab.forEach(function (Employee emp) {
-    testPassed = testPassed && emp.name == personList[index].name;
-    testPassed = testPassed && emp.department == "HR";
-    index+=1;
-    });
+    Employee[] tableToList = empTab.toArray();
+    testPassed = testPassed && tableToList.length() == 4;
+    testPassed = testPassed && empTab.toString() == "[{\"name\":\"Chiran\",\"department\":\"HR\"}," +
+        "{\"name\":\"Mohan\",\"department\":\"HR\"},{\"name\":\"Gima\",\"department\":\"HR\"}," +
+        "{\"name\":\"Granier\",\"department\":\"HR\"}]";
 
     return testPassed;
 }

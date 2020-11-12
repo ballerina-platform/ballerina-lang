@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 /**
  * Returns the attribute map of xml element.
@@ -31,19 +31,19 @@ import org.ballerinalang.jvm.values.XMLValue;
 //@BallerinaFunction(
 //        orgName = "ballerina", packageName = "lang.xml",
 //        functionName = "getAttributes",
-//        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
+//        args = {@Argument(name = "BXML", type = TypeKind.XML)},
 //        returnType = {@ReturnType(type = TypeKind.MAP)},
 //        isPublic = true
 //)
 public class GetAttributes {
 
     @SuppressWarnings("unchecked")
-    public static MapValue<BString, BString> getAttributes(XMLValue xmlVal) {
+    public static BMap<BString, BString> getAttributes(BXml xmlVal) {
         if (!IsElement.isElement(xmlVal)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR,
                     "getAttributes", "element");
         }
 
-        return (MapValue<BString, BString>) xmlVal.getAttributesMap();
+        return (BMap<BString, BString>) xmlVal.getAttributesMap();
     }
 }

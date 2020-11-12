@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.observability.metrics.Gauge;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.observability.metrics.Gauge;
 
 /**
  * This is the nativeSetValue function implementation of the Gauge object.
@@ -28,7 +28,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 
 public class GaugeSetValue {
 
-    public static void setValue(ObjectValue guage, double amount) {
+    public static void setValue(BObject guage, double amount) {
         Gauge gauge = (Gauge) guage.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         gauge.setValue(amount);
     }

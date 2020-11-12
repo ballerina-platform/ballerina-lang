@@ -205,6 +205,16 @@ public isolated function createComment(string content) returns Comment = @java:M
     name: "createComment"
 } external;
 
+# Constructs an xml sequence representing zero of more parsed characters.
+#
+# + chars - the characters
+# + return - an xml sequence that is either empty or consists of one text item
+# The constructed sequence will be empty when the length of `chars` is zero.
+public isolated function createText(string chars) returns Text = @java:Method {
+    'class: "org.ballerinalang.langlib.xml.CreateText",
+    name: "createText"
+} external;
+
 # Returns a subsequence of an xml value.
 #
 # + x - the xml value
@@ -273,7 +283,7 @@ public isolated function elementChildren(xml x, string? nm = ()) returns xml<Ele
 # + x - the xml value
 # + func - a function to apply to each child or `item`
 # + return - new xml value containing result of applying `func` to each child or `item`
-public function 'map(xml<ItemType> x, function(ItemType item) returns XmlType func)
+public isolated function 'map(xml<ItemType> x, @isolatedParam function(ItemType item) returns XmlType func)
     returns xml<XmlType> = @java:Method {
         'class: "org.ballerinalang.langlib.xml.Map",
         name: "map"
@@ -284,7 +294,7 @@ public function 'map(xml<ItemType> x, function(ItemType item) returns XmlType fu
 #
 # + x - the xml value
 # + func - a function to apply to each item in `x`
-public function forEach(xml<ItemType> x, function(ItemType item) returns () func) = @java:Method {
+public isolated function forEach(xml<ItemType> x, @isolatedParam function(ItemType item) returns () func) = @java:Method {
     'class: "org.ballerinalang.langlib.xml.ForEach",
     name: "forEach"
 } external;
@@ -295,7 +305,7 @@ public function forEach(xml<ItemType> x, function(ItemType item) returns () func
 # + x - xml value
 # + func - a predicate to apply to each item to test whether it should be selected
 # + return - new xml sequence containing items in `x` for which `func` evaluates to true
-public function filter(xml<ItemType> x, function(ItemType item) returns boolean func)
+public isolated function filter(xml<ItemType> x, @isolatedParam function(ItemType item) returns boolean func)
     returns xml = @java:Method {
         'class: "org.ballerinalang.langlib.xml.Filter",
         name: "filter"

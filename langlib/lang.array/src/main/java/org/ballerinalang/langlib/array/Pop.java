@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.values.ArrayValue;
+import io.ballerina.runtime.api.values.BArray;
 
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOperation;
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
 
 /**
  * Native implementation of lang.array:pop((any|error)[]).
@@ -37,7 +37,7 @@ public class Pop {
 
     private static final String FUNCTION_SIGNATURE = "pop()";
 
-    public static Object pop(ArrayValue arr) {
+    public static Object pop(BArray arr) {
         checkIsArrayOnlyOperation(arr.getType(), FUNCTION_SIGNATURE);
         return arr.shift(arr.size() - 1);
     }

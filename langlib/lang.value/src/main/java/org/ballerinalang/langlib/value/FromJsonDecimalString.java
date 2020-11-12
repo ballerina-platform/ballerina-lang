@@ -18,11 +18,12 @@
 
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.JsonUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.JsonParser;
 
 /**
  * Parse a string in JSON format and return the the value that it represents.
@@ -38,11 +39,11 @@ public class FromJsonDecimalString {
             return null;
         }
         try {
-            return JSONParser.parse(str, JSONParser.NonStringValueProcessingMode.FROM_JSON_DECIMAL_STRING);
-        } catch (BallerinaException e) {
-            return BErrorCreator
-                    .createError(BStringUtils.fromString("{ballerina/lang.value}FromJsonDecimalStringError"),
-                                 BStringUtils.fromString(e.getMessage()));
+            return JsonParser.parse(str, JsonUtils.NonStringValueProcessingMode.FROM_JSON_DECIMAL_STRING);
+        } catch (BError e) {
+            return ErrorCreator
+                    .createError(StringUtils.fromString("{ballerina/lang.value}FromJsonDecimalStringError"),
+                                 StringUtils.fromString(e.getMessage()));
         }
     }
 }

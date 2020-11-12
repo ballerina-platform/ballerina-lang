@@ -20,14 +20,14 @@ package io.ballerina.compiler.api.impl.symbols;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.tools.diagnostics.Location;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Represents a ballerina method.
@@ -43,7 +43,7 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     }
 
     @Override
-    public Optional<BallerinaTypeDescriptor> typeDescriptor() {
+    public FunctionTypeSymbol typeDescriptor() {
         return this.functionSymbol.typeDescriptor();
     }
 
@@ -68,8 +68,18 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     }
 
     @Override
-    public List<Qualifier> qualifiers() {
+    public Set<Qualifier> qualifiers() {
         return this.functionSymbol.qualifiers();
+    }
+
+    @Override
+    public boolean external() {
+        return this.functionSymbol.external();
+    }
+
+    @Override
+    public boolean deprecated() {
+        return this.functionSymbol.deprecated();
     }
 
     @Override

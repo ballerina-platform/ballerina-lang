@@ -28,4 +28,16 @@ dependencies {
     implementation 'com.squareup.okio:okio'
 }
 
+ext.moduleName = 'io.ballerina.observe.trace.extension.jaeger'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}
+
 description = 'Ballerina - Jaeger Tracing Extension'

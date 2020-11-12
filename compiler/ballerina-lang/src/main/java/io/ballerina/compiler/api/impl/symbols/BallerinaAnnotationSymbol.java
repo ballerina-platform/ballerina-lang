@@ -21,17 +21,20 @@ import io.ballerina.compiler.api.symbols.AnnotationAttachPoint;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.util.AttachPoints;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Represent Annotation Symbol.
@@ -40,16 +43,19 @@ import java.util.Optional;
  */
 public class BallerinaAnnotationSymbol extends BallerinaSymbol implements AnnotationSymbol {
 
-    private final List<Qualifier> qualifiers;
-    private final BallerinaTypeDescriptor typeDescriptor;
+    private final Set<Qualifier> qualifiers;
+    private final TypeSymbol typeDescriptor;
     private final List<AnnotationAttachPoint> attachPoints;
+    private final boolean deprecated;
 
-    private BallerinaAnnotationSymbol(String name, PackageID moduleID, List<Qualifier> qualifiers,
-            BallerinaTypeDescriptor typeDescriptor, List<AnnotationAttachPoint> attachPoints, BSymbol bSymbol) {
+    private BallerinaAnnotationSymbol(String name, PackageID moduleID, Set<Qualifier> qualifiers,
+                                      TypeSymbol typeDescriptor, List<AnnotationAttachPoint> attachPoints,
+                                      BSymbol bSymbol) {
         super(name, moduleID, SymbolKind.ANNOTATION, bSymbol);
-        this.qualifiers = Collections.unmodifiableList(qualifiers);
+        this.qualifiers = Collections.unmodifiableSet(qualifiers);
         this.typeDescriptor = typeDescriptor;
         this.attachPoints = Collections.unmodifiableList(attachPoints);
+        this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
     }
 
     /**
@@ -58,7 +64,7 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
      * @return {@link List} of qualifiers
      */
     @Override
-    public List<Qualifier> qualifiers() {
+    public Set<Qualifier> qualifiers() {
         return qualifiers;
     }
 
@@ -68,7 +74,7 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
      * @return {@link Optional} type descriptor of the annotation
      */
     @Override
-    public Optional<BallerinaTypeDescriptor> typeDescriptor() {
+    public Optional<TypeSymbol> typeDescriptor() {
         return Optional.ofNullable(typeDescriptor);
     }
 
@@ -82,6 +88,11 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
         return attachPoints;
     }
 
+    @Override
+    public boolean deprecated() {
+        return this.deprecated;
+    }
+
     /**
      * Represents Ballerina Annotation Symbol Builder.
      *
@@ -89,8 +100,8 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
      */
     public static class AnnotationSymbolBuilder extends SymbolBuilder<AnnotationSymbolBuilder> {
 
-        private List<Qualifier> qualifiers = new ArrayList<>();
-        private BallerinaTypeDescriptor typeDescriptor;
+        private final Set<Qualifier> qualifiers = new HashSet<>();
+        private TypeSymbol typeDescriptor;
         private List<AnnotationAttachPoint> attachPoints;
 
         public AnnotationSymbolBuilder(String name, PackageID moduleID, BAnnotationSymbol annotationSymbol) {
@@ -112,12 +123,12 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
             this.attachPoints = getAttachPoints(annotationSymbol.maskedPoints);
         }
 
-        public AnnotationSymbolBuilder setQualifier(Qualifier qualifier) {
+        public AnnotationSymbolBuilder withQualifier(Qualifier qualifier) {
             this.qualifiers.add(qualifier);
             return this;
         }
 
-        public AnnotationSymbolBuilder withTypeDescriptor(BallerinaTypeDescriptor typeDescriptor) {
+        public AnnotationSymbolBuilder withTypeDescriptor(TypeSymbol typeDescriptor) {
             this.typeDescriptor = typeDescriptor;
             return this;
         }
@@ -154,6 +165,9 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
             if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.SERVICE)) {
                 annotationAttachPoints.add(AnnotationAttachPoint.SERVICE);
             }
+            if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.CLASS)) {
+                annotationAttachPoints.add(AnnotationAttachPoint.CLASS);
+            }
             if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.LISTENER)) {
                 annotationAttachPoints.add(AnnotationAttachPoint.LISTENER);
             }
@@ -171,6 +185,15 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
             }
             if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.WORKER)) {
                 annotationAttachPoints.add(AnnotationAttachPoint.WORKER);
+            }
+            if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.FIELD)) {
+                annotationAttachPoints.add(AnnotationAttachPoint.FIELD);
+            }
+            if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.OBJECT_FIELD)) {
+                annotationAttachPoints.add(AnnotationAttachPoint.OBJECT_FIELD);
+            }
+            if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.RECORD_FIELD)) {
+                annotationAttachPoints.add(AnnotationAttachPoint.RECORD_FIELD);
             }
 
             return annotationAttachPoints;

@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.TableValueImpl;
+import io.ballerina.runtime.api.values.BIterator;
+import io.ballerina.runtime.api.values.BTable;
 
 /**
  * Native implementation of lang.table:iterator(table&lt;Type&gt;).
@@ -33,7 +33,7 @@ import org.ballerinalang.jvm.values.TableValueImpl;
 //        isPublic = true
 //)
 public class GetIterator {
-    public static IteratorValue iterator(TableValueImpl tbl) {
+    public static BIterator iterator(BTable tbl) {
         return tbl.getIterator();
     }
 }

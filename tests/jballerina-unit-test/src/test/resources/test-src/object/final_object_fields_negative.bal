@@ -54,7 +54,7 @@ function testObjectWithStructuredFinalFields() {
     Employee e = new (details, "finance");
 
     e.details = details;
-    e.details.name = "Jo";
+    e.details.name = "Jo"; // OK at compile time
 }
 
 class Customer {
@@ -72,4 +72,22 @@ function testInvalidUpdateOfFinalFieldInUnion() {
 
     Student|Customer sd = customer;
     sd.name = "May";
+    sd.id = 123; // OK at compile time
+}
+
+final Student[] students = [new ("Amy", 5), new ("Jo", 5)];
+
+class Class {
+    final Student[] allStudents = students;
+    Student[] absentees;
+
+    function init(Student[] absentees) {
+        self.absentees = absentees;
+    }
+}
+
+function testInvalidUpdateOfFinalFieldViaNestedAccess() {
+    Class cl = new ([]);
+    cl.allStudents[0].name = "May";
+    cl.absentees[0].name = "May";
 }

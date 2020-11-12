@@ -24,6 +24,7 @@ import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -35,7 +36,7 @@ import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 /**
  * Test class for multi module related debug scenarios for build command.
  */
-@Test(enabled = false)
+@Test
 public class MultiModuleBuildDebugTest extends DebugAdapterBaseTestCase {
 
     private String projectPath;
@@ -51,17 +52,20 @@ public class MultiModuleBuildDebugTest extends DebugAdapterBaseTestCase {
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMultiModuleBuildDebugScenarios() throws BallerinaTestException {
         int port = findFreePort();
         runDebuggeeProgram(projectPath, port);
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 24));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 22));
         initDebugSession(null, port);
 
         // Test for debug engage
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(20000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(0));
+    }
 
+    @AfterClass(alwaysRun = true)
+    private void cleanup() {
         terminateDebugSession();
     }
 }

@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type CustomErrorData record {|
+type CustomErrorData record {
     string message?;
     error cause?;
     int accountID?;
-|};
+};
 
 type CustomError distinct error<CustomErrorData>;
 type CustomError1 distinct error<CustomErrorData>;
@@ -238,4 +238,18 @@ function testInvalidStreamConstructor() {
     // incorrect (`IteratorWithOutError` does not return an error from next() method)
     var streamC = new stream<int, CustomError>(itr);
     stream<int, CustomError> streamD = new(itr);
+}
+
+
+function testInvalidStreamConstructs() returns boolean {
+    IteratorWithOutError itr = new();
+    stream<int> stream1 = new(itr, itr);
+    stream<int> stream2 = new stream<int>(itr, itr);
+    stream<int, never> stream3 = new(itr, itr);
+    stream<int, error> stream4 = new(itr, itr);
+    stream<int, never> stream5 = new stream<int, never>(itr, itr);
+    stream<int, error> stream6 = new stream<int, error>(itr, itr);
+    var stream7 = new stream<int>(itr, itr);
+    var stream8 = new stream<int, never>(itr, itr);
+    var stream9 = new stream<int, error>(itr, itr);
 }

@@ -52,7 +52,8 @@ public class ForeachErrorHandlingTests {
     @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp =
             "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types: 'error' cannot be cast to " +
                     "'int'\"\\}\n" +
-                    "\tat foreach_error_handling:\\$lambda\\$0\\(foreach_error_handling.bal:41\\)")
+                    "\tat foreach_error_handling:\\$lambda\\$_0\\(foreach_error_handling.bal:41\\)\n" +
+                    "\t   foreach_error_handling:\\$lambda\\$_0\\$lambda0\\$\\(foreach_error_handling.bal:40\\)")
     public void testArrayForeachAndPanic() {
         BValue[] returns = BRunUtil.invoke(program, "testArrayForeachAndPanic");
     }

@@ -167,7 +167,7 @@ public class IdentifierLiteralTest {
                 BCompileUtil.compile("test-src/expressions/literals/identifierliteral/invalid_IL_special_char.bal");
         Assert.assertEquals(resultNeg.getErrorCount(), 12);
         BAssertUtil.validateError(resultNeg, 0, "no new variables on left side", 18, 5);
-        BAssertUtil.validateError(resultNeg, 1, "invalid intersection type '$missingNode$0 & *%_var = ': no " +
+        BAssertUtil.validateError(resultNeg, 1, "invalid intersection type '$missingNode$_0 & *%_var = ': no " +
                 "intersection", 18, 14);
         BAssertUtil.validateError(resultNeg, 2, "missing semicolon token", 18, 14);
         BAssertUtil.validateError(resultNeg, 3, "missing type desc", 18, 14);

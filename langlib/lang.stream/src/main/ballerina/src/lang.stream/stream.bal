@@ -39,7 +39,7 @@ type Type1 any|error;
 # + stm - the stream
 # + func - a predicate to apply to each member to test whether it should be selected
 # + return - new stream only containing members of `stm` for which `func` evaluates to true
-public function filter(stream<Type,ErrorType> stm, function(Type val) returns boolean func)
+public isolated function filter(stream<Type,ErrorType> stm, @isolatedParam function(Type val) returns boolean func)
    returns stream<Type,ErrorType>  {
     FilterSupport itrObj = new(stm, func);
     return internal:construct(internal:getElementType(typeof stm), itrObj);
@@ -71,7 +71,7 @@ public function next(stream<Type, ErrorType> strm) returns record {| Type value;
 # + stm - the stream
 # + func - a function to apply to each member
 # + return - new stream containing result of applying `func` to each member of `stm` in order
-public function 'map(stream<Type,ErrorType> stm, function(Type val) returns Type1 func)
+public isolated function 'map(stream<Type,ErrorType> stm, @isolatedParam function(Type val) returns Type1 func)
    returns stream<Type1,ErrorType> {
     MapSupport  iteratorObj = new(stm, func);
     return internal:construct(internal:getReturnType(func), iteratorObj);
@@ -127,8 +127,8 @@ public function forEach(stream<Type,ErrorType> stm, function(Type val) returns (
 #
 # + stm - the stream
 # + return - a new iterator object that will iterate over the members of `stm`.
-public isolated function iterator(stream<Type,ErrorType> stm) returns object {
-    public isolated function next() returns record {|
+public function iterator(stream<Type,ErrorType> stm) returns object {
+    public function next() returns record {|
         Type value;
     |}|ErrorType?;
 }{
@@ -140,7 +140,7 @@ public isolated function iterator(stream<Type,ErrorType> stm) returns object {
 #
 # + stm - the stream to close
 # + return - () if the close completed successfully, otherwise an error
-public isolated function close(stream<Type,ErrorType> stm) returns ErrorType? {
+public function close(stream<Type,ErrorType> stm) returns ErrorType? {
     var itrObj = internal:getIteratorObj(stm);
     if (itrObj is object {
         public function next() returns record {|Type value;|}|ErrorType?;

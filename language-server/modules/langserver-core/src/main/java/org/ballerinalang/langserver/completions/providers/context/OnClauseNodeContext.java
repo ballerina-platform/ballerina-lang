@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.OnClauseNode;
@@ -29,7 +30,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * Completion provider for {@link OnClauseNode} context.
  * Following rule is addressed,
- * 
+ * <p>
  * {@code join typed-binding-pattern in expression on expression equals expression}
  *
  * @since 2.0.0
@@ -70,7 +70,7 @@ public class OnClauseNodeContext extends AbstractCompletionProvider<OnClauseNode
             Covers the cases where the cursor is within the expression context
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Scope.ScopeEntry> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
+            List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
             return this.getCompletionItemList(exprEntries, context);
         }
 

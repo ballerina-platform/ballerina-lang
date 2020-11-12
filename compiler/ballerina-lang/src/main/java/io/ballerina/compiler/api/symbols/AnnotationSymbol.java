@@ -17,8 +17,6 @@
  */
 package io.ballerina.compiler.api.symbols;
 
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -27,21 +25,14 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public interface AnnotationSymbol extends Symbol {
-
-    /**
-     * Get the qualifiers.
-     *
-     * @return {@link List} of qualifiers
-     */
-    List<Qualifier> qualifiers();
+public interface AnnotationSymbol extends Symbol, Qualifiable, Deprecatable {
 
     /**
      * Get the type descriptor.
      *
-     * @return {@link BallerinaTypeDescriptor} type descriptor of the annotation
+     * @return {@link TypeSymbol} type descriptor of the annotation
      */
-    Optional<BallerinaTypeDescriptor> typeDescriptor();
+    Optional<TypeSymbol> typeDescriptor();
 
     /**
      * Get the attached points.

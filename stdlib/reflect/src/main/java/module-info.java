@@ -1,3 +1,3 @@
 module io.ballerina.reflect {
-    requires io.ballerina.jvm;
+    requires io.ballerina.runtime;
 }

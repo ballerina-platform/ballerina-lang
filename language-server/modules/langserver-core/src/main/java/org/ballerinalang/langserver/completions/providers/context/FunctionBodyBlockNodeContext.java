@@ -54,6 +54,9 @@ public class FunctionBodyBlockNodeContext extends BlockNodeContextProvider<Funct
 
     @Override
     public boolean onPreValidation(LSContext context, FunctionBodyBlockNode node) {
-        return !node.openBraceToken().isMissing() && !node.closeBraceToken().isMissing();
+        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        return !node.openBraceToken().isMissing() && !node.closeBraceToken().isMissing()
+                && node.closeBraceToken().textRange().startOffset() >= cursor
+                && node.openBraceToken().textRange().endOffset() <= cursor;
     }
 }

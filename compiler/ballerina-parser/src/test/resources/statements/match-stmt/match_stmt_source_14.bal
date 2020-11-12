@@ -7,7 +7,7 @@ public function foo() {
         () => {}
         "south"|"north" => {}
         "east" => {}
-        "west"  if getX() | getY() => {}
+        "west" if getX() | getY() => {}
     } on fail error e {
         io:println("Exception thrown...");
     }

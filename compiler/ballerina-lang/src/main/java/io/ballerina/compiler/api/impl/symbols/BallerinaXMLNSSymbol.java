@@ -21,16 +21,25 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.XMLNamespaceSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 
 /**
  * Represents an XML Namespace Symbol.
- * 
+ *
  * @since 2.0.0
  */
 public class BallerinaXMLNSSymbol extends BallerinaSymbol implements XMLNamespaceSymbol {
 
-    private BallerinaXMLNSSymbol(String name, PackageID moduleID, BSymbol symbol) {
+    private final String namespaceUri;
+
+    private BallerinaXMLNSSymbol(String name, PackageID moduleID, BSymbol symbol, String namespaceUri) {
         super(name, moduleID, SymbolKind.XMLNS, symbol);
+        this.namespaceUri = namespaceUri;
+    }
+
+    @Override
+    public String namespaceUri() {
+        return this.namespaceUri;
     }
 
     /**
@@ -38,20 +47,23 @@ public class BallerinaXMLNSSymbol extends BallerinaSymbol implements XMLNamespac
      */
     public static class XmlNSSymbolBuilder extends SymbolBuilder<XmlNSSymbolBuilder> {
 
+        protected String uri;
+
         /**
          * Symbol Builder's Constructor.
          *
-         * @param name Symbol Name
+         * @param name     Symbol Name
          * @param moduleID module ID of the symbol
-         * @param symbol namespace symbol
+         * @param symbol   namespace symbol
          */
-        public XmlNSSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
+        public XmlNSSymbolBuilder(String name, PackageID moduleID, BXMLNSSymbol symbol) {
             super(name, moduleID, SymbolKind.XMLNS, symbol);
+            this.uri = symbol.namespaceURI;
         }
 
         @Override
         public BallerinaXMLNSSymbol build() {
-            return new BallerinaXMLNSSymbol(this.name, this.moduleID, this.bSymbol);
+            return new BallerinaXMLNSSymbol(this.name, this.moduleID, this.bSymbol, this.uri);
         }
     }
 }

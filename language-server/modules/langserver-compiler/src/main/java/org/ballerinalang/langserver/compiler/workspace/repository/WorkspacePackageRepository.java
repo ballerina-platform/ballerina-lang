@@ -183,7 +183,7 @@ public class WorkspacePackageRepository extends GeneralFSPackageRepository {
                     }
                 }
                 TextDocument textDocument = TextDocuments.from(new String(this.code));
-                this.tree = SyntaxTree.from(textDocument);
+                this.tree = SyntaxTree.from(textDocument, name);
             }
 
             @Override

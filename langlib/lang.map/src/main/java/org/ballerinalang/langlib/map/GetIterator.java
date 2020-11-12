@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.values.BIterator;
+import io.ballerina.runtime.api.values.BMap;
 
 /**
  * Native implementation of lang.map:iterator(map).
@@ -34,7 +34,7 @@ import org.ballerinalang.jvm.values.MapValue;
 //)
 public class GetIterator {
 
-    public static IteratorValue iterator(MapValue<?, ?> map) {
+    public static BIterator iterator(BMap<?, ?> map) {
         return map.getIterator();
     }
 }

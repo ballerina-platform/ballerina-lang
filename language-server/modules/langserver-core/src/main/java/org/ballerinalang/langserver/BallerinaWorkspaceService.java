@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -26,7 +25,6 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.config.LSClientConfig;
 import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
@@ -61,7 +59,6 @@ import static org.ballerinalang.langserver.compiler.LSClientLogger.notifyUser;
 public class BallerinaWorkspaceService implements WorkspaceService {
     private BallerinaLanguageServer languageServer;
     private WorkspaceDocumentManager workspaceDocumentManager;
-    private static final Gson GSON = new Gson();
     private LSClientConfigHolder configHolder = LSClientConfigHolder.getInstance();
     private LSClientCapabilities clientCapabilities;
 
@@ -91,7 +88,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                     bLangPackage.forEach(aPackage -> aPackage.compUnits.forEach(compUnit -> {
                         String unitName = compUnit.getName();
                         String sourceRoot = LSCompilerUtil.getProjectRoot(path);
-                        String basePath = sourceRoot + File.separator + compUnit.getPosition().src.getPackageName();
+                        String basePath = sourceRoot + File.separator + compUnit.getPackageID().getName().value;
                         String hash = generateHash(compUnit, basePath);
                         compUnits.put(hash, new Object[]{
                                 new File(basePath + File.separator + unitName).toURI(), compUnit});
@@ -120,7 +117,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     }
 
     private String generateHash(BLangCompilationUnit compUnit, String basePath) {
-        return compUnit.getPosition().getSource().pkgID.toString() + "$" + basePath + "$" + compUnit.getName();
+        return compUnit.getPackageID().toString() + "$" + basePath + "$" + compUnit.getName();
     }
 
     @Override
@@ -130,10 +127,10 @@ public class BallerinaWorkspaceService implements WorkspaceService {
         }
         JsonObject settings = (JsonObject) params.getSettings();
         if (settings.get("ballerina") != null) {
-            configHolder.updateConfig(GSON.fromJson(settings.get("ballerina"), LSClientConfig.class));
+            configHolder.updateConfig(settings.get("ballerina"));
         } else {
             // To support old plugins versions
-            configHolder.updateConfig(GSON.fromJson(settings, LSClientConfig.class));
+            configHolder.updateConfig(settings);
         }
     }
 

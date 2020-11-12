@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.formatter.cli;
 
+import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.tool.BLauncherException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -34,7 +35,7 @@ public class FormatCmdTest {
     private static final String NOT_A_PROJECT = "notAProject";
 
     @Test(description = "Test to check the exception for too many argument provided.")
-    public void formatCLITooManyArgumentsTest() {
+    public void formatCLITooManyArgumentsTest() throws FormatterException {
         Path sourceRoot = RES_DIR.resolve(NOT_A_PROJECT);
         List<String> argList = new ArrayList<>();
         argList.add("pkg2");
@@ -54,7 +55,7 @@ public class FormatCmdTest {
     }
 
     @Test(description = "Test to check the exception for not a ballerina project.")
-    public void formatCLINotAProjectTest() {
+    public void formatCLINotAProjectTest() throws FormatterException {
         Path sourceRoot = RES_DIR.resolve(NOT_A_PROJECT);
         try {
             FormatUtil.execute(null, false, false, sourceRoot);
@@ -71,7 +72,7 @@ public class FormatCmdTest {
     }
 
     @Test(description = "Test to check the exception for not a ballerina project when given a module name.")
-    public void formatCLINotAProjectInModuleTest() {
+    public void formatCLINotAProjectInModuleTest() throws FormatterException {
         Path sourceRoot = RES_DIR.resolve(NOT_A_PROJECT);
         List<String> argList = new ArrayList<>();
         argList.add("pkg1");
@@ -90,7 +91,7 @@ public class FormatCmdTest {
     }
 
     @Test(description = "Test to check the exception for no ballerina module found for a given module name.")
-    public void formatCLINotAModuleTest() {
+    public void formatCLINotAModuleTest() throws FormatterException {
         Path sourceRoot = RES_DIR.resolve("project");
         List<String> argList = new ArrayList<>();
         argList.add("pkg2");
@@ -109,7 +110,7 @@ public class FormatCmdTest {
     }
 
     @Test(description = "Test to check the exception for file that is not a ballerina file.")
-    public void formatCLINotABalFileTest() {
+    public void formatCLINotABalFileTest() throws FormatterException {
         List<String> argList = new ArrayList<>();
         argList.add(RES_DIR.resolve("invalidFile.txt").toString());
         try {
@@ -128,7 +129,7 @@ public class FormatCmdTest {
     }
 
     @Test(description = "Test to check the exception for no existing ballerina file.")
-    public void formatCLINoBallerinaFileTest() {
+    public void formatCLINoBallerinaFileTest() throws FormatterException {
         List<String> argList = new ArrayList<>();
         argList.add(RES_DIR.resolve("invalidFile.bal").toString());
         try {
@@ -147,7 +148,7 @@ public class FormatCmdTest {
     }
 
     @Test(description = "Test to check the exception for no existing ballerina file or module.")
-    public void formatCLINotABallerinaFileOrModuleTest() {
+    public void formatCLINotABallerinaFileOrModuleTest() throws FormatterException {
         List<String> argList = new ArrayList<>();
         argList.add("invalid.pkg2");
         try {
@@ -166,7 +167,7 @@ public class FormatCmdTest {
     }
 
     @Test(description = "Test to check the exception for general error in File IO or a argument.")
-    public void formatCLIGeneralExceptionTest() {
+    public void formatCLIGeneralExceptionTest() throws FormatterException {
         try {
             FormatUtil.execute(null, false, false, null);
         } catch (BLauncherException e) {

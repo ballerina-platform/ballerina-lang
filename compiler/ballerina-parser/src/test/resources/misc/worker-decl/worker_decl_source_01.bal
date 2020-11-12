@@ -1,7 +1,7 @@
 function foo() {
     int a = 1;
 
-    @someAnnot{}
+    @someAnnot {}
     worker w1 {
         int b = 2;
     }

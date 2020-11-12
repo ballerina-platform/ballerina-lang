@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.compiler;
 
+import io.ballerina.compiler.api.impl.SymbolFactory;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
@@ -169,9 +170,12 @@ public class LSModuleCompiler {
         if (packages.isEmpty()) {
             throw new CompilationFailedException("Couldn't find any compiled artifact!");
         }
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(compilerContext);
         Optional<BLangPackage> currentPackage = filterCurrentPackage(packages, context);
         currentPackage.ifPresent(bLangPackage -> {
             context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
+            context.put(DocumentServiceKeys.CURRENT_MODULE_KEY, symbolFactory.createModuleSymbol(bLangPackage.symbol,
+                    bLangPackage.symbol.name.getValue()));
             context.put(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY, bLangPackage.packageID);
         });
         return packages;

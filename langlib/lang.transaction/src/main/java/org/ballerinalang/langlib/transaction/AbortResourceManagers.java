@@ -18,9 +18,8 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.transactions.TransactionResourceManager;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.transactions.TransactionResourceManager;
 
 /**
  * Extern function transaction:abortResourceManagers.
@@ -30,7 +29,7 @@ import org.ballerinalang.jvm.transactions.TransactionResourceManager;
 public class AbortResourceManagers {
 
     public static boolean abortResourceManagers(BString transactionId, BString transactionBlockId) {
-        return TransactionResourceManager.getInstance().notifyAbort(Scheduler.getStrand(), transactionId.getValue(),
+        return TransactionResourceManager.getInstance().notifyAbort(transactionId.getValue(),
                 transactionBlockId.getValue(), null);
     }
 }

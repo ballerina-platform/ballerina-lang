@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import org.ballerinalang.jvm.values.BmpStringValue;
-import org.ballerinalang.jvm.values.HandleValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.internal.values.BmpStringValue;
+import io.ballerina.runtime.internal.values.HandleValue;
+import io.ballerina.runtime.internal.values.ObjectValue;
 
 /**
  * This class contains a set of utility instance methods required for interoperability testing.

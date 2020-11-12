@@ -37,28 +37,28 @@ public class AnnotationDeclarationNode extends ModuleMemberDeclarationNode {
         return optionalChildInBucket(0);
     }
 
-    public Token visibilityQualifier() {
-        return childInBucket(1);
+    public Optional<Token> visibilityQualifier() {
+        return optionalChildInBucket(1);
     }
 
-    public Token constKeyword() {
-        return childInBucket(2);
+    public Optional<Token> constKeyword() {
+        return optionalChildInBucket(2);
     }
 
     public Token annotationKeyword() {
         return childInBucket(3);
     }
 
-    public Node typeDescriptor() {
-        return childInBucket(4);
+    public Optional<Node> typeDescriptor() {
+        return optionalChildInBucket(4);
     }
 
     public Token annotationTag() {
         return childInBucket(5);
     }
 
-    public Token onKeyword() {
-        return childInBucket(6);
+    public Optional<Token> onKeyword() {
+        return optionalChildInBucket(6);
     }
 
     public SeparatedNodeList<Node> attachPoints() {
@@ -152,33 +152,30 @@ public class AnnotationDeclarationNode extends ModuleMemberDeclarationNode {
         public AnnotationDeclarationNodeModifier(AnnotationDeclarationNode oldNode) {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata().orElse(null);
-            this.visibilityQualifier = oldNode.visibilityQualifier();
-            this.constKeyword = oldNode.constKeyword();
+            this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
+            this.constKeyword = oldNode.constKeyword().orElse(null);
             this.annotationKeyword = oldNode.annotationKeyword();
-            this.typeDescriptor = oldNode.typeDescriptor();
+            this.typeDescriptor = oldNode.typeDescriptor().orElse(null);
             this.annotationTag = oldNode.annotationTag();
-            this.onKeyword = oldNode.onKeyword();
+            this.onKeyword = oldNode.onKeyword().orElse(null);
             this.attachPoints = oldNode.attachPoints();
             this.semicolonToken = oldNode.semicolonToken();
         }
 
         public AnnotationDeclarationNodeModifier withMetadata(
                 MetadataNode metadata) {
-            Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
         public AnnotationDeclarationNodeModifier withVisibilityQualifier(
                 Token visibilityQualifier) {
-            Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
             this.visibilityQualifier = visibilityQualifier;
             return this;
         }
 
         public AnnotationDeclarationNodeModifier withConstKeyword(
                 Token constKeyword) {
-            Objects.requireNonNull(constKeyword, "constKeyword must not be null");
             this.constKeyword = constKeyword;
             return this;
         }
@@ -192,7 +189,6 @@ public class AnnotationDeclarationNode extends ModuleMemberDeclarationNode {
 
         public AnnotationDeclarationNodeModifier withTypeDescriptor(
                 Node typeDescriptor) {
-            Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
             this.typeDescriptor = typeDescriptor;
             return this;
         }
@@ -206,7 +202,6 @@ public class AnnotationDeclarationNode extends ModuleMemberDeclarationNode {
 
         public AnnotationDeclarationNodeModifier withOnKeyword(
                 Token onKeyword) {
-            Objects.requireNonNull(onKeyword, "onKeyword must not be null");
             this.onKeyword = onKeyword;
             return this;
         }

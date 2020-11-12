@@ -18,9 +18,8 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.transactions.TransactionResourceManager;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.transactions.TransactionResourceManager;
 
 /**
  * Extern function transaction:commitResourceManagers.
@@ -30,7 +29,7 @@ import org.ballerinalang.jvm.transactions.TransactionResourceManager;
 public class CommitResourceManagers {
 
     public static boolean commitResourceManagers(BString transactionId, BString transactionBlockId) {
-        return TransactionResourceManager.getInstance().notifyCommit(Scheduler.getStrand(), transactionId.getValue(),
+        return TransactionResourceManager.getInstance().notifyCommit(transactionId.getValue(),
                                                                      transactionBlockId.getValue());
     }
 }

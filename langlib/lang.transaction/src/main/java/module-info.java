@@ -1,4 +1,4 @@
 module io.ballerina.lang.transaction {
-    requires io.ballerina.jvm;
+    requires io.ballerina.runtime;
     exports org.ballerinalang.langlib.transaction;
 }

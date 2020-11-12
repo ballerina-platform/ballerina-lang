@@ -46,7 +46,7 @@ public class BObjectType extends BStructureType implements ObjectType {
     public BIntersectionType immutableType;
     public BObjectType mutableType = null;
 
-    public BTypeIdSet typeIdSet = BTypeIdSet.emptySet();
+    public BTypeIdSet typeIdSet = new BTypeIdSet();
 
     public BObjectType(BTypeSymbol tSymbol) {
         super(TypeTags.OBJECT, tSymbol);
@@ -76,6 +76,12 @@ public class BObjectType extends BStructureType implements ObjectType {
 
         if (shouldPrintShape(tsymbol.name)) {
             StringBuilder sb = new StringBuilder();
+
+            int symbolFlags = tsymbol.flags;
+            if (Symbols.isFlagOn(symbolFlags, Flags.ISOLATED)) {
+                sb.append("isolated ");
+            }
+
             sb.append(OBJECT).append(SPACE).append(LEFT_CURL);
             for (BField field : fields.values()) {
                 int flags = field.symbol.flags;
@@ -102,7 +108,7 @@ public class BObjectType extends BStructureType implements ObjectType {
             }
             sb.append(SPACE).append(RIGHT_CURL);
 
-            if (Symbols.isFlagOn(tsymbol.flags, Flags.READONLY)) {
+            if (Symbols.isFlagOn(symbolFlags, Flags.READONLY)) {
                 sb.append(" & readonly");
             }
 

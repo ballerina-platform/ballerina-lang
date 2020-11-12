@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.transactions.TransactionResourceManager;
-import org.ballerinalang.jvm.values.ArrayValue;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.transactions.TransactionResourceManager;
 
 /**
  * Extern function transaction:getInfo.
@@ -28,7 +28,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
  */
 public class GetInfo {
 
-    public static Object getInfo(ArrayValue xid) {
+    public static Object getInfo(BArray xid) {
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
         return transactionResourceManager.transactionInfoMap.get(xid);
     }

@@ -18,11 +18,11 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * This is a dummy symbol to hold the owner of a let expression.
@@ -31,7 +31,8 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
  */
 public class BLetSymbol extends BSymbol {
 
-    public BLetSymbol(int tag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner, DiagnosticPos pos) {
-        super(tag, flags, name, pkgID, type, owner, pos, SymbolOrigin.VIRTUAL);
+    public BLetSymbol(int tag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner,
+                      Location location) {
+        super(tag, flags, name, pkgID, type, owner, location, SymbolOrigin.VIRTUAL);
     }
 }

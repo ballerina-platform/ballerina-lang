@@ -39,7 +39,7 @@ public class ObjectDocumentationTest {
     public void setup() {
     }
 
-    @Test(description = "Test doc annotation.", groups = { "disableOnOldParser" })
+    @Test(description = "Test doc annotation.")
     public void testDocAnnotation() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_annotation.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 3);

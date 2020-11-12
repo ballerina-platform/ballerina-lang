@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -68,7 +69,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
-import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -76,13 +76,13 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -95,6 +95,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
@@ -181,7 +182,7 @@ public class Types {
         return expr.type;
     }
 
-    public BType checkType(DiagnosticPos pos,
+    public BType checkType(Location pos,
                            BType actualType,
                            BType expType,
                            DiagnosticCode diagCode) {
@@ -285,8 +286,35 @@ public class Types {
         return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfList);
     }
 
-    public BType resolvePatternTypeFromMatchExpr(BType matchExprType, BLangConstPattern constMatchPattern) {
-        BLangExpression constPatternExpr = constMatchPattern.expr;
+    public BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BTupleType listMatchPatternType) {
+        if (matchExpr == null) {
+            return listMatchPatternType;
+        }
+        BType matchExprType = matchExpr.type;
+        BType intersectionType = getTypeIntersection(matchExprType, listMatchPatternType);
+        if (intersectionType != symTable.semanticError) {
+            return intersectionType;
+        }
+        if (matchExprType.tag == TypeTags.ANYDATA) {
+            Collections.fill(listMatchPatternType.tupleTypes, symTable.anydataType);
+            if (listMatchPatternType.restType != null) {
+                listMatchPatternType.restType = symTable.anydataType;
+            }
+            return listMatchPatternType;
+        }
+        return symTable.noType;
+    }
+
+    public BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BLangExpression constPatternExpr) {
+        if (matchExpr == null) {
+            if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                return ((BLangSimpleVarRef) constPatternExpr).symbol.type;
+            } else {
+                return constPatternExpr.type;
+            }
+        }
+
+        BType matchExprType = matchExpr.type;
         BType constMatchPatternExprType = constPatternExpr.type;
 
         if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -339,7 +367,7 @@ public class Types {
         return symTable.noType;
     }
 
-    public boolean containsAnyType(BType type) {
+    private boolean containsAnyType(BType type) {
         if (type.tag != TypeTags.UNION) {
             return type.tag == TypeTags.ANY;
         }
@@ -350,6 +378,16 @@ public class Types {
             }
         }
         return false;
+    }
+
+    public BType mergeTypes(BType typeFirst, BType typeSecond) {
+        if (containsAnyType(typeFirst)) {
+            return typeSecond;
+        }
+        if (isSameBasicType(typeFirst, typeSecond)) {
+            return typeFirst;
+        }
+        return BUnionType.create(null, typeFirst, typeSecond);
     }
 
     public boolean isSubTypeOfMapping(BType type) {
@@ -919,7 +957,7 @@ public class Types {
 
     private boolean isTupleTypeAssignableToArrayType(BTupleType source, BArrayType target,
                                                      Set<TypePair> unresolvedTypes) {
-        if (target.state != BArrayState.UNSEALED
+        if (target.state != BArrayState.OPEN
                 && (source.restType != null || source.tupleTypes.size() != target.size)) {
             return false;
         }
@@ -935,7 +973,7 @@ public class Types {
     private boolean isArrayTypeAssignableToTupleType(BArrayType source, BTupleType target,
                                                      Set<TypePair> unresolvedTypes) {
         if (!target.tupleTypes.isEmpty()) {
-            if (source.state == BArrayState.UNSEALED) {
+            if (source.state == BArrayState.OPEN) {
                 // [int, int, int...] = int[] || [int, int] = int[]
                 return false;
             }
@@ -965,7 +1003,7 @@ public class Types {
         if (target.tag == TypeTags.ARRAY) {
             BArrayType targetArrayType = (BArrayType) target;
             BType targetElementType = targetArrayType.getElementType();
-            if (targetArrayType.state == BArrayState.UNSEALED) {
+            if (targetArrayType.state == BArrayState.OPEN) {
                 return isAssignable(sourceElementType, targetElementType, unresolvedTypes);
             }
 
@@ -1233,8 +1271,8 @@ public class Types {
         BArrayType lhsArrayType = (BArrayType) target;
         BArrayType rhsArrayType = (BArrayType) source;
         boolean hasSameTypeElements = isSameType(lhsArrayType.eType, rhsArrayType.eType, unresolvedTypes);
-        if (lhsArrayType.state == BArrayState.UNSEALED) {
-            return (rhsArrayType.state == BArrayState.UNSEALED) && hasSameTypeElements;
+        if (lhsArrayType.state == BArrayState.OPEN) {
+            return (rhsArrayType.state == BArrayState.OPEN) && hasSameTypeElements;
         }
 
         return checkSealedArraySizeEquality(rhsArrayType, lhsArrayType) && hasSameTypeElements;
@@ -1269,6 +1307,10 @@ public class Types {
     }
 
     public boolean checkObjectEquivalency(BObjectType rhsType, BObjectType lhsType, Set<TypePair> unresolvedTypes) {
+        if (Symbols.isFlagOn(lhsType.flags, Flags.ISOLATED) && !Symbols.isFlagOn(rhsType.flags, Flags.ISOLATED)) {
+            return false;
+        }
+
         BObjectTypeSymbol lhsStructSymbol = (BObjectTypeSymbol) lhsType.tsymbol;
         BObjectTypeSymbol rhsStructSymbol = (BObjectTypeSymbol) rhsType.tsymbol;
         List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
@@ -1982,6 +2024,7 @@ public class Types {
         implicitConversionExpr.expr = expr.impConversionExpr == null ? expr : expr.impConversionExpr;
         implicitConversionExpr.type = expType;
         implicitConversionExpr.targetType = expType;
+        implicitConversionExpr.internal = true;
         expr.impConversionExpr = implicitConversionExpr;
     }
 
@@ -2033,14 +2076,22 @@ public class Types {
     public boolean isValidErrorDetailType(BType detailType) {
         switch (detailType.tag) {
             case TypeTags.MAP:
-            case TypeTags.RECORD:
                 return isAssignable(detailType, symTable.detailType);
-
+            case TypeTags.RECORD: {
+                if (isSealed((BRecordType) detailType)) {
+                    return false;
+                }
+                return isAssignable(detailType, symTable.detailType);
+            }
         }
         return false;
     }
 
     // private methods
+
+    private boolean isSealed(BRecordType recordType) {
+        return recordType.sealed;
+    }
 
     private boolean isNullable(BType fieldType) {
         return fieldType.isNullable();
@@ -2654,10 +2705,10 @@ public class Types {
 
         // Create a new finite type representing the assignable values.
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteType.tsymbol.flags,
-                                                                names.fromString("$anonType$" + finiteTypeCount++),
-                                                                finiteType.tsymbol.pkgID, null,
-                                                                finiteType.tsymbol.owner, finiteType.tsymbol.pos,
-                                                                VIRTUAL);
+                names.fromString("$anonType$" + UNDERSCORE + finiteTypeCount++),
+                finiteType.tsymbol.pkgID, null,
+                finiteType.tsymbol.owner, finiteType.tsymbol.pos,
+                VIRTUAL);
         BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, matchingValues);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
@@ -3131,10 +3182,10 @@ public class Types {
         }
 
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, originalType.tsymbol.flags,
-                                                                names.fromString("$anonType$" + finiteTypeCount++),
-                                                                originalType.tsymbol.pkgID, null,
-                                                                originalType.tsymbol.owner, originalType.tsymbol.pos,
-                                                                VIRTUAL);
+                names.fromString("$anonType$" + UNDERSCORE + finiteTypeCount++),
+                originalType.tsymbol.pkgID, null,
+                originalType.tsymbol.owner, originalType.tsymbol.pos,
+                VIRTUAL);
         BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, remainingValueSpace);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
@@ -3587,5 +3638,18 @@ public class Types {
             default:
                 return isSimpleBasicType(type.tag);
         }
+    }
+
+    public boolean isUnionOfSimpleBasicTypes(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
+            for (BType memType : memberTypes) {
+                if (!isSimpleBasicType(memType.tag)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return isSimpleBasicType(type.tag);
     }
 }

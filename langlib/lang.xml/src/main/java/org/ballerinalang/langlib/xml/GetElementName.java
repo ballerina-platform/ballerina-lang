@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 
 /**
  * Get the fully qualified name of the element as a string.
@@ -37,7 +37,7 @@ public class GetElementName {
 
     private static final String OPERATION = "get element name in xml";
 
-    public static String getElementName(Strand strand, XMLValue xml) {
+    public static String getElementName(Strand strand, BXml xml) {
         try {
             return xml.getElementName();
         } catch (Throwable e) {

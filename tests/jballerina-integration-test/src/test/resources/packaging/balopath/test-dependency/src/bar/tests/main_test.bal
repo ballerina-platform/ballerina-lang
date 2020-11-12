@@ -1,43 +1,13 @@
-import ballerina/io;
 import ballerina/test;
 import wso2test/foo;
-
-# Before Suite Function
 
 string testStr1 = foo:fooStr1;
 string testStr2 = foo:fooFn();
 
-@test:BeforeSuite
-function beforeSuiteFunc() {
-    io:println("I'm the before suite function!");
-}
-
-# Before test function
-
-function beforeFunc() {
-    io:println("I'm the before function!");
-}
-
 # Test function
-
 @test:Config {
-    before: "beforeFunc",
-    after: "afterFunc"
 }
 function testFunction() {
-    io:println("I'm in test function!");
-    test:assertTrue(true, msg = "Failed!");
-}
-
-# After test function
-
-function afterFunc() {
-    io:println("I'm the after function!");
-}
-
-# After Suite Function
-
-@test:AfterSuite {}
-function afterSuiteFunc() {
-    io:println("I'm the after suite function!");
+    test:assertEquals(testStr1, "this is a foo string");
+    test:assertEquals(testStr2, "fooFn invoked");
 }

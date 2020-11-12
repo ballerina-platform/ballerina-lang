@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 @Test
 public class DataflowAnalysisTest {
 
-    @Test(description = "Test uninitialized variables", enabled = false)
+    @Test(description = "Test uninitialized variables")
     public void testSemanticsOfUninitializedVariables() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/dataflow/analysis/dataflow-analysis-semantics-negative.bal");

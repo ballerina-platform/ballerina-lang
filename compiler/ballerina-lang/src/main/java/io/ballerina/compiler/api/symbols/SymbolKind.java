@@ -19,7 +19,7 @@ package io.ballerina.compiler.api.symbols;
 
 /**
  * Represents the types of Symbols.
- * 
+ *
  * @since 2.0.0
  */
 public enum SymbolKind {
@@ -27,11 +27,11 @@ public enum SymbolKind {
     XMLNS,
     FUNCTION,
     METHOD,
-    REMOTE_METHOD,
-    CONST,
+    CONSTANT,
     TYPE,
     VARIABLE,
     SERVICE,
+    CLASS,
     WORKER,
     ANNOTATION,
     FIELD

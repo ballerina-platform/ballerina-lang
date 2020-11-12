@@ -16,7 +16,7 @@
 
 import ballerina/testobserve;
 
-service testServiceFour on new testobserve:Listener(9093) {
+service testServiceFour on new testobserve:Listener(9094) {
     # Resource function for testing async remote call wait
     resource function resourceOne(testobserve:Caller caller) {
         future<int> futureSum = start testClient->calculateSum(6, 17);

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.api.values.BString;
+import io.ballerina.runtime.api.values.BString;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;

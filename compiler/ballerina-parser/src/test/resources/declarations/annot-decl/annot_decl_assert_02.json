@@ -54,8 +54,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -63,13 +63,7 @@
                   "kind": "ANNOTATION_ATTACH_POINT",
                   "children": [
                     {
-                      "kind": "CLASS_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ]
+                      "kind": "CLASS_KEYWORD"
                     }
                   ]
                 },
@@ -77,8 +71,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -86,13 +80,7 @@
                   "kind": "ANNOTATION_ATTACH_POINT",
                   "children": [
                     {
-                      "kind": "FUNCTION_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ]
+                      "kind": "FUNCTION_KEYWORD"
                     }
                   ]
                 },
@@ -100,8 +88,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -110,12 +98,6 @@
                   "children": [
                     {
                       "kind": "OBJECT_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -132,8 +114,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -142,12 +124,6 @@
                   "children": [
                     {
                       "kind": "RESOURCE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -164,8 +140,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -173,13 +149,7 @@
                   "kind": "ANNOTATION_ATTACH_POINT",
                   "children": [
                     {
-                      "kind": "PARAMETER_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ]
+                      "kind": "PARAMETER_KEYWORD"
                     }
                   ]
                 },
@@ -187,8 +157,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -196,13 +166,7 @@
                   "kind": "ANNOTATION_ATTACH_POINT",
                   "children": [
                     {
-                      "kind": "RETURN_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ]
+                      "kind": "RETURN_KEYWORD"
                     }
                   ]
                 },
@@ -210,8 +174,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -219,13 +183,7 @@
                   "kind": "ANNOTATION_ATTACH_POINT",
                   "children": [
                     {
-                      "kind": "SERVICE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ]
+                      "kind": "SERVICE_KEYWORD"
                     }
                   ]
                 },
@@ -233,8 +191,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -242,19 +200,17 @@
                   "kind": "ANNOTATION_ATTACH_POINT",
                   "children": [
                     {
-                      "kind": "FIELD_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ]
+                      "kind": "FIELD_KEYWORD"
                     }
                   ]
                 },
                 {
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    },
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
                       "value": "\n"
@@ -288,8 +244,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -298,12 +254,6 @@
                   "children": [
                     {
                       "kind": "RECORD_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -320,8 +270,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -330,12 +280,6 @@
                   "children": [
                     {
                       "kind": "SOURCE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -352,8 +296,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -362,12 +306,6 @@
                   "children": [
                     {
                       "kind": "SOURCE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -384,8 +322,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -394,12 +332,6 @@
                   "children": [
                     {
                       "kind": "SOURCE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -416,8 +348,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -426,12 +358,6 @@
                   "children": [
                     {
                       "kind": "SOURCE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -456,6 +382,10 @@
                 {
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    },
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
                       "value": "\n"
@@ -498,8 +428,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -508,12 +438,6 @@
                   "children": [
                     {
                       "kind": "SOURCE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -530,8 +454,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -540,12 +464,6 @@
                   "children": [
                     {
                       "kind": "SOURCE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -562,8 +480,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -572,12 +490,6 @@
                   "children": [
                     {
                       "kind": "SOURCE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -594,8 +506,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -604,12 +516,6 @@
                   "children": [
                     {
                       "kind": "SOURCE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -625,6 +531,10 @@
                 {
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    },
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
                       "value": "\n"
@@ -667,8 +577,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -677,12 +587,6 @@
                   "children": [
                     {
                       "kind": "SOURCE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -708,8 +612,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -718,12 +622,6 @@
                   "children": [
                     {
                       "kind": "SOURCE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -740,8 +638,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -750,12 +648,6 @@
                   "children": [
                     {
                       "kind": "SOURCE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -772,8 +664,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -782,12 +674,6 @@
                   "children": [
                     {
                       "kind": "SOURCE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -804,8 +690,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -814,12 +700,6 @@
                   "children": [
                     {
                       "kind": "SOURCE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -835,6 +715,10 @@
                 {
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    },
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
                       "value": "\n"
@@ -868,8 +752,8 @@
                   "kind": "COMMA_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -878,12 +762,6 @@
                   "children": [
                     {
                       "kind": "SOURCE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",

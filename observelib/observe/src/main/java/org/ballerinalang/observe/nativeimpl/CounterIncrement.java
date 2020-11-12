@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.observability.metrics.Counter;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.observability.metrics.Counter;
 
 /**
  * This is the native increment function implementation of the Counter object.
@@ -28,7 +28,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 
 public class CounterIncrement {
 
-    public static void increment(ObjectValue counterObj, long amount) {
+    public static void increment(BObject counterObj, long amount) {
         Counter counter = (Counter) counterObj.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         counter.increment(amount);
     }

@@ -18,14 +18,11 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,9 +40,7 @@ public class FieldAccessExpressionNodeContext extends FieldAccessContext<FieldAc
     public List<LSCompletionItem> getCompletions(LSContext context, FieldAccessExpressionNode node)
             throws LSCompletionException {
         ExpressionNode expression = node.expression();
-        ArrayList<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        List<Scope.ScopeEntry> entries = getEntries(context, visibleSymbols, expression);
-        return this.getCompletionItemList(entries, context);
+        return getEntries(context, expression);
     }
 
     @Override
@@ -56,7 +51,7 @@ public class FieldAccessExpressionNodeContext extends FieldAccessContext<FieldAc
     @Override
     public boolean onPreValidation(LSContext context, FieldAccessExpressionNode node) {
         int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
-        
+
         return cursor <= node.textRange().endOffset();
     }
 }

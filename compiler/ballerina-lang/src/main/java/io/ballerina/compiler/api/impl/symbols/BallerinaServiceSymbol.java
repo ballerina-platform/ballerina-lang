@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ServiceSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -24,6 +25,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -38,12 +40,15 @@ import java.util.List;
 public class BallerinaServiceSymbol extends BallerinaSymbol implements ServiceSymbol {
 
     private final BServiceSymbol serviceSymbol;
+    private final CompilerContext context;
     private List<FunctionSymbol> resources;
     private List<FunctionSymbol> functions;
 
-    private BallerinaServiceSymbol(String name, PackageID moduleID, BServiceSymbol serviceSymbol) {
+    private BallerinaServiceSymbol(CompilerContext context, String name, PackageID moduleID,
+                                   BServiceSymbol serviceSymbol) {
         super(name, moduleID, SymbolKind.SERVICE, serviceSymbol);
         this.serviceSymbol = serviceSymbol;
+        this.context = context;
     }
 
     /**
@@ -76,11 +81,14 @@ public class BallerinaServiceSymbol extends BallerinaSymbol implements ServiceSy
 
     private List<FunctionSymbol> getResources(BServiceSymbol serviceSymbol) {
         List<BallerinaFunctionSymbol> resources = new ArrayList<>();
+
         if (serviceSymbol.type.tsymbol instanceof BObjectTypeSymbol) {
+            SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+
             for (BAttachedFunction function : ((BObjectTypeSymbol) serviceSymbol.type.tsymbol).attachedFuncs) {
                 if ((function.symbol.flags & Flags.RESOURCE) == Flags.RESOURCE) {
                     String name = function.symbol.getName().getValue();
-                    BallerinaFunctionSymbol functionSymbol = SymbolFactory.createFunctionSymbol(function.symbol, name);
+                    BallerinaFunctionSymbol functionSymbol = symbolFactory.createFunctionSymbol(function.symbol, name);
                     resources.add(functionSymbol);
                 }
             }
@@ -91,11 +99,14 @@ public class BallerinaServiceSymbol extends BallerinaSymbol implements ServiceSy
 
     private List<FunctionSymbol> getFunctions(BServiceSymbol serviceSymbol) {
         List<BallerinaFunctionSymbol> functions = new ArrayList<>();
+
         if (serviceSymbol.type.tsymbol instanceof BObjectTypeSymbol) {
+            SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+
             for (BAttachedFunction function : ((BObjectTypeSymbol) serviceSymbol.type.tsymbol).attachedFuncs) {
                 if ((function.symbol.flags & Flags.RESOURCE) != Flags.RESOURCE) {
                     String name = function.symbol.getName().getValue();
-                    BallerinaFunctionSymbol functionSymbol = SymbolFactory.createFunctionSymbol(function.symbol, name);
+                    BallerinaFunctionSymbol functionSymbol = symbolFactory.createFunctionSymbol(function.symbol, name);
                     functions.add(functionSymbol);
                 }
             }
@@ -111,13 +122,17 @@ public class BallerinaServiceSymbol extends BallerinaSymbol implements ServiceSy
      */
     public static class ServiceSymbolBuilder extends SymbolBuilder<ServiceSymbolBuilder> {
 
-        public ServiceSymbolBuilder(String name, PackageID moduleID, BServiceSymbol serviceSymbol) {
+        private final CompilerContext context;
+
+        public ServiceSymbolBuilder(CompilerContext context, String name, PackageID moduleID,
+                                    BServiceSymbol serviceSymbol) {
             super(name, moduleID, SymbolKind.SERVICE, serviceSymbol);
+            this.context = context;
         }
 
         @Override
         public BallerinaServiceSymbol build() {
-            return new BallerinaServiceSymbol(this.name, this.moduleID, (BServiceSymbol) this.bSymbol);
+            return new BallerinaServiceSymbol(this.context, this.name, this.moduleID, (BServiceSymbol) this.bSymbol);
         }
     }
 }

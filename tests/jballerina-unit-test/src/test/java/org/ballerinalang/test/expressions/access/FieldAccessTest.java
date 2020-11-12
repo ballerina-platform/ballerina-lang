@@ -105,7 +105,7 @@ public class FieldAccessTest {
         }
     }
 
-    @Test (enabled = false)
+    @Test
     public void testJsonFieldAccessNegative() {
         BValue[] returns = BRunUtil.invoke(result, "testJsonFieldAccessNegative");
         Assert.assertEquals(returns.length, 1);
@@ -127,7 +127,7 @@ public class FieldAccessTest {
         }
     }
 
-    @Test (enabled = false)
+    @Test
     public void testMapJsonFieldAccessNegative() {
         BValue[] returns = BRunUtil.invoke(result, "testMapJsonFieldAccessNegative");
         Assert.assertEquals(returns.length, 1);
@@ -138,7 +138,7 @@ public class FieldAccessTest {
         }
     }
 
-    @Test(dataProvider = "nonNilLiftingJsonFieldAccessFunctions", enabled = false)
+    @Test(dataProvider = "nonNilLiftingJsonFieldAccessFunctions")
     public void testNonNilLiftingJsonFieldAccess(String function) {
         BValue[] returns = BRunUtil.invoke(result, function);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
@@ -159,7 +159,7 @@ public class FieldAccessTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(dataProvider = "laxUnionFieldAccessNegativeFunctions", enabled = false)
+    @Test(dataProvider = "laxUnionFieldAccessNegativeFunctions")
     public void testLaxUnionFieldAccessNegative(String function) {
         BValue[] returns = BRunUtil.invoke(result, function);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());

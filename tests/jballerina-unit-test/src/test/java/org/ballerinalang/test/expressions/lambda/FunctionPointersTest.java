@@ -223,7 +223,12 @@ public class FunctionPointersTest {
 
     @Test
     public void testClassTypeAsParamtype() {
-        BRunUtil.invoke(structProgram, "testClassTypeAsParamtype");
+        BRunUtil.invoke(fpProgram, "testGetMemberFunctionAsAField");
+    }
+
+    @Test
+    public void testMemberTakenAsAFieldWithRestArgs() {
+        BRunUtil.invoke(fpProgram, "testMemberTakenAsAFieldWithRestArgs");
     }
 
     @Test

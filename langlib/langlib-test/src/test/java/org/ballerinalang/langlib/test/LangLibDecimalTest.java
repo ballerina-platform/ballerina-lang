@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.test;
 
-
 import org.ballerinalang.core.model.types.BTypes;
 import org.ballerinalang.core.model.values.BDecimal;
 import org.ballerinalang.core.model.values.BString;
@@ -33,7 +32,7 @@ import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
 
-import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 /**
  * Test cases for the lang.float library.

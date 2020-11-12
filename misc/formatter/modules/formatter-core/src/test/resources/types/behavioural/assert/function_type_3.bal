@@ -1,8 +1,8 @@
 final int x = 1;
 
 final map<int> & readonly y = {
-    one : 1, 
-    two : 2
+    one: 1,
+    two: 2
 };
 
 isolated function foo(int i, map<int> j) returns int {
