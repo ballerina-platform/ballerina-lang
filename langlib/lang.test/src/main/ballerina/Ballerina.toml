@@ -1,3 +1,10 @@
 [project]
 org-name = "ballerina"
 version = "1.0.0"
+
+    [[platform.libraries]]
+    artifactId = "io"
+    version = "0.5.0"
+    path = "<PATH>/ballerina-lang-test-2.0.0-Preview6-SNAPSHOT.jar"
+    groupId = "ballerina"
+    modules = ["io"]

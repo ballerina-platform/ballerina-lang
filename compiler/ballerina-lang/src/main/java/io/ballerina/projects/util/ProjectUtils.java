@@ -61,10 +61,12 @@ import static io.ballerina.projects.util.ProjectConstants.BALLERINA_PACK_VERSION
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT;
+import static io.ballerina.projects.util.ProjectConstants.DIFF_UTILS_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_CORE_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_REPORT_JAR;
 import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
 import static io.ballerina.projects.util.ProjectConstants.PROPERTIES_FILE;
+import static io.ballerina.projects.util.ProjectConstants.TEST_CORE_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.TEST_RUNTIME_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
@@ -241,23 +243,28 @@ public class ProjectUtils {
         String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
         Path homeLibPath = getBalHomePath().resolve(BALLERINA_HOME_BRE).resolve(LIB_DIR);
         String testRuntimeJarName = TEST_RUNTIME_JAR_PREFIX + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
+        String testCoreJarName = TEST_CORE_JAR_PREFIX + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
         String langJarName = "ballerina-lang-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
 
         Path testRuntimeJarPath = homeLibPath.resolve(testRuntimeJarName);
+        Path testCoreJarPath = homeLibPath.resolve(testCoreJarName);
         Path langJarPath = homeLibPath.resolve(langJarName);
         Path jacocoCoreJarPath =  homeLibPath.resolve(JACOCO_CORE_JAR);
         Path jacocoReportJarPath = homeLibPath.resolve(JACOCO_REPORT_JAR);
         Path asmJarPath = homeLibPath.resolve(ASM_JAR);
         Path asmTreeJarPath = homeLibPath.resolve(ASM_TREE_JAR);
         Path asmCommonsJarPath = homeLibPath.resolve(ASM_COMMONS_JAR);
+        Path diffUtilsJarPath = homeLibPath.resolve(DIFF_UTILS_JAR);
 
         dependencies.add(testRuntimeJarPath);
+        dependencies.add(testCoreJarPath);
         dependencies.add(langJarPath);
         dependencies.add(jacocoCoreJarPath);
         dependencies.add(jacocoReportJarPath);
         dependencies.add(asmJarPath);
         dependencies.add(asmTreeJarPath);
         dependencies.add(asmCommonsJarPath);
+        dependencies.add(diffUtilsJarPath);
         return dependencies;
     }
 

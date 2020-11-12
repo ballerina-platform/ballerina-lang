@@ -15,9 +15,8 @@
  *
  */
 
-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 apply plugin: 'com.github.johnrengelman.shadow'
-apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
 
 configurations {
     all {
@@ -42,7 +41,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang:java')
 
-    baloImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
+    distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
 
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
@@ -65,10 +64,6 @@ shadowJar {
         exclude('META-INF/*.DSA')
         exclude('META-INF/*.RSA')
     }
-}
-
-createBalo {
-    jvmTarget = 'true'
 }
 
 test {

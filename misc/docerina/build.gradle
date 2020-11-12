@@ -55,7 +55,6 @@ dependencies {
     implementation project(':ballerina-lang:annotations')
 //    implementation project(':ballerina-http')
     implementation project(':ballerina-config')
-    implementation project(':ballerina-mime')
     implementation 'info.picocli:picocli'
     implementation 'com.github.jknack:handlebars:4.2.0'
     implementation 'org.antlr:antlr4:4.8'
