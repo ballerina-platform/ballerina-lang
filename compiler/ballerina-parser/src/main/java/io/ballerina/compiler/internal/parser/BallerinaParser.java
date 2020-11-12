@@ -789,12 +789,10 @@ public class BallerinaParser extends AbstractParser {
                 reportInvalidQualifierList(qualifiers);
                 return parseXMLNamespaceDeclaration(true);
             case SERVICE_KEYWORD:
+                reportInvalidQualifier(publicQualifier);
                 if (isServiceDeclStart(ParserRuleContext.TOP_LEVEL_NODE, 1)) {
-                    reportInvalidQualifier(publicQualifier);
-                    reportInvalidQualifierList(qualifiers);
-                    return parseServiceDecl(metadata);
+                    return parseServiceDecl(metadata, qualifiers);
                 } else {
-                    reportInvalidQualifier(publicQualifier);
                     return parseModuleVarDecl(metadata, qualifiers);
                 }
             case ENUM_KEYWORD:
@@ -6167,20 +6165,54 @@ public class BallerinaParser extends AbstractParser {
      * Parse service declaration.
      * <p>
      * <code>
-     * service-decl := metadata service [variable-name] on expression-list service-body-block
+     * service-decl := metadata [isolated-qual] service [variable-name] on expression-list service-body-block
      * <br/>
      * expression-list := expression (, expression)*
      * </code>
      *
-     * @param metadata Metadata
+     * @param metadata   Metadata
+     * @param qualifiers Preceding qualifiers
      * @return Parsed node
      */
-    private STNode parseServiceDecl(STNode metadata) {
+    private STNode parseServiceDecl(STNode metadata, List<STNode> qualifiers) {
         startContext(ParserRuleContext.SERVICE_DECL);
+        STNode qualNodeList = createServiceDeclQualNodeList(qualifiers);
         STNode serviceKeyword = parseServiceKeyword();
-        STNode serviceDecl = parseServiceRhs(metadata, serviceKeyword);
+        STNode serviceDecl = parseServiceRhs(metadata, qualNodeList, serviceKeyword);
         endContext();
         return serviceDecl;
+    }
+
+    private STNode createServiceDeclQualNodeList(List<STNode> qualifierList) {
+        // Validate qualifiers and create a STNodeList
+        List<STNode> validatedList = new ArrayList<>();
+
+        for (int i = 0; i < qualifierList.size(); i++) {
+            STNode qualifier = qualifierList.get(i);
+            int nextIndex = i + 1;
+
+            if (isDuplicate(validatedList, qualifier.kind)) {
+                updateLastNodeInListWithInvalidNode(validatedList, qualifier,
+                        DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
+                continue;
+            }
+
+            if (qualifier.kind == SyntaxKind.ISOLATED_KEYWORD) {
+                validatedList.add(qualifier);
+                continue;
+            }
+
+            // We only reach here for invalid qualfiers
+            if (qualifierList.size() == nextIndex) {
+                addInvalidNodeToNextToken(qualifier, DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED,
+                        ((STToken) qualifier).text());
+            } else {
+                updateANodeInListWithInvalidNode(qualifierList, nextIndex, qualifier,
+                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
+            }
+        }
+
+        return STNodeFactory.createNodeList(validatedList);
     }
 
     /**
@@ -6191,10 +6223,11 @@ public class BallerinaParser extends AbstractParser {
      * </code>
      *
      * @param metadata       Metadata
+     * @param qualNodeList   Preceding qualifiers
      * @param serviceKeyword Service keyword
      * @return Parsed node
      */
-    private STNode parseServiceRhs(STNode metadata, STNode serviceKeyword) {
+    private STNode parseServiceRhs(STNode metadata, STNode qualNodeList, STNode serviceKeyword) {
         STNode serviceName = parseServiceName();
         STNode onKeyword = parseOnKeyword();
         STNode expressionList = parseListeners();
@@ -6202,8 +6235,8 @@ public class BallerinaParser extends AbstractParser {
 
         onKeyword =
                 cloneWithDiagnosticIfListEmpty(expressionList, onKeyword, DiagnosticErrorCode.ERROR_MISSING_EXPRESSION);
-        return STNodeFactory.createServiceDeclarationNode(metadata, serviceKeyword, serviceName, onKeyword,
-                expressionList, serviceBody);
+        return STNodeFactory.createServiceDeclarationNode(metadata, qualNodeList, serviceKeyword, serviceName,
+                onKeyword, expressionList, serviceBody);
     }
 
     private STNode parseServiceName() {
