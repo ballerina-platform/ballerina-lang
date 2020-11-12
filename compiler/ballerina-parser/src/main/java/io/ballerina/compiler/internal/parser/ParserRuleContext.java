@@ -86,6 +86,7 @@ public enum ParserRuleContext {
     OBJECT_METHOD_WITHOUT_REMOTE("object.method.without.remote"),
     OBJECT_METHOD_WITHOUT_TRANSACTIONAL("object.method.without.transactional"),
     OBJECT_METHOD_WITHOUT_ISOLATED("object.method.without.isolated"),
+    OBJECT_METHOD_WITHOUT_RESOURCE("object.method.without.resource"),
     OBJECT_FIELD_START("object-field-start"),
     OBJECT_FIELD_QUALIFIER("object-field-qualifier"),
     OBJECT_FIELD_RHS("object-field-rhs"),

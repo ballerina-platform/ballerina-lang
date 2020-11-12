@@ -975,6 +975,7 @@ public class BallerinaParser extends AbstractParser {
         switch (tokenKind) {
             case REMOTE_KEYWORD: // method-def, method-decl
             case RESOURCE_KEYWORD: // method-def, resource-accessor-def, resource-field
+            case FINAL_KEYWORD: // final-qualifier
                 return true;
             default:
                 return isTypeDescQualifier(tokenKind);
@@ -1099,7 +1100,8 @@ public class BallerinaParser extends AbstractParser {
         }
 
         boolean hasResourcePath = !isNodeListEmpty(resourcePath);
-        if (!hasResourcePath && isDuplicate(qualifierList, SyntaxKind.RESOURCE_KEYWORD)) {
+        boolean hasResourceQual = isDuplicate(qualifierList, SyntaxKind.RESOURCE_KEYWORD);
+        if (hasResourceQual && !hasResourcePath) {
             // create missing relative path and direct towards resource accessor definition / declaration
             List<STNode> relativePath = new ArrayList<>();
             relativePath.add(STNodeFactory.createMissingToken(SyntaxKind.DOT_TOKEN));
@@ -1149,11 +1151,37 @@ public class BallerinaParser extends AbstractParser {
          * - Remote and resource are not allowed (already validated)
          * - Visibility qualifier is allowed and it is the first qualifier in the list
          */
-        if (visibilityQualifier != null) {
-            qualifierList.add(0, visibilityQualifier);
+        List<STNode> validatedList = new ArrayList<>();
+        for (int i = 0; i < qualifierList.size(); i++) {
+            STNode qualifier = qualifierList.get(i);
+            int nextIndex = i + 1;
+
+            if (isDuplicate(validatedList, qualifier.kind)) {
+                updateLastNodeInListWithInvalidNode(validatedList, qualifier,
+                        DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
+                continue;
+            }
+
+            if (isRegularFuncQual(qualifier.kind)) {
+                validatedList.add(qualifier);
+                continue;
+            }
+
+            // We only reach here for invalid qualifiers
+            if (qualifierList.size() == nextIndex) {
+                functionKeyword = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(functionKeyword, qualifier,
+                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
+            } else {
+                updateANodeInListWithInvalidNode(qualifierList, nextIndex, qualifier,
+                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
+            }
         }
 
-        STNode qualifiers = STNodeFactory.createNodeList(qualifierList);
+        if (visibilityQualifier != null) {
+            validatedList.add(0, visibilityQualifier);
+        }
+
+        STNode qualifiers = STNodeFactory.createNodeList(validatedList);
         STNode resourcePath = STNodeFactory.createEmptyNodeList();
         STNode body = parseFunctionBody();
         return STNodeFactory.createFunctionDefinitionNode(SyntaxKind.FUNCTION_DEFINITION, metadata, qualifiers,
@@ -1187,16 +1215,50 @@ public class BallerinaParser extends AbstractParser {
          * - Visibility qualifier is not allowed with remote
          * - If there's a visibility qualifier it is the first qualifier in the list
          */
-        if (visibilityQualifier != null) {
-            if (isDuplicate(qualifierList, SyntaxKind.REMOTE_KEYWORD)) {
-                updateFirstNodeInListWithInvalidNode(qualifierList, visibilityQualifier,
-                        DiagnosticErrorCode.ERROR_REMOTE_METHOD_HAS_A_VISIBILITY_QUALIFIER);
+        List<STNode> validatedList = new ArrayList<>();
+        boolean hasRemoteQual = false;
+
+        for (int i = 0; i < qualifierList.size(); i++) {
+            STNode qualifier = qualifierList.get(i);
+            int nextIndex = i + 1;
+
+            if (isDuplicate(validatedList, qualifier.kind)) {
+                updateLastNodeInListWithInvalidNode(validatedList, qualifier,
+                        DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
+                continue;
+            }
+
+            if (qualifier.kind == SyntaxKind.REMOTE_KEYWORD) {
+                hasRemoteQual = true;
+                validatedList.add(qualifier);
+                continue;
+            }
+
+            if (isRegularFuncQual(qualifier.kind)) {
+                validatedList.add(qualifier);
+                continue;
+            }
+
+            // We only reach here for invalid qualifiers
+            if (qualifierList.size() == nextIndex) {
+                functionKeyword = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(functionKeyword, qualifier,
+                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
             } else {
-                qualifierList.add(0, visibilityQualifier);
+                updateANodeInListWithInvalidNode(qualifierList, nextIndex, qualifier,
+                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
             }
         }
 
-        STNode qualifiers = STNodeFactory.createNodeList(qualifierList);
+        if (visibilityQualifier != null) {
+            if (hasRemoteQual) {
+                updateFirstNodeInListWithInvalidNode(validatedList, visibilityQualifier,
+                        DiagnosticErrorCode.ERROR_REMOTE_METHOD_HAS_A_VISIBILITY_QUALIFIER);
+            } else {
+                validatedList.add(0, visibilityQualifier);
+            }
+        }
+
+        STNode qualifiers = STNodeFactory.createNodeList(validatedList);
         STNode resourcePath = STNodeFactory.createEmptyNodeList();
         STNode body = parseFunctionBody();
         return STNodeFactory.createFunctionDefinitionNode(SyntaxKind.OBJECT_METHOD_DEFINITION, metadata, qualifiers,
@@ -1228,39 +1290,50 @@ public class BallerinaParser extends AbstractParser {
          * - Visibility qualifier is not allowed with remote
          * - If there's a visibility qualifier it is the first qualifier in the list
          */
+        List<STNode> validatedList = new ArrayList<>();
         boolean hasRemoteQual = false;
-        for (int i = 0; i < qualifierList.size();) {
+
+        for (int i = 0; i < qualifierList.size(); i++) {
             STNode qualifier = qualifierList.get(i);
-            if (qualifier.kind == SyntaxKind.RESOURCE_KEYWORD) {
-                qualifierList.remove(i);
-                if (qualifierList.size() == i) {
-                    functionKeyword = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(functionKeyword, qualifier,
-                            DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
-                } else {
-                    STNode nextQual = qualifierList.remove(i);
-                    nextQual = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(nextQual, qualifier,
-                            DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
-                    qualifierList.add(nextQual);
-                }
+            int nextIndex = i + 1;
+
+            if (isDuplicate(validatedList, qualifier.kind)) {
+                updateLastNodeInListWithInvalidNode(validatedList, qualifier,
+                        DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
                 continue;
             }
 
             if (qualifier.kind == SyntaxKind.REMOTE_KEYWORD) {
                 hasRemoteQual = true;
+                validatedList.add(qualifier);
+                continue;
             }
-            i++;
+
+            if (isRegularFuncQual(qualifier.kind)) {
+                validatedList.add(qualifier);
+                continue;
+            }
+
+            // We only reach here for invalid qualifiers
+            if (qualifierList.size() == nextIndex) {
+                functionKeyword = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(functionKeyword, qualifier,
+                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
+            } else {
+                updateANodeInListWithInvalidNode(qualifierList, nextIndex, qualifier,
+                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
+            }
         }
 
         if (visibilityQualifier != null) {
             if (hasRemoteQual) {
-                updateFirstNodeInListWithInvalidNode(qualifierList, visibilityQualifier,
+                updateFirstNodeInListWithInvalidNode(validatedList, visibilityQualifier,
                         DiagnosticErrorCode.ERROR_REMOTE_METHOD_HAS_A_VISIBILITY_QUALIFIER);
             } else {
-                qualifierList.add(0, visibilityQualifier);
+                validatedList.add(0, visibilityQualifier);
             }
         }
 
-        STNode qualifiers = STNodeFactory.createNodeList(qualifierList);
+        STNode qualifiers = STNodeFactory.createNodeList(validatedList);
         STNode resourcePath = STNodeFactory.createEmptyNodeList();
         STNode semicolon = parseSemicolon();
         return STNodeFactory.createMethodDeclarationNode(SyntaxKind.METHOD_DECLARATION, metadata, qualifiers,
@@ -1293,42 +1366,56 @@ public class BallerinaParser extends AbstractParser {
         /*
          * Validate qualifier list.
          * Rules:
-         * - Isolated, transactional and remote are not allowed. Only resource is allowed
+         * - Isolated, transactional and resource are allowed.
+         * - Remote is not allowed.
          * - Visibility qualifier is not allowed
          */
+        List<STNode> validatedList = new ArrayList<>();
         boolean hasResourceQual = false;
-        for (int i = 0; i < qualifierList.size();) {
+
+        for (int i = 0; i < qualifierList.size(); i++) {
             STNode qualifier = qualifierList.get(i);
-            if (qualifier.kind != SyntaxKind.RESOURCE_KEYWORD) {
-                qualifierList.remove(i);
-                if (qualifierList.size() == i) {
-                    functionKeyword = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(functionKeyword, qualifier,
-                            DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
-                } else {
-                    STNode nextQual = qualifierList.remove(i);
-                    nextQual = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(nextQual, qualifier,
-                            DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
-                    qualifierList.add(nextQual);
-                }
+            int nextIndex = i + 1;
+
+            if (isDuplicate(validatedList, qualifier.kind)) {
+                updateLastNodeInListWithInvalidNode(validatedList, qualifier,
+                        DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
                 continue;
-            } else {
-                hasResourceQual = true;
             }
-            i++;
+
+            if (qualifier.kind == SyntaxKind.RESOURCE_KEYWORD) {
+                hasResourceQual = true;
+                validatedList.add(qualifier);
+                continue;
+            }
+
+            if (isRegularFuncQual(qualifier.kind)) {
+                validatedList.add(qualifier);
+                continue;
+            }
+
+            // We only reach here for invalid qualifiers
+            if (qualifierList.size() == nextIndex) {
+                functionKeyword = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(functionKeyword, qualifier,
+                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
+            } else {
+                updateANodeInListWithInvalidNode(qualifierList, nextIndex, qualifier,
+                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
+            }
         }
 
         if (!hasResourceQual) {
-            qualifierList.add(STNodeFactory.createMissingToken(SyntaxKind.RESOURCE_KEYWORD));
+            validatedList.add(STNodeFactory.createMissingToken(SyntaxKind.RESOURCE_KEYWORD));
             functionKeyword =
                     SyntaxErrors.addDiagnostic(functionKeyword, DiagnosticErrorCode.ERROR_MISSING_RESOURCE_KEYWORD);
         }
 
         if (visibilityQualifier != null) {
-            updateFirstNodeInListWithInvalidNode(qualifierList, visibilityQualifier,
+            updateFirstNodeInListWithInvalidNode(validatedList, visibilityQualifier,
                     DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) visibilityQualifier).text());
         }
 
-        STNode qualifiers = STNodeFactory.createNodeList(qualifierList);
+        STNode qualifiers = STNodeFactory.createNodeList(validatedList);
 
         if (isObjectTypeDesc) {
             STNode semicolon = parseSemicolon();
@@ -1404,14 +1491,12 @@ public class BallerinaParser extends AbstractParser {
 
         // --------------------------------------- Validate Qualifiers ---------------------------------------------
 
-        STNode resourceQual = null; // Resource qualifier is only allowed if it is the first in the list
-        if (isObjectMember && !qualifierList.isEmpty() && qualifierList.get(0).kind == SyntaxKind.RESOURCE_KEYWORD) {
-            resourceQual = qualifierList.remove(0);
-        }
-
         List<STNode> varDeclQualifiers = new ArrayList<>();
+        List<STNode> objectFieldQualifiers = new ArrayList<>();
 
-        if (!isObjectMember) {
+        if (isObjectMember) {
+            objectFieldQualifiers = extractObjectFieldQualifiers(qualifierList, isObjectTypeDesc);
+        } else {
             if (visibilityQualifier != null) {
                 // Visibility qualifier is not allowed in the variable declaration
                 STToken invalidQualifier = (STToken) visibilityQualifier;
@@ -1438,7 +1523,7 @@ public class BallerinaParser extends AbstractParser {
             if (isDuplicate(validatedList, qualifier.kind)) {
                 updateLastNodeInListWithInvalidNode(validatedList, qualifier,
                         DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
-            } else if (isRegularFuncQualifier(qualifier.kind)) {
+            } else if (isRegularFuncQual(qualifier.kind)) {
                 validatedList.add(qualifier);
             } else if (qualifierList.size() == nextIndex) {
                 functionKeyword = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(functionKeyword, qualifier,
@@ -1461,13 +1546,9 @@ public class BallerinaParser extends AbstractParser {
                 ParserRuleContext.TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC, false);
 
         if (isObjectMember) {
-            qualifierList = new ArrayList<>();
-            if (resourceQual != null) {
-                qualifierList.add(resourceQual);
-            }
-            STNode objectFieldQualifiers = STNodeFactory.createNodeList(qualifierList);
+            STNode objectFieldQualNodeList = STNodeFactory.createNodeList(objectFieldQualifiers);
             STNode fieldName = parseVariableName();
-            return parseObjectFieldRhs(metadata, visibilityQualifier, objectFieldQualifiers, typeDesc, fieldName,
+            return parseObjectFieldRhs(metadata, visibilityQualifier, objectFieldQualNodeList, typeDesc, fieldName,
                     isObjectTypeDesc);
         }
 
@@ -5510,7 +5591,7 @@ public class BallerinaParser extends AbstractParser {
                 STNode semicolonToken = parseSemicolon();
                 return STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
             default:
-                if (nextToken.kind == SyntaxKind.FINAL_KEYWORD || isTypeStartingToken(nextToken.kind)) {
+                if (isTypeStartingToken(nextToken.kind)) {
                     return parseObjectField(metadata, STNodeFactory.createEmptyNode(), qualifiers, isObjectTypeDesc);
                 }
 
@@ -5553,7 +5634,7 @@ public class BallerinaParser extends AbstractParser {
                 }
                 break;
             default:
-               if (nextToken.kind == SyntaxKind.FINAL_KEYWORD || isTypeStartingToken(nextToken.kind)) {
+               if (isTypeStartingToken(nextToken.kind)) {
                     return parseObjectField(metadata, visibilityQualifier, qualifiers, isObjectTypeDesc);
                 }
                 break;
@@ -5589,7 +5670,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
             }
 
-            if (isRegularFuncQualifier(qualifier.kind)) {
+            if (isRegularFuncQual(qualifier.kind)) {
                 qualifierList.add(qualifier);
             } else {
                 updateLastNodeInListOrAddInvalidNodeToNextToken(qualifierList, qualifier,
@@ -5643,34 +5724,33 @@ public class BallerinaParser extends AbstractParser {
      * field-initializer := expression
      * </code>
      *
-     * @param metadata Preceding metadata
+     * @param metadata            Preceding metadata
      * @param visibilityQualifier Preceding visibility qualifier
-     * @param qualifiers Preceding type desc qualifiers
-     * @param isObjectTypeDesc Whether object type or not
+     * @param qualifiers          Preceding qualifiers
+     * @param isObjectTypeDesc    Whether object type or not
      * @return Parsed node
      */
     private STNode parseObjectField(STNode metadata, STNode visibilityQualifier, List<STNode> qualifiers,
                                     boolean isObjectTypeDesc) {
-        STToken nextToken = peek();
-        STNode finalQualifier = STNodeFactory.createEmptyNode();
-        if (nextToken.kind == SyntaxKind.FINAL_KEYWORD) {
-            reportInvalidQualifierList(qualifiers);
-            finalQualifier = consume();
-        }
-
-        if (finalQualifier != null && isObjectTypeDesc) {
-            addInvalidNodeToNextToken(finalQualifier, DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED,
-                    ((STToken) finalQualifier).text());
-            finalQualifier = STNodeFactory.createEmptyNode();
-        }
-
-        STNode fieldQualifiers = finalQualifier == null ?
-                STNodeFactory.createEmptyNodeList() : STNodeFactory.createNodeList(finalQualifier);
-
+        List<STNode> objectFieldQualifiers = extractObjectFieldQualifiers(qualifiers, isObjectTypeDesc);
+        STNode objectFieldQualNodeList = STNodeFactory.createNodeList(objectFieldQualifiers);
         STNode type = parseTypeDescriptor(qualifiers, ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER);
         STNode fieldName = parseVariableName();
-        return parseObjectFieldRhs(metadata, visibilityQualifier, fieldQualifiers, type, fieldName,
+        return parseObjectFieldRhs(metadata, visibilityQualifier, objectFieldQualNodeList, type, fieldName,
                 isObjectTypeDesc);
+    }
+
+    private List<STNode> extractObjectFieldQualifiers(List<STNode> qualifiers, boolean isObjectTypeDesc) {
+        // Check if the first qualifier is final and extract it to a separate list and return.
+        List<STNode> objectFieldQualifiers = new ArrayList<>();
+        if (!qualifiers.isEmpty() && !isObjectTypeDesc) {
+            STNode firstQualifier = qualifiers.get(0);
+            if (firstQualifier.kind == SyntaxKind.FINAL_KEYWORD) {
+                objectFieldQualifiers.add(qualifiers.remove(0));
+            }
+        }
+
+        return objectFieldQualifiers;
     }
 
     /**
@@ -9693,7 +9773,7 @@ public class BallerinaParser extends AbstractParser {
             if (isDuplicate(validatedList, qualifier.kind)) {
                 updateLastNodeInListWithInvalidNode(validatedList, qualifier,
                         DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
-            } else if (isRegularFuncQualifier(qualifier.kind)) {
+            } else if (isRegularFuncQual(qualifier.kind)) {
                 validatedList.add(qualifier);
             } else if (qualifierList.size() == nextIndex) {
                 addInvalidNodeToNextToken(qualifier, DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED,
@@ -9707,7 +9787,7 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createNodeList(validatedList);
     }
 
-    private boolean isRegularFuncQualifier(SyntaxKind tokenKind) {
+    private boolean isRegularFuncQual(SyntaxKind tokenKind) {
         switch (tokenKind) {
             case ISOLATED_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
