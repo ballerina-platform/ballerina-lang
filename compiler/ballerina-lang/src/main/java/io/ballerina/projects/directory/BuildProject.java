@@ -141,8 +141,7 @@ public class BuildProject extends Project {
         }
 
         if (ProjectUtils.findProjectRoot(Optional.of(absProjectPath.getParent()).get()) != null) {
-            throw new ProjectException("Provided path is already within a Ballerina package: " +
-                    absProjectPath.getParent());
+            throw new ProjectException("Provided path is already within a Ballerina package: " + projectPath);
         }
         return absProjectPath;
     }

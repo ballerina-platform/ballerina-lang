@@ -37,6 +37,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageId;
 import io.ballerina.projects.PlatformLibrary;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.util.ProjectConstants;
@@ -212,23 +213,23 @@ public class TestBuildProject {
                 .resolve("svc.bal");
         try {
             BuildProject.load(projectPath);
-        } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("provided path is not a valid Ballerina project"));
+        } catch (ProjectException e) {
+            Assert.assertTrue(e.getMessage().contains("Invalid Ballerina package directory: " + projectPath));
         }
 
         projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("modules").resolve("services");
         try {
             BuildProject.load(projectPath);
-        } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("provided path is not a valid Ballerina project"));
+        } catch (ProjectException e) {
+            Assert.assertTrue(e.getMessage().contains("Invalid Ballerina package directory: " + projectPath));
         }
 
         projectPath = RESOURCE_DIRECTORY.resolve("single-file");
         try {
             BuildProject.load(projectPath);
             Assert.fail("expected an invalid project exception");
-        } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("provided path is not a valid Ballerina project"));
+        } catch (ProjectException e) {
+            Assert.assertTrue(e.getMessage().contains("Invalid Ballerina package directory: " + projectPath));
         }
     }
 
@@ -239,8 +240,10 @@ public class TestBuildProject {
         try {
             BuildProject.load(projectPath);
             Assert.fail("expected an invalid project exception");
-        } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("provided path is already within a Ballerina project"));
+        } catch (ProjectException e) {
+            System.out.println(e.getMessage());
+            Assert.assertTrue(e.getMessage().contains("Provided path is already within a Ballerina package: " +
+                    projectPath));
         }
     }
 
