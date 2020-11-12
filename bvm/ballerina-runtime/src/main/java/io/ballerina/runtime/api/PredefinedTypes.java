@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.types.FutureType;
 import io.ballerina.runtime.api.types.HandleType;
 import io.ballerina.runtime.api.types.IntegerType;
 import io.ballerina.runtime.api.types.IteratorType;
+import io.ballerina.runtime.api.types.JsonType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.NeverType;
 import io.ballerina.runtime.api.types.NullType;
@@ -141,9 +142,9 @@ public class PredefinedTypes {
                                                      new BUnionType(Arrays.asList(TYPE_ELEMENT, TYPE_COMMENT,
                                                                                   TYPE_PROCESSING_INSTRUCTION,
                                                                                   TYPE_TEXT)), EMPTY_MODULE);
-    public static final BJsonType TYPE_JSON = new BJsonType(TypeConstants.JSON_TNAME, EMPTY_MODULE, false);
+    public static final JsonType TYPE_JSON = new BJsonType(TypeConstants.JSON_TNAME, EMPTY_MODULE, false);
     public static final ArrayType TYPE_JSON_ARRAY = new BArrayType(TYPE_JSON);
-    public static final BJsonType TYPE_READONLY_JSON = new BJsonType(TypeConstants.READONLY_JSON_TNAME, EMPTY_MODULE,
+    public static final JsonType TYPE_READONLY_JSON = new BJsonType(TypeConstants.READONLY_JSON_TNAME, EMPTY_MODULE,
                                                                     true);
     public static final AnyType TYPE_ANY = new BAnyType(TypeConstants.ANY_TNAME, EMPTY_MODULE, false);
     public static final AnyType TYPE_READONLY_ANY = new BAnyType(TypeConstants.READONLY_ANY_TNAME, EMPTY_MODULE, true);
