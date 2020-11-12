@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction.impl;
 
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -24,11 +25,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -37,12 +34,10 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
-import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -76,62 +71,57 @@ import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActi
 
 public class ChangeReturnTypeCodeAction implements DiagBasedCodeAction {
     @Override
-    public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context) {
+    public List<CodeAction> get(Diagnostic diagnostic, CodeActionContext context) {
         String diagnosticMessage = diagnostic.getMessage();
         Position position = diagnostic.getRange().getStart();
         int line = position.getLine();
         int column = position.getCharacter();
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-        Optional<Path> filePath = CommonUtil.getPathFromURI(context.get(DocumentServiceKeys.FILE_URI_KEY));
-        if (!filePath.isPresent()) {
+        String uri = context.fileUri();
+        Optional<Path> filePath = CommonUtil.getPathFromURI(context.fileUri());
+        if (filePath.isEmpty()) {
             return new ArrayList<>();
         }
 
         Matcher matcher = CommandConstants.INCOMPATIBLE_TYPE_PATTERN.matcher(diagnosticMessage);
         if (matcher.find() && matcher.groupCount() > 1) {
             String foundType = matcher.group(2);
-            WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-            try {
-                BLangFunction func = getFunctionNode(line, column, documentManager, context);
-                if (func != null && !BLangConstants.MAIN_FUNCTION_NAME.equals(func.name.value)) {
-                    BLangStatement statement = getStatementByLocation(((BLangBlockFunctionBody) func.body).stmts,
-                                                                      line + 1, column + 1);
-                    if (statement instanceof BLangReturn) {
-                        // Process full-qualified BType name  eg. ballerina/http:Client and if required; add
-                        // auto-import
-                        matcher = CommandConstants.FQ_TYPE_PATTERN.matcher(foundType);
-                        List<TextEdit> edits = new ArrayList<>();
-                        String editText = extractTypeName(context, matcher, foundType, edits);
+            BLangFunction func = getFunctionNode(line, column, context);
+            if (func != null && !BLangConstants.MAIN_FUNCTION_NAME.equals(func.name.value)) {
+                BLangStatement statement = getStatementByLocation(((BLangBlockFunctionBody) func.body).stmts,
+                        line + 1, column + 1);
+                if (statement instanceof BLangReturn) {
+                    // Process full-qualified BType name  eg. ballerina/http:Client and if required; add
+                    // auto-import
+                    matcher = CommandConstants.FQ_TYPE_PATTERN.matcher(foundType);
+                    List<TextEdit> edits = new ArrayList<>();
+                    String editText = extractTypeName(context, matcher, foundType, edits);
 
-                        // Process function node
-                        Position start;
-                        Position end;
-                        if (func.returnTypeNode instanceof BLangValueType
-                                && TypeKind.NIL.equals(((BLangValueType) func.returnTypeNode).getTypeKind())
-                                && !hasReturnKeyword(func.returnTypeNode,
-                                                     documentManager.getTree(filePath.get()))) {
-                            // eg. function test() {...}
-                            start = new Position(func.returnTypeNode.pos.lineRange().startLine().line() - 1,
-                                                 func.returnTypeNode.pos.lineRange().endLine().offset() - 1);
-                            end = new Position(func.returnTypeNode.pos.lineRange().endLine().line() - 1,
-                                    func.returnTypeNode.pos.lineRange().endLine().offset() - 1);
-                            editText = " returns (" + editText + ")";
-                        } else {
-                            // eg. function test() returns () {...}
-                            start = new Position(func.returnTypeNode.pos.lineRange().startLine().line() - 1,
-                                                 func.returnTypeNode.pos.lineRange().startLine().offset() - 1);
-                            end = new Position(func.returnTypeNode.pos.lineRange().endLine().line() - 1,
-                                    func.returnTypeNode.pos.lineRange().endLine().offset() - 1);
-                        }
-                        edits.add(new TextEdit(new Range(start, end), editText));
-
-                        // Add code action
-                        String commandTitle = CommandConstants.CHANGE_RETURN_TYPE_TITLE + foundType + "'";
-                        return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, uri));
+                    // Process function node
+                    Position start;
+                    Position end;
+                    if (func.returnTypeNode instanceof BLangValueType
+                            && TypeKind.NIL.equals(((BLangValueType) func.returnTypeNode).getTypeKind())
+                            && !hasReturnKeyword(func.returnTypeNode,
+                            context.workspace().document(context.fileUri()).get().syntaxTree())) {
+                        // eg. function test() {...}
+                        start = new Position(func.returnTypeNode.pos.lineRange().startLine().line() - 1,
+                                func.returnTypeNode.pos.lineRange().endLine().offset() - 1);
+                        end = new Position(func.returnTypeNode.pos.lineRange().endLine().line() - 1,
+                                func.returnTypeNode.pos.lineRange().endLine().offset() - 1);
+                        editText = " returns (" + editText + ")";
+                    } else {
+                        // eg. function test() returns () {...}
+                        start = new Position(func.returnTypeNode.pos.lineRange().startLine().line() - 1,
+                                func.returnTypeNode.pos.lineRange().startLine().offset() - 1);
+                        end = new Position(func.returnTypeNode.pos.lineRange().endLine().line() - 1,
+                                func.returnTypeNode.pos.lineRange().endLine().offset() - 1);
                     }
+                    edits.add(new TextEdit(new Range(start, end), editText));
+
+                    // Add code action
+                    String commandTitle = CommandConstants.CHANGE_RETURN_TYPE_TITLE + foundType + "'";
+                    return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, uri));
                 }
-            } catch (WorkspaceDocumentException | CompilationFailedException e) {
-                // ignore
             }
         }
         return new ArrayList<>();
@@ -146,23 +136,23 @@ public class ChangeReturnTypeCodeAction implements DiagBasedCodeAction {
         return false;
     }
 
-    private static BLangFunction getFunctionNode(int line, int column,
-                                                 WorkspaceDocumentManager docManager, LSContext context)
-            throws CompilationFailedException {
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+    private static BLangFunction getFunctionNode(int line, int column, CodeActionContext context) {
+        String uri = context.fileUri();
         Position position = new Position();
         position.setLine(line);
         position.setCharacter(column + 1);
-        context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
+//        context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
         TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
-        context.put(DocumentServiceKeys.POSITION_KEY, new TextDocumentPositionParams(identifier, position));
+//        context.put(DocumentServiceKeys.POSITION_KEY, new TextDocumentPositionParams(identifier, position));
 
         // Get the current package.
-        BLangPackage currentPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+//        BLangPackage currentPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        BLangPackage currentPackage = null;
 
         // If package is testable package process as tests
         // else process normally
-        String relativeFilePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+//        String relativeFilePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        String relativeFilePath = "";
         BLangCompilationUnit compilationUnit;
         if (relativeFilePath.startsWith("tests" + File.separator)) {
             compilationUnit = currentPackage.getTestablePkg().getCompilationUnits().stream().
@@ -286,21 +276,25 @@ public class ChangeReturnTypeCodeAction implements DiagBasedCodeAction {
                 (line < eLine || (line == eLine && column <= eCol));
     }
 
-    private static String extractTypeName(LSContext context, Matcher matcher, String foundType, List<TextEdit> edits) {
+    private static String extractTypeName(CodeActionContext context, Matcher matcher, String foundType,
+                                          List<TextEdit> edits) {
         if (matcher.find() && matcher.groupCount() > 2) {
             String orgName = matcher.group(1);
             String alias = matcher.group(2);
             String typeName = matcher.group(3);
             String pkgId = orgName + "/" + alias;
-            PackageID currentPkgId = context.get(
-                    DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).packageID;
+//            PackageID currentPkgId = context.get(
+//                    DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).packageID;
+            PackageID currentPkgId = null;
             if (pkgId.equals(currentPkgId.toString())) {
                 foundType = typeName;
             } else {
-                List<BLangImportPackage> currentDocImports = CommonUtil.getCurrentFileImports(context);
+                List<ImportDeclarationNode> currentDocImports = context.getCurrentDocImports();
                 boolean pkgAlreadyImported = currentDocImports.stream()
-                        .anyMatch(importPkg -> importPkg.orgName.value.equals(orgName)
-                                && importPkg.alias.value.equals(alias));
+                        .anyMatch(importPkg -> importPkg.orgName().isPresent()
+                                && importPkg.orgName().get().orgName().text().equals(orgName)
+                                && importPkg.prefix().isPresent()
+                                && importPkg.prefix().get().prefix().text().equals(alias));
                 if (!pkgAlreadyImported) {
                     edits.addAll(CommonUtil.getAutoImportTextEdits(orgName, alias, context));
                 }

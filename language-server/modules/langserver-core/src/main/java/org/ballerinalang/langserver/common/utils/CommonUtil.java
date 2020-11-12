@@ -17,8 +17,6 @@ package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -27,10 +25,11 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -38,25 +37,19 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.NewLSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.FieldCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
-import org.ballerinalang.langserver.exception.LSStdlibCacheException;
-import org.ballerinalang.langserver.util.definition.LSStandardLibCache;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.model.tree.statements.StatementNode;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -72,7 +65,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -81,7 +73,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.File;
@@ -142,7 +133,7 @@ public class CommonUtil {
     public static final Path LS_STDLIB_CACHE_DIR = TEMP_DIR.resolve("ls_stdlib_cache").resolve(SDK_VERSION);
 
     public static final Path LS_CONNECTOR_CACHE_DIR = TEMP_DIR.resolve("ls_connector_cache").resolve(SDK_VERSION);
-    
+
     public static final List<String> PRE_DECLARED_LANG_LIBS = Arrays.asList("lang.boolean", "lang.decimal",
             "lang.error", "lang.float", "lang.future", "lang.int", "lang.map", "lang.object", "lang.stream",
             "lang.string", "lang.table", "lang.typedesc", "lang.xml", "lang.annotations");
@@ -168,7 +159,7 @@ public class CommonUtil {
         int startColumn = diagnosticLocation.lineRange().startLine().offset() - 1;
         int endColumn = diagnosticLocation.lineRange().endLine().offset() - 1;
         return new BLangDiagnosticLocation(diagnosticLocation.lineRange().filePath(),
-                                           startLine, endLine, startColumn, endColumn);
+                startLine, endLine, startColumn, endColumn);
     }
 
     /**
@@ -193,10 +184,10 @@ public class CommonUtil {
      */
     public static Location clonePosition(Location diagnosticLocation) {
         return new BLangDiagnosticLocation(diagnosticLocation.lineRange().filePath(),
-                                           diagnosticLocation.lineRange().startLine().line(),
-                                           diagnosticLocation.lineRange().endLine().line(),
-                                           diagnosticLocation.lineRange().startLine().offset(),
-                                           diagnosticLocation.lineRange().endLine().offset());
+                diagnosticLocation.lineRange().startLine().line(),
+                diagnosticLocation.lineRange().endLine().line(),
+                diagnosticLocation.lineRange().startLine().offset(),
+                diagnosticLocation.lineRange().endLine().offset());
     }
 
     /**
@@ -208,12 +199,12 @@ public class CommonUtil {
      * @param context Language server context
      * @return {@link List}     List of Text Edits to apply
      */
-    public static List<TextEdit> getAutoImportTextEdits(String orgName, String pkgName, LSContext context) {
-        List<BLangImportPackage> currentFileImports = context.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY);
+    public static List<TextEdit> getAutoImportTextEdits(String orgName, String pkgName, NewLSContext context) {
+        List<ImportDeclarationNode> currentDocImports = context.getCurrentDocImports();
         Position start = new Position(0, 0);
-        if (currentFileImports != null && !currentFileImports.isEmpty()) {
-            BLangImportPackage last = CommonUtil.getLastItem(currentFileImports);
-            int endLine = last.getPosition().lineRange().endLine().line();
+        if (currentDocImports != null && !currentDocImports.isEmpty()) {
+            ImportDeclarationNode last = CommonUtil.getLastItem(currentDocImports);
+            int endLine = last.lineRange().endLine().line();
             start = new Position(endLine, 0);
         }
         String pkgNameComponent;
@@ -292,7 +283,7 @@ public class CommonUtil {
      * @param fields  List of field descriptors
      * @return {@link List}     List of completion items for the struct fields
      */
-    public static List<LSCompletionItem> getRecordFieldCompletionItems(LSContext context,
+    public static List<LSCompletionItem> getRecordFieldCompletionItems(CompletionContext context,
                                                                        List<FieldSymbol> fields) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         fields.forEach(field -> {
@@ -317,7 +308,7 @@ public class CommonUtil {
      * @param fields  List of fields
      * @return {@link LSCompletionItem}   Completion Item to fill all the options
      */
-    public static LSCompletionItem getFillAllStructFieldsItem(LSContext context, List<FieldSymbol> fields) {
+    public static LSCompletionItem getFillAllStructFieldsItem(CompletionContext context, List<FieldSymbol> fields) {
         List<String> fieldEntries = new ArrayList<>();
 
         for (FieldSymbol fieldSymbol : fields) {
@@ -345,7 +336,7 @@ public class CommonUtil {
      * @param context LS Operation context
      * @return {@link LSCompletionItem} generated for error type
      */
-    public static LSCompletionItem getErrorTypeCompletionItem(LSContext context) {
+    public static LSCompletionItem getErrorTypeCompletionItem(CompletionContext context) {
         CompletionItem errorTypeCItem = new CompletionItem();
         errorTypeCItem.setInsertText(ItemResolverConstants.ERROR);
         errorTypeCItem.setLabel(ItemResolverConstants.ERROR);
@@ -376,7 +367,8 @@ public class CommonUtil {
      * @param typeName type name to be filtered against
      * @return {@link Optional} type found
      */
-    public static Optional<TypeDefinitionSymbol> getTypeFromModule(LSContext context, String alias, String typeName) {
+    public static Optional<TypeDefinitionSymbol> getTypeFromModule(CompletionContext context, String alias,
+                                                                   String typeName) {
         Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, alias);
         if (module.isEmpty()) {
             return Optional.empty();
@@ -397,8 +389,8 @@ public class CommonUtil {
      * @param alias   alias value
      * @return {@link Optional} scope entry for the module symbol
      */
-    public static Optional<ModuleSymbol> searchModuleForAlias(LSContext context, String alias) {
-        List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+    public static Optional<ModuleSymbol> searchModuleForAlias(CompletionContext context, String alias) {
+        List<Symbol> visibleSymbols = new ArrayList<>(context.getVisibleSymbols(context.getCursorPosition()));
         for (Symbol symbol : visibleSymbols) {
             if (symbol.kind() == MODULE && symbol.name().equals(alias)) {
                 return Optional.of((ModuleSymbol) symbol);
@@ -451,36 +443,11 @@ public class CommonUtil {
         return isTestSource(relativePath) ? parentPkg.getTestablePkg() : parentPkg;
     }
 
-    /**
-     * Get the current module's imports.
-     *
-     * @param ctx LS Operation Context
-     * @return {@link List}     List of imports in the current file
-     */
-    public static List<BLangImportPackage> getCurrentFileImports(LSContext ctx) {
-        return getCurrentModuleImports(ctx).stream()
-                .filter(importInCurrentFilePredicate(ctx))
-                .collect(Collectors.toList());
-    }
-
     public static boolean isInvalidSymbol(BSymbol symbol) {
         return ("_".equals(symbol.name.getValue())
                 || symbol instanceof BAnnotationSymbol
                 || symbol instanceof BOperatorSymbol
                 || symbolContainsInvalidChars(symbol));
-    }
-
-    /**
-     * Check whether the given node is a worker derivative node.
-     *
-     * @param node Node to be evaluated
-     * @return {@link Boolean}  whether a worker derivative
-     */
-    public static boolean isWorkerDereivative(StatementNode node) {
-        return (node instanceof BLangSimpleVariableDef)
-                && ((BLangSimpleVariableDef) node).var.expr != null
-                && ((BLangSimpleVariableDef) node).var.expr.type instanceof BFutureType
-                && ((BFutureType) ((BLangSimpleVariableDef) node).var.expr.type).workerDerivative;
     }
 
     /**
@@ -490,8 +457,9 @@ public class CommonUtil {
      * @param ctx     Service Operation context
      * @return {@link List}     List of Top Level Nodes
      */
-    public static List<TopLevelNode> getCurrentFileTopLevelNodes(BLangPackage pkgNode, LSContext ctx) {
-        String relativeFilePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+    public static List<TopLevelNode> getCurrentFileTopLevelNodes(BLangPackage pkgNode, NewLSContext ctx) {
+//        String relativeFilePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        String relativeFilePath = "";
         BLangCompilationUnit filteredCUnit = pkgNode.compUnits.stream()
                 .filter(cUnit ->
                         cUnit.getPosition().lineRange().filePath().replace("/", FILE_SEPARATOR)
@@ -511,18 +479,6 @@ public class CommonUtil {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Get the package name components combined.
-     *
-     * @param importPackage BLangImportPackage node
-     * @return {@link String}   Combined package name
-     */
-    public static String getPackageNameComponentsCombined(BLangImportPackage importPackage) {
-        return importPackage.pkgNameComps.stream()
-                .map(id -> id.value)
-                .collect(Collectors.joining("."));
-    }
-
     public static boolean symbolContainsInvalidChars(BSymbol bSymbol) {
         List<String> symbolNameComponents = Arrays.asList(bSymbol.getName().getValue().split("\\."));
         String symbolName = CommonUtil.getLastItem(symbolNameComponents);
@@ -533,45 +489,6 @@ public class CommonUtil {
                 || symbolName.equals("main")
                 || symbolName.endsWith(".new")
                 || symbolName.startsWith("0"));
-    }
-
-    /**
-     * Get the function invocation signature.
-     *
-     * @param functionSymbol ballerina function instance
-     * @param functionName   function name
-     * @param ctx            Language Server Operation context
-     * @return {@link Pair} of insert text(left-side) and signature label(right-side)
-     */
-    public static Pair<String, String> getFunctionInvocationSignature(FunctionSymbol functionSymbol,
-                                                                      String functionName,
-                                                                      LSContext ctx) {
-        if (functionSymbol == null) {
-            return ImmutablePair.of(functionName + "();", functionName + "()");
-        }
-        FunctionTypeSymbol functionTypeDesc = functionSymbol.typeDescriptor();
-        StringBuilder signature = new StringBuilder(functionName + "(");
-        StringBuilder insertText = new StringBuilder(functionName + "(");
-        List<String> funcArguments = FunctionGenerator.getFuncArguments(functionSymbol, ctx);
-        if (!funcArguments.isEmpty()) {
-            signature.append(String.join(", ", funcArguments));
-            insertText.append("${1}");
-        }
-        signature.append(")");
-        insertText.append(")");
-        Optional<TypeSymbol> returnType = functionTypeDesc.returnTypeDescriptor();
-        if (returnType.isEmpty() || returnType.get().typeKind() == TypeDescKind.NIL) {
-            insertText.append(";");
-        }
-        String initString = "(";
-        String endString = ")";
-
-        if (returnType.isPresent() && returnType.get().typeKind() != TypeDescKind.NIL) {
-            signature.append(initString).append(returnType.get().signature());
-            signature.append(endString);
-        }
-
-        return new ImmutablePair<>(insertText.toString(), signature.toString());
     }
 
     /**
@@ -624,19 +541,6 @@ public class CommonUtil {
         }
 
         return insertText.toString();
-    }
-
-    /**
-     * Get the current module's imports.
-     *
-     * @param ctx LS Operation Context
-     * @return {@link List}     List of imports in the current file
-     */
-    public static List<BLangImportPackage> getCurrentModuleImports(LSContext ctx) {
-        String relativePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        BLangPackage currentPkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        BLangPackage ownerPkg = getSourceOwnerBLangPackage(relativePath, currentPkg);
-        return ownerPkg.imports;
     }
 
     ///////////////////////////////
@@ -823,7 +727,7 @@ public class CommonUtil {
      * @return module prefix
      */
     public static String getModulePrefix(ImportsAcceptor importsAcceptor, ModuleID currentModuleId,
-                                         ModuleID moduleID, LSContext context) {
+                                         ModuleID moduleID, NewLSContext context) {
         String pkgPrefix = "";
         if (!moduleID.equals(currentModuleId) && !BUILT_IN_PACKAGE_PREFIX.equals(moduleID.moduleName())) {
             String moduleName = escapeModuleName(context, moduleID.orgName() + "/" + moduleID.moduleName());
@@ -863,11 +767,12 @@ public class CommonUtil {
         };
     }
 
-    public static String escapeModuleName(LSContext context, String fullPackageNameAlias) {
+    public static String escapeModuleName(NewLSContext context, String fullPackageNameAlias) {
         Set<String> names = new HashSet<>();
         Predicate<Scope.ScopeEntry> nonPkgNames = scopeEntry -> !(scopeEntry.symbol instanceof BPackageSymbol);
         try {
-            names = CommonUtil.getAllNameEntries(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), nonPkgNames);
+//            names = CommonUtil.getAllNameEntries(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), nonPkgNames);
+            names = Collections.emptySet();
         } catch (Exception e) {
             // ignore
         }
@@ -914,20 +819,6 @@ public class CommonUtil {
     }
 
     /**
-     * Whether we skip the first parameter being included as a label in the signature.
-     * When showing a lang lib invokable symbol over DOT(invocation) we do not show the first param, but when we
-     * showing the invocation over package of the langlib with the COLON we show the first param
-     *
-     * @param context        context
-     * @param functionSymbol invokable symbol
-     * @return {@link Boolean} whether we show the first param or not
-     */
-    public static boolean skipFirstParam(LSContext context, FunctionSymbol functionSymbol) {
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
-        return isLangLib(functionSymbol.moduleID()) && nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
-    }
-
-    /**
      * Get all available name entries.
      *
      * @param context {@link CompilerContext}
@@ -935,6 +826,16 @@ public class CommonUtil {
      */
     public static Set<String> getAllNameEntries(CompilerContext context) {
         return getAllNameEntries(context, null);
+    }
+
+    /**
+     * Get all available name entries.
+     *
+     * @param visibleSymbols list of visible symbols
+     * @return set of strings
+     */
+    public static Set<String> getAllNameEntries(List<Symbol> visibleSymbols) {
+        return getAllNameEntries(visibleSymbols, null);
     }
 
     /**
@@ -960,6 +861,27 @@ public class CommonUtil {
     }
 
     /**
+     * Get all available name entries.
+     *
+     * @param visibleSymbols list of visible symbols
+     * @param predicate      predicate to evaluate against
+     * @return set of strings
+     */
+    public static Set<String> getAllNameEntries(List<Symbol> visibleSymbols, Predicate<Symbol> predicate) {
+        Set<String> strings = new HashSet<>();
+        visibleSymbols.forEach(symbol -> {
+            if (predicate != null) {
+                if (predicate.test(symbol)) {
+                    strings.add(symbol.name());
+                }
+            } else {
+                strings.add(symbol.name());
+            }
+        });
+        return strings;
+    }
+
+    /**
      * Get the path from given string URI.
      *
      * @param uri file uri
@@ -967,28 +889,11 @@ public class CommonUtil {
      */
     public static Optional<Path> getPathFromURI(String uri) {
         try {
-            return Optional.of(Paths.get(new URL(uri).toURI()));
+            return Optional.of(Path.of(new URL(uri).toURI()));
         } catch (URISyntaxException | MalformedURLException e) {
             // ignore
         }
         return Optional.empty();
-    }
-
-    /**
-     * Update the standard library cache.
-     *
-     * @param context Language Server operation context
-     */
-    public static void updateStdLibCache(LSContext context) throws LSStdlibCacheException {
-        Boolean enabled = context.get(DocumentServiceKeys.ENABLE_STDLIB_DEFINITION_KEY);
-        if (enabled == null || !enabled) {
-            return;
-        }
-        List<BLangImportPackage> stdLibImports = getCurrentModuleImports(context).stream()
-                .filter(stdLibImportsNotCachedPredicate(context))
-                .collect(Collectors.toList());
-
-        LSStandardLibCache.getInstance().updateCache(stdLibImports);
     }
 
     /**
@@ -1006,10 +911,12 @@ public class CommonUtil {
         }
     }
 
-    public static NonTerminalNode findNode(LSContext context, Position position, Path path)
-            throws WorkspaceDocumentException {
-        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        SyntaxTree syntaxTree = documentManager.getTree(path);
+    public static NonTerminalNode findNode(NewLSContext context, Position position) {
+        Optional<Document> document = context.workspace().document(context.fileUri());
+        if (document.isEmpty()) {
+            throw new RuntimeException("Could not find a valid document");
+        }
+        SyntaxTree syntaxTree = document.get().syntaxTree();
         TextDocument textDocument = syntaxTree.textDocument();
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
         return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(txtPos, 0));

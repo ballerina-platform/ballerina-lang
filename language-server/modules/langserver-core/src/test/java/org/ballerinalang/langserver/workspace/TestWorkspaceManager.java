@@ -42,7 +42,7 @@ import java.util.Optional;
 public class TestWorkspaceManager {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/project");
     private final String dummyContent = "function foo() {\n}";
-    private final WorkspaceManager workspaceManager = new WorkspaceManager();
+    private final BallerinaWorkspaceManager workspaceManager = new BallerinaWorkspaceManager();
 
     @Test(dataProvider = "workspace-data-provider")
     public void testOpenDocument(Path filePath) throws WorkspaceDocumentException, IOException {

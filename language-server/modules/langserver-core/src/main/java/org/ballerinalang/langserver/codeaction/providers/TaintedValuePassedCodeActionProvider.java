@@ -19,7 +19,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.impl.DiagBasedCodeAction;
 import org.ballerinalang.langserver.codeaction.impl.MarkAsUntaintedCodeAction;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
 import org.eclipse.lsp4j.CodeAction;
@@ -46,9 +46,8 @@ public class TaintedValuePassedCodeActionProvider extends AbstractCodeActionProv
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> diagnosticsOfRange,
-                                                    List<Diagnostic> allDiagnostics) {
+    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, CodeActionContext context,
+                                                    List<Diagnostic> diagnosticsOfRange) {
         List<CodeAction> actions = new ArrayList<>();
         DiagBasedCodeAction markAsUntaintedCodeAction = new MarkAsUntaintedCodeAction();
         for (Diagnostic diagnostic : diagnosticsOfRange) {
@@ -56,7 +55,7 @@ public class TaintedValuePassedCodeActionProvider extends AbstractCodeActionProv
                 continue;
             }
             try {
-                actions.addAll(markAsUntaintedCodeAction.get(diagnostic, allDiagnostics, lsContext));
+                actions.addAll(markAsUntaintedCodeAction.get(diagnostic, context));
             } catch (LSCodeActionProviderException e) {
                 // ignore
             }

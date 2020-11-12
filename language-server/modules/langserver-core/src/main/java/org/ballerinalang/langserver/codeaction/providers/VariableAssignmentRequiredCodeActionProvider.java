@@ -17,7 +17,6 @@ package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
@@ -43,18 +42,14 @@ import org.ballerinalang.langserver.codeaction.impl.IgnoreReturnCodeAction;
 import org.ballerinalang.langserver.codeaction.impl.TypeGuardCodeAction;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.nio.file.Path;
@@ -76,14 +71,9 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext context,
-                                                    List<Diagnostic> diagnosticsOfRange,
-                                                    List<Diagnostic> allDiagnostics) {
+    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, CodeActionContext context,
+                                                    List<Diagnostic> diagnosticsOfRange) {
         List<CodeAction> actions = new ArrayList<>();
-        Optional<Path> filePath = CommonUtil.getPathFromURI(context.get(DocumentServiceKeys.FILE_URI_KEY));
-        if (filePath.isEmpty()) {
-            return actions;
-        }
         for (Diagnostic diagnostic : diagnosticsOfRange) {
             String diagnosticMsg = diagnostic.getMessage().toLowerCase(Locale.ROOT);
             if (!(diagnosticMsg.contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
@@ -92,26 +82,20 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
             try {
                 // Find Cursor node
                 Position diagPos = diagnostic.getRange().getStart();
-                NonTerminalNode cursorNode = CommonUtil.findNode(context, diagPos, filePath.get());
+                NonTerminalNode cursorNode = CommonUtil.findNode(context, diagPos);
                 final Symbol[] scopedSymbol = {null};
                 final NonTerminalNode[] scopedNode = {null};
                 final Optional<TypeSymbol>[] optTypeDesc = new Optional[]{Optional.empty()};
 
-                BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-                CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-                String relPath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-                SemanticModel semanticModel = new BallerinaSemanticModel(bLangPackage, compilerContext);
-
                 //TODO: Remove this when #26382 is implemented
-                Optional<TypeSymbol> literalTypeDesc = checkForLiteralTypeDesc(cursorNode, semanticModel,
-                                                                               relPath);
+                Optional<TypeSymbol> literalTypeDesc = checkForLiteralTypeDesc(cursorNode);
                 if (literalTypeDesc.isPresent()) {
                     // If it is a Literal, use the temp type-descriptor
                     scopedNode[0] = cursorNode;
                     optTypeDesc[0] = literalTypeDesc;
                 } else {
                     // Or else, use the scoped-symbol's type-descriptor
-                    getScopedNodeAndSymbol(cursorNode, diagnostic.getRange(), semanticModel, relPath)
+                    getScopedNodeAndSymbol(context, cursorNode, diagnostic.getRange())
                             .ifPresent(nodeAndSymbol -> {
                                 scopedNode[0] = nodeAndSymbol.getLeft();
                                 scopedSymbol[0] = nodeAndSymbol.getRight();
@@ -131,22 +115,25 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
                 DiagBasedCodeAction typeGuard = new TypeGuardCodeAction(typeDesc, scopedNode[0], scopedSymbol[0]);
 
                 // Can result multiple code-actions since RHS is ambiguous
-                actions.addAll(createVariable.get(diagnostic, allDiagnostics, context));
-                actions.addAll(errorType.get(diagnostic, allDiagnostics, context));
-                actions.addAll(ignoreReturn.get(diagnostic, allDiagnostics, context));
-                actions.addAll(typeGuard.get(diagnostic, allDiagnostics, context));
-            } catch (LSCodeActionProviderException | WorkspaceDocumentException e) {
+                actions.addAll(createVariable.get(diagnostic, context));
+                actions.addAll(errorType.get(diagnostic, context));
+                actions.addAll(ignoreReturn.get(diagnostic, context));
+                actions.addAll(typeGuard.get(diagnostic, context));
+            } catch (LSCodeActionProviderException e) {
                 // ignore
             }
         }
         return actions;
     }
 
-    private Optional<Pair<NonTerminalNode, Symbol>> getScopedNodeAndSymbol(NonTerminalNode cursorNode,
-                                                                           Range diagRange,
-                                                                           SemanticModel semanticModel,
-                                                                           String relPath) {
+    private Optional<Pair<NonTerminalNode, Symbol>> getScopedNodeAndSymbol(CodeActionContext context,
+                                                                           NonTerminalNode cursorNode,
+                                                                           Range diagRange) {
 
+        Optional<SemanticModel> semanticModel = context.workspace().semanticModel(context.fileUri());
+        if (semanticModel.isEmpty()) {
+            return Optional.empty();
+        }
         // Find invocation position
         InvocationPositionFinder positionFinder = new InvocationPositionFinder(diagRange);
         positionFinder.visit(cursorNode);
@@ -156,7 +143,8 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
         // Get Symbol of the position
         LinePosition position = positionFinder.getPosition().get();
         LinePosition scopedNodePos = LinePosition.from(position.line(), position.offset() + 1);
-        Optional<Symbol> optScopedSymbol = semanticModel.symbol(relPath, scopedNodePos);
+//        Optional<Symbol> optScopedSymbol = semanticModel.get().symbol(relPath, scopedNodePos);
+        Optional<Symbol> optScopedSymbol = Optional.empty();
         if (optScopedSymbol.isEmpty()) {
             return Optional.empty();
         }
@@ -166,9 +154,7 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
         return Optional.of(new ImmutablePair<>(scopedNode, scopedSymbol));
     }
 
-    private Optional<TypeSymbol> checkForLiteralTypeDesc(NonTerminalNode cursorNode,
-                                                         SemanticModel semanticModel,
-                                                         String relPath) {
+    private Optional<TypeSymbol> checkForLiteralTypeDesc(NonTerminalNode cursorNode) {
         TypeDescKind typeDescKind = null;
         ModuleID moduleID = null;
         String definitionName = "";

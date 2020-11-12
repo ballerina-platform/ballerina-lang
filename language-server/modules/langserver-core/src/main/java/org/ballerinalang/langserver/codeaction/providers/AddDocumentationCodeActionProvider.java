@@ -19,6 +19,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.impl.AddAllDocumentationCodeAction;
 import org.ballerinalang.langserver.codeaction.impl.AddDocumentationCodeAction;
 import org.ballerinalang.langserver.codeaction.impl.NodeBasedCodeAction;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
@@ -51,15 +52,14 @@ public class AddDocumentationCodeActionProvider extends AbstractCodeActionProvid
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext context,
-                                                    List<Diagnostic> allDiagnostics) {
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, CodeActionContext context) {
         NodeBasedCodeAction addAllDocumentationCodeAction = new AddAllDocumentationCodeAction();
         NodeBasedCodeAction addDocumentationCodeAction = new AddDocumentationCodeAction();
 
         List<CodeAction> actions = new ArrayList<>();
         try {
-            actions.addAll(addDocumentationCodeAction.get(nodeType, allDiagnostics, context));
-            actions.addAll(addAllDocumentationCodeAction.get(nodeType, allDiagnostics, context));
+            actions.addAll(addDocumentationCodeAction.get(nodeType, context));
+            actions.addAll(addAllDocumentationCodeAction.get(nodeType, context));
         } catch (LSCodeActionProviderException e) {
             // ignore
         }

@@ -26,11 +26,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
@@ -67,9 +65,8 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
     }
 
     @Override
-    public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
-            throws LSCodeActionProviderException {
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+    public List<CodeAction> get(Diagnostic diagnostic, CodeActionContext context) {
+        String uri = context.fileUri();
         try {
             if (typeDescriptor.typeKind() == TypeDescKind.UNION) {
                 UnionTypeSymbol unionType = (UnionTypeSymbol) typeDescriptor;
@@ -79,7 +76,7 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
                     // Add type guard code action
                     String commandTitle = String.format(CommandConstants.TYPE_GUARD_TITLE, scopedSymbol.name());
                     List<TextEdit> tEdits = getTypeGuardCodeActionEdits(context, uri, scopedNode,
-                                                                        scopedSymbol, unionType);
+                            scopedSymbol, unionType);
                     if (!tEdits.isEmpty()) {
                         return Collections.singletonList(createQuickFixCodeAction(commandTitle, tEdits, uri));
                     }
@@ -91,12 +88,13 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
         return Collections.emptyList();
     }
 
-    private static List<TextEdit> getTypeGuardCodeActionEdits(LSContext context, String uri,
+    private static List<TextEdit> getTypeGuardCodeActionEdits(CodeActionContext context, String uri,
                                                               NonTerminalNode scopedNode,
                                                               Symbol scopedSymbol,
                                                               UnionTypeSymbol unionType)
             throws WorkspaceDocumentException, IOException {
-        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+//        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+        WorkspaceDocumentManager docManager = null;
         int sLine = scopedNode.lineRange().startLine().line();
         int sCol = scopedNode.lineRange().startLine().offset();
         int eLine = scopedNode.lineRange().endLine().line();
@@ -141,12 +139,13 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
                     // if (foo() is int) {...} else {...}
                     String type = bType.signature();
                     String newText = String.format("if (%s is %s) {%s} else {%s}", finalContent, type, padding,
-                                                   padding);
+                            padding);
                     edits.add(new TextEdit(newTextRange, newText));
                 }
             });
         } else {
-            CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+//            CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+            CompilerContext compilerContext = null;
             String name = scopedSymbol != null ? scopedSymbol.name() : unionType.signature();
             String varName = CommonUtil.generateVariableName(name, CommonUtil.getAllNameEntries(compilerContext));
             String typeDef = unionType.signature();

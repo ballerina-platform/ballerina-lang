@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.runtime.util.Flags;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.NewLSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.compiler.LSPackageCache;
@@ -105,20 +106,19 @@ public class LSAnnotationCache {
      * @return {@link HashMap}  Map of annotation lists
      */
     public Map<ModuleID, List<AnnotationSymbol>> getAnnotationMapForSyntaxKind(SyntaxKind attachmentPoint,
-                                                                                   LSContext ctx) {
+                                                                                   NewLSContext ctx) {
         // TODO: Add service method definition, handle individual and rest params
-        CompilerContext compilerCtx = ctx.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
 
         // Check whether the imported packages in the current bLang package has been already processed
-        ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).getImports()
-                .forEach(importPackage -> {
-                    if (importPackage.symbol != null && !isPackageProcessed(importPackage.symbol.pkgID)
-                            && !importPackage.symbol.pkgID.getName().getValue().equals("runtime")) {
-                        Optional<BPackageSymbol> pkgSymbol = LSPackageLoader.getPackageSymbolById(compilerCtx,
-                                importPackage.symbol.pkgID);
-                        pkgSymbol.ifPresent(LSAnnotationCache::loadAnnotationsFromPackage);
-                    }
-                });
+//        ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).getImports()
+//                .forEach(importPackage -> {
+//                    if (importPackage.symbol != null && !isPackageProcessed(importPackage.symbol.pkgID)
+//                            && !importPackage.symbol.pkgID.getName().getValue().equals("runtime")) {
+//                        Optional<BPackageSymbol> pkgSymbol = LSPackageLoader.getPackageSymbolById(compilerCtx,
+//                                importPackage.symbol.pkgID);
+//                        pkgSymbol.ifPresent(LSAnnotationCache::loadAnnotationsFromPackage);
+//                    }
+//                });
         switch (attachmentPoint) {
             case SERVICE_DECLARATION:
             case SERVICE_CONSTRUCTOR_EXPRESSION:
@@ -187,7 +187,7 @@ public class LSAnnotationCache {
      * @param attachmentPoint attachment point
      * @return {@link Map} of annotations
      */
-    public Map<ModuleID, List<AnnotationSymbol>> getAnnotationsInModule(LSContext context, String alias,
+    public Map<ModuleID, List<AnnotationSymbol>> getAnnotationsInModule(NewLSContext context, String alias,
                                                                         SyntaxKind attachmentPoint) {
         Map<ModuleID, List<AnnotationSymbol>> annotations = getAnnotationMapForSyntaxKind(attachmentPoint, context);
         return annotations.entrySet().stream()

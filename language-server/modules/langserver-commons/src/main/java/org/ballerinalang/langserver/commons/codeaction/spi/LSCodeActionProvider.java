@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.commons.codeaction.spi;
 
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
@@ -31,43 +31,42 @@ public interface LSCodeActionProvider {
 
     /**
      * Returns True if code action is enabled.
-     * @return  True if code action is enabled, False otherwise
+     *
+     * @return True if code action is enabled, False otherwise
      */
     boolean isEnabled();
 
     /**
      * Returns the list of code actions based on node type or diagnostics.
      *
-     * @param nodeType           code action node type
-     * @param lsContext          language server context
-     * @param allDiagnostics     diagnostics list of the module
+     * @param nodeType          code action node type
+     * @param codeActionContext code action operation context
      * @return list of Code Actions
      */
-    List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                    List<Diagnostic> allDiagnostics);
+    List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, CodeActionContext codeActionContext);
 
     /**
      * Returns the list of code actions based on node type or diagnostics.
      *
      * @param nodeType           code action node type
-     * @param lsContext          language server context
+     * @param codeActionContext  code action operation context
      * @param diagnosticsOfRange diagnostics list of the cursor range
-     * @param allDiagnostics     diagnostics list of the module
      * @return list of Code Actions
      */
-    List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                             List<Diagnostic> diagnosticsOfRange,
-                                             List<Diagnostic> allDiagnostics);
+    List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, CodeActionContext codeActionContext,
+                                             List<Diagnostic> diagnosticsOfRange);
 
     /**
      * Returns True of node type based code actions are supported.
-     * @return  True of node type based code actions are supported, False otherwise
+     *
+     * @return True of node type based code actions are supported, False otherwise
      */
     boolean isNodeBasedSupported();
 
     /**
      * Returns True of code diagnostics type based code actions are supported.
-     * @return  True of code diagnostics based code actions are supported, False otherwise
+     *
+     * @return True of code diagnostics based code actions are supported, False otherwise
      */
     boolean isDiagBasedSupported();
 

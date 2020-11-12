@@ -17,13 +17,11 @@ package org.ballerinalang.langserver.codeaction.impl;
 
 import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Command;
-import org.eclipse.lsp4j.Diagnostic;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,8 +34,8 @@ import java.util.List;
  */
 public class AddAllDocumentationCodeAction implements NodeBasedCodeAction {
     @Override
-    public List<CodeAction> get(CodeActionNodeType nodeType, List<Diagnostic> allDiagnostics, LSContext context) {
-        String docUri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+    public List<CodeAction> get(CodeActionNodeType nodeType, CodeActionContext context) {
+        String docUri = context.fileUri();
         CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
         List<Object> args = new ArrayList<>(Collections.singletonList(docUriArg));
 

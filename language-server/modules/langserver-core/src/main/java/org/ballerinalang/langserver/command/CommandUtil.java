@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.command;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.NewLSContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
@@ -78,17 +79,9 @@ public class CommandUtil {
      * @param context     {@link LSContext}
      */
     public static void clearDiagnostics(ExtendedLanguageClient client, DiagnosticsHelper diagHelper, String documentUri,
-                                        LSContext context) {
-        context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
-        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        try {
-            LSDocumentIdentifier lsDocument = new LSDocumentIdentifierImpl(documentUri);
-            diagHelper.compileAndSendDiagnostics(client, context, lsDocument, docManager);
-        } catch (CompilationFailedException e) {
-            String msg = "Computing 'diagnostics' failed!";
-            TextDocumentIdentifier identifier = new TextDocumentIdentifier(documentUri);
-            logError(msg, e, identifier, (Position) null);
-        }
+                                        NewLSContext context) {
+//        context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
+        diagHelper.compileAndSendDiagnostics(client, context);
     }
 
     /**

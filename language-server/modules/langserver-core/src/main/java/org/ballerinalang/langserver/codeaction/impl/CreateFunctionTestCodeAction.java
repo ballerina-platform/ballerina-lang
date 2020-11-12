@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.codeaction.impl;
 
 import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
@@ -27,7 +27,6 @@ import org.ballerinalang.langserver.compiler.exception.CompilationFailedExceptio
 import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Command;
-import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
@@ -42,18 +41,17 @@ import static org.ballerinalang.langserver.codeaction.impl.NodeBasedCodeAction.i
  */
 public class CreateFunctionTestCodeAction implements NodeBasedCodeAction {
     @Override
-    public List<CodeAction> get(CodeActionNodeType nodeType, List<Diagnostic> allDiagnostics, LSContext context) {
+    public List<CodeAction> get(CodeActionNodeType nodeType, CodeActionContext context) {
         try {
-            String docUri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+            String docUri = context.fileUri();
             List<CodeAction> actions = new ArrayList<>();
             List<Object> args = new ArrayList<>();
             args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri));
-            Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+            Position position = context.getCursorPosition();
             args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + position.getLine()));
             args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + position.getCharacter()));
 
-            WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-            if (!isTopLevelNode(docUri, documentManager, context, position)) {
+            if (!isTopLevelNode(docUri, context, position)) {
                 return actions;
             }
 

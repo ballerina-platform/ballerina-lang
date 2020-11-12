@@ -31,12 +31,9 @@ import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.util.references.ReferencesKeys;
-import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
-import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
@@ -117,12 +114,14 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             Position pos = new Position(line, column + 1);
             context.put(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST, true);
             context.put(ReferencesKeys.DO_NOT_SKIP_NULL_SYMBOLS, true);
-            SymbolReferencesModel.Reference refAtCursor = ReferencesUtil.getReferenceAtCursor(context, lsDocument, pos);
+//            SymbolReferencesModel.Reference refAtCursor =
+//            ReferencesUtil.getReferenceAtCursor(context, lsDocument, pos);
+            SymbolReferencesModel.Reference refAtCursor = null;
             BLangNode bLangNode = refAtCursor.getbLangNode();
             if (bLangNode instanceof BLangInvocation) {
                 functionNode = (BLangInvocation) bLangNode;
             }
-        } catch (WorkspaceDocumentException | CompilationFailedException | TokenOrSymbolNotFoundException e) {
+        } catch (WorkspaceDocumentException e) {
             throw new LSCommandExecutorException("Error while compiling the source!");
         }
         if (functionNode == null) {
@@ -146,7 +145,8 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         List<TextEdit> edits = new ArrayList<>();
         if (parent != null && packageNode != null) {
 //            PackageID currentPkgId = packageNode.packageID;
-            ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+//            ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+            ImportsAcceptor importsAcceptor = null;
             //TODO: Fix this when #26382 is avaialble
 //            returnType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, parent, context);
 //            returnValue = FunctionGenerator.generateReturnValue(importsAcceptor, currentPkgId, parent,
@@ -212,7 +212,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
     }
 
     private Triple<Location, PackageID, Boolean> getNodeLocationAndHasFunctions(String name,
-                                                                                               LSContext context) {
+                                                                                LSContext context) {
         List<BLangPackage> bLangPackages = context.get(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY);
         Location pos;
         PackageID pkgId;

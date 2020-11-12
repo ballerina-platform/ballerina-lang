@@ -19,8 +19,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
@@ -46,8 +45,8 @@ public class IgnoreReturnCodeAction implements DiagBasedCodeAction {
     }
 
     @Override
-    public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context) {
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+    public List<CodeAction> get(Diagnostic diagnostic, CodeActionContext context) {
+        String uri = context.fileUri();
         Position pos = diagnostic.getRange().getStart();
         boolean hasError = false;
         if (typeDescriptor.typeKind() == TypeDescKind.ERROR) {

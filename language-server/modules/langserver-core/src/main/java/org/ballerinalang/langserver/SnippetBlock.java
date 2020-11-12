@@ -17,8 +17,10 @@
 */
 package org.ballerinalang.langserver;
 
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CompletionItem;
@@ -71,16 +73,18 @@ public class SnippetBlock {
      * @param ctx   LS Context
      * @return modified Completion Item
      */
-    public CompletionItem build(LSContext ctx) {
+    public CompletionItem build(CompletionContext ctx) {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setInsertText(this.snippet);
-        List<BLangImportPackage> currentDocImports = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY);
+        List<ImportDeclarationNode> currentDocImports = ctx.getCurrentDocImports();
         if (imports != null) {
             List<TextEdit> importTextEdits = new ArrayList<>();
             for (Pair<String, String> pair : imports) {
                 boolean pkgAlreadyImported = currentDocImports.stream()
-                        .anyMatch(importPkg -> importPkg.orgName.value.equals(pair.getLeft())
-                                && importPkg.alias.value.equals(pair.getRight()));
+                        .anyMatch(importNode -> importNode.orgName().isPresent()
+                                && importNode.orgName().get().orgName().text().equals(pair.getLeft())
+                                && importNode.prefix().isPresent()
+                                && importNode.prefix().get().prefix().text().equals(pair.getRight()));
                 if (!pkgAlreadyImported) {
                     importTextEdits.addAll(CommonUtil.getAutoImportTextEdits(pair.getLeft(), pair.getRight(), ctx));
                 }

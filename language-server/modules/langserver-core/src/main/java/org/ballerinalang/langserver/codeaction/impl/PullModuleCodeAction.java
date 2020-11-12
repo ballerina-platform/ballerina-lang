@@ -17,18 +17,13 @@ package org.ballerinalang.langserver.codeaction.impl;
 
 import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.toml.model.Dependency;
-import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,10 +38,10 @@ import java.util.regex.Matcher;
  */
 public class PullModuleCodeAction implements DiagBasedCodeAction {
     @Override
-    public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
+    public List<CodeAction> get(Diagnostic diagnostic, CodeActionContext context)
             throws LSCodeActionProviderException {
         String diagnosticMessage = diagnostic.getMessage();
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+        String uri = context.fileUri();
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
         List<Diagnostic> diagnostics = new ArrayList<>();
 
@@ -70,22 +65,23 @@ public class PullModuleCodeAction implements DiagBasedCodeAction {
         return new ArrayList<>();
     }
 
-    private static String getVersion(LSContext context, String pkgName, Matcher matcher) {
-        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        String version = matcher.groupCount() > 1 && matcher.group(2) != null ? ":" + matcher.group(2) : "";
-        int aliasIndex = version.indexOf(" as ");
-        if (aliasIndex > 0) {
-            version = version.substring(0, aliasIndex);
-        }
-        if (compilerContext != null && version.isEmpty()) {
-            // If no version in source, try reading Ballerina.toml dependencies
-            ManifestProcessor manifestProcessor = ManifestProcessor.getInstance(compilerContext);
-            Manifest manifest = manifestProcessor.getManifest();
-            List<Dependency> dependencies = manifest.getDependencies();
-            version = dependencies.stream()
-                    .filter(d -> d.getModuleID().equals(pkgName))
-                    .findAny().map(d -> ":" + d.getMetadata().getVersion()).orElse(version);
-        }
-        return version;
+    private static String getVersion(CodeActionContext context, String pkgName, Matcher matcher) {
+//        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+//        String version = matcher.groupCount() > 1 && matcher.group(2) != null ? ":" + matcher.group(2) : "";
+//        int aliasIndex = version.indexOf(" as ");
+//        if (aliasIndex > 0) {
+//            version = version.substring(0, aliasIndex);
+//        }
+//        if (compilerContext != null && version.isEmpty()) {
+//            // If no version in source, try reading Ballerina.toml dependencies
+//            ManifestProcessor manifestProcessor = ManifestProcessor.getInstance(compilerContext);
+//            Manifest manifest = manifestProcessor.getManifest();
+//            List<Dependency> dependencies = manifest.getDependencies();
+//            version = dependencies.stream()
+//                    .filter(d -> d.getModuleID().equals(pkgName))
+//                    .findAny().map(d -> ":" + d.getMetadata().getVersion()).orElse(version);
+//        }
+//        return version;
+        return "";
     }
 }

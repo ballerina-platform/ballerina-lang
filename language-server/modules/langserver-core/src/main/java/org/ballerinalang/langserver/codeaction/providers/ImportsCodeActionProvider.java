@@ -18,11 +18,10 @@ package org.ballerinalang.langserver.codeaction.providers;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.impl.NodeBasedCodeAction;
 import org.ballerinalang.langserver.codeaction.impl.OptimizeImportsCodeAction;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Diagnostic;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,12 +42,11 @@ public class ImportsCodeActionProvider extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext context,
-                                                    List<Diagnostic> allDiagnostics) {
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, CodeActionContext context) {
         NodeBasedCodeAction optimizeImportsCodeAction = new OptimizeImportsCodeAction();
         List<CodeAction> actions = new ArrayList<>();
         try {
-            actions.addAll(optimizeImportsCodeAction.get(nodeType, allDiagnostics, context));
+            actions.addAll(optimizeImportsCodeAction.get(nodeType, context));
         } catch (LSCodeActionProviderException e) {
             //ignore
         }

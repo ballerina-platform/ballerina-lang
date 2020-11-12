@@ -38,9 +38,7 @@ import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.util.references.ReferencesKeys;
-import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
-import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.CreateFile;
 import org.eclipse.lsp4j.Location;
@@ -207,7 +205,9 @@ public class CreateTestExecutor implements LSCommandExecutor {
             LSDocumentIdentifier lsDocument = docManager.getLSDocument(filePath);
             Position pos = new Position(line, column + 1);
             context.put(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST, true);
-            SymbolReferencesModel.Reference refAtCursor = ReferencesUtil.getReferenceAtCursor(context, lsDocument, pos);
+//            SymbolReferencesModel.Reference refAtCursor
+//            = ReferencesUtil.getReferenceAtCursor(context, lsDocument, pos);
+            SymbolReferencesModel.Reference refAtCursor = null;
             BLangNode bLangNode = refAtCursor.getbLangNode();
 
             Position position = new Position(0, 0);
@@ -219,7 +219,7 @@ public class CreateTestExecutor implements LSCommandExecutor {
                 position.setLine(position.getLine() + incrementer);
             };
             List<TextEdit> content = TestGenerator.generate(docManager, bLangNode, focusLineAcceptor, builtSourceFile,
-                                                            pkgRelativeSourceFilePath, testFile, context);
+                    pkgRelativeSourceFilePath, testFile, context);
 
             // If not exists, create a new test file
             List<Either<TextDocumentEdit, ResourceOperation>> edits = new ArrayList<>();
@@ -246,8 +246,7 @@ public class CreateTestExecutor implements LSCommandExecutor {
                 }
             }
             return editParams;
-        } catch (WorkspaceDocumentException | CompilationFailedException | TokenOrSymbolNotFoundException
-                | TestGeneratorException e) {
+        } catch (WorkspaceDocumentException | TestGeneratorException e) {
             String message = "Test generation failed!: " + e.getMessage();
             if (client != null) {
                 client.showMessage(new MessageParams(MessageType.Error, message));

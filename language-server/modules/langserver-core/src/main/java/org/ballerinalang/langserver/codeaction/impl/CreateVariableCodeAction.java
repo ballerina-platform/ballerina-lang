@@ -19,19 +19,18 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
-import static org.ballerinalang.langserver.codeaction.impl.DiagBasedCodeAction.getPossibleTypes;
 import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider.createQuickFixCodeAction;
 
 /**
@@ -49,23 +48,25 @@ public class CreateVariableCodeAction implements DiagBasedCodeAction {
     }
 
     @Override
-    public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context) {
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+    public List<CodeAction> get(Diagnostic diagnostic, CodeActionContext context) {
+        String uri = context.fileUri();
         Position pos = diagnostic.getRange().getStart();
 
-        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+//        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         String name = (this.scopedSymbol != null) ? this.scopedSymbol.name() : this.typeDescriptor.signature();
-        String varName = CommonUtil.generateVariableName(name, CommonUtil.getAllNameEntries(compilerContext));
+        Set<String> nameEntries = CommonUtil.getAllNameEntries(context.getVisibleSymbols(context.getCursorPosition()));
+        String varName = CommonUtil.generateVariableName(name, nameEntries);
         return getCreateVariableCodeActions(context, uri, pos, varName, this.typeDescriptor);
     }
 
-    private static List<CodeAction> getCreateVariableCodeActions(LSContext context, String uri, Position position,
+    private static List<CodeAction> getCreateVariableCodeActions(CodeActionContext context, String uri, Position position,
                                                                  String name,
                                                                  TypeSymbol typeDescriptor) {
         List<CodeAction> actions = new ArrayList<>();
-        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+//        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         List<TextEdit> importEdits = new ArrayList<>();
-        List<String> types = getPossibleTypes(context, typeDescriptor, importEdits, compilerContext);
+//        List<String> types = getPossibleTypes(context, typeDescriptor, importEdits, compilerContext);
+        List<String> types = Collections.emptyList();
 
         for (String type : types) {
             String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;

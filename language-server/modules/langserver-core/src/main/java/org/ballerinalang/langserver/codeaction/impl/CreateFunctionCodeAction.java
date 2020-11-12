@@ -21,11 +21,9 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
@@ -45,13 +43,13 @@ import java.util.regex.Matcher;
  */
 public class CreateFunctionCodeAction implements DiagBasedCodeAction {
     @Override
-    public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
+    public List<CodeAction> get(Diagnostic diagnostic, CodeActionContext context)
             throws LSCodeActionProviderException {
         String diagnosticMessage = diagnostic.getMessage();
         Position position = diagnostic.getRange().getStart();
         int line = position.getLine();
         int column = position.getCharacter();
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+        String uri = context.fileUri();
         CommandArgument lineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + line);
         CommandArgument colArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + column);
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
@@ -60,29 +58,24 @@ public class CreateFunctionCodeAction implements DiagBasedCodeAction {
         List<Object> args = Arrays.asList(lineArg, colArg, uriArg);
         Matcher matcher = CommandConstants.UNDEFINED_FUNCTION_PATTERN.matcher(diagnosticMessage);
         String functionName = (matcher.find() && matcher.groupCount() > 0) ? matcher.group(1) + "(...)" : "";
-        try {
-            Position diagPos = diagnostic.getRange().getStart();
-            NonTerminalNode cursorNode = CommonUtil.findNode(context, diagPos, CommonUtil.getPathFromURI(uri).get());
-            while (cursorNode != null &&
-                    cursorNode.kind() != SyntaxKind.MODULE_PART &&
-                    cursorNode.kind() != SyntaxKind.FUNCTION_DEFINITION &&
-                    cursorNode.kind() != SyntaxKind.FUNCTION_CALL) {
-                cursorNode = cursorNode.parent();
+        NonTerminalNode cursorNode = CommonUtil.findNode(context, diagnostic.getRange().getStart());
+        while (cursorNode != null &&
+                cursorNode.kind() != SyntaxKind.MODULE_PART &&
+                cursorNode.kind() != SyntaxKind.FUNCTION_DEFINITION &&
+                cursorNode.kind() != SyntaxKind.FUNCTION_CALL) {
+            cursorNode = cursorNode.parent();
+        }
+        if (cursorNode != null && cursorNode.kind() == SyntaxKind.FUNCTION_CALL) {
+            FunctionCallExpressionNode callExpr = (FunctionCallExpressionNode) cursorNode;
+            boolean isWithinFile = callExpr.functionName().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE;
+            if (isWithinFile) {
+                String commandTitle = CommandConstants.CREATE_FUNCTION_TITLE + functionName;
+                CodeAction action = new CodeAction(commandTitle);
+                action.setKind(CodeActionKind.QuickFix);
+                action.setCommand(new Command(commandTitle, CreateFunctionExecutor.COMMAND, args));
+                action.setDiagnostics(diagnostics);
+                return Collections.singletonList(action);
             }
-            if (cursorNode != null && cursorNode.kind() == SyntaxKind.FUNCTION_CALL) {
-                FunctionCallExpressionNode callExpr = (FunctionCallExpressionNode) cursorNode;
-                boolean isWithinFile = callExpr.functionName().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE;
-                if (isWithinFile) {
-                    String commandTitle = CommandConstants.CREATE_FUNCTION_TITLE + functionName;
-                    CodeAction action = new CodeAction(commandTitle);
-                    action.setKind(CodeActionKind.QuickFix);
-                    action.setCommand(new Command(commandTitle, CreateFunctionExecutor.COMMAND, args));
-                    action.setDiagnostics(diagnostics);
-                    return Collections.singletonList(action);
-                }
-            }
-        } catch (WorkspaceDocumentException e) {
-            // ignore
         }
         return new ArrayList<>();
     }

@@ -18,7 +18,9 @@ package org.ballerinalang.langserver.codeaction.impl;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.NewLSContext;
 import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -43,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -54,11 +57,9 @@ import java.util.stream.Collectors;
  */
 public interface DiagBasedCodeAction {
 
-    List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
-            throws LSCodeActionProviderException;
+    List<CodeAction> get(Diagnostic diagnostic, CodeActionContext context) throws LSCodeActionProviderException;
 
-
-    static List<String> getPossibleTypes(LSContext context,
+    static List<String> getPossibleTypes(NewLSContext context,
                                          TypeSymbol typeDescriptor,
                                          List<TextEdit> edits,
                                          CompilerContext compilerContext) {
@@ -73,7 +74,8 @@ public interface DiagBasedCodeAction {
             types.add(variableType);
         } else if (typeDescriptor instanceof BLangRecordLiteral) {
             // Record
-            List<BLangPackage> bLangPackages = context.get(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY);
+//            List<BLangPackage> bLangPackages = context.get(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY);
+            List<BLangPackage> bLangPackages = Collections.emptyList();
             BRecordType matchingRecordType = null;
             Types typesChk = Types.getInstance(compilerContext);
             for (BLangPackage pkg : bLangPackages) {
@@ -121,7 +123,7 @@ public interface DiagBasedCodeAction {
             }
             if (isConstrainedMap && prevType != null) {
                 String type = FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor,
-                                                                       context);
+                        context);
                 types.add("map<" + type + ">");
             } else {
                 types.add("map<any>");
@@ -137,13 +139,13 @@ public interface DiagBasedCodeAction {
                 StringJoiner tupleJoiner = new StringJoiner(", ");
                 for (BType type : tupleType.tupleTypes) {
                     String newType = FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor,
-                                                                              context);
+                            context);
                     // TODO: Fix this
 //                    if (prevType != null && !prevType.equals(newType)) {
 //                        isArrayCandidate = false;
 //                    }
 //                    if (type instanceof BTupleType && prevInnerType == null) {
-                        // Checks inner element's type equality
+                    // Checks inner element's type equality
 //                        BTupleType nType = (BTupleType) type;
 //                        boolean isSameInnerType = true;
 //                        for (BType innerType : nType.tupleTypes) {
@@ -178,15 +180,15 @@ public interface DiagBasedCodeAction {
             if (expression instanceof BLangRecordLiteral) {
 //                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
                 return getPossibleTypes(context, typeDescriptor,
-                                        edits,
-                                        compilerContext);
+                        edits,
+                        compilerContext);
             } else {
                 types.add("var");
             }
         } else if (typeDescriptor instanceof BLangBinaryExpr) {
 //            BLangBinaryExpr binaryExpr = (BLangBinaryExpr) typeDescriptor;
             variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor,
-                                                                    context);
+                    context);
             types.add(variableType);
         } else {
             types.add(variableType);

@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.workspace;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -29,6 +30,7 @@ import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
@@ -44,7 +46,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 2.0.0
  */
-public class WorkspaceManager {
+public class BallerinaWorkspaceManager implements WorkspaceManager {
     /**
      * Mapping of source root to project instance.
      */
@@ -72,6 +74,11 @@ public class WorkspaceManager {
         return pathToSourceRootCache.computeIfAbsent(path, this::computeProjectRoot);
     }
 
+    @Override
+    public Path projectRoot(String uri) {
+        return this.projectRoot(CommonUtil.getPathFromURI(uri).orElse(null));
+    }
+
     /**
      * Returns project from the path provided.
      *
@@ -82,22 +89,66 @@ public class WorkspaceManager {
         return Optional.ofNullable(sourceRootToProject.get(projectRoot(filePath)));
     }
 
+    @Override
+    public Optional<Project> project(String uri) {
+        Optional<Path> path = CommonUtil.getPathFromURI(uri);
+        if (path.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return this.project(path.get());
+    }
+
     /**
      * Returns module from the path provided.
      *
-     * @param filePath ballerina project or standalone file path
+     * @param uri ballerina project or standalone file path
      * @return project of applicable type
      */
-    public Optional<Module> module(Path filePath) {
-        Optional<Project> project = project(filePath);
+    public Optional<Module> module(Path uri) {
+        Optional<Project> project = project(uri);
         if (project.isEmpty()) {
             return Optional.empty();
         }
-        Optional<DocumentId> documentId = documentId(filePath, project.get());
+        Optional<DocumentId> documentId = documentId(uri, project.get());
         if (documentId.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(project.get().currentPackage().module(documentId.get().moduleId()));
+    }
+
+    @Override
+    public Optional<Module> module(String uri) {
+        Optional<Path> path = CommonUtil.getPathFromURI(uri);
+        if (path.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return this.module(path.get());
+    }
+
+    /**
+     * Returns semantic model from the path provided.
+     *
+     * @param filePath ballerina project or standalone file path
+     * @return project of applicable type
+     */
+    public Optional<SemanticModel> semanticModel(Path filePath) {
+        Optional<Module> module = this.module(filePath);
+        if (module.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(this.project(filePath).get().currentPackage().getCompilation().getSemanticModel(module.get().moduleId()));
+    }
+
+    @Override
+    public Optional<SemanticModel> semanticModel(String uri) {
+        Optional<Path> path = CommonUtil.getPathFromURI(uri);
+        if (path.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return this.semanticModel(path.get());
     }
 
     /**
@@ -109,6 +160,16 @@ public class WorkspaceManager {
     public Optional<Document> document(Path filePath) {
         Optional<Project> project = project(filePath);
         return project.isPresent() ? document(filePath, project.get()) : Optional.empty();
+    }
+
+    @Override
+    public Optional<Document> document(String uri) {
+        Optional<Path> path = CommonUtil.getPathFromURI(uri);
+        if (path.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return this.document(path.get());
     }
 
     /**
@@ -138,7 +199,7 @@ public class WorkspaceManager {
         if (project.isEmpty()) {
             throw new WorkspaceDocumentException("Cannot add changes to a file in an un-opened project!");
         }
-
+        
         // Get document
         Optional<Document> document = document(filePath.get(), project.get());
         if (document.isEmpty()) {

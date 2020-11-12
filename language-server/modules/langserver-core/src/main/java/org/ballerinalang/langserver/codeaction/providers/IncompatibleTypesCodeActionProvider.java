@@ -19,6 +19,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.impl.ChangeReturnTypeCodeAction;
 import org.ballerinalang.langserver.codeaction.impl.DiagBasedCodeAction;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
@@ -41,9 +42,8 @@ public class IncompatibleTypesCodeActionProvider extends AbstractCodeActionProvi
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> diagnosticsOfRange,
-                                                    List<Diagnostic> allDiagnostics) {
+    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, CodeActionContext context,
+                                                    List<Diagnostic> diagnosticsOfRange) {
         List<CodeAction> actions = new ArrayList<>();
         DiagBasedCodeAction changeReturnTypeCodeAction = new ChangeReturnTypeCodeAction();
         for (Diagnostic diagnostic : diagnosticsOfRange) {
@@ -51,7 +51,7 @@ public class IncompatibleTypesCodeActionProvider extends AbstractCodeActionProvi
                 continue;
             }
             try {
-                actions.addAll(changeReturnTypeCodeAction.get(diagnostic, allDiagnostics, lsContext));
+                actions.addAll(changeReturnTypeCodeAction.get(diagnostic, context));
             } catch (LSCodeActionProviderException e) {
                 //ignore
             }

@@ -20,6 +20,7 @@ import org.ballerinalang.langserver.codeaction.impl.CreateFunctionTestCodeAction
 import org.ballerinalang.langserver.codeaction.impl.CreateServiceTestCodeAction;
 import org.ballerinalang.langserver.codeaction.impl.NodeBasedCodeAction;
 import org.ballerinalang.langserver.common.CommonKeys;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
@@ -50,18 +51,17 @@ public class CreateTestCodeActionProvider extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext context,
-                                                    List<Diagnostic> allDiagnostics) {
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
         NodeBasedCodeAction createFunctionTestCodeAction = new CreateFunctionTestCodeAction();
         NodeBasedCodeAction createServiceTestCodeAction = new CreateServiceTestCodeAction();
         try {
             switch (nodeType.name()) {
                 case CommonKeys.FUNCTION_KEYWORD_KEY:
-                    actions.addAll(createFunctionTestCodeAction.get(nodeType, allDiagnostics, context));
+                    actions.addAll(createFunctionTestCodeAction.get(nodeType, context));
                     break;
                 case CommonKeys.SERVICE_KEYWORD_KEY:
-                    actions.addAll(createServiceTestCodeAction.get(nodeType, allDiagnostics, context));
+                    actions.addAll(createServiceTestCodeAction.get(nodeType, context));
                     break;
                 default:
             }

@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.codeaction.providers;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.impl.DiagBasedCodeAction;
 import org.ballerinalang.langserver.codeaction.impl.ImportModuleCodeAction;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
 import org.eclipse.lsp4j.CodeAction;
@@ -43,9 +43,8 @@ public class UndefinedModuleCodeActionProvider extends AbstractCodeActionProvide
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> diagnosticsOfRange,
-                                                    List<Diagnostic> allDiagnostics) {
+    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, CodeActionContext context,
+                                                    List<Diagnostic> diagnosticsOfRange) {
         List<CodeAction> actions = new ArrayList<>();
         DiagBasedCodeAction importModuleCodeAction = new ImportModuleCodeAction();
 
@@ -59,7 +58,7 @@ public class UndefinedModuleCodeActionProvider extends AbstractCodeActionProvide
                 continue;
             }
             try {
-                actions.addAll(importModuleCodeAction.get(diagnostic, allDiagnostics, lsContext));
+                actions.addAll(importModuleCodeAction.get(diagnostic, context));
             } catch (LSCodeActionProviderException e) {
                 // ignore
             }

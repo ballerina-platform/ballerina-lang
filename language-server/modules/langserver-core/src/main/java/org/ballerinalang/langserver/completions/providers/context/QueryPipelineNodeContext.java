@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.QueryPipelineNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -40,7 +40,7 @@ public class QueryPipelineNodeContext extends AbstractCompletionProvider<QueryPi
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, QueryPipelineNode node) {
+    public List<LSCompletionItem> getCompletions(CompletionContext context, QueryPipelineNode node) {
         if (node.fromClause().isMissing() || node.fromClause().fromKeyword().isMissing()) {
             /*
             Covers the following

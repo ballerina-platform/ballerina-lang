@@ -29,6 +29,7 @@ import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.symbols.WorkerSymbol;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -36,13 +37,11 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.SnippetBlock;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.completion.spi.CompletionProvider;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -60,9 +59,7 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -115,12 +112,12 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, T node) {
+    public boolean onPreValidation(CompletionContext context, T node) {
         return true;
     }
 
     @Override
-    public void sort(LSContext context, T node, List<LSCompletionItem> completionItems) {
+    public void sort(CompletionContext context, T node, List<LSCompletionItem> completionItems) {
         for (LSCompletionItem item : completionItems) {
             CompletionItem cItem = item.getCompletionItem();
             int rank;
@@ -139,7 +136,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * {@inheritDoc}
      */
     @Override
-    public void sort(LSContext context, T node, List<LSCompletionItem> completionItems, Object... metaData) {
+    public void sort(CompletionContext context, T node, List<LSCompletionItem> completionItems, Object... metaData) {
         this.sort(context, node, completionItems);
     }
 
@@ -147,10 +144,10 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * Populate the completion item list by considering the.
      *
      * @param scopeEntries list of symbol information
-     * @param context      Language server operation context
+     * @param ctx          Language server operation context
      * @return {@link List}     list of completion items
      */
-    protected List<LSCompletionItem> getCompletionItemList(List<? extends Symbol> scopeEntries, LSContext context) {
+    protected List<LSCompletionItem> getCompletionItemList(List<? extends Symbol> scopeEntries, CompletionContext ctx) {
         List<Symbol> processedSymbols = new ArrayList<>();
         List<LSCompletionItem> completionItems = new ArrayList<>();
         scopeEntries.forEach(symbol -> {
@@ -158,23 +155,23 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                 return;
             }
             if (symbol.kind() == FUNCTION || symbol.kind() == METHOD) {
-                completionItems.add(populateBallerinaFunctionCompletionItem(symbol, context));
+                completionItems.add(populateBallerinaFunctionCompletionItem(symbol, ctx));
             } else if (symbol.kind() == SymbolKind.CONSTANT) {
-                CompletionItem constantCItem = ConstantCompletionItemBuilder.build((ConstantSymbol) symbol, context);
-                completionItems.add(new SymbolCompletionItem(context, symbol, constantCItem));
+                CompletionItem constantCItem = ConstantCompletionItemBuilder.build((ConstantSymbol) symbol);
+                completionItems.add(new SymbolCompletionItem(ctx, symbol, constantCItem));
             } else if (symbol.kind() == SymbolKind.VARIABLE) {
                 VariableSymbol varSymbol = (VariableSymbol) symbol;
                 TypeSymbol typeDesc = (varSymbol).typeDescriptor();
                 String typeName = typeDesc.signature();
                 CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, symbol.name(), typeName);
-                completionItems.add(new SymbolCompletionItem(context, symbol, variableCItem));
+                completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
             } else if (symbol.kind() == SymbolKind.TYPE) {
                 // Here skip all the package symbols since the package is added separately
                 CompletionItem typeCItem = TypeCompletionItemBuilder.build(symbol, symbol.name());
-                completionItems.add(new SymbolCompletionItem(context, symbol, typeCItem));
+                completionItems.add(new SymbolCompletionItem(ctx, symbol, typeCItem));
             } else if (symbol.kind() == SymbolKind.WORKER) {
                 CompletionItem workerItem = WorkerCompletionItemBuilder.build((WorkerSymbol) symbol);
-                completionItems.add(new SymbolCompletionItem(context, symbol, workerItem));
+                completionItems.add(new SymbolCompletionItem(ctx, symbol, workerItem));
             }
             processedSymbols.add(symbol);
         });
@@ -187,8 +184,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @param context LS Operation Context
      * @return {@link List}     List of completion items
      */
-    protected List<LSCompletionItem> getTypeItems(LSContext context) {
-        List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+    protected List<LSCompletionItem> getTypeItems(CompletionContext context) {
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
         List<LSCompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.forEach(bSymbol -> {
             if (bSymbol.kind() == SymbolKind.TYPE) {
@@ -230,22 +227,21 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @param ctx LS Operation context
      * @return {@link List}     List of packages completion items
      */
-    protected List<LSCompletionItem> getModuleCompletionItems(LSContext ctx) {
+    protected List<LSCompletionItem> getModuleCompletionItems(CompletionContext ctx) {
         // First we include the packages from the imported list.
         List<String> populatedList = new ArrayList<>();
-        BLangPackage currentPkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        List<BLangImportPackage> currentModuleImports = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY);
+        List<ImportDeclarationNode> currentModuleImports = ctx.getCurrentDocImports();
         List<LSCompletionItem> completionItems = currentModuleImports.stream()
-                .map(pkg -> {
-                    String orgName = pkg.orgName.value;
-                    String pkgName = pkg.pkgNameComps.stream()
-                            .map(id -> id.value)
+                .map(importNode -> {
+                    String orgName = importNode.orgName().get().orgName().text();
+                    String pkgName = importNode.moduleName().stream()
+                            .map(Token::text)
                             .collect(Collectors.joining("."));
-                    String label = pkg.alias.value;
-                    String insertText = pkg.alias.value;
+                    String label = importNode.prefix().get().prefix().text();
+                    String insertText = importNode.prefix().get().prefix().text();
                     // If the import is a langlib module and there isn't a user defined alias we add ' before
-                    if ("ballerina".equals(orgName) && pkg.pkgNameComps.get(0).getValue().equals("lang")
-                            && pkgName.endsWith("." + pkg.alias.value)
+                    if ("ballerina".equals(orgName) && importNode.moduleName().get(0).text().equals("lang")
+                            && pkgName.endsWith("." + importNode.prefix().get().prefix().text())
                             && this.appendSingleQuoteForPackageInsertText(ctx)) {
                         insertText = "'" + insertText;
                     }
@@ -260,13 +256,15 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
 
         List<BallerinaPackage> packages = LSPackageLoader.getSdkPackages();
         packages.addAll(LSPackageLoader.getHomeRepoPackages());
-        packages.addAll(LSPackageLoader.getCurrentProjectModules(currentPkg, ctx));
+        // TODO: Refactor to match the latest project structure
+//        packages.addAll(LSPackageLoader.getCurrentProjectModules(currentPkg, ctx));
         packages.forEach(pkg -> {
             String name = pkg.getPackageName();
             String orgName = pkg.getOrgName();
             boolean pkgAlreadyImported = currentModuleImports.stream()
-                    .anyMatch(importPkg -> importPkg.orgName.value.equals(orgName)
-                            && importPkg.alias.value.equals(name));
+                    .anyMatch(importPkg -> importPkg.orgName().isPresent()
+                            && importPkg.orgName().get().orgName().text().equals(orgName)
+                            && importPkg.prefix().isPresent() && importPkg.prefix().get().prefix().text().equals(name));
             if (!pkgAlreadyImported && !populatedList.contains(orgName + "/" + name)
                     && !this.isPreDeclaredLangLib(pkg)) {
                 CompletionItem item = new CompletionItem();
@@ -292,7 +290,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
             }
         });
 
-        List<LSCompletionItem> langlibModules = ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY).stream()
+        List<LSCompletionItem> langlibModules = ctx.getVisibleSymbols(ctx.getCursorPosition()).stream()
                 .filter(symbol -> {
                     ModuleID moduleID = symbol.moduleID();
                     return symbol.kind() == MODULE && moduleID.orgName().equals("ballerina")
@@ -312,8 +310,9 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @param ctx Language Server Context
      * @return {@link Optional} Completion List
      */
-    protected List<LSCompletionItem> getResourceSnippets(LSContext ctx) {
-        BLangNode symbolEnvNode = ctx.get(CompletionKeys.SCOPE_NODE_KEY);
+    protected List<LSCompletionItem> getResourceSnippets(CompletionContext ctx) {
+        // TODO: Fix after the service refactor
+        BLangNode symbolEnvNode = null;
         List<LSCompletionItem> items = new ArrayList<>();
         if (!(symbolEnvNode instanceof BLangService)) {
             return items;
@@ -377,17 +376,17 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         return items;
     }
 
-    protected boolean onQualifiedNameIdentifier(LSContext context, Node node) {
+    protected boolean onQualifiedNameIdentifier(CompletionContext context, Node node) {
         if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             return false;
         }
         int colonPos = ((QualifiedNameReferenceNode) node).colon().textRange().startOffset();
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        int cursor = context.getCursorPositionInTree();
 
         return colonPos < cursor;
     }
 
-    private void addAllWSClientResources(LSContext ctx, List<LSCompletionItem> items, BLangService service) {
+    private void addAllWSClientResources(CompletionContext ctx, List<LSCompletionItem> items, BLangService service) {
         addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_TEXT.get(), service, items, ctx);
         addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_BINARY.get(), service, items, ctx);
         addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_PING.get(), service, items, ctx);
@@ -397,7 +396,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_CLOSE.get(), service, items, ctx);
     }
 
-    private void addAllWSResources(LSContext ctx, List<LSCompletionItem> items, BLangService service) {
+    private void addAllWSResources(CompletionContext ctx, List<LSCompletionItem> items, BLangService service) {
         addIfNotExists(Snippet.DEF_RESOURCE_WS_OPEN.get(), service, items, ctx);
         addIfNotExists(Snippet.DEF_RESOURCE_WS_TEXT.get(), service, items, ctx);
         addIfNotExists(Snippet.DEF_RESOURCE_WS_BINARY.get(), service, items, ctx);
@@ -415,7 +414,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @param context    Language server operation context
      * @return {@link LSCompletionItem} generated
      */
-    protected LSCompletionItem getImplicitNewCompletionItem(ObjectTypeSymbol objectType, LSContext context) {
+    protected LSCompletionItem getImplicitNewCompletionItem(ObjectTypeSymbol objectType, CompletionContext context) {
         CompletionItem cItem = FunctionCompletionItemBuilder.build(objectType,
                 FunctionCompletionItemBuilder.InitializerBuildMode.IMPLICIT, context);
         MethodSymbol initMethod = objectType.initMethod().isPresent() ? objectType.initMethod().get() : null;
@@ -423,7 +422,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         return new SymbolCompletionItem(context, initMethod, cItem);
     }
 
-    protected LSCompletionItem getExplicitNewCompletionItem(ObjectTypeSymbol objectType, LSContext context) {
+    protected LSCompletionItem getExplicitNewCompletionItem(ObjectTypeSymbol objectType, CompletionContext context) {
         CompletionItem cItem = FunctionCompletionItemBuilder.build(objectType,
                 FunctionCompletionItemBuilder.InitializerBuildMode.EXPLICIT, context);
         MethodSymbol initMethod = objectType.initMethod().isPresent() ? objectType.initMethod().get() : null;
@@ -439,7 +438,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @param symbol symbol Entry
      * @return completion item
      */
-    private LSCompletionItem populateBallerinaFunctionCompletionItem(Symbol symbol, LSContext context) {
+    private LSCompletionItem populateBallerinaFunctionCompletionItem(Symbol symbol, CompletionContext context) {
         if (symbol.kind() != SymbolKind.FUNCTION && symbol.kind() != SymbolKind.METHOD) {
             return null;
         }
@@ -464,7 +463,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                 || tokenAtCursor.text().equals(SyntaxKind.COLON_TOKEN.stringValue());
     }
 
-    protected List<LSCompletionItem> actionKWCompletions(LSContext context) {
+    protected List<LSCompletionItem> actionKWCompletions(CompletionContext context) {
         /*
         Add the start keywords of the following actions.
         start, wait, flush, check, check panic, trap, query action (query pipeline starts with from keyword)
@@ -479,8 +478,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         );
     }
 
-    protected List<LSCompletionItem> expressionCompletions(LSContext context) {
-        List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+    protected List<LSCompletionItem> expressionCompletions(CompletionContext context) {
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
         /*
         check and check panic expression starts with check and check panic keywords, Which has been added with actions.
         query pipeline starts with from keyword and also being added with the actions
@@ -517,7 +516,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                 && CommonUtil.PRE_DECLARED_LANG_LIBS.contains(ballerinaPackage.getPackageName());
     }
 
-    private List<LSCompletionItem> getBasicAndOtherTypeCompletions(LSContext context) {
+    private List<LSCompletionItem> getBasicAndOtherTypeCompletions(CompletionContext context) {
         List<String> types = Arrays.asList("float", "xml", "readonly", "handle", "never", "decimal", "string", "stream",
                 "json", "table", "anydata", "any", "int", "boolean", "future", "service", "typedesc", "byte");
         List<LSCompletionItem> completionItems = new ArrayList<>();
@@ -579,14 +578,14 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         return Optional.empty();
     }
 
-    private boolean appendSingleQuoteForPackageInsertText(LSContext context) {
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+    private boolean appendSingleQuoteForPackageInsertText(CompletionContext context) {
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         return !(nodeAtCursor != null && nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
                 ((SimpleNameReferenceNode) nodeAtCursor).name().text().startsWith("'"));
     }
 
     private void addIfNotExists(SnippetBlock snippet, BLangService service, List<LSCompletionItem> items,
-                                LSContext ctx) {
+                                CompletionContext ctx) {
         boolean found = false;
         for (BLangFunction resource : service.getResources()) {
             if (snippet.getLabel().endsWith(resource.name.value + " " + ItemResolverConstants.RESOURCE)) {
@@ -598,7 +597,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         }
     }
 
-    private LSCompletionItem getLangLibCompletionItem(ModuleID moduleID, LSContext context) {
+    private LSCompletionItem getLangLibCompletionItem(ModuleID moduleID, CompletionContext context) {
         CompletionItem item = new CompletionItem();
         item.setLabel(moduleID.orgName() + "/" + moduleID.moduleName());
         String insertText = "'" + moduleID.modulePrefix();

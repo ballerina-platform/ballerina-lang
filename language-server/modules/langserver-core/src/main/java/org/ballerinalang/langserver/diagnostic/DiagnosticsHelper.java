@@ -15,28 +15,24 @@
  */
 package org.ballerinalang.langserver.diagnostic;
 
+import io.ballerina.projects.Module;
+import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.NewLSContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
-import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
-import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Utilities for the diagnostics related operations.
@@ -62,20 +58,19 @@ public class DiagnosticsHelper {
     /**
      * Compiles and publishes diagnostics for a source file.
      *
-     * @param client     Language server client
-     * @param context    LS context
-     * @param lsDoc {@link LSDocumentIdentifierImpl}
-     * @param docManager LS Document manager
-     * @throws CompilationFailedException throws a LS compiler exception
+     * @param client  Language server client
+     * @param context LS context
      */
-    public synchronized void compileAndSendDiagnostics(ExtendedLanguageClient client, LSContext context,
-                                                       LSDocumentIdentifier lsDoc, WorkspaceDocumentManager docManager)
-            throws CompilationFailedException {
+    public synchronized void compileAndSendDiagnostics(ExtendedLanguageClient client, NewLSContext context) {
         // Compile diagnostics
-        List<BLangPackage> packages = LSModuleCompiler.getBLangPackages(context, docManager, true, true, true);
         Map<String, List<Diagnostic>> diagnosticMap = new HashMap<>();
-        for (BLangPackage pkg : packages) {
-            populateDiagnostics(diagnosticMap, pkg.packageID, pkg.getDiagnostics(), lsDoc);
+        Optional<Project> project = context.workspace().project(context.fileUri());
+        if (project.isEmpty()) {
+            return;
+        }
+        String sourceRoot = project.get().sourceRoot().toString();
+        for (Module module : project.get().currentPackage().modules()) {
+            populateDiagnostics(diagnosticMap, module, Path.of(sourceRoot));
         }
 
         // If the client is null, returns
@@ -88,27 +83,19 @@ public class DiagnosticsHelper {
 
         // Publish diagnostics
         diagnosticMap.forEach((key, value) -> client.publishDiagnostics(new PublishDiagnosticsParams(key, value)));
-      
+
         // Replace old map
         lastDiagnosticMap = diagnosticMap;
     }
 
-    private void populateDiagnostics(Map<String, List<Diagnostic>> diagnosticsMap, PackageID pkgId,
-                                     List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics,
-                                     LSDocumentIdentifier lsDocument) {
-        for (io.ballerina.tools.diagnostics.Diagnostic diag : diagnostics) {
-            Path diagnosticRoot = lsDocument.getProjectRootPath();
+    private void populateDiagnostics(Map<String, List<Diagnostic>> diagnosticsMap, Module module, Path sourceRoot) {
+        for (io.ballerina.tools.diagnostics.Diagnostic diag : module.getCompilation().diagnostics().diagnostics()) {
+
             Location location = diag.location();
-            String moduleName = pkgId.getName().getValue();
-            String fileName = location.lineRange().filePath();
-            if (lsDocument.isWithinProject()) {
-                diagnosticRoot = diagnosticRoot.resolve("src");
-            }
-            
-            if (!".".equals(moduleName)) {
-                diagnosticRoot = diagnosticRoot.resolve(moduleName);
-            }
-            String fileURI = diagnosticRoot.resolve(fileName).toUri().toString() + "";
+            String filePath = location.lineRange().filePath();
+            String moduleName = module.moduleName().moduleNamePart();
+
+            String fileURI = sourceRoot.resolve(moduleName).resolve(filePath).toUri().toString();
             diagnosticsMap.putIfAbsent(fileURI, new ArrayList<>());
 
             LineRange lineRange = location.lineRange();

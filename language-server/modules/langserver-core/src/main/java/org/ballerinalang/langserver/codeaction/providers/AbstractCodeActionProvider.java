@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
@@ -75,8 +76,7 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> allDiagnostics) {
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, CodeActionContext codeActionContext) {
         throw new UnsupportedOperationException("Not supported");
     }
 
@@ -84,9 +84,8 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> diagnosticsOfRange,
-                                                    List<Diagnostic> allDiagnostics) {
+    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, CodeActionContext codeActionContext,
+                                                    List<Diagnostic> diagnosticsOfRange) {
         throw new UnsupportedOperationException("Not supported");
     }
 

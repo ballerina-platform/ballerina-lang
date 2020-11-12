@@ -19,25 +19,22 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -58,30 +55,25 @@ public class OptimizeImportsCodeAction implements NodeBasedCodeAction {
     private static final String ALIAS_SEPARATOR = "as";
 
     @Override
-    public List<CodeAction> get(CodeActionNodeType nodeType, List<Diagnostic> allDiagnostics, LSContext context)
-            throws LSCodeActionProviderException {
+    public List<CodeAction> get(CodeActionNodeType nodeType, CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+        String uri = context.fileUri();
 
-        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        SyntaxTree tree = null;
-        try {
-            tree = documentManager.getTree(CommonUtil.getPathFromURI(uri).get());
-        } catch (WorkspaceDocumentException e) {
+        Optional<Document> document = context.workspace().document(context.fileUri());
+        if (document.isEmpty()) {
             return actions;
         }
-        ModulePartNode modulePartNode = tree.rootNode();
+        ModulePartNode modulePartNode = document.get().syntaxTree().rootNode();
         NodeList<ImportDeclarationNode> fileImports = modulePartNode.imports();
 
-        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        if (bLangPackage == null || fileImports == null || fileImports.isEmpty()) {
+        if (fileImports == null || fileImports.isEmpty()) {
             return actions;
         }
 
         List<String[]> toBeRemovedImports = new ArrayList<>();
 
         // Filter unused imports
-        for (Diagnostic diag : allDiagnostics) {
+        for (Diagnostic diag : context.getDiagnostics()) {
             if (diag.getMessage().startsWith(UNUSED_IMPORT_MODULE)) {
                 Matcher matcher = CommandConstants.UNUSED_IMPORT_MODULE_PATTERN.matcher(diag.getMessage());
                 if (matcher.find()) {
@@ -122,7 +114,7 @@ public class OptimizeImportsCodeAction implements NodeBasedCodeAction {
 
             // Mark locations of the imports
             Range range = new Range(new Position(pos.startLine().line() - 1, pos.startLine().offset() - 1),
-                                    new Position(pos.endLine().line() - 1, pos.endLine().offset() - 1));
+                    new Position(pos.endLine().line() - 1, pos.endLine().offset() - 1));
             importLines.add(range);
 
             // Remove any matching imports on-the-go
@@ -142,7 +134,7 @@ public class OptimizeImportsCodeAction implements NodeBasedCodeAction {
         final List<ImportDeclarationNode> orderedImports = allImports.stream()
                 .sorted(Comparator.comparing((Function<ImportDeclarationNode, String>) o -> o.orgName().isPresent() ?
                         o.orgName().get().orgName().text() : "")
-                                .thenComparing(o -> o.prefix().isPresent() ? o.prefix().get().prefix().text() : ""))
+                        .thenComparing(o -> o.prefix().isPresent() ? o.prefix().get().prefix().text() : ""))
                 .collect(Collectors.toList());
 
         // Mark import removal ranges

@@ -19,6 +19,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.impl.DiagBasedCodeAction;
 import org.ballerinalang.langserver.codeaction.impl.ImplementFunctionsCodeAction;
 import org.ballerinalang.langserver.codeaction.impl.MakeNonAbstractObjectCodeAction;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
@@ -51,21 +52,16 @@ public class NoImplFoundCodeActionProvider extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> diagnosticsOfRange,
-                                                    List<Diagnostic> allDiagnostics) {
+    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, CodeActionContext context,
+                                                    List<Diagnostic> diagnosticsOfRange) {
         List<CodeAction> actions = new ArrayList<>();
-        BLangPackage bLangPackage = lsContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        if (bLangPackage == null) {
-            return actions;
-        }
         DiagBasedCodeAction implementFunctionsCodeAction = new ImplementFunctionsCodeAction();
         for (Diagnostic diagnostic : diagnosticsOfRange) {
             if (!(diagnostic.getMessage().startsWith(NO_IMPL_FOUND_FOR_FUNCTION))) {
                 continue;
             }
             try {
-                actions.addAll(implementFunctionsCodeAction.get(diagnostic, allDiagnostics, lsContext));
+                actions.addAll(implementFunctionsCodeAction.get(diagnostic, context));
             } catch (LSCodeActionProviderException e) {
                 // ignore
             }
@@ -80,7 +76,7 @@ public class NoImplFoundCodeActionProvider extends AbstractCodeActionProvider {
         DiagBasedCodeAction makeNonAbstractObjectCodeAction = new MakeNonAbstractObjectCodeAction();
         rangeToDiagnostics.values().forEach(diagnostic -> {
             try {
-                makeNonAbstractObjectCodeAction.get(diagnostic, allDiagnostics, lsContext);
+                makeNonAbstractObjectCodeAction.get(diagnostic, context);
             } catch (LSCodeActionProviderException e) {
                 // ignore
             }

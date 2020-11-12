@@ -15,25 +15,12 @@
  */
 package org.ballerinalang.langserver.codeaction.impl;
 
-import org.ballerinalang.langserver.command.CommandUtil;
-import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextEdit;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-
-import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider.createQuickFixCodeAction;
 
 /**
  * Code Action for marking as untainted.
@@ -42,30 +29,29 @@ import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActi
  */
 public class MarkAsUntaintedCodeAction implements DiagBasedCodeAction {
     @Override
-    public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
-            throws LSCodeActionProviderException {
+    public List<CodeAction> get(Diagnostic diagnostic, CodeActionContext context) {
         String diagnosticMessage = diagnostic.getMessage();
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-        try {
-            Matcher matcher = CommandConstants.TAINTED_PARAM_PATTERN.matcher(diagnosticMessage);
-            if (matcher.find() && matcher.groupCount() > 0) {
-                String param = matcher.group(1);
-                String commandTitle = String.format(CommandConstants.MARK_UNTAINTED_TITLE, param);
-                // Extract specific content range
-                Range range = diagnostic.getRange();
-                WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-                String content = CommandUtil.getContentOfRange(documentManager, uri, range);
-                // Add `untaint` keyword
-                matcher = CommandConstants.NO_CONCAT_PATTERN.matcher(content);
-                String editText = matcher.find() ? "<@untainted>  " + content : "<@untainted> (" + content + ")";
-                // Create text-edit
-                List<TextEdit> edits = new ArrayList<>();
-                edits.add(new TextEdit(range, editText));
-                return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, uri));
-            }
-        } catch (WorkspaceDocumentException | IOException e) {
-            //do nothing
-        }
+        String uri = context.fileUri();
+//        try {
+//            Matcher matcher = CommandConstants.TAINTED_PARAM_PATTERN.matcher(diagnosticMessage);
+//            if (matcher.find() && matcher.groupCount() > 0) {
+//                String param = matcher.group(1);
+//                String commandTitle = String.format(CommandConstants.MARK_UNTAINTED_TITLE, param);
+//                // Extract specific content range
+//                Range range = diagnostic.getRange();
+//                WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+//                String content = CommandUtil.getContentOfRange(documentManager, uri, range);
+//                // Add `untaint` keyword
+//                matcher = CommandConstants.NO_CONCAT_PATTERN.matcher(content);
+//                String editText = matcher.find() ? "<@untainted>  " + content : "<@untainted> (" + content + ")";
+//                // Create text-edit
+//                List<TextEdit> edits = new ArrayList<>();
+//                edits.add(new TextEdit(range, editText));
+//                return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, uri));
+//            }
+//        } catch (WorkspaceDocumentException | IOException e) {
+//            //do nothing
+//        }
         return new ArrayList<>();
     }
 }

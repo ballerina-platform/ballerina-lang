@@ -41,10 +41,9 @@ public class ConstantCompletionItemBuilder {
      * Build the constant {@link CompletionItem}.
      *
      * @param constantSymbol constant symbol
-     * @param context        Language server operation context
      * @return {@link CompletionItem} generated completion item
      */
-    public static CompletionItem build(ConstantSymbol constantSymbol, LSContext context) {
+    public static CompletionItem build(ConstantSymbol constantSymbol) {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(constantSymbol.name());
         completionItem.setInsertText(constantSymbol.name());

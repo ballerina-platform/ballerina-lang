@@ -15,21 +15,14 @@
  */
 package org.ballerinalang.langserver.codeaction.impl;
 
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
-import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.util.references.ReferencesKeys;
-import org.ballerinalang.langserver.util.references.ReferencesUtil;
-import org.ballerinalang.langserver.util.references.SymbolReferencesModel.Reference;
 import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.ballerinalang.model.elements.Flag;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -44,16 +37,14 @@ import java.util.List;
  */
 public interface NodeBasedCodeAction {
 
-    List<CodeAction> get(CodeActionNodeType nodeType, List<Diagnostic> allDiagnostics, LSContext context)
-            throws LSCodeActionProviderException;
+    List<CodeAction> get(CodeActionNodeType nodeType, CodeActionContext context) throws LSCodeActionProviderException;
 
-    static boolean isTopLevelNode(String uri, WorkspaceDocumentManager docManager, LSContext context,
-                                  Position pos)
+    static boolean isTopLevelNode(String uri, CodeActionContext context, Position pos)
             throws CompilationFailedException, WorkspaceDocumentException, TokenOrSymbolNotFoundException {
-        LSDocumentIdentifier lsDocument = docManager.getLSDocument(CommonUtil.getPathFromURI(uri).get());
-        context.put(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST, true);
-        Reference refAtCursor = ReferencesUtil.getReferenceAtCursor(context, lsDocument, pos);
-        BLangNode bLangNode = refAtCursor.getbLangNode();
+//        LSDocumentIdentifier lsDocument = docManager.getLSDocument(CommonUtil.getPathFromURI(uri).get());
+//        context.put(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST, true);
+//        Reference refAtCursor = ReferencesUtil.getReferenceAtCursor(context, lsDocument, pos);
+        BLangNode bLangNode = null;
 
         // Only supported for 'public' functions
         if (bLangNode instanceof BLangFunction &&
@@ -63,5 +54,6 @@ public interface NodeBasedCodeAction {
 
         // Only supported for top-level nodes
         return (bLangNode != null && bLangNode.parent instanceof BLangPackage);
+
     }
 }

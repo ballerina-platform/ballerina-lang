@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
@@ -47,7 +47,7 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext ctx, ImportOrgNameNode node) {
+    public List<LSCompletionItem> getCompletions(CompletionContext ctx, ImportOrgNameNode node) {
         /*
         Following use cases are addressed.
         Eg: (1) import org/<cursor>
@@ -70,7 +70,7 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
         return pkgName.replace(".", ".'") + ";";
     }
 
-    private ArrayList<LSCompletionItem> moduleNameContextCompletions(LSContext context, String orgName,
+    private ArrayList<LSCompletionItem> moduleNameContextCompletions(CompletionContext context, String orgName,
                                                                      List<BallerinaPackage> packagesList) {
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<String> pkgNameLabels = new ArrayList<>();
@@ -97,7 +97,7 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
         return completionItems;
     }
 
-    private static LSCompletionItem getImportCompletion(LSContext context, String label, String insertText) {
+    private static LSCompletionItem getImportCompletion(CompletionContext context, String label, String insertText) {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         item.setInsertText(insertText);

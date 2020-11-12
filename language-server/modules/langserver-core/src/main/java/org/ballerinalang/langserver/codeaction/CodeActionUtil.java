@@ -28,18 +28,13 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -65,17 +60,12 @@ public class CodeActionUtil {
      * @param docManager Workspace document manager
      * @return {@link String}   Top level node type
      */
-    public static CodeActionNodeType topLevelNodeInLine(LSContext context, TextDocumentIdentifier identifier,
-                                                        int cursorLine, WorkspaceDocumentManager docManager)
-            throws CompilationFailedException {
+    public static CodeActionNodeType topLevelNodeInLine(TextDocumentIdentifier identifier, int cursorLine,
+                                                        WorkspaceDocumentManager docManager) {
         Optional<Path> filePath = CommonUtil.getPathFromURI(identifier.getUri());
         if (filePath.isEmpty()) {
             return null;
         }
-
-        BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager, false, false);
-        List<Diagnostic> diagnostics = bLangPackage.getDiagnostics();
-        context.put(CodeActionKeys.DIAGNOSTICS_KEY, CodeActionUtil.toDiagnostics(diagnostics));
 
         ModulePartNode modulePartNode;
         try {

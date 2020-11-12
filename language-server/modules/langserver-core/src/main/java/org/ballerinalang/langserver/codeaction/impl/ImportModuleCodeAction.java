@@ -16,34 +16,21 @@
 package org.ballerinalang.langserver.codeaction.impl;
 
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextDocumentEdit;
-import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
-import org.eclipse.lsp4j.WorkspaceEdit;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -53,14 +40,13 @@ import java.util.List;
  */
 public class ImportModuleCodeAction implements DiagBasedCodeAction {
     @Override
-    public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
-            throws LSCodeActionProviderException {
+    public List<CodeAction> get(Diagnostic diagnostic, CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+        String uri = context.fileUri();
         List<Diagnostic> diagnostics = new ArrayList<>();
         String diagnosticMessage = diagnostic.getMessage();
         String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
-                                                          diagnosticMessage.lastIndexOf("'"));
+                diagnosticMessage.lastIndexOf("'"));
         LSDocumentIdentifier sourceDocument = new LSDocumentIdentifierImpl(uri);
         String sourceRoot = LSCompilerUtil.getProjectRoot(sourceDocument.getPath());
         sourceDocument.setProjectRootRoot(sourceRoot);
@@ -68,34 +54,34 @@ public class ImportModuleCodeAction implements DiagBasedCodeAction {
         packagesList.addAll(LSPackageLoader.getSdkPackages());
         packagesList.addAll(LSPackageLoader.getHomeRepoPackages());
 
-        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        packagesList.addAll(LSPackageLoader.getCurrentProjectModules(bLangPackage, context));
-
-        packagesList.stream()
-                .filter(pkgEntry -> {
-                    String fullPkgName = pkgEntry.getFullPackageNameAlias();
-                    return fullPkgName.endsWith("." + packageAlias) || fullPkgName.endsWith("/" + packageAlias);
-                })
-                .forEach(pkgEntry -> {
-                    String commandTitle = String.format(CommandConstants.IMPORT_MODULE_TITLE,
-                                                        pkgEntry.getFullPackageNameAlias());
-                    String moduleName = CommonUtil.escapeModuleName(context, pkgEntry.getFullPackageNameAlias());
-                    CodeAction action = new CodeAction(commandTitle);
-                    Position insertPos = getImportPosition(bLangPackage, context);
-                    String importText = ItemResolverConstants.IMPORT + " " + moduleName
-                            + CommonKeys.SEMI_COLON_SYMBOL_KEY + CommonUtil.LINE_SEPARATOR;
-                    List<TextEdit> edits = Collections.singletonList(
-                            new TextEdit(new Range(insertPos, insertPos), importText));
-                    action.setKind(CodeActionKind.QuickFix);
-                    action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
-                            new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
-                    action.setDiagnostics(diagnostics);
-                    actions.add(action);
-                });
+//        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+//        packagesList.addAll(LSPackageLoader.getCurrentProjectModules(bLangPackage, context));
+//
+//        packagesList.stream()
+//                .filter(pkgEntry -> {
+//                    String fullPkgName = pkgEntry.getFullPackageNameAlias();
+//                    return fullPkgName.endsWith("." + packageAlias) || fullPkgName.endsWith("/" + packageAlias);
+//                })
+//                .forEach(pkgEntry -> {
+//                    String commandTitle = String.format(CommandConstants.IMPORT_MODULE_TITLE,
+//                                                        pkgEntry.getFullPackageNameAlias());
+//                    String moduleName = CommonUtil.escapeModuleName(context, pkgEntry.getFullPackageNameAlias());
+//                    CodeAction action = new CodeAction(commandTitle);
+//                    Position insertPos = getImportPosition(bLangPackage, context);
+//                    String importText = ItemResolverConstants.IMPORT + " " + moduleName
+//                            + CommonKeys.SEMI_COLON_SYMBOL_KEY + CommonUtil.LINE_SEPARATOR;
+//                    List<TextEdit> edits = Collections.singletonList(
+//                            new TextEdit(new Range(insertPos, insertPos), importText));
+//                    action.setKind(CodeActionKind.QuickFix);
+//                    action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
+//                            new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
+//                    action.setDiagnostics(diagnostics);
+//                    actions.add(action);
+//                });
         return actions;
     }
 
-    private static Position getImportPosition(BLangPackage bLangPackage, LSContext context) {
+    private static Position getImportPosition(BLangPackage bLangPackage, CodeActionContext context) {
         // Calculate initial import insertion line
         List<TopLevelNode> nodes = CommonUtil.getCurrentFileTopLevelNodes(bLangPackage, context);
         int lowestLine = 1;
@@ -110,8 +96,8 @@ public class ImportModuleCodeAction implements DiagBasedCodeAction {
         }
 
         // Filter the imports except the runtime import
-        context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
-        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(context);
+//        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(context);
+        List<BLangImportPackage> imports = new ArrayList<>();
 
         Position insertPos = new Position(lowestLine - 1, 0);
         if (!imports.isEmpty()) {

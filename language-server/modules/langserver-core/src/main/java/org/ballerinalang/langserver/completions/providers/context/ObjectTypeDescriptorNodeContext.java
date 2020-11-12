@@ -19,7 +19,8 @@ import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -44,7 +45,7 @@ public class ObjectTypeDescriptorNodeContext
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ObjectTypeDescriptorNode node) {
+    public List<LSCompletionItem> getCompletions(CompletionContext context, ObjectTypeDescriptorNode node) {
         if (this.onSuggestionsAfterQualifier(context, node)) {
             return Arrays.asList(
                     new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()),
@@ -58,8 +59,8 @@ public class ObjectTypeDescriptorNodeContext
         return new ArrayList<>();
     }
 
-    private boolean onSuggestionsAfterQualifier(LSContext context, ObjectTypeDescriptorNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    private boolean onSuggestionsAfterQualifier(CompletionContext context, ObjectTypeDescriptorNode node) {
+        int cursor = context.getCursorPositionInTree();
         NodeList<Token> qualifiers = node.objectTypeQualifiers();
 
         if (qualifiers.isEmpty()) {
@@ -73,8 +74,8 @@ public class ObjectTypeDescriptorNodeContext
                 && (objectKeyword.isMissing() || cursor < objectKeyword.textRange().startOffset());
     }
 
-    private boolean onSuggestionsWithinObjectBody(LSContext context, ObjectTypeDescriptorNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    private boolean onSuggestionsWithinObjectBody(CompletionContext context, ObjectTypeDescriptorNode node) {
+        int cursor = context.getCursorPositionInTree();
         Token openBrace = node.openBrace();
         Token closeBrace = node.closeBrace();
         
@@ -85,7 +86,7 @@ public class ObjectTypeDescriptorNodeContext
         return cursor > openBrace.textRange().startOffset() && cursor < closeBrace.textRange().endOffset();
     }
 
-    private List<LSCompletionItem> getObjectBodyCompletions(LSContext context) {
+    private List<LSCompletionItem> getObjectBodyCompletions(CompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PRIVATE.get()));

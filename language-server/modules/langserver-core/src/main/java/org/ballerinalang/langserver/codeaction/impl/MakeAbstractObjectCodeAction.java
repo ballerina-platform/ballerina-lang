@@ -15,18 +15,14 @@
  */
 package org.ballerinalang.langserver.codeaction.impl;
 
-import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.model.Whitespace;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 
 import java.util.Collections;
@@ -45,16 +41,15 @@ import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActi
  */
 public class MakeAbstractObjectCodeAction implements DiagBasedCodeAction {
     @Override
-    public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
-            throws LSCodeActionProviderException {
+    public List<CodeAction> get(Diagnostic diagnostic, CodeActionContext context) {
         String diagnosticMessage = diagnostic.getMessage();
         Position position = diagnostic.getRange().getStart();
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+        String uri = context.fileUri();
 
         Optional<BLangTypeDefinition> objType = getObjectTypeDefinition(context, position.getLine(),
-                                                                        position.getCharacter());
-        if (!objType.isPresent()) {
-            return null;
+                position.getCharacter());
+        if (objType.isEmpty()) {
+            return Collections.emptyList();
         }
 
         String simpleObjName = getObjectName(diagnosticMessage);
@@ -107,21 +102,23 @@ public class MakeAbstractObjectCodeAction implements DiagBasedCodeAction {
         return simpleObjName;
     }
 
-    private static Optional<BLangTypeDefinition> getObjectTypeDefinition(LSContext context, int line, int column) {
-        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        return bLangPackage.topLevelNodes.stream()
-                .filter(topLevelNode -> {
-                    if (topLevelNode instanceof BLangTypeDefinition) {
-                        Location pos =
-                                topLevelNode.getPosition();
-                        return ((pos.lineRange().startLine().line() == line ||
-                                pos.lineRange().endLine().line() == line ||
-                                (pos.lineRange().startLine().line() < line
-                                        && pos.lineRange().endLine().line() > line)) &&
-                                (pos.lineRange().startLine().offset() <= column
-                                        && pos.lineRange().endLine().offset() <= column));
-                    }
-                    return false;
-                }).findAny().map(t -> (BLangTypeDefinition) t);
+    private static Optional<BLangTypeDefinition> getObjectTypeDefinition(CodeActionContext context, int line,
+                                                                         int column) {
+        return Optional.empty();
+//        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+//        return bLangPackage.topLevelNodes.stream()
+//                .filter(topLevelNode -> {
+//                    if (topLevelNode instanceof BLangTypeDefinition) {
+//                        Location pos =
+//                                topLevelNode.getPosition();
+//                        return ((pos.lineRange().startLine().line() == line ||
+//                                pos.lineRange().endLine().line() == line ||
+//                                (pos.lineRange().startLine().line() < line
+//                                        && pos.lineRange().endLine().line() > line)) &&
+//                                (pos.lineRange().startLine().offset() <= column
+//                                        && pos.lineRange().endLine().offset() <= column));
+//                    }
+//                    return false;
+//                }).findAny().map(t -> (BLangTypeDefinition) t);
     }
 }

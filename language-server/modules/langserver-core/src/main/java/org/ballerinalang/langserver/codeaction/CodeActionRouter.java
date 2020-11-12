@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.eclipse.lsp4j.CodeAction;
@@ -36,21 +36,18 @@ public class CodeActionRouter {
      * Returns a list of supported code actions.
      *
      * @param nodeType           code action node type
-     * @param context            ls context
+     * @param context            code action operation context
      * @param diagnosticsOfRange list of diagnostics of the cursor range
-     * @param allDiagnostics     list of all diagnostics
      * @return list of code actions
      */
-    public static List<CodeAction> getBallerinaCodeActions(CodeActionNodeType nodeType, LSContext context,
-                                                           List<Diagnostic> diagnosticsOfRange,
-                                                           List<Diagnostic> allDiagnostics) {
+    public static List<CodeAction> getBallerinaCodeActions(CodeActionNodeType nodeType, CodeActionContext context,
+                                                           List<Diagnostic> diagnosticsOfRange) {
         List<CodeAction> codeActions = new ArrayList<>();
         CodeActionProvidersHolder codeActionProvidersHolder = CodeActionProvidersHolder.getInstance();
         if (nodeType != null) {
             codeActionProvidersHolder.getActiveNodeBasedProviders(nodeType).forEach(provider -> {
                 try {
-                    List<CodeAction> codeActionList = provider.getNodeBasedCodeActions(nodeType, context,
-                                                                                       allDiagnostics);
+                    List<CodeAction> codeActionList = provider.getNodeBasedCodeActions(nodeType, context);
                     if (codeActionList != null) {
                         codeActions.addAll(codeActionList);
                     }
@@ -64,8 +61,7 @@ public class CodeActionRouter {
             codeActionProvidersHolder.getActiveDiagnosticsBasedProviders().forEach(provider -> {
                 try {
                     List<CodeAction> codeActionList = provider.getDiagBasedCodeActions(nodeType, context,
-                                                                                       diagnosticsOfRange,
-                                                                                       allDiagnostics);
+                            diagnosticsOfRange);
                     if (codeActionList != null) {
                         codeActions.addAll(codeActionList);
                     }
