@@ -219,7 +219,7 @@ public class BUnionType extends BType implements UnionType {
         resolving = true;
         if (cachedToString == null) {
             StringBuilder sb = new StringBuilder();
-            int size = memberTypes != null? memberTypes.size(): 0;
+            int size = memberTypes != null ? memberTypes.size() : 0;
             int i = 0;
             while (i < size) {
                 sb.append(memberTypes.get(i).toString());
