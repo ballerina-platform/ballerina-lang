@@ -267,6 +267,9 @@ public class BUnionType extends BType implements UnionType {
 
     protected void resolveCyclicType(BUnionType unionType) {
         if (!unionType.isCyclic) {
+            for (BType member : unionType.getMemberTypes()) {
+                this.add(member);
+            }
             return;
         }
         for (BType member : unionType.getMemberTypes()) {
