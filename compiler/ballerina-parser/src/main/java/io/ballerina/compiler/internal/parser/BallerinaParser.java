@@ -1668,7 +1668,7 @@ public class BallerinaParser extends AbstractParser {
 
         recover(token, ParserRuleContext.AFTER_PARAMETER_TYPE, prevParamKind, annots, type,
                 isParamNameOptional);
-        return parseAfterParamType(prevParamKind, annots, type, inclusionSymbol, isParamNameOptional);
+        return parseAfterParamType(prevParamKind, annots, inclusionSymbol, type, isParamNameOptional);
     }
 
     /**
@@ -1703,12 +1703,12 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         // Required parameters
         if (isEndOfParameter(nextToken.kind)) {
-            if (inclusionSymbol == null) {
-                return STNodeFactory.createRequiredParameterNode(SyntaxKind.REQUIRED_PARAM,
-                                                                annots, null, type, paramName);
-            } else {
+            if (inclusionSymbol != null && inclusionSymbol.kind == SyntaxKind.ASTERISK_TOKEN) {
                 return STNodeFactory.createRequiredParameterNode(SyntaxKind.INCLUDED_RECORD_PARAM,
-                                                                annots, inclusionSymbol, type, paramName);
+                        annots, inclusionSymbol, type, paramName);
+            } else {
+                return STNodeFactory.createRequiredParameterNode(SyntaxKind.REQUIRED_PARAM,
+                        annots, null, type, paramName);
             }
         } else if (nextToken.kind == SyntaxKind.EQUAL_TOKEN) {
             // If we were processing required params so far and found a defualtable

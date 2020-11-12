@@ -74,6 +74,6 @@ public class FunctionParamsTest extends AbstractDeclarationTest {
 
     @Test
     public void testIncludedRecordParamWithDefaultValues() {
-        test("func-definition/func_params_source_09.bal", "func-definition/func_params_assert_10.json");
+        test("func-definition/func_params_source_10.bal", "func-definition/func_params_assert_10.json");
     }
 }
