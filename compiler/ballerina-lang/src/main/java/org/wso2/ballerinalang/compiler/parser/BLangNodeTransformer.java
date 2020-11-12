@@ -3584,8 +3584,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         annonClassDef.flagSet.add(SERVICE);
 
         List<String> absResourcePathPath = new ArrayList<>();
-        for (Token token : serviceDeclarationNode.absoluteResourcePath()) {
-            absResourcePathPath.add(token.text());
+        NodeList<Token> pathList = serviceDeclarationNode.absoluteResourcePath();
+        for (Token token : pathList) {
+            String text = token.text();
+            // if it's a single '/' then add, else ignore '/' chars and only add other pieces.
+            if (pathList.size() == 1 && text.equals("/")) {
+                absResourcePathPath.add(text);
+            } else if (!text.equals("/")) {
+                absResourcePathPath.add(text);
+            }
         }
 
         // Generate a name for the anonymous class
