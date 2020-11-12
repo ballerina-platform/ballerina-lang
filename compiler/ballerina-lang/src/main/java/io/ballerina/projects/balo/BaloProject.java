@@ -19,6 +19,7 @@
 package io.ballerina.projects.balo;
 
 import io.ballerina.projects.PackageConfig;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectKind;
@@ -59,7 +60,8 @@ public class BaloProject extends Project {
      * @param baloPath balo path
      */
     private void addPackage(String baloPath) {
-        PackageConfig packageConfig = BaloPackageLoader.loadPackage(baloPath);
+        PackageDescriptor packageDescriptor = BaloFiles.createPackageDescriptor(baloPath);
+        PackageConfig packageConfig = BaloPackageLoader.loadPackage(baloPath, packageDescriptor);
         this.addPackage(packageConfig);
     }
 }

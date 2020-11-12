@@ -12,18 +12,15 @@ import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
 import org.ballerinalang.testerina.natives.Executor;
 
-import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.util.Vector;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.testerina.natives.mock.MockConstants.MOCK_STRAND_NAME;
 
@@ -102,10 +99,10 @@ public class FunctionMock {
             String[] projectInfo = Thread.currentThread().getStackTrace()[4].getClassName().split(Pattern.quote("."));
             orgName = projectInfo[0];
             packageName = projectInfo[1];
-            version = projectInfo[2].replace("_", ".");
+            version = projectInfo[2];
             className = "tests." + getClassName(methodName, orgName, packageName, version, originalFunction,
                     originalFunctionPackage);
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
             return ErrorCreator.createDistinctError(MockConstants.FUNCTION_CALL_ERROR, MockConstants.TEST_PACKAGE_ID,
                                                     StringUtils.fromString(e.getMessage()));
         }
@@ -119,26 +116,29 @@ public class FunctionMock {
 
     private static String getClassName(String mockMethodName, String orgName, String packageName, String version,
                                        String originalMethodName, String originalPackageName)
-            throws IOException, ClassNotFoundException {
-        String jarName = orgName + "-" + packageName + "-" + version + "-testable.jar";
-        Path jarPath = Paths.get(System.getProperty("user.dir"), "target", "caches", "jar_cache", orgName,
-                packageName, version, jarName);
+            throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+
+        // Get the list of classes in classLoader and find the class that has the mock method
+        Field f = ClassLoader.class.getDeclaredField("classes");
+        f.setAccessible(true);
+        Vector<Class> classes =  (Vector<Class>) f.get(ClassLoader.getSystemClassLoader());
+        List<Class> classList = classes.stream().filter(aClass ->
+                aClass.getName().contains(orgName + "." + packageName)
+                        && aClass.getName().contains(version)
+                        && !aClass.getName().contains("$_init"))
+                .collect(Collectors.toList());
 
         Method mockMethod = null;
         Method originalMethod;
 
-        // Get the mock method
-        try (JarFile jar = new JarFile(jarPath.toString())) {
-            for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements();) {
-                String file = entries.nextElement().getName();
-                // Get .class files but dont contain '..Frame.class'
-                if (file.endsWith(".class") && !file.contains("Frame.class") && !file.contains("__init")
-                        && file.contains("/tests/") && mockMethod == null) {
-                    mockMethod = getClassDeclaredMethod(file, mockMethodName);
-                }
+        for (var clz : classList) {
+            Method classDeclaredMethod = getClassDeclaredMethod(clz.getName(), mockMethodName);
+            if (classDeclaredMethod != null) {
+                mockMethod = classDeclaredMethod;
             }
-            originalMethod = getOriginalMethod(originalMethodName, originalPackageName);
         }
+
+        originalMethod = getOriginalMethod(originalMethodName, originalPackageName);
 
         validateFunctionSignature(mockMethod, originalMethod, mockMethodName);
         return  mockMethod.getDeclaringClass().getSimpleName();
@@ -202,8 +202,7 @@ public class FunctionMock {
         }
     }
 
-    private static Method getClassDeclaredMethod(String file, String methodName) throws ClassNotFoundException {
-        String className = file.replace('/', '.').substring(0, file.length() - 6);
+    private static Method getClassDeclaredMethod(String className, String methodName) throws ClassNotFoundException {
         Class<?> clazz = Class.forName(className);
 
         for (Method method : clazz.getDeclaredMethods()) {

@@ -1,4 +1,5 @@
 module io.ballerina.packerina {
+    exports org.ballerinalang.packerina;
     requires io.ballerina.lang;
     requires io.ballerina.cli.module;
     requires io.ballerina.tool;

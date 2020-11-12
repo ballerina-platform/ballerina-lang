@@ -41,11 +41,11 @@ public class PackageJson {
     // Distribution details
     private String ballerina_version;
     private String implementation_vendor;
-    private String spec;                     // 2020R1
+    private String language_spec_version;                     // 2020R1
 
     // Dependencies
     private List<Dependency> dependencies; //?
-    private String target; // target of the balo ie. java11, any etc.
+    private String platform; // target of the balo ie. java11, any etc.
     private JsonArray platformDependencies; // platform dependencies
 
     // Templating support
@@ -130,12 +130,12 @@ public class PackageJson {
         this.ballerina_version = ballerina_version;
     }
 
-    public String getTarget() {
-        return target;
+    public String getPlatform() {
+        return platform;
     }
 
-    public void setTarget(String target) {
-        this.target = target;
+    public void setPlatform(String platform) {
+        this.platform = platform;
     }
 
     public String getImplementationVendor() {
@@ -146,12 +146,12 @@ public class PackageJson {
         this.implementation_vendor = implementation_vendor;
     }
 
-    public String getSpec() {
-        return spec;
+    public String getLanguageSpecVersion() {
+        return language_spec_version;
     }
 
-    public void setSpec(String spec) {
-        this.spec = spec;
+    public void setLanguageSpecVersion(String language_spec_version) {
+        this.language_spec_version = language_spec_version;
     }
 
     public List<Dependency> getDependencies() {
