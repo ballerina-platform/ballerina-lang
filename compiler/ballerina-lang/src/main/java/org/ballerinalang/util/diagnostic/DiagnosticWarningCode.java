@@ -22,42 +22,42 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 public enum DiagnosticWarningCode implements DiagnosticCode {
 
-    NON_MODULE_QUALIFIED_ERROR_REASON("non.module.qualified.error.reason"),
+    NON_MODULE_QUALIFIED_ERROR_REASON("BCE20000", "non.module.qualified.error.reason"),
 
-    UNDOCUMENTED_PARAMETER("undocumented.parameter"),
-    NO_SUCH_DOCUMENTABLE_PARAMETER("no.such.documentable.parameter"),
-    PARAMETER_ALREADY_DOCUMENTED("parameter.already.documented"),
-    UNDOCUMENTED_FIELD("undocumented.field"),
-    NO_SUCH_DOCUMENTABLE_FIELD("no.such.documentable.field"),
-    FIELD_ALREADY_DOCUMENTED("field.already.documented"),
-    UNDOCUMENTED_VARIABLE("undocumented.variable"),
-    NO_SUCH_DOCUMENTABLE_VARIABLE("no.such.documentable.variable"),
-    VARIABLE_ALREADY_DOCUMENTED("variable.already.documented"),
-    UNDOCUMENTED_RETURN_PARAMETER("undocumented.return.parameter"),
-    NO_DOCUMENTABLE_RETURN_PARAMETER("no.documentable.return.parameter"),
-    INVALID_DOCUMENTATION_REFERENCE("invalid.documentation.reference"),
-    INVALID_USAGE_OF_PARAMETER_REFERENCE("invalid.use.of.parameter.reference"),
+    UNDOCUMENTED_PARAMETER("BCE20001", "undocumented.parameter"),
+    NO_SUCH_DOCUMENTABLE_PARAMETER("BCE20002", "no.such.documentable.parameter"),
+    PARAMETER_ALREADY_DOCUMENTED("BCE20003", "parameter.already.documented"),
+    UNDOCUMENTED_FIELD("BCE20004", "undocumented.field"),
+    NO_SUCH_DOCUMENTABLE_FIELD("BCE20005", "no.such.documentable.field"),
+    FIELD_ALREADY_DOCUMENTED("BCE20006", "field.already.documented"),
+    UNDOCUMENTED_VARIABLE("BCE20007", "undocumented.variable"),
+    NO_SUCH_DOCUMENTABLE_VARIABLE("BCE20008", "no.such.documentable.variable"),
+    VARIABLE_ALREADY_DOCUMENTED("BCE20009", "variable.already.documented"),
+    UNDOCUMENTED_RETURN_PARAMETER("BCE20010", "undocumented.return.parameter"),
+    NO_DOCUMENTABLE_RETURN_PARAMETER("BCE20011", "no.documentable.return.parameter"),
+    INVALID_DOCUMENTATION_REFERENCE("BCE20012", "invalid.documentation.reference"),
+    INVALID_USAGE_OF_PARAMETER_REFERENCE("BCE20013", "invalid.use.of.parameter.reference"),
 
-    NO_SUCH_DOCUMENTABLE_ATTRIBUTE("no.such.documentable.attribute"),
-    INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE("invalid.use.of.endpoint.documentation.attribute"),
-    DUPLICATE_DOCUMENTED_ATTRIBUTE("duplicate.documented.attribute"),
-    UNDEFINED_DOCUMENTATION_PUBLIC_FUNCTION("undefined.documentation.public.function"),
-    USAGE_OF_DEPRECATED_CONSTRUCT("usage.of.deprecated.construct"),
+    NO_SUCH_DOCUMENTABLE_ATTRIBUTE("BCE20014", "no.such.documentable.attribute"),
+    INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE("BCE20015", "invalid.use.of.endpoint.documentation.attribute"),
+    DUPLICATE_DOCUMENTED_ATTRIBUTE("BCE20016", "duplicate.documented.attribute"),
+    UNDEFINED_DOCUMENTATION_PUBLIC_FUNCTION("BCE20017", "undefined.documentation.public.function"),
+    USAGE_OF_DEPRECATED_CONSTRUCT("BCE20018", "usage.of.deprecated.construct"),
 
     // Parser diagnostic codes
-    SYNTAX_WARNING("syntax.warning"),
+    SYNTAX_WARNING("BCE20200", "syntax.warning"),
 
-    WARNING_INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT("warning.invalid.mutable.access.as.record.default"),
+    WARNING_INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT("BCE20300", "warning.invalid.mutable.access.as.record.default"),
 
     WARNING_INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT(
-            "warning.invalid.non.isolated.invocation.as.record.default"),
+            "BCE20301", "warning.invalid.non.isolated.invocation.as.record.default"),
 
     WARNING_INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT(
-            "warning.invalid.non.isolated.init.expression.as.record.default"),
+            "BCE20302", "warning.invalid.non.isolated.init.expression.as.record.default"),
 
-    FUNCTION_CAN_BE_MARKED_ISOLATED("function.can.be.marked.isolated"),
+    FUNCTION_CAN_BE_MARKED_ISOLATED("BCE20303", "function.can.be.marked.isolated"),
 
-    COMPILER_PLUGIN_ERROR("compiler.plugin.crashed"),
+    COMPILER_PLUGIN_ERROR("BCE20400", "compiler.plugin.crashed"),
     ;
 
     private String diagnosticId;
@@ -66,14 +66,6 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
     DiagnosticWarningCode(String diagnosticId, String messageKey) {
         this.diagnosticId = diagnosticId;
         this.messageKey = messageKey;
-    }
-
-    DiagnosticWarningCode(String messageKey) {
-        this.messageKey = messageKey;
-    }
-
-    public String getValue() {
-        return messageKey;
     }
 
     @Override
