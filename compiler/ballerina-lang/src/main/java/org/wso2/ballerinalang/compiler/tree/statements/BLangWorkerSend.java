@@ -36,8 +36,6 @@ public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
     public BLangExpression expr;
     public BLangIdentifier workerIdentifier;
     public SymbolEnv env;
-    public boolean isChannel = false;
-    public BLangIdentifier currentWorker;
     public BSymbol workerSymbol;
 
     @Override
