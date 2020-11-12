@@ -2364,7 +2364,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 symbol.flags |= Flags.OPTIONAL;
                 symbol.defaultableParam = true;
             }
-            if (varNode.flagSet.contains(Flag.INCLUDED)) {
+            if (varNode.flagSet.contains(Flag.INCLUDED) && varNode.type.getKind() == TypeKind.RECORD) {
                 symbol.flags |= Flags.INCLUDED;
                 if (!((BRecordType) varNode.type).sealed) {
                     inclusiveIncludedRecordParams.add(symbol);
