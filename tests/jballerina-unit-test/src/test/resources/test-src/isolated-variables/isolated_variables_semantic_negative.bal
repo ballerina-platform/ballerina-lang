@@ -32,3 +32,15 @@ isolated class IsolatedNonMatchingClass {
 isolated IsolatedObject v1 = new NonIsolatedObject();
 
 isolated IsolatedObject v2 = new IsolatedNonMatchingClass(true);
+
+isolated final object { }  obj;
+
+isolated class IsolatedClass {
+    private int i = 1;
+}
+
+function init() {
+    lock {
+        obj = new IsolatedClass();
+    }
+}

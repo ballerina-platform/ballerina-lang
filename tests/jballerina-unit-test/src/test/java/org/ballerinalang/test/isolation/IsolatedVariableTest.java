@@ -53,6 +53,8 @@ public class IsolatedVariableTest {
         validateError(result, i++, "incompatible types: expected 'IsolatedObject', found 'NonIsolatedObject'", 32, 30);
         validateError(result, i++, "incompatible types: expected 'IsolatedObject', found 'IsolatedNonMatchingClass'",
                       34, 30);
+        validateError(result, i++, "an uninitialized module variable declaration cannot be marked as 'isolated'", 36,
+                      1);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

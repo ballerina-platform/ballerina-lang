@@ -628,6 +628,8 @@ public enum DiagnosticCode {
     INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE("invalid.assignment.in.lock.with.restricted.var.usage"),
     INVALID_USAGE_OF_MULTIPLE_RESTRICTED_VARS_IN_LOCK("invalid.usage.of.multiple.restricted.vars.in.lock"),
 
+    INVALID_ISOLATED_QUALIFIER_ON_MODULE_NO_INIT_VAR_DECL("invalid.isolated.qualifier.on.module.no.init.var.decl"),
+
     COMPILER_PLUGIN_ERROR("compiler.plugin.crashed"),
     ;
     private String value;
