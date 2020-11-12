@@ -17,11 +17,11 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Optional;
 
@@ -34,14 +34,15 @@ public class BallerinaTypeDescTypeSymbol extends AbstractTypeSymbol implements T
 
     private TypeSymbol typeParameter;
 
-    public BallerinaTypeDescTypeSymbol(ModuleID moduleID, BTypedescType typedescType) {
-        super(TypeDescKind.TYPEDESC, moduleID, typedescType);
+    public BallerinaTypeDescTypeSymbol(CompilerContext context, ModuleID moduleID, BTypedescType typedescType) {
+        super(context, TypeDescKind.TYPEDESC, moduleID, typedescType);
     }
 
     @Override
     public Optional<TypeSymbol> typeParameter() {
         if (this.typeParameter == null) {
-            this.typeParameter = TypesFactory.getTypeDescriptor(((BTypedescType) this.getBType()).constraint);
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.typeParameter = typesFactory.getTypeDescriptor(((BTypedescType) this.getBType()).constraint);
         }
 
         return Optional.ofNullable(this.typeParameter);

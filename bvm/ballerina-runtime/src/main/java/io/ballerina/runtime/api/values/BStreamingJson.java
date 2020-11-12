@@ -17,25 +17,18 @@
 */
 package io.ballerina.runtime.api.values;
 
-import io.ballerina.runtime.JSONDataSource;
-import io.ballerina.runtime.JSONGenerator;
+import io.ballerina.runtime.internal.JsonDataSource;
 
 import java.io.Writer;
 
 /**
  * <p>
- * {@link BStreamingJson} represent a JSON array generated from a {@link JSONDataSource}.
+ * {@link BStreamingJson} represent a JSON array generated from a {@link JsonDataSource}.
  * </p>
  *
  * @since 1.1.0
  */
 public interface BStreamingJson extends BArray {
-
-    /**
-     * Serialize to the given {@code JSONGenerator}.
-     * @param gen {@code JSONGenerator} to use
-     */
-    void serialize(JSONGenerator gen);
 
     /**
      * Serialize the value to given {@code Writer}.

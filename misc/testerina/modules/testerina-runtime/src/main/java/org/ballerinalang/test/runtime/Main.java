@@ -20,7 +20,7 @@ package org.ballerinalang.test.runtime;
 import com.google.gson.Gson;
 import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.runtime.launch.LaunchUtils;
+import io.ballerina.runtime.internal.launch.LaunchUtils;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;

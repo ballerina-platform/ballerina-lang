@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.emit;
 
-import io.ballerina.runtime.util.Flags;
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -116,9 +116,9 @@ class EmitterUtils {
 
     static String emitFlags(int flag) {
 
-        if (Flags.isFlagOn(Flags.PRIVATE, flag)) {
+        if (SymbolFlags.isFlagOn(SymbolFlags.PRIVATE, flag)) {
             return "private";
-        } else if (Flags.isFlagOn(Flags.PUBLIC, flag)) {
+        } else if (SymbolFlags.isFlagOn(SymbolFlags.PUBLIC, flag)) {
             return "public";
         }
         return "";

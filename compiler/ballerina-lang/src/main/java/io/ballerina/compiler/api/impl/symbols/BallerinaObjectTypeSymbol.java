@@ -26,11 +26,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.StringJoiner;
 
 /**
@@ -44,10 +45,9 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
     // private TypeDescriptor objectTypeReference;
     private List<FieldSymbol> objectFields;
     private List<MethodSymbol> methods;
-    private MethodSymbol initFunction;
 
-    public BallerinaObjectTypeSymbol(ModuleID moduleID, BObjectType objectType) {
-        super(TypeDescKind.OBJECT, moduleID, objectType);
+    public BallerinaObjectTypeSymbol(CompilerContext context, ModuleID moduleID, BObjectType objectType) {
+        super(context, TypeDescKind.OBJECT, moduleID, objectType);
         // TODO: Fix this
         // objectTypeReference = null;
     }
@@ -75,7 +75,7 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         if (this.objectFields == null) {
             this.objectFields = new ArrayList<>();
             for (BField field : ((BObjectType) this.getBType()).fields.values()) {
-                this.objectFields.add(new BallerinaFieldSymbol(field));
+                this.objectFields.add(new BallerinaFieldSymbol(this.context, field));
             }
         }
         return objectFields;
@@ -89,27 +89,17 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
     // TODO: Rename to method declarations
     public List<MethodSymbol> methods() {
         if (this.methods == null) {
-            this.methods = new ArrayList<>();
-            for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) ((BObjectType) this
-                    .getBType()).tsymbol).attachedFuncs) {
-                this.methods
-                        .add(SymbolFactory.createMethodSymbol(attachedFunc.symbol, attachedFunc.funcName.getValue()));
+            SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+            List<MethodSymbol> methods = new ArrayList<>();
+
+            for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) this.getBType().tsymbol).attachedFuncs) {
+                methods.add(symbolFactory.createMethodSymbol(attachedFunc.symbol, attachedFunc.funcName.getValue()));
             }
+
+            this.methods = Collections.unmodifiableList(methods);
         }
 
         return this.methods;
-    }
-
-    @Override
-    public Optional<MethodSymbol> initMethod() {
-        if (this.initFunction == null) {
-            BAttachedFunction initFunction =
-                    ((BObjectTypeSymbol) ((BObjectType) this.getBType()).tsymbol).initializerFunc;
-            this.initFunction = initFunction == null ? null
-                    : SymbolFactory.createMethodSymbol(initFunction.symbol, initFunction.funcName.getValue());
-        }
-
-        return Optional.ofNullable(this.initFunction);
     }
 
     @Override

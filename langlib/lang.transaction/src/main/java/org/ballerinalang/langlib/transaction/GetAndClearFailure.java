@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 
 /**
  * Extern function transaction:getAndClearFailure.
