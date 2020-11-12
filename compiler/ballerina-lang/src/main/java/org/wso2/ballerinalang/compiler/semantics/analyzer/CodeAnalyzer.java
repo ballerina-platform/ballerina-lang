@@ -2370,9 +2370,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         verifyPeerCommunication(workerReceiveNode.pos, sender, workerReceiveNode.workerIdentifier.value);
 
-        if (workerReceiveNode.isChannel) {
-            return;
-        }
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
         String workerName = workerReceiveNode.workerIdentifier.getValue();
