@@ -60,7 +60,7 @@ function calGraduationYear(int year) returns int {
 }
 
 function foo() {
-    from SomeTable   
+    from SomeTable 
     where student.gpa >= 2.0
     select {} -> default;
 }

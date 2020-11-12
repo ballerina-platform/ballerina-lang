@@ -64,14 +64,12 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode importKeyword = modifyNode(importDeclarationNode.importKeyword);
         STNode orgName = modifyNode(importDeclarationNode.orgName);
         STNode moduleName = modifyNode(importDeclarationNode.moduleName);
-        STNode version = modifyNode(importDeclarationNode.version);
         STNode prefix = modifyNode(importDeclarationNode.prefix);
         STNode semicolon = modifyNode(importDeclarationNode.semicolon);
         return importDeclarationNode.modify(
                 importKeyword,
                 orgName,
                 moduleName,
-                version,
                 prefix,
                 semicolon);
     }
@@ -598,16 +596,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return importPrefixNode.modify(
                 asKeyword,
                 prefix);
-    }
-
-    @Override
-    public STImportVersionNode transform(
-            STImportVersionNode importVersionNode) {
-        STNode versionKeyword = modifyNode(importVersionNode.versionKeyword);
-        STNode versionNumber = modifyNode(importVersionNode.versionNumber);
-        return importVersionNode.modify(
-                versionKeyword,
-                versionNumber);
     }
 
     @Override

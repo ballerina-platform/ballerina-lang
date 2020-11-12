@@ -18,17 +18,17 @@
 package org.ballerinalang.langserver.completions.providers;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.symbols.WorkerSymbol;
-import io.ballerina.compiler.api.types.ObjectTypeSymbol;
-import io.ballerina.compiler.api.types.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -168,7 +168,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                 String typeName = typeDesc.signature();
                 CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, symbol.name(), typeName);
                 completionItems.add(new SymbolCompletionItem(context, symbol, variableCItem));
-            } else if (symbol.kind() == SymbolKind.TYPE) {
+            } else if (symbol.kind() == SymbolKind.TYPE || symbol.kind() == SymbolKind.CLASS) {
                 // Here skip all the package symbols since the package is added separately
                 CompletionItem typeCItem = TypeCompletionItemBuilder.build(symbol, symbol.name());
                 completionItems.add(new SymbolCompletionItem(context, symbol, typeCItem));
@@ -191,7 +191,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         List<LSCompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.forEach(bSymbol -> {
-            if (bSymbol.kind() == SymbolKind.TYPE) {
+            if (bSymbol.kind() == SymbolKind.TYPE || bSymbol.kind() == SymbolKind.CLASS) {
                 CompletionItem cItem = TypeCompletionItemBuilder.build(bSymbol, bSymbol.name());
                 completionItems.add(new SymbolCompletionItem(context, bSymbol, cItem));
             }
@@ -219,8 +219,11 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @return {@link List} list of filtered type entries
      */
     @Deprecated
-    protected List<TypeDefinitionSymbol> filterTypesInModule(ModuleSymbol moduleSymbol) {
-        return moduleSymbol.typeDefinitions();
+    protected List<Symbol> filterTypesInModule(ModuleSymbol moduleSymbol) {
+        List<Symbol> typeDefs = new ArrayList<>();
+        typeDefs.addAll(moduleSymbol.typeDefinitions());
+        typeDefs.addAll(moduleSymbol.classes());
+        return typeDefs;
     }
 
     /**
@@ -418,7 +421,12 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     protected LSCompletionItem getImplicitNewCompletionItem(ObjectTypeSymbol objectType, LSContext context) {
         CompletionItem cItem = FunctionCompletionItemBuilder.build(objectType,
                 FunctionCompletionItemBuilder.InitializerBuildMode.IMPLICIT, context);
-        MethodSymbol initMethod = objectType.initMethod().isPresent() ? objectType.initMethod().get() : null;
+
+        MethodSymbol initMethod = null;
+        if (objectType.kind() == SymbolKind.CLASS) {
+            ClassSymbol classSymbol = (ClassSymbol) objectType;
+            initMethod = classSymbol.initMethod().isPresent() ? classSymbol.initMethod().get() : null;
+        }
 
         return new SymbolCompletionItem(context, initMethod, cItem);
     }
@@ -426,7 +434,12 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     protected LSCompletionItem getExplicitNewCompletionItem(ObjectTypeSymbol objectType, LSContext context) {
         CompletionItem cItem = FunctionCompletionItemBuilder.build(objectType,
                 FunctionCompletionItemBuilder.InitializerBuildMode.EXPLICIT, context);
-        MethodSymbol initMethod = objectType.initMethod().isPresent() ? objectType.initMethod().get() : null;
+
+        MethodSymbol initMethod = null;
+        if (objectType.kind() == SymbolKind.CLASS) {
+            ClassSymbol classSymbol = (ClassSymbol) objectType;
+            initMethod = classSymbol.initMethod().isPresent() ? classSymbol.initMethod().get() : null;
+        }
 
         return new SymbolCompletionItem(context, initMethod, cItem);
     }

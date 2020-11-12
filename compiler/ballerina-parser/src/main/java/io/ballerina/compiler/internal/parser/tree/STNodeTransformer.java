@@ -193,10 +193,6 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(importPrefixNode);
     }
 
-    public T transform(STImportVersionNode importVersionNode) {
-        return transformSyntaxNode(importVersionNode);
-    }
-
     public T transform(STSpecificFieldNode specificFieldNode) {
         return transformSyntaxNode(specificFieldNode);
     }

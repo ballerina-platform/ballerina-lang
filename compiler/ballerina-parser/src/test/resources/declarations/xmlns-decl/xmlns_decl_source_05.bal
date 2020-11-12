@@ -1,1 +1,1 @@
- "http://ballerinalang.org/ns1" as ns1;
+"http://ballerinalang.org/ns1" as ns1;

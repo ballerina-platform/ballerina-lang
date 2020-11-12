@@ -81,7 +81,6 @@ import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
-import io.ballerina.compiler.syntax.tree.ImportVersionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.InterpolationNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
@@ -217,7 +216,7 @@ import io.ballerina.compiler.syntax.tree.XMLStartTagNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
 import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
-import io.ballerina.runtime.IdentifierUtils;
+import io.ballerina.runtime.internal.IdentifierUtils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -590,7 +589,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ImportDeclarationNode importDeclaration) {
         ImportOrgNameNode orgNameNode = importDeclaration.orgName().orElse(null);
-        ImportVersionNode versionNode = importDeclaration.version().orElse(null);
         ImportPrefixNode prefixNode = importDeclaration.prefix().orElse(null);
 
         Token orgName = null;
@@ -599,13 +597,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         String version = null;
-        if (versionNode != null) {
-            if (versionNode.isMissing()) {
-                version = missingNodesHelper.getNextMissingNodeName(packageID);
-            } else {
-                version = extractVersion(versionNode.versionNumber());
-            }
-        }
 
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
         NodeList<IdentifierToken> names = importDeclaration.moduleName();
@@ -616,7 +607,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         importDcl.pos = position;
         importDcl.pkgNameComps = pkgNameComps;
         importDcl.orgName = this.createIdentifier(getPosition(orgNameNode), orgName);
-        importDcl.version = this.createIdentifier(getPosition(versionNode), version);
+        importDcl.version = this.createIdentifier(null, version);
         importDcl.alias = (prefixNode != null) ? this.createIdentifier(getPosition(prefixNode), prefixNode.prefix())
                                                : pkgNameComps.get(pkgNameComps.size() - 1);
 
@@ -1815,6 +1806,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 BLangRecordSpreadOperatorField bLRecordSpreadOpField =
                         (BLangRecordSpreadOperatorField) TreeBuilder.createRecordSpreadOperatorField();
                 bLRecordSpreadOpField.expr = createExpression(spreadFieldNode.valueExpr());
+                bLRecordSpreadOpField.pos = getPosition(spreadFieldNode);
                 bLiteralNode.fields.add(bLRecordSpreadOpField);
             } else if (field.kind() == SyntaxKind.COMPUTED_NAME_FIELD) {
                 ComputedNameFieldNode computedNameField = (ComputedNameFieldNode) field;
