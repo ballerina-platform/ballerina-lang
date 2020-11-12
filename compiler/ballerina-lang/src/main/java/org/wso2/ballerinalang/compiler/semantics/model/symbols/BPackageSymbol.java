@@ -63,7 +63,7 @@ public class BPackageSymbol extends BTypeSymbol {
         this.type = new BPackageType(this);
     }
 
-    public BPackageSymbol(PackageID pkgID, BSymbol owner, int flags, Location pos, SymbolOrigin origin) {
+    public BPackageSymbol(PackageID pkgID, BSymbol owner, long flags, Location pos, SymbolOrigin origin) {
         this(pkgID, owner, pos, origin);
         this.flags = flags;
     }

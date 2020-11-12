@@ -42,7 +42,7 @@ public class BInvokableTypeSymbol extends BTypeSymbol {
     public BType returnType;
     public Map<String, BType> paramDefaultValTypes;
 
-    public BInvokableTypeSymbol(int symTag, int flags, PackageID pkgID, BType type, BSymbol owner,
+    public BInvokableTypeSymbol(int symTag, long flags, PackageID pkgID, BType type, BSymbol owner,
                                 Location location,
                                 SymbolOrigin origin) {
         super(symTag, flags, Names.EMPTY, pkgID, type, owner, location, origin);

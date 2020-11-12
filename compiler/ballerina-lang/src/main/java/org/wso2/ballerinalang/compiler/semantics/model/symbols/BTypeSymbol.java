@@ -32,7 +32,7 @@ public class BTypeSymbol extends BSymbol implements TypeSymbol {
 
     public boolean isLabel;
 
-    public BTypeSymbol(int symTag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner,
+    public BTypeSymbol(int symTag, long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                        Location pos, SymbolOrigin origin) {
         super(symTag, flags, name, pkgID, type, owner, pos, origin);
         this.isLabel = false;

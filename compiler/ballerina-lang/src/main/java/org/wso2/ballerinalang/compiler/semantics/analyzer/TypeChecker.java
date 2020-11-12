@@ -1685,7 +1685,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
 
                 BVarSymbol origFieldSymbol = field.symbol;
-                int origFieldFlags = origFieldSymbol.flags;
+                long origFieldFlags = origFieldSymbol.flags;
 
                 if (allReadOnlyFields && !Symbols.isFlagOn(origFieldFlags, Flags.READONLY)) {
                     allReadOnlyFields = false;
