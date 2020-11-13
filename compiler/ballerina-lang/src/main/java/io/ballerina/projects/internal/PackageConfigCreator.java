@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.projects.directory;
+package io.ballerina.projects.internal;
 
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
@@ -27,27 +27,52 @@ import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageId;
 import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Contains a set of utility methods that creates the config hierarchy from the project directory.
+ * Creates a {@code PackageConfig} instance from the given {@code PackageData} instance.
  *
  * @since 2.0.0
  */
-public class PackageLoader {
+public class PackageConfigCreator {
 
-    public static PackageConfig loadPackage(Path packageDir,
-                                            boolean isSingleFile,
-                                            PackageDescriptor packageDescriptor) {
-        final PackageData packageData = ProjectFiles.loadPackageData(packageDir, isSingleFile);
+    public static PackageConfig createBuildProjectConfig(Path projectDirPath) {
+        ProjectFiles.validateBuildProjectDirPath(projectDirPath);
+
+        PackageDescriptor packageDescriptor = ProjectFiles.createPackageDescriptor(
+                projectDirPath.resolve(ProjectConstants.BALLERINA_TOML));
+        PackageData packageData = ProjectFiles.loadBuildProjectPackageData(projectDirPath);
         return createPackageConfig(packageData, packageDescriptor);
     }
 
-    protected static PackageConfig createPackageConfig(PackageData packageData,
-                                                       PackageDescriptor packageDescriptor) {
+    public static PackageConfig createSingleFileProjectConfig(Path filePath) {
+        ProjectFiles.validateSingleFileProjectFilePath(filePath);
+
+        // Create a PackageDescriptor instance
+        PackageName packageName = PackageName.from(ProjectConstants.DOT);
+        PackageOrg packageOrg = PackageOrg.from(ProjectConstants.ANON_ORG);
+        PackageVersion packageVersion = PackageVersion.from(ProjectConstants.DEFAULT_VERSION);
+        PackageDescriptor packageDescriptor = PackageDescriptor.from(packageName, packageOrg, packageVersion);
+
+        PackageData packageData = ProjectFiles.loadSingleFileProjectPackageData(filePath);
+        return createPackageConfig(packageData, packageDescriptor);
+    }
+
+    public static PackageConfig createBalrProjectConfig(Path balrPath) {
+        ProjectFiles.validateBalrProjectPath(balrPath);
+        PackageDescriptor packageDescriptor = BaloFiles.createPackageDescriptor(balrPath);
+
+        PackageData packageData = BaloFiles.loadPackageData(balrPath, packageDescriptor);
+        return createPackageConfig(packageData, packageDescriptor);
+    }
+
+    public static PackageConfig createPackageConfig(PackageData packageData, PackageDescriptor packageDescriptor) {
         // TODO PackageData should contain the packageName. This should come from the Ballerina.toml file.
         // TODO For now, I take the directory name as the project name. I am not handling the case where the
         //  directory name is not a valid Ballerina identifier.

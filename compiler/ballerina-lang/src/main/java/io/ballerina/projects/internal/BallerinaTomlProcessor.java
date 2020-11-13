@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.projects.directory;
+package io.ballerina.projects.internal;
 
 import com.google.gson.JsonSyntaxException;
 import com.moandjiezana.toml.Toml;
@@ -195,11 +195,6 @@ public class BallerinaTomlProcessor {
             pkg.setKeywords(toml.getList("package.keywords"));
             pkg.setExported(toml.getList("package.exported"));
 
-            if (toml.contains("build-options")) {
-                Toml buildOptionsTable = toml.getTable("build-options");
-                BuildProject.BuildOptions buildOptions = buildOptionsTable.to(BuildProject.BuildOptions.class);
-                ballerinaToml.setBuildOptions(buildOptions);
-            }
             validateBallerinaTomlPackage(ballerinaToml);
             validateManifestDependencies(ballerinaToml);
             return ballerinaToml;

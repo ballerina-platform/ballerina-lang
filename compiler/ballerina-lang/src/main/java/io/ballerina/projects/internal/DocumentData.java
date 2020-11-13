@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.directory;
+package io.ballerina.projects.internal;
 
 /**
  * {@code ModuleFileData} represents a Ballerina source file (.bal).

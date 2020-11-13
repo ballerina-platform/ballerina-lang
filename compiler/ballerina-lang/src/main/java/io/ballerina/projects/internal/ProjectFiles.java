@@ -15,9 +15,10 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.directory;
+package io.ballerina.projects.internal;
 
 import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 
@@ -41,52 +42,22 @@ import static io.ballerina.projects.util.ProjectConstants.DOT;
  * @since 2.0.0
  */
 public class ProjectFiles {
-    private static final PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:**.bal");
+    public static final PathMatcher BAL_EXTENSION_MATCHER =
+            FileSystems.getDefault().getPathMatcher("glob:**.bal");
+    public static final PathMatcher BALR_EXTENSION_MATCHER =
+            FileSystems.getDefault().getPathMatcher("glob:**.balo");
 
     private ProjectFiles() {
     }
 
-    protected static PackageData loadPackageData(Path filePath, boolean singleFileProject) {
-        // Handle single file project
-        if (singleFileProject) {
-            DocumentData documentData = loadDocument(filePath);
-            ModuleData defaultModule = ModuleData
-                    .from(filePath, DOT, Collections.singletonList(documentData), Collections.emptyList());
-            return PackageData.from(filePath, defaultModule, Collections.emptyList());
-        }
+    public static PackageData loadSingleFileProjectPackageData(Path filePath) {
+        DocumentData documentData = loadDocument(filePath);
+        ModuleData defaultModule = ModuleData
+                .from(filePath, DOT, Collections.singletonList(documentData), Collections.emptyList());
+        return PackageData.from(filePath, defaultModule, Collections.emptyList());
+    }
 
-        // Handle build project
-        if (filePath == null) {
-            throw new IllegalArgumentException("packageDir cannot be null");
-        }
-
-        // Check whether the directory exists
-        Path packageDirPath = filePath.toAbsolutePath();
-        if (!packageDirPath.toFile().canRead()
-                || !packageDirPath.toFile().canWrite() || !packageDirPath.toFile().canExecute()) {
-            throw new RuntimeException("insufficient privileges to path: " + packageDirPath);
-        }
-        if (!Files.exists(packageDirPath)) {
-            // TODO handle the error
-            // TODO use a custom runtime error
-            throw new RuntimeException("directory does not exists: " + filePath);
-        }
-
-        if (!Files.isDirectory(packageDirPath)) {
-            throw new RuntimeException("Not a directory: " + filePath);
-        }
-
-//        // Check whether this is a project: Ballerina.toml file has to be there
-//        Path ballerinaTomlPath = packageDirPath.resolve("Ballerina.toml");
-//        if (!Files.exists(ballerinaTomlPath)) {
-//            // TODO handle the error
-//            // TODO use a custom runtime error
-//            throw new RuntimeException("Not a package directory: " + filePath);
-//        }
-
-        // Load Ballerina.toml
-        // Load default module
-        // load other modules
+    public static PackageData loadBuildProjectPackageData(Path packageDirPath) {
         ModuleData defaultModule = loadModule(packageDirPath);
         List<ModuleData> otherModules = loadOtherModules(packageDirPath);
         return PackageData.from(packageDirPath, defaultModule, otherModules);
@@ -134,7 +105,7 @@ public class ProjectFiles {
     public static List<DocumentData> loadDocuments(Path dirPath) {
         try (Stream<Path> pathStream = Files.walk(dirPath, 1)) {
             return pathStream
-                    .filter(matcher::matches)
+                    .filter(BAL_EXTENSION_MATCHER::matches)
                     .map(ProjectFiles::loadDocument)
                     .collect(Collectors.toList());
         } catch (IOException e) {
@@ -145,7 +116,7 @@ public class ProjectFiles {
     private static List<DocumentData> loadTestDocuments(Path dirPath) {
         try (Stream<Path> pathStream = Files.walk(dirPath, 1)) {
             return pathStream
-                    .filter(matcher::matches)
+                    .filter(BAL_EXTENSION_MATCHER::matches)
                     .map(ProjectFiles::loadTestDocument)
                     .collect(Collectors.toList());
         } catch (IOException e) {
@@ -155,9 +126,6 @@ public class ProjectFiles {
 
     public static DocumentData loadDocument(Path documentFilePath) {
         String content;
-        if (documentFilePath == null) {
-            throw new RuntimeException("document path cannot be null");
-        }
         try {
             content = Files.readString(documentFilePath, Charset.defaultCharset());
         } catch (IOException e) {
@@ -168,9 +136,6 @@ public class ProjectFiles {
 
     private static DocumentData loadTestDocument(Path documentFilePath) {
         String content;
-        if (documentFilePath == null) {
-            throw new RuntimeException("document path cannot be null");
-        }
         try {
             content = Files.readString(documentFilePath, Charset.defaultCharset());
         } catch (IOException e) {
@@ -182,5 +147,59 @@ public class ProjectFiles {
 
     public static PackageDescriptor createPackageDescriptor(Path ballerinaTomlFilePath) {
         return BallerinaTomlProcessor.parseAsPackageDescriptor(ballerinaTomlFilePath);
+    }
+
+    public static void validateBuildProjectDirPath(Path projectDirPath) {
+        if (Files.notExists(projectDirPath)) {
+            throw new ProjectException("The directory does not exist: " + projectDirPath);
+        }
+
+        if (!Files.isDirectory(projectDirPath)) {
+            throw new ProjectException("Invalid Ballerina package directory: " + projectDirPath);
+        }
+
+        if (!ProjectUtils.isBallerinaProject(projectDirPath)) {
+            throw new ProjectException("Invalid Ballerina package directory: " + projectDirPath +
+                    ", cannot find 'Ballerina.toml' file.");
+        }
+
+        if (ProjectUtils.findProjectRoot(Optional.of(projectDirPath.getParent()).get()) != null) {
+            throw new ProjectException("Provided path is already within a Ballerina package: " + projectDirPath);
+        }
+
+        if (!projectDirPath.toFile().canRead() || !projectDirPath.toFile().canWrite() ||
+                !projectDirPath.toFile().canExecute()) {
+            throw new ProjectException("Insufficient privileges to path: " + projectDirPath);
+        }
+    }
+
+    public static void validateSingleFileProjectFilePath(Path filePath) {
+        if (Files.notExists(filePath)) {
+            throw new ProjectException("The file does not exist: " + filePath);
+        }
+
+        if (!Files.isRegularFile(filePath) || !ProjectFiles.BAL_EXTENSION_MATCHER.matches(filePath)) {
+            throw new ProjectException("Invalid Ballerina source file(.bal): " + filePath);
+        }
+
+        // Check if it is inside a project
+        Path projectRoot = ProjectUtils.findProjectRoot(filePath);
+        if (projectRoot != null) {
+            throw new ProjectException("The source file '" + filePath + "' belongs to a Ballerina package.");
+        }
+    }
+
+    public static void validateBalrProjectPath(Path balrPath) {
+        if (Files.notExists(balrPath)) {
+            throw new ProjectException("Given .balr file does not exist: " + balrPath);
+        }
+
+        if (!Files.isRegularFile(balrPath) || !ProjectFiles.BALR_EXTENSION_MATCHER.matches(balrPath)) {
+            throw new ProjectException("Invalid .balr file: " + balrPath);
+        }
+
+        if (!balrPath.toFile().canRead()) {
+            throw new ProjectException("insufficient privileges to balo: " + balrPath);
+        }
     }
 }
