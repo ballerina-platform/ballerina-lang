@@ -57,9 +57,9 @@ public type CorsConfig record {|
 
 # Configurations for service versioning.
 #
-# + pattern - Expected version pattern in the request URL
-# + allowNoVersion - Allow requests with missing version path segment in the URL to be dispatched
-# + matchMajorVersion - Allow requests with only the major version specified in the URL to be dispatched
+# + pattern - Expected version pattern in the request url
+# + allowNoVersion - Allow requests with missing version path segment in the url to be dispatched
+# + matchMajorVersion - Allow requests with only the major version specified in the url to be dispatched
 public type Versioning record {|
     string pattern = "v{major}.{minor}";
     boolean allowNoVersion = false;
