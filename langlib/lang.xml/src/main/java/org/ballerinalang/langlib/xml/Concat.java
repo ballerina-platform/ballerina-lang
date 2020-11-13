@@ -51,8 +51,7 @@ public class Concat {
                 BXml xmlText = XmlFactory.createXMLText((BString) refValue);
                 backingArray.add(xmlText);
                 lastItem = xmlText;
-            }
-            else if (refValue instanceof BXmlSequence) {
+            } else if (refValue instanceof BXmlSequence) {
                 backingArray.addAll(((BXmlSequence) refValue).getChildrenList());
                 lastItem = (BXml) refValue;
             } else {
