@@ -52,6 +52,7 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.util.diagnostic.DiagnosticCode.CLASS_NOT_FOUND;
+import static org.ballerinalang.util.diagnostic.DiagnosticCode.METHOD_SIGNATURE_DOES_NOT_MATCH;
 import static org.ballerinalang.util.diagnostic.DiagnosticCode.OVERLOADED_METHODS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.J_BOOLEAN_OBJ_TNAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.J_DOUBLE_OBJ_TNAME;
@@ -242,7 +243,7 @@ class JMethodResolver {
 
         if ((throwsCheckedException && !jMethodRequest.returnsBErrorType) ||
                 (jMethodRequest.returnsBErrorType && !throwsCheckedException && !returnsErrorValue)) {
-            throw new JInteropException(DiagnosticCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
+            throw new JInteropException(METHOD_SIGNATURE_DOES_NOT_MATCH,
                     "No such Java method '" + jMethodRequest.methodName + "' which throws checked exception " +
                             "found in class '" + jMethodRequest.declaringClass + "'");
         }
@@ -256,10 +257,9 @@ class JMethodResolver {
         int i = 0;
         int j = 0;
         if (jMethod.getReceiverType() != null) {
-            Class<?> jParamType = jParamTypes[0];
             BType bParamType = jMethod.getReceiverType();
             if (!isValidParamBType(jParamTypes[0], bParamType, false, jMethodRequest.restParamExist)) {
-                throw getNoSuchMethodError(jMethodRequest.methodName, jParamType, bParamType,
+                throw getNoSuchMethodError(jMethodRequest.methodName, jMethod, bParamType,
                                            jMethodRequest.declaringClass);
             }
             bParamCount = bParamCount + 1;
@@ -275,8 +275,8 @@ class JMethodResolver {
             boolean isLastParam = bParamTypes.length == 1;
             if (!isValidParamBType(jMethodRequest.declaringClass, receiverType, isLastParam,
                     jMethodRequest.restParamExist)) {
-                throw getNoSuchMethodError(jMethodRequest.methodName, jParamTypes[0], receiverType,
-                                           jMethodRequest.declaringClass);
+                throw getNoSuchMethodError(jMethodRequest.methodName, jMethod, receiverType,
+                        jMethodRequest.declaringClass);
             }
             i++;
         } else if (jMethod.isBalEnvAcceptingMethod()) {
@@ -302,7 +302,7 @@ class JMethodResolver {
         BType bReturnType = jMethodRequest.bReturnType;
         if (!isValidReturnBType(jReturnType, bReturnType, jMethodRequest) &&
                 !(jMethod.isBalEnvAcceptingMethod() && jReturnType.equals(void.class))) {
-            throw new JInteropException(DiagnosticCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
+            throw new JInteropException(METHOD_SIGNATURE_DOES_NOT_MATCH,
                                         "Incompatible return type for method '" + jMethodRequest.methodName +
                                                 "' in class '" +
                                                 jMethodRequest.declaringClass.getName() + "': Java type '" +
@@ -842,18 +842,35 @@ class JMethodResolver {
         return stringJoiner.toString();
     }
 
+    private JInteropException getNoSuchMethodError(String methodName, JMethod jMethod, BType bType,
+                                                   Class<?> declaringClass) {
+
+        Class<?>[] jParamTypes = jMethod.getParamTypes();
+        if (jParamTypes.length != 0) {
+            return new JInteropException(METHOD_SIGNATURE_DOES_NOT_MATCH,
+                    "Incompatible param type for method '" + methodName + "' in class '" + declaringClass.getName() +
+                            "': Java type '" + jParamTypes[0].getName() + "' will not be matched to ballerina type '" +
+                            (bType.tag == TypeTags.FINITE ? bType.tsymbol.name.value : bType) + "'");
+        } else {
+            return new JInteropException(METHOD_SIGNATURE_DOES_NOT_MATCH,
+                    "Incompatible param type for method '" + methodName + "' in class '" + declaringClass.getName() +
+                            ": No Java type parameters found to be matched with ballerina type '" +
+                            (bType.tag == TypeTags.FINITE ? bType.tsymbol.name.value : bType) + "'");
+        }
+    }
+
     private JInteropException getNoSuchMethodError(String methodName, Class<?> jType, BType bType,
                                                    Class<?> declaringClass) {
 
-        return new JInteropException(DiagnosticCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
-                "Incompatible param type for method '" + methodName + "' in class '" + declaringClass.getName() +
-                        "': Java type '" + jType.getName() + "' will not be matched to ballerina type '" +
-                        (bType.tag == TypeTags.FINITE ? bType.tsymbol.name.value : bType) + "'");
+        return new JInteropException(METHOD_SIGNATURE_DOES_NOT_MATCH,
+                    "Incompatible param type for method '" + methodName + "' in class '" + declaringClass.getName() +
+                            "': Java type '" + jType.getName() + "' will not be matched to ballerina type '" +
+                            (bType.tag == TypeTags.FINITE ? bType.tsymbol.name.value : bType) + "'");
     }
 
     private JInteropException getParamCountMismatchError(JMethodRequest jMethodRequest) {
 
-        return new JInteropException(DiagnosticCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
+        return new JInteropException(METHOD_SIGNATURE_DOES_NOT_MATCH,
                 "Parameter count does not match with Java method '" + jMethodRequest.methodName + "' found in class '" +
                         jMethodRequest.declaringClass.getName() + "'");
     }
