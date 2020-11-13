@@ -4852,12 +4852,12 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseErrorConstructorExpr() {
         startContext(ParserRuleContext.ERROR_CONSTRUCTOR);
         STNode errorKeyword = parseErrorKeyword();
-        STNode typeReference = parseErrorTypeReference(errorKeyword, ParserRuleContext.ERROR_CONSTRUCTOR_RHS);
+        STNode typeReference = parseErrorTypeReference(ParserRuleContext.ERROR_CONSTRUCTOR_RHS);
         STNode openParen = parseOpenParenthesis(ParserRuleContext.ARG_LIST_OPEN_PAREN);
         return parseErrorConstructorExpr(errorKeyword, typeReference, openParen);
     }
 
-    private STNode parseErrorTypeReference(STNode errorKeyword, ParserRuleContext context) {
+    private STNode parseErrorTypeReference(ParserRuleContext context) {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case IDENTIFIER_TOKEN:
@@ -4865,8 +4865,8 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_PAREN_TOKEN:
                 return STNodeFactory.createEmptyNode();
             default:
-                recover(nextToken, context, errorKeyword);
-                return parseErrorTypeReference(errorKeyword, context);
+                recover(nextToken, context, context);
+                return parseErrorTypeReference(context);
         }
     }
 
@@ -16205,7 +16205,7 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.ERROR_BP_OR_ERROR_CONSTRUCTOR);
         STNode errorKeyword = parseErrorKeyword();
         STNode typeRef =
-                parseErrorTypeReference(errorKeyword, ParserRuleContext.ERROR_BINDING_PATTERN_ERROR_KEYWORD_RHS);
+                parseErrorTypeReference(ParserRuleContext.ERROR_BINDING_PATTERN_ERROR_KEYWORD_RHS);
         STNode openParen = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
 
         STToken nextToken = peek();
