@@ -345,9 +345,18 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private void checkForUninitializedGlobalVars(List<BLangVariable> globalVars) {
         for (BLangVariable globalVar : globalVars) {
-            if (this.uninitializedVars.containsKey(globalVar.symbol)) {
-                this.dlog.error(globalVar.pos, DiagnosticCode.UNINITIALIZED_VARIABLE,
-                        ((BLangSimpleVariable) globalVar).name);
+            switch (globalVar.getKind()) {
+                case VARIABLE:
+                    if (this.uninitializedVars.containsKey(globalVar.symbol)) {
+                        this.dlog.error(globalVar.pos, DiagnosticCode.UNINITIALIZED_VARIABLE,
+                                ((BLangSimpleVariable) globalVar).name);
+                    }
+                    break;
+                case TUPLE_VARIABLE:
+                    checkForUninitializedGlobalVars(((BLangTupleVariable) globalVar).memberVariables);
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -1646,15 +1655,19 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
         analyzeNode(bLangTupleVariable.typeNode, env);
+        if (bLangTupleVariable.expr != null) {
+            analyzeNode(bLangTupleVariable.expr, env);
+        } else {
+            bLangTupleVariable.memberVariables.forEach(member -> {
+                analyzeNode(member, env);
+            });
+        }
     }
 
     @Override
     public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
         BLangVariable var = bLangTupleVariableDef.var;
-        if (var.expr == null) {
-            addUninitializedVar(var);
-            return;
-        }
+        analyzeNode(var, env);
     }
 
     @Override
