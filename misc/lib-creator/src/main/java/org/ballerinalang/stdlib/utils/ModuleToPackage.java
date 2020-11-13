@@ -127,12 +127,15 @@ public class ModuleToPackage {
             map.put("platform", platform);
 
             List<HashMap<String, String>> libs = oldPlatform.getList("libraries");
-            for (HashMap<String, String> lib : libs) {
-                lib.remove("modules");
-                String newPath = lib.get("path").replace("<PATH>", "../../libs")
-                    .replace("<VERSION>", "2.0.0-Preview6-SNAPSHOT");
-                lib.put("path", newPath);
-                dependencies.add(lib);
+
+            if (libs != null && !libs.isEmpty()) {
+                for (HashMap<String, String> lib : libs) {
+                    lib.remove("modules");
+                    String newPath = lib.get("path").replace("<PATH>", "../../libs")
+                            .replace("<VERSION>", "2.0.0-Preview6-SNAPSHOT");
+                    lib.put("path", newPath);
+                    dependencies.add(lib);
+                }
             }
         }
         String tomlString = tomlWriter.write(map);
