@@ -23,14 +23,14 @@ import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ServiceBodyNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -55,25 +55,24 @@ public class CodeActionUtil {
     /**
      * Get the top level node type at the cursor line.
      *
-     * @param identifier Document Identifier
-     * @param cursorLine Cursor line
-     * @param docManager Workspace document manager
+     * @param identifier       Document Identifier
+     * @param cursorLine       Cursor line
+     * @param workspaceManager Workspace manager
      * @return {@link String}   Top level node type
      */
     public static CodeActionNodeType topLevelNodeInLine(TextDocumentIdentifier identifier, int cursorLine,
-                                                        WorkspaceDocumentManager docManager) {
+                                                        WorkspaceManager workspaceManager) {
         Optional<Path> filePath = CommonUtil.getPathFromURI(identifier.getUri());
         if (filePath.isEmpty()) {
             return null;
         }
 
-        ModulePartNode modulePartNode;
-        try {
-            modulePartNode = docManager.getTree(filePath.get()).rootNode();
-        } catch (WorkspaceDocumentException e) {
+        Optional<SyntaxTree> syntaxTree = workspaceManager.syntaxTree(filePath.get());
+        if (syntaxTree.isEmpty()) {
             return null;
         }
 
+        ModulePartNode modulePartNode = syntaxTree.get().rootNode();
         List<ModuleMemberDeclarationNode> members = modulePartNode.members().stream().collect(Collectors.toList());
         for (ModuleMemberDeclarationNode member : members) {
             boolean isSameLine = member.lineRange().startLine().line() == cursorLine;

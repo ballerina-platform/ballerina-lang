@@ -37,7 +37,6 @@ import org.ballerinalang.langserver.commons.HoverContext;
 import org.ballerinalang.langserver.commons.NewLSContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
-import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.ballerinalang.langserver.compiler.config.ClientConfigListener;
@@ -380,7 +379,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     params.getRange().getStart());
             try {
                 // Compile and get Top level node
-                CodeActionNodeType nodeType = CodeActionUtil.topLevelNodeInLine(identifier, line, null);
+                CodeActionNodeType nodeType = CodeActionUtil.topLevelNodeInLine(identifier, line, context.workspace());
                 List<Diagnostic> rangeDiagnostics = params.getContext().getDiagnostics();
 
                 // Add code actions
@@ -516,36 +515,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public void didOpen(DidOpenTextDocumentParams params) {
-        String docUri = params.getTextDocument().getUri();
-        // TODO: check the untitled file path issue
+        String fileUri = params.getTextDocument().getUri();
         try {
-            this.workspaceManager.didOpen(params);
-            ExtendedLanguageClient client = this.languageServer.getClient();
-            NewLSContext context = ContextBuilder.buildBaseContext(docUri,
-                    this.workspaceManager,
-                    LSContextOperation.TXT_DID_OPEN);
-//            String fileUri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-
-                /*
-                In order to support definition within the standard libraries, we cache the standard library content 
-                at this stage for the cached sources. We ignore this particular step at any other operation including
-                didChange.
-                 */
-//            if (CommonUtil.isCachedExternalSource(docUri)) {
-//                context.put(DocumentServiceKeys.IS_CACHE_SUPPORTED, true);
-//                context.put(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED, true);
-//                LSModuleCompiler.getBLangPackages(context, docManager, false, true, true);
-//                // Populate the Standard Library Cache
-//                CommonUtil.updateStdLibCache(context);
-//                // Note: If the source is a cached stdlib source then return early and ignore sending diagnostics
-//                return;
-//            }
-
-            diagnosticsHelper.compileAndSendDiagnostics(client, context);
-                /*
-                For the non-cached sources we send the diagnostics and then update the standard lib cache
-                 */
-//            CommonUtil.updateStdLibCache(context);
+            NewLSContext context = ContextBuilder.buildBaseContext(fileUri, this.workspaceManager,
+                                                                   LSContextOperation.TXT_DID_OPEN);
+            this.workspaceManager.didOpen(context.filePath(), params);
+            LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
+                                            "' {fileUri: '" + fileUri + "'} opened}");
+            diagnosticsHelper.compileAndSendDiagnostics(this.languageServer.getClient(), context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didOpen' failed!";
             TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
@@ -556,22 +533,20 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public void didChange(DidChangeTextDocumentParams params) {
         String fileUri = params.getTextDocument().getUri();
-        Optional<Path> changedPath = CommonUtil.getPathFromURI(fileUri);
-        // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
-        if (changedPath.isEmpty() || CommonUtil.isCachedExternalSource(fileUri)) {
-            return;
-        }
-        Path compilationPath = getUntitledFilePath(changedPath.toString()).orElse(changedPath.get());
         try {
             // Update content
-            workspaceManager.didChange(params);
-            LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE.getName() + "' {fileUri: '" +
-                    compilationPath + "'} updated}");
-            ExtendedLanguageClient client = this.languageServer.getClient();
             NewLSContext context = ContextBuilder.buildBaseContext(fileUri,
-                    this.workspaceManager,
-                    LSContextOperation.TXT_DID_CHANGE);
-            diagnosticsHelper.compileAndSendDiagnostics(client, context);
+                                                                   this.workspaceManager,
+                                                                   LSContextOperation.TXT_DID_CHANGE);
+            // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
+            if (CommonUtil.isCachedExternalSource(fileUri)) {
+                // TODO: Check whether still we need this check
+                return;
+            }
+            workspaceManager.didChange(context.filePath(), params);
+            LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE.getName() +
+                                            "' {fileUri: '" + fileUri + "'} updated}");
+            diagnosticsHelper.compileAndSendDiagnostics(this.languageServer.getClient(), context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didChange' failed!";
             logError(msg, e, params.getTextDocument(), (Position) null);
@@ -580,8 +555,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public void didClose(DidCloseTextDocumentParams params) {
+        String fileUri = params.getTextDocument().getUri();
         try {
-            workspaceManager.didClose(params);
+            NewLSContext context = ContextBuilder.buildBaseContext(fileUri,
+                                                                   this.workspaceManager,
+                                                                   LSContextOperation.TXT_DID_CLOSE);
+            workspaceManager.didClose(context.filePath(), params);
+            LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CLOSE.getName() +
+                                            "' {fileUri: '" + fileUri + "'} closed}");
         } catch (Throwable e) {
             String msg = "Operation 'text/didClose' failed!";
             logError(msg, e, params.getTextDocument(), (Position) null);

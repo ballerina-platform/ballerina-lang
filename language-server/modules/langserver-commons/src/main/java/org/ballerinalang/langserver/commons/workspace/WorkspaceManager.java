@@ -55,7 +55,7 @@ public interface WorkspaceManager {
     /**
      * Returns module from the path provided.
      *
-     * @param filePath ballerina project or standalone file path
+     * @param filePath file path of the document
      * @return project of applicable type
      */
     Optional<Module> module(Path filePath);
@@ -71,7 +71,7 @@ public interface WorkspaceManager {
     /**
      * Returns syntax tree from the path provided.
      *
-     * @param filePath ballerina project or standalone file path
+     * @param filePath file path of the document
      * @return {@link io.ballerina.compiler.syntax.tree.SyntaxTree}
      */
     Optional<SyntaxTree> syntaxTree(Path filePath);
@@ -79,24 +79,35 @@ public interface WorkspaceManager {
     /**
      * Returns semantic model from the path provided.
      *
-     * @param filePath ballerina project or standalone file path
+     * @param filePath file path of the document
      * @return project of applicable type
      */
     Optional<SemanticModel> semanticModel(Path filePath);
 
     /**
      * The document open notification is sent from the client to the server to signal newly opened text documents.
+     *
+     * @param filePath {@link Path} of the document
+     * @param params   {@link DidOpenTextDocumentParams}
      */
-    void didOpen(DidOpenTextDocumentParams params) throws WorkspaceDocumentException;
+    void didOpen(Path filePath, DidOpenTextDocumentParams params);
 
     /**
      * The document change notification is sent from the client to the server to signal changes to a text document.
+     *
+     * @param filePath {@link Path} of the document
+     * @param params   {@link DidChangeTextDocumentParams}
+     * @throws WorkspaceDocumentException when project or document not found
      */
-    void didChange(DidChangeTextDocumentParams params) throws WorkspaceDocumentException;
+    void didChange(Path filePath, DidChangeTextDocumentParams params) throws WorkspaceDocumentException;
 
     /**
      * The document close notification is sent from the client to the server when the document got closed in the
      * client.
+     *
+     * @param filePath {@link Path} of the document
+     * @param params   {@link DidCloseTextDocumentParams}
+     * @throws WorkspaceDocumentException project not found
      */
-    void didClose(DidCloseTextDocumentParams params) throws WorkspaceDocumentException;
+    void didClose(Path filePath, DidCloseTextDocumentParams params) throws WorkspaceDocumentException;
 }
