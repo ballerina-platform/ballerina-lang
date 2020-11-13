@@ -772,7 +772,8 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLAttribute xmlAttribute) {
-
+        lookupNode(xmlAttribute.name);
+        lookupNode(xmlAttribute.value);
     }
 
     @Override
