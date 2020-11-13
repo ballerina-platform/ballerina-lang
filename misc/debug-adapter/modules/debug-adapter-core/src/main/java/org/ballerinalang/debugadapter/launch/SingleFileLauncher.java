@@ -15,21 +15,18 @@
  */
 
 
-package org.ballerinalang.debugadapter.launchrequest;
+package org.ballerinalang.debugadapter.launch;
 
 import java.io.IOException;
 import java.util.Map;
 
 /**
- * Launches a single ballerina file.
+ * Ballerina single file runner.
  */
-public class LaunchSingleFile extends LauncherImpl implements Launch {
+public class SingleFileLauncher extends Launcher {
 
-    private final Map<String, Object> args;
-
-    LaunchSingleFile(Map<String, Object> args) {
-        super(args);
-        this.args = args;
+    public SingleFileLauncher(String projectRoot, Map<String, Object> args) {
+        super(projectRoot, args);
     }
 
     @Override
