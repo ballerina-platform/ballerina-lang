@@ -617,7 +617,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // Configurable variable cannot be declared with var
             if (configurable) {
                 dlog.error(varNode.pos, DiagnosticCode.CONFIGURABLE_VARIABLE_CANNOT_BE_DECLARED_WITH_VAR);
-                return;
             }
             validateWorkerAnnAttachments(varNode.expr);
             handleDeclaredWithVar(varNode);
@@ -762,7 +761,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Only simple variables are allowed to be configurable.
         if (isConfigurable(varNode)) {
             dlog.error(varNode.pos, DiagnosticCode.ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_CONFIGURABLE);
-            return;
         }
 
         if (varNode.isDeclaredWithVar) {
@@ -795,7 +793,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Only simple variables are allowed to be configurable.
         if (isConfigurable(varNode)) {
             dlog.error(varNode.pos, DiagnosticCode.ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_CONFIGURABLE);
-            return;
         }
 
         if (varNode.isDeclaredWithVar) {
@@ -840,7 +837,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Only simple variables are allowed to be configurable.
         if (isConfigurable(varNode)) {
             dlog.error(varNode.pos, DiagnosticCode.ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_CONFIGURABLE);
-            return;
         }
         // Error variable declarations (destructuring etc.)
         if (varNode.isDeclaredWithVar) {
