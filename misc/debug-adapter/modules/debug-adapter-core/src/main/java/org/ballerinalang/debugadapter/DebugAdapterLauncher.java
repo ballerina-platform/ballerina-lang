@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.debugadapter.launcher;
+package org.ballerinalang.debugadapter;
 
-import org.ballerinalang.debugadapter.JBallerinaDebugServer;
 import org.eclipse.lsp4j.debug.launch.DSPLauncher;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.slf4j.Logger;
@@ -24,19 +23,17 @@ import org.slf4j.LoggerFactory;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 /**
  * Launch debugger adapter protocol server instance.
  */
-public class Launcher {
+public class DebugAdapterLauncher {
 
     private static final int DEFAULT_PORT = 4711;
-    private static final Logger LOGGER = LoggerFactory.getLogger(Launcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DebugAdapterLauncher.class);
 
     public static void main(String[] args) {
         ServerSocket server;
@@ -58,9 +55,7 @@ public class Launcher {
             IDebugProtocolClient client = serverLauncher.getRemoteProxy();
             jBallerinaDebugServer.connect(client);
             serverLauncher.startListening();
-        } catch (UnknownHostException e) {
-            LOGGER.error(e.getMessage(), e);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
     }
