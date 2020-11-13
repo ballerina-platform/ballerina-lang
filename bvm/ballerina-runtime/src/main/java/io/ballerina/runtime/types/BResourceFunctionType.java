@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime.types;
 
-import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.ResourceFunctionType;
 
 /**d
@@ -25,13 +25,13 @@ import io.ballerina.runtime.api.types.ResourceFunctionType;
  *
  * @since 2.0
  */
-public class ResourceFunction implements ResourceFunctionType {
+public class BResourceFunctionType extends BFunctionType implements ResourceFunctionType {
 
-    public final AttachedFunctionType attachedFunction;
+    public final MemberFunctionType attachedFunction;
     public final String accessor;
     public final String resourcePath;
 
-    public ResourceFunction(AttachedFunctionType attachedFunction, String accessor, String resourcePath) {
+    public BResourceFunctionType(MemberFunctionType attachedFunction, String accessor, String resourcePath) {
         this.attachedFunction = attachedFunction;
         this.accessor = accessor;
         this.resourcePath = resourcePath;

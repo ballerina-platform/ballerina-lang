@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.ValueCreator;
-import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
@@ -53,7 +53,7 @@ public class StackTrace {
 
         ObjectType callStackObjType = TypeCreator
                 .createObjectType("CallStack", new Module("ballerina", "lang.error", null), 0);
-        callStackObjType.setAttachedFunctions(new AttachedFunctionType[]{});
+        callStackObjType.setAttachedFunctions(new MemberFunctionType[]{});
         callStackObjType
                 .setFields(Collections.singletonMap("callStack",
                                                     TypeCreator.createField(TypeCreator.createArrayType(
