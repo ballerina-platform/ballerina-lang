@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -17,9 +17,7 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.document.visitor;
 
-import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LineRange;
-import org.ballerinalang.langserver.extensions.ballerina.document.ASTModification;
+import com.google.gson.JsonObject;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -32,7 +30,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
@@ -57,7 +54,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
@@ -153,92 +149,21 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
- * Common node visitor to override and remove assertion errors from BLangNodeVisitor methods.
+ * Extract type information and fill a Map<String, JsonObject> for a given Old AST.
  */
-public class UnusedNodeVisitor extends BaseNodeVisitor {
+public class TypeInfoExtractingVisitor extends BaseNodeVisitor {
+//    private Map<String, JsonObject> typeInfo = new HashMap<>();
 
-    private String unitName;
-    private Map<LineRange, ASTModification> deleteRanges;
-    private Map<LineRange, ASTModification> toBeDeletedRanges = new HashMap<>();
-    private Map<String, BLangImportPackage> unusedImports = new HashMap<>();
-    private Set<String> usedImports = new HashSet<>();
-    private Map<String, LineRange> variables = new HashMap<>();
-
-    public UnusedNodeVisitor(String unitName, Map<LineRange, ASTModification> deleteRanges) {
-        this.unitName = unitName;
-        this.deleteRanges = deleteRanges;
-        this.toBeDeletedRanges.putAll(deleteRanges);
-    }
-
-    public Collection<BLangImportPackage> unusedImports() {
-        return unusedImports.values();
-    }
-
-    public Set<String> usedImports() {
-        return usedImports;
-    }
-
-    public Collection<ASTModification> toBeDeletedRanges() {
-        return toBeDeletedRanges.values();
-    }
-
-    private void addImportNode(BLangImportPackage importPkgNode) {
-        unusedImports.put(importPkgNode.getAlias().getValue(), importPkgNode);
-    }
-
-    private void removeImportNode(BLangIdentifier identifierNode) {
-        LineRange range = getDeleteRange(identifierNode.getPosition());
-        if (range == null) {
-            BLangImportPackage bLangImportPackage = unusedImports.remove(identifierNode.getValue());
-            if (bLangImportPackage != null) {
-                usedImports.add(bLangImportPackage.getQualifiedPackageName());
-            }
-        }
-    }
-
-    //Monitor only the variables that are in deleted range
-    private void addVariableNode(BLangSimpleVariable varNode) {
-        LineRange range = getDeleteRange(varNode.getPosition());
-        if (range != null) {
-            variables.put(varNode.getName().getValue(), range);
-        }
-    }
-
-    //Remove the delete range when the reference is not from any given delete ranges
-    private void removeVariableNode(BLangIdentifier identifierNode) {
-        LineRange range = getDeleteRange(identifierNode.getPosition());
-        if (range == null) {
-            LineRange variableDeleteRange = variables.remove(identifierNode.getValue());
-            if (variableDeleteRange != null) {
-                toBeDeletedRanges.remove(variableDeleteRange);
-            }
-        }
-    }
-
-    private LineRange getDeleteRange(Location position) {
-        if (position != null) {
-            for (LineRange aPosition : deleteRanges.keySet()) {
-                if (aPosition.startLine().line() <= position.lineRange().startLine().line() &&
-                        aPosition.endLine().line() >= position.lineRange().endLine().line() &&
-                        aPosition.startLine().offset() <= position.lineRange().startLine().offset() &&
-                        aPosition.endLine().offset() >= position.lineRange().endLine().offset()) {
-                    return aPosition;
-                }
-            }
-        }
-        return null;
+    public TypeInfoExtractingVisitor(Map<String, JsonObject> typeInfo) {
+//        this.typeInfo = typeInfo;
     }
 
     @Override
     public void visit(BLangPackage pkgNode) {
-        pkgNode.getCompilationUnits().forEach(c -> c.accept(this));
+        // No implementation
     }
 
     @Override
@@ -248,14 +173,12 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangCompilationUnit compUnit) {
-        if (compUnit.getName().equals(unitName)) {
-            compUnit.getTopLevelNodes().forEach(n -> ((BLangNode) n).accept(this));
-        }
+        // No implementation
     }
 
     @Override
     public void visit(BLangImportPackage importPkgNode) {
-        addImportNode(importPkgNode);
+        // No implementation
     }
 
     @Override
@@ -265,15 +188,12 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
-        funcNode.getParameters().forEach(parm -> parm.accept(this));
-        funcNode.getBody().accept(this);
+        // No implementation
     }
 
     @Override
     public void visit(BLangService serviceNode) {
-        serviceNode.getServiceClass().accept(this);
-        serviceNode.getResources().forEach(resource -> resource.accept(this));
-        serviceNode.getAttachedExprs().forEach(expr -> expr.accept(this));
+        // No implementation
     }
 
     @Override
@@ -293,14 +213,18 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-        addVariableNode(varNode);
-        if (varNode.getTypeNode() != null) {
-            varNode.getTypeNode().accept(this);
-        }
+//        if (varNode.getTypeNode() != null) {
+//            try {
+//                JsonElement typeNode = TextDocumentFormatUtil.generateJSON(varNode.getTypeNode(), new HashMap<>(),
+//                        new HashMap<>());
+//            } catch (JSONGenerationException e) {
+//                // Ignore
+//            }
+//        }
 
-        if (varNode.getInitialExpression() != null) {
-            varNode.getInitialExpression().accept(this);
-        }
+//        if (varNode.getInitialExpression() != null) {
+//            varNode.getInitialExpression().accept(this);
+//        }
     }
 
     @Override
@@ -326,17 +250,17 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
     // Statements
     @Override
     public void visit(BLangBlockStmt blockNode) {
-        blockNode.getStatements().forEach(s -> s.accept(this));
+        // No implementation
     }
 
     @Override
     public void visit(BLangBlockFunctionBody blockFuncBody) {
-        blockFuncBody.getStatements().forEach(s -> s.accept(this));
+        // No implementation
     }
 
     @Override
     public void visit(BLangExprFunctionBody exprFuncBody) {
-        exprFuncBody.getExpr().accept(this);
+        // No implementation
     }
 
     @Override
@@ -371,13 +295,12 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
-        varDefNode.getVariable().accept(this);
+        // No implementation
     }
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        assignNode.getExpression().accept(this);
-        ((BLangExpression) assignNode.getVariable()).accept(this);
+        // No implementation
     }
 
     @Override
@@ -422,16 +345,12 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
-        exprStmtNode.getExpression().accept(this);
+        // No implementation
     }
 
     @Override
     public void visit(BLangIf ifNode) {
-        ifNode.getCondition().accept(this);
-        ifNode.getBody().accept(this);
-        if (ifNode.getElseStatement() != null) {
-            ifNode.getElseStatement().accept(this);
-        }
+        // No implementation
     }
 
     @Override
@@ -446,14 +365,12 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangForeach foreach) {
-        foreach.body.accept(this);
-        foreach.collection.accept(this);
+        // No implementation
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
-        whileNode.getBody().accept(this);
-        whileNode.getCondition().accept(this);
+        // No implementation
     }
 
     @Override
@@ -541,7 +458,7 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        removeVariableNode(varRefExpr.getVariableName());
+        // No implementation
     }
 
     @Override
@@ -556,14 +473,7 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
-        if (invocationExpr.getPackageAlias() != null) {
-            removeImportNode((BLangIdentifier) invocationExpr.getPackageAlias());
-        }
-        ((BLangIdentifier) invocationExpr.getName()).accept(this);
-        if (invocationExpr.getExpression() != null) {
-            invocationExpr.getExpression().accept(this);
-        }
-        invocationExpr.getArgumentExpressions().forEach(e -> ((BLangExpression) e).accept(this));
+        // No implementation
     }
 
     @Override
@@ -750,7 +660,7 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
-        removeImportNode(userDefinedType.getPackageAlias());
+        // No implementation
     }
 
     @Override
@@ -793,7 +703,7 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
-        removeVariableNode(localVarRef.getVariableName());
+        // No implementation
     }
 
     @Override
@@ -903,7 +813,7 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangStatementExpression bLangStatementExpression) {
-        bLangStatementExpression.getStatement().accept(this);
+        // No implementation
     }
 
     @Override
