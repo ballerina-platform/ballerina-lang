@@ -22,6 +22,7 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.jballerina.JarWriter;
 import io.ballerina.projects.testsuite.TestSuite;
+import io.ballerina.projects.testsuite.TesterinaRegistry;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -78,13 +79,13 @@ public class JBallerinaBackend extends CompilerBackend {
     private final PackageResolver packageResolver;
     private final CompilerContext compilerContext;
     private final CodeGenerator jvmCodeGenerator;
-
     private DiagnosticResult diagnosticResult;
     private boolean codeGenCompleted;
     private final JarResolver jarResolver;
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JdkVersion jdkVersion) {
-        return new JBallerinaBackend(packageCompilation, jdkVersion);
+        return packageCompilation.getCompilerBackend(jdkVersion,
+                (targetPlatform -> new JBallerinaBackend(packageCompilation, jdkVersion)));
     }
 
     private JBallerinaBackend(PackageCompilation packageCompilation, JdkVersion jdkVersion) {
@@ -97,6 +98,11 @@ public class JBallerinaBackend extends CompilerBackend {
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
         this.jvmCodeGenerator = CodeGenerator.getInstance(compilerContext);
+
+        // TODO The following line is a temporary solution to cleanup the TesterinaRegistry
+        TesterinaRegistry.reset();
+
+        // Trigger code generation
         performCodeGen();
     }
 
