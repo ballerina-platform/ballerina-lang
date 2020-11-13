@@ -224,7 +224,7 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
         find(xmlnsNode.namespaceURI);
-        addIfSameSymbol(xmlnsNode.symbol, xmlnsNode.pos);
+        addIfSameSymbol(xmlnsNode.symbol, xmlnsNode.prefix.pos);
     }
 
     @Override
@@ -660,6 +660,11 @@ public class ReferenceFinder extends BaseVisitor {
         addIfSameSymbol(fieldAccessExpr.symbol, fieldAccessExpr.field.pos);
     }
 
+    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
+        find(nsPrefixedFieldBasedAccess.expr);
+        addIfSameSymbol(nsPrefixedFieldBasedAccess.nsSymbol, nsPrefixedFieldBasedAccess.nsPrefix.pos);
+    }
+
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         find(indexAccessExpr.indexExpr);
@@ -780,7 +785,7 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangXMLQName xmlQName) {
-        addIfSameSymbol(xmlQName.nsSymbol, xmlQName.pos);
+        addIfSameSymbol(xmlQName.nsSymbol, xmlQName.prefix.pos);
     }
 
     @Override
@@ -1100,7 +1105,7 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangXMLElementFilter xmlElementFilter) {
-        addIfSameSymbol(xmlElementFilter.namespaceSymbol, xmlElementFilter.elemNamePos);
+        addIfSameSymbol(xmlElementFilter.namespaceSymbol, xmlElementFilter.nsPos);
     }
 
     @Override
