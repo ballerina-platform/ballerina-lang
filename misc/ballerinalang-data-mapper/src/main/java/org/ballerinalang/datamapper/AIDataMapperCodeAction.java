@@ -15,6 +15,10 @@
  */
 package org.ballerinalang.datamapper;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.datamapper.config.LSClientExtendedConfig;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
@@ -41,6 +45,7 @@ import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 
 import java.io.IOException;
@@ -123,6 +128,25 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
             } else {
                 diagnosticPosition = startingPosition;
             }
+
+            BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+            SemanticModel semanticModel = new BallerinaSemanticModel(bLangPackage, context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
+//            SymbolReferencesModel.Reference refAtCursor =
+            Optional<Symbol>
+                    symbolAtCursor = semanticModel.symbol(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY),
+                    LinePosition.from(diagnosticPosition.getLine(),
+                            diagnosticPosition.getCharacter()));
+
+
+
+//            BLangPackage bLangPackage = completionContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+//            SemanticModel semanticModel = new BallerinaSemanticModel(bLangPackage,
+//                    completionContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
+//            Position position = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+//            String filePath = completionContext.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+//            completionContext.put(CommonKeys.VISIBLE_SYMBOLS_KEY, semanticModel
+//                    .visibleSymbols(filePath, LinePosition.from(position.getLine(), position.getCharacter())));
+
             SymbolReferencesModel.Reference refAtCursor = getReferenceAtCursor(context, document, diagnosticPosition);
             BType symbolAtCursorType = refAtCursor.getSymbol().type;
             if (refAtCursor.getbLangNode().parent instanceof BLangFieldBasedAccess) {
