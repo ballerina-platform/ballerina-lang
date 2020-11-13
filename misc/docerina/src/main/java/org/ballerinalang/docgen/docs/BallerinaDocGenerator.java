@@ -23,6 +23,7 @@ import com.google.gson.GsonBuilder;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.Writer;
@@ -53,7 +54,6 @@ import org.ballerinalang.docgen.generator.model.search.ModuleSearchJson;
 import org.ballerinalang.docgen.generator.model.search.SearchJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -562,22 +562,24 @@ public class BallerinaDocGenerator {
         Map<String, ModuleDoc> moduleDocMap = new HashMap<>();
         for (io.ballerina.projects.Module module : project.currentPackage().modules()) {
             String moduleName;
+            Path modulePath;
             if (module.isDefaultModule()) {
                 moduleName = module.moduleName().packageName().toString();
+                modulePath = project.sourceRoot();
             } else {
                 moduleName = module.moduleName().moduleNamePart();
+                modulePath = project.sourceRoot().resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName);
             }
-            Path absolutePkgPath = getAbsoluteModulePath(project.sourceRoot().toString(), Paths.get(moduleName));
             // find the Module.md file
-            Path packageMd = getModuleDocPath(absolutePkgPath);
+            Path moduleMd = getModuleDocPath(modulePath);
             // find the resources of the package
-            List<Path> resources = getResourcePaths(absolutePkgPath);
+            List<Path> resources = getResourcePaths(modulePath);
             Map<String, SyntaxTree> syntaxTreeMap = new HashMap<>();
             module.documentIds().forEach(documentId -> {
                 Document document = module.document(documentId);
                 syntaxTreeMap.put(document.name(), document.syntaxTree());
             });
-            ModuleDoc moduleDoc = new ModuleDoc(packageMd == null ? null : packageMd.toAbsolutePath(), resources,
+            ModuleDoc moduleDoc = new ModuleDoc(moduleMd == null ? null : moduleMd.toAbsolutePath(), resources,
                     syntaxTreeMap, (BallerinaSemanticModel) module.getCompilation().getSemanticModel());
             moduleDocMap.put(moduleName, moduleDoc);
         }
@@ -654,13 +656,5 @@ public class BallerinaDocGenerator {
 
         packageMd = o.isPresent() ? o.get() : null;
         return packageMd;
-    }
-
-    private static Path getAbsoluteModulePath(String sourceRoot, Path modulePath) {
-        Path sourcePath = Paths.get(sourceRoot);
-        if (sourcePath.endsWith(modulePath)) {
-            return Paths.get(sourceRoot);
-        }
-        return sourcePath.resolve(ProjectDirConstants.MODULES_ROOT).resolve(modulePath);
     }
 }

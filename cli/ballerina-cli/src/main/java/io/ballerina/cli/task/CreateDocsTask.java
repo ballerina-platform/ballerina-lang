@@ -18,8 +18,8 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.projects.Project;
+import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -46,8 +46,8 @@ public class CreateDocsTask implements Task {
     @Override
     public void execute(Project project) {
         Path sourceRootPath = project.sourceRoot();
-        Path targetDir = project.sourceRoot().resolve(ProjectDirConstants.TARGET_DIR_NAME);
-        Path outputPath = targetDir.resolve(ProjectDirConstants.TARGET_API_DOC_DIRECTORY);
+        Path targetDir = project.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME);
+        Path outputPath = targetDir.resolve(ProjectConstants.TARGET_API_DOC_DIRECTORY);
         this.out.println("Generating API Documentation");
         try {
             Files.createDirectories(outputPath);
@@ -55,7 +55,7 @@ public class CreateDocsTask implements Task {
             this.out.println("\t" + sourceRootPath.relativize(outputPath).toString());
 
         } catch (IOException e) {
-            throw createLauncherException("Unable to generate API Documentation.");
+            throw createLauncherException("Unable to generate API Documentation.", e.getCause());
         }
 
     }

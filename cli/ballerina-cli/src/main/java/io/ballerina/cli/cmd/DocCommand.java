@@ -66,6 +66,13 @@ public class DocCommand implements BLauncherCmd {
         this.exitWhenFinish = true;
     }
 
+    public DocCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
+        this.projectPath = Paths.get(System.getProperty("user.dir"));
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+    }
+
     @CommandLine.Option(names = {"--sourceroot"},
             description = "Path to the directory containing source files and modules.")
     private String sourceRoot;
@@ -109,7 +116,9 @@ public class DocCommand implements BLauncherCmd {
         if (this.combine) {
             outStream.println("Combining Docs");
             BallerinaDocGenerator.mergeApiDocs(this.projectPath.toString());
-            Runtime.getRuntime().exit(0);
+            if (this.exitWhenFinish) {
+                Runtime.getRuntime().exit(0);
+            }
         }
 
         if (this.argList != null && this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
@@ -181,7 +190,9 @@ public class DocCommand implements BLauncherCmd {
                 .build();
 
         taskExecutor.executeTasks(project);
-        Runtime.getRuntime().exit(0);
+        if (this.exitWhenFinish) {
+            Runtime.getRuntime().exit(0);
+        }
     }
 
     @Override
