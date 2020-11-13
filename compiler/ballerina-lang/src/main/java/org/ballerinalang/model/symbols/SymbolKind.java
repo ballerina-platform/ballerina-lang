@@ -38,6 +38,7 @@ public enum SymbolKind {
     TRANSFORMER,
     TYPE_DEF,
     ERROR,
+    LET,
 
     PARAMETER,
     LOCAL_VARIABLE,

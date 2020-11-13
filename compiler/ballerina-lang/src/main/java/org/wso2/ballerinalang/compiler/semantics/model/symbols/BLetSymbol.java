@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -34,5 +35,10 @@ public class BLetSymbol extends BSymbol {
     public BLetSymbol(int tag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                       Location location) {
         super(tag, flags, name, pkgID, type, owner, location, SymbolOrigin.VIRTUAL);
+    }
+
+    @Override
+    public SymbolKind getKind() {
+        return SymbolKind.LET;
     }
 }
