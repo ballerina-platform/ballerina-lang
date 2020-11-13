@@ -48,7 +48,6 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
         description = "download the module source and binaries from a remote repository")
 public class PullCommand implements BLauncherCmd {
     private PrintStream errStream;
-    private CentralAPIClient client;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -61,12 +60,6 @@ public class PullCommand implements BLauncherCmd {
 
     public PullCommand() {
         this.errStream = System.err;
-        this.client = new CentralAPIClient();
-    }
-
-    public PullCommand(PrintStream errStream, CentralAPIClient client) {
-        this.errStream = errStream;
-        this.client = client;
     }
 
     @Override
@@ -129,8 +122,8 @@ public class PullCommand implements BLauncherCmd {
 
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
             try {
-                this.client
-                        .pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform, false);
+                CentralAPIClient client = new CentralAPIClient();
+                client.pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform, false);
             } catch (Exception e) {
                 errStream.println("unexpected error occurred while pulling package:" + e.getMessage());
                 // Exit status, zero for OK, non-zero for error
