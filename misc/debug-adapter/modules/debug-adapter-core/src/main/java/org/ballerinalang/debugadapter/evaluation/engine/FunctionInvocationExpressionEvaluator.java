@@ -96,7 +96,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
                 }
                 // If the sources reside inside a ballerina module/project, generated class name should start with the
                 // organization name of the ballerina module/project source.
-                if (sourceType == DebugSourceType.PACKAGE && !cls.name().startsWith(context.getPackageOrgName().get())) {
+                if (sourceType == DebugSourceType.PACKAGE && !cls.name().startsWith(context.getPackageOrg().get())) {
                     continue;
                 }
                 List<Method> methods = cls.methodsByName(syntaxNode.functionName().toSourceCode());

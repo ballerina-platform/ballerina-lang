@@ -95,7 +95,7 @@ public class SuspendedContext {
         return sourceType;
     }
 
-    public Optional<String> getPackageOrgName() {
+    public Optional<String> getPackageOrg() {
         return Optional.ofNullable(project.currentPackage().packageOrg().toString());
     }
 
