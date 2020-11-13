@@ -71,8 +71,11 @@ class DebugExpressionCompiler {
         if (isBlank(expression)) {
             throw new EvaluationException(EvaluationExceptionKind.EMPTY.getString());
         }
+
+        // Todo - enable
         // validates for syntax and semantic errors.
-        validateForCompilationErrors(expression);
+        // validateForCompilationErrors(expression);
+
         // returns parsed expression node.
         return getParsedExpressionNode(expression);
     }
