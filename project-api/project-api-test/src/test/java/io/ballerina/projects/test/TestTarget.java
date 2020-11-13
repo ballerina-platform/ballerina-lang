@@ -57,12 +57,12 @@ public class TestTarget {
         Path executablePath = projectTarget.getExecutablePath(currentPackage);
 
         Assert.assertEquals(baloCachePath.toString(),
-                projectPath.toAbsolutePath().resolve("target").resolve("balo").toString());
+                projectPath.resolve("target").resolve("balo").toString());
         Assert.assertEquals(birCachePath.toString(),
-                projectPath.toAbsolutePath().resolve("target").resolve("caches").resolve("bir_cache").toString());
+                projectPath.resolve("target").resolve("caches").resolve("bir_cache").toString());
         Assert.assertEquals(jarCachePath.toString(),
-                projectPath.toAbsolutePath().resolve("target").resolve("caches").resolve("jar_cache").toString());
+                projectPath.resolve("target").resolve("caches").resolve("jar_cache").toString());
         Assert.assertEquals(executablePath.toString(),
-                projectPath.toAbsolutePath().resolve("target").resolve("bin").resolve("myproject.jar").toString());
+                projectPath.resolve("target").resolve("bin").resolve("myproject.jar").toString());
     }
 }

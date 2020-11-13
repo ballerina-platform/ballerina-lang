@@ -79,7 +79,7 @@ public class TestCommandTest extends BaseCommandTest {
 
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.replaceAll("\r", "")
-                .contains("provided path is not a valid Ballerina standalone file: " + nonBalFilePath.toString()));
+                .contains("Invalid Ballerina source file(.bal): " + nonBalFilePath.toString()));
     }
 
     @Test(description = "Test non existing bal file")
@@ -92,7 +92,7 @@ public class TestCommandTest extends BaseCommandTest {
         testCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.replaceAll("\r", "")
-                .contains("project path does not exist:" + validBalFilePath.toString()));
+                .contains("The file does not exist: " + validBalFilePath.toString()));
 
     }
 
