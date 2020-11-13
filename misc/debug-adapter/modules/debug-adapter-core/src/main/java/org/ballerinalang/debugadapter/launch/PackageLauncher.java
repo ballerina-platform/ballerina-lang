@@ -15,39 +15,30 @@
  */
 
 
-package org.ballerinalang.debugadapter.launchrequest;
-
-import org.ballerinalang.debugadapter.utils.PackageUtils;
+package org.ballerinalang.debugadapter.launch;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
 /**
- * Launches a ballerina module.
+ * Ballerina package runner.
  */
-public class LaunchModule extends LauncherImpl implements Launch {
+public class PackageLauncher extends Launcher {
 
-    private final Map<String, Object> args;
-
-    LaunchModule(Map<String, Object> args) {
-        super(args);
-        this.args = args;
+    public PackageLauncher(String projectRoot, Map<String, Object> args) {
+        super(projectRoot, args);
     }
 
-    @Override
     public Process start() throws IOException {
         ProcessBuilder processBuilder = new ProcessBuilder();
-        String balFile = args.get("script").toString();
-        processBuilder.command(getLauncherCommand(PackageUtils.getModuleName(balFile)));
-
-        Path projectRoot = PackageUtils.findProjectRoot(Paths.get(balFile));
+        // Adds ballerina run/test command with debug flag.
+        processBuilder.command(getLauncherCommand(null));
 
         Map<String, String> env = processBuilder.environment();
         // set environment ballerina home
         env.put("BALLERINA_HOME", getBallerinaHome());
-        processBuilder.directory(projectRoot.toFile());
+        processBuilder.directory(Paths.get(projectRoot).toFile());
         return processBuilder.start();
     }
 }

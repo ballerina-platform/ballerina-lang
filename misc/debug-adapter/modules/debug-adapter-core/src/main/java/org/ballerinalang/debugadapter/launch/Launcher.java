@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.debugadapter.launchrequest;
+package org.ballerinalang.debugadapter.launch;
 
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
@@ -34,30 +34,47 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Launcher abstract implementation.
+ * Abstract implementation of Ballerina program launcher.
  */
-public abstract class LauncherImpl {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LauncherImpl.class);
-    private final Map<String, Object> args;
+public abstract class Launcher {
+
+    protected final String projectRoot;
+    protected final Map<String, Object> args;
+    private final String debuggeePort;
     private final String ballerinaHome;
-    private String debuggeePort;
 
-    LauncherImpl(Map<String, Object> args) {
-        this.debuggeePort = args.get("debuggeePort") == null ? "" : args.get("debuggeePort").toString();
-        if (debuggeePort.length() == 0) {
-            LOGGER.error("Required param missing debuggeePort");
-        }
+    private static final String ARG_BALLERINA_HOME = "ballerina.home";
+    private static final String ARG_DEBUGGEE_PORT = "debuggeePort";
+    private static final String ARG_BALLERINA_COMMAND = "ballerina.command";
+    private static final String ARG_TEST_DEBUG = "debugTests";
+    private static final String ARG_NETWORK_LOGS = "networkLogs";
+    private static final String ARG_NETWORK_LOGS_PORT = "networkLogsPort";
+    private static final String ARG_COMMAND_OPTIONS = "commandOptions";
+    private static final String ARG_SCRIPT_ARGUMENTS = "scriptArguments";
+    private static final String BAL_RUN_CMD_NAME = "run";
+    private static final String BAL_TEST_CMD_NAME = "test";
 
-        ballerinaHome = args.get("ballerina.home") == null ? "" : args.get("ballerina.home").toString();
+    private static final Logger LOGGER = LoggerFactory.getLogger(Launcher.class);
 
-        if (ballerinaHome.length() == 0) {
-            LOGGER.error("Required param missing ballerina.home");
-        }
+    public abstract Process start() throws IOException;
 
+    Launcher(String projectRoot, Map<String, Object> args) throws IllegalArgumentException {
+        this.projectRoot = projectRoot;
         this.args = args;
+
+        if (args.get(ARG_DEBUGGEE_PORT) == null) {
+            throw new IllegalArgumentException("Required parameter missing:" + ARG_DEBUGGEE_PORT);
+        }
+        debuggeePort = args.get(ARG_DEBUGGEE_PORT).toString();
+
+        if (args.get(ARG_BALLERINA_HOME) == null) {
+            throw new IllegalArgumentException("Required parameter missing:" + ARG_BALLERINA_HOME);
+        }
+        ballerinaHome = args.get(ARG_BALLERINA_HOME).toString();
     }
 
     ArrayList<String> getLauncherCommand(String balFile) {
+
         List<String> ballerinaExec = new ArrayList<>();
         if (OSUtils.isWindows()) {
             ballerinaExec.add("cmd.exe");
@@ -68,55 +85,51 @@ public abstract class LauncherImpl {
             ballerinaExec.add(ballerinaHome + File.separator + "bin" + File.separator + "ballerina");
         }
 
-        String ballerinaCmd = args.get("ballerina.command") == null ? "" : args.get("ballerina.command").toString();
+        String ballerinaCmd = args.get(ARG_BALLERINA_COMMAND) == null ? "" : args.get(ARG_BALLERINA_COMMAND).toString();
         // override ballerina exec if ballerina.command is provided.
         if (!ballerinaCmd.isEmpty()) {
             ballerinaExec = Collections.singletonList(ballerinaCmd);
         }
 
-        // TODO: validate file path
-        ArrayList<String> command = new ArrayList<>(ballerinaExec);
-        boolean debugTests = false;
-        if (args.get("debugTests") instanceof Boolean) {
-            debugTests = (boolean) args.get("debugTests");
-        } else if (args.get("debugTests") instanceof String) {
-            debugTests = Boolean.parseBoolean((String) args.get("debugTests"));
-        }
-        if (debugTests) {
-            command.add("test");
-            command.add("--debug");
-            command.add(debuggeePort);
-        } else {
-            command.add("run");
-            command.add("--debug");
-            command.add(debuggeePort);
+        boolean testDebugging = false;
+        if (args.get(ARG_TEST_DEBUG) instanceof Boolean) {
+            testDebugging = (boolean) args.get(ARG_TEST_DEBUG);
+        } else if (args.get(ARG_TEST_DEBUG) instanceof String) {
+            testDebugging = Boolean.parseBoolean((String) args.get(ARG_TEST_DEBUG));
         }
 
+        ArrayList<String> command = new ArrayList<>(ballerinaExec);
+        command.add(testDebugging ? BAL_TEST_CMD_NAME : BAL_RUN_CMD_NAME);
+        command.add("--debug");
+        command.add(debuggeePort);
         command.add("--experimental");
 
-        command.add(balFile);
+        // Adds file name, only if single file debugging.
+        if (balFile != null) {
+            command.add(balFile);
+        }
 
         boolean networkLogs = false;
-        if (args.get("networkLogs") instanceof Boolean) {
-            networkLogs = (boolean) args.get("networkLogs");
-        } else if (args.get("networkLogs") instanceof String) {
-            networkLogs = Boolean.parseBoolean((String) args.get("networkLogs"));
+        if (args.get(ARG_NETWORK_LOGS) instanceof Boolean) {
+            networkLogs = (boolean) args.get(ARG_NETWORK_LOGS);
+        } else if (args.get(ARG_NETWORK_LOGS) instanceof String) {
+            networkLogs = Boolean.parseBoolean((String) args.get(ARG_NETWORK_LOGS));
         }
-        if (networkLogs && !debugTests && args.get("networkLogsPort") instanceof Double) {
-            Double networkLogsPort = (Double) args.get("networkLogsPort");
+        if (networkLogs && !testDebugging && args.get(ARG_NETWORK_LOGS_PORT) instanceof Double) {
+            Double networkLogsPort = (Double) args.get(ARG_NETWORK_LOGS_PORT);
             command.add("--b7a.http.tracelog.host=localhost");
             command.add("--b7a.http.tracelog.port=" + networkLogsPort.intValue());
         }
 
         ArrayList<String> commandOptions = new ArrayList<>();
-        if (args.get("commandOptions") instanceof ArrayList) {
-            commandOptions = (ArrayList<String>) args.get("commandOptions");
+        if (args.get(ARG_COMMAND_OPTIONS) instanceof ArrayList) {
+            commandOptions = (ArrayList<String>) args.get(ARG_COMMAND_OPTIONS);
         }
         command.addAll(commandOptions);
 
         ArrayList<String> scriptArguments = new ArrayList<>();
-        if (args.get("scriptArguments") instanceof ArrayList) {
-            scriptArguments = (ArrayList<String>) args.get("scriptArguments");
+        if (args.get(ARG_SCRIPT_ARGUMENTS) instanceof ArrayList) {
+            scriptArguments = (ArrayList<String>) args.get(ARG_SCRIPT_ARGUMENTS);
         }
         command.addAll(scriptArguments);
         return command;
