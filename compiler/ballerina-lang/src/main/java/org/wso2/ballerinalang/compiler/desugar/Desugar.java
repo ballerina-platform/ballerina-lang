@@ -5288,9 +5288,6 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
         workerSendNode.expr = visitCloneInvocation(rewriteExpr(workerSendNode.expr), workerSendNode.expr.type);
-        if (workerSendNode.keyExpr != null) {
-            workerSendNode.keyExpr = rewriteExpr(workerSendNode.keyExpr);
-        }
         result = workerSendNode;
     }
 
@@ -5302,9 +5299,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        if (workerReceiveNode.keyExpr != null) {
-            workerReceiveNode.keyExpr = rewriteExpr(workerReceiveNode.keyExpr);
-        }
         result = workerReceiveNode;
     }
 
