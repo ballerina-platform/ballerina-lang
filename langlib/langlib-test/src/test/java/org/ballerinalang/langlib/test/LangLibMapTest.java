@@ -198,16 +198,16 @@ public class LangLibMapTest {
     }
 
     @DataProvider(name = "FunctionList")
-    public Object[][] testFunctions() {
-        return new Object[][]{
-                {"testRemoveIfHasKey"},
-                {"testBasicToArray"},
-                {"testLargeMapToArray"},
-                {"testRecordToArray"},
-                {"testOpenRecordToArray"},
-                {"testMapOfUnionToArray"},
-                {"testRecordWithSameTypeFieldsToArray"},
-                {"testReadOnlyMapFilter"}
+    public Object[] testFunctions() {
+        return new Object[]{
+                "testRemoveIfHasKey",
+                "testBasicToArray",
+                "testLargeMapToArray",
+                "testRecordToArray",
+                "testOpenRecordToArray",
+                "testMapOfUnionToArray",
+                "testRecordWithSameTypeFieldsToArray",
+                "testReadOnlyMapFilter"
         };
     }
 }

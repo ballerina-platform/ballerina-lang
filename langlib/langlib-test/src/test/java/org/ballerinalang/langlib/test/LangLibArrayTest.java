@@ -494,22 +494,22 @@ public class LangLibArrayTest {
     }
 
     @DataProvider(name = "FunctionList")
-    public Object[][] testFunctions() {
-        return new Object[][]{
-                {"testSliceOnTupleWithRestDesc"},
-                {"testLastIndexOf"},
-                {"testPush"},
-                {"testShiftOperation"},
-                {"testSort1"},
-                {"testSort2"},
-                {"testSort4"},
-                {"testSort5"},
-                {"testSort6"},
-                {"testSort7"},
-                {"testSort8"},
-                {"testSort9"},
-                {"testSort10"},
-                {"testReadOnlyArrayFilter"}
+    public Object[] testFunctions() {
+        return new Object[]{
+                "testSliceOnTupleWithRestDesc",
+                "testLastIndexOf",
+                "testPush",
+                "testShiftOperation",
+                "testSort1",
+                "testSort2",
+                "testSort4",
+                "testSort5",
+                "testSort6",
+                "testSort7",
+                "testSort8",
+                "testSort9",
+                "testSort10",
+                "testReadOnlyArrayFilter"
         };
     }
 }
