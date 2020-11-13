@@ -34,6 +34,7 @@ import org.ballerinalang.observe.trace.extension.choreo.logging.Logger;
 import org.ballerinalang.observe.trace.extension.choreo.model.ChoreoMetric;
 import org.ballerinalang.observe.trace.extension.choreo.model.ChoreoTraceSpan;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -173,14 +174,14 @@ public class ChoreoClient implements AutoCloseable {
         LOGGER.debug("Successfully published " + metrics.length + " metrics to Choreo");
     }
 
-    public void publishTraceSpans(ChoreoTraceSpan[] traceSpans) {
+    public void publishTraceSpans(List<ChoreoTraceSpan> traceSpans) {
         int i = 0;
-        while (i < traceSpans.length) {
+        while (i < traceSpans.size()) {
             TelemetryOuterClass.TracesPublishRequest.Builder requestBuilder =
                     TelemetryOuterClass.TracesPublishRequest.newBuilder();
             int messageSize = 0;
-            while (i < traceSpans.length && messageSize < SERVER_MAX_FRAME_SIZE_BYTES) {
-                ChoreoTraceSpan traceSpan = traceSpans[i];
+            while (i < traceSpans.size() && messageSize < SERVER_MAX_FRAME_SIZE_BYTES) {
+                ChoreoTraceSpan traceSpan = traceSpans.get(i);
                 TelemetryOuterClass.TraceSpan.Builder traceSpanBuilder
                         = TelemetryOuterClass.TraceSpan.newBuilder()
                                                        .setTraceId(traceSpan.getTraceId())
@@ -219,7 +220,7 @@ public class ChoreoClient implements AutoCloseable {
                                                         .setProjectSecret(projectSecret)
                                                         .build());
         }
-        LOGGER.debug("Successfully published " + traceSpans.length + " traces to Choreo");
+        LOGGER.debug("Successfully published " + traceSpans.size() + " traces to Choreo");
     }
 
     @Override

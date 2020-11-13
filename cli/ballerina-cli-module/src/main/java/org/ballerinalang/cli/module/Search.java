@@ -16,8 +16,8 @@
 
 package org.ballerinalang.cli.module;
 
-import io.ballerina.runtime.JSONParser;
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.utils.JsonUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.cli.module.util.ErrorUtil;
@@ -93,7 +93,7 @@ public class Search {
                     while ((line = reader.readLine()) != null) {
                         result.append(line);
                     }
-                    payload = (BMap) JSONParser.parse(result.toString());
+                    payload = (BMap) JsonUtils.parse(result.toString());
                 } catch (IOException e) {
                     throw ErrorUtil.createCommandException(e.getMessage());
                 }
@@ -116,7 +116,7 @@ public class Search {
                     throw ErrorUtil.createCommandException(e.getMessage());
                 }
 
-                payload = (BMap) JSONParser.parse(result.toString());
+                payload = (BMap) JsonUtils.parse(result.toString());
                 throw ErrorUtil.createCommandException(
                         payload.getStringValue(StringUtils.fromString("message")).getValue());
             }

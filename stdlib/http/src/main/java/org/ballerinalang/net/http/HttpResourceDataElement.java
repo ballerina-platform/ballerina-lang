@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http;
 
-import io.ballerina.runtime.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.parser.DataElement;

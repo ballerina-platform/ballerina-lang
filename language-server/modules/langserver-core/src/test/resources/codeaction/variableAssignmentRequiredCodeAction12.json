@@ -2,7 +2,7 @@
     "line": 5,
     "character": 4,
     "expected": {
-        "title": "Create Local Variable with 'json'",
+        "title": "Create Variable with 'json'",
         "edits": [
             {
                 "range": {
@@ -15,7 +15,7 @@
                         "character": 4
                     }
                 },
-                "newText": "json a = "
+                "newText": "json mappingResult = "
             }
         ]
     }

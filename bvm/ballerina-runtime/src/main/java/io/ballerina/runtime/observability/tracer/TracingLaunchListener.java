@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime.observability.tracer;
 
-import io.ballerina.runtime.launch.LaunchListener;
+import io.ballerina.runtime.api.launch.LaunchListener;
 import io.ballerina.runtime.observability.ObserveUtils;
 import org.ballerinalang.config.ConfigRegistry;
 
