@@ -20,14 +20,13 @@ package io.ballerina.projects.test;
 
 import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageDescriptor;
-import io.ballerina.projects.directory.BallerinaTomlProcessor;
+import io.ballerina.projects.internal.BallerinaTomlProcessor;
 import io.ballerina.projects.model.BallerinaToml;
 import io.ballerina.projects.model.Package;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -70,16 +69,6 @@ public class TestBallerinaTomlProcessor {
         Assert.assertEquals(platDep1.get("artifactId").toString(), "toml4j");
         Assert.assertEquals(platDep1.get("version").toString(), "0.7.2");
         Assert.assertEquals(platDep1.get("groupId").toString(), "com.moandjiezana.toml");
-    }
-
-    @Test(description = "Test validate ballerina toml package section which contains build options")
-    public void testValidateBallerinaTomlWithBuildOptions() throws IOException, TomlException {
-        Path ballerinaTomlPath = RESOURCE_DIRECTORY.resolve("ballerinatomlWithBuildOptions").resolve("Ballerina.toml");
-        BallerinaToml ballerinaToml = BallerinaTomlProcessor.parse(ballerinaTomlPath);
-        Assert.assertNotNull(ballerinaToml.getBuildOptions());
-        Assert.assertEquals(ballerinaToml.getBuildOptions().getB7aConfigFile(), "/tmp/ballerina.conf");
-        Assert.assertTrue(ballerinaToml.getBuildOptions().isExperimental());
-        Assert.assertFalse(ballerinaToml.getBuildOptions().isOffline());
     }
 
     @Test(description = "Test validate ballerina toml package section")
