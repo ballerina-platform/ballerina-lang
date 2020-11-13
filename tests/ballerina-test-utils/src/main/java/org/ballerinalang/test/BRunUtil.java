@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test;
 
+import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
@@ -93,12 +94,10 @@ import org.ballerinalang.core.model.values.BXMLItem;
 import org.ballerinalang.core.model.values.BXMLSequence;
 import org.ballerinalang.core.util.exceptions.BallerinaException;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.test.util.BFileUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
@@ -264,9 +263,12 @@ public class BRunUtil {
         }
 
         Object jvmResult;
-        BIRNode.BIRPackage birPackage = ((BLangPackage) compileResult.getAST()).symbol.bir;
-        String funcClassName = BFileUtil.getQualifiedClassName(birPackage.org.value, birPackage.name.value,
-                birPackage.version.value, getClassName(function.pos.lineRange().filePath()));
+        PackageDescriptor packageDescriptor = compileResult.packageDescriptor();
+        String funcClassName = JarResolver.getQualifiedClassName(packageDescriptor.org().toString(),
+                packageDescriptor.name().toString(),
+                packageDescriptor.version().toString(),
+                getClassName(function.pos.lineRange().filePath()));
+
         try {
             Class<?> funcClass = compileResult.getClassLoader().loadClass(funcClassName);
             Method method = getMethod(functionName, funcClass);
@@ -397,10 +399,12 @@ public class BRunUtil {
         }
 
         Object jvmResult;
-        BIRNode.BIRPackage birPackage = ((BLangPackage) compileResult.getAST()).symbol.bir;
-        String funcClassName = BFileUtil.getQualifiedClassName(birPackage.org.value, birPackage.name.value,
-                birPackage.version.value,
+        PackageDescriptor packageDescriptor = compileResult.packageDescriptor();
+        String funcClassName = JarResolver.getQualifiedClassName(packageDescriptor.org().toString(),
+                packageDescriptor.name().toString(),
+                packageDescriptor.version().toString(),
                 getClassName(function.pos.lineRange().filePath()));
+
         try {
             Class<?> funcClass = compileResult.getClassLoader().loadClass(funcClassName);
             Method method = funcClass.getDeclaredMethod(functionName, jvmParamTypes);
@@ -1251,11 +1255,10 @@ public class BRunUtil {
     }
 
     public static ExitDetails run(CompileResult compileResult, String[] args) {
-
-        BLangPackage compiledPkg = ((BLangPackage) compileResult.getAST());
-        String initClassName = BFileUtil.getQualifiedClassName(compiledPkg.packageID.orgName.value,
-                compiledPkg.packageID.name.value,
-                compiledPkg.packageID.version.value,
+        PackageDescriptor packageDescriptor = compileResult.packageDescriptor();
+        String initClassName = JarResolver.getQualifiedClassName(packageDescriptor.org().toString(),
+                packageDescriptor.name().toString(),
+                packageDescriptor.version().toString(),
                 MODULE_INIT_CLASS_NAME);
         URLClassLoader classLoader = (URLClassLoader) compileResult.getClassLoader();
 
@@ -1298,13 +1301,12 @@ public class BRunUtil {
 
     public static void runInit(CompileResult compileResult)
             throws ClassNotFoundException {
-
         PackageDescriptor packageDescriptor = compileResult.packageDescriptor();
-
-        String initClassName = BFileUtil.getQualifiedClassName(packageDescriptor.org().toString(),
+        String initClassName = JarResolver.getQualifiedClassName(packageDescriptor.org().toString(),
                 packageDescriptor.name().toString(),
                 packageDescriptor.version().toString(),
                 MODULE_INIT_CLASS_NAME);
+
         Class<?> initClazz = compileResult.getClassLoader().loadClass(initClassName);
         final Scheduler scheduler = new Scheduler(false);
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleInit"), scheduler);
@@ -1342,9 +1344,6 @@ public class BRunUtil {
                 if (t instanceof io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException) {
                     throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(t.getMessage());
                 }
-//                if (t instanceof io.ballerina.runtime.util.exceptions.BallerinaConnectorException) {
-//                    throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(t.getMessage());
-//                }
                 if (t instanceof ErrorValue) {
                     throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(
                             "error: " + ((ErrorValue) t).getPrintableStackTrace());
