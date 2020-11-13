@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
+import io.ballerina.runtime.internal.IdentifierUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -55,8 +56,7 @@ import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEW;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isBuiltInPackage;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -105,15 +105,12 @@ public class InitMethodGen {
         generateLambdaForModuleFunction(cw, MODULE_START, initClass);
 
         PackageID currentModId = MethodGenUtils.packageToModuleId(pkg);
-        String fullFuncName = MethodGenUtils.calculateModuleSpecialFuncName(currentModId,
-                                                                            MethodGenUtils.STOP_FUNCTION_SUFFIX);
 
-        generateLambdaForDepModStopFunc(cw, JvmCodeGenUtil.cleanupFunctionName(fullFuncName), initClass);
+        generateLambdaForDepModStopFunc(cw, currentModId, initClass);
 
         for (PackageID id : depMods) {
-            fullFuncName = MethodGenUtils.calculateModuleSpecialFuncName(id, MethodGenUtils.STOP_FUNCTION_SUFFIX);
             String jvmClass = JvmCodeGenUtil.getPackageName(id) + MODULE_INIT_CLASS_NAME;
-            generateLambdaForDepModStopFunc(cw, JvmCodeGenUtil.cleanupFunctionName(fullFuncName), jvmClass);
+            generateLambdaForDepModStopFunc(cw, id, jvmClass);
         }
     }
 
@@ -134,11 +131,12 @@ public class InitMethodGen {
         MethodGenUtils.visitReturn(mv);
     }
 
-    private void generateLambdaForDepModStopFunc(ClassWriter cw, String funcName, String initClass) {
+    private void generateLambdaForDepModStopFunc(ClassWriter cw, PackageID pkgID, String initClass) {
         MethodVisitor mv;
-        mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC,
-                            String.format("$lambda$%s", funcName),
-                            String.format("([L%s;)L%s;", OBJECT, OBJECT), null, null);
+        String lambdaName = MethodGenUtils.calculateLambdaStopFuncName(pkgID);
+        String stopFuncName = MethodGenUtils.encodeModuleSpecialFuncName(MethodGenUtils.STOP_FUNCTION_SUFFIX);
+        mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, lambdaName, String.format("([L%s;)L%s;", OBJECT, OBJECT)
+                , null, null);
         mv.visitCode();
 
         //load strand as first arg
@@ -147,7 +145,8 @@ public class InitMethodGen {
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
 
-        mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, String.format("(L%s;)L%s;", STRAND_CLASS, OBJECT), false);
+        mv.visitMethodInsn(INVOKESTATIC, initClass, stopFuncName, String.format("(L%s;)L%s;", STRAND_CLASS, OBJECT),
+                false);
         MethodGenUtils.visitReturn(mv);
     }
 
@@ -163,8 +162,8 @@ public class InitMethodGen {
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, JVM_INIT_METHOD, "()V", false);
         mv.visitVarInsn(ASTORE, 1);
-        mv.visitLdcInsn(module.org.value);
-        mv.visitLdcInsn(module.name.value);
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.org.value));
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.name.value));
         mv.visitLdcInsn(module.version.value);
         mv.visitVarInsn(ALOAD, 1);
         mv.visitMethodInsn(INVOKESTATIC, String.format("%s", VALUE_CREATOR), "addValueCreator",
@@ -239,12 +238,12 @@ public class InitMethodGen {
         BIROperand boolRef = new BIROperand(boolVal);
 
         for (PackageID id : imprtMods) {
-            String initFuncName = MethodGenUtils.calculateModuleSpecialFuncName(id, initName);
+            String initFuncName = MethodGenUtils.encodeModuleSpecialFuncName(initName);
             addCheckedInvocation(modInitFunc, id, initFuncName, retVarRef, boolRef);
         }
 
         PackageID currentModId = MethodGenUtils.packageToModuleId(pkg);
-        String currentInitFuncName = MethodGenUtils.calculateModuleSpecialFuncName(currentModId, initName);
+        String currentInitFuncName = MethodGenUtils.encodeModuleSpecialFuncName(initName);
         BIRNode.BIRBasicBlock lastBB = addCheckedInvocation(modInitFunc, currentModId, currentInitFuncName, retVarRef,
                                                             boolRef);
 
@@ -271,7 +270,7 @@ public class InitMethodGen {
         BIRNode.BIRBasicBlock lastBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
         BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
         // TODO remove once lang.annotation is fixed
-        if (modId.orgName.value.equals(BALLERINA) && modId.name.value.equals(BUILT_IN_PACKAGE_NAME)) {
+        if (isBuiltInPackage(modId)) {
             lastBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modId,
                                                        new Name(initFuncName), Collections.emptyList(), null, nextBB,
                                                        Collections.emptyList(),

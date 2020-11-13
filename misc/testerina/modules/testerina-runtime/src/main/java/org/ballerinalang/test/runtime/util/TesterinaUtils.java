@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import static io.ballerina.runtime.internal.IdentifierUtils.encodeNonFunctionIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.ANON_ORG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 
@@ -121,10 +122,10 @@ public class TesterinaUtils {
     public static String getQualifiedClassName(String orgName, String packageName,
                                                String version, String className) {
         if (!DOT.equals(packageName)) {
-            className = packageName.replace('.', '_') + "." + version.replace('.', '_') + "." + className;
+            className = encodeNonFunctionIdentifier(packageName) + "." + version.replace('.', '_') + "." + className;
         }
         if (!ANON_ORG.equals(orgName)) {
-            className = orgName.replace('.', '_') + "." +  className;
+            className = encodeNonFunctionIdentifier(orgName) + "." +  className;
         }
         return className;
     }

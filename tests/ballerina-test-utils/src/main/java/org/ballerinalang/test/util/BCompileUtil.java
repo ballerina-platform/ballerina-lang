@@ -29,7 +29,7 @@ import org.ballerinalang.packerina.writer.JarFileWriter;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -167,9 +167,11 @@ public class BCompileUtil {
     private static void runInit(BLangPackage bLangPackage, ClassLoader classLoader, boolean temp)
             throws ClassNotFoundException {
 
-        String initClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                                                               bLangPackage.packageID.name.value,
-                                                               bLangPackage.packageID.version.value,
+        BIRNode.BIRPackage birPackage = bLangPackage.symbol.bir;
+
+        String initClassName = BFileUtil.getQualifiedClassName(birPackage.org.value,
+                                                               birPackage.name.value,
+                                                               birPackage.version.value,
                                                                TestConstant.MODULE_INIT_CLASS_NAME);
         Class<?> initClazz = classLoader.loadClass(initClassName);
         final Scheduler scheduler = new Scheduler(false);
@@ -182,7 +184,7 @@ public class BCompileUtil {
     }
 
     private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler) {
-        String funcName = JvmCodeGenUtil.cleanupFunctionName(name.value);
+        String funcName = name.value;
         try {
             final Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
             //TODO fix following method invoke to scheduler.schedule()
@@ -598,10 +600,10 @@ public class BCompileUtil {
 
     public static ExitDetails run(CompileResult compileResult, String[] args) {
 
-        BLangPackage compiledPkg = ((BLangPackage) compileResult.getAST());
-        String initClassName = BFileUtil.getQualifiedClassName(compiledPkg.packageID.orgName.value,
-                                                               compiledPkg.packageID.name.value,
-                                                               compiledPkg.packageID.version.value,
+        BIRNode.BIRPackage compiledPkg = ((BLangPackage) compileResult.getAST()).symbol.bir;
+        String initClassName = BFileUtil.getQualifiedClassName(compiledPkg.org.value,
+                                                               compiledPkg.name.value,
+                                                               compiledPkg.version.value,
                                                                MODULE_INIT_CLASS_NAME);
         URLClassLoader classLoader = compileResult.classLoader;
 

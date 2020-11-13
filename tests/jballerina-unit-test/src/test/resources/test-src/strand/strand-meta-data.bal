@@ -118,7 +118,7 @@ function assertStrandMetadataResult(string assertString) {
         if (typeNameVal is string) {
             typeName = "." + typeNameVal;
         }
-        assertEquality(org +"/" + modName + ":" + modVersion + typeName + "." + parentFunc + name, assertString);
+        assertEquality(assertString, org +"/" + modName + ":" + modVersion + typeName + "." + parentFunc + name);
         assertTrue(id > 0);
     } else {
         errorMessages[errorCount] = "meta data cannot be found for evaluate assert string '" + assertString + "'";
