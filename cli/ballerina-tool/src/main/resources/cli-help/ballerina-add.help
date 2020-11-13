@@ -32,7 +32,7 @@ OPTIONS
 
 
 EXAMPLES
-       Add a module with a 'lib' function.
+       Add a module with a 'main' function.
           $ ballerina add hello
 
        Add a module with a Ballerina service.

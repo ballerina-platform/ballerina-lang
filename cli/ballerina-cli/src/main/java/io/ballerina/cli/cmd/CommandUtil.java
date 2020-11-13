@@ -166,10 +166,10 @@ public class CommandUtil {
         // - Ballerina.toml
         // - Package.md
         // - Module.md
-        // - lib.bal
+        // - main.bal
         // - resources
         // - tests
-        //      - lib_test.bal
+        //      - main_test.bal
         //      - resources/
         // - .gitignore       <- git ignore file
         String templateMD = template + "_template.md";

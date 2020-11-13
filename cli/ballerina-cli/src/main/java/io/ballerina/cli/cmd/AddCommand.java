@@ -114,7 +114,7 @@ public class AddCommand implements BLauncherCmd {
             return;
         }
 
-        // Check if more then one argument is provided
+        // Check if more than one argument is provided
         if (!(1 == argList.size())) {
             CommandUtil.printError(errStream,
                     "too many arguments.",
@@ -207,12 +207,7 @@ public class AddCommand implements BLauncherCmd {
         // We will be creating following in the module directory
         // - modules/
         // -- mymodule/
-        // --- Module.md      <- module level documentation
-        // --- lib.bal       <- Contains default main method.
-        // --- resources/     <- resources for the module (available at runtime)
-        // --- tests/         <- tests for this module (e.g. unit tests)
-        // ---- lib_test.bal  <- test file for main
-        // ---- resources/    <- resources for these tests
+        // --- main.bal       <- Contains default main method.
         CommandUtil.applyTemplate(modulePath, template);
     }
 
