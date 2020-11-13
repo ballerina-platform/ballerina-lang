@@ -67,7 +67,10 @@ public final class FunctionCompletionItemBuilder {
      * @param context    {@link CompletionContext}
      * @return {@link CompletionItem}
      */
-    public static CompletionItem build(FunctionSymbol funcSymbol, String label, String insertText, CompletionContext context) {
+    public static CompletionItem build(FunctionSymbol funcSymbol,
+                                       String label,
+                                       String insertText,
+                                       CompletionContext context) {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         item.setInsertText(insertText);

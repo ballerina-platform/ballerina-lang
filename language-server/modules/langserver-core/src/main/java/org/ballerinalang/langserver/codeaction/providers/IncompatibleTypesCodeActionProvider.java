@@ -20,7 +20,6 @@ import org.ballerinalang.langserver.codeaction.impl.ChangeReturnTypeCodeAction;
 import org.ballerinalang.langserver.codeaction.impl.DiagBasedCodeAction;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
 import org.eclipse.lsp4j.CodeAction;

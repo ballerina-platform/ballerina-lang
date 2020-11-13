@@ -68,7 +68,7 @@ public class DefinitionUtil {
             TokenOrSymbolNotFoundException {
 //        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, position);
 //        List<BLangPackage> modules = ReferencesUtil.compileModules(context);
-//        SymbolReferencesModel refModel = ReferencesUtil.findReferencesForCurrentCUnit(tokenAtCursor, modules, context);
+//        SymbolReferencesModel refModel = ReferencesUtil.findReferencesForCurrentCUnit(tokenAtCursor, modules,context);
 //        // If the definition list contains an item after the prepare reference mode, then return it.
 //        // In this case, definition is in the current compilation unit it self
 //        if (!refModel.getDefinitions().isEmpty()) {

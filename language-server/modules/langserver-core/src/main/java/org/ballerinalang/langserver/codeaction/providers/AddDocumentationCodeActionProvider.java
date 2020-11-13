@@ -20,11 +20,9 @@ import org.ballerinalang.langserver.codeaction.impl.AddAllDocumentationCodeActio
 import org.ballerinalang.langserver.codeaction.impl.AddDocumentationCodeAction;
 import org.ballerinalang.langserver.codeaction.impl.NodeBasedCodeAction;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Diagnostic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,13 +37,13 @@ import java.util.List;
 public class AddDocumentationCodeActionProvider extends AbstractCodeActionProvider {
     public AddDocumentationCodeActionProvider() {
         super(Arrays.asList(CodeActionNodeType.FUNCTION,
-                            CodeActionNodeType.OBJECT,
-                            CodeActionNodeType.CLASS,
-                            CodeActionNodeType.SERVICE,
-                            CodeActionNodeType.RESOURCE,
-                            CodeActionNodeType.RECORD,
-                            CodeActionNodeType.OBJECT_FUNCTION,
-                            CodeActionNodeType.CLASS_FUNCTION));
+                CodeActionNodeType.OBJECT,
+                CodeActionNodeType.CLASS,
+                CodeActionNodeType.SERVICE,
+                CodeActionNodeType.RESOURCE,
+                CodeActionNodeType.RECORD,
+                CodeActionNodeType.OBJECT_FUNCTION,
+                CodeActionNodeType.CLASS_FUNCTION));
     }
 
     /**

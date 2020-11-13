@@ -67,7 +67,7 @@ public class ImplementFunctionsCodeAction implements DiagBasedCodeAction {
 //                .filter(topLevelNode -> {
 //                    if (topLevelNode instanceof BLangTypeDefinition) {
 //                        Location pos = topLevelNode.getPosition();
-//                        return ((pos.lineRange().startLine().line() == line || pos.lineRange().endLine().line() == line
+//                        return ((pos.lineRange().startLine().line() == line || pos.lineRange().endLine().line()== line
 //                                || (pos.lineRange().startLine().line() < line
 //                                && pos.lineRange().endLine().line() > line))
 //                                && (pos.lineRange().startLine().offset() <= column

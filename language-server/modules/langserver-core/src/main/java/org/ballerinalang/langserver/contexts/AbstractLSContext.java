@@ -123,10 +123,11 @@ public class AbstractLSContext implements NewLSContext {
 
         return this.currentDocImports;
     }
-
+    
     /**
      * Represents Language server context Builder.
      *
+     * @param <T> builder type
      * @since 2.0.0
      */
     protected abstract static class AbstractContextBuilder<T extends AbstractContextBuilder<T>> {

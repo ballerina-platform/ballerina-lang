@@ -59,7 +59,8 @@ public class ExplicitAnonymousFunctionExpressionNodeContext
         return new ArrayList<>();
     }
 
-    private boolean onSuggestionsAfterQualifiers(CompletionContext context, ExplicitAnonymousFunctionExpressionNode node) {
+    private boolean onSuggestionsAfterQualifiers(CompletionContext context,
+                                                 ExplicitAnonymousFunctionExpressionNode node) {
         int cursor = context.getCursorPositionInTree();
         NodeList<Token> qualifiers = node.qualifierList();
         Token functionKeyword = node.functionKeyword();

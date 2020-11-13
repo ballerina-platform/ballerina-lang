@@ -18,8 +18,6 @@
 package org.ballerinalang.langserver.commons;
 
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.SignatureHelpCapabilities;
 import org.eclipse.lsp4j.services.LanguageServer;
 
 import java.util.List;
@@ -33,21 +31,21 @@ public interface ExecuteCommandContext extends NewLSContext {
 
     /**
      * Get the command execution's arguments.
-     * 
+     *
      * @return {@link List} of arguments
      */
     List<Object> getArguments();
 
     /**
      * Get the lang server client capabilities.
-     * 
+     *
      * @return {@link LSClientCapabilities)
      */
     LSClientCapabilities getClientCapabilities();
 
     /**
      * Get the language server instance.
-     * 
+     *
      * @return {@link LanguageServer}
      */
     LanguageServer getLanguageServer();

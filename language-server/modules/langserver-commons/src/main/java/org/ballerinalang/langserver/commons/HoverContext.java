@@ -27,7 +27,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 public interface HoverContext extends NewLSContext {
 
     /**
-     * Get the client's signature capabilities
+     * Get the client's signature capabilities.
      *
      * @param token token to be set
      */

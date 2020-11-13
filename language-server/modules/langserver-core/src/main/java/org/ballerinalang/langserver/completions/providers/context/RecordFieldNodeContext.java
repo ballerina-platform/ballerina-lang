@@ -38,7 +38,8 @@ public class RecordFieldNodeContext extends AbstractCompletionProvider<RecordFie
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, RecordFieldNode node) throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(CompletionContext context, RecordFieldNode node)
+            throws LSCompletionException {
         if (this.onTypeNameContext(context, node)) {
             /*
             If the type name has a particular resolver implemented, then the completion will be handled by the type

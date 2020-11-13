@@ -30,6 +30,7 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.Package;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -74,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -945,5 +947,32 @@ public class CommonUtil {
     public static TypeSymbol getRawType(TypeSymbol typeDescriptor) {
         return typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE
                 ? ((TypeReferenceTypeSymbol) typeDescriptor).typeDescriptor() : typeDescriptor;
+    }
+
+    /**
+     * Get the completion item label for a given package.
+     *
+     * @param pkg {@link Package} package instance to evaluate
+     * @return {@link String} label computed
+     */
+    public static String getPackageLabel(Package pkg) {
+        String orgName = "";
+        if (pkg.packageOrg().value() != null && !pkg.packageOrg().value().equals(Names.ANON_ORG.getValue())) {
+            orgName = pkg.packageOrg().value() + "/";
+        }
+
+        return orgName + pkg.packageName().value();
+    }
+
+    /**
+     * Get the package name components combined.
+     *
+     * @param importNode {@link ImportDeclarationNode}
+     * @return {@link String}   Combined package name
+     */
+    public static String getPackageNameComponentsCombined(ImportDeclarationNode importNode) {
+        return importNode.moduleName().stream()
+                .map(token -> token.text().replace("'", ""))
+                .collect(Collectors.joining("."));
     }
 }

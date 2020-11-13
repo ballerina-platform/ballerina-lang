@@ -40,7 +40,8 @@ public class ServiceBodyNodeContext extends AbstractCompletionProvider<ServiceBo
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, ServiceBodyNode node) throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(CompletionContext context, ServiceBodyNode node)
+            throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_RESOURCE.get()));

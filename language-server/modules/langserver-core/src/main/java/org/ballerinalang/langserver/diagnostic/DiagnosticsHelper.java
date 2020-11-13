@@ -69,7 +69,7 @@ public class DiagnosticsHelper {
         if (project.isEmpty()) {
             return;
         }
-        Path projectRoot = context.workspace().projectRoot(context.fileUri());
+        Path projectRoot = context.workspace().projectRoot(context.filePath());
         for (Module module : project.get().currentPackage().modules()) {
             Path sourceRoot;
             if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT) {

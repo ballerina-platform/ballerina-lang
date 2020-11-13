@@ -59,7 +59,8 @@ public class CreateVariableCodeAction implements DiagBasedCodeAction {
         return getCreateVariableCodeActions(context, uri, pos, varName, this.typeDescriptor);
     }
 
-    private static List<CodeAction> getCreateVariableCodeActions(CodeActionContext context, String uri, Position position,
+    private static List<CodeAction> getCreateVariableCodeActions(CodeActionContext context, String uri,
+                                                                 Position position,
                                                                  String name,
                                                                  TypeSymbol typeDescriptor) {
         List<CodeAction> actions = new ArrayList<>();

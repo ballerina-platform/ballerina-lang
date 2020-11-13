@@ -19,7 +19,6 @@ package org.ballerinalang.langserver.completions;
 
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.commons.CompletionContext;
-import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.AbstractLSCompletionItem;
 
 /**

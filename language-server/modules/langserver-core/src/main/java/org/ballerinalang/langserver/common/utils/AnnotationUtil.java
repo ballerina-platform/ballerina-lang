@@ -25,7 +25,6 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
-import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.CompletionContext;
@@ -42,11 +41,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
+import static org.ballerinalang.langserver.common.utils.CommonUtil.getPackageNameComponentsCombined;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.getRecordFieldCompletionInsertText;
 
 /**
@@ -259,18 +258,6 @@ public class AnnotationUtil {
         annotationItem.setAdditionalTextEdits(textEdits);
 
         return annotationItem;
-    }
-
-    /**
-     * Get the package name components combined.
-     *
-     * @param importNode {@link ImportDeclarationNode}
-     * @return {@link String}   Combined package name
-     */
-    private static String getPackageNameComponentsCombined(ImportDeclarationNode importNode) {
-        return importNode.moduleName().stream()
-                .map(Token::text)
-                .collect(Collectors.joining("."));
     }
 
     private static Optional<String> getAlias(CompletionContext context, ModuleID moduleID) {

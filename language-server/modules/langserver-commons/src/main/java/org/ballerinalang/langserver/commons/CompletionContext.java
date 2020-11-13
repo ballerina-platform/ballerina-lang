@@ -40,7 +40,7 @@ public interface CompletionContext extends NewLSContext {
     CompletionCapabilities getCapabilities();
 
     /**
-     * Set the token at the completion's cursor position
+     * Set the token at the completion's cursor position.
      *
      * @param token {@link Token} at the cursor
      */

@@ -20,9 +20,7 @@ import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.runtime.util.Flags;
-import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.NewLSContext;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.compiler.LSPackageCache;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
@@ -106,7 +104,7 @@ public class LSAnnotationCache {
      * @return {@link HashMap}  Map of annotation lists
      */
     public Map<ModuleID, List<AnnotationSymbol>> getAnnotationMapForSyntaxKind(SyntaxKind attachmentPoint,
-                                                                                   NewLSContext ctx) {
+                                                                               NewLSContext ctx) {
         // TODO: Add service method definition, handle individual and rest params
 
         // Check whether the imported packages in the current bLang package has been already processed

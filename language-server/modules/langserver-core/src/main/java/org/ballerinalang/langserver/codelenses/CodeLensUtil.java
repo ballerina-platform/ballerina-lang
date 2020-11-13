@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.codelenses;
 
-import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.NewLSContext;
 import org.ballerinalang.langserver.commons.codelenses.LSCodeLensesProviderException;
 import org.ballerinalang.langserver.commons.codelenses.spi.LSCodeLensesProvider;

@@ -111,7 +111,7 @@ public class ReferencesUtil {
 //        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, pos);
 //        List<BLangPackage> modules = compileModules(context);
 //        SymbolReferencesModel referencesModel = findReferencesForCurrentCUnit(tokenAtCursor, modules, context);
-//        SymbolReferencesModel allReferencesModel = fillAllReferences(referencesModel, tokenAtCursor, modules, context);
+//        SymbolReferencesModel allReferencesModel = fillAllReferences(referencesModel, tokenAtCursor, modules,context);
 //        List<Reference> references = new ArrayList<>();
 //        if (includeDeclaration) {
 //            references.addAll(allReferencesModel.getDefinitions());

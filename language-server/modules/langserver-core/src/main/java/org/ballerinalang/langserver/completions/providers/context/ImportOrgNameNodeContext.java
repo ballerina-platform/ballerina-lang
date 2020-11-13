@@ -18,11 +18,11 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
+import io.ballerina.projects.Package;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
-import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * Completion provider for {@link ImportOrgNameNode} context.
@@ -58,9 +57,7 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
             throw new AssertionError("ModuleName cannot be empty");
         }
 
-        List<BallerinaPackage> packagesList = new ArrayList<>();
-        Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
-                .forEach(packagesList::addAll);
+        List<Package> packagesList = new ArrayList<>(LSPackageLoader.getDistributionRepoPackages());
 
         return new ArrayList<>(moduleNameContextCompletions(ctx, orgName, packagesList));
     }
@@ -71,7 +68,7 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
     }
 
     private ArrayList<LSCompletionItem> moduleNameContextCompletions(CompletionContext context, String orgName,
-                                                                     List<BallerinaPackage> packagesList) {
+                                                                     List<Package> packagesList) {
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<String> pkgNameLabels = new ArrayList<>();
 
@@ -79,9 +76,9 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
             if (this.isPreDeclaredLangLib(ballerinaPackage)) {
                 return;
             }
-            String packageName = ballerinaPackage.getPackageName();
+            String packageName = ballerinaPackage.packageName().value();
             String insertText;
-            if (orgName.equals(ballerinaPackage.getOrgName()) && !pkgNameLabels.contains(packageName)) {
+            if (orgName.equals(ballerinaPackage.packageOrg().value()) && !pkgNameLabels.contains(packageName)) {
                 if (orgName.equals(Names.BALLERINA_ORG.value)
                         && packageName.startsWith(Names.LANG.value + ".")) {
                     insertText = getLangLibModuleNameInsertText(packageName);

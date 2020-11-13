@@ -15,6 +15,13 @@
  */
 package org.ballerinalang.langserver.compiler;
 
+import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.projects.environment.PackageLoadRequest;
+import io.ballerina.projects.environment.PackageRepository;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
@@ -29,7 +36,9 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -44,6 +53,7 @@ public class LSPackageLoader {
     private static List<String> visibleOrgs = new ArrayList<>();
     private static List<BallerinaPackage> sdkPackages = getSDKPackagesFromSrcDir();
     private static List<BallerinaPackage> homeRepoPackages = getPackagesFromHomeRepo();
+    private static final List<Package> distRepoPackages = getPackagesFromDistRepo();
 
     /**
      * Get the package by ID via Package loader.
@@ -99,7 +109,7 @@ public class LSPackageLoader {
         }
         return ballerinaPackages;
     }
-    
+
     private static List<BallerinaPackage> getPackageNamesFromDirectory(String dirName) {
         List<BallerinaPackage> ballerinaPackages = new ArrayList<>();
         File directory = new File(dirName);
@@ -130,7 +140,7 @@ public class LSPackageLoader {
                 }
             }
         }
-        
+
         return ballerinaPackages;
     }
 
@@ -177,12 +187,50 @@ public class LSPackageLoader {
         return ballerinaPackages;
     }
 
+    private static List<Package> getPackagesFromDistRepo() {
+        PackageRepository packageRepository = EnvironmentBuilder.buildDefault().getService(PackageRepository.class);
+        Map<String, List<String>> pkgMap = packageRepository.getPackages();
+
+        List<Package> packages = new ArrayList<>();
+        pkgMap.forEach((key, value) -> value.forEach(nameEntry -> {
+            String[] components = nameEntry.split(":");
+            if (components.length != 2
+                    || components[0].equals("lang.__internal")
+                    || components[0].equals("lang.annotation")
+                    || components[0].equals("lang.test")) {
+                return;
+            }
+            String nameComponent = components[0];
+            String version = components[1];
+            PackageOrg packageOrg = PackageOrg.from(key);
+            PackageName packageName = PackageName.from(nameComponent);
+            SemanticVersion semVer = SemanticVersion.from(version);
+            PackageLoadRequest request = new PackageLoadRequest(packageOrg, packageName, semVer);
+
+            Optional<Package> repoPackage = packageRepository.getPackage(request);
+            repoPackage.ifPresent(packages::add);
+        }));
+
+        return Collections.unmodifiableList(packages);
+    }
+
+    @Deprecated
     public static List<BallerinaPackage> getSdkPackages() {
         return new ArrayList<>(sdkPackages);
     }
 
+    @Deprecated
     public static List<BallerinaPackage> getHomeRepoPackages() {
         return new ArrayList<>(homeRepoPackages);
+    }
+
+    /**
+     * Get the distribution repo packages.
+     *
+     * @return {@link List} of distribution repo packages
+     */
+    public static List<Package> getDistributionRepoPackages() {
+        return distRepoPackages;
     }
 
     /**
@@ -195,7 +243,7 @@ public class LSPackageLoader {
     /**
      * Returns a list of modules available for the current project.
      *
-     * @param pkg Built {@link BLangPackage}
+     * @param pkg     Built {@link BLangPackage}
      * @param context Built {@link LSContext}
      * @return List of Ballerina Packages
      */

@@ -36,14 +36,13 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.projects.Package;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.completion.spi.CompletionProvider;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
-import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
@@ -233,12 +232,19 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         List<ImportDeclarationNode> currentModuleImports = ctx.getCurrentDocImports();
         List<LSCompletionItem> completionItems = currentModuleImports.stream()
                 .map(importNode -> {
-                    String orgName = importNode.orgName().get().orgName().text();
+                    String orgName = importNode.orgName().isPresent()
+                            ? "" : importNode.orgName().get().orgName().text();
                     String pkgName = importNode.moduleName().stream()
                             .map(Token::text)
                             .collect(Collectors.joining("."));
-                    String label = importNode.prefix().get().prefix().text();
-                    String insertText = importNode.prefix().get().prefix().text();
+                    String prefix;
+                    if (importNode.prefix().isEmpty()) {
+                        prefix = importNode.moduleName().get(importNode.moduleName().size() - 1).text();
+                    } else {
+                        prefix = importNode.prefix().get().prefix().text();
+                    }
+                    String label = prefix;
+                    String insertText = prefix;
                     // If the import is a langlib module and there isn't a user defined alias we add ' before
                     if ("ballerina".equals(orgName) && importNode.moduleName().get(0).text().equals("lang")
                             && pkgName.endsWith("." + importNode.prefix().get().prefix().text())
@@ -254,21 +260,20 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                     return new SymbolCompletionItem(ctx, null, item);
                 }).collect(Collectors.toList());
 
-        List<BallerinaPackage> packages = LSPackageLoader.getSdkPackages();
-        packages.addAll(LSPackageLoader.getHomeRepoPackages());
+        List<Package> packages = LSPackageLoader.getDistributionRepoPackages();
         // TODO: Refactor to match the latest project structure
 //        packages.addAll(LSPackageLoader.getCurrentProjectModules(currentPkg, ctx));
         packages.forEach(pkg -> {
-            String name = pkg.getPackageName();
-            String orgName = pkg.getOrgName();
+            String name = pkg.packageName().value();
+            String orgName = pkg.packageOrg().value();
             boolean pkgAlreadyImported = currentModuleImports.stream()
                     .anyMatch(importPkg -> importPkg.orgName().isPresent()
                             && importPkg.orgName().get().orgName().text().equals(orgName)
-                            && importPkg.prefix().isPresent() && importPkg.prefix().get().prefix().text().equals(name));
+                            && CommonUtil.getPackageNameComponentsCombined(importPkg).equals(name));
             if (!pkgAlreadyImported && !populatedList.contains(orgName + "/" + name)
                     && !this.isPreDeclaredLangLib(pkg)) {
                 CompletionItem item = new CompletionItem();
-                item.setLabel(pkg.getFullPackageNameAlias());
+                item.setLabel(CommonUtil.getPackageLabel(pkg));
                 String[] pkgNameComps = name.split("\\.");
                 String insertText = pkgNameComps[pkgNameComps.length - 1];
                 // Check for the lang lib module insert text
@@ -511,9 +516,9 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         return completionItems;
     }
 
-    protected boolean isPreDeclaredLangLib(BallerinaPackage ballerinaPackage) {
-        return "ballerina".equals(ballerinaPackage.getOrgName())
-                && CommonUtil.PRE_DECLARED_LANG_LIBS.contains(ballerinaPackage.getPackageName());
+    protected boolean isPreDeclaredLangLib(Package pkg) {
+        return "ballerina".equals(pkg.packageOrg().value())
+                && CommonUtil.PRE_DECLARED_LANG_LIBS.contains(pkg.packageName().value());
     }
 
     private List<LSCompletionItem> getBasicAndOtherTypeCompletions(CompletionContext context) {
