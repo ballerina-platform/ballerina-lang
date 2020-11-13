@@ -80,29 +80,36 @@ class DebugExpressionCompiler {
     /**
      * Validates for syntactic and semantic correctness.
      */
-    private void validateForCompilationErrors(String expr)
-            throws EvaluationException {
-        // As expressions cannot be compiled standalone, coverts into a compilable statement.
-        String exprStatement = getExpressionStatement(expr);
-        if (document == null) {
-            loadDocument();
-        }
-        int startOffset = document.textDocument().line(context.getLineNumber() - 1).endOffset();
-        TextEdit[] textEdit = {TextEdit.from(TextRange.from(startOffset, 0), exprStatement)};
-        String newContent = new String(document.textDocument().apply(TextDocumentChange.from(textEdit)).toCharArray());
-        Document newDocument = document.modify().withContent(newContent).apply();
-        ModuleCompilation compilation = newDocument.module().getCompilation();
+    private void validateForCompilationErrors(String expr) throws EvaluationException {
+        try {
+            // As expressions cannot be compiled standalone, coverts into a compilable statement.
+            String exprStatement = getExpressionStatement(expr);
+            if (document == null) {
+                loadDocument();
+            }
+            // Injects the expression into the source file content, at the end of the current debug point line.
+            int startOffset = document.textDocument().line(context.getLineNumber() - 1).endOffset();
+            TextEdit[] textEdit = {TextEdit.from(TextRange.from(startOffset, 0), exprStatement)};
+            String newContent = new String(document.textDocument().apply(TextDocumentChange.from(textEdit))
+                    .toCharArray());
+            Document newDocument = document.modify().withContent(newContent).apply();
 
-        DiagnosticResult diagnostics = compilation.diagnostics();
-        if (diagnostics.hasErrors()) {
-            final StringJoiner errors = new StringJoiner(System.lineSeparator());
-            diagnostics.errors().forEach(diagnostic -> {
-                if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
-                    errors.add(diagnostic.message());
-                }
-            });
-            throw new EvaluationException(String.format(EvaluationExceptionKind.COMPILATION_ERRORS.getString(),
-                    errors.toString()));
+            ModuleCompilation compilation = newDocument.module().getCompilation();
+            DiagnosticResult diagnostics = compilation.diagnostics();
+            if (diagnostics.hasErrors()) {
+                final StringJoiner errors = new StringJoiner(System.lineSeparator());
+                diagnostics.errors().forEach(diagnostic -> {
+                    if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
+                        errors.add(diagnostic.message());
+                    }
+                });
+                throw new EvaluationException(String.format(EvaluationExceptionKind.COMPILATION_ERRORS.getString(),
+                        errors.toString()));
+            }
+        } catch (EvaluationException e) {
+            throw e;
+        } catch (Exception ignored) {
+            // Todo - should abort the evaluation?
         }
     }
 
