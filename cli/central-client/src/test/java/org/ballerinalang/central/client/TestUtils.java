@@ -109,13 +109,6 @@ public class TestUtils extends PowerMockTestCase {
         Assert.assertEquals(Utils.getAccessTokenOfCLI(settings), "273cc9f6-c333-36ab-aa2q-f08e9513ff5y");
     }
 
-    @Test
-    public void testGetLastModifiedTimeOfFile() {
-        Path filePath = UTILS_TEST_RESOURCES.resolve("Settings.toml");
-        long fileSize = Long.parseLong("1604071987944");
-        Assert.assertEquals(Utils.getLastModifiedTimeOfFile(filePath), fileSize);
-    }
-
     @Test(description = "Test writing balo file from http response")
     public void testWriteBaloFile() throws IOException {
         final String baloName = "sf-any.balo";
@@ -126,8 +119,8 @@ public class TestUtils extends PowerMockTestCase {
         HttpURLConnection connection = mock(HttpURLConnection.class);
         when(connection.getInputStream()).thenReturn(targetStream);
 
-        writeBaloFile(connection, UTILS_TEST_RESOURCES.resolve(TEMP_BALO_CACHE).resolve(baloName), "wso2/sf:1.1.0", 10000,
-                System.out, new LogFormatter());
+        writeBaloFile(connection, UTILS_TEST_RESOURCES.resolve(TEMP_BALO_CACHE).resolve(baloName), "wso2/sf:1.1.0",
+                10000, System.out, new LogFormatter());
 
         Assert.assertTrue(UTILS_TEST_RESOURCES.resolve(TEMP_BALO_CACHE).resolve(baloName).toFile().exists());
         cleanBaloCache();
@@ -186,8 +179,9 @@ public class TestUtils extends PowerMockTestCase {
 
         final String baloUrl = "https://fileserver.dev-central.ballerina.io/2.0/wso2/sf/1.3.5/sf-2020r2-any-1.3.5.balo";
         try {
-            createBaloInHomeRepo(connection, UTILS_TEST_RESOURCES.resolve(TEMP_BALO_CACHE).resolve("wso2").resolve("sf"),
-                    "wso2/sf", false, baloUrl, "", System.out, new LogFormatter());
+            createBaloInHomeRepo(connection,
+                    UTILS_TEST_RESOURCES.resolve(TEMP_BALO_CACHE).resolve("wso2").resolve("sf"), "wso2/sf", false,
+                    baloUrl, "", System.out, new LogFormatter());
         } catch (CentralClientException e) {
             Assert.assertTrue(e.getMessage().contains("package already exists in the home repository:"));
         } finally {

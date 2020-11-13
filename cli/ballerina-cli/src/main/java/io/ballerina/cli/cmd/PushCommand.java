@@ -31,16 +31,14 @@ import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
-import java.io.IOException;
+import java.io.File;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
@@ -140,16 +138,11 @@ public class PushCommand implements BLauncherCmd {
     }
 
     private void pushPackage(BuildProject project) {
-        try {
-            Path baloFilePath = validateBalo(project);
-            pushBaloToRemote(baloFilePath);
-        } catch (IOException e) {
-            throw createLauncherException(
-                    "unexpected error occurred when trying to push to remote repository: " + getRemoteRepoURL());
-        }
+        Path baloFilePath = validateBalo(project);
+        pushBaloToRemote(baloFilePath);
     }
 
-    private static Path validateBalo(BuildProject project) throws IOException {
+    private static Path validateBalo(BuildProject project) {
         final PackageName pkgName = project.currentPackage().packageName();
         final PackageOrg orgName = project.currentPackage().packageOrg();
         final PackageVersion version = project.currentPackage().packageVersion();
@@ -163,14 +156,8 @@ public class PushCommand implements BLauncherCmd {
                     + "'ballerina build' to compile and generate the balo.");
         }
 
-        Optional<Path> packageBaloFile;
-        try (Stream<Path> baloFilesStream = Files.list(baloOutputDir)) {
-            packageBaloFile = baloFilesStream
-                    .filter(baloFile -> null != baloFile.getFileName() && baloFile.getFileName().toString()
-                            .startsWith(orgName + "-" + pkgName)).findFirst();
-        }
-
-        if (!packageBaloFile.isPresent()) {
+        Path packageBaloFile = findBaloFile(pkgName, orgName, baloOutputDir);
+        if (null != packageBaloFile && !packageBaloFile.toFile().exists()) {
             throw createLauncherException("cannot find balo file for the package: " + pkgName + ". Run "
                     + "'ballerina build' to compile and generate the balo.");
         }
@@ -193,7 +180,8 @@ public class PushCommand implements BLauncherCmd {
 
         // todo: need to add after ballerina.toml changes
         // check if there are any dependencies with balo path
-//        List<String> dependenciesWithBaloPath = baloProject.currentPackage().packageDescriptor().dependencies().stream()
+//        List<String> dependenciesWithBaloPath = baloProject.currentPackage().packageDescriptor().dependencies()
+//                .stream()
 //                .filter(dep -> dep.getMetadata().getPath() != null).map(Dependency::getModuleID)
 //                .collect(Collectors.toList());
 //
@@ -214,7 +202,7 @@ public class PushCommand implements BLauncherCmd {
         }
 
         // balo file path
-        return packageBaloFile.get();
+        return packageBaloFile;
     }
 
     /**
@@ -243,15 +231,21 @@ public class PushCommand implements BLauncherCmd {
         }
     }
 
-    private static boolean isPackageAvailableInRemote(PackageDescriptor.Dependency dep) {
+    /**
+     * Check if package already available in the remote.
+     *
+     * @param pkg package
+     * @return is package available in the remote
+     */
+    private static boolean isPackageAvailableInRemote(PackageDescriptor.Dependency pkg) {
         List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
         supportedPlatforms.add("any");
 
         for (String supportedPlatform : supportedPlatforms) {
             CentralAPIClient client = new CentralAPIClient();
             try {
-                client.getPackage(dep.org().toString(), dep.name().toString(), dep.version().toString(),
-                                supportedPlatform);
+                client.getPackage(pkg.org().toString(), pkg.name().toString(), pkg.version().toString(),
+                        supportedPlatform);
                 return true;
             } catch (NoPackageException e) {
                 return false;
@@ -259,5 +253,27 @@ public class PushCommand implements BLauncherCmd {
         }
 
         return false;
+    }
+
+    /**
+     * Find and return matching balo file from balo output directory.
+     *
+     * @param pkgName       package name
+     * @param orgName       org name
+     * @param baloOutputDir balo output directory
+     * @return matching balo file path
+     */
+    private static Path findBaloFile(PackageName pkgName, PackageOrg orgName, Path baloOutputDir) {
+        Path baloFilePath = null;
+        File[] baloFiles = new File(baloOutputDir.toString()).listFiles();
+        if (baloFiles != null && baloFiles.length > 0) {
+            for (File baloFile : baloFiles) {
+                if (baloFile != null && baloFile.getName().startsWith(orgName + "-" + pkgName)) {
+                    baloFilePath = baloFile.toPath();
+                    break;
+                }
+            }
+        }
+        return baloFilePath;
     }
 }
