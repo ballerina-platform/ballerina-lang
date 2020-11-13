@@ -19,16 +19,10 @@ under the License.
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="cli-module-suite">
-    <test name="cli-module-tests" preserve-order="true" parallel="false">
-        <groups>
-            <run>
-                <exclude name="broken"/>
-            </run>
-        </groups>
-
+<suite name="cli-module-suite" time-out="30000">
+    <test name="cli-module-tests" parallel="false">
         <packages>
-            <package name="org.ballerinalang.central.client.*"/>
+<!--            <package name="org.ballerinalang.central.client.*"/>-->
         </packages>
     </test>
 </suite>
