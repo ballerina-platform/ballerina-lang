@@ -88,4 +88,15 @@ public class ModuleVariableTest {
         validateError(compileResultNegative, index++, "undefined symbol 'd'", 24, 9);
         assertEquals(compileResultNegative.getErrorCount(), index++);
     }
+
+    @Test
+    public void testUninitializedModuleLevelTupleVar() {
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/statements/vardeclr/uninitialized_module_tuple_var_decl.bal");
+        int index = 0;
+        validateError(compileResult, index++, "uninitialized variable 'a'", 17, 13);
+        validateError(compileResult, index++, "uninitialized variable 'b'", 17, 16);
+        validateError(compileResult, index++, "variable 'a' is not initialized", 20, 13);
+        assertEquals(compileResult.getErrorCount(), index++);
+    }
 }
