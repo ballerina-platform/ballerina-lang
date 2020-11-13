@@ -19,9 +19,10 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.SemanticVersion;
-import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.PackageLoadRequest;
 import io.ballerina.projects.environment.PackageRepository;
+import io.ballerina.projects.internal.environment.BallerinaDistribution;
+import io.ballerina.projects.internal.environment.DefaultEnvironment;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
@@ -188,7 +189,10 @@ public class LSPackageLoader {
     }
 
     private static List<Package> getPackagesFromDistRepo() {
-        PackageRepository packageRepository = EnvironmentBuilder.buildDefault().getService(PackageRepository.class);
+        DefaultEnvironment environment = new DefaultEnvironment();
+        // Creating a Ballerina distribution instance
+        BallerinaDistribution ballerinaDistribution = new BallerinaDistribution(environment);
+        PackageRepository packageRepository = ballerinaDistribution.packageRepository();
         Map<String, List<String>> pkgMap = packageRepository.getPackages();
 
         List<Package> packages = new ArrayList<>();

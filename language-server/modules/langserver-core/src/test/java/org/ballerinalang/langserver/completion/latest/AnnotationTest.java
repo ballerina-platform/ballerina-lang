@@ -35,6 +35,11 @@ public class AnnotationTest extends CompletionTestNew {
     }
 
     @Override
+    public Object[][] testSubset() {
+        return super.testSubset();
+    }
+
+    @Override
     public List<String> skipList() {
         return Collections.singletonList("anonFuncExprAnnotation5.json");
     }
