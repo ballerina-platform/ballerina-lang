@@ -62,6 +62,25 @@ function testConcat() returns xml {
     return 'xml:concat(x, <xml> testFromString(), "hello from String");
 }
 
+function testConcatWithXMLSequence() {
+    string a = "string one";
+    string b = "string two";
+
+    xml c = 'xml:concat(catalog, a, b);
+    assert(c.length(), 2);
+
+    xml d = 'xml:concat();
+    foreach var x in catalog/<CD> {
+        if (x is 'xml:Element) {
+            d = 'xml:concat(d, x);
+        }
+    }
+    assert(d.length(), 3);
+
+    xml e = 'xml:concat(c, d);
+    assert(e.length(), 5);
+}
+
 function testIsElement() returns [boolean, boolean, boolean] {
     xml x1 = 'xml:concat();
     boolean b1 = x1 is 'xml:Element;

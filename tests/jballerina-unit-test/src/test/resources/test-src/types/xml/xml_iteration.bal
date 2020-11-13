@@ -40,9 +40,9 @@ function foreachTest() returns [int, string][] {
 
     int i = 0;
     foreach var x in bookstore/<book> {
-            titles[count] = [i, (x/<title>/*).toString()];
-            count +=1;
-            i +=1;
+        titles[count] = [i, (x/<title>/*).toString()];
+        count +=1;
+        i +=1;
     }
 
     return titles;
@@ -131,7 +131,7 @@ xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
 function xmlSequenceIter() returns string {
     string result = "";
 
-    foreach xml|string elem in compositeXml {
+    foreach xml elem in compositeXml {
         string str = io:sprintf("%s\n", elem);
         result += str;
     }
@@ -140,10 +140,11 @@ function xmlSequenceIter() returns string {
 
 function xmlCharItemIter() returns string {
     string result = "";
-
-    foreach xml|string elem in bitOfText {
+    int i = 0;
+    foreach xml elem in bitOfText {
         string str = io:sprintf("%s\n", elem);
         result += str;
+        i += 1;
     }
     return result;
 }

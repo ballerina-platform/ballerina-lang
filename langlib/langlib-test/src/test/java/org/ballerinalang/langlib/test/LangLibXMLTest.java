@@ -93,6 +93,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testConcatWithXMLSequence() {
+        BRunUtil.invoke(compileResult, "testConcatWithXMLSequence");
+    }
+
+    @Test
     public void testIsElement() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testIsElement");
         assertFalse(((BBoolean) returns[0]).booleanValue());

@@ -1,4 +1,3 @@
-
 import ballerina/math as x;
 
 function testRestrictedElementPrefix() returns (xml) {
@@ -73,15 +72,12 @@ function testXmlNsInterpolation() returns xml {
     return x;
 }
 
-function testXMLLiteralWithEscapeSequence(){
+function testXMLLiteralWithEscapeSequence() {
     xml x1 = xml `hello &lt; &gt; &amp;`;
-    int i = 0;
     string[] strs = [];
-    foreach string|xml e in x1 {
+    foreach xml e in x1 {
         if e is string {
-            strs[i] = e;
-            i += 1;
+            strs.push(e);
         }
     }
 }
-
