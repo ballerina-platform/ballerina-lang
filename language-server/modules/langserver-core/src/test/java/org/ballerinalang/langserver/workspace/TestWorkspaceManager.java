@@ -45,7 +45,7 @@ public class TestWorkspaceManager {
     private final BallerinaWorkspaceManager workspaceManager = new BallerinaWorkspaceManager();
 
     @Test(dataProvider = "workspace-data-provider")
-    public void testOpenDocument(Path filePath) throws WorkspaceDocumentException, IOException {
+    public void testOpenDocument(Path filePath) throws IOException {
         // Inputs from lang server
         DidOpenTextDocumentParams params = new DidOpenTextDocumentParams();
         TextDocumentItem textDocumentItem = new TextDocumentItem();
@@ -54,7 +54,7 @@ public class TestWorkspaceManager {
         params.setTextDocument(textDocumentItem);
 
         // Notify workspace manager
-        workspaceManager.didOpen(params);
+        workspaceManager.didOpen(filePath, params);
 
         // Assert content
         String content = new String(Files.readAllBytes(filePath));
@@ -63,7 +63,7 @@ public class TestWorkspaceManager {
         Assert.assertEquals(document.get().syntaxTree().textDocument().toString(), content);
     }
 
-    @Test(dataProvider = "workspace-data-provider")
+    @Test(dataProvider = "workspace-data-provider", dependsOnMethods = "testOpenDocument")
     public void testUpdateDocument(Path filePath) throws WorkspaceDocumentException {
         // Inputs from lang server
         DidChangeTextDocumentParams params = new DidChangeTextDocumentParams();
@@ -72,7 +72,7 @@ public class TestWorkspaceManager {
         params.getContentChanges().add(new TextDocumentContentChangeEvent(dummyContent));
 
         // Notify workspace manager
-        workspaceManager.didChange(params);
+        workspaceManager.didChange(filePath, params);
 
         Optional<Document> document = workspaceManager.document(filePath);
         Assert.assertNotNull(document.get());

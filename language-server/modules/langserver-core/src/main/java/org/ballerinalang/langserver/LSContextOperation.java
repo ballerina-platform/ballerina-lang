@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.commons.LSOperation;
 public enum LSContextOperation implements LSOperation {
     TXT_COMPLETION("text/completion"),
     TXT_DID_CHANGE("text/didChange"),
+    TXT_DID_CLOSE("text/didClose"),
     DIAGNOSTICS("debouncer/diagnostics"),
     TXT_DID_OPEN("text/didOpen"),
     TXT_HOVER("text/hover"),

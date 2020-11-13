@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.diagnostic;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.commons.NewLSContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
@@ -30,6 +29,7 @@ import org.eclipse.lsp4j.Range;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +77,9 @@ public class DiagnosticsHelper {
             } else {
                 sourceRoot = projectRoot.resolve(module.moduleName().moduleNamePart());
             }
-            populateDiagnostics(diagnosticMap, module, sourceRoot);
+            String moduleName = module.moduleName().moduleNamePart();
+            Path modulePath = (moduleName != null) ? sourceRoot.resolve(moduleName) : sourceRoot;
+            diagnosticMap.putAll(getDiagnostics(module.getCompilation().diagnostics().diagnostics(), modulePath));
         }
 
         // If the client is null, returns
@@ -95,16 +97,12 @@ public class DiagnosticsHelper {
         lastDiagnosticMap = diagnosticMap;
     }
 
-    private void populateDiagnostics(Map<String, List<Diagnostic>> diagnosticsMap, Module module, Path sourceRoot) {
-        for (io.ballerina.tools.diagnostics.Diagnostic diag : module.getCompilation().diagnostics().diagnostics()) {
+    private Map<String, List<Diagnostic>> getDiagnostics(Collection<io.ballerina.tools.diagnostics.Diagnostic> diags,
+                                                         Path modulePath) {
+        Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<>();
+        for (io.ballerina.tools.diagnostics.Diagnostic diag : diags) {
+            LineRange lineRange = diag.location().lineRange();
 
-            Location location = diag.location();
-            String filePath = location.lineRange().filePath();
-
-            String fileURI = sourceRoot.resolve(filePath).toUri().toString();
-            diagnosticsMap.putIfAbsent(fileURI, new ArrayList<>());
-
-            LineRange lineRange = location.lineRange();
             int startLine = lineRange.startLine().line();
             int startChar = lineRange.startLine().offset();
             int endLine = lineRange.endLine().line();
@@ -116,16 +114,25 @@ public class DiagnosticsHelper {
             Range range = new Range(new Position(startLine, startChar), new Position(endLine, endChar));
             Diagnostic diagnostic = new Diagnostic(range, diag.message());
 
-            io.ballerina.tools.diagnostics.DiagnosticSeverity severity = diag.diagnosticInfo().severity();
-            if (severity == io.ballerina.tools.diagnostics.DiagnosticSeverity.ERROR) {
-                // set diagnostic log kind
-                diagnostic.setSeverity(DiagnosticSeverity.Error);
-            } else if (severity == io.ballerina.tools.diagnostics.DiagnosticSeverity.WARNING) {
-                diagnostic.setSeverity(DiagnosticSeverity.Warning);
+            switch (diag.diagnosticInfo().severity()) {
+                case ERROR:
+                    diagnostic.setSeverity(DiagnosticSeverity.Error);
+                    break;
+                case WARNING:
+                    diagnostic.setSeverity(DiagnosticSeverity.Warning);
+                    break;
+                case HINT:
+                    diagnostic.setSeverity(DiagnosticSeverity.Hint);
+                    break;
+                case INFO:
+                    diagnostic.setSeverity(DiagnosticSeverity.Information);
+                    break;
             }
 
-            List<Diagnostic> clientDiagnostics = diagnosticsMap.get(fileURI);
+            String fileURI = modulePath.resolve(lineRange.filePath()).toUri().toString();
+            List<Diagnostic> clientDiagnostics = diagnosticsMap.computeIfAbsent(fileURI, s -> new ArrayList<>());
             clientDiagnostics.add(diagnostic);
         }
+        return diagnosticsMap;
     }
 }
