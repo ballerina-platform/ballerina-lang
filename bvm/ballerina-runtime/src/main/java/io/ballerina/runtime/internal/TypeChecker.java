@@ -1650,7 +1650,8 @@ public class TypeChecker {
         return sourceTypeIdSet.containsAll(targetTypeIdSet);
     }
 
-    private static boolean isInSameVisibilityRegion(String lhsTypePkg, String rhsTypePkg, long lhsFlags, long rhsFlags) {
+    private static boolean isInSameVisibilityRegion(String lhsTypePkg, String rhsTypePkg, long lhsFlags,
+                                                    long rhsFlags) {
         if (SymbolFlags.isFlagOn(lhsFlags, SymbolFlags.PRIVATE)) {
             return lhsTypePkg.equals(rhsTypePkg);
         } else if (SymbolFlags.isFlagOn(lhsFlags, SymbolFlags.PUBLIC)) {
