@@ -620,11 +620,11 @@ public class TransactionDesugar extends BLangNodeVisitor {
         ifStmt.expr = isErrorCheck;
         ifStmt.body = ASTBuilderUtil.createBlockStmt(retryTrxBlock.pos);
         ifStmt.body.stmts.add(retryMgrDef);
-        BLangWhile retryWhileLoop = desugar.createRetryWhileLoop(retryTrxBlock.pos, retryMgrDef, retryStmt,
-                resultRef);
-        createRollbackIfFailed(retryTrxBlock.pos, env, retryWhileLoop.body, resultRef.symbol, trxBlockId);
-        ifStmt.body.stmts.add(retryWhileLoop);
-        desugar.createErrorReturn(retryTrxBlock.pos, blockStmt, resultRef);
+//        BLangWhile retryWhileLoop = desugar.createRetryWhileLoop(retryTrxBlock.pos, retryMgrDef, retryStmt,
+//                resultRef);
+//        createRollbackIfFailed(retryTrxBlock.pos, env, retryWhileLoop.body, resultRef.symbol, trxBlockId);
+//        ifStmt.body.stmts.add(retryWhileLoop);
+//        desugar.createErrorReturn(retryTrxBlock.pos, blockStmt, resultRef);
         result = blockStmt;
 //        if (retryTrxBlock.transaction.statementBlockReturns) {
 //            //  returns <TypeCast>$result$;

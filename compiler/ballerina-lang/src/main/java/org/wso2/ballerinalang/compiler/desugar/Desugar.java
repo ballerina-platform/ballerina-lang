@@ -2543,6 +2543,9 @@ public class Desugar extends BLangNodeVisitor {
             this.skipFailDesugaring = true;
             DiagnosticPos pos = retryNode.retryBody.pos;
             BLangBlockStmt retryBlockStmt = ASTBuilderUtil.createBlockStmt(retryNode.pos);
+//            retryBlockStmt.scope = new Scope(env.scope.owner);
+//            retryBlockStmt.scope = retryNode.retryBody.scope;
+//            retryBlockStmt.scope = env.scope;
             BLangSimpleVariableDef retryManagerVarDef = createRetryManagerDef(retryNode.retrySpec, retryNode.pos);
             retryBlockStmt.stmts.add(retryManagerVarDef);
 
@@ -6360,10 +6363,10 @@ public class Desugar extends BLangNodeVisitor {
             //fail e;
             BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
             if (returnError) {
-                BLangReturn errorReturn = ASTBuilderUtil.createReturnStmt(pos,
-                        rewrite(patternFailureCaseVarRef, env));
-                failStmt.exprStmt = errorReturn;
-                errorReturn.desugared = true;
+//                BLangReturn errorReturn = ASTBuilderUtil.createReturnStmt(pos,
+//                        rewrite(patternFailureCaseVarRef, env));
+//                failStmt.exprStmt = errorReturn;
+//                errorReturn.desugared = true;
             }
             failStmt.pos = pos;
             failStmt.expr = patternFailureCaseVarRef;
