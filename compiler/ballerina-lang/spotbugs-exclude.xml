@@ -84,7 +84,7 @@
     </Match>
     <Match>
         <Package name="io.ballerina.compiler.api.impl" />
-        <Bug pattern="BC_UNCONFIRMED_CAST" />
+        <Bug pattern="BC_UNCONFIRMED_CAST, UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" />
     </Match>
     <Match>
         <Package name="io.ballerina.compiler.api.impl.symbols" />
