@@ -130,6 +130,7 @@ public class EvaluatorBuilder extends NodeVisitor {
      * @throws EvaluationException If validation/parsing is failed.
      */
     public Evaluator build(ExpressionNode parsedExpr) throws EvaluationException {
+        clearState();
         // Uses `ExpressionIdentifierModifier` to modify and encode all the identifiers within the expression.
         parsedExpr = (ExpressionNode) parsedExpr.apply(new ExpressionIdentifierModifier());
         parsedExpr.accept(this);
@@ -572,5 +573,12 @@ public class EvaluatorBuilder extends NodeVisitor {
         supportedSyntax.add(SyntaxKind.IDENTIFIER_TOKEN);
         supportedSyntax.add(SyntaxKind.NONE);
         supportedSyntax.add(SyntaxKind.EOF_TOKEN);
+    }
+
+    private void clearState() {
+        capturedSyntax.clear();
+        unsupportedNodes.clear();
+        result = null;
+        builderException = null;
     }
 }

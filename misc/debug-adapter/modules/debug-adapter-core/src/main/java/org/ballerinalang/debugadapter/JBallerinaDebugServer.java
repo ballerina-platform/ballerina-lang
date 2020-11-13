@@ -697,6 +697,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      */
     private void clearState() {
         suspendedContext = null;
+        evaluator = null;
         activeThread = null;
         threadsMap.clear();
         stackFramesMap.clear();

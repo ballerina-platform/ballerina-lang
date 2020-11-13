@@ -45,8 +45,7 @@ import java.util.StringJoiner;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.isBlank;
 
 /**
- * A simple ballerina expression-specific compiling and parsing implementation, used to validate, parse and compile
- * ballerina expressions.
+ * A ballerina expression-specific implementation for validating, parsing and compiling ballerina expressions.
  *
  * @since 2.0.0
  */
@@ -54,6 +53,7 @@ class DebugExpressionCompiler {
 
     private final SuspendedContext context;
     private static final String BAL_FUNCTION_DEF_TEMPLATE = "function evaluate() returns (any|error) {return %s}";
+    Document document;
 
     public DebugExpressionCompiler(SuspendedContext context) {
         this.context = context;
@@ -84,34 +84,24 @@ class DebugExpressionCompiler {
             throws EvaluationException {
         // As expressions cannot be compiled standalone, coverts into a compilable statement.
         String exprStatement = getExpressionStatement(expr);
-        Document document;
-        // validates for syntax + semantic errors.
-        if (context.getProject() instanceof BuildProject) {
-            BuildProject project = (BuildProject) context.getProject();
-            Optional<DocumentId> docId = ProjectLoader.getDocumentId(context.getBreakPointSourcePath(), project);
-            Module module = project.currentPackage().module(docId.get().moduleId());
-            document = module.document(docId.get());
-        } else {
-            SingleFileProject project = (SingleFileProject) context.getProject();
-            DocumentId docId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
-            document = project.currentPackage().getDefaultModule().document(docId);
+        if (document == null) {
+            loadDocument();
         }
-
-        int startOffset = document.textDocument().line(context.getLineNumber()).endOffset();
-        TextEdit[] textEdit = {TextEdit.from(TextRange.from(startOffset, exprStatement.length()), exprStatement)};
+        int startOffset = document.textDocument().line(context.getLineNumber() - 1).endOffset();
+        TextEdit[] textEdit = {TextEdit.from(TextRange.from(startOffset, 0), exprStatement)};
         String newContent = new String(document.textDocument().apply(TextDocumentChange.from(textEdit)).toCharArray());
         Document newDocument = document.modify().withContent(newContent).apply();
         ModuleCompilation compilation = newDocument.module().getCompilation();
 
         DiagnosticResult diagnostics = compilation.diagnostics();
-        if (!diagnostics.hasErrors()) {
+        if (diagnostics.hasErrors()) {
             final StringJoiner errors = new StringJoiner(System.lineSeparator());
             diagnostics.errors().forEach(diagnostic -> {
                 if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
                     errors.add(diagnostic.message());
                 }
             });
-            throw new EvaluationException(String.format(EvaluationExceptionKind.SYNTAX_ERROR.getString(),
+            throw new EvaluationException(String.format(EvaluationExceptionKind.COMPILATION_ERRORS.getString(),
                     errors.toString()));
         }
     }
@@ -164,7 +154,7 @@ class DebugExpressionCompiler {
         }
         // Creates an statement in the format of "_ = <EXPRESSION>" and injects into the existing source, in order to
         // be compilable.
-        return "_ = " + expression + System.lineSeparator();
+        return "_ = " + expression;
     }
 
     /**
@@ -180,5 +170,19 @@ class DebugExpressionCompiler {
         }
         // As expressions cannot be parsed standalone, wraps it inside a function template, as the return value;
         return String.format(BAL_FUNCTION_DEF_TEMPLATE, expression);
+    }
+
+    private void loadDocument() {
+        // validates for syntax + semantic errors.
+        if (context.getProject() instanceof BuildProject) {
+            BuildProject project = (BuildProject) context.getProject();
+            Optional<DocumentId> docId = ProjectLoader.getDocumentId(context.getBreakPointSourcePath(), project);
+            Module module = project.currentPackage().module(docId.get().moduleId());
+            this.document = module.document(docId.get());
+        } else {
+            SingleFileProject project = (SingleFileProject) context.getProject();
+            DocumentId docId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
+            this.document = project.currentPackage().getDefaultModule().document(docId);
+        }
     }
 }
