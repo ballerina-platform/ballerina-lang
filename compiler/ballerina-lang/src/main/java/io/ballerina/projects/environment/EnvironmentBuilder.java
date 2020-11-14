@@ -23,6 +23,8 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
+import java.nio.file.Path;
+
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_API_INITIATED_COMPILATION;
 
@@ -33,11 +35,26 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_API_INITIATE
  */
 public class EnvironmentBuilder {
 
+    private Path ballerinaHome;
+
+    public static EnvironmentBuilder getBuilder() {
+        return new EnvironmentBuilder();
+    }
+
     public static Environment buildDefault() {
+        return new EnvironmentBuilder().build();
+    }
+
+    public EnvironmentBuilder setBallerinaHome(Path ballerinaHome) {
+        this.ballerinaHome = ballerinaHome;
+        return this;
+    }
+
+    public Environment build() {
         DefaultEnvironment environment = new DefaultEnvironment();
 
         // Creating a Ballerina distribution instance
-        BallerinaDistribution ballerinaDistribution = new BallerinaDistribution(environment);
+        BallerinaDistribution ballerinaDistribution = getBallerinaDistribution(environment);
         PackageRepository packageRepository = ballerinaDistribution.packageRepository();
         environment.addService(PackageRepository.class, packageRepository);
 
@@ -49,6 +66,13 @@ public class EnvironmentBuilder {
         ballerinaDistribution.loadLangLibPackages(compilerContext, packageCache);
         return environment;
     }
+
+    private BallerinaDistribution getBallerinaDistribution(DefaultEnvironment environment) {
+        return (ballerinaHome != null) ?
+                BallerinaDistribution.from(environment, ballerinaHome) :
+                BallerinaDistribution.from(environment);
+    }
+
 
     private static CompilerContext populateCompilerContext() {
         CompilerContext compilerContext = new CompilerContext();

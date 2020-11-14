@@ -24,7 +24,6 @@ import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.File;
@@ -81,7 +80,7 @@ public class RunExecutableTask implements Task {
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
 
-        String initClassName = ProjectUtils.getQualifiedClassName(
+        String initClassName = JarResolver.getQualifiedClassName(
                 executableModule.packageInstance().packageOrg().toString(),
                 executableModule.packageInstance().packageName().toString(),
                 executableModule.packageInstance().packageVersion().toString(),

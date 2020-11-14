@@ -257,35 +257,35 @@
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
     </Match>
     <Match>
-        <Class name="io.ballerina.projects.balo.BaloFiles" />
+        <Class name="io.ballerina.projects.internal.BaloFiles" />
         <Method name="loadPackageData" />
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
     <Match>
-        <Class name="io.ballerina.projects.balo.BaloFiles" />
+        <Class name="io.ballerina.projects.internal.BaloFiles" />
         <Method name="loadDocuments" />
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
     <Match>
-        <Class name="io.ballerina.projects.balo.BaloFiles" />
+        <Class name="io.ballerina.projects.internal.BaloFiles" />
         <Method name="loadOtherModules" />
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
     <Match>
-        <Class name="io.ballerina.projects.balo.BaloFiles" />
+        <Class name="io.ballerina.projects.internal.BaloFiles" />
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
     </Match>
     <Match>
-        <Class name="io.ballerina.projects.directory.ProjectFiles" />
+        <Class name="io.ballerina.projects.internal.ProjectFiles" />
         <Method name="loadDocuments" />
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
     <Match>
-        <Class name="io.ballerina.projects.directory.ProjectFiles" />
+        <Class name="io.ballerina.projects.internal.ProjectFiles" />
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
     <Match>
-        <Class name="io.ballerina.projects.balo.BaloFiles"/>
+        <Class name="io.ballerina.projects.internal.BaloFiles"/>
         <Method name="createPackageDescriptor"/>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
     </Match>

@@ -15,32 +15,25 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.directory;
+package io.ballerina.projects;
 
 /**
- * {@code ModuleFileData} represents a Ballerina source file (.bal).
+ * A {@code ProjectException} is thrown for any unrecoverable errors that
+ * occurs during the project loading, compilation, etc,.
  *
  * @since 2.0.0
  */
-public class DocumentData {
-    //TODO: Remove this class and use DocumentConfig for creating a document
-    private final String name;
-    private String content;
+public class ProjectException extends RuntimeException {
 
-    private DocumentData(String name, String content) {
-        this.name = name;
-        this.content = content;
+    public ProjectException(String message) {
+        super(message);
     }
 
-    public static DocumentData from(String name, String content) {
-        return new DocumentData(name, content);
+    public ProjectException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public String content() {
-        return content;
-    }
-
-    public String name() {
-        return name;
+    public ProjectException(Throwable cause) {
+        super(cause);
     }
 }

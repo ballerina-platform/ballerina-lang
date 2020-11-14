@@ -15,23 +15,32 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.balo;
-
-import io.ballerina.projects.PackageConfig;
-import io.ballerina.projects.PackageDescriptor;
-import io.ballerina.projects.directory.PackageData;
-import io.ballerina.projects.directory.PackageLoader;
+package io.ballerina.projects.internal;
 
 /**
- * Contains a set of utility methods that creates the config hierarchy from balo file.
+ * {@code ModuleFileData} represents a Ballerina source file (.bal).
  *
  * @since 2.0.0
  */
-public class BaloPackageLoader extends PackageLoader {
+public class DocumentData {
+    //TODO: Remove this class and use DocumentConfig for creating a document
+    private final String name;
+    private String content;
 
-    public static PackageConfig loadPackage(String packageDir, PackageDescriptor packageDescriptor) {
-        // TODO Refactor this code
-        PackageData packageData = BaloFiles.loadPackageData(packageDir, packageDescriptor);
-        return createPackageConfig(packageData, packageDescriptor);
+    private DocumentData(String name, String content) {
+        this.name = name;
+        this.content = content;
+    }
+
+    public static DocumentData from(String name, String content) {
+        return new DocumentData(name, content);
+    }
+
+    public String content() {
+        return content;
+    }
+
+    public String name() {
+        return name;
     }
 }

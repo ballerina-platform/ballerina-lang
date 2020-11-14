@@ -67,7 +67,8 @@ public class TestSingleFileProject {
             SingleFileProject.load(projectPath);
             Assert.fail("expected an invalid project exception");
         } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("provided path is not a valid Ballerina standalone file"));
+            Assert.assertTrue(e.getMessage().contains("The source file '" + projectPath +
+                    "' belongs to a Ballerina package."));
         }
 
         projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("main.bal");
@@ -75,36 +76,9 @@ public class TestSingleFileProject {
             SingleFileProject.load(projectPath);
             Assert.fail("expected an invalid project exception");
         } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("provided path is not a valid Ballerina standalone file"));
+            Assert.assertTrue(e.getMessage().contains("The source file '" + projectPath +
+                    "' belongs to a Ballerina package."));
         }
-    }
-
-    @Test (description = "tests setting build options to the project")
-    public void testSetBuildOptions() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal");
-        SingleFileProject project = null;
-        try {
-            project = SingleFileProject.load(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
-
-        SingleFileProject.BuildOptions buildOptions = project.getBuildOptions();
-
-        // Verify expected default buildOptions
-        Assert.assertFalse(buildOptions.isSkipTests());
-        Assert.assertFalse(buildOptions.isOffline());
-        Assert.assertFalse(buildOptions.isTestReport());
-        Assert.assertFalse(buildOptions.isExperimental());
-
-        buildOptions.setSkipTests(true);
-        buildOptions.setSkipTests(true);
-
-        // Update and verify buildOptions
-        Assert.assertTrue(project.getBuildOptions().isSkipTests());
-        Assert.assertFalse(project.getBuildOptions().isOffline());
-        Assert.assertFalse(project.getBuildOptions().isTestReport());
-        Assert.assertFalse(project.getBuildOptions().isExperimental());
     }
 
     @Test

@@ -54,6 +54,10 @@ public class TesterinaRegistry {
         return testSuites;
     }
 
+    public static void reset() {
+        instance = new TesterinaRegistry();
+    }
+
     public List<String> getGroups() {
         return groups;
     }
