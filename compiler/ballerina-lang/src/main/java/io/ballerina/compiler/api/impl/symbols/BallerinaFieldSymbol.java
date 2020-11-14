@@ -6,22 +6,24 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.Optional;
@@ -31,15 +33,17 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class BallerinaFieldSymbol implements FieldSymbol {
+public class BallerinaFieldSymbol extends BallerinaSymbol implements FieldSymbol {
 
     private final Documentation docAttachment;
     private final BField bField;
-    private final TypeSymbol typeDescriptor;
+    private final CompilerContext context;
+    private TypeSymbol typeDescriptor;
 
-    public BallerinaFieldSymbol(BField bField) {
+    public BallerinaFieldSymbol(CompilerContext context, BField bField) {
+        super(bField.name.value, bField.symbol.pkgID, SymbolKind.FIELD, bField.symbol);
+        this.context = context;
         this.bField = bField;
-        this.typeDescriptor = TypesFactory.getTypeDescriptor(bField.getType());
         this.docAttachment = new BallerinaDocumentation(bField.symbol.markdownDocumentation);
     }
 
@@ -69,7 +73,12 @@ public class BallerinaFieldSymbol implements FieldSymbol {
      */
     @Override
     public TypeSymbol typeDescriptor() {
-        return TypesFactory.getTypeDescriptor(this.bField.getType());
+        if (this.typeDescriptor == null) {
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.typeDescriptor = typesFactory.getTypeDescriptor(this.bField.type);
+        }
+
+        return this.typeDescriptor;
     }
 
     /**
@@ -99,7 +108,7 @@ public class BallerinaFieldSymbol implements FieldSymbol {
      */
     @Override
     public String signature() {
-        StringBuilder signature = new StringBuilder(this.typeDescriptor.signature() + " " + this.name());
+        StringBuilder signature = new StringBuilder(this.typeDescriptor().signature() + " " + this.name());
         if (this.isOptional()) {
             signature.append("?");
         }

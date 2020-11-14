@@ -2,7 +2,7 @@
     "line": 8,
     "character": 4,
     "expected": {
-        "title": "Create Local Variable with 'Tuple'",
+        "title": "Create Variable with 'Tuple'",
         "edits": [
             {
                 "range": {
@@ -15,7 +15,7 @@
                         "character": 4
                     }
                 },
-                "newText": "[[int, string, int], [int, string, int], [int, string, int]] a = "
+                "newText": "[[int, string, int], [int, string, int], [int, string, int]] listResult = "
             }
         ]
     }

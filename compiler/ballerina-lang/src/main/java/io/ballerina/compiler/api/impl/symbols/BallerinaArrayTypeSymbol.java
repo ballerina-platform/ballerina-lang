@@ -17,11 +17,11 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Optional;
 
@@ -34,14 +34,15 @@ public class BallerinaArrayTypeSymbol extends AbstractTypeSymbol implements Arra
 
     private TypeSymbol memberTypeDesc;
 
-    public BallerinaArrayTypeSymbol(ModuleID moduleID, BArrayType arrayType) {
-        super(TypeDescKind.ARRAY, moduleID, arrayType);
+    public BallerinaArrayTypeSymbol(CompilerContext context, ModuleID moduleID, BArrayType arrayType) {
+        super(context, TypeDescKind.ARRAY, moduleID, arrayType);
     }
 
     @Override
     public TypeSymbol memberTypeDescriptor() {
         if (this.memberTypeDesc == null) {
-            this.memberTypeDesc = TypesFactory.getTypeDescriptor(((BArrayType) this.getBType()).eType);
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.memberTypeDesc = typesFactory.getTypeDescriptor(((BArrayType) this.getBType()).eType);
         }
         return memberTypeDesc;
     }

@@ -48,7 +48,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static io.ballerina.runtime.util.BLangConstants.UNDERSCORE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 
 /**
  * Service De-sugar.
@@ -68,6 +68,7 @@ public class ServiceDesugar {
     private final SymbolResolver symResolver;
     private final Names names;
     private HttpFiltersDesugar httpFiltersDesugar;
+    private TransactionDesugar transactionDesugar;
 
     public static ServiceDesugar getInstance(CompilerContext context) {
         ServiceDesugar desugar = context.get(SERVICE_DESUGAR_KEY);
@@ -84,6 +85,7 @@ public class ServiceDesugar {
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
         this.httpFiltersDesugar = HttpFiltersDesugar.getInstance(context);
+        this.transactionDesugar = TransactionDesugar.getInstance(context);
     }
 
     void rewriteListeners(List<BLangSimpleVariable> variables, SymbolEnv env, BLangFunction startFunction,
@@ -202,6 +204,11 @@ public class ServiceDesugar {
     }
 
     private void engageCustomResourceDesugar(BLangFunction functionNode, SymbolEnv env) {
+        if (Symbols.isFlagOn(functionNode.symbol.flags, Flags.TRANSACTIONAL)) {
+            BLangExpressionStmt stmt = new BLangExpressionStmt(transactionDesugar
+                    .createTransactionalCheckInvocation(functionNode.pos));
+            ((BLangBlockFunctionBody) functionNode.body).stmts.add(0, stmt);
+        }
         httpFiltersDesugar.addHttpFilterStatementsToResource(functionNode, env);
         httpFiltersDesugar.addCustomAnnotationToResource(functionNode, env);
     }

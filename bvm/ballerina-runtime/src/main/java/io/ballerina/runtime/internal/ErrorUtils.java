@@ -17,20 +17,19 @@
  */
 package io.ballerina.runtime.internal;
 
-import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.util.exceptions.RuntimeErrors;
-import io.ballerina.runtime.values.ErrorValue;
-import io.ballerina.runtime.values.MapValueImpl;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.MapValueImpl;
 
-import static io.ballerina.runtime.api.ErrorCreator.createError;
+import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 
 /**
  * This class contains internal methods used by codegen and runtime classes to handle errors.

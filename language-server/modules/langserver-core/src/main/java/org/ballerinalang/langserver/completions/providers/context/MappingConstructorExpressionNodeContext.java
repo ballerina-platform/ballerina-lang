@@ -26,6 +26,8 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.BindingPatternNode;
+import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ComputedNameFieldNode;
 import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -162,7 +164,8 @@ public class MappingConstructorExpressionNodeContext extends
                         .filter(symbol -> SymbolUtil.isRecord(symbol) && symbol.name().equals(varName))
                         .map(SymbolUtil::getTypeDescForRecordSymbol)
                         .findFirst();
-            } else if (this.onQualifiedNameIdentifier(context, typeDesc)) {
+            }
+            if (this.onQualifiedNameIdentifier(context, typeDesc)) {
                 QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) typeDesc;
                 String modulePrefix = QNameReferenceUtil.getAlias(nameRef);
                 String recName = nameRef.identifier().text();
@@ -171,6 +174,23 @@ public class MappingConstructorExpressionNodeContext extends
                         .filter(typeSymbol -> SymbolUtil.isRecord(typeSymbol) && typeSymbol.name().equals(recName))
                         .map(SymbolUtil::getTypeDescForRecordSymbol)
                         .findFirst());
+            }
+            /*
+            Consider the following case.
+            eg: 
+                record {
+                    int test = 12;   
+                } testVar = {
+                    <cursor>
+                };
+             */
+            BindingPatternNode bPattern = ((VariableDeclarationNode) parent).typedBindingPattern().bindingPattern();
+            if (bPattern.kind() == SyntaxKind.CAPTURE_BINDING_PATTERN) {
+                String variableName = ((CaptureBindingPatternNode) bPattern).variableName().text();
+                return visibleSymbols.stream()
+                        .filter(symbol -> SymbolUtil.isRecord(symbol) && symbol.name().equals(variableName))
+                        .map(SymbolUtil::getTypeDescForRecordSymbol)
+                        .findFirst();
             }
         } else if (parent.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
             Node varRef = ((AssignmentStatementNode) parent).varRef();

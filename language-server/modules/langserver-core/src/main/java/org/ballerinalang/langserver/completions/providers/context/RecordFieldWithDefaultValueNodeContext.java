@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * Completion provider for {@link RecordFieldWithDefaultValueNode} context.
@@ -96,7 +97,10 @@ public class RecordFieldWithDefaultValueNodeContext extends
                 return completionItems;
             }
             String identifier = ((QualifiedNameReferenceNode) typeNameNode).identifier().text();
-            objectType = module.get().typeDefinitions().stream()
+            ModuleSymbol moduleSymbol = module.get();
+            Stream<Symbol> classesAndTypes = Stream.concat(moduleSymbol.classes().stream(),
+                                                           moduleSymbol.typeDefinitions().stream());
+            objectType = classesAndTypes
                     .filter(symbol -> SymbolUtil.isObject(symbol) && symbol.name().equals(identifier))
                     .map(SymbolUtil::getTypeDescForObjectSymbol)
                     .findAny();

@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
 import static io.ballerina.projects.util.ProjectConstants.PKG_NAME_REGEX;
-import static io.ballerina.runtime.util.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static java.nio.file.Files.createDirectories;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
