@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.directory;
+package io.ballerina.projects.internal;
 
 import java.nio.file.Path;
 import java.util.List;

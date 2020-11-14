@@ -17,20 +17,31 @@
  */
 package io.ballerina.projects.repos;
 
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.internal.repositories.FileSystemRepository;
 import io.ballerina.projects.util.ProjectConstants;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * Distribution cache.
+ * This class represents the package respository available in the Ballerina distribution.
  *
  * @since 2.0.0
  */
 public class BallerinaDistributionRepository extends FileSystemRepository {
 
-    public BallerinaDistributionRepository(Environment environment, Path distributionPath) {
-        super(environment, distributionPath.resolve(ProjectConstants.DIST_CACHE_DIRECTORY));
+    private BallerinaDistributionRepository(Environment environment, Path distributionRepoPath) {
+        super(environment, distributionRepoPath);
+    }
+
+    public static BallerinaDistributionRepository from(Environment environment, Path distributionPath) {
+        Path distributionRepoPath = distributionPath.resolve(ProjectConstants.DIST_CACHE_DIRECTORY);
+        if (Files.notExists(distributionPath)) {
+            throw new ProjectException("Ballerina distribution repository does not exists: " +
+                    distributionRepoPath);
+        }
+        return new BallerinaDistributionRepository(environment, distributionRepoPath);
     }
 }

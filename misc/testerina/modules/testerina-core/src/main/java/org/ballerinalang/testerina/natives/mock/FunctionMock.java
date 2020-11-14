@@ -22,6 +22,7 @@ import java.util.Vector;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.test.runtime.util.TesterinaUtils.getQualifiedClassName;
 import static org.ballerinalang.testerina.natives.mock.MockConstants.MOCK_STRAND_NAME;
 
 /**
@@ -43,7 +44,14 @@ public class FunctionMock {
                 mockFuncObj.getStringValue(StringUtils.fromString("functionToMock")).toString();
         String originalFunctionPackage =
                 mockFuncObj.getStringValue(StringUtils.fromString("functionToMockPackage")).toString();
-        originalFunctionPackage = formatFunctionPackage(originalFunctionPackage);
+
+        String[] splitInfo = originalFunctionPackage.split(Pattern.quote("/"));
+        String originalOrg = splitInfo[0];
+        String originalPackage = splitInfo[1].split(Pattern.quote(":"))[0];
+        String originalVersion = splitInfo[1].split(Pattern.quote(":"))[1];
+        String originalClass = splitInfo[2];
+
+        originalFunctionPackage = getQualifiedClassName(originalOrg, originalPackage, originalVersion, originalClass);
         Object returnVal = null;
         for (String caseId : caseIds) {
             if (MockRegistry.getInstance().hasCase(caseId)) {
@@ -66,24 +74,23 @@ public class FunctionMock {
         return returnVal;
     }
 
-    private static Object callOriginal(String originalFunction, String originalFunctionPackage, Object... args) {
+    private static Object callOriginal(String originalFunction, String originalClassName, Object... args) {
 
         Strand strand = Scheduler.getStrand();
         ClassLoader classLoader = FunctionMock.class.getClassLoader();
-        String[] packageValues = originalFunctionPackage.split("\\.");
+        String[] packageValues = originalClassName.split("\\.");
 
         String orgName = packageValues[0];
         String packageName = packageValues[1];
         String version = packageValues[2];
-        String className = packageValues[3];
 
         List<Object> argsList = Arrays.asList(args);
         StrandMetadata metadata = new StrandMetadata(orgName, packageName, version, originalFunction);
-        return Executor.executeFunction(strand.scheduler, MOCK_STRAND_NAME, metadata, classLoader, orgName,
-                                        packageName, version, className, originalFunction, argsList.toArray());
+        return Executor.executeFunction(strand.scheduler, MOCK_STRAND_NAME, metadata, classLoader,
+                originalClassName, originalFunction, argsList.toArray());
     }
 
-    private static Object callFunction(String originalFunction, String originalFunctionPackage, String returnVal,
+    private static Object callFunction(String originalFunction, String originalClassName, String returnVal,
                                        Object... args) {
         int prefixPos = returnVal.indexOf(MockConstants.FUNCTION_CALL_PLACEHOLDER);
         String methodName = returnVal.substring(prefixPos + MockConstants.FUNCTION_CALL_PLACEHOLDER.length());
@@ -101,7 +108,8 @@ public class FunctionMock {
             packageName = projectInfo[1];
             version = projectInfo[2];
             className = "tests." + getClassName(methodName, orgName, packageName, version, originalFunction,
-                    originalFunctionPackage);
+                    originalClassName);
+            className = getQualifiedClassName(orgName, packageName, version, className);
         } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
             return ErrorCreator.createDistinctError(MockConstants.FUNCTION_CALL_ERROR, MockConstants.TEST_PACKAGE_ID,
                                                     StringUtils.fromString(e.getMessage()));
@@ -110,8 +118,8 @@ public class FunctionMock {
         List<Object> argsList = Arrays.asList(args);
         ClassLoader classLoader = FunctionMock.class.getClassLoader();
         StrandMetadata metadata = new StrandMetadata(orgName, packageName, version, methodName);
-        return Executor.executeFunction(strand.scheduler, MOCK_STRAND_NAME, metadata, classLoader, orgName,
-                                        packageName, version, className, methodName, argsList.toArray());
+        return Executor.executeFunction(
+                strand.scheduler, MOCK_STRAND_NAME, metadata, classLoader, className, methodName, argsList.toArray());
     }
 
     private static String getClassName(String mockMethodName, String orgName, String packageName, String version,
@@ -240,14 +248,6 @@ public class FunctionMock {
         Collections.reverse(caseIdList);
 
         return caseIdList;
-    }
-
-    private static String formatFunctionPackage(String fnPackage) {
-        fnPackage = fnPackage.replace('.', '_');
-        fnPackage = fnPackage.replace('/', '.');
-        fnPackage = fnPackage.replace(':', '.');
-
-        return fnPackage;
     }
 }
 

@@ -19,13 +19,12 @@
 package io.ballerina.projects.balo;
 
 import io.ballerina.projects.PackageConfig;
-import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.internal.PackageConfigCreator;
 
 import java.nio.file.Path;
-import java.util.Optional;
 
 /**
  * {@code BaloProject} represents a Ballerina project instance created from a balr.
@@ -37,31 +36,17 @@ public class BaloProject extends Project {
     /**
      * Loads a BaloProject from the provided balo path.
      *
-     * @param baloPath Balo path
+     * @param balrPath Balo path
      * @return balo project
      */
-    public static BaloProject loadProject(ProjectEnvironmentBuilder environmentBuilder, Path baloPath) {
-        Path absBaloPath = Optional.of(baloPath.toAbsolutePath()).get();
-        if (!absBaloPath.toFile().exists()) {
-            throw new RuntimeException("balo path does not exist:" + baloPath);
-        }
-
-        return new BaloProject(environmentBuilder, absBaloPath);
+    public static BaloProject loadProject(ProjectEnvironmentBuilder environmentBuilder, Path balrPath) {
+        PackageConfig packageConfig = PackageConfigCreator.createBalrProjectConfig(balrPath);
+        BaloProject balrProject = new BaloProject(environmentBuilder, balrPath);
+        balrProject.addPackage(packageConfig);
+        return balrProject;
     }
 
     private BaloProject(ProjectEnvironmentBuilder environmentBuilder, Path baloPath) {
         super(ProjectKind.BALR_PROJECT, baloPath, environmentBuilder);
-        addPackage(baloPath.toString());
-    }
-
-    /**
-     * Loads a package from the provided balo path.
-     *
-     * @param baloPath balo path
-     */
-    private void addPackage(String baloPath) {
-        PackageDescriptor packageDescriptor = BaloFiles.createPackageDescriptor(baloPath);
-        PackageConfig packageConfig = BaloPackageLoader.loadPackage(baloPath, packageDescriptor);
-        this.addPackage(packageConfig);
     }
 }

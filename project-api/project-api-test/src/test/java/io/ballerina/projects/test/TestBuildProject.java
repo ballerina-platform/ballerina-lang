@@ -37,6 +37,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageId;
 import io.ballerina.projects.PlatformLibrary;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.util.ProjectConstants;
@@ -212,23 +213,23 @@ public class TestBuildProject {
                 .resolve("svc.bal");
         try {
             BuildProject.load(projectPath);
-        } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("provided path is not a valid Ballerina project"));
+        } catch (ProjectException e) {
+            Assert.assertTrue(e.getMessage().contains("Invalid Ballerina package directory: " + projectPath));
         }
 
         projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("modules").resolve("services");
         try {
             BuildProject.load(projectPath);
-        } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("provided path is not a valid Ballerina project"));
+        } catch (ProjectException e) {
+            Assert.assertTrue(e.getMessage().contains("Invalid Ballerina package directory: " + projectPath));
         }
 
         projectPath = RESOURCE_DIRECTORY.resolve("single-file");
         try {
             BuildProject.load(projectPath);
             Assert.fail("expected an invalid project exception");
-        } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("provided path is not a valid Ballerina project"));
+        } catch (ProjectException e) {
+            Assert.assertTrue(e.getMessage().contains("Invalid Ballerina package directory: " + projectPath));
         }
     }
 
@@ -239,83 +240,10 @@ public class TestBuildProject {
         try {
             BuildProject.load(projectPath);
             Assert.fail("expected an invalid project exception");
-        } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("provided path is already within a Ballerina project"));
+        } catch (ProjectException e) {
+            Assert.assertTrue(e.getMessage().contains("Provided path is already within a Ballerina package: " +
+                    projectPath));
         }
-    }
-
-    @Test(enabled = false, description = "tests loading a valid build project and set build options")
-    public void testSetBuildOptions() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
-        // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = BuildProject.load(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
-        BuildProject.BuildOptions buildOptions = project.getBuildOptions();
-
-        // Verify expected default buildOptions
-        Assert.assertFalse(buildOptions.isObservabilityIncluded());
-        Assert.assertFalse(buildOptions.isSkipTests());
-        Assert.assertFalse(buildOptions.isOffline());
-        Assert.assertFalse(buildOptions.isTestReport());
-        Assert.assertFalse(buildOptions.isCodeCoverage());
-        Assert.assertFalse(buildOptions.isSkipLock());
-        Assert.assertFalse(buildOptions.isExperimental());
-        Assert.assertNull(buildOptions.getB7aConfigFile());
-
-        buildOptions.setObservabilityEnabled(false);
-        buildOptions.setSkipLock(true);
-        buildOptions.setSkipTests(true);
-        buildOptions.setCodeCoverage(true);
-
-        // Update and verify buildOptions
-        Assert.assertFalse(project.getBuildOptions().isObservabilityIncluded());
-        Assert.assertTrue(project.getBuildOptions().isSkipTests());
-        Assert.assertFalse(project.getBuildOptions().isOffline());
-        Assert.assertFalse(project.getBuildOptions().isTestReport());
-        Assert.assertTrue(project.getBuildOptions().isCodeCoverage());
-        Assert.assertTrue(project.getBuildOptions().isSkipLock());
-        Assert.assertFalse(project.getBuildOptions().isExperimental());
-    }
-
-    @Test(enabled = false, description = "tests loading a valid build project with build options from toml")
-    public void testSetBuildOptionsFromToml() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("projectWithBuildOptions");
-        // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = BuildProject.load(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
-        BuildProject.BuildOptions buildOptions = project.getBuildOptions();
-
-        // Verify expected default buildOptions
-        Assert.assertTrue(buildOptions.isObservabilityIncluded());
-        Assert.assertTrue(buildOptions.isSkipTests());
-        Assert.assertTrue(buildOptions.isExperimental());
-        Assert.assertFalse(buildOptions.isOffline());
-        Assert.assertFalse(buildOptions.isTestReport());
-        Assert.assertFalse(buildOptions.isCodeCoverage());
-        Assert.assertFalse(buildOptions.isSkipLock());
-        Assert.assertEquals(buildOptions.getB7aConfigFile(), "/tmp/ballerina.conf");
-
-        buildOptions.setObservabilityEnabled(false);
-        buildOptions.setSkipLock(true);
-        buildOptions.setSkipTests(true);
-        buildOptions.setCodeCoverage(true);
-
-        // Update and verify buildOptions
-        Assert.assertTrue(project.getBuildOptions().isExperimental());
-        Assert.assertFalse(project.getBuildOptions().isObservabilityIncluded());
-        Assert.assertTrue(project.getBuildOptions().isSkipTests());
-        Assert.assertFalse(project.getBuildOptions().isOffline());
-        Assert.assertFalse(project.getBuildOptions().isTestReport());
-        Assert.assertTrue(project.getBuildOptions().isCodeCoverage());
-        Assert.assertTrue(project.getBuildOptions().isSkipLock());
     }
 
     @Test

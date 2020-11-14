@@ -19,6 +19,7 @@ package io.ballerina.projects;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.projects.CompilerBackend.TargetPlatform;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
@@ -34,6 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -50,6 +52,7 @@ public class PackageCompilation {
 
     private final DependencyGraph<PackageId> dependencyGraph;
     private final List<ModuleContext> sortedModuleContextList;
+    private final Map<TargetPlatform, CompilerBackend> compilerBackends;
     private DiagnosticResult diagnosticResult;
 
     private boolean compiled;
@@ -65,6 +68,8 @@ public class PackageCompilation {
         packageContext.resolveDependencies();
         this.dependencyGraph = buildDependencyGraph();
         this.sortedModuleContextList = populateSortedModuleList();
+        // We have only the jvm backend for now.
+        this.compilerBackends = new HashMap<>(1);
     }
 
     private DependencyGraph<PackageId> buildDependencyGraph() {
@@ -150,5 +155,11 @@ public class PackageCompilation {
     // TODO Remove this method. We should not expose BLangPackage from this class
     public BLangPackage defaultModuleBLangPackage() {
         return this.packageContext.defaultModuleContext().bLangPackage();
+    }
+
+    @SuppressWarnings("unchecked")
+    <T extends CompilerBackend> T getCompilerBackend(TargetPlatform targetPlatform,
+                                                     Function<TargetPlatform, T> backendCreator) {
+        return (T) compilerBackends.computeIfAbsent(targetPlatform, backendCreator);
     }
 }
