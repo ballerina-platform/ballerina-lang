@@ -1,21 +1,21 @@
 {
-    "line": 29,
+    "line": 44,
     "character": 4,
     "expected": {
-        "title": "Create Local Variable with 'record {| string name; int age; record {| int maths; int physics; int chemistry; |} grades; string city; string country; |}'",
+        "title": "Create Variable with 'record {| string name; int age; record {| int maths; int physics; int chemistry; |} grades; string city; string country; |}'",
         "edits": [
             {
                 "range": {
                     "start": {
-                        "line": 29,
+                        "line": 44,
                         "character": 4
                     },
                     "end": {
-                        "line": 29,
+                        "line": 44,
                         "character": 4
                     }
                 },
-                "newText": "record {| string name; int age; record {| int maths; int physics; int chemistry; |} grades; string city; string country; |} a = "
+                "newText": "record {| string name; int age; record {| int maths; int physics; int chemistry; |} grades; string city; string country; |} mappingResult = "
             }
         ]
     }

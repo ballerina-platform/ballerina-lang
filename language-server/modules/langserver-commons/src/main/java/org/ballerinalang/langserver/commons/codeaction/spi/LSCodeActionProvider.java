@@ -15,7 +15,9 @@
  */
 package org.ballerinalang.langserver.commons.codeaction.spi;
 
-import org.ballerinalang.langserver.commons.CodeActionContext;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
@@ -30,6 +32,15 @@ import java.util.List;
 public interface LSCodeActionProvider {
 
     /**
+     * Returns priority to be listed the code-action.
+     *
+     * @return lower the number higher the priority
+     */
+    default int priority() {
+        return 1000;
+    }
+
+    /**
      * Returns True if code action is enabled.
      *
      * @return True if code action is enabled, False otherwise
@@ -39,34 +50,41 @@ public interface LSCodeActionProvider {
     /**
      * Returns the list of code actions based on node type or diagnostics.
      *
-     * @param nodeType          code action node type
-     * @param codeActionContext code action operation context
+     * @param matchedNode     matched {@link NonTerminalNode}
+     * @param matchedNodeType matched {@link CodeActionNodeType}
+     * @param allDiagnostics  diagnostics list of the module
+     * @param syntaxTree      {@link SyntaxTree}
+     * @param context         language server context
      * @return list of Code Actions
      */
-    List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, CodeActionContext codeActionContext);
+    List<CodeAction> getNodeBasedCodeActions(NonTerminalNode matchedNode, CodeActionNodeType matchedNodeType,
+                                             List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
+                                             LSContext context);
 
     /**
      * Returns the list of code actions based on node type or diagnostics.
      *
-     * @param nodeType           code action node type
-     * @param codeActionContext  code action operation context
-     * @param diagnosticsOfRange diagnostics list of the cursor range
+     *
+     * @param diagnostic
+     * @param positionDetails {@link PositionDetails}
+     * @param allDiagnostics  diagnostics list of the module
+     * @param syntaxTree      {@link SyntaxTree}
+     * @param context         language server context
      * @return list of Code Actions
      */
-    List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, CodeActionContext codeActionContext,
-                                             List<Diagnostic> diagnosticsOfRange);
+    List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, PositionDetails positionDetails,
+                                             List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
+                                             LSContext context);
 
     /**
      * Returns True of node type based code actions are supported.
-     *
-     * @return True of node type based code actions are supported, False otherwise
+     * @return  True of node type based code actions are supported, False otherwise
      */
     boolean isNodeBasedSupported();
 
     /**
      * Returns True of code diagnostics type based code actions are supported.
-     *
-     * @return True of code diagnostics based code actions are supported, False otherwise
+     * @return  True of code diagnostics based code actions are supported, False otherwise
      */
     boolean isDiagBasedSupported();
 

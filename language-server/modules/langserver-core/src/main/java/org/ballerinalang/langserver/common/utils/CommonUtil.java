@@ -16,7 +16,10 @@
 package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -25,12 +28,10 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
-import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.projects.Document;
-import io.ballerina.projects.Package;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -38,19 +39,25 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
-import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.NewLSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.FieldCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
+import org.ballerinalang.langserver.exception.LSStdlibCacheException;
+import org.ballerinalang.langserver.util.definition.LSStandardLibCache;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.statements.StatementNode;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -65,7 +72,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -74,8 +81,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -89,7 +96,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -165,31 +171,23 @@ public class CommonUtil {
     }
 
     /**
-     * Convert the diagnostic range to a zero based positioning diagnostic range.
+     * Convert the syntax-node line range into a lsp4j range.
      *
-     * @param lineRange - diagnostic position to be cloned
-     * @return {@link Range} converted diagnostic position
+     * @param lineRange - line range
+     * @return {@link Range} converted range
      */
     public static Range toRange(LineRange lineRange) {
-        int startLine = lineRange.startLine().line();
-        int endLine = lineRange.endLine().line();
-        int startColumn = lineRange.startLine().offset();
-        int endColumn = lineRange.endLine().offset();
-        return new Range(new Position(startLine, startColumn), new Position(endLine, endColumn));
+        return new Range(toPosition(lineRange.startLine()), toPosition(lineRange.endLine()));
     }
 
     /**
-     * Clone the diagnostic position given.
+     * Converts syntax-node line position into a lsp4j position.
      *
-     * @param diagnosticLocation - diagnostic position to be cloned
-     * @return {@link Location} cloned diagnostic position
+     * @param linePosition - line position
+     * @return {@link Position} converted position
      */
-    public static Location clonePosition(Location diagnosticLocation) {
-        return new BLangDiagnosticLocation(diagnosticLocation.lineRange().filePath(),
-                diagnosticLocation.lineRange().startLine().line(),
-                diagnosticLocation.lineRange().endLine().line(),
-                diagnosticLocation.lineRange().startLine().offset(),
-                diagnosticLocation.lineRange().endLine().offset());
+    public static Position toPosition(LinePosition linePosition) {
+        return new Position(linePosition.line(), linePosition.offset());
     }
 
     /**
@@ -201,12 +199,12 @@ public class CommonUtil {
      * @param context Language server context
      * @return {@link List}     List of Text Edits to apply
      */
-    public static List<TextEdit> getAutoImportTextEdits(String orgName, String pkgName, NewLSContext context) {
-        List<ImportDeclarationNode> currentDocImports = context.getCurrentDocImports();
+    public static List<TextEdit> getAutoImportTextEdits(String orgName, String pkgName, LSContext context) {
+        List<BLangImportPackage> currentFileImports = context.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY);
         Position start = new Position(0, 0);
-        if (currentDocImports != null && !currentDocImports.isEmpty()) {
-            ImportDeclarationNode last = CommonUtil.getLastItem(currentDocImports);
-            int endLine = last.lineRange().endLine().line();
+        if (currentFileImports != null && !currentFileImports.isEmpty()) {
+            BLangImportPackage last = CommonUtil.getLastItem(currentFileImports);
+            int endLine = last.getPosition().lineRange().endLine().line();
             start = new Position(endLine, 0);
         }
         String pkgNameComponent;
@@ -233,7 +231,7 @@ public class CommonUtil {
         if (bType == null) {
             return "()";
         }
-        switch (bType.typeKind()) {
+        switch (getRawType(bType).typeKind()) {
             case INT:
                 typeString = Integer.toString(0);
                 break;
@@ -285,7 +283,7 @@ public class CommonUtil {
      * @param fields  List of field descriptors
      * @return {@link List}     List of completion items for the struct fields
      */
-    public static List<LSCompletionItem> getRecordFieldCompletionItems(CompletionContext context,
+    public static List<LSCompletionItem> getRecordFieldCompletionItems(LSContext context,
                                                                        List<FieldSymbol> fields) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         fields.forEach(field -> {
@@ -310,7 +308,7 @@ public class CommonUtil {
      * @param fields  List of fields
      * @return {@link LSCompletionItem}   Completion Item to fill all the options
      */
-    public static LSCompletionItem getFillAllStructFieldsItem(CompletionContext context, List<FieldSymbol> fields) {
+    public static LSCompletionItem getFillAllStructFieldsItem(LSContext context, List<FieldSymbol> fields) {
         List<String> fieldEntries = new ArrayList<>();
 
         for (FieldSymbol fieldSymbol : fields) {
@@ -338,7 +336,7 @@ public class CommonUtil {
      * @param context LS Operation context
      * @return {@link LSCompletionItem} generated for error type
      */
-    public static LSCompletionItem getErrorTypeCompletionItem(CompletionContext context) {
+    public static LSCompletionItem getErrorTypeCompletionItem(LSContext context) {
         CompletionItem errorTypeCItem = new CompletionItem();
         errorTypeCItem.setInsertText(ItemResolverConstants.ERROR);
         errorTypeCItem.setLabel(ItemResolverConstants.ERROR);
@@ -369,15 +367,22 @@ public class CommonUtil {
      * @param typeName type name to be filtered against
      * @return {@link Optional} type found
      */
-    public static Optional<TypeDefinitionSymbol> getTypeFromModule(CompletionContext context, String alias,
-                                                                   String typeName) {
+    public static Optional<TypeSymbol> getTypeFromModule(LSContext context, String alias, String typeName) {
         Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, alias);
         if (module.isEmpty()) {
             return Optional.empty();
         }
-        for (TypeDefinitionSymbol typeDefinitionSymbol : module.get().typeDefinitions()) {
+
+        ModuleSymbol moduleSymbol = module.get();
+        for (TypeDefinitionSymbol typeDefinitionSymbol : moduleSymbol.typeDefinitions()) {
             if (typeDefinitionSymbol.name().equals(typeName)) {
-                return Optional.of(typeDefinitionSymbol);
+                return Optional.of(typeDefinitionSymbol.typeDescriptor());
+            }
+        }
+
+        for (ClassSymbol clazz : moduleSymbol.classes()) {
+            if (clazz.name().equals(typeName)) {
+                return Optional.of(clazz);
             }
         }
 
@@ -391,8 +396,8 @@ public class CommonUtil {
      * @param alias   alias value
      * @return {@link Optional} scope entry for the module symbol
      */
-    public static Optional<ModuleSymbol> searchModuleForAlias(CompletionContext context, String alias) {
-        List<Symbol> visibleSymbols = new ArrayList<>(context.getVisibleSymbols(context.getCursorPosition()));
+    public static Optional<ModuleSymbol> searchModuleForAlias(LSContext context, String alias) {
+        List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         for (Symbol symbol : visibleSymbols) {
             if (symbol.kind() == MODULE && symbol.name().equals(alias)) {
                 return Optional.of((ModuleSymbol) symbol);
@@ -445,11 +450,36 @@ public class CommonUtil {
         return isTestSource(relativePath) ? parentPkg.getTestablePkg() : parentPkg;
     }
 
+    /**
+     * Get the current module's imports.
+     *
+     * @param ctx LS Operation Context
+     * @return {@link List}     List of imports in the current file
+     */
+    public static List<BLangImportPackage> getCurrentFileImports(LSContext ctx) {
+        return getCurrentModuleImports(ctx).stream()
+                .filter(importInCurrentFilePredicate(ctx))
+                .collect(Collectors.toList());
+    }
+
     public static boolean isInvalidSymbol(BSymbol symbol) {
         return ("_".equals(symbol.name.getValue())
                 || symbol instanceof BAnnotationSymbol
                 || symbol instanceof BOperatorSymbol
                 || symbolContainsInvalidChars(symbol));
+    }
+
+    /**
+     * Check whether the given node is a worker derivative node.
+     *
+     * @param node Node to be evaluated
+     * @return {@link Boolean}  whether a worker derivative
+     */
+    public static boolean isWorkerDereivative(StatementNode node) {
+        return (node instanceof BLangSimpleVariableDef)
+                && ((BLangSimpleVariableDef) node).var.expr != null
+                && ((BLangSimpleVariableDef) node).var.expr.type instanceof BFutureType
+                && ((BFutureType) ((BLangSimpleVariableDef) node).var.expr.type).workerDerivative;
     }
 
     /**
@@ -459,9 +489,8 @@ public class CommonUtil {
      * @param ctx     Service Operation context
      * @return {@link List}     List of Top Level Nodes
      */
-    public static List<TopLevelNode> getCurrentFileTopLevelNodes(BLangPackage pkgNode, NewLSContext ctx) {
-//        String relativeFilePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        String relativeFilePath = "";
+    public static List<TopLevelNode> getCurrentFileTopLevelNodes(BLangPackage pkgNode, LSContext ctx) {
+        String relativeFilePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangCompilationUnit filteredCUnit = pkgNode.compUnits.stream()
                 .filter(cUnit ->
                         cUnit.getPosition().lineRange().filePath().replace("/", FILE_SEPARATOR)
@@ -481,6 +510,18 @@ public class CommonUtil {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get the package name components combined.
+     *
+     * @param importPackage BLangImportPackage node
+     * @return {@link String}   Combined package name
+     */
+    public static String getPackageNameComponentsCombined(BLangImportPackage importPackage) {
+        return importPackage.pkgNameComps.stream()
+                .map(id -> id.value)
+                .collect(Collectors.joining("."));
+    }
+
     public static boolean symbolContainsInvalidChars(BSymbol bSymbol) {
         List<String> symbolNameComponents = Arrays.asList(bSymbol.getName().getValue().split("\\."));
         String symbolName = CommonUtil.getLastItem(symbolNameComponents);
@@ -491,6 +532,45 @@ public class CommonUtil {
                 || symbolName.equals("main")
                 || symbolName.endsWith(".new")
                 || symbolName.startsWith("0"));
+    }
+
+    /**
+     * Get the function invocation signature.
+     *
+     * @param functionSymbol ballerina function instance
+     * @param functionName   function name
+     * @param ctx            Language Server Operation context
+     * @return {@link Pair} of insert text(left-side) and signature label(right-side)
+     */
+    public static Pair<String, String> getFunctionInvocationSignature(FunctionSymbol functionSymbol,
+                                                                      String functionName,
+                                                                      LSContext ctx) {
+        if (functionSymbol == null) {
+            return ImmutablePair.of(functionName + "();", functionName + "()");
+        }
+        FunctionTypeSymbol functionTypeDesc = functionSymbol.typeDescriptor();
+        StringBuilder signature = new StringBuilder(functionName + "(");
+        StringBuilder insertText = new StringBuilder(functionName + "(");
+        List<String> funcArguments = FunctionGenerator.getFuncArguments(functionSymbol, ctx);
+        if (!funcArguments.isEmpty()) {
+            signature.append(String.join(", ", funcArguments));
+            insertText.append("${1}");
+        }
+        signature.append(")");
+        insertText.append(")");
+        Optional<TypeSymbol> returnType = functionTypeDesc.returnTypeDescriptor();
+        if (returnType.isEmpty() || returnType.get().typeKind() == TypeDescKind.NIL) {
+            insertText.append(";");
+        }
+        String initString = "(";
+        String endString = ")";
+
+        if (returnType.isPresent() && returnType.get().typeKind() != TypeDescKind.NIL) {
+            signature.append(initString).append(returnType.get().signature());
+            signature.append(endString);
+        }
+
+        return new ImmutablePair<>(insertText.toString(), signature.toString());
     }
 
     /**
@@ -512,7 +592,7 @@ public class CommonUtil {
      * @return {@link String} Insert text
      */
     public static String getRecordFieldCompletionInsertText(FieldSymbol bField, int tabOffset) {
-        TypeSymbol fieldType = bField.typeDescriptor();
+        TypeSymbol fieldType = CommonUtil.getRawType(bField.typeDescriptor());
         StringBuilder insertText = new StringBuilder(bField.name() + ": ");
         if (fieldType.typeKind() == TypeDescKind.RECORD) {
             List<FieldSymbol> requiredFields = getMandatoryRecordFields((RecordTypeSymbol) fieldType);
@@ -521,20 +601,17 @@ public class CommonUtil {
                 return insertText.toString();
             }
             insertText.append("{").append(LINE_SEPARATOR);
-            int tabCount = tabOffset;
             List<String> requiredFieldInsertTexts = new ArrayList<>();
             for (FieldSymbol field : requiredFields) {
-                String fieldText = String.join("", Collections.nCopies(tabCount + 1, "\t")) +
-                        getRecordFieldCompletionInsertText(field, tabCount) +
-                        String.join("", Collections.nCopies(tabCount, "\t"));
+                String fieldText = String.join("", Collections.nCopies(tabOffset + 1, "\t")) +
+                        getRecordFieldCompletionInsertText(field, tabOffset + 1);
                 requiredFieldInsertTexts.add(fieldText);
-                tabCount++;
             }
-            insertText.append(String.join(CommonUtil.LINE_SEPARATOR, requiredFieldInsertTexts));
+            insertText.append(String.join("," + CommonUtil.LINE_SEPARATOR, requiredFieldInsertTexts));
             insertText.append(LINE_SEPARATOR)
                     .append(String.join("", Collections.nCopies(tabOffset, "\t")))
                     .append("}");
-        } else if (fieldType instanceof BArrayType) {
+        } else if (fieldType.typeKind() == TypeDescKind.ARRAY) {
             insertText.append("[").append("${1}").append("]");
         } else if (fieldType.typeKind() == TypeDescKind.STRING) {
             insertText.append("\"").append("${1}").append("\"");
@@ -543,6 +620,19 @@ public class CommonUtil {
         }
 
         return insertText.toString();
+    }
+
+    /**
+     * Get the current module's imports.
+     *
+     * @param ctx LS Operation Context
+     * @return {@link List}     List of imports in the current file
+     */
+    public static List<BLangImportPackage> getCurrentModuleImports(LSContext ctx) {
+        String relativePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        BLangPackage currentPkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        BLangPackage ownerPkg = getSourceOwnerBLangPackage(relativePath, currentPkg);
+        return ownerPkg.imports;
     }
 
     ///////////////////////////////
@@ -642,6 +732,41 @@ public class CommonUtil {
     }
 
     /**
+     * Generates a variable name.
+     *
+     * @param symbol {@link Symbol}
+     * @return random argument name
+     */
+    public static String generateVariableName(Symbol symbol, TypeSymbol typeSymbol, Set<String> names) {
+        if (symbol != null) {
+            // Start naming with symbol-name
+            return generateVariableName(1, symbol.name(), names);
+        } else if (typeSymbol != null) {
+            // If symbol is null, try typeSymbol
+            String name;
+            if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE && !typeSymbol.name().startsWith("$")) {
+                name = typeSymbol.name();
+            } else {
+                TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
+                switch (rawType.typeKind()) {
+                    case RECORD:
+                        name = "mappingResult";
+                        break;
+                    case TUPLE:
+                        name = "listResult";
+                        break;
+                    default:
+                        name = rawType.typeKind().getName() + "Result";
+                        break;
+                }
+            }
+            return generateVariableName(1, name, names);
+        } else {
+            return generateName(1, names);
+        }
+    }
+
+    /**
      * Whether the given module is a langlib module.
      *
      * @param moduleID Module ID to evaluate
@@ -653,10 +778,8 @@ public class CommonUtil {
     }
 
     private static String generateVariableName(int suffix, String name, Set<String> names) {
-        name = name.replaceAll(".+[\\:\\.]", "");
-        String newName = generateName(suffix, names);
+        String newName = name.replaceAll(".+[\\:\\.]", "");
         if (suffix == 1 && !name.isEmpty()) {
-            newName = name;
             BiFunction<String, String, String> replacer = (search, text) ->
                     (text.startsWith(search)) ? text.replaceFirst(search, "") : text;
             // Replace common prefixes
@@ -680,33 +803,51 @@ public class CommonUtil {
             }
             // Lower first letter
             newName = newName.substring(0, 1).toLowerCase(Locale.getDefault()) + newName.substring(1);
-            // if already available, try appending 'Result'
-            Iterator<String> iterator = names.iterator();
+            // if already available, try appending 'Result', 'Out', 'Value'
             boolean alreadyExists = false;
-            boolean appendResult = true;
-            boolean appendOut = true;
-            String suffixResult = "Result";
-            String suffixOut = "Out";
-            while (iterator.hasNext()) {
-                String next = iterator.next();
-                if (next.equals(newName)) {
+            String[] specialSuffixes = new String[]{"Result", "Out", "Value"};
+            boolean[] flagSpecialSuffixes = new boolean[specialSuffixes.length];
+            boolean addNoSpecialSuffix = false;
+            // If any of special suffix already found in new-name, don't use any special suffix
+            for (String currentSuffix : specialSuffixes) {
+                if (newName.endsWith(currentSuffix)) {
+                    addNoSpecialSuffix = true;
+                    break;
+                }
+            }
+            for (String nextName : names) {
+                if (nextName.equals(newName)) {
+                    // If new-name already exists
                     alreadyExists = true;
-                } else if (next.equals(newName + suffixResult)) {
-                    appendResult = false;
-                } else if (next.equals(newName + suffixOut)) {
-                    appendOut = false;
+                } else if (!addNoSpecialSuffix) {
+                    // Check a particular special suffix and new-name combination already exists
+                    for (int i = 0; i < specialSuffixes.length; i++) {
+                        String currentSuffix = specialSuffixes[i];
+                        if (nextName.equals(newName + currentSuffix)) {
+                            flagSpecialSuffixes[i] = true;
+                        }
+                    }
                 }
             }
             // if already available, try appending 'Result' or 'Out'
-            if (alreadyExists && appendResult) {
-                newName = newName + suffixResult;
-            } else if (alreadyExists && appendOut) {
-                newName = newName + suffixOut;
+            if (alreadyExists) {
+                if (!addNoSpecialSuffix) {
+                    for (int i = 0; i < flagSpecialSuffixes.length; i++) {
+                        if (!flagSpecialSuffixes[i]) {
+                            newName = newName + specialSuffixes[i];
+                            break;
+                        }
+                    }
+                } else {
+                    return generateVariableName(++suffix, newName, names);
+                }
             }
-            // if still already available, try a random letter
-            while (names.contains(newName)) {
-                newName = generateVariableName(++suffix, name, names);
-            }
+        } else {
+            newName = newName + suffix;
+        }
+        // if still already available, try a random letter
+        while (names.contains(newName)) {
+            newName = generateName(++suffix, names);
         }
         return newName;
     }
@@ -729,7 +870,7 @@ public class CommonUtil {
      * @return module prefix
      */
     public static String getModulePrefix(ImportsAcceptor importsAcceptor, ModuleID currentModuleId,
-                                         ModuleID moduleID, NewLSContext context) {
+                                         ModuleID moduleID, LSContext context) {
         String pkgPrefix = "";
         if (!moduleID.equals(currentModuleId) && !BUILT_IN_PACKAGE_PREFIX.equals(moduleID.moduleName())) {
             String moduleName = escapeModuleName(context, moduleID.orgName() + "/" + moduleID.moduleName());
@@ -769,12 +910,11 @@ public class CommonUtil {
         };
     }
 
-    public static String escapeModuleName(NewLSContext context, String fullPackageNameAlias) {
+    public static String escapeModuleName(LSContext context, String fullPackageNameAlias) {
         Set<String> names = new HashSet<>();
         Predicate<Scope.ScopeEntry> nonPkgNames = scopeEntry -> !(scopeEntry.symbol instanceof BPackageSymbol);
         try {
-//            names = CommonUtil.getAllNameEntries(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), nonPkgNames);
-            names = Collections.emptySet();
+            names = CommonUtil.getAllNameEntries(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), nonPkgNames);
         } catch (Exception e) {
             // ignore
         }
@@ -821,6 +961,20 @@ public class CommonUtil {
     }
 
     /**
+     * Whether we skip the first parameter being included as a label in the signature.
+     * When showing a lang lib invokable symbol over DOT(invocation) we do not show the first param, but when we
+     * showing the invocation over package of the langlib with the COLON we show the first param
+     *
+     * @param context        context
+     * @param functionSymbol invokable symbol
+     * @return {@link Boolean} whether we show the first param or not
+     */
+    public static boolean skipFirstParam(LSContext context, FunctionSymbol functionSymbol) {
+        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        return isLangLib(functionSymbol.moduleID()) && nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
+    }
+
+    /**
      * Get all available name entries.
      *
      * @param context {@link CompilerContext}
@@ -828,16 +982,6 @@ public class CommonUtil {
      */
     public static Set<String> getAllNameEntries(CompilerContext context) {
         return getAllNameEntries(context, null);
-    }
-
-    /**
-     * Get all available name entries.
-     *
-     * @param visibleSymbols list of visible symbols
-     * @return set of strings
-     */
-    public static Set<String> getAllNameEntries(List<Symbol> visibleSymbols) {
-        return getAllNameEntries(visibleSymbols, null);
     }
 
     /**
@@ -863,27 +1007,6 @@ public class CommonUtil {
     }
 
     /**
-     * Get all available name entries.
-     *
-     * @param visibleSymbols list of visible symbols
-     * @param predicate      predicate to evaluate against
-     * @return set of strings
-     */
-    public static Set<String> getAllNameEntries(List<Symbol> visibleSymbols, Predicate<Symbol> predicate) {
-        Set<String> strings = new HashSet<>();
-        visibleSymbols.forEach(symbol -> {
-            if (predicate != null) {
-                if (predicate.test(symbol)) {
-                    strings.add(symbol.name());
-                }
-            } else {
-                strings.add(symbol.name());
-            }
-        });
-        return strings;
-    }
-
-    /**
      * Get the path from given string URI.
      *
      * @param uri file uri
@@ -891,11 +1014,28 @@ public class CommonUtil {
      */
     public static Optional<Path> getPathFromURI(String uri) {
         try {
-            return Optional.of(Path.of(new URL(uri).toURI()));
+            return Optional.of(Paths.get(new URL(uri).toURI()));
         } catch (URISyntaxException | MalformedURLException e) {
             // ignore
         }
         return Optional.empty();
+    }
+
+    /**
+     * Update the standard library cache.
+     *
+     * @param context Language Server operation context
+     */
+    public static void updateStdLibCache(LSContext context) throws LSStdlibCacheException {
+        Boolean enabled = context.get(DocumentServiceKeys.ENABLE_STDLIB_DEFINITION_KEY);
+        if (enabled == null || !enabled) {
+            return;
+        }
+        List<BLangImportPackage> stdLibImports = getCurrentModuleImports(context).stream()
+                .filter(stdLibImportsNotCachedPredicate(context))
+                .collect(Collectors.toList());
+
+        LSStandardLibCache.getInstance().updateCache(stdLibImports);
     }
 
     /**
@@ -913,12 +1053,16 @@ public class CommonUtil {
         }
     }
 
-    public static NonTerminalNode findNode(NewLSContext context, Position position) {
-        Optional<Document> document = context.workspace().document(context.filePath());
-        if (document.isEmpty()) {
-            throw new RuntimeException("Could not find a valid document");
-        }
-        SyntaxTree syntaxTree = document.get().syntaxTree();
+    public static NonTerminalNode findNode(LSContext context, Position position, Path path)
+            throws WorkspaceDocumentException {
+        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+        SyntaxTree syntaxTree = documentManager.getTree(path);
+        TextDocument textDocument = syntaxTree.textDocument();
+        int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
+        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(txtPos, 0));
+    }
+
+    public static NonTerminalNode findNode(Position position, SyntaxTree syntaxTree) {
         TextDocument textDocument = syntaxTree.textDocument();
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
         return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(txtPos, 0));
@@ -938,6 +1082,26 @@ public class CommonUtil {
     }
 
     /**
+     * Returns whether the position is within the range.
+     *
+     * @param pos   position
+     * @param range range
+     * @return True if within range, False otherwise
+     */
+    public static boolean isWithinRange(Position pos, Range range) {
+        int sLine = range.getStart().getLine();
+        int sCol = range.getStart().getCharacter();
+        int eLine = range.getEnd().getLine();
+        int eCol = range.getEnd().getCharacter();
+        return ((sLine == eLine && pos.getLine() == sLine) &&
+                (pos.getCharacter() >= sCol && pos.getCharacter() <= eCol)
+        ) || ((sLine != eLine) && (pos.getLine() > sLine && pos.getLine() < eLine ||
+                pos.getLine() == eLine && pos.getCharacter() <= eCol ||
+                pos.getLine() == sLine && pos.getCharacter() >= sCol
+        ));
+    }
+
+    /**
      * Get the raw type of the type descriptor. If the type descriptor is a type reference then return the associated
      * type descriptor.
      *
@@ -947,32 +1111,5 @@ public class CommonUtil {
     public static TypeSymbol getRawType(TypeSymbol typeDescriptor) {
         return typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE
                 ? ((TypeReferenceTypeSymbol) typeDescriptor).typeDescriptor() : typeDescriptor;
-    }
-
-    /**
-     * Get the completion item label for a given package.
-     *
-     * @param pkg {@link Package} package instance to evaluate
-     * @return {@link String} label computed
-     */
-    public static String getPackageLabel(Package pkg) {
-        String orgName = "";
-        if (pkg.packageOrg().value() != null && !pkg.packageOrg().value().equals(Names.ANON_ORG.getValue())) {
-            orgName = pkg.packageOrg().value() + "/";
-        }
-
-        return orgName + pkg.packageName().value();
-    }
-
-    /**
-     * Get the package name components combined.
-     *
-     * @param importNode {@link ImportDeclarationNode}
-     * @return {@link String}   Combined package name
-     */
-    public static String getPackageNameComponentsCombined(ImportDeclarationNode importNode) {
-        return importNode.moduleName().stream()
-                .map(token -> token.text().replace("'", ""))
-                .collect(Collectors.joining("."));
     }
 }

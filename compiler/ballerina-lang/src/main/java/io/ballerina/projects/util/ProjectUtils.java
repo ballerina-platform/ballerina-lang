@@ -26,6 +26,7 @@ import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Lists;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -444,5 +446,31 @@ public class ProjectUtils {
         }
 
         return className;
+    }
+
+    /**
+     * Create and get the home repository path.
+     *
+     * @return home repository path
+     */
+    public static Path createAndGetHomeReposPath() {
+        Path homeRepoPath;
+        String homeRepoDir = System.getenv(ProjectConstants.HOME_REPO_ENV_KEY);
+        if (homeRepoDir == null || homeRepoDir.isEmpty()) {
+            String userHomeDir = System.getProperty(USER_HOME);
+            if (userHomeDir == null || userHomeDir.isEmpty()) {
+                throw new BLangCompilerException("Error creating home repository: unable to get user home directory");
+            }
+            homeRepoPath = Paths.get(userHomeDir, ProjectConstants.HOME_REPO_DEFAULT_DIRNAME);
+        } else {
+            // User has specified the home repo path with env variable.
+            homeRepoPath = Paths.get(homeRepoDir);
+        }
+
+        homeRepoPath = homeRepoPath.toAbsolutePath();
+        if (Files.exists(homeRepoPath) && !Files.isDirectory(homeRepoPath, LinkOption.NOFOLLOW_LINKS)) {
+            throw new BLangCompilerException("Home repository is not a directory: " + homeRepoPath.toString());
+        }
+        return homeRepoPath;
     }
 }

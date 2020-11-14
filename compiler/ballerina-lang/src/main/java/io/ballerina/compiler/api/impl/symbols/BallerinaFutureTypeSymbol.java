@@ -17,11 +17,11 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Optional;
 
@@ -34,15 +34,17 @@ public class BallerinaFutureTypeSymbol extends AbstractTypeSymbol implements Fut
 
     private TypeSymbol memberTypeDesc;
 
-    public BallerinaFutureTypeSymbol(ModuleID moduleID, BFutureType futureType) {
-        super(TypeDescKind.FUTURE, moduleID, futureType);
+    public BallerinaFutureTypeSymbol(CompilerContext context, ModuleID moduleID, BFutureType futureType) {
+        super(context, TypeDescKind.FUTURE, moduleID, futureType);
     }
 
     @Override
     public Optional<TypeSymbol> typeParameter() {
         if (this.memberTypeDesc == null) {
-            this.memberTypeDesc = TypesFactory.getTypeDescriptor(((BFutureType) this.getBType()).constraint);
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.memberTypeDesc = typesFactory.getTypeDescriptor(((BFutureType) this.getBType()).constraint);
         }
+
         return Optional.ofNullable(this.memberTypeDesc);
     }
 

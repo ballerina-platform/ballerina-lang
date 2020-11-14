@@ -19,7 +19,7 @@ package org.ballerinalang.net.http.actions.httpclient;
 import io.ballerina.runtime.api.BalEnv;
 import io.ballerina.runtime.api.BalFuture;
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;

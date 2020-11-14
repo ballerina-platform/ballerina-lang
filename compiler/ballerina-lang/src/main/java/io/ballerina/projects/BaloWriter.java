@@ -59,6 +59,9 @@ public abstract class BaloWriter {
 
     // Set the target as any for default balo.
     protected String target = "any";
+    protected String langSpecVersion = "2020r2";
+    protected String ballerinaVersion = "Ballerina 2.0.0";
+    protected String implemetationVendor = "WSO2";
 
     protected BaloWriter() {
     }
@@ -142,7 +145,11 @@ public abstract class BaloWriter {
         //                // TODO Need to set platform libraries
         //            }
         //        }
-        packageJson.setTarget(target);
+        packageJson.setPlatform(target);
+        packageJson.setLanguageSpecVersion(langSpecVersion);
+        packageJson.setBallerinaVersion(ballerinaVersion);
+        packageJson.setImplementationVendor(implemetationVendor);
+
         if (!platformLibs.isEmpty()) {
             packageJson.setPlatformDependencies(platformLibs.get());
         }

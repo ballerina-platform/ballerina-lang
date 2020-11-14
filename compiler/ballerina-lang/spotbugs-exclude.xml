@@ -284,4 +284,9 @@
         <Class name="io.ballerina.projects.directory.ProjectFiles" />
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
+    <Match>
+        <Class name="io.ballerina.projects.balo.BaloFiles"/>
+        <Method name="createPackageDescriptor"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+    </Match>
 </FindBugsFilter>

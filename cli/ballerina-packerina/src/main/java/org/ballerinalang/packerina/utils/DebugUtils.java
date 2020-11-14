@@ -2,7 +2,7 @@ package org.ballerinalang.packerina.utils;
 
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 
-import static io.ballerina.runtime.util.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
  * Utilities related to ballerina program debugging.

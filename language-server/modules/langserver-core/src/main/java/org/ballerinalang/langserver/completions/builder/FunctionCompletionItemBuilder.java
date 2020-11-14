@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.completions.builder;
 
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
@@ -24,6 +25,7 @@ import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -99,7 +101,10 @@ public final class FunctionCompletionItemBuilder {
     }
 
     public static CompletionItem build(ObjectTypeSymbol typeDesc, InitializerBuildMode mode, CompletionContext ctx) {
-        MethodSymbol initMethod = typeDesc.initMethod().isEmpty() ? null : typeDesc.initMethod().get();
+        MethodSymbol initMethod = null;
+        if (typeDesc.kind() == SymbolKind.CLASS && ((ClassSymbol) typeDesc).initMethod().isPresent()) {
+            initMethod = ((ClassSymbol) typeDesc).initMethod().get();
+        }
         CompletionItem item = new CompletionItem();
         setMeta(item, initMethod, ctx);
         String functionName;

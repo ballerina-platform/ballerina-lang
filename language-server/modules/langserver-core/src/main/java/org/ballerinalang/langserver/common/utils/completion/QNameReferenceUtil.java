@@ -53,6 +53,7 @@ public class QNameReferenceUtil {
         return moduleSymbol.map(value -> value.allSymbols().stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION
                         || symbol.kind() == SymbolKind.TYPE
+                        || symbol.kind() == SymbolKind.CLASS
                         || symbol instanceof VariableSymbol)
                 .collect(Collectors.toList())).orElseGet(ArrayList::new);
     }
@@ -96,7 +97,8 @@ public class QNameReferenceUtil {
     public static List<Symbol> getTypesInModule(CompletionContext context, QualifiedNameReferenceNode qNameRef) {
         Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, QNameReferenceUtil.getAlias(qNameRef));
         return module.map(symbol -> symbol.allSymbols().stream()
-                .filter(moduleItem -> moduleItem instanceof TypeDefinitionSymbol)
+                .filter(moduleItem -> moduleItem instanceof TypeDefinitionSymbol ||
+                        moduleItem.kind() == SymbolKind.CLASS)
                 .collect(Collectors.toList()))
                 .orElseGet(ArrayList::new);
     }

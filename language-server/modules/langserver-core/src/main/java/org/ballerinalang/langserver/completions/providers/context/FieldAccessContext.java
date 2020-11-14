@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -196,11 +195,11 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
             return Optional.empty();
         }
         TypeSymbol rawType = CommonUtil.getRawType(fieldTypeDesc.get());
-        List<MethodSymbol> visibleMethods = rawType.builtinMethods();
+        List<FunctionSymbol> visibleMethods = rawType.langLibMethods();
         if (rawType.typeKind() == TypeDescKind.OBJECT) {
             visibleMethods.addAll(((ObjectTypeSymbol) rawType).methods());
         }
-        Optional<MethodSymbol> filteredMethod = visibleMethods.stream()
+        Optional<FunctionSymbol> filteredMethod = visibleMethods.stream()
                 .filter(methodSymbol -> methodSymbol.name().equals(methodName))
                 .findFirst();
 
@@ -249,7 +248,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
             default:
                 break;
         }
-        completionItems.addAll(this.getCompletionItemList(typeDescriptor.builtinMethods(), context));
+        completionItems.addAll(this.getCompletionItemList(typeDescriptor.langLibMethods(), context));
 
         return completionItems;
     }

@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.value;
 
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.internal.scheduling.Strand;
 
 /**
  * Extern function lang.typedesc:typeIds.

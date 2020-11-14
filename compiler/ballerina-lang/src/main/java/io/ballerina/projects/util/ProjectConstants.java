@@ -28,9 +28,11 @@ public class ProjectConstants {
     public static final String BLANG_SOURCE_EXT = ".bal";
 
     public static final String BALLERINA_TOML = "Ballerina.toml";
+    public static final String SETTINGS_FILE_NAME = "Settings.toml";
     public static final String GITIGNORE_FILE_NAME = ".gitignore";
     public static final String MODULE_MD_FILE_NAME = "Module.md";
     public static final String PACKAGE_MD_FILE_NAME = "Package.md";
+    public static final String PACKAGE_JSON = "package.json";
 
     public static final String SOURCE_DIR_NAME = "src";
     public static final String BIN_DIR_NAME = "bin";
@@ -78,6 +80,13 @@ public class ProjectConstants {
     public static final String REPO_BALO_DIR_NAME = TARGET_BALO_DIR_NAME;
     public static final String REPO_CACHE_DIR_NAME = "cache";
     public static final String REPO_BIR_CACHE_NAME = "bir";
+
+    //module name format : <org-name>/<pkg-name> | <org-name>/<pkg-name>:<version>
+    //version format : 1, 1.*, 1.*.*
+    public static final String PKG_NAME_REGEX = "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+|" +
+            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+|" +
+            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+\\.[*\\d]+|" +
+            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+\\.[*\\d]+\\.[*\\d]+";
 
     // Test framework related constants
     public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";

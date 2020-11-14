@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -202,7 +203,7 @@ public class SortingUtil {
      * @param owner   Owner node to extract the assignable type
      * @return {@link Optional} assignable type
      */
-    public static Optional<TypeDefinitionSymbol> getAssignableType(CompletionContext context, Node owner) {
+    public static Optional<TypeSymbol> getAssignableType(CompletionContext context, Node owner) {
         Optional<Node> typeDesc;
         switch (owner.kind()) {
             case LISTENER_DECLARATION:
@@ -241,7 +242,7 @@ public class SortingUtil {
             for (Symbol symbol : visibleSymbols) {
                 if (symbol.kind() == SymbolKind.TYPE && symbol.name().equals(nameRef)) {
                     TypeDefinitionSymbol typeDefinitionSymbol = (TypeDefinitionSymbol) symbol;
-                    return Optional.of(typeDefinitionSymbol);
+                    return Optional.of(typeDefinitionSymbol.typeDescriptor());
                 }
             }
             return Optional.empty();

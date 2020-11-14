@@ -21,8 +21,9 @@ import com.atomikos.icatch.jta.UserTransactionManager;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,9 +42,9 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.xa.XAResource;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static javax.transaction.xa.XAResource.TMSUCCESS;
 
 /**
@@ -138,14 +139,13 @@ public class TransactionResourceManager {
      * @param transactionBlockId participant identifier
      * @param committed          function pointer to invoke when this transaction committed
      * @param aborted            function pointer to invoke when this transaction aborted
-     * @param strand             ballerina strand of the participant
      * @since 0.990.0
      */
     public void registerParticipation(String gTransactionId, String transactionBlockId, BFunctionPointer committed,
-                                      BFunctionPointer aborted, Strand strand) {
+                                      BFunctionPointer aborted) {
         localParticipants.computeIfAbsent(gTransactionId, gid -> new ConcurrentSkipListSet<>()).add(transactionBlockId);
 
-        TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
+        TransactionLocalContext transactionLocalContext = Scheduler.getStrand().currentTrxContext;
         registerCommittedFunction(transactionBlockId, committed);
         registerAbortedFunction(transactionBlockId, aborted);
         transactionLocalContext.beginTransactionBlock(transactionBlockId);
@@ -166,12 +166,12 @@ public class TransactionResourceManager {
     /**
      * This method acts as the callback which commits all the resources participated in the given transaction.
      *
-     * @param strand      the strand
      * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
      * @return the status of the commit operation
      */
-    public boolean notifyCommit(Strand strand, String transactionId, String transactionBlockId) {
+    public boolean notifyCommit(String transactionId, String transactionBlockId) {
+        Strand strand = Scheduler.getStrand();
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         boolean commitSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
@@ -212,13 +212,13 @@ public class TransactionResourceManager {
     /**
      * This method acts as the callback which aborts all the resources participated in the given transaction.
      *
-     * @param strand the strand
      * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
      * @param error the cause of abortion
      * @return the status of the abort operation
      */
-    public boolean notifyAbort(Strand strand, String transactionId, String transactionBlockId, Object error) {
+    public boolean notifyAbort(String transactionId, String transactionBlockId, Object error) {
+        Strand strand = Scheduler.getStrand();
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         boolean abortSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
@@ -288,6 +288,75 @@ public class TransactionResourceManager {
     }
 
     /**
+     * Cleanup the Info record keeping state related to current transaction context and remove the current
+     * context from the stack.
+     */
+    public void cleanupTransactionContext() {
+        Strand strand = Scheduler.getStrand();
+        TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
+        transactionLocalContext.removeTransactionInfo();
+        strand.removeCurrentTrxContext();
+    }
+
+    /**
+     * This method returns true if there is a failure of the current transaction, otherwise false.
+     * @return true if there is a failure of the current transaction.
+     */
+    public boolean getAndClearFailure() {
+        return Scheduler.getStrand().currentTrxContext.getAndClearFailure() != null;
+    }
+
+    /**
+     * This method is used to get the error which is set by calling setRollbackOnly().
+     * If it is not set, then returns null.
+     * @return the error or null.
+     */
+    public Object getRollBackOnlyError() {
+        TransactionLocalContext transactionLocalContext = Scheduler.getStrand().currentTrxContext;
+        return transactionLocalContext.getRollbackOnly();
+    }
+
+    /**
+     * This method checks if the current strand is in a transaction or not.
+     * @return True if the current strand is in a transaction.
+     */
+    public boolean isInTransaction() {
+        return Scheduler.getStrand().isInTransaction();
+    }
+
+    /**
+     * This method rollbacks the given transaction.
+     * @param transactionBlockId The transaction blockId
+     * @param error The error which caused rolling back.
+     */
+    public void rollbackTransaction(String transactionBlockId, Object error) {
+        Scheduler.getStrand().currentTrxContext.rollbackTransaction(transactionBlockId, error);
+    }
+
+    /**
+     * This method marks the current transaction context as non-transactional.
+     */
+    public void setContextNonTransactional() {
+        Scheduler.getStrand().currentTrxContext.setTransactional(false);
+    }
+
+    /**
+     * This method set the given transaction context as the current transaction context in the stack.
+     * @param trxCtx The input transaction context
+     */
+    public void setCurrentTransactionContext(TransactionLocalContext trxCtx) {
+        Scheduler.getStrand().setCurrentTransactionContext(trxCtx);
+    }
+
+    /**
+     * This method returns the current transaction context.
+     * @return The current Transaction Context
+     */
+    public TransactionLocalContext getCurrentTransactionContext() {
+        return Scheduler.getStrand().currentTrxContext;
+    }
+
+    /**
      * This method marks the end of a transaction for the given transaction id.
      *
      * @param transactionId      the global transaction id
@@ -314,9 +383,9 @@ public class TransactionResourceManager {
         }
     }
 
-    void rollbackTransaction(Strand strand, String transactionId, String transactionBlockId, Object error) {
+    void rollbackTransaction(String transactionId, String transactionBlockId, Object error) {
         endXATransaction(transactionId, transactionBlockId);
-        notifyAbort(strand, transactionId, transactionBlockId, error);
+        notifyAbort(transactionId, transactionBlockId, error);
     }
 
     private void removeContextsFromRegistry(String transactionCombinedId, String gTransactionId) {
