@@ -15,9 +15,9 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import org.ballerinalang.langserver.commons.CodeActionContext;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;

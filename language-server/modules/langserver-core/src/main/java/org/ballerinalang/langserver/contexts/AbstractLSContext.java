@@ -27,7 +27,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.NewLSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
 import org.eclipse.lsp4j.Position;
 
 import java.nio.file.Path;
@@ -123,7 +122,7 @@ public class AbstractLSContext implements NewLSContext {
 
         return this.currentDocImports;
     }
-    
+
     /**
      * Represents Language server context Builder.
      *

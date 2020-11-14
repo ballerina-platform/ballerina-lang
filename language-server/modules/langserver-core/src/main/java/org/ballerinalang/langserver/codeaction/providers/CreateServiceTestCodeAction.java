@@ -22,7 +22,6 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;
@@ -66,7 +65,7 @@ public class CreateServiceTestCodeAction extends AbstractCodeActionProvider {
 
         CodeAction action = new CodeAction(CommandConstants.CREATE_TEST_SERVICE_TITLE);
         action.setCommand(new Command(CommandConstants.CREATE_TEST_SERVICE_TITLE,
-                                      CreateTestExecutor.COMMAND, args));
+                CreateTestExecutor.COMMAND, args));
         actions.add(action);
         return actions;
     }

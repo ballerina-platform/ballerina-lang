@@ -191,7 +191,7 @@ public class LSPackageLoader {
     private static List<Package> getPackagesFromDistRepo() {
         DefaultEnvironment environment = new DefaultEnvironment();
         // Creating a Ballerina distribution instance
-        BallerinaDistribution ballerinaDistribution = new BallerinaDistribution(environment);
+        BallerinaDistribution ballerinaDistribution = BallerinaDistribution.from(environment);
         PackageRepository packageRepository = ballerinaDistribution.packageRepository();
         Map<String, List<String>> pkgMap = packageRepository.getPackages();
 

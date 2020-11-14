@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.codeaction.providers;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
@@ -110,15 +109,15 @@ public class ImplementFunctionsCodeAction extends AbstractCodeActionProvider {
 //        return edits;
 //    }
 
-    /**
-     * Get the function arguments from the function.
-     *
-     * @param importsAcceptor imports accepter
-     * @param currentPkgId    current package ID
-     * @param bLangInvocation {@link BInvokableSymbol}
-     * @param context         {@link LSContext}
-     * @return {@link List} List of arguments
-     */
+//    /**
+//     * Get the function arguments from the function.
+//     *
+//     * @param importsAcceptor imports accepter
+//     * @param currentPkgId    current package ID
+//     * @param bLangInvocation {@link BInvokableSymbol}
+//     * @param context         {@link LSContext}
+//     * @return {@link List} List of arguments
+//     */
 //    private static List<String> getFuncArguments(ImportsAcceptor importsAcceptor,
 //                                                 PackageID currentPkgId, BInvokableSymbol bLangInvocation,
 //                                                 LSContext context) {

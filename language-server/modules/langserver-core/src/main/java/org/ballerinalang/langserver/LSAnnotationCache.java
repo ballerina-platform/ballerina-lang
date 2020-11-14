@@ -302,12 +302,14 @@ public class LSAnnotationCache {
 
         // Annotation cache will only load the sk packages initially and the others will load in the runtime
 //        for (BallerinaPackage sdkPackage : LSPackageLoader.getSdkPackages()) {
-//            PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name(sdkPackage.getOrgName()),
+//            PackageID packageID
+//            = new PackageID(new org.wso2.ballerinalang.compiler.util.Name(sdkPackage.getOrgName()),
 //                    new Name(sdkPackage.getPackageName()),
 //                    new Name(sdkPackage.getVersion()));
 //            try {
 //                // We will wrap this with a try catch to prevent LS crashing due to compiler errors.
-//                Optional<BPackageSymbol> bPackageSymbol = LSPackageLoader.getPackageSymbolById(compilerCtx, packageID);
+//                Optional<BPackageSymbol> bPackageSymbol
+//                = LSPackageLoader.getPackageSymbolById(compilerCtx, packageID);
 //                if (bPackageSymbol.isEmpty()) {
 //                    continue;
 //                }
