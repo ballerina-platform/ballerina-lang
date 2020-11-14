@@ -37,7 +37,7 @@ import java.util.StringJoiner;
 
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
-import static io.ballerina.runtime.util.BLangConstants.MODULE_INIT_CLASS_NAME;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
 
 /**
  * Task for running the executable.

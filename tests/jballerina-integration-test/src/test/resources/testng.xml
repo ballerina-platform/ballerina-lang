@@ -283,6 +283,13 @@
         </classes>
     </test>
 
+    <test name="ballerina-identifier-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.identifier.IdentifierLiteralTest"/>
+        </classes>
+    </test>
+
 <!--    <test name="ballerina-bindgen-tests" parallel="false">-->
 <!--        <parameter name="enableJBallerinaTests" value="true" />-->
 <!--        <classes>-->

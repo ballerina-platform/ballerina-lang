@@ -19,10 +19,10 @@
 package org.ballerinalang.stdlib.file.service;
 
 import io.ballerina.runtime.api.Runtime;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -33,7 +33,7 @@ import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSys
 
 import java.util.Map;
 
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.FILE_SYSTEM_EVENT;
 import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.MODULE_NAME;
 import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.MODULE_VERSION;

@@ -1,12 +1,12 @@
 {
   "range": {
     "start": {
-      "line": 36,
-      "character": 17
+      "line": 39,
+      "character": 19
     },
     "end": {
-      "line": 36,
-      "character": 17
+      "line": 39,
+      "character": 19
     }
   },
   "expected": {
@@ -17,12 +17,8 @@
         "command": "ADD_DOC",
         "arguments": [
           {
-            "argumentK": "node.type",
-            "argumentV": "OBJECT_FUNCTION"
-          },
-          {
             "argumentK": "node.line",
-            "argumentV": "36"
+            "argumentV": "39"
           }
         ]
       },

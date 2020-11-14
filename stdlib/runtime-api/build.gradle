@@ -34,12 +34,8 @@ dependencies {
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'org.testng:testng'
 
-
-
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-core')
-    testCompile project(':ballerina-file')
-
 }
 
 task updateVersion {

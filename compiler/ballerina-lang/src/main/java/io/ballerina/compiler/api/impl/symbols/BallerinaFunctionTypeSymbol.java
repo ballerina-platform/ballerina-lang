@@ -18,13 +18,13 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.SymbolFactory;
-import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Collections;
 import java.util.List;
@@ -49,44 +49,52 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
     private TypeSymbol returnType;
     private final BInvokableTypeSymbol typeSymbol;
 
-    public BallerinaFunctionTypeSymbol(ModuleID moduleID, BInvokableTypeSymbol invokableSymbol) {
-        super(TypeDescKind.FUNCTION, moduleID, invokableSymbol.type);
+    public BallerinaFunctionTypeSymbol(CompilerContext context, ModuleID moduleID,
+                                       BInvokableTypeSymbol invokableSymbol) {
+        super(context, TypeDescKind.FUNCTION, moduleID, invokableSymbol.type);
         this.typeSymbol = invokableSymbol;
     }
 
     @Override
     public List<ParameterSymbol> parameters() {
         if (this.requiredParams == null) {
+            SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+
             this.requiredParams = this.typeSymbol.params.stream()
                     .map(symbol -> {
                         ParameterKind parameterKind = symbol.defaultableParam ? DEFAULTABLE : REQUIRED;
-                        return SymbolFactory.createBallerinaParameter(symbol, parameterKind);
+                        return symbolFactory.createBallerinaParameter(symbol, parameterKind);
                     })
                     .collect(Collectors.collectingAndThen(toList(), Collections::unmodifiableList));
         }
+
         return this.requiredParams;
     }
 
     @Override
     public Optional<ParameterSymbol> restParam() {
         if (restParam == null) {
-            this.restParam = SymbolFactory.createBallerinaParameter(typeSymbol.restParam, REST);
+            SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+            this.restParam = symbolFactory.createBallerinaParameter(typeSymbol.restParam, REST);
         }
+
         return Optional.ofNullable(this.restParam);
     }
 
     @Override
     public Optional<TypeSymbol> returnTypeDescriptor() {
         if (returnType == null) {
-            this.returnType = TypesFactory.getTypeDescriptor(this.typeSymbol.returnType);
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.returnType = typesFactory.getTypeDescriptor(this.typeSymbol.returnType);
         }
+
         return Optional.ofNullable(this.returnType);
     }
 
     @Override
     public String signature() {
         StringBuilder signature = new StringBuilder("function (");
-        StringJoiner joiner = new StringJoiner(",");
+        StringJoiner joiner = new StringJoiner(", ");
         for (ParameterSymbol requiredParam : this.parameters()) {
             String ballerinaParameterSignature = requiredParam.signature();
             joiner.add(ballerinaParameterSignature);

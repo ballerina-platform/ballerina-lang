@@ -1,4 +1,3 @@
-
 rootProject.name = 'ballerina-parent'
 include(':ballerina-tools-api')
 include(':ballerina-parser')
@@ -116,6 +115,7 @@ include(':benchmarks')
 include(':build-config:checkstyle')
 include(':debug-adapter:debug-adapter-core')
 include(':debug-adapter:debug-adapter-cli')
+include(':debug-adapter:debug-adapter-runtime')
 include(':formatter:formatter-core')
 include(':formatter:formatter-cli')
 //include(':ballerina-libs')
@@ -147,7 +147,7 @@ project(':ballerina-lang:xml').projectDir = file('langlib/lang.xml')
 project(':ballerina-lang:bool').projectDir = file('langlib/lang.boolean')
 project(':ballerina-lang-test').projectDir = file('langlib/lang.test')
 project(':ballerina-langlib:test').projectDir = file('langlib/langlib-test')
-//project(':ballerina-runtime-api').projectDir = file('stdlib/runtime-api')
+project(':ballerina-runtime-api').projectDir = file('stdlib/runtime-api')
 project(':ballerina-runtime').projectDir = file('bvm/ballerina-runtime')
 project(':ballerina-rt').projectDir = file('bvm/ballerina-rt')
 project(':ballerina-choreo-extension-rt').projectDir = file('bvm/ballerina-choreo-extension-rt')
@@ -228,6 +228,7 @@ project(':jballerina-debugger-integration-test').projectDir = file('tests/jballe
 
 project(':debug-adapter:debug-adapter-core').projectDir = file('misc/debug-adapter/modules/debug-adapter-core')
 project(':debug-adapter:debug-adapter-cli').projectDir = file('misc/debug-adapter/modules/debug-adapter-cli')
+project(':debug-adapter:debug-adapter-runtime').projectDir = file('misc/debug-adapter/modules/debug-adapter-runtime')
 project(':formatter:formatter-core').projectDir = file('misc/formatter/modules/formatter-core')
 project(':formatter:formatter-cli').projectDir = file('misc/formatter/modules/formatter-cli')
 buildCache {

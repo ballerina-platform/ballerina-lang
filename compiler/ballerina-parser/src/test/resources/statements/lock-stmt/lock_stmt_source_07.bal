@@ -1,2 +1,4 @@
 public function foo() {
     lock {
+
+

@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.NilTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
  * Represents the nil type descriptor.
@@ -28,8 +29,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
  */
 public class BallerinaNilTypeSymbol extends AbstractTypeSymbol implements NilTypeSymbol {
 
-    public BallerinaNilTypeSymbol(ModuleID moduleID, BNilType nilType) {
-        super(TypeDescKind.NIL, moduleID, nilType);
+    public BallerinaNilTypeSymbol(CompilerContext context, ModuleID moduleID, BNilType nilType) {
+        super(context, TypeDescKind.NIL, moduleID, nilType);
     }
 
     @Override
