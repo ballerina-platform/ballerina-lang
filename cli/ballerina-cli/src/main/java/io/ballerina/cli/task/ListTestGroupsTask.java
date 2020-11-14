@@ -18,12 +18,14 @@
 
 package io.ballerina.cli.task;
 
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.testsuite.Test;
 import io.ballerina.projects.testsuite.TestSuite;
-import io.ballerina.projects.testsuite.TesterinaRegistry;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -46,7 +48,9 @@ public class ListTestGroupsTask implements Task {
     public void execute(Project project) {
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
-            TestSuite suite = TesterinaRegistry.getInstance().getTestSuites().get(module.moduleName().toString());
+            PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+            TestSuite suite = jBallerinaBackend.testSuite(module);
             listGroups(suite, this.out);
         }
     }

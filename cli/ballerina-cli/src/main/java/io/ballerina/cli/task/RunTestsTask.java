@@ -83,6 +83,8 @@ public class RunTestsTask implements Task {
     private final PrintStream out;
     private final PrintStream err;
     private final List<String> args;
+    private List<String> groupList;
+    private List<String> disableGroupList;
     private boolean report;
     private boolean coverage;
     private boolean isSingleTestExecution;
@@ -109,13 +111,10 @@ public class RunTestsTask implements Task {
             testList = new ArrayList<>();
         }
 
-        TesterinaRegistry testerinaRegistry = TesterinaRegistry.getInstance();
         if (disableGroupList != null) {
-            testerinaRegistry.setGroups(disableGroupList);
-            testerinaRegistry.setShouldIncludeGroups(false);
+            this.disableGroupList = disableGroupList;
         } else if (groupList != null) {
-            testerinaRegistry.setGroups(groupList);
-            testerinaRegistry.setShouldIncludeGroups(true);
+            this.groupList = groupList;
         } else if (testList != null) {
             isSingleTestExecution = true;
             singleExecTests = testList;
@@ -128,6 +127,8 @@ public class RunTestsTask implements Task {
 
     @Override
     public void execute(Project project) {
+        filterTestGroups();
+
         if (report || coverage) {
             testReport = new TestReport();
         }
@@ -163,7 +164,7 @@ public class RunTestsTask implements Task {
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
             ModuleName moduleName = module.moduleName();
-            TestSuite suite = TesterinaRegistry.getInstance().getTestSuites().get(moduleName.toString());
+            TestSuite suite = jBallerinaBackend.testSuite(module);
 
             Path jsonPath;
             try {
@@ -200,6 +201,7 @@ public class RunTestsTask implements Task {
             } else {
                 out.println("\t" + module.moduleName().toString());
             }
+            writeToJson(suite, jsonPath);
             int testResult = runTestSuit(jsonPath, target, dependencies, module);
             if (result == 0) {
                 result = testResult;
@@ -265,6 +267,34 @@ public class RunTestsTask implements Task {
         }
         if (result != 0) {
             throw createLauncherException("there are test failures");
+        }
+    }
+
+    private void filterTestGroups() {
+        TesterinaRegistry testerinaRegistry = TesterinaRegistry.getInstance();
+        if (disableGroupList != null) {
+            testerinaRegistry.setGroups(disableGroupList);
+            testerinaRegistry.setShouldIncludeGroups(false);
+        } else if (groupList != null) {
+            testerinaRegistry.setGroups(groupList);
+            testerinaRegistry.setShouldIncludeGroups(true);
+        }
+    }
+
+    /**
+     * Write the content into a json.
+     *
+     * @param testSuite Data that are parsed to the json
+     */
+    private static void writeToJson(TestSuite testSuite, Path jsonPath) {
+        Path tmpJsonPath = Paths.get(jsonPath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
+        File jsonFile = new File(tmpJsonPath.toString());
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
+            Gson gson = new Gson();
+            String json = gson.toJson(testSuite);
+            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw LauncherUtils.createLauncherException("couldn't read data from the Json file : " + e.toString());
         }
     }
 
