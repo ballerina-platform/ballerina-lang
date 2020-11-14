@@ -443,3 +443,32 @@ isolated class CurrentConfig {
         }
     }
 }
+
+int[] y = [];
+readonly & int[] z = [];
+
+isolated class IsolatedClassWithInvalidVarRefs {
+    private int[][] x;
+    private int[] y;
+    private any[] z;
+
+    function init() {
+        self.y = y;
+    }
+
+    function push() {
+        lock {
+            self.x = let int[] z = y in [y, z];
+            self.y = (let int[]? z = y in ((z is int[]) ? z : <int[]> []));
+            self.x = let int[] v = z, int[] w = y in <int[][]> [z, v, w];
+        }
+    }
+
+    isolated function nested() {
+        any[] arr = let int[] v = y in [v];
+
+        lock {
+            self.z = let int[] v = y in [v, let int[] w = y in isolated function () returns int[2][] { return [w, v]; }];
+        }
+    }
+}

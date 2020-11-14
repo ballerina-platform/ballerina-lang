@@ -341,3 +341,42 @@ isolated class IsolatedClassPassingCopiedInVarsToIsolatedFunctions {
 isolated function outerAdd(anydata val) {
 
 }
+
+int[] a = [];
+readonly & int[] b = [];
+final readonly & int[] c = [];
+
+isolated class IsolatedClassWithValidVarRefs {
+    private any[] w = [];
+    private int[][] x = [];
+    private int[] y;
+    private int[] z = b;
+
+    function init() {
+        self.y = b;
+    }
+
+    function updateFields() {
+        lock {
+            self.x = let int[] u = b, int[] v = a.clone() in [b, u, v, c];
+            self.y = (let int[]? u = b in ((u is int[]) ? u : <int[]> []));
+            self.z = let int[] u = a.clone() in u;
+        }
+    }
+
+    isolated function isolateUpdateFields() {
+        lock {
+            self.x = let int[] u = c, int[] v = c in [c, u, v];
+            self.y = (let int[]? u = c in ((u is int[]) ? u : <int[]> []));
+            self.z = let int[] u = c.clone() in u;
+        }
+    }
+
+    isolated function nested() {
+        any[] arr = let int[] u = c in [u];
+
+        lock {
+            self.w = let int[] u = c in [u, let int[] v = c.clone() in isolated function () returns int[2][] { return [c, []]; }];
+        }
+    }
+}
