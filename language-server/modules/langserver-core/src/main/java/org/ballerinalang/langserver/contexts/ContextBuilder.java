@@ -23,7 +23,8 @@ import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.HoverContext;
 import org.ballerinalang.langserver.commons.NewLSContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
-import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
@@ -45,7 +46,7 @@ public class ContextBuilder {
      * @param operation        language server operation
      * @return {@link NewLSContext} base context generated
      */
-    public static NewLSContext buildBaseContext(String uri, BallerinaWorkspaceManager workspaceManager,
+    public static NewLSContext buildBaseContext(String uri, WorkspaceManager workspaceManager,
                                                 LSContextOperation operation) {
         return new BaseContextImpl.BaseContextBuilder(operation)
                 .withFileUri(uri)
@@ -62,7 +63,7 @@ public class ContextBuilder {
      * @return {@link NewLSContext} base context generated
      */
     public static CompletionContext buildCompletionContext(String uri,
-                                                           BallerinaWorkspaceManager workspaceManager,
+                                                           WorkspaceManager workspaceManager,
                                                            CompletionCapabilities capabilities,
                                                            Position position) {
         return new CompletionContextImpl.CompletionContextBuilder()
@@ -83,7 +84,7 @@ public class ContextBuilder {
      * @return {@link SignatureContext} generated signature context
      */
     public static SignatureContext buildSignatureContext(String uri,
-                                                         BallerinaWorkspaceManager workspaceManager,
+                                                         WorkspaceManager workspaceManager,
                                                          SignatureHelpCapabilities capabilities,
                                                          Position position) {
         return new SignatureContextImpl.SignatureContextBuilder()
@@ -99,15 +100,13 @@ public class ContextBuilder {
      *
      * @param uri              file uri
      * @param workspaceManager workspace manager instance
-     * @param cursorPosition   code action triggered cursor position
-     * @param startPosition    code action start position
+     * @param params           code action parameters
      * @return {@link CodeActionContext} generated signature context
      */
     public static CodeActionContext buildCodeActionContext(String uri,
-                                                           BallerinaWorkspaceManager workspaceManager,
-                                                           Position cursorPosition,
-                                                           Position startPosition) {
-        return new CodeActionContextImpl.CodeActionContextBuilder(cursorPosition, startPosition)
+                                                           WorkspaceManager workspaceManager,
+                                                           CodeActionParams params) {
+        return new CodeActionContextImpl.CodeActionContextBuilder(params)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .build();
@@ -120,7 +119,7 @@ public class ContextBuilder {
      * @param workspaceManager workspace manager instance
      * @return {@link CodeActionContext} generated signature context
      */
-    public static HoverContext buildHoverContext(String uri, BallerinaWorkspaceManager workspaceManager) {
+    public static HoverContext buildHoverContext(String uri, WorkspaceManager workspaceManager) {
         return new HoverContextImpl.HoverContextBuilder()
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)

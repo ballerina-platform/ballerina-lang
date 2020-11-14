@@ -15,12 +15,11 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.TextEdit;
@@ -48,14 +47,14 @@ public class ImplementFunctionsCodeAction extends AbstractCodeActionProvider {
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    PositionDetails positionDetails, List<Diagnostic> allDiagnostics,
-                                                    SyntaxTree syntaxTree, LSContext context) {
+                                                    PositionDetails positionDetails,
+                                                    CodeActionContext context) {
         if (!(diagnostic.getMessage().startsWith(NO_IMPL_FOUND_FOR_FUNCTION))) {
             return Collections.emptyList();
         }
 //        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
 //        Position position = diagnostic.getRange().getStart();
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+        String uri = context.fileUri();
 //        NonTerminalNode classType = positionDetails.matchedNode();
 
         List<TextEdit> edits = new ArrayList<>();

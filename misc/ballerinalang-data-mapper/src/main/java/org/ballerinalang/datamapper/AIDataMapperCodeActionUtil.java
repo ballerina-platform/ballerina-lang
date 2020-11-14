@@ -26,6 +26,7 @@ import org.ballerinalang.datamapper.utils.HttpClientRequest;
 import org.ballerinalang.datamapper.utils.HttpResponse;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
@@ -81,7 +82,7 @@ class AIDataMapperCodeActionUtil {
      * @throws IOException                throws if error occurred when getting generatedRecordMappingFunction
      * @throws WorkspaceDocumentException throws if error occurred when reading file content
      */
-    static List<TextEdit> getAIDataMapperCodeActionEdits(LSContext context,
+    static List<TextEdit> getAIDataMapperCodeActionEdits(CodeActionContext context,
                                                          SymbolReferencesModel.Reference refAtCursor,
                                                          Diagnostic diagnostic)
             throws IOException, WorkspaceDocumentException {
@@ -113,10 +114,7 @@ class AIDataMapperCodeActionUtil {
         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
 
         // Insert function declaration at the bottom of the file
-        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        Optional<Path> filePath = CommonUtil.getPathFromURI(context.get(DocumentServiceKeys.FILE_URI_KEY));
-        if (filePath.isPresent()) {
-            String fileContent = docManager.getFileContent(Paths.get(String.valueOf(filePath.get())));
+            String fileContent = context.workspace().syntaxTree(context.filePath()).get().toSourceCode();
             String functionName = String.format("map%sTo%s (%s", foundTypeRight, foundTypeLeft, foundTypeRight);
             if (!fileContent.contains(functionName)) {
                 int numberOfLinesInFile = fileContent.split("\n").length;
@@ -127,7 +125,6 @@ class AIDataMapperCodeActionUtil {
                         getGeneratedRecordMappingFunction(bLangNode, symbolAtCursor, foundTypeLeft, foundTypeRight);
                 fEdits.add(new TextEdit(newFunctionRange, generatedRecordMappingFunction));
             }
-        }
         return fEdits;
     }
 

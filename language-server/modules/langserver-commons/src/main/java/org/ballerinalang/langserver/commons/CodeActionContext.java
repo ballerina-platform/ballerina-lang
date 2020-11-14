@@ -30,13 +30,6 @@ import java.util.List;
 public interface CodeActionContext extends NewLSContext {
 
     /**
-     * Get the start position.
-     *
-     * @return {@link Position}
-     */
-    Position startPosition();
-
-    /**
      * Get the cursor position.
      *
      * @return {@link Position}
@@ -48,5 +41,12 @@ public interface CodeActionContext extends NewLSContext {
      *
      * @return {@link List} of diagnostics
      */
-    List<Diagnostic> getDiagnostics();
+    List<Diagnostic> getAllDiagnostics();
+
+    /**
+     * Get the diagnostics at the cursor.
+     * 
+     * @return {@link  List} of diagnostics at the cursor
+     */
+    List<Diagnostic> getCursorDiagnostics();
 }

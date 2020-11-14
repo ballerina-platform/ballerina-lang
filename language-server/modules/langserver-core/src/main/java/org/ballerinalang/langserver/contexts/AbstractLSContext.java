@@ -133,7 +133,7 @@ public class AbstractLSContext implements NewLSContext {
     protected abstract static class AbstractContextBuilder<T extends AbstractContextBuilder<T>> {
         protected final LSOperation operation;
         protected String fileUri;
-        protected BallerinaWorkspaceManager wsManager;
+        protected WorkspaceManager wsManager;
 
         /**
          * Context Builder constructor.
@@ -149,7 +149,7 @@ public class AbstractLSContext implements NewLSContext {
             return self();
         }
 
-        public T withWorkspaceManager(BallerinaWorkspaceManager workspaceManager) {
+        public T withWorkspaceManager(WorkspaceManager workspaceManager) {
             this.wsManager = workspaceManager;
             return self();
         }

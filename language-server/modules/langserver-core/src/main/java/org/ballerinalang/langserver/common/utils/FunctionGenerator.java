@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.common.utils;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.NewLSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -50,6 +51,8 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -178,7 +181,7 @@ public class FunctionGenerator {
      */
     @Deprecated
     public static List<String> getFuncArguments(ImportsAcceptor importsAcceptor, BLangNode parent,
-                                                LSContext context) {
+                                                CompletionContext context) {
         List<String> list = new ArrayList<>();
         if (parent instanceof BLangInvocation) {
             BLangInvocation bLangInvocation = (BLangInvocation) parent;
@@ -186,9 +189,10 @@ public class FunctionGenerator {
                 return null;
             }
             int argCounter = 1;
-            CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
             for (BLangExpression bLangExpression : bLangInvocation.argExprs) {
-                Set<String> argNames = CommonUtil.getAllNameEntries(compilerContext);
+                // TODO: Fix
+//                Set<String> argNames = CommonUtil.getAllNameEntries(compilerContext);
+                Set<String> argNames = new HashSet<>();
                 if (bLangExpression instanceof BLangSimpleVarRef) {
                     BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) bLangExpression;
                     String varName = simpleVarRef.variableName.value;
@@ -213,7 +217,7 @@ public class FunctionGenerator {
 
     private static String lookupVariableReturnType(ImportsAcceptor importsAcceptor,
                                                    String variableName, BLangNode parent,
-                                                   LSContext context) {
+                                                   NewLSContext context) {
         // Recursively find BLangBlockStmt to get scope-entries
         if (parent instanceof BLangBlockStmt || parent instanceof BLangFunctionBody) {
             Scope scope = parent instanceof BLangBlockStmt ? ((BLangBlockStmt) parent).scope

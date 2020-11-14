@@ -27,9 +27,8 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
@@ -37,7 +36,6 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -59,17 +57,15 @@ public class ChangeReturnTypeCodeAction extends AbstractCodeActionProvider {
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     PositionDetails positionDetails,
-                                                    List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
-                                                    LSContext context) {
+                                                    CodeActionContext context) {
         if (!(diagnostic.getMessage().toLowerCase(Locale.ROOT).contains(CommandConstants.INCOMPATIBLE_TYPES))) {
             return Collections.emptyList();
         }
 
         String diagnosticMessage = diagnostic.getMessage();
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-        Optional<Path> filePath = CommonUtil.getPathFromURI(context.get(DocumentServiceKeys.FILE_URI_KEY));
+        String uri = context.fileUri();
         NonTerminalNode matchedNode = positionDetails.matchedNode();
-        if (filePath.isEmpty() || matchedNode.kind() != SyntaxKind.FUNCTION_DEFINITION) {
+        if (matchedNode.kind() != SyntaxKind.FUNCTION_DEFINITION) {
             return Collections.emptyList();
         }
         Matcher matcher = CommandConstants.INCOMPATIBLE_TYPE_PATTERN.matcher(diagnosticMessage);
@@ -81,7 +77,7 @@ public class ChangeReturnTypeCodeAction extends AbstractCodeActionProvider {
                 // auto-import
                 matcher = CommandConstants.FQ_TYPE_PATTERN.matcher(foundType);
                 List<TextEdit> edits = new ArrayList<>();
-                String editText = extractTypeName(matcher, syntaxTree, context, foundType, edits);
+                String editText = extractTypeName(matcher, context, foundType, edits);
 
                 // Process function node
                 Position start;
@@ -99,7 +95,7 @@ public class ChangeReturnTypeCodeAction extends AbstractCodeActionProvider {
                     LinePosition retStart = returnTypeDesc.lineRange().startLine();
                     LinePosition retEnd = returnTypeDesc.lineRange().endLine();
                     start = new Position(retStart.line(),
-                                         retStart.offset());
+                            retStart.offset());
                     end = new Position(retEnd.line(), retEnd.offset());
                 }
                 edits.add(new TextEdit(new Range(start, end), editText));
@@ -112,21 +108,23 @@ public class ChangeReturnTypeCodeAction extends AbstractCodeActionProvider {
         return Collections.emptyList();
     }
 
-    private static String extractTypeName(Matcher matcher, SyntaxTree syntaxTree,
-                                          LSContext context, String foundType,
+    private static String extractTypeName(Matcher matcher, CodeActionContext context, String foundType,
                                           List<TextEdit> edits) {
-        if (matcher.find() && matcher.groupCount() > 2) {
+        Optional<SyntaxTree> syntaxTree = context.workspace().syntaxTree(context.filePath());
+        if (matcher.find() && matcher.groupCount() > 2 && syntaxTree.isPresent()) {
             String orgName = matcher.group(1);
             String moduleName = matcher.group(2);
             String typeName = matcher.group(3);
             String pkgId = orgName + "/" + moduleName;
-            PackageID currentPkgId = context.get(
-                    DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).packageID;
+            // TODO: Fix the commented
+            PackageID currentPkgId = null;
+//            PackageID currentPkgId = context.get(
+//                    DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).packageID;
             if (pkgId.equals(currentPkgId.toString())) {
                 // TODO: Check the validity of this check since currentPkgId.toString() returns version as well.
                 foundType = typeName;
             } else {
-                boolean pkgAlreadyImported = ((ModulePartNode) syntaxTree.rootNode()).imports().stream()
+                boolean pkgAlreadyImported = ((ModulePartNode) syntaxTree.get().rootNode()).imports().stream()
                         .anyMatch(importPkg -> {
                             ImportModel importModel = ImportModel.from(importPkg);
                             return importModel.orgName.equals(orgName)

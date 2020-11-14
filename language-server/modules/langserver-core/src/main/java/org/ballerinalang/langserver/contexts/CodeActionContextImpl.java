@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 
@@ -36,38 +37,42 @@ import java.util.Optional;
  */
 public class CodeActionContextImpl extends AbstractLSContext implements CodeActionContext {
 
-    private final Position startPosition;
-    private final Position cursorPosition;
+    private Position cursorPosition;
     private List<Diagnostic> diagnostics;
+    private final CodeActionParams params;
 
     public CodeActionContextImpl(LSOperation operation,
                                  String fileUri,
                                  WorkspaceManager wsManager,
-                                 Position cursorPosition,
-                                 Position startPosition) {
+                                 CodeActionParams params) {
         super(operation, fileUri, wsManager);
-        this.cursorPosition = cursorPosition;
-        this.startPosition = startPosition;
-    }
-
-    @Override
-    public Position startPosition() {
-        return this.startPosition;
+        this.params = params;
     }
 
     @Override
     public Position getCursorPosition() {
+        if (this.cursorPosition == null) {
+            int line = params.getRange().getStart().getLine();
+            int col = params.getRange().getStart().getCharacter();
+            this.cursorPosition = new Position(line, col);
+        }
+        
         return this.cursorPosition;
     }
 
     @Override
-    public List<Diagnostic> getDiagnostics() {
+    public List<Diagnostic> getAllDiagnostics() {
         if (diagnostics == null) {
             Optional<SemanticModel> semanticModel = this.workspace().semanticModel(this.filePath());
             semanticModel.ifPresent(model -> this.diagnostics = CodeActionUtil.toDiagnostics(model.diagnostics()));
         }
 
         return this.diagnostics;
+    }
+
+    @Override
+    public List<Diagnostic> getCursorDiagnostics() {
+        return params.getContext().getDiagnostics();
     }
 
     /**
@@ -77,22 +82,18 @@ public class CodeActionContextImpl extends AbstractLSContext implements CodeActi
      */
     protected static class CodeActionContextBuilder extends AbstractContextBuilder<CodeActionContextBuilder> {
 
-        private final Position startPosition;
+        private final CodeActionParams params;
 
-        private final Position cursorPosition;
-
-        public CodeActionContextBuilder(Position cursorPosition, Position startPosition) {
+        public CodeActionContextBuilder(CodeActionParams params) {
             super(LSContextOperation.TXT_CODE_ACTION);
-            this.cursorPosition = cursorPosition;
-            this.startPosition = startPosition;
+            this.params = params;
         }
 
         public CodeActionContext build() {
             return new CodeActionContextImpl(this.operation,
                     this.fileUri,
                     this.wsManager,
-                    this.cursorPosition,
-                    this.startPosition);
+                    this.params);
         }
 
         @Override
