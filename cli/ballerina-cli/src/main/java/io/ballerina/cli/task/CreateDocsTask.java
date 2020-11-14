@@ -18,12 +18,11 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.projects.Project;
-import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.model.Target;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
@@ -46,11 +45,16 @@ public class CreateDocsTask implements Task {
     @Override
     public void execute(Project project) {
         Path sourceRootPath = project.sourceRoot();
-        Path targetDir = project.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME);
-        Path outputPath = targetDir.resolve(ProjectConstants.TARGET_API_DOC_DIRECTORY);
+        Target target;
+        Path outputPath;
+        try {
+            target = new Target(sourceRootPath);
+            outputPath = target.getDocPath();
+        } catch (IOException e) {
+            throw createLauncherException("error occurred while generating docs: " + e.getMessage());
+        }
         this.out.println("Generating API Documentation");
         try {
-            Files.createDirectories(outputPath);
             BallerinaDocGenerator.generateAPIDocs(project, outputPath.toString(), excludeIndex);
             this.out.println("\t" + sourceRootPath.relativize(outputPath).toString());
 

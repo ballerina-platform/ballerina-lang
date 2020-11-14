@@ -23,7 +23,7 @@ import io.ballerina.cli.task.CreateDocsTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.runtime.util.BLangConstants;
+import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.tool.BLauncherCmd;
@@ -121,7 +121,7 @@ public class DocCommand implements BLauncherCmd {
             }
         }
 
-        if (this.argList != null && this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+        if (this.argList != null && this.argList.get(0).endsWith(ProjectConstants.BLANG_SOURCE_EXT)) {
             CommandUtil.printError(this.errStream,
                     "generating API Documentation is not supported for a single Ballerina file.",
                     null,
