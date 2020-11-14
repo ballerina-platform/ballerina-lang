@@ -24,7 +24,6 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
 import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.projects.testsuite.TesterinaRegistry;
-import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
@@ -401,7 +400,9 @@ class ModuleContext {
                 // Remove the duplicated annotations.
                 String className = pos.lineRange().filePath().replace(".bal", "")
                         .replace("/", ".");
-                String functionClassName = ProjectUtils.getQualifiedClassName(
+                // TODO It is wrong to use JarResolver here. Btw, it is also wrong perform JBallerinaBacked specific
+                //  stuff here in ModuleContext. Please refactor this logic
+                String functionClassName = JarResolver.getQualifiedClassName(
                         bLangPackage.packageID.orgName.value,
                         bLangPackage.packageID.name.value,
                         bLangPackage.packageID.version.value,
@@ -424,7 +425,9 @@ class ModuleContext {
                 if (location != null) {
                     String className = location.lineRange().filePath().replace(".bal", "").
                             replace("/", ".");
-                    String functionClassName = ProjectUtils.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                    // TODO It is wrong to use JarResolver here. Btw, it is also wrong perform JBallerinaBacked specific
+                    //  stuff here in ModuleContext. Please refactor this logic
+                    String functionClassName = JarResolver.getQualifiedClassName(bLangPackage.packageID.orgName.value,
                             bLangPackage.packageID.name.value,
                             bLangPackage.packageID.version.value,
                             className);
