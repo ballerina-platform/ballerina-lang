@@ -101,14 +101,13 @@ import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SWAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_MAP_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANYDATA_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ATTACHED_FUNCTION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ATTACHED_FUNCTION_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MEMBER_FUNCTION_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_TYPE;
@@ -159,6 +158,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TY
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PREDEFINED_TYPES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.READONLY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REMOTE_FUNCTION_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_FUNCTION_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
@@ -863,14 +863,14 @@ public class JvmTypeGen {
         // Create the attached function array
         mv.visitLdcInsn((long) attachedFunctions.size() - resourceFunctionCount(attachedFunctions));
         mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, ATTACHED_FUNCTION_IMPL);
+        mv.visitTypeInsn(ANEWARRAY, MEMBER_FUNCTION_IMPL);
         int i = 0;
         for (BAttachedFunction attachedFunc : attachedFunctions) {
             if (attachedFunc == null || attachedFunc instanceof BResourceFunction) {
                 continue;
             }
             // create and load attached function
-            createObjectAttachedFunction(mv, attachedFunc, objType);
+            createObjectMemberFunction(mv, attachedFunc, objType);
             BIRVariableDcl attachedFuncVar = new BIRVariableDcl(symbolTable.anyType,
                     new Name(toNameString(objType) + attachedFunc.funcName.value), VarScope.FUNCTION,
                     VarKind.LOCAL);
@@ -901,7 +901,7 @@ public class JvmTypeGen {
         }
 
         mv.visitInsn(DUP);
-        createObjectAttachedFunction(mv, initFunction, objType);
+        createObjectMemberFunction(mv, initFunction, objType);
         BType anyType = symbolTable.anyType;
         BIRVariableDcl attachedFuncVar = new BIRVariableDcl(anyType,
                 new Name(objType.name + initFunction.funcName.value), VarScope.FUNCTION, VarKind.LOCAL);
@@ -911,7 +911,7 @@ public class JvmTypeGen {
         mv.visitInsn(DUP);
         mv.visitInsn(POP);
         mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, initializerFuncName,
-                           String.format("(L%s;)V", ATTACHED_FUNCTION_IMPL), false);
+                           String.format("(L%s;)V", MEMBER_FUNCTION_IMPL), false);
     }
 
     private static void addResourceMethods(MethodVisitor mv, List<BAttachedFunction> attachedFunctions,
@@ -932,16 +932,7 @@ public class JvmTypeGen {
                 continue;
             }
             BResourceFunction resourceFunction = (BResourceFunction) attachedFunc;
-            // create and load attached function
-            createObjectAttachedFunction(mv, resourceFunction, objType);
-            BIRVariableDcl attachedFuncVar = new BIRVariableDcl(symbolTable.anyType,
-                    new Name(toNameString(objType) + resourceFunction.funcName.value), VarScope.FUNCTION,
-                    VarKind.LOCAL);
-            int attachedFunctionVarIndex = indexMap.addToMapIfNotFoundAndGetIndex(attachedFuncVar);
-
-            mv.visitVarInsn(ASTORE, attachedFunctionVarIndex);
-
-            createResourceFunction(mv, resourceFunction, attachedFunctionVarIndex);
+            createResourceFunction(mv, resourceFunction, objType);
 
             BIRVariableDcl recFuncVar = new BIRVariableDcl(symbolTable.anyType,
                     new Name(toNameString(objType) + resourceFunction.funcName.value + "$r$func"), VarScope.FUNCTION,
@@ -982,10 +973,12 @@ public class JvmTypeGen {
      * @param attachedFunc object attached function
      * @param objType      object type used for creating the attached function
      */
-    private static void createObjectAttachedFunction(MethodVisitor mv, BAttachedFunction attachedFunc,
-                                                     BObjectType objType) {
+    private static void createObjectMemberFunction(MethodVisitor mv, BAttachedFunction attachedFunc,
+                                                   BObjectType objType) {
 
-        mv.visitTypeInsn(NEW, ATTACHED_FUNCTION_IMPL);
+        String implClassName = Symbols.isRemote(attachedFunc.symbol) ? REMOTE_FUNCTION_IMPL : MEMBER_FUNCTION_IMPL;
+        mv.visitTypeInsn(NEW, implClassName);
+
         mv.visitInsn(DUP);
 
         // Load function name
@@ -1001,27 +994,54 @@ public class JvmTypeGen {
         // Load flags
         mv.visitLdcInsn(attachedFunc.symbol.flags);
 
-        mv.visitMethodInsn(INVOKESPECIAL, ATTACHED_FUNCTION_IMPL, JVM_INIT_METHOD,
+        mv.visitMethodInsn(INVOKESPECIAL, implClassName, JVM_INIT_METHOD,
                            String.format("(L%s;L%s;L%s;I)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL),
                            false);
     }
 
     private static void createResourceFunction(MethodVisitor mv, BResourceFunction resourceFunction,
-                                               int attachedFunctionVarIndex) {
+                                               BObjectType objType) {
 
         mv.visitTypeInsn(NEW, RESOURCE_FUNCTION_IMPL);
         mv.visitInsn(DUP);
 
-        mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
+        // Load function name
+        mv.visitLdcInsn(decodeIdentifier(resourceFunction.funcName.value));
+
+        // Load the parent object type
+        loadType(mv, objType);
+        mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
+
+        // Load the field type
+        loadType(mv, resourceFunction.type);
+
+        // Load flags
+        mv.visitLdcInsn(resourceFunction.symbol.flags);
 
         // Load accessor
         mv.visitLdcInsn(decodeIdentifier(resourceFunction.accessor.value));
 
         // Load resource path
-        mv.visitLdcInsn(decodeIdentifier(resourceFunction.resourcePath.get(0).value));
+        mv.visitLdcInsn((long) resourceFunction.resourcePath.size());
+        mv.visitInsn(L2I);
+        mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
+        List<Name> resourcePath = resourceFunction.resourcePath;
+        for (int i = 0, resourcePathSize = resourcePath.size(); i < resourcePathSize; i++) {
+            Name path = resourcePath.get(i);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+
+            // load param type
+            mv.visitLdcInsn(path.value);
+
+            // Add the member to the array
+            mv.visitInsn(AASTORE);
+        }
 
         mv.visitMethodInsn(INVOKESPECIAL, RESOURCE_FUNCTION_IMPL, JVM_INIT_METHOD,
-                String.format("(L%s;L%s;L%s;)V", ATTACHED_FUNCTION, STRING_VALUE, STRING_VALUE), false);
+                String.format("(L%s;L%s;L%s;IL%s;[L%s;)V",
+                        STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL, STRING_VALUE, STRING_VALUE), false);
     }
 
     // -------------------------------------------------------

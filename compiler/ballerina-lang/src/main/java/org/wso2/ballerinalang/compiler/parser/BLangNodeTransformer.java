@@ -636,6 +636,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         List<BLangIdentifier> relResourcePath = new ArrayList<>();
         for (Token token : relativeResourcePath) {
+            if (token.kind() == SyntaxKind.SLASH_TOKEN) {
+                continue;
+            }
             relResourcePath.add(createIdentifier(token));
         }
         bLFunction.resourcePath = relResourcePath;
@@ -647,12 +650,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         StringBuilder sb = new StringBuilder();
         sb.append("$");
         sb.append(createIdentifier(accessorName).getValue());
-        sb.append("$");
         for (Token token : relativeResourcePath) {
-            sb.append(createIdentifier(token).getValue());
+            if (token.kind() == SyntaxKind.SLASH_TOKEN) {
+                continue;
+            }
+            sb.append("$");
+            String value = createIdentifier(token).getValue();
+            sb.append(value);
         }
-        String resourceFuncName = sb.toString();
-        return resourceFuncName;
+        return sb.toString();
     }
 
     @Override

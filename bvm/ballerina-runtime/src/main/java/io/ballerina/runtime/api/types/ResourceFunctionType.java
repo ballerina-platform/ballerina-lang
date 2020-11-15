@@ -22,5 +22,5 @@ package io.ballerina.runtime.api.types;
  *
  * @since 2.0
  */
-public interface ResourceFunctionType extends FunctionType {
+public interface ResourceFunctionType extends MemberFunctionType {
 }
