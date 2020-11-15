@@ -19,6 +19,8 @@
 package io.ballerina.runtime.observability;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
@@ -193,16 +195,9 @@ public class ObserveUtils {
         if (typeDef == null) {
             newObContext.setObjectName(StringUtils.EMPTY);
         } else {
-            String className = typeDef.getClass().getCanonicalName();
-            String[] classNameSplit = className.split("\\.");
-            if (classNameSplit.length == 4) {   // Object from a project module
-                int lastIndexOfDollar = classNameSplit[3].lastIndexOf('$');
-                newObContext.setObjectName(classNameSplit[0] + "/" + classNameSplit[1] + "/"
-                        + classNameSplit[3].substring(lastIndexOfDollar + 1));
-            } else {    // Object from a single file (anonymous module)
-                int lastIndexOfDollar = className.lastIndexOf('$');
-                newObContext.setObjectName(className.substring(lastIndexOfDollar + 1));
-            }
+            ObjectType type = typeDef.getType();
+            Module module = type.getPackage();
+            newObContext.setObjectName(module.getOrg() + "/" + module.getName() + "/" + type.getName());
         }
         newObContext.setFunctionName(functionName.getValue());
 
