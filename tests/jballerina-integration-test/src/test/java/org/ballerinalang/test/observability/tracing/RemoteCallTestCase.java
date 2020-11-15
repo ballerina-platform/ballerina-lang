@@ -95,7 +95,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(),
-                    "ballerina-test/testservices/MockClient:callAnotherRemoteFunction");
+                    MOCK_CLIENT_OBJECT_NAME + ":callAnotherRemoteFunction");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
@@ -103,7 +103,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.remote", "true"),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina-test/testservices/MockClient"),
+                    new AbstractMap.SimpleEntry<>("connector_name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("action", "callAnotherRemoteFunction")
             ));
         });
@@ -115,7 +115,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
         span3.ifPresent(span -> {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span2.get().getSpanId());
-            Assert.assertEquals(span.getOperationName(), "ballerina-test/testservices/MockClient:callWithNoReturn");
+            Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":callWithNoReturn");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
@@ -123,7 +123,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.remote", "true"),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina-test/testservices/MockClient"),
+                    new AbstractMap.SimpleEntry<>("connector_name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("action", "callWithNoReturn")
             ));
         });
@@ -204,7 +204,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
         span2.ifPresent(span -> {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
-            Assert.assertEquals(span.getOperationName(), "ballerina-test/testservices/MockClient:callWithErrorReturn");
+            Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":callWithErrorReturn");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
@@ -212,7 +212,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.remote", "true"),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina-test/testservices/MockClient"),
+                    new AbstractMap.SimpleEntry<>("connector_name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("action", "callWithErrorReturn"),
                     new AbstractMap.SimpleEntry<>("error", "true")
             ));
@@ -269,7 +269,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
         span2.ifPresent(span -> {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
-            Assert.assertEquals(span.getOperationName(), "ballerina-test/testservices/MockClient:callWithErrorReturn");
+            Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":callWithErrorReturn");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
@@ -277,7 +277,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.remote", "true"),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina-test/testservices/MockClient"),
+                    new AbstractMap.SimpleEntry<>("connector_name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("action", "callWithErrorReturn"),
                     new AbstractMap.SimpleEntry<>("error", "true")
             ));
@@ -354,7 +354,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
         span2.ifPresent(span -> {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
-            Assert.assertEquals(span.getOperationName(), "ballerina-test/testservices/MockClient:callWithPanic");
+            Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":callWithPanic");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
@@ -362,7 +362,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.remote", "true"),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina-test/testservices/MockClient"),
+                    new AbstractMap.SimpleEntry<>("connector_name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("action", "callWithPanic"),
                     new AbstractMap.SimpleEntry<>("error", "true")
             ));

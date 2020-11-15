@@ -219,7 +219,7 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
         span2.ifPresent(span -> {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
-            Assert.assertEquals(span.getOperationName(), "ballerina-test/testservices/MockClient:callWithReturn");
+            Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":callWithReturn");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
@@ -227,7 +227,7 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.remote", "true"),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina-test/testservices/MockClient"),
+                    new AbstractMap.SimpleEntry<>("connector_name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("action", "callWithReturn")
             ));
         });

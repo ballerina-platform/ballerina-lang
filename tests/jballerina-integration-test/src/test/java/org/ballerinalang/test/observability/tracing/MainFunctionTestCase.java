@@ -83,13 +83,13 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(),
-                    "ballerina-test/testservices/MockClient:callAnotherRemoteFunction");
+                    MOCK_CLIENT_OBJECT_NAME + ":callAnotherRemoteFunction");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span2Position),
                     new AbstractMap.SimpleEntry<>("src.remote", "true"),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina-test/testservices/MockClient"),
+                    new AbstractMap.SimpleEntry<>("connector_name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("action", "callAnotherRemoteFunction")
             ));
         });
@@ -101,13 +101,13 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
         span3.ifPresent(span -> {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span2.get().getSpanId());
-            Assert.assertEquals(span.getOperationName(), "ballerina-test/testservices/MockClient:callWithNoReturn");
+            Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":callWithNoReturn");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span3Position),
                     new AbstractMap.SimpleEntry<>("src.remote", "true"),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina-test/testservices/MockClient"),
+                    new AbstractMap.SimpleEntry<>("connector_name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("action", "callWithNoReturn")
             ));
         });
@@ -119,13 +119,13 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
         span4.ifPresent(span -> {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
-            Assert.assertEquals(span.getOperationName(), "ballerina-test/testservices/MockClient:calculateSum");
+            Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":calculateSum");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span4Position),
                     new AbstractMap.SimpleEntry<>("src.remote", "true"),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina-test/testservices/MockClient"),
+                    new AbstractMap.SimpleEntry<>("connector_name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("action", "calculateSum")
             ));
         });
@@ -137,13 +137,13 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
         span5.ifPresent(span -> {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
-            Assert.assertEquals(span.getOperationName(), "ballerina-test/testservices/MockClient:callWithPanic");
+            Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":callWithPanic");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span5Position),
                     new AbstractMap.SimpleEntry<>("src.remote", "true"),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina-test/testservices/MockClient"),
+                    new AbstractMap.SimpleEntry<>("connector_name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("action", "callWithPanic"),
                     new AbstractMap.SimpleEntry<>("error", "true")
             ));
@@ -156,13 +156,13 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
         span6.ifPresent(span -> {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
-            Assert.assertEquals(span.getOperationName(), "ballerina-test/testservices/MockClient:callWithErrorReturn");
+            Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":callWithErrorReturn");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span6Position),
                     new AbstractMap.SimpleEntry<>("src.remote", "true"),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina-test/testservices/MockClient"),
+                    new AbstractMap.SimpleEntry<>("connector_name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("action", "callWithErrorReturn"),
                     new AbstractMap.SimpleEntry<>("error", "true")
             ));

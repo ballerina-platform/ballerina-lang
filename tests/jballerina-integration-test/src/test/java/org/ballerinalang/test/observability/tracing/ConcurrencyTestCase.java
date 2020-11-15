@@ -47,11 +47,11 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
     public Object[][] getAsyncCallData() {
         return new Object[][] {
                 {"resourceOne", FILE_NAME + ":21:5", FILE_NAME + ":22:39", FILE_NAME + ":28:20",
-                        "ballerina-test/testservices/MockClient", "calculateSum", null, null},
+                        MOCK_CLIENT_OBJECT_NAME, "calculateSum", null, null},
                 {"resourceTwo", FILE_NAME + ":32:5", FILE_NAME + ":33:39", FILE_NAME + ":39:20",
                         null, null, null, "calculateSumWithObservability"},
                 {"resourceThree", FILE_NAME + ":43:5", FILE_NAME + ":45:39", FILE_NAME + ":51:20",
-                        null, null, "ballerina-test/testservices/ObservableAdder", "getSum"}
+                        null, null, OBSERVABLE_ADDER_OBJECT_NAME, "getSum"}
         };
     }
 

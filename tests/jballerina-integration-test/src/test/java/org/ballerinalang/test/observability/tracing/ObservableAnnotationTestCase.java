@@ -174,14 +174,14 @@ public class ObservableAnnotationTestCase extends TracingBaseTestCase {
         span2.ifPresent(span -> {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
-            Assert.assertEquals(span.getOperationName(), "ballerina-test/testservices/ObservableAdder:getSum");
+            Assert.assertEquals(span.getOperationName(), OBSERVABLE_ADDER_OBJECT_NAME + ":getSum");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span2Position),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("object_name", "ballerina-test/testservices/ObservableAdder"),
+                    new AbstractMap.SimpleEntry<>("object_name", OBSERVABLE_ADDER_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("function", "getSum")
             ));
         });
