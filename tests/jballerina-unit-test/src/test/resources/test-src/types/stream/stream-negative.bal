@@ -25,7 +25,7 @@ type CustomError1 distinct error<CustomErrorData>;
 
 class Iterator {
     int i = 0;
-    public function next() returns record {| int value; |}? {
+    public isolated function next() returns record {| int value; |}? {
         self.i += 1;
         return { value: self.i };
     }
@@ -43,7 +43,7 @@ function testIterator() {
 
 class IteratorWithCustomError {
     int i = 0;
-    public function next() returns record {| int value; |}|CustomError? {
+    public isolated function next() returns record {| int value; |}|CustomError? {
         self.i += 1;
         if (self.i == 2) {
             CustomError e = CustomError("CustomError", message = "custom error occured", accountID = 1);
@@ -81,7 +81,7 @@ function testIteratorWithCustomError() {
 class IteratorWithGenericError {
     int i = 0;
 
-    public function next() returns record {| int value; |}|error? {
+    public isolated function next() returns record {| int value; |}|error? {
         self.i += 1;
         if (self.i == 2) {
             return error("GenericError", message = "generic error occured");
@@ -117,7 +117,7 @@ function testIteratorWithGenericError() {
 class IteratorWithOutError {
     int i = 0;
 
-    public function next() returns record {| int value; |}? {
+    public isolated function next() returns record {| int value; |}? {
         self.i += 1;
         return { value: self.i };
     }
@@ -186,7 +186,7 @@ function testIteratorWithMismatchedNextA() {
 class IteratorWithMismatchedNextC {
     int i = 0;
 
-    public function next() returns record {| int val; |}|CustomError? {
+    public isolated function next() returns record {| int val; |}|CustomError? {
         self.i += 1;
         return { value: self.i };
     }
@@ -208,7 +208,7 @@ function testIteratorWithMismatchedNextC() {
 class IteratorWithMismatchedError {
     int i = 0;
 
-    public function next() returns record {| int value; |}|CustomError? {
+    public isolated function next() returns record {| int value; |}|CustomError? {
         self.i += 1;
         return { value: self.i };
     }

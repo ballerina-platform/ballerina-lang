@@ -53,7 +53,7 @@ public isolated function setNarrowType(typedesc<Type> td, record {|Type value;|}
 # + td - A type description.
 # + iteratorObj - An iterator object.
 # + return - New stream containing results of `iteratorObj` object's next function invocations.
-public isolated function construct(typedesc<Type> td, object { public function next() returns
+public isolated function construct(typedesc<Type> td, object { public isolated function next() returns
         record {|Type value;|}|ErrorType?;} iteratorObj = new EmptyIterator())
         returns stream<Type, ErrorType> = @java:Method {
             'class: "org.ballerinalang.langlib.internal.Construct",

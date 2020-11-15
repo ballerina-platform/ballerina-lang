@@ -35,13 +35,13 @@ type Type any|error;
 type ErrorType error?;
 
 type _Iterator object {
-    public function next() returns record {|Type value;|}|error?;
+    public isolated function next() returns record {|Type value;|}|error?;
 };
 
 type _Iterable object {
     public function __iterator() returns
         object {
-            public function next() returns record {|Type value;|}|error?;
+            public isolated function next() returns record {|Type value;|}|error?;
         };
 };
 
@@ -66,9 +66,16 @@ class _StreamPipeline {
         self.resType = resType;
     }
 
-    public function next() returns _Frame|error? {
+    public isolated function next() returns _Frame|error? {
         _StreamFunction sf = self.streamFunction;
-        return sf.process();
+        var res = internal:invokeAsExternal(sf.process);
+        if (res is _Frame) {
+            return res;
+        } else if (res is error) {
+            return res;
+        } else {
+            return ();
+        }
     }
 
     public function reset() {
@@ -692,7 +699,7 @@ class IterHelper {
       self.outputType = outputType;
     }
 
-    public function next() returns record {|Type value;|}|error? {
+    public isolated function next() returns record {|Type value;|}|error? {
         _StreamPipeline p = self.pipeline;
         _Frame|error? f = p.next();
         if (f is _Frame) {

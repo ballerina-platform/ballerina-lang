@@ -129,7 +129,7 @@ public isolated function forEach(stream<Type,ErrorType> stm,
 # + stm - the stream
 # + return - a new iterator object that will iterate over the members of `stm`.
 public isolated function iterator(stream<Type,ErrorType> stm) returns object {
-    public function next() returns record {|
+    public isolated function next() returns record {|
         Type value;
     |}|ErrorType?;
 }{
@@ -144,8 +144,8 @@ public isolated function iterator(stream<Type,ErrorType> stm) returns object {
 public isolated function close(stream<Type,ErrorType> stm) returns ErrorType? {
     var itrObj = internal:getIteratorObj(stm);
     if (itrObj is object {
-        public function next() returns record {|Type value;|}|ErrorType?;
-        public function close() returns ErrorType?;
+        public isolated function next() returns record {|Type value;|}|ErrorType?;
+        public isolated function close() returns ErrorType?;
     }) {
         return itrObj.close();
     }
