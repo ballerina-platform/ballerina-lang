@@ -27,9 +27,9 @@ private mapInits function() -> (string | (), int | ()) {
     %63(TEMP) int;
 
     bb0 {
-;
+        %2 = newType map<Employee>;
         %1 = NewMap %2;
-;
+        %2 = newType Person;
         %7 = ConstLoad name;
         %8 = ConstLoad Jack;
         %9 = ConstLoad age;

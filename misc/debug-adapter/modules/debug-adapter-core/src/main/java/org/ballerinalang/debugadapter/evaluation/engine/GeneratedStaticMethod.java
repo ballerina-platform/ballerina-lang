@@ -79,17 +79,26 @@ public class GeneratedStaticMethod extends JvmMethod {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString()
                         , methodRef.name()));
             }
-            if (argValues != null) {
-                return argValues;
-            }
+
             List<Value> argValueList = new ArrayList<>();
+            if (argValues != null && !argValues.isEmpty()) {
+                argValues.forEach(value -> {
+                    argValueList.add(value);
+                    // Assuming all the arguments are positional args.
+                    argValueList.add(EvaluationUtils.make(context, true).getJdiValue());
+                });
+                // Here we use the existing strand instance to execute the function invocation expression.
+                Value strand = getCurrentStrand();
+                argValueList.add(0, strand);
+                return argValueList;
+            }
+
             // Evaluates all function argument expressions at first.
             for (Evaluator argEvaluator : argEvaluators) {
                 argValueList.add(argEvaluator.evaluate().getJdiValue());
                 // Assuming all the arguments are positional args.
                 argValueList.add(EvaluationUtils.make(context, true).getJdiValue());
             }
-
             List<Type> types = method.methodRef.argumentTypes();
             // Removes injected arguments added during the jvm method gen phase.
             for (int index = types.size() - 1; index >= 0; index -= 2) {

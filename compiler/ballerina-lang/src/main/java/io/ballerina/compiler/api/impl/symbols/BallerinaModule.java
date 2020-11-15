@@ -18,15 +18,18 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ServiceSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -53,9 +56,10 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
     private final CompilerContext context;
     private BPackageSymbol packageSymbol;
     private List<TypeDefinitionSymbol> typeDefs;
+    private List<ClassSymbol> classes;
     private List<FunctionSymbol> functions;
     private List<ConstantSymbol> constants;
-    private List<TypeDefinitionSymbol> listeners;
+    private List<ObjectTypeSymbol> listeners;
     private List<Symbol> allSymbols;
 
     protected BallerinaModule(CompilerContext context, String name, PackageID moduleID, BPackageSymbol packageSymbol) {
@@ -112,6 +116,33 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
     }
 
     /**
+     * Get the public class definitions defined within the module.
+     *
+     * @return {@link List} of class definitions
+     */
+    @Override
+    public List<ClassSymbol> classes() {
+        if (this.classes != null) {
+            return this.classes;
+        }
+
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        List<ClassSymbol> classes = new ArrayList<>();
+
+        for (Map.Entry<Name, ScopeEntry> entry : this.packageSymbol.scope.entries.entrySet()) {
+            ScopeEntry scopeEntry = entry.getValue();
+            if (scopeEntry.symbol instanceof BClassSymbol &&
+                    (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
+                String constName = scopeEntry.symbol.getName().getValue();
+                classes.add(symbolFactory.createClassSymbol((BClassSymbol) scopeEntry.symbol, constName));
+            }
+        }
+
+        this.classes = Collections.unmodifiableList(classes);
+        return this.classes;
+    }
+
+    /**
      * Get the public constants defined within the module.
      *
      * @return {@link List} of type definitions
@@ -145,7 +176,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
      * @return {@link List} of listeners
      */
     @Override
-    public List<TypeDefinitionSymbol> listeners() {
+    public List<ObjectTypeSymbol> listeners() {
         if (this.listeners != null) {
             return listeners;
         }

@@ -17,20 +17,21 @@
  */
 package org.ballerinalang.test.javainterop;
 
-import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.values.ArrayValueImpl;
-import io.ballerina.runtime.values.FPValue;
-import io.ballerina.runtime.values.FutureValue;
-import io.ballerina.runtime.values.MapValueImpl;
-import io.ballerina.runtime.values.TypedescValueImpl;
-import io.ballerina.runtime.values.XMLItem;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.values.FPValue;
+import io.ballerina.runtime.internal.values.FutureValue;
+import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.TypedescValueImpl;
+import io.ballerina.runtime.internal.values.XmlItem;
 import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
@@ -443,11 +444,11 @@ public class RefTypeWithBValueAPITests {
         return json;
     }
 
-    public static io.ballerina.runtime.api.values.BXML getXML() {
-        return new XMLItem(new QName("hello"));
+    public static BXml getXML() {
+        return new XmlItem(new QName("hello"));
     }
 
-    public static io.ballerina.runtime.api.values.BString getStringFromXML(io.ballerina.runtime.api.values.BXML x) {
+    public static io.ballerina.runtime.api.values.BString getStringFromXML(BXml x) {
         return StringUtils.fromString(x.toString());
     }
 
