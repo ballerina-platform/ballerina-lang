@@ -25,12 +25,9 @@ import org.ballerinalang.datamapper.config.LSClientExtendedConfig;
 import org.ballerinalang.datamapper.utils.HttpClientRequest;
 import org.ballerinalang.datamapper.utils.HttpResponse;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.eclipse.lsp4j.Diagnostic;
@@ -46,13 +43,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.regex.Matcher;
 
 /**
@@ -114,17 +108,17 @@ class AIDataMapperCodeActionUtil {
         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
 
         // Insert function declaration at the bottom of the file
-            String fileContent = context.workspace().syntaxTree(context.filePath()).get().toSourceCode();
-            String functionName = String.format("map%sTo%s (%s", foundTypeRight, foundTypeLeft, foundTypeRight);
-            if (!fileContent.contains(functionName)) {
-                int numberOfLinesInFile = fileContent.split("\n").length;
-                Position startPosOfLastLine = new Position(numberOfLinesInFile + 2, 0);
-                Position endPosOfLastLine = new Position(numberOfLinesInFile + 2, 1);
-                Range newFunctionRange = new Range(startPosOfLastLine, endPosOfLastLine);
-                String generatedRecordMappingFunction =
-                        getGeneratedRecordMappingFunction(bLangNode, symbolAtCursor, foundTypeLeft, foundTypeRight);
-                fEdits.add(new TextEdit(newFunctionRange, generatedRecordMappingFunction));
-            }
+        String fileContent = context.workspace().syntaxTree(context.filePath()).get().toSourceCode();
+        String functionName = String.format("map%sTo%s (%s", foundTypeRight, foundTypeLeft, foundTypeRight);
+        if (!fileContent.contains(functionName)) {
+            int numberOfLinesInFile = fileContent.split("\n").length;
+            Position startPosOfLastLine = new Position(numberOfLinesInFile + 2, 0);
+            Position endPosOfLastLine = new Position(numberOfLinesInFile + 2, 1);
+            Range newFunctionRange = new Range(startPosOfLastLine, endPosOfLastLine);
+            String generatedRecordMappingFunction =
+                    getGeneratedRecordMappingFunction(bLangNode, symbolAtCursor, foundTypeLeft, foundTypeRight);
+            fEdits.add(new TextEdit(newFunctionRange, generatedRecordMappingFunction));
+        }
         return fEdits;
     }
 
