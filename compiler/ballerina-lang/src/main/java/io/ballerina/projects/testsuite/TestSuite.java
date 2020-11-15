@@ -235,6 +235,10 @@ public class TestSuite implements Serializable {
         return groups;
     }
 
+    public void setGroups(Map<String, TestGroup> groups) {
+        this.groups = groups;
+    }
+
     /**
      * Adds a provided @AfterGroups function to the test suite.
      *

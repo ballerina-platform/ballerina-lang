@@ -96,14 +96,16 @@ public class JarResolver {
     public Collection<Path> getJarFilePathsRequiredForTestExecution(ModuleName moduleName) {
         Collection<Path> allJarFiles = getJarFilePathsRequiredForExecution();
         Set<Path> allJarFileForTestExec = new HashSet<>(allJarFiles);
-        PlatformLibrary generatedTestJar = jBalBackend.codeGeneratedTestLibrary(
-                packageContext.packageId(), moduleName);
-        allJarFileForTestExec.add(generatedTestJar.path());
+        if (!packageContext.packageDescriptor().org().anonymous()) {
+            PlatformLibrary generatedTestJar = jBalBackend.codeGeneratedTestLibrary(
+                    packageContext.packageId(), moduleName);
+            allJarFileForTestExec.add(generatedTestJar.path());
 
-        // Remove the generated jar without test code.
-        PlatformLibrary generatedJar = jBalBackend.codeGeneratedLibrary(
-                packageContext.packageId(), moduleName);
-        allJarFileForTestExec.remove(generatedJar.path());
+            // Remove the generated jar without test code.
+            PlatformLibrary generatedJar = jBalBackend.codeGeneratedLibrary(
+                    packageContext.packageId(), moduleName);
+            allJarFileForTestExec.remove(generatedJar.path());
+        }
         allJarFileForTestExec.addAll(ProjectUtils.testDependencies());
 
         return allJarFileForTestExec;
