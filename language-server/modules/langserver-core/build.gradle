@@ -136,3 +136,7 @@ task buildAndCopy(type: Copy) {
             '/build/extracted-distributions/jballerina-tools-' + project.version +
             '/bre/lib';
 }
+
+spotbugsMain {
+    enabled = false
+}
