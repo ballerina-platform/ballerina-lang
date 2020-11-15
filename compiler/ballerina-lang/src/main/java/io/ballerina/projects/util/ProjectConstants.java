@@ -38,7 +38,7 @@ public class ProjectConstants {
     public static final String BIN_DIR_NAME = "bin";
     public static final String TARGET_DIR_NAME = "target";
 
-    public static final String CACHES_DIR_NAME = "caches";
+    public static final String CACHES_DIR_NAME = "cache";
 
     public static final String HOME_REPO_ENV_KEY = "BALLERINA_HOME_DIR";
     public static final String HOME_REPO_DEFAULT_DIRNAME = ".ballerina";
