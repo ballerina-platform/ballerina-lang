@@ -40,7 +40,6 @@ import java.nio.file.PathMatcher;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -135,22 +134,29 @@ public class FileSystemRepository implements PackageRepository {
                 continue;
             }
             String orgName = file.getName();
-            List<String> pkgList =
-                    Arrays.stream(Objects.requireNonNull(this.balo.resolve(orgName).toFile().listFiles()))
-                            .filter(pkgDir -> pkgDir.isDirectory() && !pkgDir.isHidden())
-                            .map(pkgDir -> {
-                                String version = "";
-                                for (File listFile : Objects.requireNonNull(this.balo.resolve(orgName)
-                                        .resolve(pkgDir.getName()).toFile().listFiles())) {
-                                    if (listFile.isHidden() || !listFile.isDirectory()) {
-                                        continue;
-                                    }
-                                    version = listFile.getName();
-                                    break;
-                                }
-                                return pkgDir.getName() + ":" + version;
-                            })
-                            .collect(Collectors.toList());
+            File[] filesList = this.balo.resolve(orgName).toFile().listFiles();
+            if (filesList == null) {
+                return packagesMap;
+            }
+            List<String> pkgList = new ArrayList<>();
+            for (File pkgDir : filesList) {
+                if (!pkgDir.isDirectory() || pkgDir.isHidden()) {
+                    continue;
+                }
+                File[] pkgs = this.balo.resolve(orgName).resolve(pkgDir.getName()).toFile().listFiles();
+                if (pkgs == null) {
+                    continue;
+                }
+                String version = "";
+                for (File listFile : pkgs) {
+                    if (listFile.isHidden() || !listFile.isDirectory()) {
+                        continue;
+                    }
+                    version = listFile.getName();
+                    break;
+                }
+                pkgList.add(pkgDir.getName() + ":" + version);
+            }
             packagesMap.put(orgName, pkgList);
         }
 
