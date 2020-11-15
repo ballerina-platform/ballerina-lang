@@ -110,3 +110,13 @@ public isolated function getIteratorObj(stream<Type, ErrorType> strm) returns
         'class: "org.ballerinalang.langlib.internal.GetIteratorObj",
         name: "getIteratorObj"
     } external;
+
+# Invoke a non-isolated function as an external function (workaround for isolated invocations).
+#
+# + func - function to invoke
+# + args - args for the function to invoke
+# + return - result of the invocation
+public isolated function invokeAsExternal(any func, any|error... args) returns any|error|() = @java:Method {
+    'class: "org.ballerinalang.langlib.internal.InvokeAsExternal",
+    name: "invokeAsExternal"
+} external;
