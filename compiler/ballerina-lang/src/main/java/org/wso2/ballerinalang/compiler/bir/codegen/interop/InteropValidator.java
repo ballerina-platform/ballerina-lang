@@ -84,17 +84,24 @@ public class InteropValidator {
         return interopValidator;
     }
 
-    public BLangPackage validate(BLangPackage module) {
-        dlog.setCurrentPackageId(module.symbol.pkgID);
+    public BLangPackage validate(BLangPackage bLangPackage) {
+        dlog.setCurrentPackageId(bLangPackage.symbol.pkgID);
         // find module dependencies path
-        Set<Path> moduleDependencies = findDependencies(module.packageID);
+        Set<Path> moduleDependencies = findDependencies(bLangPackage.packageID);
         ClassLoader classLoader = makeClassLoader(moduleDependencies);
-        BIRNode.BIRPackage birPackage = module.symbol.bir;
+        BIRNode.BIRPackage birPackage = bLangPackage.symbol.bir;
         // validate module functions with class names
         validateModuleFunctions(birPackage, classLoader);
         // validate type functions with class names
         validateTypeDefinitions(birPackage, classLoader);
-        return module;
+        bLangPackage.getTestablePkgs().forEach(testablePackage -> {
+            BIRNode.BIRPackage testBirPackage = testablePackage.symbol.bir;
+            // validate test module functions with class names
+            validateModuleFunctions(testBirPackage, classLoader);
+            // validate test module type functions with class names
+            validateTypeDefinitions(testBirPackage, classLoader);
+        });
+        return bLangPackage;
     }
 
     private Set<Path> findDependencies(PackageID packageID) {
@@ -230,7 +237,7 @@ public class InteropValidator {
         // 1) Load Java class  - validate
         JFieldMethod method = fieldValidationRequest.fieldMethod;
         String className = fieldValidationRequest.klass;
-        Class clazz = JInterop.loadClass(className, classLoader);
+        Class<?> clazz = JInterop.loadClass(className, classLoader);
 
         // 2) Load Java method details - use the method kind in the request - validate kind and the existence of the
         // method. Possible there may be more than one methods for the given kind and the name
