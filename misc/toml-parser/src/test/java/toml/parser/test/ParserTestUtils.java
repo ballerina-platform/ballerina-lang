@@ -338,7 +338,8 @@ public class ParserTestUtils {
     public static String getTokenText(STToken token) {
         switch (token.kind) {
             case IDENTIFIER_LITERAL:
-                return ((STIdentifierToken) token).text;
+                String text = ((STIdentifierToken) token).text;
+                return cleanupText(text);
             case STRING_LITERAL:
             case DECIMAL_INT_TOKEN:
             case DECIMAL_FLOAT_TOKEN:

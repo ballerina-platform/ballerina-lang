@@ -27,7 +27,15 @@
                         },
                         {
                           "kind": "COMMENT_MINUTIAE",
-                          "value": "#\n# WSO2 Inc. licenses this file to you under the Apache License,"
+                          "value": "#"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# WSO2 Inc. licenses this file to you under the Apache License,"
                         },
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
@@ -59,7 +67,7 @@
                         },
                         {
                           "kind": "COMMENT_MINUTIAE",
-                          "value": "#\n#   http://www.apache.org/licenses/LICENSE-2.0"
+                          "value": "#"
                         },
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
@@ -67,7 +75,23 @@
                         },
                         {
                           "kind": "COMMENT_MINUTIAE",
-                          "value": "#\n# Unless required by applicable law or agreed to in writing,"
+                          "value": "#   http://www.apache.org/licenses/LICENSE-2.0"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "#"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# Unless required by applicable law or agreed to in writing,"
                         },
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
@@ -143,7 +167,6 @@
               "children": [
                 {
                   "kind": "DECIMAL_INT_TOKEN",
-                  "value": "22",
                   "trailingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",

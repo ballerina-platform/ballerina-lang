@@ -35,8 +35,6 @@ import java.util.List;
  */
 public class TomlLexer extends AbstractLexer {
 
-    public static final String LINE_SEPARATOR = System.lineSeparator();
-
     public TomlLexer(CharReader charReader) {
         super(charReader, ParserMode.DEFAULT);
     }
@@ -413,12 +411,12 @@ public class TomlLexer extends AbstractLexer {
         char c = reader.peek();
         switch (c) {
             case LexerTerminals.NEWLINE:
-                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, LINE_SEPARATOR);
+                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, "\n");
             case LexerTerminals.CARRIAGE_RETURN:
-                if (reader.peek() == LexerTerminals.NEWLINE) {
+                if (reader.peek(1) == LexerTerminals.NEWLINE) {
                     reader.advance();
                 }
-                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, LINE_SEPARATOR);
+                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, "\r\n");
             default:
                 throw new IllegalStateException();
         }
@@ -429,14 +427,13 @@ public class TomlLexer extends AbstractLexer {
      * Process a comment, and add it to trivia list.
      * </p>
      * <code>
-     * Comment := // AnyCharButNewline*
+     * Comment := #AnyCharButNewline*
      * <br/><br/>
      * AnyCharButNewline := ^ 0xA
      * </code>
      */
     private STNode processComment() {
-        // We reach here after verifying up to 2 code-points ahead. Hence advance(2).
-        reader.advance(2);
+        reader.advance();
         int nextToken = peek();
         while (!reader.isEOF()) {
             switch (nextToken) {
