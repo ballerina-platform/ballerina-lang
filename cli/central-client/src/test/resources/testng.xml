@@ -22,7 +22,7 @@ under the License.
 <suite name="cli-module-suite" time-out="30000">
     <test name="cli-module-tests" parallel="false">
         <packages>
-<!--            <package name="org.ballerinalang.central.client.*"/>-->
+            <package name="org.ballerinalang.central.client.*"/>
         </packages>
     </test>
 </suite>
