@@ -428,4 +428,15 @@ public class ProjectUtils {
         }
         return homeRepoPath;
     }
+
+    /**
+     * Check if a ballerina module exist.
+     * @param projectPath project path
+     * @param moduleName module name
+     * @return module exist
+     */
+    public static boolean isModuleExist(Path projectPath, String moduleName) {
+        Path modulePath = projectPath.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName);
+        return Files.exists(modulePath);
+    }
 }
