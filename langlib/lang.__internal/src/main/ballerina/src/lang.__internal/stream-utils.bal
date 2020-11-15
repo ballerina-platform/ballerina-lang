@@ -82,7 +82,7 @@ public isolated function getFilterFunc(any func) returns function(Type) returns 
 #
 # + func - The input map function
 # + return - The input function with the changed parameter type
-public function getMapFunc(any func) returns function(Type) returns Type1 = @java:Method {
+public isolated function getMapFunc(any func) returns function(Type) returns Type1 = @java:Method {
     'class: "org.ballerinalang.langlib.internal.GetMapFunc",
     name: "getMapFunc"
 } external;
@@ -100,12 +100,12 @@ public isolated function getReturnType(any func) returns typedesc<Type> = @java:
 #
 # + strm - The stream
 # + return - An abstract object which is iterable
-public function getIteratorObj(stream<Type, ErrorType> strm) returns
+public isolated function getIteratorObj(stream<Type, ErrorType> strm) returns
     object {
-        public function next() returns record {|Type value;|}|ErrorType?;} |
+        public isolated function next() returns record {|Type value;|}|ErrorType?;} |
     object {
-        public function next() returns record {|Type value;|}|ErrorType?;
-        public function close() returns ErrorType?;
+        public isolated function next() returns record {|Type value;|}|ErrorType?;
+        public isolated function close() returns ErrorType?;
     } = @java:Method {
         'class: "org.ballerinalang.langlib.internal.GetIteratorObj",
         name: "getIteratorObj"
