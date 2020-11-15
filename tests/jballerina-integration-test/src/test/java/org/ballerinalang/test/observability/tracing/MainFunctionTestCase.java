@@ -42,12 +42,12 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
 
     @Test
     public void testMainMethod() throws Exception {
-        final String span1Position = FILE_NAME + ":19:1";
-        final String span2Position = FILE_NAME + ":20:5";
-        final String span3Position = COMMONS_FILE_NAME + ":37:9";
-        final String span4Position = FILE_NAME + ":24:15";
-        final String span5Position = FILE_NAME + ":32:21";
-        final String span6Position = FILE_NAME + ":38:16";
+        final String span1Position = FILE_NAME + ":17:1";
+        final String span2Position = FILE_NAME + ":18:5";
+        final String span3Position = MOCK_CLIENT_FILE_NAME + ":32:9";
+        final String span4Position = FILE_NAME + ":22:15";
+        final String span5Position = FILE_NAME + ":30:21";
+        final String span6Position = FILE_NAME + ":36:16";
 
         List<BMockSpan> spans = this.getFinishedSpans("Unknown Service");
         Assert.assertEquals(spans.stream()
@@ -68,7 +68,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getOperationName(), "main");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span1Position),
                     new AbstractMap.SimpleEntry<>("src.entry_point.main", "true"),
                     new AbstractMap.SimpleEntry<>("function", "main")
@@ -86,7 +86,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     MOCK_CLIENT_OBJECT_NAME + ":callAnotherRemoteFunction");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span2Position),
                     new AbstractMap.SimpleEntry<>("src.remote", "true"),
                     new AbstractMap.SimpleEntry<>("connector_name", MOCK_CLIENT_OBJECT_NAME),
@@ -104,7 +104,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":callWithNoReturn");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.module", UTILS_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span3Position),
                     new AbstractMap.SimpleEntry<>("src.remote", "true"),
                     new AbstractMap.SimpleEntry<>("connector_name", MOCK_CLIENT_OBJECT_NAME),
@@ -122,7 +122,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":calculateSum");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span4Position),
                     new AbstractMap.SimpleEntry<>("src.remote", "true"),
                     new AbstractMap.SimpleEntry<>("connector_name", MOCK_CLIENT_OBJECT_NAME),
@@ -140,7 +140,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":callWithPanic");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span5Position),
                     new AbstractMap.SimpleEntry<>("src.remote", "true"),
                     new AbstractMap.SimpleEntry<>("connector_name", MOCK_CLIENT_OBJECT_NAME),
@@ -159,7 +159,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":callWithErrorReturn");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span6Position),
                     new AbstractMap.SimpleEntry<>("src.remote", "true"),
                     new AbstractMap.SimpleEntry<>("connector_name", MOCK_CLIENT_OBJECT_NAME),

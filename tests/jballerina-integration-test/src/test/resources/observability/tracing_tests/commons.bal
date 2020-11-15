@@ -16,54 +16,9 @@
 
 import ballerina/observe;
 import ballerina/testobserve;
+import intg_tests/tracing_tests.utils as utils;
 
-MockClient testClient = new();
-
-public client class MockClient {
-    public remote function callWithNoReturn(int a, int b, int expectedSum) {
-        var sum = a + b;
-        if (sum != expectedSum) {   // Check for validating if normal execution is intact from instrumentation
-            error e = error("Sum is " + sum.toString() + ". Expected :" + expectedSum.toString());
-            panic e;
-        }
-    }
-
-    public remote function calculateSum(int a, int b) returns int {
-        var sum = a + b;
-        return a + b;
-    }
-
-    public remote function callAnotherRemoteFunction() {
-        self->callWithNoReturn(13, 9, 22);
-    }
-
-    public remote function callWithReturn(int a, int b) returns int|error {
-        return a + b;
-    }
-
-    public remote function callWithErrorReturn() returns error? {
-        var sum = 3 + 7;
-        var expectedSum = 10;
-        if (sum != expectedSum) {    // Check for validating if normal execution is intact from instrumentation
-            error e = error("Sum is " + sum.toString() + ". Expected " + expectedSum.toString());
-            panic e;
-        } else {
-            error e = error("Test Error");
-            return e;
-        }
-    }
-
-    public remote function callWithPanic() {
-        var sum = 5 + 2;
-        var expectedSum = 7;
-        if (sum != expectedSum) {    // Check for validating if normal execution is intact from instrumentation
-            error e = error("Sum is " + sum.toString() + ". Expected " + expectedSum.toString());
-            panic e;
-        }
-        error e = error("Test Error");
-        panic e;
-    }
-}
+utils:MockClient testClient = new();
 
 service mockTracer on new testobserve:Listener(9090) {
     resource function getMockTraces(testobserve:Caller caller, string serviceName) {
@@ -90,23 +45,4 @@ function calculateSum(int a, int b) returns int {
 function calculateSumWithObservability(int a, int b) returns int {
     var sum = a + b;
     return a + b;
-}
-
-type ObservableAdderClass object {
-    @observe:Observable
-    function getSum() returns int;
-};
-
-class ObservableAdder {
-    private int firstNumber;
-    private int secondNumber;
-
-    function init(int a, int b) {
-        self.firstNumber = a;
-        self.secondNumber = b;
-    }
-
-    function getSum() returns int {
-        return self.firstNumber + self.secondNumber;
-    }
 }
