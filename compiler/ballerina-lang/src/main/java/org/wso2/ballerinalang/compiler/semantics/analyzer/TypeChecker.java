@@ -2053,10 +2053,6 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangWorkerReceive workerReceiveExpr) {
         BSymbol symbol = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(workerReceiveExpr.workerIdentifier));
 
-        if (workerReceiveExpr.isChannel) {
-            this.dlog.error(workerReceiveExpr.pos, DiagnosticCode.UNDEFINED_ACTION);
-            return;
-        }
         // TODO Need to remove this cached env
         workerReceiveExpr.env = this.env;
 

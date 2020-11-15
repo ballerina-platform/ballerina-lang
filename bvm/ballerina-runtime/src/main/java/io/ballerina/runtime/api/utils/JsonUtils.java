@@ -213,7 +213,7 @@ public class JsonUtils {
      * @param out  Output source
      * @throws BError If error occur while serialize json construct.
      */
-    public void serialize(Object json, OutputStream out) throws BError {
+    public static void serialize(Object json, OutputStream out) throws BError {
         try {
             JsonGenerator gen = new JsonGenerator(out);
             gen.serialize(json);
@@ -231,7 +231,7 @@ public class JsonUtils {
      * @param charset Character set
      * @throws BError If error occur while serialize json construct.
      */
-    public void serialize(Object json, OutputStream out, Charset charset) throws BError {
+    public static void serialize(Object json, OutputStream out, Charset charset) throws BError {
         try {
             JsonGenerator gen = new JsonGenerator(out, charset);
             gen.serialize(json);
@@ -248,7 +248,7 @@ public class JsonUtils {
      * @param writer Output writer
      * @throws BError If error occur while serialize json construct.
      */
-    public void serialize(Object json, Writer writer) throws BError {
+    public static void serialize(Object json, Writer writer) throws BError {
         try {
             JsonGenerator gen = new JsonGenerator(writer);
             gen.serialize(json);

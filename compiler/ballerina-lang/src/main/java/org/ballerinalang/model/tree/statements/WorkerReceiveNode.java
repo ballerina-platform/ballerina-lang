@@ -28,8 +28,6 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
  */
 public interface WorkerReceiveNode extends ExpressionNode, ActionNode {
 
-    ExpressionNode getKeyExpression();
-
     IdentifierNode getWorkerName();
 
     void setWorkerName(IdentifierNode identifierNode);

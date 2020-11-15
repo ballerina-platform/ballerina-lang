@@ -147,7 +147,10 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void unaryExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        assertEvaluationError(context, String.format("+%s", STRING_VAR), "operator '+' not defined for 'string'");
+        assertEvaluationError(context, String.format("-%s", STRING_VAR), "operator '-' not defined for 'string'");
+        assertEvaluationError(context, String.format("~%s", STRING_VAR), "operator '~' not defined for 'string'");
+        assertEvaluationError(context, String.format("!%s", STRING_VAR), "operator '!' not defined for 'string'");
     }
 
     @Override
@@ -171,7 +174,15 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void shiftExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // left shift
+        assertEvaluationError(context, String.format("%s << %s", INT_VAR, STRING_VAR), "operator '<<' not defined for "
+                + "'int' and 'string'.");
+        // signed right shift
+        assertEvaluationError(context, String.format("%s >> %s", INT_VAR, STRING_VAR), "operator '>>' not defined for "
+                + "'int' and 'string'.");
+        // unsigned right shift
+        assertEvaluationError(context, String.format("%s >>> %s", INT_VAR, STRING_VAR), "operator '>>>' not defined " +
+                "for 'int' and 'string'.");
     }
 
     @Override
@@ -203,13 +214,26 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void binaryBitwiseEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // bitwise AND
+        assertEvaluationError(context, String.format("%s & %s", INT_VAR, STRING_VAR), "operator '&' not defined for "
+                + "'int' and 'string'.");
+        // bitwise OR
+        assertEvaluationError(context, String.format("%s | %s", INT_VAR, STRING_VAR), "operator '|' not defined for "
+                + "'int' and 'string'.");
+        // bitwise XOR
+        assertEvaluationError(context, String.format("%s ^ %s", INT_VAR, STRING_VAR), "operator '^' not defined for "
+                + "'int' and 'string'.");
     }
 
     @Override
     @Test
     public void logicalEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // Logical AND
+        assertEvaluationError(context, String.format("%s && %s", INT_VAR, STRING_VAR), "operator '&&' not defined for "
+                + "'int' and 'string'.");
+        // Logical OR
+        assertEvaluationError(context, String.format("%s || %s", INT_VAR, STRING_VAR), "operator '||' not defined for "
+                + "'int' and 'string'.");
     }
 
     @Override
@@ -247,8 +271,8 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         // empty expressions
         assertEvaluationError(context, "  ", EvaluationExceptionKind.EMPTY.getString());
         // unsupported expressions
-        assertEvaluationError(context, "~x", String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION
-                .getString(), "~x - UNARY_EXPRESSION"));
+        assertEvaluationError(context, "new()", String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION
+                .getString(), "new() - IMPLICIT_NEW_EXPRESSION"));
         // syntactically incorrect expressions (additional semi-colon)
         assertEvaluationError(context, "x + 5;;", String.format(EvaluationExceptionKind.SYNTAX_ERROR
                 .getString(), "invalid token ';'"));
