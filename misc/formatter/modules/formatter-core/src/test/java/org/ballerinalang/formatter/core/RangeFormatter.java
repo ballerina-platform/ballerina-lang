@@ -41,7 +41,7 @@ public abstract class RangeFormatter {
     private static final String ASSERT_DIR = "assert";
     private static final String SOURCE_DIR = "source";
 
-    @Test(dataProvider = "test-file-provider")
+    /*@Test(dataProvider = "test-file-provider")
     public void test(String source, String sourcePath, LinePosition startPos, LinePosition endPos)
             throws IOException, FormatterException {
         Path assertFilePath = Paths.get(resourceDirectory.toString(), sourcePath, ASSERT_DIR, source);
@@ -49,14 +49,29 @@ public abstract class RangeFormatter {
 
         String content = getSourceText(sourceFilePath);
         TextDocument textDocument = TextDocuments.from(content);
-        SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
+        SyntaxTree syntaxTree = SyntaxTree.from(textDocument, sourceFilePath.toString());
         LineRange lineRange = LineRange.from(syntaxTree.filePath(), startPos, endPos);
         // linerange = floor(sqrt(no_of_lines_remaining))
         // TextDocuments.from(newSyntaxTree.toSourceCode())
         SyntaxTree newSyntaxTree = Formatter.format(syntaxTree, lineRange);
         Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
-    }
+    }*/
 
+    @Test(dataProvider = "test-file-provider")
+    public void test(String[] sourceData, LinePosition[] linePositions)
+            throws IOException, FormatterException {
+        Path assertFilePath = Paths.get(resourceDirectory.toString(), sourceData[0], ASSERT_DIR, sourceData[1]);
+        Path sourceFilePath = Paths.get(resourceDirectory.toString(), sourceData[0], SOURCE_DIR, sourceData[1]);
+
+        String content = getSourceText(sourceFilePath);
+        TextDocument textDocument = TextDocuments.from(content);
+        SyntaxTree syntaxTree = SyntaxTree.from(textDocument, sourceFilePath.toString());
+        LineRange lineRange = LineRange.from(syntaxTree.filePath(), linePositions[0], linePositions[1]);
+        // linerange = floor(sqrt(no_of_lines_remaining))
+        // TextDocuments.from(newSyntaxTree.toSourceCode())
+        SyntaxTree newSyntaxTree = Formatter.format(syntaxTree, lineRange);
+        Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
+    }
 
     /**
      * Test the formatting functionality for parser test cases.

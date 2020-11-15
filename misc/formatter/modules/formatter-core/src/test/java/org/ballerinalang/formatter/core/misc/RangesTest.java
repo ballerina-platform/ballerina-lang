@@ -28,17 +28,29 @@ import java.io.IOException;
 import java.nio.file.Paths;
 
 public class RangesTest extends RangeFormatter {
+
     @Test(dataProvider = "test-file-provider")
-    public void test(String source, String sourcePath) throws IOException, FormatterException {
-        LinePosition startPos = LinePosition.from(26, 13);
-        LinePosition endPos = LinePosition.from(275, 14);
-        super.test(source, sourcePath, startPos, endPos);
+    @Override
+    public void test(String[] sourceData, LinePosition[] linePositions) throws IOException, FormatterException {
+
+        super.test(sourceData, linePositions);
     }
 
+    /**
+     * Defines the data provider object for test execution.
+     *
+     * @return Data provider for tests
+     */
     @DataProvider(name = "test-file-provider")
     @Override
     public Object[][] dataProvider() {
-        return this.getConfigsList();
+
+        return new Object[][]{
+                {
+                    new String[] {"misc/ranges", "ranges_1.bal"}, new LinePosition[] {LinePosition.from(5, 31),
+                        LinePosition.from(8, 34)}
+                },
+        };
     }
 
     @Override
