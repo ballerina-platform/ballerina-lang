@@ -22,6 +22,8 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.BIRGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
+import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -98,6 +100,8 @@ public class CompilerDriver {
     private final ObservabilitySymbolCollector observabilitySymbolCollector;
     private final Desugar desugar;
     private final BIRGen birGenerator;
+    private final BIREmitter birEmitter;
+    private final InteropValidator interopValidator;
     private final CodeGenerator codeGenerator;
     private final CompilerPhase compilerPhase;
     private final DataflowAnalyzer dataflowAnalyzer;
@@ -131,6 +135,8 @@ public class CompilerDriver {
         this.observabilitySymbolCollector = ObserverbilitySymbolCollectorRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.birGenerator = BIRGen.getInstance(context);
+        this.birEmitter = BIREmitter.getInstance(context);
+        this.interopValidator = InteropValidator.getInstance(context);
         this.codeGenerator = CodeGenerator.getInstance(context);
         this.compilerPhase = this.options.getCompilerPhase();
         this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
@@ -316,6 +322,16 @@ public class CompilerDriver {
         }
 
         birGen(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.BIR_EMIT)) {
+            return;
+        }
+
+        birEmit(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.INTEROP_VALIDATE)) {
+            return;
+        }
+
+        interopValidate(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.CODE_GEN)) {
             return;
         }
@@ -375,6 +391,14 @@ public class CompilerDriver {
         return this.birGenerator.genBIR(pkgNode);
     }
 
+    private BLangPackage birEmit(BLangPackage pkgNode) {
+        return this.birEmitter.emit(pkgNode);
+    }
+
+    private BLangPackage interopValidate(BLangPackage pkgNode) {
+        return this.interopValidator.validate(pkgNode);
+    }
+
     private boolean stopCompilation(BLangPackage pkgNode, CompilerPhase nextPhase) {
         if (compilerPhase.compareTo(nextPhase) < 0) {
             return true;
@@ -403,6 +427,6 @@ public class CompilerDriver {
             return null;
         }
 
-        return codeGen(birGen(desugar(pkg))).symbol;
+        return codeGen(interopValidate(birEmit(birGen(desugar(pkg))))).symbol;
     }
 }

@@ -18,18 +18,16 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 /**
- * Wrapper of Java class fields.
+ * A wrapper used with JInterop to wrap BFuntions with JFunc description and data.
  *
  * @since 1.2.0
  */
-public class JFieldFunctionWrapper extends BIRFunctionWrapper implements ExternalFunctionWrapper {
+public class JMethodBIRFunction extends JBIRFunction {
 
-    JavaField jField;
+    JMethod jMethod;
 
-    JFieldFunctionWrapper(BIRFunctionWrapper functionWrapper, JavaField jField) {
-
-        super(functionWrapper.orgName, functionWrapper.moduleName, functionWrapper.version, functionWrapper.func,
-                functionWrapper.fullQualifiedClassName, functionWrapper.jvmMethodDescription);
-        this.jField = jField;
+    public JMethodBIRFunction(BIRFunction birFunction, JMethod jMethod) {
+        super(birFunction);
+        this.jMethod = jMethod;
     }
 }

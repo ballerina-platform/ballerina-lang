@@ -28,8 +28,8 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.FieldNameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JFieldFunctionWrapper;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodFunctionWrapper;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JFieldBIRFunction;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodBIRFunction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.OldStyleExternalFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.LambdaGen;
@@ -197,10 +197,10 @@ class JvmValueGen {
                 BIRFunctionWrapper extFuncWrapper = lookupBIRFunctionWrapper(module, birFunc, bType, jvmPackageGen);
                 if (extFuncWrapper instanceof OldStyleExternalFunctionWrapper) {
                     desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, birFunc, initMethodGen);
-                } else if (extFuncWrapper instanceof JMethodFunctionWrapper) {
-                    desugarInteropFuncs((JMethodFunctionWrapper) extFuncWrapper, birFunc, initMethodGen);
+                } else if (birFunc instanceof JMethodBIRFunction) {
+                    desugarInteropFuncs((JMethodBIRFunction) birFunc, initMethodGen);
                     enrichWithDefaultableParamInits(birFunc, initMethodGen);
-                } else if (!(extFuncWrapper instanceof JFieldFunctionWrapper)) {
+                } else if (!(birFunc instanceof JFieldBIRFunction)) {
                     enrichWithDefaultableParamInits(birFunc, initMethodGen);
                 }
             } else {

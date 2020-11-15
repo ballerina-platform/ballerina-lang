@@ -27,7 +27,7 @@ import java.util.List;
  *
  * @since 1.2.0
  */
-public class OldStyleExternalFunctionWrapper extends BIRFunctionWrapper implements ExternalFunctionWrapper {
+public class OldStyleExternalFunctionWrapper extends BIRFunctionWrapper {
 
     String jClassName;
     List<BType> jMethodPramTypes;

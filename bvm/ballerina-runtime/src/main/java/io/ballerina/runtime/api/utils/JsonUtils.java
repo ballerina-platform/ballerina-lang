@@ -215,7 +215,9 @@ public class JsonUtils {
      */
     public void serialize(Object json, OutputStream out) throws BError {
         try {
-            new JsonGenerator(out, Charset.defaultCharset()).serialize(json);
+            JsonGenerator gen = new JsonGenerator(out);
+            gen.serialize(json);
+            gen.flush();
         } catch (IOException e) {
             throw new ErrorValue(StringUtils.fromString(e.getMessage()), e);
         }
@@ -231,7 +233,9 @@ public class JsonUtils {
      */
     public void serialize(Object json, OutputStream out, Charset charset) throws BError {
         try {
-            new JsonGenerator(out, charset).serialize(json);
+            JsonGenerator gen = new JsonGenerator(out, charset);
+            gen.serialize(json);
+            gen.flush();
         } catch (IOException e) {
             throw new ErrorValue(StringUtils.fromString(e.getMessage()), e);
         }
@@ -246,7 +250,9 @@ public class JsonUtils {
      */
     public void serialize(Object json, Writer writer) throws BError {
         try {
-            new JsonGenerator(writer).serialize(json);
+            JsonGenerator gen = new JsonGenerator(writer);
+            gen.serialize(json);
+            gen.flush();
         } catch (IOException e) {
             throw new ErrorValue(StringUtils.fromString(e.getMessage()), e);
         }

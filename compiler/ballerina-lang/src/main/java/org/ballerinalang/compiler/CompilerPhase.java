@@ -50,6 +50,10 @@ public enum CompilerPhase {
 
     BIR_GEN("birGen"),
 
+    BIR_EMIT("birEmit"),
+
+    INTEROP_VALIDATE("interopValidate"),
+
     CODE_GEN("codeGen");
 
     private String value;
@@ -82,6 +86,10 @@ public enum CompilerPhase {
                 return CODE_GEN;
             case "birGen":
                 return BIR_GEN;
+            case "birEmit":
+                return BIR_EMIT;
+            case "interopValidate":
+                return INTEROP_VALIDATE;
             default:
                 throw new IllegalArgumentException("invalid compiler phase: " + value);
         }
