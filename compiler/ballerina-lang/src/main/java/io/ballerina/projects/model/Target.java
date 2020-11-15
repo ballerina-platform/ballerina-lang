@@ -41,6 +41,7 @@ public class Target {
     private Path birCachePath;
     private Path testsCachePath;
     private Path binPath;
+    private Path reportPath;
 
     public Target(Path sourceRoot) throws IOException {
         this.targetPath = sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
@@ -50,6 +51,7 @@ public class Target {
         this.birCachePath = this.cache.resolve(ProjectConstants.BIR_CACHE_DIR_NAME);
         this.testsCachePath = this.cache.resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
         this.binPath = this.targetPath.resolve(ProjectConstants.BIN_DIR_NAME);
+        this.reportPath = this.targetPath.resolve(ProjectConstants.REPORT_DIR_NAME);
         Files.createDirectories(this.targetPath);
     }
 
@@ -98,6 +100,11 @@ public class Target {
     public Path getBinPath() throws IOException {
         Files.createDirectories(binPath);
         return binPath;
+    }
+
+    public Path getReportPath() throws IOException {
+        Files.createDirectories(reportPath);
+        return reportPath;
     }
 
     /**

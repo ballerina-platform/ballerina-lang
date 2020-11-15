@@ -71,6 +71,9 @@ public class Main {
 
     private static void writeStatusToJsonFile(ModuleStatus moduleStatus, Path tmpJsonPath) throws IOException {
         File jsonFile = new File(tmpJsonPath.toString());
+        if (!Files.exists(tmpJsonPath.getParent())) {
+            Files.createDirectories(tmpJsonPath.getParent());
+        }
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
             Gson gson = new Gson();
             String json = gson.toJson(moduleStatus);

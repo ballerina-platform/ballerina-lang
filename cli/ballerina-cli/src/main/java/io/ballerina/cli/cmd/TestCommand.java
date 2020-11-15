@@ -200,7 +200,7 @@ public class TestCommand implements BLauncherCmd {
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new ListTestGroupsTask(outStream), !listGroups) // list the available test groups
                 .addTask(new RunTestsTask(outStream, errStream, args, rerunTests, groupList, disableGroupList,
-                        testList), listGroups)
+                        testList, testReport, coverage), listGroups)
                 .build();
 
         taskExecutor.executeTasks(project);
