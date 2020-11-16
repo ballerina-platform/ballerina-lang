@@ -64,3 +64,8 @@ class BarObj {
         self.i = i;
     }
 }
+
+const annotation annot on source var;
+
+@annot
+[int, int] [j, k] = [1, 2];
