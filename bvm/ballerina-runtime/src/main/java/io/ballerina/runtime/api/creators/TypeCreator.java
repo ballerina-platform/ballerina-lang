@@ -191,7 +191,7 @@ public class TypeCreator {
      * @param typeFlags flags associated with the type
      * @return the new record type
      */
-    public static RecordType createRecordType(String typeName, Module module, int flags, boolean sealed,
+    public static RecordType createRecordType(String typeName, Module module, long flags, boolean sealed,
                                               int typeFlags) {
         return new BRecordType(typeName, module, flags, sealed, typeFlags);
     }
@@ -208,7 +208,7 @@ public class TypeCreator {
      * @param typeFlags     flags associated with the type
      * @return the new record type
      */
-    public static RecordType createRecordType(String typeName, Module module, int flags, Map<String, Field> fields,
+    public static RecordType createRecordType(String typeName, Module module, long flags, Map<String, Field> fields,
                                               Type restFieldType,
                                               boolean sealed, int typeFlags) {
         return new BRecordType(typeName, module, flags, fields, restFieldType, sealed, typeFlags);
@@ -222,7 +222,7 @@ public class TypeCreator {
      * @param flags    object type flags
      * @return the new object type
      */
-    public static ObjectType createObjectType(String typeName, Module module, int flags) {
+    public static ObjectType createObjectType(String typeName, Module module, long flags) {
         return new BObjectType(typeName, module, flags);
     }
 
@@ -323,7 +323,7 @@ public class TypeCreator {
      * @param flags     flags
      * @return new field
      */
-    public static Field createField(Type fieldType, String fieldName, int flags) {
+    public static Field createField(Type fieldType, String fieldName, long flags) {
         return new BField(fieldType, fieldName, flags);
     }
 

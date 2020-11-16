@@ -32,7 +32,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
  */
 public class BRecordTypeSymbol extends BStructureTypeSymbol {
 
-    public BRecordTypeSymbol(int symTag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner,
+    public BRecordTypeSymbol(int symTag, long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                              Location pos, SymbolOrigin origin) {
         super(SymbolKind.RECORD, symTag, flags, name, pkgID, type, owner, pos, origin);
     }

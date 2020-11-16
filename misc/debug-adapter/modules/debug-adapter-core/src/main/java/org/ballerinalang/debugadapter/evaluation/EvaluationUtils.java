@@ -43,6 +43,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.removeRedund
 public class EvaluationUtils {
 
     // Helper classes
+    public static final String B_UNARY_EXPR_HELPER_CLASS = "debugger.evaluation.1_0_0.unary";
     public static final String B_BINARY_EXPR_HELPER_CLASS = "debugger.evaluation.1_0_0.binary";
     public static final String B_TYPE_CHECKER_CLASS = "io.ballerina.runtime.internal.TypeChecker";
     public static final String B_STRING_UTILS_CLASS = "io.ballerina.runtime.api.utils.StringUtils";
@@ -68,6 +69,18 @@ public class EvaluationUtils {
     public static final String B_LT_EQUALS_METHOD = "lessThanOrEquals";
     public static final String B_GT_METHOD = "greaterThan";
     public static final String B_GT_EQUALS_METHOD = "greaterThanOrEquals";
+    public static final String B_BITWISE_AND_METHOD = "bitwiseAND";
+    public static final String B_BITWISE_OR_METHOD = "bitwiseOR";
+    public static final String B_BITWISE_XOR_METHOD = "bitwiseXOR";
+    public static final String B_LEFT_SHIFT_METHOD = "leftShift";
+    public static final String B_SIGNED_RIGHT_SHIFT_METHOD = "signedRightShift";
+    public static final String B_UNSIGNED_RIGHT_SHIFT_METHOD = "unsignedRightShift";
+    public static final String B_LOGICAL_AND_METHOD = "logicalAND";
+    public static final String B_LOGICAL_OR_METHOD = "logicalOR";
+    public static final String B_UNARY_PLUS_METHOD = "unaryPlus";
+    public static final String B_UNARY_MINUS_METHOD = "unaryMinus";
+    public static final String B_UNARY_INVERT_METHOD = "unaryInvert";
+    public static final String B_UNARY_NOT_METHOD = "unaryNot";
     public static final String GET_TYPEDESC_METHOD = "getTypedesc";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String REF_EQUAL_METHOD = "isReferenceEqual";

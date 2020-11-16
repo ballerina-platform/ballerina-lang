@@ -32,7 +32,7 @@ import java.util.Map;
 public abstract class BStructureType extends BAnnotatableType implements StructureType {
 
     protected Map<String, Field> fields;
-    public int flags;
+    public long flags;
 
     /**
      * Create a {@code BStructType} which represents the user defined struct type.
@@ -42,7 +42,7 @@ public abstract class BStructureType extends BAnnotatableType implements Structu
      * @param flags of the structure type
      * @param valueClass of the structure type
      */
-    public BStructureType(String typeName, Module pkg, int flags, Class<? extends Object> valueClass) {
+    public BStructureType(String typeName, Module pkg, long flags, Class<? extends Object> valueClass) {
         super(typeName, pkg, valueClass);
         this.flags = flags;
         fields = new HashMap<>();
@@ -57,7 +57,7 @@ public abstract class BStructureType extends BAnnotatableType implements Structu
      * @param valueClass of the structure type
      * @param fields structure fields
      */
-    public BStructureType(String typeName, Module pkg, int flags, Class<? extends Object> valueClass,
+    public BStructureType(String typeName, Module pkg, long flags, Class<? extends Object> valueClass,
                           Map<String, Field> fields) {
         super(typeName, pkg, valueClass);
         this.flags = flags;
@@ -72,7 +72,7 @@ public abstract class BStructureType extends BAnnotatableType implements Structu
         this.fields = fields;
     }
 
-    public int getFlags() {
+    public long getFlags() {
         return flags;
     }
 }
