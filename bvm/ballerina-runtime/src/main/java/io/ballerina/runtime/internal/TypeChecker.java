@@ -1147,7 +1147,7 @@ public class TypeChecker {
         Type constraintType = sourceType.getConstrainedType();
 
         for (Field field : targetType.getFields().values()) {
-            int flags = field.getFlags();
+            var flags = field.getFlags();
             if (!SymbolFlags.isFlagOn(flags, SymbolFlags.OPTIONAL)) {
                 return false;
             }
@@ -1658,7 +1658,8 @@ public class TypeChecker {
         return sourceTypeIdSet.containsAll(targetTypeIdSet);
     }
 
-    private static boolean isInSameVisibilityRegion(String lhsTypePkg, String rhsTypePkg, int lhsFlags, int rhsFlags) {
+    private static boolean isInSameVisibilityRegion(String lhsTypePkg, String rhsTypePkg, long lhsFlags,
+                                                    long rhsFlags) {
         if (SymbolFlags.isFlagOn(lhsFlags, SymbolFlags.PRIVATE)) {
             return lhsTypePkg.equals(rhsTypePkg);
         } else if (SymbolFlags.isFlagOn(lhsFlags, SymbolFlags.PUBLIC)) {
@@ -1739,7 +1740,7 @@ public class TypeChecker {
         }
 
         if (sourceType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            int flags = ((BObjectType) sourceType).flags;
+            var flags = ((BObjectType) sourceType).flags;
             return (flags & SymbolFlags.SERVICE) == SymbolFlags.SERVICE;
         }
 

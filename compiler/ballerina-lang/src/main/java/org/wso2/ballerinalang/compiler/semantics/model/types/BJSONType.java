@@ -49,7 +49,7 @@ public class BJSONType extends BUnionType {
         this.tag = TypeTags.JSON;
     }
 
-    public BJSONType(BTypeSymbol typeSymbol, boolean nullable, int flags) {
+    public BJSONType(BTypeSymbol typeSymbol, boolean nullable, long flags) {
         super(typeSymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, Symbols.isFlagOn(flags, Flags.READONLY));
         this.flags = flags;
         this.tag = TypeTags.JSON;

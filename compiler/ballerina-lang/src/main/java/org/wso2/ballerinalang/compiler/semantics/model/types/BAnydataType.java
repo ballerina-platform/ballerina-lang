@@ -36,7 +36,7 @@ public class BAnydataType extends BUnionType {
 
     private static final int INITIAL_CAPACITY = 10;
 
-    public BAnydataType(BTypeSymbol tsymbol, Name name, int flags) {
+    public BAnydataType(BTypeSymbol tsymbol, Name name, long flags) {
         this(tsymbol, name, flags, true);
     }
 
@@ -46,7 +46,7 @@ public class BAnydataType extends BUnionType {
         this.isCyclic = true;
     }
 
-    public BAnydataType(BTypeSymbol tsymbol, Name name, int flags, boolean nullable) {
+    public BAnydataType(BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
         super(tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, false);
         this.tag = TypeTags.ANYDATA;
         this.flags = flags;

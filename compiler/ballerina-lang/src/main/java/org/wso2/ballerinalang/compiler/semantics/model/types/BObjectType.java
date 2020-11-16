@@ -52,7 +52,7 @@ public class BObjectType extends BStructureType implements ObjectType {
         super(TypeTags.OBJECT, tSymbol);
     }
 
-    public BObjectType(BTypeSymbol tSymbol, int flags) {
+    public BObjectType(BTypeSymbol tSymbol, long flags) {
         super(TypeTags.OBJECT, tSymbol, flags);
     }
 
@@ -77,14 +77,14 @@ public class BObjectType extends BStructureType implements ObjectType {
         if (shouldPrintShape(tsymbol.name)) {
             StringBuilder sb = new StringBuilder();
 
-            int symbolFlags = tsymbol.flags;
+            var symbolFlags = tsymbol.flags;
             if (Symbols.isFlagOn(symbolFlags, Flags.ISOLATED)) {
                 sb.append("isolated ");
             }
 
             sb.append(OBJECT).append(SPACE).append(LEFT_CURL);
             for (BField field : fields.values()) {
-                int flags = field.symbol.flags;
+                var flags = field.symbol.flags;
                 if (Symbols.isFlagOn(flags, Flags.PUBLIC)) {
                     sb.append(SPACE).append(PUBLIC);
                 } else if (Symbols.isFlagOn(flags, Flags.PRIVATE)) {

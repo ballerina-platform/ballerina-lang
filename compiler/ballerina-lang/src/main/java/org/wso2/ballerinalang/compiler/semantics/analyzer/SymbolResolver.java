@@ -1492,7 +1492,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     public BType createInvokableType(List<? extends BLangVariable> paramVars,
                                      BLangVariable restVariable,
                                      BLangType retTypeVar,
-                                     int flags,
+                                     long flags,
                                      SymbolEnv env,
                                      Location location) {
         List<BType> paramTypes = new ArrayList<>();

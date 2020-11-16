@@ -52,7 +52,7 @@ public class BRecordType extends BStructureType implements RecordType {
         super(TypeTags.RECORD, tSymbol);
     }
 
-    public BRecordType(BTypeSymbol tSymbol, int flags) {
+    public BRecordType(BTypeSymbol tSymbol, long flags) {
         super(TypeTags.RECORD, tSymbol, flags);
     }
 

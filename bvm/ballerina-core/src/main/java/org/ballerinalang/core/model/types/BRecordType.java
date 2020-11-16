@@ -38,7 +38,7 @@ public class BRecordType extends BStructureType {
      * @param pkgPath  package of the struct
      * @param flags of the record type
      */
-    public BRecordType(String typeName, String pkgPath, int flags) {
+    public BRecordType(String typeName, String pkgPath, long flags) {
         super(typeName, pkgPath, flags, BMap.class);
     }
 

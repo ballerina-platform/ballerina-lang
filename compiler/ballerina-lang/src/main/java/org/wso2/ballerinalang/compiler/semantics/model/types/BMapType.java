@@ -38,7 +38,7 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
         this.constraint = constraint;
     }
 
-    public BMapType(int tag, BType constraint, BTypeSymbol tsymbol, int flags) {
+    public BMapType(int tag, BType constraint, BTypeSymbol tsymbol, long flags) {
         super(tag, tsymbol, flags);
         this.constraint = constraint;
     }

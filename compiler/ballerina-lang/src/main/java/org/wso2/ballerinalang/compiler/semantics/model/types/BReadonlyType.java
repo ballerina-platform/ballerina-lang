@@ -36,7 +36,7 @@ public class BReadonlyType extends BBuiltInRefType {
         this.flags |= Flags.READONLY;
     }
 
-    public BReadonlyType(int tag, BTypeSymbol tsymbol, Name name, int flag) {
+    public BReadonlyType(int tag, BTypeSymbol tsymbol, Name name, long flag) {
         super(tag, tsymbol);
         this.name = name;
         this.flags = flag;
