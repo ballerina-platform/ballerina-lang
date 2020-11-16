@@ -35,6 +35,11 @@
                     <exclude name="testCheckingExprs"/>
                 </methods>
             </class>
+            <class name="io.ballerina.semantic.api.test.ClassSymbolTest">
+                <methods>
+                    <exclude name="testTypeInit"/>
+                </methods>
+            </class>
 
             <!-- ########################## END ############################# -->
         </classes>
