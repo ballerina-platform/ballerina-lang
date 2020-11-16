@@ -30,7 +30,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public interface CompletionContext extends NewLSContext {
+public interface CompletionContext extends DocumentServiceContext {
 
     /**
      * Get the client capabilities.

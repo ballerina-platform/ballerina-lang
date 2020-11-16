@@ -24,8 +24,8 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LSOperation;
-import org.ballerinalang.langserver.commons.NewLSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
 
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *
  * @since 1.2.0
  */
-public class AbstractLSContext implements NewLSContext {
+public class AbstractDocumentServiceContext implements DocumentServiceContext {
 
     private final LSOperation operation;
 
@@ -54,7 +54,7 @@ public class AbstractLSContext implements NewLSContext {
 
     private List<ImportDeclarationNode> currentDocImports;
 
-    AbstractLSContext(LSOperation operation, String fileUri, WorkspaceManager wsManager) {
+    AbstractDocumentServiceContext(LSOperation operation, String fileUri, WorkspaceManager wsManager) {
         this.operation = operation;
         this.fileUri = fileUri;
         this.workspaceManager = wsManager;
@@ -153,8 +153,8 @@ public class AbstractLSContext implements NewLSContext {
             return self();
         }
 
-        public NewLSContext build() {
-            return new AbstractLSContext(this.operation, this.fileUri, this.wsManager);
+        public DocumentServiceContext build() {
+            return new AbstractDocumentServiceContext(this.operation, this.fileUri, this.wsManager);
         }
 
         public abstract T self();

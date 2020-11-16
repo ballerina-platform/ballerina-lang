@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
  *
  * @since 1.2.0
  */
-public class HoverContextImpl extends AbstractLSContext implements HoverContext {
+public class HoverContextImpl extends AbstractDocumentServiceContext implements HoverContext {
 
     private Token tokenAtCursor;
 

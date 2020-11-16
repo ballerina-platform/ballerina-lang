@@ -19,7 +19,7 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.NewLSContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -41,11 +41,11 @@ public class ImportsAcceptor {
     private final List<ImportDeclarationNode> currentModuleImports;
     private final BiConsumer<String, String> onExistCallback;
 
-    public ImportsAcceptor(NewLSContext context) {
+    public ImportsAcceptor(DocumentServiceContext context) {
         this(context, null);
     }
 
-    public ImportsAcceptor(NewLSContext context, BiConsumer<String, String> onExistCallback) {
+    public ImportsAcceptor(DocumentServiceContext context, BiConsumer<String, String> onExistCallback) {
         this.newImports = new HashSet<>();
         this.currentModuleImports = context.getCurrentDocImports();
         this.onExistCallback = onExistCallback;

@@ -25,9 +25,10 @@ import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
+import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
@@ -65,6 +66,8 @@ public class CodeActionTest {
 
     private static final Logger log = LoggerFactory.getLogger(CodeActionTest.class);
 
+    private static final WorkspaceManager workspaceManager = new BallerinaWorkspaceManager();
+
     @BeforeClass
     public void init() throws Exception {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
@@ -83,7 +86,7 @@ public class CodeActionTest {
 
         TestUtil.openDocument(this.serviceEndpoint, sourcePath);
         String response = TestUtil.getCodeActionResponse(this.serviceEndpoint, sourcePath.toString(), range,
-                                                         codeActionContext);
+                codeActionContext);
         TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
         JsonArray result = parser.parse(response).getAsJsonObject().getAsJsonArray("result");
 
@@ -111,8 +114,7 @@ public class CodeActionTest {
     }
 
     @Test(dataProvider = "codeaction-diagnostics-data-provider")
-    public void testCodeActionWithDiagnostics(String config, String source)
-            throws IOException, CompilationFailedException {
+    public void testCodeActionWithDiagnostics(String config, String source) throws IOException {
         String configJsonPath = "codeaction" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
@@ -120,7 +122,7 @@ public class CodeActionTest {
 
         // Filter diagnostics for the cursor position
         List<Diagnostic> diags = new ArrayList<>(
-                CodeActionUtil.toDiagnostics(TestUtil.compileAndGetDiagnostics(sourcePath)));
+                CodeActionUtil.toDiagnostics(TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager)));
         diags = diags.stream().
                 filter(diag -> CommonUtil.isWithinRange(range.getStart(), diag.getRange()))
                 .collect(Collectors.toList());
@@ -155,14 +157,14 @@ public class CodeActionTest {
     }
 
     @Test(dataProvider = "codeaction-testgen-data-provider", enabled = false)
-    public void testCodeActionWithTestGen(String config, Path source) throws IOException, CompilationFailedException {
+    public void testCodeActionWithTestGen(String config, Path source) throws IOException {
         String configJsonPath = "codeaction" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         TestUtil.openDocument(serviceEndpoint, sourcePath);
 
         List<Diagnostic> diags = new ArrayList<>(
-                CodeActionUtil.toDiagnostics(TestUtil.compileAndGetDiagnostics(sourcePath)));
+                CodeActionUtil.toDiagnostics(TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager)));
 
         JsonArray ranges = configJsonObject.getAsJsonArray("cursor");
         for (JsonElement rangeElement : ranges) {
@@ -195,14 +197,13 @@ public class CodeActionTest {
             }
             String cursorStr = range.getStart().getLine() + ":" + range.getEnd().getCharacter();
             Assert.assertTrue(codeActionFound,
-                              "Cannot find expected Code Action for: " + title + ", cursor at " + cursorStr);
+                    "Cannot find expected Code Action for: " + title + ", cursor at " + cursorStr);
         }
         TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
     }
 
     @Test(dataProvider = "codeaction-quickfixes-data-provider")
-    public void testCodeActionWithQuickFixes(String config, String source)
-            throws IOException, CompilationFailedException {
+    public void testCodeActionWithQuickFixes(String config, String source) throws IOException {
         String configJsonPath = "codeaction" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
@@ -210,9 +211,9 @@ public class CodeActionTest {
 
         // Filter diagnostics for the cursor position
         List<Diagnostic> diags = new ArrayList<>(
-                CodeActionUtil.toDiagnostics(TestUtil.compileAndGetDiagnostics(sourcePath)));
+                CodeActionUtil.toDiagnostics(TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager)));
         Position pos = new Position(configJsonObject.get("line").getAsInt(),
-                                    configJsonObject.get("character").getAsInt());
+                configJsonObject.get("character").getAsInt());
         diags = diags.stream().
                 filter(diag -> CommonUtil.isWithinRange(pos, diag.getRange()))
                 .collect(Collectors.toList());
@@ -242,7 +243,7 @@ public class CodeActionTest {
         }
         String cursorStr = range.getStart().getLine() + ":" + range.getEnd().getCharacter();
         Assert.assertTrue(codeActionFound,
-                          "Cannot find expected Code Action for: " + title + ", cursor at " + cursorStr);
+                "Cannot find expected Code Action for: " + title + ", cursor at " + cursorStr);
         TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
     }
 

@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.langserver.contexts;
 
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LSOperation;
-import org.ballerinalang.langserver.commons.NewLSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 
 /**
@@ -26,7 +26,7 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
  *
  * @since 1.2.0
  */
-public class BaseContextImpl extends AbstractLSContext {
+public class BaseContextImpl extends AbstractDocumentServiceContext {
 
     BaseContextImpl(LSOperation operation, String fileUri, WorkspaceManager wsManager) {
         super(operation, fileUri, wsManager);
@@ -48,7 +48,7 @@ public class BaseContextImpl extends AbstractLSContext {
             super(lsOperation);
         }
 
-        public NewLSContext build() {
+        public DocumentServiceContext build() {
             return new BaseContextImpl(this.operation, this.fileUri, this.wsManager);
         }
 

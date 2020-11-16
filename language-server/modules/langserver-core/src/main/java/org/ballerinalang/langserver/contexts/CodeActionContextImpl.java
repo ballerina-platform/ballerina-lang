@@ -35,7 +35,7 @@ import java.util.Optional;
  *
  * @since 1.2.0
  */
-public class CodeActionContextImpl extends AbstractLSContext implements CodeActionContext {
+public class CodeActionContextImpl extends AbstractDocumentServiceContext implements CodeActionContext {
 
     private Position cursorPosition;
     private List<Diagnostic> diagnostics;

@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.common.utils;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -30,7 +29,6 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Package;
@@ -44,9 +42,8 @@ import org.apache.commons.lang3.SystemUtils;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.NewLSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
@@ -202,7 +199,8 @@ public class CommonUtil {
      * @param context Language server context
      * @return {@link List}     List of Text Edits to apply
      */
-    public static List<TextEdit> getAutoImportTextEdits(String orgName, String pkgName, NewLSContext context) {
+    public static List<TextEdit> getAutoImportTextEdits(String orgName, String pkgName,
+                                                        DocumentServiceContext context) {
         List<ImportDeclarationNode> currentDocImports = context.getCurrentDocImports();
         Position start = new Position(0, 0);
         if (currentDocImports != null && !currentDocImports.isEmpty()) {
@@ -834,7 +832,7 @@ public class CommonUtil {
      * @return module prefix
      */
     public static String getModulePrefix(ImportsAcceptor importsAcceptor, ModuleID currentModuleId,
-                                         ModuleID moduleID, NewLSContext context) {
+                                         ModuleID moduleID, DocumentServiceContext context) {
         String pkgPrefix = "";
         if (!moduleID.equals(currentModuleId) && !BUILT_IN_PACKAGE_PREFIX.equals(moduleID.moduleName())) {
             String moduleName = escapeModuleName(context, moduleID.orgName() + "/" + moduleID.moduleName());
@@ -874,7 +872,7 @@ public class CommonUtil {
         };
     }
 
-    public static String escapeModuleName(NewLSContext context, String fullPackageNameAlias) {
+    public static String escapeModuleName(DocumentServiceContext context, String fullPackageNameAlias) {
         Set<String> names = new HashSet<>();
         Predicate<Scope.ScopeEntry> nonPkgNames = scopeEntry -> !(scopeEntry.symbol instanceof BPackageSymbol);
         try {
@@ -923,20 +921,6 @@ public class CommonUtil {
             }
             return node1Loc.lineRange().startLine().line() - node2Loc.lineRange().startLine().line();
         }
-    }
-
-    /**
-     * Whether we skip the first parameter being included as a label in the signature.
-     * When showing a lang lib invokable symbol over DOT(invocation) we do not show the first param, but when we
-     * showing the invocation over package of the langlib with the COLON we show the first param
-     *
-     * @param context        context
-     * @param functionSymbol invokable symbol
-     * @return {@link Boolean} whether we show the first param or not
-     */
-    public static boolean skipFirstParam(LSContext context, FunctionSymbol functionSymbol) {
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
-        return isLangLib(functionSymbol.moduleID()) && nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
     }
 
     /**

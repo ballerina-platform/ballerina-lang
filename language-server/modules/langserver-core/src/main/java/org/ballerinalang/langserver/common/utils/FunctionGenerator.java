@@ -19,8 +19,8 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.NewLSContext;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -135,14 +135,14 @@ public class FunctionGenerator {
      * @return return type signature
      */
     public static String generateTypeDefinition(ImportsAcceptor importsAcceptor,
-                                                TypeSymbol typeDescriptor, NewLSContext context) {
+                                                TypeSymbol typeDescriptor, DocumentServiceContext context) {
 //        PackageID packageID = context.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
         PackageID packageID = null;
         String signature = typeDescriptor.signature();
         return (packageID != null) ? processModuleIDsInText(importsAcceptor, context, packageID, signature) : signature;
     }
 
-    private static String processModuleIDsInText(ImportsAcceptor importsAcceptor, NewLSContext context,
+    private static String processModuleIDsInText(ImportsAcceptor importsAcceptor, DocumentServiceContext context,
                                                  PackageID currentPkgID, String text) {
         StringBuilder newText = new StringBuilder();
         String moduleName = currentPkgID.nameComps.stream().map(n -> n.value).collect(Collectors.joining("."));
@@ -214,7 +214,7 @@ public class FunctionGenerator {
 
     private static String lookupVariableReturnType(ImportsAcceptor importsAcceptor,
                                                    String variableName, BLangNode parent,
-                                                   NewLSContext context) {
+                                                   DocumentServiceContext context) {
         // Recursively find BLangBlockStmt to get scope-entries
         if (parent instanceof BLangBlockStmt || parent instanceof BLangFunctionBody) {
             Scope scope = parent instanceof BLangBlockStmt ? ((BLangBlockStmt) parent).scope
