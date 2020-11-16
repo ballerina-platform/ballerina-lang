@@ -228,12 +228,14 @@ public class BStreamValueTest {
                 "public isolated function next() returns record {| any|error value; |}|error?; }', but found " +
                 "'IteratorWithNonIsolatedNext'", 332, 42);
         BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
-                        "public isolated function next() returns record {| any|error value; |}|error?; public isolated " +
-                        "function close() returns error?; }', but found 'IteratorWithNonIsolatedNextAndIsolatedClose'", 333,
+                        "public isolated function next() returns record {| any|error value; |}|error?; public " +
+                        "isolated function close() returns error?; }', but found " +
+                        "'IteratorWithNonIsolatedNextAndIsolatedClose'", 333,
                 42);
         BAssertUtil.validateError(negativeResult, i, "invalid stream constructor. expected a subtype of 'object { " +
-                        "public isolated function next() returns record {| any|error value; |}|error?; public isolated " +
-                        "function close() returns error?; }', but found 'IteratorWithIsolatedNextAndNonIsolatedClose'", 334,
+                        "public isolated function next() returns record {| any|error value; |}|error?; public " +
+                        "isolated function close() returns error?; }', but found " +
+                        "'IteratorWithIsolatedNextAndNonIsolatedClose'", 334,
                 42);
     }
 
