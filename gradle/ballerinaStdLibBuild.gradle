@@ -137,6 +137,8 @@ task copyInteropImports(type: Copy) {
 ext {
     if (project.projectDir.name == "testerina-core") {
         modName = "test"
+    } else if (project.projectDir.name == 'langserver-stdlib'){
+        modName = 'langserverstdlib'
     } else {
         modName = project.projectDir.name
     }
