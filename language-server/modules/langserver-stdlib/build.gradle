@@ -15,9 +15,7 @@
  *
  */
 
-apply from: "$rootDir/gradle/ballerinaModuleToPackage.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibBuild.gradle"
-
+apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
 
 dependencies {
     distributionBalo project(path: ':ballerina-io', configuration: 'distributionBalo')

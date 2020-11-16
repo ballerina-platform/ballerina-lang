@@ -30,6 +30,7 @@ import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -39,7 +40,10 @@ import java.nio.file.PathMatcher;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -116,6 +120,47 @@ public class FileSystemRepository implements PackageRepository {
         }
 
         return pathToVersions(versions);
+    }
+
+    /**
+     * Get the list of packages in the balo cache.
+     *
+     * @return {@link List} of package names
+     */
+    public Map<String, List<String>> getPackages() {
+        Map<String, List<String>> packagesMap = new HashMap<>();
+        for (File file : Objects.requireNonNull(this.balo.toFile().listFiles())) {
+            if (!file.isDirectory()) {
+                continue;
+            }
+            String orgName = file.getName();
+            File[] filesList = this.balo.resolve(orgName).toFile().listFiles();
+            if (filesList == null) {
+                return packagesMap;
+            }
+            List<String> pkgList = new ArrayList<>();
+            for (File pkgDir : filesList) {
+                if (!pkgDir.isDirectory() || pkgDir.isHidden()) {
+                    continue;
+                }
+                File[] pkgs = this.balo.resolve(orgName).resolve(pkgDir.getName()).toFile().listFiles();
+                if (pkgs == null) {
+                    continue;
+                }
+                String version = "";
+                for (File listFile : pkgs) {
+                    if (listFile.isHidden() || !listFile.isDirectory()) {
+                        continue;
+                    }
+                    version = listFile.getName();
+                    break;
+                }
+                pkgList.add(pkgDir.getName() + ":" + version);
+            }
+            packagesMap.put(orgName, pkgList);
+        }
+
+        return packagesMap;
     }
 
     private List<SemanticVersion> pathToVersions(List<Path> versions) {

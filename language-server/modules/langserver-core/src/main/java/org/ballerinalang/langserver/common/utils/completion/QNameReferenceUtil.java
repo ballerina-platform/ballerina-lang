@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.common.utils;
+package org.ballerinalang.langserver.common.utils.completion;
 
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -21,7 +21,8 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +46,7 @@ public class QNameReferenceUtil {
      * @param qNameRef qualified name reference
      * @return {@link List} of completion items
      */
-    public static List<Symbol> getExpressionContextEntries(LSContext ctx, QualifiedNameReferenceNode qNameRef) {
+    public static List<Symbol> getExpressionContextEntries(CompletionContext ctx, QualifiedNameReferenceNode qNameRef) {
         String moduleAlias = QNameReferenceUtil.getAlias(qNameRef);
         Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(ctx, moduleAlias);
 
@@ -76,7 +77,7 @@ public class QNameReferenceUtil {
      * @param predicate predicate to filer
      * @return {@link List} of filtered module entries
      */
-    public static List<Symbol> getModuleContent(LSContext context,
+    public static List<Symbol> getModuleContent(CompletionContext context,
                                                 QualifiedNameReferenceNode qNameRef,
                                                 Predicate<Symbol> predicate) {
         Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, QNameReferenceUtil.getAlias(qNameRef));
@@ -93,7 +94,7 @@ public class QNameReferenceUtil {
      * @param qNameRef Qualified name reference
      * @return {@link List} of type entries extracted
      */
-    public static List<Symbol> getTypesInModule(LSContext context, QualifiedNameReferenceNode qNameRef) {
+    public static List<Symbol> getTypesInModule(CompletionContext context, QualifiedNameReferenceNode qNameRef) {
         Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, QNameReferenceUtil.getAlias(qNameRef));
         return module.map(symbol -> symbol.allSymbols().stream()
                 .filter(moduleItem -> moduleItem instanceof TypeDefinitionSymbol ||
