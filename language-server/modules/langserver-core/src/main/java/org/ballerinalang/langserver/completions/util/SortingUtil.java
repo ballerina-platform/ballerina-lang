@@ -31,7 +31,7 @@ import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.CompletionContext;
-import org.ballerinalang.langserver.commons.NewLSContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
@@ -130,7 +130,7 @@ public class SortingUtil {
      * @param assignableType assignable type (derived from the LHS)
      * @return {@link String} generated sort text
      */
-    public static String genSortTextForInitContextItem(NewLSContext context, LSCompletionItem item,
+    public static String genSortTextForInitContextItem(DocumentServiceContext context, LSCompletionItem item,
                                                        TypeDescKind assignableType) {
         // TODO: Revamp should carry out after fixing the type reference issue in semantic model is fixed 
         /*

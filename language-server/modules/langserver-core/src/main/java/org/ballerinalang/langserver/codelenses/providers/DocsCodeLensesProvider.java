@@ -29,7 +29,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.NewLSContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.compiler.config.ClientConfigListener;
 import org.ballerinalang.langserver.compiler.config.LSClientConfig;
@@ -67,7 +67,7 @@ public class DocsCodeLensesProvider extends AbstractCodeLensesProvider {
      * @param context
      */
     @Override
-    public List<CodeLens> getLenses(NewLSContext context) {
+    public List<CodeLens> getLenses(DocumentServiceContext context) {
         List<CodeLens> lenses = new ArrayList<>();
         Optional<Document> document = context.workspace().document(context.filePath());
         if (document.isEmpty()) {

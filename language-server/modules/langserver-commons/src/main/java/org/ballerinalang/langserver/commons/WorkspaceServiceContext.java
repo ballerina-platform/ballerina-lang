@@ -17,27 +17,26 @@
  */
 package org.ballerinalang.langserver.commons;
 
-import io.ballerina.compiler.syntax.tree.Token;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 
 /**
- * Represents the hover operation context.
+ * Represents the language server context.
  *
  * @since 2.0.0
  */
-public interface HoverContext extends DocumentServiceContext {
+public interface WorkspaceServiceContext {
 
     /**
-     * Get the client's signature capabilities.
+     * Get the workspace manager instance.
      *
-     * @param token token to be set
+     * @return {@link WorkspaceManager} instance for the language server
      */
-    void setTokenAtCursor(Token token);
+    WorkspaceManager workspace();
 
     /**
-     * Get the token at cursor. In order to successfully query the token, it has to be explicitly set by invoking
-     * {@link #setTokenAtCursor(Token)}. Otherwise a runtime exception will be thrown.
+     * Get the operation.
      *
-     * @return {@link Token} at the cursor
+     * @return {@link LSOperation}
      */
-    Token getTokenAtCursor();
+    LSOperation operation();
 }

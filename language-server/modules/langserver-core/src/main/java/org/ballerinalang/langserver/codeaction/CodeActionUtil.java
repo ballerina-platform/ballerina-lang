@@ -53,8 +53,8 @@ import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.NewLSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -311,7 +311,8 @@ public class CodeActionUtil {
      * @param context        {@link LSContext}
      * @return a list of possible type list
      */
-    public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, List<TextEdit> edits, NewLSContext context) {
+    public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, List<TextEdit> edits,
+                                                DocumentServiceContext context) {
         if (typeDescriptor.name().startsWith("$")) {
             typeDescriptor = CommonUtil.getRawType(typeDescriptor);
         }
