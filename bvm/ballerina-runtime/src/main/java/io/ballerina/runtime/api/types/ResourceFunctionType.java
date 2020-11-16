@@ -22,5 +22,8 @@ package io.ballerina.runtime.api.types;
  *
  * @since 2.0
  */
-public interface ResourceFunctionType {
+public interface ResourceFunctionType extends MemberFunctionType {
+    String[] getParamNames();
+    String getAccessor();
+    String[] getResourcePath();
 }

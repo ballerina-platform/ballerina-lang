@@ -636,6 +636,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         List<BLangIdentifier> relResourcePath = new ArrayList<>();
         for (Token token : relativeResourcePath) {
+            if (token.kind() == SyntaxKind.SLASH_TOKEN) {
+                continue;
+            }
             relResourcePath.add(createIdentifier(token));
         }
         bLFunction.resourcePath = relResourcePath;
@@ -647,12 +650,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         StringBuilder sb = new StringBuilder();
         sb.append("$");
         sb.append(createIdentifier(accessorName).getValue());
-        sb.append("$");
         for (Token token : relativeResourcePath) {
-            sb.append(createIdentifier(token).getValue());
+            if (token.kind() == SyntaxKind.SLASH_TOKEN) {
+                continue;
+            }
+            sb.append("$");
+            String value = createIdentifier(token).getValue();
+            sb.append(value);
         }
-        String resourceFuncName = sb.toString();
-        return resourceFuncName;
+        return sb.toString();
     }
 
     @Override
@@ -1080,7 +1086,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         BLangIdentifier pkgAlias = createIdentifier(pos, "");
-        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, anonClass.name);
+        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, createIdentifier(pos, genName));
 
         invocationNode.name = (BLangIdentifier) nameReference.name;
         invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
@@ -1659,6 +1665,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     break;
                 default:
                     bLAttachPoint = AttachPoint.getAttachmentPoint(firstIndent.text(), source);
+                    if (bLAttachPoint == null) {
+                        dlog.error(pos, DiagnosticCode.ANNOTATION_UNKNOWN_ATTACH_POINT, firstIndent.text());
+                    }
             }
             annotationDecl.addAttachPoint(bLAttachPoint);
         }
@@ -3576,12 +3585,20 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ServiceDeclarationNode serviceDeclarationNode) {
         Location pos = getPositionWithoutMetadata(serviceDeclarationNode);
         BLangClassDefinition annonClassDef = transformObjectCtorExpressionBody(serviceDeclarationNode.members());
+        annonClassDef.isServiceDecl = true;
         annonClassDef.pos = pos;
         annonClassDef.flagSet.add(SERVICE);
 
         List<String> absResourcePathPath = new ArrayList<>();
-        for (Token token : serviceDeclarationNode.absoluteResourcePath()) {
-            absResourcePathPath.add(token.text());
+        NodeList<Token> pathList = serviceDeclarationNode.absoluteResourcePath();
+        for (Token token : pathList) {
+            String text = token.text();
+            // if it's a single '/' then add, else ignore '/' chars and only add other pieces.
+            if (pathList.size() == 1 && text.equals("/")) {
+                absResourcePathPath.add(text);
+            } else if (!text.equals("/")) {
+                absResourcePathPath.add(text);
+            }
         }
 
         // Generate a name for the anonymous class
@@ -3612,7 +3629,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         BLangIdentifier pkgAlias = createIdentifier(pos, "");
-        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, annonClassDef.name);
+        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, createIdentifier(pos, genName));
 
         invocationNode.name = (BLangIdentifier) nameReference.name;
         invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
@@ -3633,6 +3650,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         service.serviceClass = annonClassDef;
         service.absoluteResourcePath = absResourcePathPath;
         service.pos = pos;
+        service.name = createIdentifier(pos, anonymousModelHelper.getNextAnonymousServiceVarKey(packageID));
         return service;
     }
 

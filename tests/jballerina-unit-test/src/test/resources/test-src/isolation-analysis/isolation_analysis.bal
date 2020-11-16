@@ -75,9 +75,9 @@ public class Listener {
 
     *'object:Listener;
 
-    public function __attach(service s, string? name = ()) returns error? { }
+    public function __attach(service object {} s, string? name = ()) returns error? { }
 
-    public function __detach(service s) returns error? { }
+    public function __detach(service object {} s) returns error? { }
 
     public function __start() returns error? { }
 
@@ -86,12 +86,12 @@ public class Listener {
     public function __immediateStop() returns error? { }
 }
 
-service s1 on new Listener() {
-    isolated resource function res1(map<int> j) {
+service /s1 on new Listener() {
+    isolated resource function get res1(map<int> j) {
         int x = i + <int> j["val"];
     }
 
-    resource isolated function res2(string str) returns error? {
+    resource isolated function get res2(string str) returns error? {
         self.res3();
         return error(str + <string> ms["first"]);
     }
@@ -101,12 +101,12 @@ service s1 on new Listener() {
     }
 }
 
-service s2 = service {
-    isolated resource function res1(map<int> j) {
+service object {} s2 = service object {
+    isolated resource function get res1(map<int> j) {
         int x = i + <int> j["val"];
     }
 
-    resource isolated function res2(string str) returns error? {
+    resource isolated function get res2(string str) returns error? {
         self.res3();
         return error(str + <string> ms["first"]);
     }

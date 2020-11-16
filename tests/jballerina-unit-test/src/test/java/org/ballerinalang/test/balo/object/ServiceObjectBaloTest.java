@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.balo.object;
 
+import org.ballerinalang.nativeimpl.jvm.servicetests.ServiceValue;
 import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -29,40 +30,29 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
- * Tests for `readonly object`s.
+ * Tests for `service objects` and `service classes`.
  *
  * @since 2.0.0
  */
-public class ReadOnlyObjectBaloTest {
+public class ServiceObjectBaloTest {
 
     private CompileResult result;
 
     @Test
     public void testReadonlyRecordFields() {
         BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "readonly_objects");
-        result = BCompileUtil.compile("test-src/balo/test_balo/object/test_readonly_objects.bal");
+        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/service_test_project", "testorg", "serv_classes");
+        result = BCompileUtil.compile("test-src/balo/test_balo/object/test_service_objects.bal");
     }
 
     @Test
     public void testReadonlyType() {
-        BRunUtil.invoke(result, "testReadonlyObjects");
-    }
-
-    @Test
-    public void testReadonlyRecordFieldsNegative() {
-        CompileResult result =
-                BCompileUtil.compile("test-src/balo/test_balo/object/test_readonly_objects_negative.bal");
-        int index = 0;
-
-        validateError(result, index++, "invalid intersection type: cannot have a 'readonly' intersection with a " +
-                "'readonly object'", 20, 5);
-        assertEquals(result.getErrorCount(), index);
+        BRunUtil.invoke(result, "testServiceObjectValue");
     }
 
     @AfterClass
     public void tearDown() {
-        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg",
-                                               "readonly_objects");
+        ServiceValue.reset();
+        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "serv_classes");
     }
 }

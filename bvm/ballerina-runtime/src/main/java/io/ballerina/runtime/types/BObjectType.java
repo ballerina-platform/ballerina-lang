@@ -20,7 +20,7 @@ package io.ballerina.runtime.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.ValueCreator;
-import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.ObjectType;
@@ -37,9 +37,9 @@ import java.util.StringJoiner;
  */
 public class BObjectType extends BStructureType implements ObjectType {
 
-    private AttachedFunctionType[] attachedFunctions;
-    public AttachedFunctionType initializer;
-    public AttachedFunctionType generatedInitializer;
+    private MemberFunctionType[] attachedFunctions;
+    public MemberFunctionType initializer;
+    public MemberFunctionType generatedInitializer;
 
     private final boolean readonly;
     private IntersectionType immutableType;
@@ -77,19 +77,19 @@ public class BObjectType extends BStructureType implements ObjectType {
         return TypeTags.OBJECT_TYPE_TAG;
     }
 
-    public AttachedFunctionType[] getAttachedFunctions() {
+    public MemberFunctionType[] getAttachedFunctions() {
         return attachedFunctions;
     }
 
-    public void setAttachedFunctions(AttachedFunctionType[] attachedFunctions) {
+    public void setAttachedFunctions(MemberFunctionType[] attachedFunctions) {
         this.attachedFunctions = attachedFunctions;
     }
 
-    public void setInitializer(AttachedFunction initializer) {
+    public void setInitializer(BMemberFunctionType initializer) {
         this.initializer = initializer;
     }
 
-    public void setGeneratedInitializer(AttachedFunction generatedInitializer) {
+    public void setGeneratedInitializer(BMemberFunctionType generatedInitializer) {
         this.generatedInitializer = generatedInitializer;
     }
 
@@ -107,7 +107,7 @@ public class BObjectType extends BStructureType implements ObjectType {
             sj.add(field.getKey() + " : " + field.getValue().getFieldType());
         }
 
-        for (AttachedFunctionType func : attachedFunctions) {
+        for (MemberFunctionType func : attachedFunctions) {
             sj.add(func.toString());
         }
 

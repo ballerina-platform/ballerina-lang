@@ -360,6 +360,7 @@ public enum DiagnosticCode {
     ANNOTATION_INVALID_TYPE("annotation.invalid.type"),
     ANNOTATION_INVALID_CONST_TYPE("annotation.invalid.const.type"),
     ANNOTATION_REQUIRES_CONST("annotation.requires.const"),
+    ANNOTATION_UNKNOWN_ATTACH_POINT("unknown.annotation.attach.point"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
     CANNOT_GET_ALL_FIELDS("cannot.get.all.fields"),
 

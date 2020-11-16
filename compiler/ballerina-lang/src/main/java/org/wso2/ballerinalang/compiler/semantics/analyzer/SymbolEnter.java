@@ -601,7 +601,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BTypeSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags), className, env.enclPkg.symbol.pkgID, null,
                                                         env.scope.owner, classDefinition.name.pos,
-                                                        getOrigin(className, flags));
+                                                        getOrigin(className, flags), classDefinition.isServiceDecl);
         tSymbol.scope = new Scope(tSymbol);
         tSymbol.markdownDocumentation = getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
 
@@ -1367,7 +1367,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 getFuncSymbolName(funcNode),
                 env.enclPkg.symbol.pkgID, null, env.scope.owner,
                 funcNode.hasBody(), funcNode.name.pos, SOURCE);
-        funcSymbol.source = funcNode.pos.src.cUnitName;
+        funcSymbol.source = funcNode.pos.lineRange().filePath();
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);

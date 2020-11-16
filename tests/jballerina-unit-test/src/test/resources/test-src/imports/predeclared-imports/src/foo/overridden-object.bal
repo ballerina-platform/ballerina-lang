@@ -20,11 +20,11 @@ import ballerina/lang.'object as obj;
 class CustomListener {
     *obj:Listener;
 
-    public function __attach(service s, string? name) returns error? {
+    public function __attach(service object {} s, string? name) returns error? {
         io:println("running __attach");
     }
 
-    public function __detach(service s) returns error? {
+    public function __detach(service object {} s) returns error? {
         io:println("running __dettach");
     }
 
@@ -44,11 +44,11 @@ class CustomListener {
 class CustomListenerWithAutoImports {
     *obj:Listener;
 
-    public function __attach(service s, string? name) returns error? {
+    public function __attach(service object {} s, string? name) returns error? {
         io:println("running __attach");
     }
 
-    public function __detach(service s) returns error? {
+    public function __detach(service object {} s) returns error? {
         io:println("running __dettach");
     }
 

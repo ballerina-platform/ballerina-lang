@@ -28,11 +28,11 @@ public class ABC {
         return ();
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function __attach(service object {} s, string? name = ()) returns error? {
         io:println("a:ABC listener __attach called, service name - " + self.name);
     }
 
-    public function __detach(service s) returns error? {
+    public function __detach(service object {} s) returns error? {
         io:println("a:ABC listener __detach called, service name - " + self.name);
     }
 }

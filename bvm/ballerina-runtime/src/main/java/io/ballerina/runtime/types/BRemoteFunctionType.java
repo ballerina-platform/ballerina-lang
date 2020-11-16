@@ -17,28 +17,31 @@
  */
 package io.ballerina.runtime.types;
 
-import io.ballerina.runtime.api.types.AttachedFunctionType;
-import io.ballerina.runtime.api.types.ResourceFunctionType;
+import io.ballerina.runtime.api.types.RemoteFunctionType;
+import io.ballerina.runtime.api.types.Type;
 
-/**d
- * {@code ResourceFunction} represents a resource function in Ballerina.
+import java.util.StringJoiner;
+
+/**
+ * {@code RemoteFunctionType} represents a remote function in Ballerina.
  *
  * @since 2.0
  */
-public class ResourceFunction implements ResourceFunctionType {
+public class BRemoteFunctionType extends BMemberFunctionType implements RemoteFunctionType {
 
-    public final AttachedFunctionType attachedFunction;
-    public final String accessor;
-    public final String resourcePath;
-
-    public ResourceFunction(AttachedFunctionType attachedFunction, String accessor, String resourcePath) {
-        this.attachedFunction = attachedFunction;
-        this.accessor = accessor;
-        this.resourcePath = resourcePath;
+    public BRemoteFunctionType(String funcName, BObjectType parent, BFunctionType type, int flags) {
+        super(funcName, parent, type, flags);
+        this.funcName = funcName;
+        this.type = type;
+        this.flags = flags;
     }
 
     @Override
     public String toString() {
-        return "resource " + accessor + " " + attachedFunction.toString();
+        StringJoiner sj = new StringJoiner(",", "remote function (", ") returns (" + type.retType + ")");
+        for (Type type : type.paramTypes) {
+            sj.add(type.getName());
+        }
+        return sj.toString();
     }
 }

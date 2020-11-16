@@ -47,7 +47,7 @@ public class FinalAccessTest {
     public void testFinalFailCase() {
         CompileResult compileResultNegative = BCompileUtil.compile(
                 "test-src/types/finaltypes/test_implicitly_final_negative.bal");
-        Assert.assertEquals(compileResultNegative.getErrorCount(), 9);
+        Assert.assertEquals(compileResultNegative.getErrorCount(), 8);
         BAssertUtil.validateError(compileResultNegative, 0, "cannot assign a value to function argument 'a'", 11, 5);
         BAssertUtil.validateError(compileResultNegative, 1, "cannot assign a value to function argument 'a'", 17, 5);
         BAssertUtil.validateError(compileResultNegative, 2, "cannot assign a value to function argument 'f'", 22, 5);
@@ -57,8 +57,6 @@ public class FinalAccessTest {
         BAssertUtil.validateError(compileResultNegative, 6, "cannot assign a value to function argument 'a'", 38, 5);
         BAssertUtil.validateError(compileResultNegative, 7, "invalid assignment: 'listener' declaration is final",
                                   45, 5);
-        BAssertUtil.validateError(compileResultNegative, 8, "invalid assignment: 'service' declaration is final",
-                                  51, 5);
     }
 
     @Test

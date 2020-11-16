@@ -17,6 +17,18 @@ service class SClass {
         return self.message;
     }
 
+    resource function get foo/path() returns string {
+        return self.message + "foo";
+    }
+
+    resource function get .() returns string {
+        return self.message + "dot";
+    }
+
+    resource function get foo/baz(string s) returns string {
+        return s;
+    }
+
     function init() {
         self.message = "returned from `barPath`";
     }
@@ -27,6 +39,12 @@ function testServiceObjectValue() {
     assertEquality(s.message, "returned from `barPath`");
     var x = wait callMethod(s, "$get$barPath");
     assertEquality(x, s.message);
+
+    var y = wait callMethod(s, "$get$foo$path");
+    assertEquality(y, s.message + "foo");
+
+    var z = wait callMethod(s, "$get$.");
+    assertEquality(z, s.message + "dot");
 }
 
 

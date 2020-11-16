@@ -82,26 +82,26 @@ function testLikeModuleQualifiedVarNameAsJsonField() {
     panic getFailureError(expectedM, m);
 }
 
-annotation Foo foo on service;
+annotation Foo foo on class;
 
-service serv1 =
+service object {} serv1 =
 @foo {
     s,
     i
 }
-service {
+service object {
 
 };
 
 function testVarNameFieldInAnnotation() {
     s = "new value";
 
-    service serv2 =
+    service object {} serv2 =
     @foo {
         s,
         i: 100
     }
-    service {
+    service object {
 
     };
 

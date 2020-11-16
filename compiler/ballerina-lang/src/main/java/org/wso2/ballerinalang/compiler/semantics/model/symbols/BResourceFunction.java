@@ -17,9 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class BResourceFunction extends BAttachedFunction {
     public Name accessor;
 
     public BResourceFunction(Name funcName, BInvokableSymbol symbol, BInvokableType type,
-                             List<Name> resourcePath, Name accessor, DiagnosticPos pos) {
+                             List<Name> resourcePath, Name accessor, Location pos) {
         super(funcName, symbol, type, pos);
         this.resourcePath = resourcePath;
         this.accessor = accessor;
@@ -44,7 +44,7 @@ public class BResourceFunction extends BAttachedFunction {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("resource function ").append(accessor).append(" ");
-        resourcePath.forEach(r -> sb.append(r));
+        sb.append(resourcePath.stream().map(r -> r.value).reduce((a, b) -> a + "/" + b).get());
         sb.append(" ").append(type.getTypeSignature());
         return sb.toString();
     }

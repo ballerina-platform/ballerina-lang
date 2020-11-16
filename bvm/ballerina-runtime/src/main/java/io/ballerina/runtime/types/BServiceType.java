@@ -19,7 +19,7 @@ package io.ballerina.runtime.types;
 import io.ballerina.runtime.AnnotationUtils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.ResourceFunctionType;
 import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.scheduling.Strand;
@@ -36,7 +36,7 @@ import java.util.ArrayList;
 public class BServiceType extends BObjectType implements ServiceType {
 
     private ResourceFunctionType[] resourceFunctions;
-    private volatile AttachedFunctionType[] remoteFunctions;
+    private volatile MemberFunctionType[] remoteFunctions;
 
     public BServiceType(String typeName, Module pkg, int flags) {
         super(typeName, pkg, flags);
@@ -44,7 +44,7 @@ public class BServiceType extends BObjectType implements ServiceType {
 
     public void setAttachedFuncsAndProcessAnnots(MapValue globalAnnotationMap, Strand strand,
                                                          BServiceType originalType,
-                                                         AttachedFunction[] attachedFunctions) {
+                                                         BMemberFunctionType[] attachedFunctions) {
         this.setAttachedFunctions(attachedFunctions);
         this.setFields(originalType.getFields());
         this.initializer = originalType.initializer;
@@ -63,9 +63,9 @@ public class BServiceType extends BObjectType implements ServiceType {
      * @return array of remote functions
      */
     @Override
-    public AttachedFunctionType[] getRemoteFunctions() {
+    public MemberFunctionType[] getRemoteFunctions() {
         if (remoteFunctions == null) {
-            AttachedFunctionType[] funcs = getRemoteFunctions(getAttachedFunctions());
+            MemberFunctionType[] funcs = getRemoteFunctions(getAttachedFunctions());
             synchronized (this) {
                 if (remoteFunctions == null) {
                     remoteFunctions = funcs;
@@ -75,14 +75,14 @@ public class BServiceType extends BObjectType implements ServiceType {
         return remoteFunctions;
     }
 
-    private AttachedFunctionType[] getRemoteFunctions(AttachedFunctionType[] attachedFunctions) {
-        ArrayList<AttachedFunctionType> functions = new ArrayList<>();
-        for (AttachedFunctionType funcType : attachedFunctions) {
-            if ((((AttachedFunction) funcType).flags & Flags.REMOTE) == Flags.REMOTE) {
+    private MemberFunctionType[] getRemoteFunctions(MemberFunctionType[] attachedFunctions) {
+        ArrayList<MemberFunctionType> functions = new ArrayList<>();
+        for (MemberFunctionType funcType : attachedFunctions) {
+            if ((((BMemberFunctionType) funcType).flags & Flags.REMOTE) == Flags.REMOTE) {
                 functions.add(funcType);
             }
         }
-        return functions.toArray(new AttachedFunctionType[]{});
+        return functions.toArray(new MemberFunctionType[]{});
     }
 
     /**

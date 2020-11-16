@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime.types;
 
-import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
@@ -29,13 +29,13 @@ import java.util.StringJoiner;
  *
  * @since 0.995.0
  */
-public class AttachedFunction extends BFunctionType implements AttachedFunctionType {
+public class BMemberFunctionType extends BFunctionType implements MemberFunctionType {
 
     public String funcName;
     public BFunctionType type;
     public BObjectType parentObjectType;
 
-    public AttachedFunction(String funcName, BObjectType parent, BFunctionType type, int flags) {
+    public BMemberFunctionType(String funcName, BObjectType parent, BFunctionType type, int flags) {
         this.funcName = funcName;
         this.type = type;
         this.parentObjectType = parent;

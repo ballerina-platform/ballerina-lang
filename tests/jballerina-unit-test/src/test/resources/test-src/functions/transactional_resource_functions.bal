@@ -7,7 +7,7 @@ int attachCount = -2;
 
 service on ep {
 
-    transactional resource function foo(string b) {
+    transactional resource function get foo(string b) {
     }
 }
 
@@ -27,11 +27,11 @@ public class ABC {
         return ();
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function __attach(service object {} s, string? name = ()) returns error? {
         attachCount += 1;
     }
 
-    public function __detach(service s) returns error? {
+    public function __detach(service object {} s) returns error? {
     }
 }
 

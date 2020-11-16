@@ -21,9 +21,9 @@ import ballerina/lang.test;
 // Arguments to resource functions are provided by the listener and if the listener is statically verified to be
 // untainted we consider the arguments provided by the listener to be untainted as well.
 
-service sample on helloWorldEP {
+service /sample on helloWorldEP {
 
-    resource function params (string foo) {
+    resource function get params (string foo) {
         sensitiveFunc(foo);
     }
 }

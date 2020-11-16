@@ -30,10 +30,12 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -478,6 +480,19 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (serviceNode.isAnonymousServiceValue) {
             setTaintedStatus(serviceNode.symbol, TaintedStatus.TAINTED);
             setTaintedStatus(serviceNode.serviceClass.symbol, TaintedStatus.TAINTED);
+        }
+
+        boolean isAllListenersUntaintedRefs = true;
+        for (BLangExpression expr : serviceNode.attachedExprs) {
+            if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && !((BLangSimpleVarRef) expr).symbol.tainted) {
+                continue;
+            }
+            isAllListenersUntaintedRefs = false;
+        }
+
+        if (!isAllListenersUntaintedRefs) {
+            // Service type tainted due to listeners being tainted.
+            setTaintedStatus(serviceNode.serviceClass.type.tsymbol, TaintedStatus.TAINTED);
         }
     }
 
@@ -1897,12 +1912,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
 
         boolean markParamsTainted = true;
-        if (invNode.getKind() == NodeKind.FUNCTION
+        if ((invNode.getKind() == NodeKind.FUNCTION || invNode.getKind() == NodeKind.RESOURCE_FUNC)
                 && ((BLangFunction) invNode).receiver != null) {
-            if (((BLangFunction) invNode).receiver.type.tag == TypeTags.SERVICE) {
+            BTypeSymbol receiverTSymbol = ((BLangFunction) invNode).receiver.type.tsymbol;
+            if (Symbols.isService(receiverTSymbol)) {
                 // When service definition is bound to a untainted listeners, arguments to resource functions
                 // are considered untainted.
-                if (!((BLangFunction) invNode).receiver.type.tsymbol.tainted) {
+                if (receiverTSymbol instanceof BClassSymbol && ((BClassSymbol) receiverTSymbol).isServiceDecl
+                        && !receiverTSymbol.tainted) {
                     markParamsTainted = false;
                 }
             }

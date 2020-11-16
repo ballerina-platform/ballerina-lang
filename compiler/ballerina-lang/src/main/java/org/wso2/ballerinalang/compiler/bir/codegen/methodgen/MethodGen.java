@@ -51,7 +51,6 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -526,7 +525,7 @@ public class MethodGen {
                 continue;
             }
             BType bType = optionalTypeDef.type;
-            if (bType.tag != TypeTags.FINITE && !(bType instanceof BServiceType)) {
+            if (bType.tag != TypeTags.FINITE) {
                 loadAnnots(mv, typePkgName, optionalTypeDef);
             }
 

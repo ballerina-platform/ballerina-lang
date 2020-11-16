@@ -83,9 +83,12 @@ public class Symbols {
                                                        BType type,
                                                        BSymbol owner,
                                                        Location pos,
-                                                       SymbolOrigin origin) {
+                                                       SymbolOrigin origin,
+                                                       boolean isServiceDecl) {
         BClassSymbol typeSymbol = new BClassSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner, pos, origin);
         typeSymbol.kind = SymbolKind.OBJECT;
+        // This class represent the service declared via service declaration.
+        typeSymbol.isServiceDecl = isServiceDecl;
         return typeSymbol;
     }
 

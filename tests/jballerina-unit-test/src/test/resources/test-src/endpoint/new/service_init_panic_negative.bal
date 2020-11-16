@@ -5,10 +5,10 @@ listener ABC ep = new;
 service on ep {
 
 
-    resource function foo(string b) {
+    resource function get foo(string b) {
     }
 
-    resource function bar(string b) {
+    resource function get bar(string b) {
     }
 }
 
@@ -29,11 +29,11 @@ public class ABC {
         return ();
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function __attach(service object {} s, string? name = ()) returns error? {
         return ();
     }
 
-    public function __detach(service s) returns error? {
+    public function __detach(service object {} s) returns error? {
     }
 }
 

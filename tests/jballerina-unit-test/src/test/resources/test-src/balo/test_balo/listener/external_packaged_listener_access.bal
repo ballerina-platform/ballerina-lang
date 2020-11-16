@@ -20,21 +20,21 @@ public listener ext:ABCD ep = new ext:ABCD();
 public listener ep1 = new ext:ABCD();
 listener ep2 = new ext:ABCD();
 
-service sampleService1 on ep {
+service /sampleService1 on ep {
 
-    resource function foo(string b) {
+    resource function get foo(string b) {
     }
 
-    resource function bar(string b) {
+    resource function get bar(string b) {
     }
 }
 
-service sampleService2 on ep1 {
-    resource function foo(string b) {}
+service /sampleService2 on ep1 {
+    resource function get foo(string b) {}
 }
 
-service sampleService3 on ep2 {
-    resource function foo(string b) {}
+service /sampleService3 on ep2 {
+    resource function get foo(string b) {}
 }
 
 public function getStartAndAttachCount() {

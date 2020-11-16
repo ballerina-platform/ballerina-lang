@@ -19,8 +19,15 @@ package org.ballerinalang.nativeimpl.jvm.servicetests;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.ResourceFunctionType;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.types.BArrayType;
+import io.ballerina.runtime.types.BServiceType;
+import io.ballerina.runtime.values.ArrayValueImpl;
 import io.ballerina.runtime.values.FutureValue;
 import io.ballerina.runtime.values.MapValueImpl;
 import io.ballerina.runtime.values.ObjectValue;
@@ -40,6 +47,28 @@ public class ServiceValue {
                 PredefinedTypes.TYPE_ANY);
 
         return k;
+    }
+
+    public static ArrayValueImpl getParamNames(ObjectValue o, BString methodName) {
+        ObjectType type = o.getType();
+        if (!(type instanceof BServiceType)) {
+            return null;
+        }
+
+        for (ResourceFunctionType attachedFunction : ((BServiceType) type).getResourceFunctions()) {
+            if (attachedFunction.getName().equals(methodName.getValue())) {
+                String[] paramNames = attachedFunction.getParamNames();
+                ArrayValueImpl arrayValue = (ArrayValueImpl)
+                        ValueCreator.createArrayValue(
+                                new BArrayType(PredefinedTypes.TYPE_STRING, paramNames.length), paramNames.length);
+                for (int i = 0; i < paramNames.length; i++) {
+                    String paramName = paramNames[i];
+                    arrayValue.add(i, StringUtils.fromString(paramName));
+                }
+                return arrayValue;
+            }
+        }
+        return null;
     }
 
     public static Object attach(BObject servObj) {
