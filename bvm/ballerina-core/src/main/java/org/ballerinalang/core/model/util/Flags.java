@@ -24,15 +24,15 @@ package org.ballerinalang.core.model.util;
  */
 public class Flags {
 
-    public static final int PUBLIC = 1;
-    public static final int NATIVE = 2;
-    public static final int ATTACHED = 8;
-    public static final int REQUIRED = 256;
-    public static final int PRIVATE = 1024;
-    public static final int OPTIONAL = 4096;
-    public static final int SERVICE = 262144;
+    public static final long PUBLIC = 1;
+    public static final long NATIVE = 2;
+    public static final long ATTACHED = 8;
+    public static final long REQUIRED = 256;
+    public static final long PRIVATE = 1024;
+    public static final long OPTIONAL = 4096;
+    public static final long SERVICE = 262144;
 
-    public static boolean isFlagOn(int bitmask, int flag) {
+    public static boolean isFlagOn(long bitmask, long flag) {
         return (bitmask & flag) == flag;
     }
 }
