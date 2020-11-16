@@ -86,7 +86,7 @@ public class ProjectUtils {
      * @return True if valid org-name or package name, else false.
      */
     public static boolean validateOrgName(String orgName) {
-        String validRegex = "^[a-z0-9_]*$";
+        String validRegex = "^[a-zA-Z0-9_]*$";
         return Pattern.matches(validRegex, orgName);
     }
 
@@ -98,7 +98,7 @@ public class ProjectUtils {
      */
     public static boolean validatePkgName(String packageName) {
         String validLanglib = "^[lang.a-z0-9_]*$";
-        String validRegex = "^[a-z0-9_]*$";
+        String validRegex = "^[a-zA-Z0-9_]*$";
         // We have special case for lang. packages
         // todo consider orgname when checking is it is a lang lib
         return Pattern.matches(validRegex, packageName) || Pattern.matches(validLanglib, packageName);
@@ -170,7 +170,7 @@ public class ProjectUtils {
      */
     public static String guessPkgName(String packageName) {
         if (!validatePkgName(packageName)) {
-            return packageName.replaceAll("[^a-z0-9_]", "_");
+            return packageName.replaceAll("[^a-zA-Z0-9_]", "_");
         }
         return packageName;
     }
