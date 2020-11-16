@@ -299,4 +299,9 @@ public class BUnionType extends BType implements UnionType {
     public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
     }
+
+    @Override
+    public boolean isCyclic() {
+        return isCyclic;
+    }
 }

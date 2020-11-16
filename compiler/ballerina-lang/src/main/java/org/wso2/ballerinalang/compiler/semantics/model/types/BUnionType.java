@@ -79,6 +79,10 @@ public class BUnionType extends BType implements UnionType {
         return this.memberTypes;
     }
 
+    public void setMemberTypes(LinkedHashSet<BType> memberTypes) {
+        this.memberTypes = memberTypes;
+    }
+
     @Override
     public TypeKind getKind() {
         return TypeKind.UNION;

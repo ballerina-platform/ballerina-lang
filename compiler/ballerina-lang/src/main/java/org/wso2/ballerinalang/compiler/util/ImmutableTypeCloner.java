@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.util;
 
+import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -373,6 +374,9 @@ public class ImmutableTypeCloner {
                 BType immutableType;
 
                 LinkedHashSet<BType> readOnlyMemTypes = new LinkedHashSet<>();
+                immutableType = BUnionType.create(null);
+                var unionImmutableType = (BUnionType) immutableType;
+                unionImmutableType.setMemberTypes(readOnlyMemTypes);
 
                 for (BType memberType : origUnionType.getMemberTypes()) {
                     if (types.isInherentlyImmutableType(memberType)) {
@@ -384,8 +388,15 @@ public class ImmutableTypeCloner {
                         continue;
                     }
 
-                    readOnlyMemTypes.add(getImmutableType(pos, types, memberType, env, pkgId, owner, symTable,
-                                                          anonymousModelHelper, names, unresolvedTypes));
+                    BType immutableMemberType = getImmutableType(pos, types, memberType, env, pkgId, owner, symTable,
+                            anonymousModelHelper, names, unresolvedTypes);
+
+                    if (origUnionType.isCyclic) {
+                        fixSelfReferencingSameUnion(memberType, origUnionType, immutableMemberType,
+                                (BUnionType) immutableType);
+                    }
+
+                    readOnlyMemTypes.add(immutableMemberType);
                 }
 
                 if (readOnlyMemTypes.size() == 1) {
@@ -393,7 +404,7 @@ public class ImmutableTypeCloner {
                 } else if (origUnionType.tsymbol != null) {
                     BTypeSymbol immutableUnionTSymbol = getReadonlyTSymbol(names, origUnionType.tsymbol, env, pkgId,
                                                                            owner);
-                    immutableType = BUnionType.create(immutableUnionTSymbol, readOnlyMemTypes);
+                    immutableType.tsymbol = immutableUnionTSymbol;
                     immutableType.flags |= (origUnionType.flags | Flags.READONLY);
                     if (immutableUnionTSymbol != null) {
                         immutableUnionTSymbol.type = immutableType;
@@ -403,11 +414,39 @@ public class ImmutableTypeCloner {
                     immutableType.flags |= (origUnionType.flags | Flags.READONLY);
                 }
 
+
                 BIntersectionType immutableUnionIntersectionType = createImmutableIntersectionType(env, origUnionType,
                                                                                                    immutableType,
                                                                                                    symTable);
                 origUnionType.immutableType = immutableUnionIntersectionType;
                 return immutableUnionIntersectionType;
+        }
+    }
+
+    private static void fixSelfReferencingSameUnion(BType originalMemberType, BUnionType origUnionType,
+                                                    BType immutableMemberType, BUnionType newImmutableUnion) {
+        if (originalMemberType.tag == TypeTags.ARRAY) {
+            var arrayType = (BArrayType) originalMemberType;
+            if (origUnionType == arrayType.eType) {
+                ((BArrayType) immutableMemberType).eType = newImmutableUnion;
+            }
+        }
+
+        if (originalMemberType.tag == TypeTags.MAP) {
+            var mapType = (BMapType) originalMemberType;
+            if (origUnionType == mapType.constraint) {
+                ((BMapType) immutableMemberType).constraint = newImmutableUnion;
+            }
+        }
+
+        if (originalMemberType.tag == TypeTags.TABLE) {
+            var tableType = (BTableType) originalMemberType;
+            if (origUnionType == tableType.constraint) {
+                ((BTableType) immutableMemberType).constraint = newImmutableUnion;
+            }
+
+            fixSelfReferencingSameUnion(tableType.constraint, origUnionType,
+                    ((BTableType) immutableMemberType).constraint, newImmutableUnion);
         }
     }
 
