@@ -216,7 +216,7 @@ import io.ballerina.compiler.syntax.tree.XMLStartTagNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
 import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
-import io.ballerina.runtime.IdentifierUtils;
+import io.ballerina.runtime.internal.IdentifierUtils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -1805,6 +1805,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 BLangRecordSpreadOperatorField bLRecordSpreadOpField =
                         (BLangRecordSpreadOperatorField) TreeBuilder.createRecordSpreadOperatorField();
                 bLRecordSpreadOpField.expr = createExpression(spreadFieldNode.valueExpr());
+                bLRecordSpreadOpField.pos = getPosition(spreadFieldNode);
                 bLiteralNode.fields.add(bLRecordSpreadOpField);
             } else if (field.kind() == SyntaxKind.COMPUTED_NAME_FIELD) {
                 ComputedNameFieldNode computedNameField = (ComputedNameFieldNode) field;

@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.StringJoiner;
 
 /**
@@ -46,7 +45,6 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
     // private TypeDescriptor objectTypeReference;
     private List<FieldSymbol> objectFields;
     private List<MethodSymbol> methods;
-    private MethodSymbol initFunction;
 
     public BallerinaObjectTypeSymbol(CompilerContext context, ModuleID moduleID, BObjectType objectType) {
         super(context, TypeDescKind.OBJECT, moduleID, objectType);
@@ -102,21 +100,6 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         }
 
         return this.methods;
-    }
-
-    @Override
-    public Optional<MethodSymbol> initMethod() {
-        if (this.initFunction == null) {
-            BAttachedFunction initFunction = ((BObjectTypeSymbol) this.getBType().tsymbol).initializerFunc;
-
-            if (initFunction != null) {
-                SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-                this.initFunction = symbolFactory.createMethodSymbol(initFunction.symbol,
-                                                                     initFunction.funcName.getValue());
-            }
-        }
-
-        return Optional.ofNullable(this.initFunction);
     }
 
     @Override

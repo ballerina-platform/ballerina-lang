@@ -6,20 +6,21 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -32,7 +33,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class BallerinaFieldSymbol implements FieldSymbol {
+public class BallerinaFieldSymbol extends BallerinaSymbol implements FieldSymbol {
 
     private final Documentation docAttachment;
     private final BField bField;
@@ -40,6 +41,7 @@ public class BallerinaFieldSymbol implements FieldSymbol {
     private TypeSymbol typeDescriptor;
 
     public BallerinaFieldSymbol(CompilerContext context, BField bField) {
+        super(bField.name.value, bField.symbol.pkgID, SymbolKind.FIELD, bField.symbol);
         this.context = context;
         this.bField = bField;
         this.docAttachment = new BallerinaDocumentation(bField.symbol.markdownDocumentation);

@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * Generic completion resolver for the Block Nodes.
@@ -96,21 +97,18 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
                 return completionItems;
             }
             String identifier = ((QualifiedNameReferenceNode) typeDescriptorNode).identifier().text();
-            objectType = module.get().typeDefinitions().stream()
-                    .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol.typeDescriptor()).typeKind()
-                            == TypeDescKind.OBJECT
-                            && typeSymbol.name().equals(identifier))
-                    .map(typeSymbol -> (ObjectTypeSymbol) CommonUtil.getRawType(typeSymbol.typeDescriptor()))
+            ModuleSymbol moduleSymbol = module.get();
+            Stream<Symbol> classesAndTypes = Stream.concat(moduleSymbol.classes().stream(),
+                                                           moduleSymbol.typeDefinitions().stream());
+            objectType = classesAndTypes
+                    .filter(typeSymbol -> isObjectType(typeSymbol) && typeSymbol.name().equals(identifier))
+                    .map(this::getObjectType)
                     .findAny();
         } else if (typeDescriptorNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String identifier = ((SimpleNameReferenceNode) typeDescriptorNode).name().text();
             objectType = visibleSymbols.stream()
-                    .filter(symbol -> symbol.kind() == SymbolKind.TYPE
-                            && CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()).typeKind()
-                            == TypeDescKind.OBJECT
-                            && symbol.name().equals(identifier))
-                    .map(symbol -> (ObjectTypeSymbol) CommonUtil
-                            .getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()))
+                    .filter(symbol -> isObjectType(symbol) && symbol.name().equals(identifier))
+                    .map(this::getObjectType)
                     .findAny();
         } else {
             objectType = Optional.empty();
@@ -119,5 +117,22 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
         objectType.ifPresent(typeDesc -> completionItems.add(this.getImplicitNewCompletionItem(typeDesc, context)));
 
         return completionItems;
+    }
+
+    private boolean isObjectType(Symbol symbol) {
+        if (symbol.kind() == SymbolKind.TYPE) {
+            return CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()).typeKind() ==
+                    TypeDescKind.OBJECT;
+        }
+
+        return symbol.kind() == SymbolKind.CLASS;
+    }
+
+    private ObjectTypeSymbol getObjectType(Symbol symbol) {
+        if (symbol.kind() == SymbolKind.TYPE) {
+            return (ObjectTypeSymbol) CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor());
+        }
+
+        return (ObjectTypeSymbol) symbol;
     }
 }

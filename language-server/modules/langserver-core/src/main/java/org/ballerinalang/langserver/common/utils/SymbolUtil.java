@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
@@ -54,6 +55,9 @@ public class SymbolUtil {
                 break;
             case VARIABLE:
                 typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
+                break;
+            case CLASS:
+                typeDescriptor = (ClassSymbol) symbol;
                 break;
             default:
                 return false;
@@ -106,6 +110,8 @@ public class SymbolUtil {
                 return Optional.ofNullable(((FunctionSymbol) symbol).typeDescriptor());
             case CONSTANT:
                 return Optional.ofNullable(((ConstantSymbol) symbol).typeDescriptor());
+            case CLASS:
+                return Optional.of((ClassSymbol) symbol);
             default:
                 return Optional.empty();
         }

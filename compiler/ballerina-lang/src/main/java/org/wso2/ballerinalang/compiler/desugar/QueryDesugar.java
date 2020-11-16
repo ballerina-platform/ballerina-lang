@@ -179,7 +179,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.runtime.util.BLangConstants.UNDERSCORE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
@@ -1927,17 +1927,11 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
         workerSendNode.expr.accept(this);
-        if (workerSendNode.keyExpr != null) {
-            workerSendNode.keyExpr.accept(this);
-        }
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
         workerReceiveNode.sendExpression.accept(this);
-        if (workerReceiveNode.keyExpr != null) {
-            workerReceiveNode.keyExpr.accept(this);
-        }
     }
 
 }

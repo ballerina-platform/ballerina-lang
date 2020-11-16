@@ -1,5 +1,6 @@
 module io.ballerina.datamapper {
     requires io.ballerina.lang;
+    requires io.ballerina.parser;
     requires io.ballerina.language.server.commons;
     requires io.ballerina.language.server.compiler;
     requires io.ballerina.tools.api;
