@@ -26,6 +26,7 @@ import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
@@ -206,6 +207,13 @@ public class BuildCommand implements BLauncherCmd {
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
+        }
+
+        // Skip code coverage for single bal files if option is set
+        if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT) && coverage) {
+            coverage = false;
+            this.outStream.println("Code coverage is not yet supported with single bal files. Ignoring the flag " +
+                    "and continuing the test run...");
         }
 
         CompilerContext compilerContext = project.projectEnvironmentContext().getService(CompilerContext.class);
