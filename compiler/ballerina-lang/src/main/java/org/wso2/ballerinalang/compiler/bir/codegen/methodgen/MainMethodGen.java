@@ -92,6 +92,7 @@ public class MainMethodGen {
 
         // set system properties
         initConfigurations(mv);
+        initializeConfigVariables(mv, pkg.version);
         // start all listeners
         startListeners(mv, serviceEPAvailable);
 
@@ -138,6 +139,14 @@ public class MainMethodGen {
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    private void initializeConfigVariables(MethodVisitor mv, Name version) {
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitLdcInsn(version.value);
+        mv.visitMethodInsn(INVOKESTATIC, JvmConstants.LAUNCH_UTILS, "initConfigurableVariables",
+                "(Ljava/lang/String;)V", false);
+        mv.visitVarInsn(ASTORE, 0);
     }
 
     private void generateJavaCompatibilityCheck(MethodVisitor mv) {

@@ -18,11 +18,12 @@
 
 package org.ballerinalang.langlib.internal;
 
-
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.configurable.ConfigurableMapHolder;
+import io.ballerina.runtime.internal.configurable.VariableKey;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 
-//import java.util.HashMap;
-//import java.util.Map;
+import java.util.Map;
 
 /**
  * Native implementation of lang.internal:configurable.
@@ -30,25 +31,23 @@ import io.ballerina.runtime.api.values.BString;
  * @since 2.0
  */
 public class Configurable {
-//    private static Map<String, Object> configMap = new HashMap<>() {{ put("$anon...0.0.0.x", 1); }};
+    private static Map<VariableKey, Object> configMap = ConfigurableMapHolder.getConfigurationMap();
 
     public static Object hasConfigurableValue(BString orgName, BString moduleName, BString versionNumber,
                                               BString configVarName) {
-       String key = orgName.getValue() + "." + moduleName.getValue() + "." + versionNumber.getValue() + "."
-               + configVarName.getValue();
-//       if (configMap.containsKey(key)) {
-//           return true;
-//       }
-       return false;
+        VariableKey key = new VariableKey(orgName.getValue(), moduleName.getValue(), versionNumber.getValue(),
+                configVarName.getValue());
+        return configMap.containsKey(key);
     }
 
     public static Object getConfigurableValue(BString orgName, BString moduleName, BString versionNumber,
                                               BString configVarName) {
-        String key = orgName.getValue() + "." + moduleName.getValue() + "." + versionNumber.getValue() + "."
-                + configVarName.getValue();
-//        if (configMap.containsKey(key)) {
-//            return configMap.get(key);
-//        }
-        return null;
+        VariableKey key = new VariableKey(orgName.getValue(), moduleName.getValue(), versionNumber.getValue(),
+                configVarName.getValue());
+        if (configMap.containsKey(key)) {
+            return configMap.get(key);
+        }
+        throw new BLangRuntimeException("Value not found for required configurable variable '" + configVarName +
+                "'");
     }
 }
