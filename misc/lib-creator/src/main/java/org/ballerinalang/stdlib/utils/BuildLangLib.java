@@ -56,75 +56,80 @@ public class BuildLangLib {
 
     public static void main(String[] args) throws IOException {
         PrintStream out = System.out;
-        projectDir = Paths.get(args[0]);
-        distCache = Paths.get(args[1]);
-        // Following is to compile stdlib Modules
-        if (args.length >= 3 && args[2].equals("true")) {
-            skipBootstrap = true;
+        try {
+            projectDir = Paths.get(args[0]);
+            distCache = Paths.get(args[1]);
+            // Following is to compile stdlib Modules
+            if (args.length >= 3 && args[2].equals("true")) {
+                skipBootstrap = true;
+            }
+            System.setProperty(ProjectConstants.BALLERINA_HOME, distCache.toString());
+            out.println("Building langlib ...");
+            out.println("Project Dir: " + projectDir);
+
+            // TODO Temporary fix
+            String pkgName = Optional.ofNullable(projectDir.getFileName()).orElse(Paths.get("annon")).toString();
+            if (!skipBootstrap) {
+                System.setProperty("BOOTSTRAP_LANG_LIB", pkgName);
+            }
+
+            Path targetPath = projectDir.resolve(ProjectConstants.TARGET_DIR_NAME);
+            Path pkgTargetPath = targetPath.resolve(pkgName);
+            ProjectEnvironmentBuilder environmentBuilder = createProjectEnvBuilder(pkgTargetPath);
+
+            Project project = BuildProject.load(environmentBuilder, projectDir);
+            Package pkg = project.currentPackage();
+            PackageCompilation packageCompilation = pkg.getCompilation();
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+            if (jBallerinaBackend.diagnosticResult().hasErrors()) {
+                out.println("Error building Ballerina package: " + pkg.packageName());
+                jBallerinaBackend.diagnosticResult().diagnostics().forEach(d -> out.println(d.toString()));
+                System.exit(1);
+            }
+
+            PackageDescriptor pkgDesc = pkg.packageDescriptor();
+            String baloName = ProjectUtils.getBaloName(pkgDesc);
+            Path baloDirPath = pkgTargetPath.resolve("balo");
+
+            // Create balo cache directory
+            Path balrPath = baloDirPath.resolve(pkgDesc.org().toString())
+                    .resolve(pkgDesc.name().value())
+                    .resolve(pkgDesc.version().toString());
+            Files.createDirectories(balrPath);
+            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, balrPath.resolve(baloName));
+
+            // Create zip file
+            Path zipFilePath = targetPath.resolve(pkgDesc.name().value() + ".zip");
+            try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(zipFilePath))) {
+                Files.walk(pkgTargetPath)
+                        .filter(path -> !Files.isDirectory(path))
+                        .forEach(path -> {
+                            ZipEntry zipEntry = new ZipEntry(pkgTargetPath.relativize(path).toString());
+                            try {
+                                zs.putNextEntry(zipEntry);
+                                Files.copy(path, zs);
+                                zs.closeEntry();
+                            } catch (IOException e) {
+                                PrintStream err = System.err;
+                                err.println(e.getMessage());
+                            }
+                        });
+            }
+
+            // Copy generated jar to the target dir
+            Path cacheDirPath = pkgTargetPath.resolve("cache");
+            String jarFileName = pkgDesc.name().value() + ".jar";
+            Path generatedJarFilePath = cacheDirPath.resolve(pkgDesc.org().toString())
+                    .resolve(pkgDesc.name().value())
+                    .resolve(pkgDesc.version().toString())
+                    .resolve(jBallerinaBackend.targetPlatform().code())
+                    .resolve(jarFileName);
+            Path targetJarFilePath = targetPath.resolve(jarFileName);
+            Files.copy(generatedJarFilePath, targetJarFilePath);
+        } catch (Exception e) {
+            out.println("Unknown error building : " + projectDir.toString());
+            e.printStackTrace();
         }
-        System.setProperty(ProjectConstants.BALLERINA_HOME, distCache.toString());
-        out.println("Building langlib ...");
-        out.println("Project Dir: " + projectDir);
-
-        // TODO Temporary fix
-        String pkgName = Optional.ofNullable(projectDir.getFileName()).orElse(Paths.get("annon")).toString();
-        if (!skipBootstrap) {
-            System.setProperty("BOOTSTRAP_LANG_LIB", pkgName);
-        }
-
-        Path targetPath = projectDir.resolve(ProjectConstants.TARGET_DIR_NAME);
-        Path pkgTargetPath = targetPath.resolve(pkgName);
-        ProjectEnvironmentBuilder environmentBuilder = createProjectEnvBuilder(pkgTargetPath);
-
-        Project project = BuildProject.load(environmentBuilder, projectDir);
-        Package pkg = project.currentPackage();
-        PackageCompilation packageCompilation = pkg.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
-        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
-            out.println("Error building Ballerina package: " + pkg.packageName());
-            jBallerinaBackend.diagnosticResult().diagnostics().forEach(d -> out.println(d.toString()));
-            System.exit(1);
-        }
-
-        PackageDescriptor pkgDesc = pkg.packageDescriptor();
-        String baloName = ProjectUtils.getBaloName(pkgDesc);
-        Path baloDirPath = pkgTargetPath.resolve("balo");
-
-        // Create balo cache directory
-        Path balrPath = baloDirPath.resolve(pkgDesc.org().toString())
-                .resolve(pkgDesc.name().value())
-                .resolve(pkgDesc.version().toString());
-        Files.createDirectories(balrPath);
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, balrPath.resolve(baloName));
-
-        // Create zip file
-        Path zipFilePath = targetPath.resolve(pkgDesc.name().value() + ".zip");
-        try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(zipFilePath))) {
-            Files.walk(pkgTargetPath)
-                    .filter(path -> !Files.isDirectory(path))
-                    .forEach(path -> {
-                        ZipEntry zipEntry = new ZipEntry(pkgTargetPath.relativize(path).toString());
-                        try {
-                            zs.putNextEntry(zipEntry);
-                            Files.copy(path, zs);
-                            zs.closeEntry();
-                        } catch (IOException e) {
-                            PrintStream err = System.err;
-                            err.println(e.getMessage());
-                        }
-                    });
-        }
-
-        // Copy generated jar to the target dir
-        Path cacheDirPath = pkgTargetPath.resolve("cache");
-        String jarFileName = pkgDesc.name().value() + ".jar";
-        Path generatedJarFilePath = cacheDirPath.resolve(pkgDesc.org().toString())
-                .resolve(pkgDesc.name().value())
-                .resolve(pkgDesc.version().toString())
-                .resolve(jBallerinaBackend.targetPlatform().code())
-                .resolve(jarFileName);
-        Path targetJarFilePath = targetPath.resolve(jarFileName);
-        Files.copy(generatedJarFilePath, targetJarFilePath);
     }
 
     private static ProjectEnvironmentBuilder createProjectEnvBuilder(Path targetPath) {
