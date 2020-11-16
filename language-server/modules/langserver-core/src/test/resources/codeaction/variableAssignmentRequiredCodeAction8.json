@@ -2,7 +2,7 @@
     "line": 1,
     "character": 4,
     "expected": {
-        "title": "Create Local Variable",
+        "title": "Create Variable",
         "edits": [
             {
                 "range": {

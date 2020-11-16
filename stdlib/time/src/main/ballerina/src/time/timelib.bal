@@ -52,7 +52,7 @@ public type Time record {|
 public function toString(Time time) returns string = @java:Method {
     name: "toString",
     'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods",
-    paramTypes: ["io.ballerina.runtime.values.MapValue"]
+    paramTypes: ["io.ballerina.runtime.api.values.BMap"]
 } external;
 
 # Returns the formatted string representation of the given time.

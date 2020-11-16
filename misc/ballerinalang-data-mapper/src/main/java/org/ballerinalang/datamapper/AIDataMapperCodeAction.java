@@ -43,6 +43,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -137,7 +138,9 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
                     LinePosition.from(diagnosticPosition.getLine(),
                             diagnosticPosition.getCharacter()));
 
-
+//            if (!symbolAtCursor.isEmpty()){
+//                BType symbolAtCursorType = (BSymbol)symbolAtCursor;
+//            }
 
 //            BLangPackage bLangPackage = completionContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
 //            SemanticModel semanticModel = new BallerinaSemanticModel(bLangPackage,
@@ -147,12 +150,15 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 //            completionContext.put(CommonKeys.VISIBLE_SYMBOLS_KEY, semanticModel
 //                    .visibleSymbols(filePath, LinePosition.from(position.getLine(), position.getCharacter())));
 
-            SymbolReferencesModel.Reference refAtCursor = getReferenceAtCursor(context, document, diagnosticPosition);
-            BType symbolAtCursorType = refAtCursor.getSymbol().type;
-            if (refAtCursor.getbLangNode().parent instanceof BLangFieldBasedAccess) {
-                return Optional.empty();
-            }
-            if (symbolAtCursorType instanceof BRecordType) {
+//            SymbolReferencesModel.Reference refAtCursor = getReferenceAtCursor(context, document, diagnosticPosition);
+//            BType symbolAtCursorType = refAtCursor.getSymbol().type;
+
+//            BType symbolAtCursorType = semanticModel.getType(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY));
+
+//            if (refAtCursor.getbLangNode().parent instanceof BLangFieldBasedAccess) {
+//                return Optional.empty();
+//            }
+            if (((BallerinaTypeReferenceTypeSymbol) ((BallerinaVariableSymbol) symbolAtCursor.value).typeDescriptorImpl).bType instanceof BRecordType) {
                 CodeAction action = new CodeAction("Generate mapping function");
                 action.setKind(CodeActionKind.QuickFix);
 

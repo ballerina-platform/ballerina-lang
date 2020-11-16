@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import io.ballerina.runtime.IdentifierUtils;
+import io.ballerina.runtime.internal.IdentifierUtils;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.OrderKeyNode;
@@ -1685,7 +1685,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
 
                 BVarSymbol origFieldSymbol = field.symbol;
-                int origFieldFlags = origFieldSymbol.flags;
+                long origFieldFlags = origFieldSymbol.flags;
 
                 if (allReadOnlyFields && !Symbols.isFlagOn(origFieldFlags, Flags.READONLY)) {
                     allReadOnlyFields = false;
@@ -2053,10 +2053,6 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangWorkerReceive workerReceiveExpr) {
         BSymbol symbol = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(workerReceiveExpr.workerIdentifier));
 
-        if (workerReceiveExpr.isChannel) {
-            this.dlog.error(workerReceiveExpr.pos, DiagnosticCode.UNDEFINED_ACTION);
-            return;
-        }
         // TODO Need to remove this cached env
         workerReceiveExpr.env = this.env;
 

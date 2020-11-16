@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BXML;
-import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 /**
  * Returns the content of a text or processing instruction or comment item.
@@ -31,7 +31,7 @@ import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 public class GetContent {
 
     public static BString getContent(Object xmlVal) {
-        BXML value = (BXML) xmlVal;
+        BXml value = (BXml) xmlVal;
         if (IsText.isText(value)) {
             return StringUtils.fromString(value.getTextValue());
         } else if (IsProcessingInstruction.isProcessingInstruction(value)) {

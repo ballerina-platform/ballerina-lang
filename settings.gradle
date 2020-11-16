@@ -1,4 +1,3 @@
-
 rootProject.name = 'ballerina-parent'
 include(':ballerina-tools-api')
 include(':ballerina-parser')
@@ -113,6 +112,7 @@ include(':benchmarks')
 include(':build-config:checkstyle')
 include(':debug-adapter:debug-adapter-core')
 include(':debug-adapter:debug-adapter-cli')
+include(':debug-adapter:debug-adapter-runtime')
 include(':formatter:formatter-core')
 include(':formatter:formatter-cli')
 include(':ballerina-libs')
@@ -222,6 +222,7 @@ project(':bir-spec').projectDir = file('docs/bir-spec')
 
 project(':debug-adapter:debug-adapter-core').projectDir = file('misc/debug-adapter/modules/debug-adapter-core')
 project(':debug-adapter:debug-adapter-cli').projectDir = file('misc/debug-adapter/modules/debug-adapter-cli')
+project(':debug-adapter:debug-adapter-runtime').projectDir = file('misc/debug-adapter/modules/debug-adapter-runtime')
 project(':formatter:formatter-core').projectDir = file('misc/formatter/modules/formatter-core')
 project(':formatter:formatter-cli').projectDir = file('misc/formatter/modules/formatter-cli')
 buildCache {
