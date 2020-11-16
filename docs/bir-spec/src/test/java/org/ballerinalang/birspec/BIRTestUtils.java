@@ -604,7 +604,7 @@ class BIRTestUtils {
         return false;
     }
 
-    private static void assertFlags(int actualFlags, int expectedFlags) {
+    private static void assertFlags(long actualFlags, long expectedFlags) {
 
         Assert.assertEquals(actualFlags, expectedFlags, "Invalid flags");
     }
