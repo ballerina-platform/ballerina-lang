@@ -30,8 +30,6 @@ public interface WorkerSendNode extends StatementNode, ActionNode {
 
     ExpressionNode getExpression();
 
-    ExpressionNode getKeyExpression();
-
     IdentifierNode getWorkerName();
 
     void setWorkerName(IdentifierNode identifierNode);
