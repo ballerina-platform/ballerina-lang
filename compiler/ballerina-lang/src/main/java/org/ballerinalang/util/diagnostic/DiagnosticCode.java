@@ -449,6 +449,8 @@ public enum DiagnosticCode {
 
     // Streaming related codes
     INVALID_STREAM_CONSTRUCTOR("invalid.stream.constructor"),
+    INVALID_STREAM_CONSTRUCTOR_ITERATOR("invalid.stream.constructor.iterator"),
+    INVALID_STREAM_CONSTRUCTOR_CLOSEABLE_ITERATOR("invalid.stream.constructor.closeable.iterator"),
     INVALID_STREAM_CONSTRUCTOR_EXP_TYPE("invalid.stream.constructor.expected.type"),
     NOT_ALLOWED_STREAM_USAGE_WITH_FROM("invalid.stream.usage.with.from"),
     ERROR_TYPE_EXPECTED("error.type.expected"),

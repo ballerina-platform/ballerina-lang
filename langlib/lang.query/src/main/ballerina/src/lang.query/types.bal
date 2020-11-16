@@ -38,6 +38,11 @@ type _Iterator object {
     public isolated function next() returns record {|Type value;|}|error?;
 };
 
+type _CloseableIterator object {
+    public isolated function next() returns record {|Type value;|}|error?;
+    public isolated function close() returns error?;
+};
+
 type _Iterable object {
     public function __iterator() returns
         object {
