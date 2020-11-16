@@ -28,6 +28,7 @@ import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -114,8 +115,13 @@ public class RunCommand implements BLauncherCmd {
         String[] args;
         if (this.argList == null) {
             args = new String[0];
+            this.projectPath = Paths.get(System.getProperty("user.dir"));
+        } else if (this.argList.get(0).startsWith(RuntimeConstants.BALLERINA_ARGS_INIT_PREFIX)) {
+            args = argList.toArray(new String[0]);
+            this.projectPath = Paths.get(System.getProperty("user.dir"));
         } else {
             args = argList.subList(1, argList.size()).toArray(new String[0]);
+            this.projectPath = Paths.get(argList.get(0));
         }
 
 
@@ -129,12 +135,6 @@ public class RunCommand implements BLauncherCmd {
         options.put(SKIP_TESTS, Boolean.toString(true));
         options.put(TEST_ENABLED, Boolean.toString(false));
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
-
-        if (argList == null) {
-            this.projectPath = Paths.get(System.getProperty("user.dir"));
-        } else {
-            this.projectPath = Paths.get(argList.get(0));
-        }
 
         // load project
         Project project;
