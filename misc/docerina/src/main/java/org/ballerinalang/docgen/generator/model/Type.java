@@ -16,11 +16,12 @@
 package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
-import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.api.symbols.Qualifiable;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SimpleTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -210,12 +211,9 @@ public class Type {
     }
 
     public static void resolveSymbol(Type type, Symbol symbol) {
-        if (symbol instanceof TypeDefinitionSymbol) {
-            TypeDefinitionSymbol typeSymbol = (TypeDefinitionSymbol) symbol;
-            if (typeSymbol.moduleID() instanceof BallerinaModuleID) {
-                BallerinaModuleID moduleId = (BallerinaModuleID) typeSymbol.moduleID();
-                type.moduleName = moduleId.moduleName();
-            }
+        if (symbol instanceof TypeReferenceTypeSymbol) {
+            TypeReferenceTypeSymbol typeSymbol = (TypeReferenceTypeSymbol) symbol;
+            type.moduleName = typeSymbol.moduleID().moduleName();
             if (typeSymbol.typeDescriptor() != null) {
                 type.category = getTypeCategory(typeSymbol.typeDescriptor());
             }
@@ -228,15 +226,25 @@ public class Type {
     }
 
     public static String getTypeCategory(TypeSymbol typeDescriptor) {
-        if (typeDescriptor instanceof TypeReferenceTypeSymbol) {
-            TypeReferenceTypeSymbol typeReferenceTypeDescriptor = (TypeReferenceTypeSymbol) typeDescriptor;
-            if (typeReferenceTypeDescriptor.typeDescriptor() != null &&
-                    typeReferenceTypeDescriptor.typeDescriptor().kind() != null) {
-                if (typeReferenceTypeDescriptor.typeDescriptor().typeKind().equals(TypeDescKind.RECORD)) {
-                    return "records";
-                } else if (typeReferenceTypeDescriptor.typeDescriptor().typeKind().equals(TypeDescKind.ERROR)) {
-                    return "errors";
-                }
+        if (typeDescriptor.kind().equals(SymbolKind.TYPE)) {
+            if (typeDescriptor.typeKind().equals(TypeDescKind.RECORD)) {
+                return "records";
+            } else if (typeDescriptor.typeKind().equals(TypeDescKind.OBJECT)) {
+                return "abstractobjects";
+            } else if (typeDescriptor.typeKind().equals(TypeDescKind.ERROR)) {
+                return "errors";
+            } else if (typeDescriptor.typeKind().equals(TypeDescKind.UNION)) {
+                return "types";
+            }
+        } else if (typeDescriptor.kind().equals(SymbolKind.CLASS)) {
+            Qualifiable classSymbol = (Qualifiable) typeDescriptor;
+            if (classSymbol.qualifiers().contains(Qualifier.CLIENT)) {
+                return "clients";
+            } else if (classSymbol.qualifiers().contains(Qualifier.LISTENER) ||
+                    typeDescriptor.name().equals("Listener")) {
+                return "listeners";
+            } else {
+                return "classes";
             }
         } else if (typeDescriptor instanceof SimpleTypeSymbol && typeDescriptor.signature().equals("finite")) {
             return "types";
