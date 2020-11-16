@@ -70,4 +70,5 @@ module io.ballerina.lang {
     exports io.ballerina.projects.repos;
     exports io.ballerina.projects.model;
     exports io.ballerina.projects.testsuite;
+    exports io.ballerina.projects.internal.environment;
 }

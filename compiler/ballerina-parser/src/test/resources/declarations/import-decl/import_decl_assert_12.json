@@ -28,7 +28,13 @@
       "children": [
         {
           "kind": "IDENTIFIER_TOKEN",
-          "value": "bar"
+          "value": "bar",
+          "trailingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
+            }
+          ]
         }
       ]
     },

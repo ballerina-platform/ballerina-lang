@@ -141,7 +141,6 @@ public class TestBirAndJarCache {
                                                  String libraryName,
                                                  ByteArrayOutputStream libraryContent) {
             super.cachePlatformSpecificLibrary(compilerBackend, libraryName, libraryContent);
-            System.out.println(libraryName);
             jarCachedCount++;
         }
     }

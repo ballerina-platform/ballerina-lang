@@ -28,15 +28,17 @@ public class ProjectConstants {
     public static final String BLANG_SOURCE_EXT = ".bal";
 
     public static final String BALLERINA_TOML = "Ballerina.toml";
+    public static final String SETTINGS_FILE_NAME = "Settings.toml";
     public static final String GITIGNORE_FILE_NAME = ".gitignore";
     public static final String MODULE_MD_FILE_NAME = "Module.md";
     public static final String PACKAGE_MD_FILE_NAME = "Package.md";
+    public static final String PACKAGE_JSON = "package.json";
 
     public static final String SOURCE_DIR_NAME = "src";
     public static final String BIN_DIR_NAME = "bin";
     public static final String TARGET_DIR_NAME = "target";
 
-    public static final String CACHES_DIR_NAME = "caches";
+    public static final String CACHES_DIR_NAME = "cache";
 
     public static final String HOME_REPO_ENV_KEY = "BALLERINA_HOME_DIR";
     public static final String HOME_REPO_DEFAULT_DIRNAME = ".ballerina";
@@ -79,6 +81,13 @@ public class ProjectConstants {
     public static final String REPO_CACHE_DIR_NAME = "cache";
     public static final String REPO_BIR_CACHE_NAME = "bir";
 
+    //module name format : <org-name>/<pkg-name> | <org-name>/<pkg-name>:<version>
+    //version format : 1, 1.*, 1.*.*
+    public static final String PKG_NAME_REGEX = "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+|" +
+            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+|" +
+            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+\\.[*\\d]+|" +
+            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+\\.[*\\d]+\\.[*\\d]+";
+
     // Test framework related constants
     public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";
     public static final String TEST_CORE_JAR_PREFIX = "testerina-core-";
@@ -90,4 +99,5 @@ public class ProjectConstants {
     public static final String ASM_TREE_JAR = "asm-tree-7.2.jar";
     public static final String ASM_COMMONS_JAR = "asm-commons-7.2.jar";
     public static final String DIFF_UTILS_JAR = "java-diff-utils-4.5.jar";
+    public static final String REPORT_DIR_NAME = "report";
 }

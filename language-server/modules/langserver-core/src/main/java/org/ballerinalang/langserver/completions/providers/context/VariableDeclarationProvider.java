@@ -28,11 +28,9 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -42,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * Generic completion resolver for the Block Nodes.
@@ -55,9 +54,9 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
         super(attachmentPoint);
     }
 
-    protected List<LSCompletionItem> initializerContextCompletions(LSContext context,
+    protected List<LSCompletionItem> initializerContextCompletions(CompletionContext context,
                                                                    TypeDescriptorNode typeDsc) {
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             /*
             Captures the following cases
@@ -85,9 +84,10 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
         return completionItems;
     }
 
-    private List<LSCompletionItem> getNewExprCompletionItems(LSContext context, TypeDescriptorNode typeDescriptorNode) {
+    private List<LSCompletionItem> getNewExprCompletionItems(CompletionContext context,
+                                                             TypeDescriptorNode typeDescriptorNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        ArrayList<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
         Optional<ObjectTypeSymbol> objectType;
         if (this.onQualifiedNameIdentifier(context, typeDescriptorNode)) {
             String modulePrefix = QNameReferenceUtil.getAlias(((QualifiedNameReferenceNode) typeDescriptorNode));
@@ -96,21 +96,18 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
                 return completionItems;
             }
             String identifier = ((QualifiedNameReferenceNode) typeDescriptorNode).identifier().text();
-            objectType = module.get().typeDefinitions().stream()
-                    .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol.typeDescriptor()).typeKind()
-                            == TypeDescKind.OBJECT
-                            && typeSymbol.name().equals(identifier))
-                    .map(typeSymbol -> (ObjectTypeSymbol) CommonUtil.getRawType(typeSymbol.typeDescriptor()))
+            ModuleSymbol moduleSymbol = module.get();
+            Stream<Symbol> classesAndTypes = Stream.concat(moduleSymbol.classes().stream(),
+                                                           moduleSymbol.typeDefinitions().stream());
+            objectType = classesAndTypes
+                    .filter(typeSymbol -> isObjectType(typeSymbol) && typeSymbol.name().equals(identifier))
+                    .map(this::getObjectType)
                     .findAny();
         } else if (typeDescriptorNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String identifier = ((SimpleNameReferenceNode) typeDescriptorNode).name().text();
             objectType = visibleSymbols.stream()
-                    .filter(symbol -> symbol.kind() == SymbolKind.TYPE
-                            && CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()).typeKind()
-                            == TypeDescKind.OBJECT
-                            && symbol.name().equals(identifier))
-                    .map(symbol -> (ObjectTypeSymbol) CommonUtil
-                            .getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()))
+                    .filter(symbol -> isObjectType(symbol) && symbol.name().equals(identifier))
+                    .map(this::getObjectType)
                     .findAny();
         } else {
             objectType = Optional.empty();
@@ -119,5 +116,22 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
         objectType.ifPresent(typeDesc -> completionItems.add(this.getImplicitNewCompletionItem(typeDesc, context)));
 
         return completionItems;
+    }
+
+    private boolean isObjectType(Symbol symbol) {
+        if (symbol.kind() == SymbolKind.TYPE) {
+            return CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()).typeKind() ==
+                    TypeDescKind.OBJECT;
+        }
+
+        return symbol.kind() == SymbolKind.CLASS;
+    }
+
+    private ObjectTypeSymbol getObjectType(Symbol symbol) {
+        if (symbol.kind() == SymbolKind.TYPE) {
+            return (ObjectTypeSymbol) CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor());
+        }
+
+        return (ObjectTypeSymbol) symbol;
     }
 }

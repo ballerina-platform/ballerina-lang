@@ -26,8 +26,8 @@ import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Lists;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -85,7 +86,7 @@ public class ProjectUtils {
      * @return True if valid org-name or package name, else false.
      */
     public static boolean validateOrgName(String orgName) {
-        String validRegex = "^[a-z0-9_]*$";
+        String validRegex = "^[a-zA-Z0-9_]*$";
         return Pattern.matches(validRegex, orgName);
     }
 
@@ -97,7 +98,7 @@ public class ProjectUtils {
      */
     public static boolean validatePkgName(String packageName) {
         String validLanglib = "^[lang.a-z0-9_]*$";
-        String validRegex = "^[a-z0-9_]*$";
+        String validRegex = "^[a-zA-Z0-9_]*$";
         // We have special case for lang. packages
         // todo consider orgname when checking is it is a lang lib
         return Pattern.matches(validRegex, packageName) || Pattern.matches(validLanglib, packageName);
@@ -169,7 +170,7 @@ public class ProjectUtils {
      */
     public static String guessPkgName(String packageName) {
         if (!validatePkgName(packageName)) {
-            return packageName.replaceAll("[^a-z0-9_]", "_");
+            return packageName.replaceAll("[^a-zA-Z0-9_]", "_");
         }
         return packageName;
     }
@@ -403,46 +404,39 @@ public class ProjectUtils {
     }
 
     /**
-     * Return the testable thin jar name of the provided module.
+     * Create and get the home repository path.
      *
-     * @param module Module instance
-     * @return the name of the thin jar
+     * @return home repository path
      */
-    public static String getTestableJarName(Module module) {
-        String jarName;
-        if (module.packageInstance().packageDescriptor().org().anonymous()) {
-            DocumentId documentId = module.documentIds().iterator().next();
-            String documentName = module.document(documentId).name();
-            jarName = getFileNameWithoutExtension(documentName);
-        } else {
-            ModuleName moduleName = module.moduleName();
-            if (moduleName.isDefaultModuleName()) {
-                jarName = moduleName.packageName().toString();
-            } else {
-                jarName = moduleName.moduleNamePart();
+    public static Path createAndGetHomeReposPath() {
+        Path homeRepoPath;
+        String homeRepoDir = System.getenv(ProjectConstants.HOME_REPO_ENV_KEY);
+        if (homeRepoDir == null || homeRepoDir.isEmpty()) {
+            String userHomeDir = System.getProperty(USER_HOME);
+            if (userHomeDir == null || userHomeDir.isEmpty()) {
+                throw new BLangCompilerException("Error creating home repository: unable to get user home directory");
             }
+            homeRepoPath = Paths.get(userHomeDir, ProjectConstants.HOME_REPO_DEFAULT_DIRNAME);
+        } else {
+            // User has specified the home repo path with env variable.
+            homeRepoPath = Paths.get(homeRepoDir);
         }
-        return jarName + "-testable" + BLANG_COMPILED_JAR_EXT;
+
+        homeRepoPath = homeRepoPath.toAbsolutePath();
+        if (Files.exists(homeRepoPath) && !Files.isDirectory(homeRepoPath, LinkOption.NOFOLLOW_LINKS)) {
+            throw new BLangCompilerException("Home repository is not a directory: " + homeRepoPath.toString());
+        }
+        return homeRepoPath;
     }
 
     /**
-     * Provides Qualified Class Name.
-     *
-     * @param orgName     Org name
-     * @param packageName Package name
-     * @param version     Package version
-     * @param className   Class name
-     * @return Qualified class name
+     * Check if a ballerina module exist.
+     * @param projectPath project path
+     * @param moduleName module name
+     * @return module exist
      */
-    public static String getQualifiedClassName(String orgName, String packageName, String version, String className) {
-
-        if (!Names.DEFAULT_PACKAGE.value.equals(packageName)) {
-            className = packageName.replace('.', '_') + "." + version.replace('.', '_') + "." + className;
-        }
-        if (!Names.ANON_ORG.value.equals(orgName)) {
-            className = orgName.replace('.', '_') + "." + className;
-        }
-
-        return className;
+    public static boolean isModuleExist(Path projectPath, String moduleName) {
+        Path modulePath = projectPath.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName);
+        return Files.exists(modulePath);
     }
 }

@@ -15,8 +15,8 @@
  */
 package org.ballerinalang.observe.trace.extension.choreo;
 
-import io.ballerina.runtime.api.ErrorCreator;
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.observability.tracer.OpenTracer;
 import io.jaegertracing.internal.JaegerTracer;
 import io.jaegertracing.internal.samplers.RateLimitingSampler;

@@ -1257,7 +1257,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
 
                 if (possibleTypes.size() > 1) {
-                    BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0,
+                    BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.ANONYMOUS,
                                                                                 names.fromString(ANONYMOUS_RECORD_NAME),
                                                                                 env.enclPkg.symbol.pkgID, null,
                                                                                 env.scope.owner, recordVar.pos, SOURCE);
@@ -1630,7 +1630,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             fieldType = BUnionType.create(null, fieldTypes, symTable.nilType);
         }
 
-        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, names.fromString(ANONYMOUS_RECORD_NAME),
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.ANONYMOUS,
+                                                                    names.fromString(ANONYMOUS_RECORD_NAME),
                                                                     env.enclPkg.symbol.pkgID, null, env.scope.owner,
                                                                     recordVar.pos, SOURCE);
         //TODO check below field position
@@ -2903,10 +2904,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         } else {
             workerSendNode.type = symbol.type;
             workerSendNode.workerSymbol = symbol;
-        }
-
-        if (workerSendNode.isChannel) {
-            dlog.error(workerSendNode.pos, DiagnosticCode.UNDEFINED_ACTION);
         }
     }
 

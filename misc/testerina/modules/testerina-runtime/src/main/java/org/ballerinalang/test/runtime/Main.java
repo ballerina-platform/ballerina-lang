@@ -19,22 +19,19 @@ package org.ballerinalang.test.runtime;
 
 import com.google.gson.Gson;
 import io.ballerina.projects.testsuite.TestSuite;
-import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.runtime.launch.LaunchUtils;
+import io.ballerina.runtime.internal.launch.LaunchUtils;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
 
-import java.io.ByteArrayInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -44,22 +41,16 @@ import java.util.Arrays;
  */
 public class Main {
     public static void main(String[] args) throws IOException {
-        InputStream jsonCachePath = ClassLoader.getSystemClassLoader()
-                .getResourceAsStream(ProjectConstants.TEST_SUITE);
+        Path jsonCachePath = Paths.get(args[0]).resolve(TesterinaConstants.TESTERINA_TEST_SUITE);
         Path jsonTmpSummaryPath = Paths.get(args[0], TesterinaConstants.STATUS_FILE);
         String[] configArgs = Arrays.copyOfRange(args, 1, args.length);
         LaunchUtils.initConfigurations(configArgs);
 
-        TestSuite testSuite = deserialize(jsonCachePath.readAllBytes());
-        startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, jsonTmpSummaryPath);
-    }
-
-    private static TestSuite deserialize(byte[] byteArray) {
-        try (ByteArrayInputStream bis = new ByteArrayInputStream(byteArray);
-             ObjectInput in = new ObjectInputStream(bis)) {
-            return (TestSuite) in.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
+        try (BufferedReader br = Files.newBufferedReader(jsonCachePath, StandardCharsets.UTF_8)) {
+            //convert the json string back to object
+            Gson gson = new Gson();
+            TestSuite response = gson.fromJson(br, TestSuite.class);
+            startTestSuit(Paths.get(response.getSourceRootPath()), response, jsonTmpSummaryPath);
         }
     }
 
@@ -80,6 +71,9 @@ public class Main {
 
     private static void writeStatusToJsonFile(ModuleStatus moduleStatus, Path tmpJsonPath) throws IOException {
         File jsonFile = new File(tmpJsonPath.toString());
+        if (!Files.exists(tmpJsonPath.getParent())) {
+            Files.createDirectories(tmpJsonPath.getParent());
+        }
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
             Gson gson = new Gson();
             String json = gson.toJson(moduleStatus);

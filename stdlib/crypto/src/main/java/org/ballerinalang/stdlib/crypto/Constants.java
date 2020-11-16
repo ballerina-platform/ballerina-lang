@@ -19,10 +19,10 @@
 package org.ballerinalang.stdlib.crypto;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
 /**
  * Constants related to Ballerina crypto stdlib.

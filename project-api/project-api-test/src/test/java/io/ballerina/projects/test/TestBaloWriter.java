@@ -24,8 +24,8 @@ import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.model.BaloJson;
 import io.ballerina.projects.internal.balo.PackageJson;
+import io.ballerina.projects.model.BaloJson;
 import io.ballerina.projects.model.Target;
 import io.ballerina.projects.util.ProjectUtils;
 import org.testng.Assert;
@@ -121,7 +121,7 @@ public class TestBaloWriter {
 //            Assert.assertEquals(packageJson.getExported().get(0), "winery");
 //            Assert.assertEquals(packageJson.getExported().get(1), "service");
 
-            Assert.assertEquals(packageJson.getTarget(), "java11");
+            Assert.assertEquals(packageJson.getPlatform(), "java11");
             Assert.assertEquals(packageJson.getPlatformDependencies().size(), 1);
         }
 

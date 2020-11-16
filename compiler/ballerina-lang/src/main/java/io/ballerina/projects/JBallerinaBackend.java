@@ -22,16 +22,19 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.jballerina.JarWriter;
 import io.ballerina.projects.testsuite.TestSuite;
-import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.testsuite.TesterinaRegistry;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -78,13 +81,13 @@ public class JBallerinaBackend extends CompilerBackend {
     private final PackageResolver packageResolver;
     private final CompilerContext compilerContext;
     private final CodeGenerator jvmCodeGenerator;
-
     private DiagnosticResult diagnosticResult;
     private boolean codeGenCompleted;
     private final JarResolver jarResolver;
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JdkVersion jdkVersion) {
-        return new JBallerinaBackend(packageCompilation, jdkVersion);
+        return packageCompilation.getCompilerBackend(jdkVersion,
+                (targetPlatform -> new JBallerinaBackend(packageCompilation, jdkVersion)));
     }
 
     private JBallerinaBackend(PackageCompilation packageCompilation, JdkVersion jdkVersion) {
@@ -97,6 +100,11 @@ public class JBallerinaBackend extends CompilerBackend {
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
         this.jvmCodeGenerator = CodeGenerator.getInstance(compilerContext);
+
+        // TODO The following line is a temporary solution to cleanup the TesterinaRegistry
+        TesterinaRegistry.reset();
+
+        // Trigger code generation
         performCodeGen();
     }
 
@@ -210,22 +218,14 @@ public class JBallerinaBackend extends CompilerBackend {
 //            return;
 //        }
 
-        String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
-        CompiledJarFile compiledTestJarFile;
-
-
-        if (moduleContext.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            compiledTestJarFile = compiledJarFile;
-        } else {
-            if (!bLangPackage.hasTestablePackage()) {
-                return;
-            }
-            compiledTestJarFile = jvmCodeGenerator.generateTestModule(
-                    moduleContext.moduleId(), this, bLangPackage.testablePkgs.get(0));
+        if (!bLangPackage.hasTestablePackage()) {
+            return;
         }
-        TestSuite testSuite = moduleContext.generateTestSuite(compilerContext);
+
+        String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
+        CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(
+                moduleContext.moduleId(), this, bLangPackage.testablePkgs.get(0));
         try {
-            compiledTestJarFile.getJarEntries().put(ProjectConstants.TEST_SUITE, testSuite.serialize());
             ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile);
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
         } catch (IOException e) {
@@ -240,6 +240,86 @@ public class JBallerinaBackend extends CompilerBackend {
 
     public JarResolver jarResolver() {
         return jarResolver;
+    }
+
+    /**
+     * Generate and return the testsuite for module tests.
+     *
+     * @param module module
+     * @return test suite
+     */
+    public TestSuite testSuite(Module module) {
+        if (module.project().kind() != ProjectKind.SINGLE_FILE_PROJECT
+                && !module.moduleContext().bLangPackage().hasTestablePackage()) {
+            return null;
+        }
+        return generateTestSuite(module.moduleContext(), compilerContext);
+    }
+
+    private TestSuite generateTestSuite(ModuleContext moduleContext, CompilerContext compilerContext) {
+        BLangPackage bLangPackage = moduleContext.bLangPackage();
+        TestSuite testSuite = new TestSuite(bLangPackage.packageID.name.value,
+                bLangPackage.packageID.toString(),
+                bLangPackage.packageID.orgName.value,
+                bLangPackage.packageID.version.value);
+        TesterinaRegistry.getInstance().getTestSuites().put(
+                moduleContext.moduleDescriptor().name().toString(), testSuite);
+
+        // set data
+        testSuite.setInitFunctionName(bLangPackage.initFunction.name.value);
+        testSuite.setStartFunctionName(bLangPackage.startFunction.name.value);
+        testSuite.setStopFunctionName(bLangPackage.stopFunction.name.value);
+        testSuite.setPackageName(bLangPackage.packageID.toString());
+        testSuite.setSourceRootPath(moduleContext.project().sourceRoot().toString());
+
+        // add functions of module/standalone file
+        bLangPackage.functions.forEach(function -> {
+            Location pos = function.pos;
+            if (pos != null) {
+                // Remove the duplicated annotations.
+                String className = pos.lineRange().filePath().replace(".bal", "")
+                        .replace("/", ".");
+                String functionClassName = JarResolver.getQualifiedClassName(
+                        bLangPackage.packageID.orgName.value,
+                        bLangPackage.packageID.name.value,
+                        bLangPackage.packageID.version.value,
+                        className);
+                testSuite.addTestUtilityFunction(function.name.value, functionClassName);
+            }
+        });
+
+        BLangPackage testablePkg;
+        if (moduleContext.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            testablePkg = bLangPackage;
+        } else {
+            testablePkg = bLangPackage.getTestablePkg();
+            testSuite.setTestInitFunctionName(testablePkg.initFunction.name.value);
+            testSuite.setTestStartFunctionName(testablePkg.startFunction.name.value);
+            testSuite.setTestStopFunctionName(testablePkg.stopFunction.name.value);
+
+            testablePkg.functions.forEach(function -> {
+                Location location = function.pos;
+                if (location != null) {
+                    String className = location.lineRange().filePath().replace(".bal", "").
+                            replace("/", ".");
+                    String functionClassName = JarResolver.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                            bLangPackage.packageID.name.value,
+                            bLangPackage.packageID.version.value,
+                            className);
+                    testSuite.addTestUtilityFunction(function.name.value, functionClassName);
+                }
+            });
+        }
+
+        // process annotations in test functions
+        TestAnnotationProcessor testAnnotationProcessor = new TestAnnotationProcessor();
+        testAnnotationProcessor.init(compilerContext, testablePkg);
+        testablePkg.functions.forEach(testAnnotationProcessor::processFunction);
+
+        testablePkg.topLevelNodes.stream().filter(topLevelNode ->
+                topLevelNode instanceof BLangSimpleVariable).map(topLevelNode ->
+                (SimpleVariableNode) topLevelNode).forEach(testAnnotationProcessor::processMockFunction);
+        return testSuite;
     }
 
     // TODO Can we move this method to Module.displayName()

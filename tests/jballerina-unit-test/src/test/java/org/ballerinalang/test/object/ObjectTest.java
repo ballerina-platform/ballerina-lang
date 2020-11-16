@@ -522,18 +522,18 @@ public class ObjectTest {
         int index = 0;
 
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'name'", 34, 17);
-        BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'testorg/test_pkg2:1.0.0:Employee'",
-                                  34, 22);
+        BAssertUtil.validateError(result, index++,
+                                  "undefined field 'name' in object 'testorg/test_pkg2:1.0.0:Employee'", 34, 22);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'Employee.getAge'",
                                   38, 14);
-        BAssertUtil.validateError(result, index++, "undefined method 'getAge' in object 'testorg/test_pkg2:1.0.0:Employee'",
-                                  38, 19);
+        BAssertUtil.validateError(result, index++,
+                                  "undefined method 'getAge' in object 'testorg/test_pkg2:1.0.0:Employee'", 38, 19);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'name'", 45, 17);
-        BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'testorg/test_pkg2.pkg1:1.0.0:Employee'", 45,
-                                    22);
+        BAssertUtil.validateError(result, index++,
+                                  "undefined field 'name' in object 'testorg/test_pkg2.pkg1:1.0.0:Employee'", 45, 22);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'email'", 46, 17);
-        BAssertUtil.validateError(result, index++, "undefined field 'email' in object 'testorg/test_pkg2.pkg1:1.0.0:Employee'",
-                                46, 22);
+        BAssertUtil.validateError(result, index++,
+                                  "undefined field 'email' in object 'testorg/test_pkg2.pkg1:1.0.0:Employee'", 46, 22);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'Employee.getAge'",
                                   49, 14);
         BAssertUtil.validateError(result, index++, "undefined method 'getAge' " +

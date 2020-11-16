@@ -33,6 +33,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static io.ballerina.projects.util.ProjectConstants.ANON_ORG;
+import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.runtime.internal.IdentifierUtils.encodeNonFunctionIdentifier;
+
 // TODO move this class to a separate Java package. e.g. io.ballerina.projects.platform.jballerina
 //    todo that, we would have to move PackageContext class into an internal package.
 
@@ -92,14 +96,16 @@ public class JarResolver {
     public Collection<Path> getJarFilePathsRequiredForTestExecution(ModuleName moduleName) {
         Collection<Path> allJarFiles = getJarFilePathsRequiredForExecution();
         Set<Path> allJarFileForTestExec = new HashSet<>(allJarFiles);
-        PlatformLibrary generatedTestJar = jBalBackend.codeGeneratedTestLibrary(
-                packageContext.packageId(), moduleName);
-        allJarFileForTestExec.add(generatedTestJar.path());
+        if (!packageContext.packageDescriptor().org().anonymous()) {
+            PlatformLibrary generatedTestJar = jBalBackend.codeGeneratedTestLibrary(
+                    packageContext.packageId(), moduleName);
+            allJarFileForTestExec.add(generatedTestJar.path());
 
-        // Remove the generated jar without test code.
-        PlatformLibrary generatedJar = jBalBackend.codeGeneratedLibrary(
-                packageContext.packageId(), moduleName);
-        allJarFileForTestExec.remove(generatedJar.path());
+            // Remove the generated jar without test code.
+            PlatformLibrary generatedJar = jBalBackend.codeGeneratedLibrary(
+                    packageContext.packageId(), moduleName);
+            allJarFileForTestExec.remove(generatedJar.path());
+        }
         allJarFileForTestExec.addAll(ProjectUtils.testDependencies());
 
         return allJarFileForTestExec;
@@ -138,5 +144,24 @@ public class JarResolver {
                 (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(urlList.toArray(new URL[0]),
                         ClassLoader.getSystemClassLoader())
         );
+    }
+
+    /**
+     * Provides Qualified Class Name.
+     *
+     * @param orgName     Org name
+     * @param packageName Package name
+     * @param version     Package version
+     * @param className   Class name
+     * @return Qualified class name
+     */
+    public static String getQualifiedClassName(String orgName, String packageName, String version, String className) {
+        if (!DOT.equals(packageName)) {
+            className = encodeNonFunctionIdentifier(packageName) + "." + version.replace('.', '_') + "." + className;
+        }
+        if (!ANON_ORG.equals(orgName)) {
+            className = encodeNonFunctionIdentifier(orgName) + "." + className;
+        }
+        return className;
     }
 }

@@ -18,7 +18,7 @@
 package org.ballerinalang.langserver.commons.completion.spi;
 
 import io.ballerina.compiler.syntax.tree.Node;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 
@@ -45,12 +45,12 @@ public interface CompletionProvider<T extends Node> {
     /**
      * Get Completion items for the scope/ context.
      *
-     * @param context Language Server Context
+     * @param context completion operation Context
      * @param node    Node instance for the parser context
      * @return {@link List}     List of calculated Completion Items
      * @throws LSCompletionException when completion fails
      */
-    List<LSCompletionItem> getCompletions(LSContext context, T node) throws LSCompletionException;
+    List<LSCompletionItem> getCompletions(CompletionContext context, T node) throws LSCompletionException;
 
     /**
      * Sort a given list of completion Items.
@@ -60,7 +60,7 @@ public interface CompletionProvider<T extends Node> {
      * @param completionItems list of completion items to sort
      * @param metaData        Meta data for further processing the sorting
      */
-    void sort(LSContext context, T node, List<LSCompletionItem> completionItems, Object... metaData);
+    void sort(CompletionContext context, T node, List<LSCompletionItem> completionItems, Object... metaData);
 
     /**
      * Sort a given list of completion Items.
@@ -69,7 +69,7 @@ public interface CompletionProvider<T extends Node> {
      * @param node            Node instance for the parser context
      * @param completionItems list of completion items to sort
      */
-    void sort(LSContext context, T node, List<LSCompletionItem> completionItems);
+    void sort(CompletionContext context, T node, List<LSCompletionItem> completionItems);
 
     /**
      * Get the attachment points where the current provider attached to.
@@ -92,9 +92,9 @@ public interface CompletionProvider<T extends Node> {
      * further validations (if needed) for the node can be added here. If this validation has not met, corresponding
      * provider will be skipped
      *
-     * @param node    Node to evaluate
      * @param context Language server completion operation context
+     * @param node    Node to evaluate
      * @return {@link Boolean} pre-validation status
      */
-    boolean onPreValidation(LSContext context, T node);
+    boolean onPreValidation(CompletionContext context, T node);
 }

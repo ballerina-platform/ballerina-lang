@@ -77,13 +77,11 @@ public abstract class FormatterTest {
         String content = getSourceText(filePath);
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
-        if (!syntaxTree.hasDiagnostics()) {
-            try {
-                SyntaxTree newSyntaxTree = Formatter.format(syntaxTree);
-                Assert.assertEquals(newSyntaxTree.toSourceCode(), content);
-            } catch (FormatterException e) {
-                Assert.fail(e.getMessage(), e);
-            }
+        try {
+            SyntaxTree newSyntaxTree = Formatter.format(syntaxTree);
+            Assert.assertEquals(newSyntaxTree.toSourceCode(), content);
+        } catch (FormatterException e) {
+            Assert.fail(e.getMessage(), e);
         }
     }
 

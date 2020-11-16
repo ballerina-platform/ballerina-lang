@@ -17,12 +17,15 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.TypesFactory;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
+
+import java.util.List;
 
 /**
  * Represents a TypeReference type descriptor.
@@ -35,17 +38,25 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     private final String definitionName;
     private TypeSymbol typeDescriptorImpl;
 
-    public BallerinaTypeReferenceTypeSymbol(ModuleID moduleID, BType bType, String definitionName) {
-        super(TypeDescKind.TYPE_REFERENCE, moduleID, bType);
+    public BallerinaTypeReferenceTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType,
+                                            String definitionName) {
+        super(context, TypeDescKind.TYPE_REFERENCE, moduleID, bType);
         this.definitionName = definitionName;
     }
 
     @Override
     public TypeSymbol typeDescriptor() {
         if (this.typeDescriptorImpl == null) {
-            this.typeDescriptorImpl = TypesFactory.getTypeDescriptor(this.getBType(), true);
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.typeDescriptorImpl = typesFactory.getTypeDescriptor(this.getBType(), true);
         }
+
         return this.typeDescriptorImpl;
+    }
+
+    @Override
+    public List<FunctionSymbol> langLibMethods() {
+        return this.typeDescriptor().langLibMethods();
     }
 
     @Override

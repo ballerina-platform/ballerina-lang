@@ -18,11 +18,13 @@
 package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.Bootstrap;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.GlobalPackageCache;
 import io.ballerina.projects.repos.BallerinaDistributionRepository;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -34,24 +36,27 @@ import java.nio.file.Paths;
  */
 public final class BallerinaDistribution {
     private static final String BALLERINA_HOME_KEY = "ballerina.home";
+    private static final String langLibBootstrapPhase = System.getProperty("BOOTSTRAP_LANG_LIB");
 
-    private final Path distributionPath;
+    private final Path ballerinaHomeDirPath;
     private final BallerinaDistributionRepository distributionRepository;
 
-    public BallerinaDistribution(Environment environment) {
-        this(environment, System.getProperty(BALLERINA_HOME_KEY));
+    private BallerinaDistribution(Environment environment, Path ballerinaHomeDirPath) {
+        this.ballerinaHomeDirPath = ballerinaHomeDirPath;
+        this.distributionRepository = BallerinaDistributionRepository.from(environment, this.ballerinaHomeDirPath);
     }
 
-    public BallerinaDistribution(Environment environment, String ballerinaDistributionPath) {
-        if (ballerinaDistributionPath == null) {
+    public static BallerinaDistribution from(Environment environment) {
+        String ballerinaHome = System.getProperty(BALLERINA_HOME_KEY);
+        if (ballerinaHome == null) {
             throw new IllegalStateException("ballerina.home property is not set");
         }
+        return from(environment, Paths.get(ballerinaHome));
+    }
 
-        // TODO Validate whether the given path is a valid Ballerina distribution home
-        this.distributionPath = Paths.get(ballerinaDistributionPath);
-        this.distributionRepository = new BallerinaDistributionRepository(environment, distributionPath);
-
-        // TODO init compilationContext
+    public static BallerinaDistribution from(Environment environment, Path ballerinaHomeDirPath) {
+        validateBallerinaHomeDir(ballerinaHomeDirPath);
+        return new BallerinaDistribution(environment, ballerinaHomeDirPath);
     }
 
     public BallerinaDistributionRepository packageRepository() {
@@ -59,10 +64,27 @@ public final class BallerinaDistribution {
     }
 
     public void loadLangLibPackages(CompilerContext compilerContext, GlobalPackageCache packageCache) {
-        String bootstrapLangLibName = System.getProperty("BOOTSTRAP_LANG_LIB");
-        if (bootstrapLangLibName == null) {
+        if (langLibBootstrapPhase == null) {
             Bootstrap bootstrap = new Bootstrap(new LangLibResolver(distributionRepository, packageCache));
             bootstrap.loadLangLibSymbols(compilerContext);
         }
+    }
+
+    private static void validateBallerinaHomeDir(Path ballerinaHomeDirPath) {
+        if (Files.notExists(ballerinaHomeDirPath)) {
+            throw new ProjectException("Ballerina distribution directory does not exists in `" +
+                    ballerinaHomeDirPath + "'");
+        }
+
+        if (!Files.isDirectory(ballerinaHomeDirPath)) {
+            throw new ProjectException("Invalid Ballerina distribution directory: " + ballerinaHomeDirPath);
+        }
+
+        if (langLibBootstrapPhase != null) {
+            return;
+        }
+
+        // TODO Validate whether the runtime jar exists this validation
+        // TODO At the moment runtime jar is loaded from the class path during the Gradle build. It is wrong!
     }
 }

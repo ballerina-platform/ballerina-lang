@@ -31,8 +31,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-
 import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**

@@ -609,7 +609,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BTypeSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags), className, env.enclPkg.symbol.pkgID, null,
                                                         env.scope.owner, classDefinition.name.pos,
-                                                        getOrigin(className));
+                                                        getOrigin(className, flags));
         tSymbol.scope = new Scope(tSymbol);
         tSymbol.markdownDocumentation = getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
 
@@ -1334,11 +1334,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     // so that we can bitwise and it with any flag and the original flag will not change.
     // If the type is not a public type then return a mask where public flag is set to zero and all others are set
     // to 1 so that we can perform bitwise and operation to remove the public flag from given flag.
-    private int getPublicFlagResetingMask(Set<Flag> flagSet, BLangType typeNode) {
+    private long getPublicFlagResetingMask(Set<Flag> flagSet, BLangType typeNode) {
         boolean isAnonType =
                 typeNode instanceof BLangStructureTypeNode && ((BLangStructureTypeNode) typeNode).isAnonymous;
         if (flagSet.contains(Flag.PUBLIC) || isAnonType) {
-            return Integer.MAX_VALUE;
+            return Long.MAX_VALUE;
         } else {
             return ~Flags.PUBLIC;
         }
@@ -2494,7 +2494,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return createVarSymbol(Flags.asMask(flagSet), varType, varName, env, pos, isInternal);
     }
 
-    public BVarSymbol createVarSymbol(int flags, BType varType, Name varName, SymbolEnv env,
+    public BVarSymbol createVarSymbol(long flags, BType varType, Name varName, SymbolEnv env,
                                       Location location, boolean isInternal) {
         BType safeType = types.getSafeType(varType, true, false);
         BVarSymbol varSymbol;
@@ -2872,8 +2872,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         return referencedFuncSym.restParam == null && attachedFuncSym.restParam == null;
     }
 
-    private boolean hasSameVisibilityModifier(int flags1, int flags2) {
-        int xorOfFlags = flags1 ^ flags2;
+    private boolean hasSameVisibilityModifier(long flags1, long flags2) {
+        var xorOfFlags = flags1 ^ flags2;
         return ((xorOfFlags & Flags.PUBLIC) != Flags.PUBLIC) && ((xorOfFlags & Flags.PRIVATE) != Flags.PRIVATE);
     }
 
@@ -2950,6 +2950,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         variable.type = invokableType;
+    }
+
+    private SymbolOrigin getOrigin(Name name, Set<Flag> flags) {
+        if (flags.contains(Flag.SERVICE) || missingNodesHelper.isMissingNode(name)) {
+            return VIRTUAL;
+        }
+        return SOURCE;
     }
 
     private SymbolOrigin getOrigin(Name name) {

@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.stdlib.io.utils;
 
-import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
@@ -36,7 +36,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
 /**
  * A util class for handling common functions across native implementation.
@@ -87,7 +87,7 @@ public class Utils {
      */
     @SuppressWarnings("unchecked")
     public static Object encode(Object input, String charset, boolean isMimeSpecific) {
-        switch (TypeChecker.getType(input).getTag()) {
+        switch (TypeUtils.getType(input).getTag()) {
             case TypeTags.ARRAY_TAG:
                 return encodeBlob(((BArray) input).getBytes(), isMimeSpecific);
             case TypeTags.OBJECT_TYPE_TAG:
@@ -114,7 +114,7 @@ public class Utils {
      * @return decoded value
      */
     public static Object decode(Object encodedInput, String charset, boolean isMimeSpecific) {
-        switch (TypeChecker.getType(encodedInput).getTag()) {
+        switch (TypeUtils.getType(encodedInput).getTag()) {
             case TypeTags.ARRAY_TAG:
                 return decodeBlob(((BArray) encodedInput).getBytes(), isMimeSpecific);
             case TypeTags.OBJECT_TYPE_TAG:

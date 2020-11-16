@@ -103,10 +103,10 @@ dependencies {
 
     dist project(':ballerina-tools-api')
     dist project(':ballerina-parser')
-    dist project(':ballerina-cli-utils')
     dist project(':ballerina-tool')
     dist project(':ballerina-tools-api')
     dist project(':ballerina-cli-module')
+    dist project(':central-client')
     dist project(':ballerina-cli')
     dist project(':ballerina-rt')
     dist project(':ballerina-choreo-extension-rt')
@@ -181,6 +181,8 @@ dependencies {
 
     syntaxHighlighter project(path: ':docerina', configuration: 'syntaxHighlighter')
     htmlTemplateResources project(path: ':docerina', configuration: 'htmlTemplateResources')
+
+    distributionBalo project(path: ':ballerina-observability', configuration: 'distributionBalo')
 
     distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:internal', configuration: 'distributionBalo')
