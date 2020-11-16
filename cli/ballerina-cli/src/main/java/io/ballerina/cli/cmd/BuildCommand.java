@@ -29,6 +29,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -69,7 +70,7 @@ public class BuildCommand implements BLauncherCmd {
     private boolean skipCopyLibsFromDist;
 
     public BuildCommand() {
-        this.projectPath = Paths.get(System.getProperty("user.dir"));
+        this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.out;
         this.errStream = System.err;
         this.exitWhenFinish = true;
@@ -154,10 +155,10 @@ public class BuildCommand implements BLauncherCmd {
         String[] args;
         if (this.argList == null) {
             args = new String[0];
-            this.projectPath = Paths.get(System.getProperty("user.dir"));
+            this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         } else if (this.argList.get(0).startsWith(RuntimeConstants.BALLERINA_ARGS_INIT_PREFIX)) {
             args = argList.toArray(new String[0]);
-            this.projectPath = Paths.get(System.getProperty("user.dir"));
+            this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         } else {
             args = argList.subList(1, argList.size()).toArray(new String[0]);
             this.projectPath = Paths.get(argList.get(0));
