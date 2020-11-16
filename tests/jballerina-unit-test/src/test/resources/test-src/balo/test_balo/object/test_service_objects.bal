@@ -69,6 +69,11 @@ function getService() returns object {} = @java:Method {
     name: "getService"
 } external;
 
+function getParamNames(service object {} s, string name) returns string[]? = @java:Method {
+    'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
+    name: "getParamNames"
+} external;
+
 listener Listener lsn = new();
 
 function testServiceObjectValue() {
@@ -85,6 +90,9 @@ function testServiceObjectValue() {
 
     var y = wait callMethod(serviceVal, "$put$bar");
     assertEquality(y, "put-bar");
+
+    string[]? paramNames = getParamNames(serviceVal, "$get$foo$bar");
+    assertEquality(paramNames, <string[]>["i", "j"]);
 }
 
 
@@ -94,7 +102,7 @@ public function callMethod(service object {} s, string name) returns future<any|
 } external;
 
 
-function assertEquality(any|error expected, any|error actual) {
+function assertEquality(any|error actual, any|error expected) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
     }

@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
@@ -1032,16 +1033,31 @@ public class JvmTypeGen {
             mv.visitLdcInsn((long) i);
             mv.visitInsn(L2I);
 
-            // load param type
+            // load resource path name
             mv.visitLdcInsn(path.value);
 
-            // Add the member to the array
+            mv.visitInsn(AASTORE);
+        }
+
+        List<BVarSymbol> params = resourceFunction.symbol.params;
+        mv.visitLdcInsn((long) params.size());
+        mv.visitInsn(L2I);
+        mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
+        for (int i = 0; i < params.size(); i++) {
+            BVarSymbol paramSymbol = params.get(i);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+
+            mv.visitLdcInsn(paramSymbol.name.value);
+
             mv.visitInsn(AASTORE);
         }
 
         mv.visitMethodInsn(INVOKESPECIAL, RESOURCE_FUNCTION_IMPL, JVM_INIT_METHOD,
-                String.format("(L%s;L%s;L%s;IL%s;[L%s;)V",
-                        STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL, STRING_VALUE, STRING_VALUE), false);
+                String.format("(L%s;L%s;L%s;IL%s;[L%s;[L%s;)V",
+                        STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL, STRING_VALUE, STRING_VALUE, STRING_VALUE),
+                false);
     }
 
     // -------------------------------------------------------

@@ -44,7 +44,7 @@ public class BResourceFunction extends BAttachedFunction {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("resource function ").append(accessor).append(" ");
-        resourcePath.forEach(r -> sb.append(r));
+        sb.append(resourcePath.stream().map(r -> r.value).reduce((a, b) -> a + "/" + b).get());
         sb.append(" ").append(type.getTypeSignature());
         return sb.toString();
     }

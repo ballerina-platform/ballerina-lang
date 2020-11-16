@@ -25,6 +25,10 @@ service class SClass {
         return self.message + "dot";
     }
 
+    resource function get foo/baz(string s) returns string {
+        return s;
+    }
+
     function init() {
         self.message = "returned from `barPath`";
     }

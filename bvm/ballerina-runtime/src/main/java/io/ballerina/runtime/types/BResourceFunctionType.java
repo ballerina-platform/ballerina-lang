@@ -31,14 +31,16 @@ public class BResourceFunctionType extends BMemberFunctionType implements Resour
 
     public final String accessor;
     public final String[] resourcePath;
+    public final String[] paramNames;
 
     public BResourceFunctionType(String funcName, BObjectType parent, BFunctionType type, int flags,
-                                 String accessor, String[] resourcePath) {
+                                 String accessor, String[] resourcePath, String[] paramNames) {
         super(funcName, parent, type, flags);
         this.type = type;
         this.flags = flags;
         this.accessor = accessor;
         this.resourcePath = resourcePath;
+        this.paramNames = paramNames;
     }
 
     @Override
@@ -49,9 +51,26 @@ public class BResourceFunctionType extends BMemberFunctionType implements Resour
         }
         StringJoiner sj = new StringJoiner(",", "resource function " + accessor + " " + rp.toString() +
                 "(", ") returns (" + type.retType + ")");
-        for (Type type : type.paramTypes) {
-            sj.add(type.getName());
+        Type[] types = type.paramTypes;
+        for (int i = 0; i < types.length; i++) {
+            Type type = types[i];
+            sj.add(type.getName() + " " + paramNames[i]);
         }
         return sj.toString();
+    }
+
+    @Override
+    public String[] getParamNames() {
+        return paramNames;
+    }
+
+    @Override
+    public String getAccessor() {
+        return accessor;
+    }
+
+    @Override
+    public String[] getResourcePath() {
+        return resourcePath;
     }
 }
