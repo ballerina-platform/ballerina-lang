@@ -129,6 +129,7 @@ public class BuildLangLib {
         } catch (Exception e) {
             out.println("Unknown error building : " + projectDir.toString());
             e.printStackTrace();
+            System.exit(1);
         }
     }
 
