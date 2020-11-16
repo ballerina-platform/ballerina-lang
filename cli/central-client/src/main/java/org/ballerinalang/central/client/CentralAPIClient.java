@@ -75,8 +75,8 @@ import static org.wso2.ballerinalang.util.RepoUtils.getRemoteRepoURL;
  */
 public class CentralAPIClient {
 
-    private String accessToken;
     private Proxy proxy;
+    protected Settings settings;
     private String baseUrl;
     protected PrintStream errStream;
     protected PrintStream outStream;
@@ -85,16 +85,11 @@ public class CentralAPIClient {
     private static final String ERR_CANNOT_PUSH = "error: failed to push the package: ";
 
     public CentralAPIClient() {
-        String ballerinaCentralCliTokenUrl = getBallerinaCentralCliTokenUrl();
-        Path ballerinaHomePath = RepoUtils.createAndGetHomeReposPath();
-        Path settingsTomlFilePath = ballerinaHomePath.resolve(SETTINGS_FILE_NAME);
-        Settings settings = readSettings();
-
         this.errStream = System.err;
         this.outStream = System.out;
+        this.settings = readSettings();
         this.baseUrl = getRemoteRepoURL();
-        this.accessToken = authenticate(errStream, ballerinaCentralCliTokenUrl, settings, settingsTomlFilePath);
-        this.proxy = initializeProxy(settings.getProxy());
+        this.proxy = initializeProxy(this.settings.getProxy());
     }
 
     /**
@@ -191,8 +186,14 @@ public class CentralAPIClient {
         String name = baloProject.currentPackage().packageDescriptor().name().toString();
         String version = baloProject.currentPackage().packageDescriptor().version().toString();
 
+        // Get access token
+        String ballerinaCentralCliTokenUrl = getBallerinaCentralCliTokenUrl();
+        Path ballerinaHomePath = RepoUtils.createAndGetHomeReposPath();
+        Path settingsTomlFilePath = ballerinaHomePath.resolve(SETTINGS_FILE_NAME);
+        String accessToken = authenticate(errStream, ballerinaCentralCliTokenUrl, this.settings, settingsTomlFilePath);
+
         // Set headers
-        conn.setRequestProperty(AUTHORIZATION, "Bearer " + this.accessToken);
+        conn.setRequestProperty(AUTHORIZATION, "Bearer " + accessToken);
         conn.setRequestProperty(CONTENT_TYPE, APPLICATION_OCTET_STREAM);
 
         conn.setDoOutput(true);

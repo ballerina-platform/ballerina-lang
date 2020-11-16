@@ -26,9 +26,9 @@ public class BField {
 
     public BType fieldType;
     public String fieldName;
-    public int flags;
+    public long flags;
 
-    public BField(BType fieldType, String fieldName, int flags) {
+    public BField(BType fieldType, String fieldName, long flags) {
         this.fieldType = fieldType;
         this.fieldName = fieldName;
         this.flags = flags;

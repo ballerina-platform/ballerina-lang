@@ -31,7 +31,6 @@ import java.util.List;
 import static io.ballerina.cli.cmd.Constants.SEARCH_COMMAND;
 import static io.ballerina.cli.utils.PrintUtils.printPackages;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
-import static org.ballerinalang.tool.LauncherUtils.createUsageExceptionWithHelp;
 
 /**
  * This class represents the "ballerina search" command.

@@ -46,7 +46,7 @@ public class Symbols {
 
     public static BPackageSymbol createPackageSymbol(PackageID packageID,
                                                      SymbolTable symTable,
-                                                     int flags,
+                                                     long flags,
                                                      SymbolOrigin origin) {
         BPackageSymbol pkgSymbol = new BPackageSymbol(packageID, symTable.rootPkgSymbol, flags, symTable.builtinPos,
                                                       origin);
@@ -64,7 +64,7 @@ public class Symbols {
         return pkgSymbol;
     }
 
-    public static BObjectTypeSymbol createObjectSymbol(int flags,
+    public static BObjectTypeSymbol createObjectSymbol(long flags,
                                                        Name name,
                                                        PackageID pkgID,
                                                        BType type,
@@ -77,7 +77,7 @@ public class Symbols {
         return typeSymbol;
     }
 
-    public static BClassSymbol createClassSymbol(int flags,
+    public static BClassSymbol createClassSymbol(long flags,
                                                        Name name,
                                                        PackageID pkgID,
                                                        BType type,
@@ -89,7 +89,7 @@ public class Symbols {
         return typeSymbol;
     }
 
-    public static BRecordTypeSymbol createRecordSymbol(int flags,
+    public static BRecordTypeSymbol createRecordSymbol(long flags,
                                                        Name name,
                                                        PackageID pkgID,
                                                        BType type,
@@ -102,14 +102,14 @@ public class Symbols {
         return typeSymbol;
     }
 
-    public static BErrorTypeSymbol createErrorSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner,
+    public static BErrorTypeSymbol createErrorSymbol(long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                                                      Location pos, SymbolOrigin origin) {
         BErrorTypeSymbol typeSymbol = new BErrorTypeSymbol(SymTag.ERROR, flags, name, pkgID, type, owner, pos, origin);
         typeSymbol.kind = SymbolKind.ERROR;
         return typeSymbol;
     }
 
-    public static BAnnotationSymbol createAnnotationSymbol(int flags, Set<AttachPoint> points, Name name,
+    public static BAnnotationSymbol createAnnotationSymbol(long flags, Set<AttachPoint> points, Name name,
                                                            PackageID pkgID, BType type, BSymbol owner,
                                                            Location pos, SymbolOrigin origin) {
         BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, points, pkgID, type, owner, pos,
@@ -118,7 +118,7 @@ public class Symbols {
         return annotationSymbol;
     }
 
-    public static BInvokableSymbol createWorkerSymbol(int flags,
+    public static BInvokableSymbol createWorkerSymbol(long flags,
                                                       Name name,
                                                       PackageID pkgID,
                                                       BType type,
@@ -130,7 +130,7 @@ public class Symbols {
         return symbol;
     }
 
-    public static BServiceSymbol createServiceSymbol(int flags,
+    public static BServiceSymbol createServiceSymbol(long flags,
                                                      Name name,
                                                      PackageID pkgID,
                                                      BType type,
@@ -142,7 +142,7 @@ public class Symbols {
         return serviceSymbol;
     }
 
-    public static BInvokableSymbol createFunctionSymbol(int flags,
+    public static BInvokableSymbol createFunctionSymbol(long flags,
                                                         Name name,
                                                         PackageID pkgID,
                                                         BType type,
@@ -157,7 +157,7 @@ public class Symbols {
     }
 
     public static BTypeSymbol createTypeSymbol(int symTag,
-                                               int flags,
+                                               long flags,
                                                Name name,
                                                PackageID pkgID,
                                                BType type,
@@ -171,7 +171,7 @@ public class Symbols {
     }
 
     public static BInvokableTypeSymbol createInvokableTypeSymbol(int symTag,
-                                                                 int flags,
+                                                                 long flags,
                                                                  PackageID pkgID,
                                                                  BType type,
                                                                  BSymbol owner,
@@ -181,7 +181,7 @@ public class Symbols {
     }
 
     public static BInvokableSymbol createInvokableSymbol(int kind,
-                                                         int flags,
+                                                         long flags,
                                                          Name name,
                                                          PackageID pkgID,
                                                          BType type,
@@ -220,7 +220,7 @@ public class Symbols {
         return (sym.flags & Flags.REMOTE) == Flags.REMOTE;
     }
 
-    public static boolean isFlagOn(int mask, int flag) {
+    public static boolean isFlagOn(long mask, long flag) {
         return (mask & flag) == flag;
     }
 

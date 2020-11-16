@@ -1,3 +1,4 @@
-[project]
-org-name = "test-module-clash"
-version = "0.0.1"
+[package]
+org = "testModuleClash"
+name = "main"
+version = "1.1.0"

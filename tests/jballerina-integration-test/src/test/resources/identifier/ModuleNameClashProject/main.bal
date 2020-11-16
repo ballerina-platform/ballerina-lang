@@ -14,31 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import pkg.test as pkg5;
-import pkg_test as pkg10;
-import ballerina/test;
+import testModuleClash/main.pkg.test as pkg5;
+import testModuleClash/main.pkg_test as pkg10;
 
-@test:Config {
-}
-function test() {
-    int param = 12;
-    int result1 = pkg5:add(param);
-    int result2 = pkg10:add(param);
+type Address record {|
+    pkg5:Address road;
+    pkg10:Address city;
+|};
 
-    test:assertEquals(17, result1);
-    test:assertEquals(22, result2);
-
-    pkg5:Address add1 = {
-        postalCode: 20,
-        street: "Palm Grove"
-    };
-    pkg10:Address add2 = {
-        district: "Colombo",
-        province: "Western"
-    };
-
-    Address officeAddress = { road: add1, city: add2 };
-
-    test:assertEquals(20, officeAddress.road.postalCode);
-    test:assertEquals("Western", officeAddress.city.province);
+public function main() {
 }

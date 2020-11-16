@@ -81,8 +81,8 @@ public class PushCommand implements BLauncherCmd {
         errStream = System.err;
         outStream = System.out;
     }
-    
-    public PushCommand(Path userDir,PrintStream outStream, PrintStream errStream) {
+
+    public PushCommand(Path userDir, PrintStream outStream, PrintStream errStream) {
         this.userDir = userDir;
         this.outStream = outStream;
         this.errStream = errStream;

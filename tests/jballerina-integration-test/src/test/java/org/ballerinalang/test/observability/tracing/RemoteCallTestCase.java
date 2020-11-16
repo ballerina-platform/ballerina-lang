@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 public class RemoteCallTestCase extends TracingBaseTestCase {
     private static final String FILE_NAME = "03_remote_call.bal";
     private static final String SERVICE_NAME = "testServiceTwo";
-    private static final String BASE_URL = "http://localhost:9092";
+    private static final String BASE_URL = "http://localhost:9093";
 
     @Test
     public void testNestedRemoteCalls() throws Exception {
