@@ -27,9 +27,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
-import static org.testng.Assert.assertEquals;
-
 /**
  * This class contains unit tests to cover streamlib functionalities.
  *
@@ -37,12 +34,11 @@ import static org.testng.Assert.assertEquals;
  */
 public class LangLibStreamTest {
 
-    private CompileResult result, negativeResult;
+    private CompileResult result;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/streamlib_test.bal");
-        negativeResult = BCompileUtil.compile("test-src/streamlib_test_negative.bal");
     }
 
     @Test
@@ -87,18 +83,4 @@ public class LangLibStreamTest {
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
-    @Test
-    public void testNegativeCases() {
-        assertEquals(negativeResult.getErrorCount(), 3);
-        int index = 0;
-        validateError(negativeResult, index++, "invalid stream constructor. expected a subtype of 'object { public " +
-                "isolated function next() returns record {| any|error value; |}|error?; }', but found " +
-                "'IteratorWithNonIsolatedNext'", 93, 42);
-        validateError(negativeResult, index++, "invalid stream constructor. expected a subtype of 'object { public " +
-                "isolated function next() returns record {| any|error value; |}|error?; public isolated function " +
-                "close() returns error?; }', but found 'IteratorWithNonIsolatedNextAndIsolatedClose'", 94, 42);
-        validateError(negativeResult, index, "invalid stream constructor. expected a subtype of 'object { public " +
-                "isolated function next() returns record {| any|error value; |}|error?; public isolated function " +
-                "close() returns error?; }', but found 'IteratorWithIsolatedNextAndNonIsolatedClose'", 95, 42);
-    }
 }
