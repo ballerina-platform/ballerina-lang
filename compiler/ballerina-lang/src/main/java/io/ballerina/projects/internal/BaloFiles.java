@@ -18,7 +18,6 @@
 
 package io.ballerina.projects.internal;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
@@ -176,12 +175,12 @@ public class BaloFiles {
             dependencies = Collections.emptyList();
         }
 
-        Map<String, PackageDescriptor.Platform> platforms = new HashMap<>(Collections.emptyMap());;
+        Map<String, PackageDescriptor.Platform> platforms = new HashMap<>(Collections.emptyMap());
         if (packageJson.getPlatformDependencies() != null) {
             List<Map<String, Object>> platformDependencies = new ArrayList<>();
-            ObjectMapper objectMapper = new ObjectMapper();
             packageJson.getPlatformDependencies().forEach(dependency -> {
-                platformDependencies.add(objectMapper.convertValue(dependency, Map.class));
+                String jsonStr = gson.toJson(dependency);
+                platformDependencies.add(gson.fromJson(jsonStr, Map.class));
 
             });
             PackageDescriptor.Platform platform = new PackageDescriptor.Platform(platformDependencies);
