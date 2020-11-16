@@ -53,7 +53,7 @@ public class TomlParser {
         //TODO: Validations over org name/module name/identifier
         Map<VariableKey, Object> configurableMap = ConfigurableMapHolder.getConfigurationMap();
         Toml toml = getConfigurationData();
-        if (!toml.isEmpty()) {
+        if (toml != null && !toml.isEmpty()) {
             for (Map.Entry<String, Object> organizaion : toml.entrySet()) {
                 String orgName = organizaion.getKey();
                 Toml modules = (Toml) organizaion.getValue();
