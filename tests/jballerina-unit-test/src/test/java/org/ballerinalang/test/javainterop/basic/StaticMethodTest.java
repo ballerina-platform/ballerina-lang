@@ -169,11 +169,6 @@ public class StaticMethodTest {
     public Object[] getFunctionNames() {
         return new String[]{"testBalEnvSlowAsyncVoidSig", "testBalEnvFastAsyncVoidSig", "testBalEnvSlowAsync",
                 "testBalEnvFastAsync", "testReturnNullString", "testReturnNotNullString", "testStaticResolve",
-                "testStringCast"};
-    }
-
-    @Test
-    public void testGetCurrentModule() {
-        BRunUtil.invoke(result, "testGetCurrentModule");
+                "testStringCast", "testGetCurrentModule"};
     }
 }

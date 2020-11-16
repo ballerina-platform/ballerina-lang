@@ -182,4 +182,15 @@ public class InstanceMethods {
         return StringUtils.fromString(callerModule.getOrg() + "#" + callerModule.getName() + "#" +
                                               callerModule.getVersion() + "#" + b);
     }
+
+    public BString getCurrentModuleAndOverloadParams(Environment env, long b) {
+        Module callerModule = env.getCurrentModule();
+        return StringUtils.fromString(callerModule.getOrg() + "#" + callerModule.getName() + "#" +
+                                              callerModule.getVersion() + "#" + b * 2);
+    }
+
+    public BString getCurrentModuleAndOverloadParams(Environment env, InstanceMethods instanceMethods, long b) {
+        return instanceMethods.getCurrentModule(env, b * 4);
+    }
+
 }
