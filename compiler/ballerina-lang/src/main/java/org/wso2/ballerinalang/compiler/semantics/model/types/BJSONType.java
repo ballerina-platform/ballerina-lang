@@ -40,7 +40,7 @@ public class BJSONType extends BBuiltInRefType implements SelectivelyImmutableRe
         this.nullable = nullable;
     }
 
-    public BJSONType(int tag, BTypeSymbol tsymbol, boolean nullable, int flags) {
+    public BJSONType(int tag, BTypeSymbol tsymbol, boolean nullable, long flags) {
         this(tag, tsymbol);
         this.nullable = nullable;
         this.flags = flags;

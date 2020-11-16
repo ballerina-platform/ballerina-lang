@@ -52,7 +52,7 @@ public class BObjectType extends BStructureType implements ObjectType {
      * @param pkg package of the struct
      * @param flags flags of the object type
      */
-    public BObjectType(String typeName, Module pkg, int flags) {
+    public BObjectType(String typeName, Module pkg, long flags) {
         super(typeName, pkg, flags, Object.class);
         this.readonly = SymbolFlags.isFlagOn(flags, SymbolFlags.READONLY);
     }
