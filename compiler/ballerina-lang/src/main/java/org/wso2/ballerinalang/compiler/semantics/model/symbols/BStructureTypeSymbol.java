@@ -37,7 +37,7 @@ public abstract class BStructureTypeSymbol extends BTypeSymbol {
     public List<BAttachedFunction> attachedFuncs;
     public BAttachedFunction initializerFunc;
 
-    BStructureTypeSymbol(SymbolKind kind, int symTag, int flags, Name name, PackageID pkgID, BType type,
+    BStructureTypeSymbol(SymbolKind kind, int symTag, long flags, Name name, PackageID pkgID, BType type,
                          BSymbol owner, Location pos, SymbolOrigin origin) {
         super(symTag, flags, name, pkgID, type, owner, pos, origin);
         this.attachedFuncs = new ArrayList<>(0);

@@ -53,17 +53,17 @@
       }
     },
     {
-      "label": "iterator()( object {function () returns {| xml<>|string value |}|()})",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nReturns an iterator over the xml items of `x`\n  \n  \n  \n**Returns** ` object {function () returns {| xml<>|string value |}|()}`   \n- iterator object  \nEach item is represented by an xml singleton.  \n  \n"
-        }
-      },
-      "insertText": "iterator()",
-      "insertTextFormat": "Snippet"
+        "label": "iterator()( object {function () returns record {| xml<>|string value; |}|()})",
+        "kind": "Function",
+        "detail": "Function",
+        "documentation": {
+            "right": {
+                "kind": "markdown",
+                "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nReturns an iterator over the xml items of `x`\n  \n  \n  \n**Returns** ` object {function () returns record {| xml<>|string value; |}|()}`   \n- iterator object  \nEach item is represented by an xml singleton.  \n  \n"
+            }
+        },
+        "insertText": "iterator()",
+        "insertTextFormat": "Snippet"
     },
     {
       "label": "strip()(xml<>)",
