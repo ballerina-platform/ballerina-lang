@@ -17,6 +17,8 @@ package org.ballerinalang.datamapper;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -32,7 +34,6 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -43,11 +44,8 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -58,13 +56,12 @@ import java.util.Locale;
 import java.util.Optional;
 
 import static org.ballerinalang.datamapper.AIDataMapperCodeActionUtil.getAIDataMapperCodeActionEdits;
-import static org.ballerinalang.langserver.util.references.ReferencesUtil.getReferenceAtCursor;
 
 /**
  * Code Action provider for automatic data mapping.
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
+public class AIDataMapperCodeActionOriginal extends AbstractCodeActionProvider implements AIDataMapperCodeAction {
 
     /**
      * {@inheritDoc}
@@ -132,33 +129,12 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 
             BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
             SemanticModel semanticModel = new BallerinaSemanticModel(bLangPackage, context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
-//            SymbolReferencesModel.Reference refAtCursor =
             Optional<Symbol>
                     symbolAtCursor = semanticModel.symbol(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY),
                     LinePosition.from(diagnosticPosition.getLine(),
                             diagnosticPosition.getCharacter()));
 
-//            if (!symbolAtCursor.isEmpty()){
-//                BType symbolAtCursorType = (BSymbol)symbolAtCursor;
-//            }
-
-//            BLangPackage bLangPackage = completionContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-//            SemanticModel semanticModel = new BallerinaSemanticModel(bLangPackage,
-//                    completionContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
-//            Position position = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-//            String filePath = completionContext.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-//            completionContext.put(CommonKeys.VISIBLE_SYMBOLS_KEY, semanticModel
-//                    .visibleSymbols(filePath, LinePosition.from(position.getLine(), position.getCharacter())));
-
-//            SymbolReferencesModel.Reference refAtCursor = getReferenceAtCursor(context, document, diagnosticPosition);
-//            BType symbolAtCursorType = refAtCursor.getSymbol().type;
-
-//            BType symbolAtCursorType = semanticModel.getType(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY));
-
-//            if (refAtCursor.getbLangNode().parent instanceof BLangFieldBasedAccess) {
-//                return Optional.empty();
-//            }
-            if (((BallerinaTypeReferenceTypeSymbol) ((BallerinaVariableSymbol) symbolAtCursor.value).typeDescriptorImpl).bType instanceof BRecordType) {
+            if (((BallerinaTypeReferenceTypeSymbol) ((BallerinaVariableSymbol) ((Optional<Symbol>) symbolAtCursor).value).typeDescriptorImpl).bType instanceof BRecordType) {
                 CodeAction action = new CodeAction("Generate mapping function");
                 action.setKind(CodeActionKind.QuickFix);
 
