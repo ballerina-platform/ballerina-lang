@@ -484,7 +484,7 @@ public class ImmutableTypeCloner {
                                                          BStructureType immutableStructureType,
                                                          BStructureType origStructureType, Location pos,
                                                          SymbolEnv env, PackageID pkgID, Set<BType> unresolvedTypes,
-                                                         int flag) {
+                                                         long flag) {
         BTypeSymbol immutableStructureSymbol = immutableStructureType.tsymbol;
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
         for (BField origField : origStructureType.fields.values()) {

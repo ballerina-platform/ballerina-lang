@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 public class CustomTracingTestCase extends TracingBaseTestCase {
     private static final String FILE_NAME = "06_custom_trace_spans.bal";
     private static final String SERVICE_NAME = "testServiceFive";
-    private static final String BASE_URL = "http://localhost:9095";
+    private static final String BASE_URL = "http://localhost:9096";
 
     @Test
     public void testAddCustomSpanToSystemTrace() throws Exception {

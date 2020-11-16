@@ -41,7 +41,7 @@ public enum TypeDescKind {
     TUPLE("tuple"),
     STREAM("stream"),
     FUTURE("future"),
-    TYPEDESC("typeDesc"),
+    TYPEDESC("typedesc"),
     TYPE_REFERENCE("typeReference"),
     UNION("union"),
     INTERSECTION("intersection"),
@@ -50,8 +50,9 @@ public enum TypeDescKind {
     HANDLE("handle"),
     TABLE("table"),
     SINGLETON("singleton"),
+    READONLY("readonly"),
     NEVER("never");
-    
+
     
     private final String name;
 

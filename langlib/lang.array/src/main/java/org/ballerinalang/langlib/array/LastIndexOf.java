@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.TypeChecker;
 import org.ballerinalang.langlib.array.utils.GetFunction;
 
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.getElementAccessFunction;

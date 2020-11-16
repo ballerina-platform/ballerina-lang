@@ -47,7 +47,7 @@ public class BTableType extends BType implements TableType {
         this.constraint = constraint;
     }
 
-    public BTableType(int tag, BType constraint, BTypeSymbol tSymbol, int flags) {
+    public BTableType(int tag, BType constraint, BTypeSymbol tSymbol, long flags) {
         super(tag, tSymbol, flags);
         this.constraint = constraint;
     }

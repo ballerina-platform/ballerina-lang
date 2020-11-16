@@ -31,23 +31,23 @@ import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.StringType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.XMLType;
+import io.ballerina.runtime.api.types.XmlType;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.util.exceptions.BallerinaException;
-import io.ballerina.runtime.values.ArrayValue;
-import io.ballerina.runtime.values.DecimalValue;
-import io.ballerina.runtime.values.MapValue;
-import io.ballerina.runtime.values.ObjectValue;
-import io.ballerina.runtime.values.XMLValue;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.runtime.internal.values.MapValue;
+import io.ballerina.runtime.internal.values.ObjectValue;
+import io.ballerina.runtime.internal.values.XmlValue;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.entity.TesterinaFunction;
 import org.ballerinalang.test.runtime.entity.TesterinaReport;
 import org.ballerinalang.test.runtime.entity.TesterinaResult;
+import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
 
@@ -127,26 +127,26 @@ public class BTestRunner {
                 if (!functionNames.contains(test.getBeforeTestFunction())) {
                     String msg = String.format("Cannot find the specified before function : [%s] for testerina " +
                             "function : [%s]", test.getBeforeTestFunction(), test.getTestName());
-                    throw new BallerinaException(msg);
+                    throw new BallerinaTestException(msg);
                 }
             }
             if (test.getAfterTestFunction() != null) {
                 if (!functionNames.contains(test.getAfterTestFunction())) {
                     String msg = String.format("Cannot find the specified after function : [%s] for testerina " +
                             "function : [%s]", test.getAfterTestFunction(), test.getTestName());
-                    throw new BallerinaException(msg);
+                    throw new BallerinaTestException(msg);
                 }
             }
 
             if (test.getDataProvider() != null && !functionNames.contains(test.getDataProvider())) {
                 String dataProvider = test.getDataProvider();
                 String message = String.format("Data provider function [%s] cannot be found.", dataProvider);
-                throw new BallerinaException(message);
+                throw new BallerinaTestException(message);
             }
 
             for (String dependsOnFn : test.getDependsOnTestFunctions()) {
                 if (functionNames.stream().noneMatch(func -> func.equals(dependsOnFn))) {
-                    throw new BallerinaException("Cannot find the specified dependsOn function : "
+                    throw new BallerinaTestException("Cannot find the specified dependsOn function : "
                             + dependsOnFn);
                 }
             }
@@ -174,7 +174,7 @@ public class BTestRunner {
                     if (idx == -1) {
                         String message = String.format("Test [%s] depends on function [%s], but it couldn't be found" +
                                 ".", test, dependsOnFn);
-                        throw new BallerinaException(message);
+                        throw new BallerinaTestException(message);
                     }
                     dependencyMatrix[i].add(idx);
                 }
@@ -221,7 +221,7 @@ public class BTestRunner {
         // Check if there was a cycle
         if (cnt != numberOfNodes) {
             String message = "Cyclic test dependency detected";
-            throw new BallerinaException(message);
+            throw new BallerinaTestException(message);
         }
 
         i = numberOfNodes - 1;
@@ -257,7 +257,7 @@ public class BTestRunner {
         try {
             initClazz = classLoader.loadClass(initClassName);
         } catch (Throwable e) {
-            throw new BallerinaException("failed to load init class :" + initClassName);
+            throw new BallerinaTestException("failed to load init class :" + initClassName);
         }
         Scheduler scheduler = new Scheduler(4, false);
         Scheduler initScheduler = new Scheduler(4, false);
@@ -271,7 +271,7 @@ public class BTestRunner {
             try {
                 testInitClazz = classLoader.loadClass(testClassName);
             } catch (Throwable e) {
-                throw new BallerinaException("failed to load Test init class :" + testClassName);
+                throw new BallerinaTestException("failed to load Test init class :" + testClassName);
             }
             outStream.println("\t" + packageName);
         } else {
@@ -618,12 +618,12 @@ public class BTestRunner {
                 message = ((BError) e.getCause()).getPrintableStackTrace();
             } catch (ClassCastException castException) {
                 // throw the exception to top
-                throw new BallerinaException(e);
+                throw new BallerinaTestException(e);
             }
-        } else if (e instanceof BallerinaException) {
-            throw (BallerinaException) e;
+        } else if (e instanceof BallerinaTestException) {
+            throw (BallerinaTestException) e;
         } else {
-            throw new BallerinaException(e);
+            throw new BallerinaTestException(e);
         }
         return message;
     }
@@ -724,8 +724,8 @@ public class BTestRunner {
             type = Double.TYPE;
         } else if (elementType instanceof MapType || elementType instanceof RecordType) {
             type = MapValue.class;
-        } else if (elementType instanceof XMLType) {
-            type = XMLValue.class;
+        } else if (elementType instanceof XmlType) {
+            type = XmlValue.class;
         } else if (elementType instanceof ObjectType) {
             type = ObjectValue.class;
         } else {

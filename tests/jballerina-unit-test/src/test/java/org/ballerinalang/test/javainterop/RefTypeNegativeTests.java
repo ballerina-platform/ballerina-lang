@@ -18,9 +18,9 @@
 package org.ballerinalang.test.javainterop;
 
 import io.ballerina.runtime.api.values.BFuture;
-import io.ballerina.runtime.values.ArrayValue;
-import io.ballerina.runtime.values.FPValue;
-import io.ballerina.runtime.values.FutureValue;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.FPValue;
+import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;

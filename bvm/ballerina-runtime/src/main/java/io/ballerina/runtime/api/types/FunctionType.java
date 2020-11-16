@@ -29,7 +29,7 @@ public interface FunctionType extends AnnotatableType {
 
     Type getReturnType();
 
-    int getFlags();
+    long getFlags();
 
     Type getReturnParameterType();
 

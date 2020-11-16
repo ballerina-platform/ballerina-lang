@@ -17,12 +17,13 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
-import io.ballerina.runtime.util.BLangConstants;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.BlockFunctionBodyNode;
 import org.ballerinalang.model.tree.BlockNode;
@@ -284,7 +285,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
 
-import static io.ballerina.runtime.util.BLangConstants.UNDERSCORE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.util.BLangCompilerConstants.RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createBlockStmt;
@@ -579,7 +580,7 @@ public class Desugar extends BLangNodeVisitor {
      * @param env     symbol environment of package
      */
     private void createPackageInitFunctions(BLangPackage pkgNode, SymbolEnv env) {
-        String alias = pkgNode.symbol.pkgID.toString();
+        String alias = "";
         pkgNode.initFunction = ASTBuilderUtil.createInitFunctionWithErrorOrNilReturn(pkgNode.pos, alias,
                                                                                      Names.INIT_FUNCTION_SUFFIX,
                                                                                      symTable);
@@ -4232,7 +4233,7 @@ public class Desugar extends BLangNodeVisitor {
         errorInvocation.type = symTable.errorType;
         ArrayList<BLangExpression> errorCtorArgs = new ArrayList<>();
         errorInvocation.requiredArgs = errorCtorArgs;
-        errorCtorArgs.add(createStringLiteral(pos, "{" + BLangConstants.MAP_LANG_LIB + "}InvalidKey"));
+        errorCtorArgs.add(createStringLiteral(pos, "{" + RuntimeConstants.MAP_LANG_LIB + "}InvalidKey"));
         BLangNamedArgsExpression message = new BLangNamedArgsExpression();
         message.name = ASTBuilderUtil.createIdentifier(pos, "key");
         message.expr = createStringLiteral(pos, fieldAccessExpr.field.value);
@@ -5287,9 +5288,6 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
         workerSendNode.expr = visitCloneInvocation(rewriteExpr(workerSendNode.expr), workerSendNode.expr.type);
-        if (workerSendNode.keyExpr != null) {
-            workerSendNode.keyExpr = rewriteExpr(workerSendNode.keyExpr);
-        }
         result = workerSendNode;
     }
 
@@ -5301,9 +5299,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        if (workerReceiveNode.keyExpr != null) {
-            workerReceiveNode.keyExpr = rewriteExpr(workerReceiveNode.keyExpr);
-        }
         result = workerReceiveNode;
     }
 
@@ -5317,7 +5312,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransactionalExpr transactionalExpr) {
         BInvokableSymbol isTransactionalSymbol =
-                (BInvokableSymbol) transactionDesugar.getTransactionLibInvokableSymbol(IS_TRANSACTIONAL);
+                (BInvokableSymbol) transactionDesugar.getInternalTransactionModuleInvokableSymbol(IS_TRANSACTIONAL);
         result = ASTBuilderUtil
                 .createInvocationExprMethod(transactionalExpr.pos, isTransactionalSymbol, Collections.emptyList(),
                         Collections.emptyList(), symResolver);
@@ -7880,5 +7875,22 @@ public class Desugar extends BLangNodeVisitor {
         fields.clear();
         return type.tag == TypeTags.RECORD ? new BLangStructLiteral(pos, type, rewrittenFields) :
                 new BLangMapLiteral(pos, type, rewrittenFields);
+    }
+
+    protected void addTransactionInternalModuleImport() {
+        PackageID packageID = new PackageID(Names.BALLERINA_INTERNAL_ORG, Lists.of(Names.TRANSACTION),
+                Names.TRANSACTION_INTERNAL_VERSION);
+        if (!env.enclPkg.packageID.equals(packageID)) {
+            BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
+            List<BLangIdentifier> pkgNameComps = new ArrayList<>();
+            pkgNameComps.add(ASTBuilderUtil.createIdentifier(env.enclPkg.pos, Names.TRANSACTION.value));
+            importDcl.pkgNameComps = pkgNameComps;
+            importDcl.orgName = ASTBuilderUtil.createIdentifier(env.enclPkg.pos, Names.BALLERINA_INTERNAL_ORG.value);
+            importDcl.alias = ASTBuilderUtil.createIdentifier(env.enclPkg.pos, "trx");
+            importDcl.version = ASTBuilderUtil.createIdentifier(env.enclPkg.pos, "");
+            importDcl.symbol = new BPackageSymbol(packageID, env.enclPkg.symbol.owner,
+                    env.enclPkg.symbol.pos, env.enclPkg.symbol.origin);
+            env.enclPkg.imports.add(importDcl);
+        }
     }
 }

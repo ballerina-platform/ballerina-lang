@@ -92,7 +92,7 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visitType(BType type) {
         buff.writeByte(type.tag);
         buff.writeInt(addStringCPEntry(type.name.getValue()));
-        buff.writeInt(type.flags);
+        buff.writeLong(type.flags);
         buff.writeInt(TypeFlags.asMask(type.isNullable(), type.isAnydata(), type.isPureType()));
         type.accept(this);
     }
@@ -161,7 +161,7 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visit(BFiniteType bFiniteType) {
         BTypeSymbol tsymbol = bFiniteType.tsymbol;
         buff.writeInt(addStringCPEntry(tsymbol.name.value));
-        buff.writeInt(tsymbol.flags);
+        buff.writeLong(tsymbol.flags);
         buff.writeInt(bFiniteType.getValueSpace().size());
         for (BLangExpression valueLiteral : bFiniteType.getValueSpace()) {
             if (!(valueLiteral instanceof BLangLiteral)) {
@@ -321,7 +321,7 @@ public class BIRTypeWriter implements TypeVisitor {
         for (BField field : bRecordType.fields.values()) {
             BSymbol symbol = field.symbol;
             buff.writeInt(addStringCPEntry(symbol.name.value));
-            buff.writeInt(symbol.flags);
+            buff.writeLong(symbol.flags);
             writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
         }
@@ -334,7 +334,7 @@ public class BIRTypeWriter implements TypeVisitor {
 
         buff.writeByte(1);
         buff.writeInt(addStringCPEntry(initializerFunc.funcName.value));
-        buff.writeInt(initializerFunc.symbol.flags);
+        buff.writeLong(initializerFunc.symbol.flags);
         writeTypeCpIndex(initializerFunc.type);
     }
 
@@ -366,7 +366,7 @@ public class BIRTypeWriter implements TypeVisitor {
         for (BField field : bObjectType.fields.values()) {
             buff.writeInt(addStringCPEntry(field.name.value));
             // TODO add position
-            buff.writeInt(field.symbol.flags);
+            buff.writeLong(field.symbol.flags);
             writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
         }
@@ -399,7 +399,7 @@ public class BIRTypeWriter implements TypeVisitor {
 
     private void writeAttachFunction(BAttachedFunction attachedFunc) {
         buff.writeInt(addStringCPEntry(attachedFunc.funcName.value));
-        buff.writeInt(attachedFunc.symbol.flags);
+        buff.writeLong(attachedFunc.symbol.flags);
         writeTypeCpIndex(attachedFunc.type);
     }
 

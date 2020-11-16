@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 public class ObservableAnnotationTestCase extends TracingBaseTestCase {
     private static final String FILE_NAME = "04_observability_annotation.bal";
     private static final String SERVICE_NAME = "testServiceThree";
-    private static final String BASE_URL = "http://localhost:9093";
+    private static final String BASE_URL = "http://localhost:9094";
 
     @Test
     public void testObservableFunction() throws Exception {
