@@ -2909,10 +2909,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             workerSendNode.type = symbol.type;
             workerSendNode.workerSymbol = symbol;
         }
-
-        if (workerSendNode.isChannel) {
-            dlog.error(workerSendNode.pos, DiagnosticCode.UNDEFINED_ACTION);
-        }
     }
 
     @Override
