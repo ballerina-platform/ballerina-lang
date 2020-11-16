@@ -101,6 +101,7 @@ task copyBallerinaProject(type: Copy) {
 }
 
 task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
+    errorOutput = System.err
     projectDir = project.buildDir.toString() + "/ballerina-src" // + modName
     distCache = project.buildDir.toString()
     classpath = project.configurations.baloCreat
