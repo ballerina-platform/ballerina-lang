@@ -625,6 +625,7 @@ public enum DiagnosticCode {
     INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_OBJECT_METHOD(
             "invalid.non.isolated.invocation.in.isolated.object.method"),
 
+    BINDING_PATTERN_NOT_SUPPORTED_IN_MODULE_VAR_DECL("binding.pattern.not.supported.in.module.var.decl"),
     COMPILER_PLUGIN_ERROR("compiler.plugin.crashed"),
     ;
     private String value;
