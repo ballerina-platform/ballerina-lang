@@ -2272,13 +2272,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         verifyPeerCommunication(workerSendNode.pos, receiver, workerSendNode.workerIdentifier.value);
 
         this.checkStatementExecutionValidity(workerSendNode);
-        if (workerSendNode.isChannel) {
-            analyzeExpr(workerSendNode.expr);
-            if (workerSendNode.keyExpr != null) {
-                analyzeExpr(workerSendNode.keyExpr);
-            }
-            return;
-        }
 
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
@@ -2370,12 +2363,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         verifyPeerCommunication(workerReceiveNode.pos, sender, workerReceiveNode.workerIdentifier.value);
 
-        if (workerReceiveNode.isChannel) {
-            if (workerReceiveNode.keyExpr != null) {
-                analyzeExpr(workerReceiveNode.keyExpr);
-            }
-            return;
-        }
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
         String workerName = workerReceiveNode.workerIdentifier.getValue();

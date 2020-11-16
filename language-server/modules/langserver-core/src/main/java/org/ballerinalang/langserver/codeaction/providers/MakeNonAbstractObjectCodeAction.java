@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.impl;
+package org.ballerinalang.langserver.codeaction.providers;
 
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
+import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.model.Whitespace;
 import org.eclipse.lsp4j.CodeAction;
@@ -36,24 +38,37 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 
-import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider.createQuickFixCodeAction;
-
 /**
- * Code Action for making object abstract type.
+ * Code Action for making object non abstract type.
  *
  * @since 1.2.0
  */
-public class MakeAbstractObjectCodeAction implements DiagBasedCodeAction {
+@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
+public class MakeNonAbstractObjectCodeAction extends AbstractCodeActionProvider {
+    private static final String NO_IMPL_FOUND_FOR_FUNCTION = "no implementation found for the function";
+
     @Override
-    public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
-            throws LSCodeActionProviderException {
+    public boolean isEnabled() {
+        // TODO: Convert this code into new object semantics
+        return false;
+    }
+
+    @Override
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    PositionDetails positionDetails,
+                                                    List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
+                                                    LSContext context) {
+        if (!(diagnostic.getMessage().startsWith(NO_IMPL_FOUND_FOR_FUNCTION))) {
+            return Collections.emptyList();
+        }
+
         String diagnosticMessage = diagnostic.getMessage();
         Position position = diagnostic.getRange().getStart();
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
 
         Optional<BLangTypeDefinition> objType = getObjectTypeDefinition(context, position.getLine(),
                                                                         position.getCharacter());
-        if (!objType.isPresent()) {
+        if (objType.isEmpty()) {
             return null;
         }
 

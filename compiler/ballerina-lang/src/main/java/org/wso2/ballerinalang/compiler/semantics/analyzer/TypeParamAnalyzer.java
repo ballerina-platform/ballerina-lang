@@ -145,7 +145,7 @@ public class TypeParamAnalyzer {
         return getMatchingBoundType(expType, env);
     }
 
-    public BType getNominalType(BType type, Name name, int flag) {
+    public BType getNominalType(BType type, Name name, long flag) {
         // Only type params has nominal behaviour for now.
         if (name == Names.EMPTY) {
             return type;
@@ -155,7 +155,7 @@ public class TypeParamAnalyzer {
 
     BType createTypeParam(BType type, Name name) {
 
-        int flag = type.flags | Flags.TYPE_PARAM;
+        var flag = type.flags | Flags.TYPE_PARAM;
         return createBuiltInType(type, name, flag);
     }
 
@@ -248,7 +248,7 @@ public class TypeParamAnalyzer {
         }
     }
 
-    private BType createBuiltInType(BType type, Name name, int flag) {
+    private BType createBuiltInType(BType type, Name name, long flag) {
         // Handle built-in types.
         switch (type.tag) {
             case TypeTags.INT:
@@ -690,7 +690,7 @@ public class TypeParamAnalyzer {
                 .map(type -> getMatchingBoundType(type, env, resolvedTypes))
                 .collect(Collectors.toList());
         BType restType = expType.restType;
-        int flags = expType.flags;
+        var flags = expType.flags;
         BInvokableType invokableType = new BInvokableType(paramTypes, restType,
                                                           getMatchingBoundType(expType.retType, env, resolvedTypes),
                                                           Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,

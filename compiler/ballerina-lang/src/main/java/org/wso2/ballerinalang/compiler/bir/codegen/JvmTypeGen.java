@@ -727,7 +727,7 @@ public class JvmTypeGen {
 
         // initialize the record type
         mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE_IMPL, JVM_INIT_METHOD,
-                           String.format("(L%s;L%s;IZI)V", STRING_VALUE, MODULE), false);
+                           String.format("(L%s;L%s;JZI)V", STRING_VALUE, MODULE), false);
     }
 
     /**
@@ -785,7 +785,7 @@ public class JvmTypeGen {
         // Load flags
         mv.visitLdcInsn(field.symbol.flags);
 
-        mv.visitMethodInsn(INVOKESPECIAL, FIELD_IMPL, JVM_INIT_METHOD, String.format("(L%s;L%s;I)V", TYPE,
+        mv.visitMethodInsn(INVOKESPECIAL, FIELD_IMPL, JVM_INIT_METHOD, String.format("(L%s;L%s;J)V", TYPE,
                                                                                      STRING_VALUE), false);
     }
 
@@ -843,7 +843,7 @@ public class JvmTypeGen {
 
         // initialize the object
         mv.visitMethodInsn(INVOKESPECIAL, OBJECT_TYPE_IMPL, JVM_INIT_METHOD,
-                           String.format("(L%s;L%s;I)V", STRING_VALUE, MODULE), false);
+                           String.format("(L%s;L%s;J)V", STRING_VALUE, MODULE), false);
     }
 
     /**
@@ -878,7 +878,7 @@ public class JvmTypeGen {
 
         // initialize the object
         mv.visitMethodInsn(INVOKESPECIAL, SERVICE_TYPE_IMPL, JVM_INIT_METHOD,
-                           String.format("(L%s;L%s;I)V", STRING_VALUE, MODULE), false);
+                           String.format("(L%s;L%s;J)V", STRING_VALUE, MODULE), false);
     }
 
     static void duplicateServiceTypeWithAnnots(MethodVisitor mv, BObjectType objectType, String pkgClassName,
@@ -971,7 +971,7 @@ public class JvmTypeGen {
         // Load flags
         mv.visitLdcInsn(field.symbol.flags);
 
-        mv.visitMethodInsn(INVOKESPECIAL, FIELD_IMPL, JVM_INIT_METHOD, String.format("(L%s;L%s;I)V", TYPE,
+        mv.visitMethodInsn(INVOKESPECIAL, FIELD_IMPL, JVM_INIT_METHOD, String.format("(L%s;L%s;J)V", TYPE,
                                                                                      STRING_VALUE), false);
     }
 
@@ -1068,7 +1068,7 @@ public class JvmTypeGen {
         mv.visitLdcInsn(attachedFunc.symbol.flags);
 
         mv.visitMethodInsn(INVOKESPECIAL, ATTACHED_FUNCTION_IMPL, JVM_INIT_METHOD,
-                           String.format("(L%s;L%s;L%s;I)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL),
+                           String.format("(L%s;L%s;L%s;J)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL),
                            false);
     }
 
@@ -1708,7 +1708,7 @@ public class JvmTypeGen {
 
         // initialize the function type using the param types array and the return type
         mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE_IMPL, JVM_INIT_METHOD,
-                           String.format("([L%s;L%s;L%s;I)V", TYPE, TYPE, TYPE), false);
+                           String.format("([L%s;L%s;L%s;J)V", TYPE, TYPE, TYPE), false);
     }
 
     private static void loadParameterizedType(MethodVisitor mv, BParameterizedType bType) {

@@ -30,7 +30,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
  */
 public class BConstructorSymbol extends BInvokableSymbol implements ConstructorSymbol {
 
-    public BConstructorSymbol(int flags,
+    public BConstructorSymbol(long flags,
                               Name name,
                               PackageID pkgID,
                               BType type,

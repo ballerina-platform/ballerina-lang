@@ -896,7 +896,7 @@ public class Types {
         return isAssignable(sourceMapType.constraint, targetRecType.restFieldType);
     }
 
-    private boolean hasIncompatibleReadOnlyFlags(int targetFlags, int sourceFlags) {
+    private boolean hasIncompatibleReadOnlyFlags(long targetFlags, long sourceFlags) {
         return Symbols.isFlagOn(targetFlags, Flags.READONLY) && !Symbols.isFlagOn(sourceFlags, Flags.READONLY);
     }
 
