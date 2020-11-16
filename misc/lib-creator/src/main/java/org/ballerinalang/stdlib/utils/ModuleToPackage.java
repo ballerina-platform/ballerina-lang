@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Class providing cli tool to convert module to package.
@@ -45,6 +46,7 @@ public class ModuleToPackage {
 
     static final String BALLERINA_TOML = "Ballerina.toml";
     static final String SOURCE_DIR = "src";
+    private static boolean replaceInline = true;
 
     static Path projectDir;
     static Path oldProjectPath;
@@ -52,6 +54,12 @@ public class ModuleToPackage {
     public static void main(String[] args) throws IOException {
         oldProjectPath = Paths.get(args[0]);
         Path outputPath = Paths.get(args[1]);
+        if (replaceInline) {
+            outputPath = oldProjectPath;
+            oldProjectPath = outputPath.getParent().resolve(oldProjectPath.getFileName().toString() + "_old");
+            Files.move(outputPath, oldProjectPath);
+        }
+
         projectDir = outputPath;
 
         String defaultModule = null;
@@ -82,7 +90,9 @@ public class ModuleToPackage {
             defaultModule = modules.get(0).toString();
         }
 
-        projectDir = projectDir.resolve(defaultModule);
+        if (!replaceInline) {
+            projectDir = projectDir.resolve(defaultModule);
+        }
 
         // Clear if directory exists
         if (Files.exists(projectDir)) {
@@ -96,6 +106,15 @@ public class ModuleToPackage {
         createNewToml(defaultModule);
         copyModule(oldProjectPath.resolve(SOURCE_DIR).resolve(defaultModule), projectDir);
         //Move default module to project
+        if (replaceInline) {
+            // Delete the old copy
+            try (Stream<Path> walk = Files.walk(oldProjectPath)) {
+                walk.sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .peek(System.out::println)
+                        .forEach(File::delete);
+            }
+        }
     }
 
     private static void createNewToml(String moduleName) throws IOException {
@@ -131,7 +150,7 @@ public class ModuleToPackage {
             if (libs != null && !libs.isEmpty()) {
                 for (HashMap<String, String> lib : libs) {
                     lib.remove("modules");
-                    String newPath = lib.get("path").replace("<PATH>", "../../libs")
+                    String newPath = lib.get("path").replace("<PATH>", "../../../build/libs")
                             .replace("<VERSION>", "2.0.0-Preview6-SNAPSHOT");
                     lib.put("path", newPath);
                     dependencies.add(lib);

@@ -54,21 +54,21 @@ public class BuildLangLib {
     static Path distCache;
     static boolean skipBootstrap = false;
 
+
     public static void main(String[] args) throws IOException {
         PrintStream out = System.out;
         try {
             projectDir = Paths.get(args[0]);
             distCache = Paths.get(args[1]);
+            String pkgName = args[2];
             // Following is to compile stdlib Modules
-            if (args.length >= 3 && args[2].equals("true")) {
+            if (args.length >= 4 && args[3].equals("true")) {
                 skipBootstrap = true;
             }
             System.setProperty(ProjectConstants.BALLERINA_HOME, distCache.toString());
             out.println("Building langlib ...");
             out.println("Project Dir: " + projectDir);
 
-            // TODO Temporary fix
-            String pkgName = Optional.ofNullable(projectDir.getFileName()).orElse(Paths.get("annon")).toString();
             if (!skipBootstrap) {
                 System.setProperty("BOOTSTRAP_LANG_LIB", pkgName);
             }

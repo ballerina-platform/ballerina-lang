@@ -44,19 +44,19 @@ compileJava {
 class BallerinaLangLibBuildTask extends JavaExec {
     def projectDir = ''
     def distCache = ''
-    def moduleName = project.name
+    def pkgName = project.name
     def skipBootstrap = 'false'
 
     BallerinaLangLibBuildTask() {
         setMain('org.ballerinalang.stdlib.utils.BuildLangLib')
     }
 
-
     @Override
     void exec() {
         def args = []
         args << projectDir
         args << distCache
+        args << pkgName
         args << skipBootstrap
 
         super.setArgs(args)
@@ -89,22 +89,33 @@ task createDistributionCache() {
 
 ext.modName = project.projectDir.name
 
+task cleanBallerinaProject(type: Delete) {
+    delete project.buildDir.toString() + "/ballerina-src"
+}
+
+task copyBallerinaProject(type: Copy) {
+    dependsOn moduleTopackage
+    dependsOn cleanBallerinaProject
+    from project.projectDir.toString() + "/src/main/ballerina/"
+    into project.buildDir.toString() + "/ballerina-src"
+}
 
 task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
-    projectDir = project.buildDir.toString() + "/new-project/" + modName
+    projectDir = project.buildDir.toString() + "/ballerina-src" // + modName
     distCache = project.buildDir.toString()
     classpath = project.configurations.baloCreat
     dependsOn moduleTopackage
+    dependsOn copyBallerinaProject
     dependsOn createDistributionCache
-    outputs.files("$buildDir/new-project/" + modName + "/target/" + modName + ".zip")
+    outputs.files("$buildDir/ballerina-src/target/" + modName + ".zip")
     classpath += files(jar.archivePath)
 }
 
 artifacts {
-    distributionBalo file("$buildDir/new-project/" + modName + "/target/" + modName + ".zip"), {
+    distributionBalo file("$buildDir/ballerina-src/target/" + modName + ".zip"), {
         builtBy(ballerinaLangLibBuild)
     }
-    distributionBirJar file("$buildDir/new-project/" + modName + "/target/" + modName + ".jar"), {
+    distributionBirJar file("$buildDir/ballerina-src/target/" + modName + ".jar"), {
         builtBy(ballerinaLangLibBuild)
     }
 }
