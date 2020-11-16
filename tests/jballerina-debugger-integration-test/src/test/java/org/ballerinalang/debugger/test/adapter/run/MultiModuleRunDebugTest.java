@@ -40,17 +40,15 @@ public class MultiModuleRunDebugTest extends DebugAdapterBaseTestCase {
     @BeforeClass
     public void setup() {
         testProjectName = "breakpoint-tests";
-        testModuleName = "foo";
-        testModuleFileName = "mainBal" + File.separator + "main.bal";
+        testModuleFileName = "main.bal";
         testProjectPath = testProjectBaseDir.toString() + File.separator + testProjectName;
-        testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
+        testEntryFilePath = Paths.get(testProjectPath, testModuleFileName).toString();
     }
 
     @Test
     public void testMultiModuleDebugScenarios() throws BallerinaTestException {
-        String fileName = "helloBal" + File.separator + "hello.bal";
-        String filePath1 = Paths.get(testProjectPath, "src", testModuleName, fileName).toString();
-        String filePath2 = Paths.get(testProjectPath, "src", "math", "add.bal").toString();
+        String filePath1 = Paths.get(testProjectPath, "utils.bal").toString();
+        String filePath2 = Paths.get(testProjectPath, "modules", "math", "add.bal").toString();
 
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 22));
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 28));

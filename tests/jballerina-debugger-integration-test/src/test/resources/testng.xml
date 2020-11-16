@@ -37,8 +37,8 @@ under the License.
 
             <!--Debug engaging tests for ballerina commands -->
             <class name="org.ballerinalang.debugger.test.adapter.run.SingleBalFileRunDebugTest"/>
-            <!--<class name="org.ballerinalang.debugger.test.adapter.ModuleBreakpointTest"/>-->
-            <!--<class name="org.ballerinalang.debugger.test.adapter.run.MultiModuleRunDebugTest"/>-->
+            <class name="org.ballerinalang.debugger.test.adapter.ModuleBreakpointTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.run.MultiModuleRunDebugTest"/>
             <!--<class name="org.ballerinalang.debugger.test.adapter.test.MultiModuleTestDebugTest"/>-->
             <!--<class name="org.ballerinalang.debugger.test.adapter.build.MultiModuleBuildDebugTest"/>-->
 
