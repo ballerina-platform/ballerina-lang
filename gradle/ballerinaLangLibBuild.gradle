@@ -107,6 +107,7 @@ task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
     dependsOn moduleTopackage
     dependsOn copyBallerinaProject
     dependsOn createDistributionCache
+    dependsOn compileJava
     outputs.files("$buildDir/ballerina-src/target/" + modName + ".zip")
     classpath += files(jar.archivePath)
 }

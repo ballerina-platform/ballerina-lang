@@ -150,7 +150,7 @@ public class ModuleToPackage {
             if (libs != null && !libs.isEmpty()) {
                 for (HashMap<String, String> lib : libs) {
                     lib.remove("modules");
-                    String newPath = lib.get("path").replace("<PATH>", "../../../build/libs")
+                    String newPath = lib.get("path").replace("<PATH>", "../libs")
                             .replace("<VERSION>", "2.0.0-Preview6-SNAPSHOT");
                     lib.put("path", newPath);
                     dependencies.add(lib);
