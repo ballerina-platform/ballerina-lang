@@ -66,8 +66,14 @@ shadowJar {
     }
 }
 
+ballerinaLangLibBuild {
+    pkgName = 'testobserve'
+    dependsOn compileJava
+}
+
 test {
     // make sure ballerina zip is built before test run
+    dependsOn ballerinaLangLibBuild
     dependsOn ':jballerina-tools:build'
     dependsOn shadowJar
     systemProperty 'enableJBallerinaTests', 'true'

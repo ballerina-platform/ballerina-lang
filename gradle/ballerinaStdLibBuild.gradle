@@ -16,7 +16,6 @@
  */
 
 apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaModuleToPackage.gradle"
 
 configurations {
     dist {
@@ -30,10 +29,14 @@ configurations {
         transitive false
     }
     interopImports
+    baloCreat {
+        transitive false
+    }
 }
 
 dependencies {
     dist project(':ballerina-rt')
+    baloCreat project(':lib-creator')
 
 
     distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
@@ -140,13 +143,7 @@ ext {
 }
 
 
-task cleanBallerinaProject(type: Delete) {
-    delete project.buildDir.toString() + "/ballerina-src"
-}
-
 task copyBallerinaProject(type: Copy) {
-    dependsOn moduleTopackage
-    dependsOn cleanBallerinaProject
     from project.projectDir.toString() + "/src/main/ballerina/"
     into project.buildDir.toString() + "/ballerina-src"
 }
@@ -160,7 +157,6 @@ task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
     maxHeapSize = "2048m"
     dependsOn copyRuntime
     dependsOn copyInteropImports
-    dependsOn moduleTopackage
     dependsOn copyBallerinaProject
     dependsOn createDistributionCache
     dependsOn compileJava

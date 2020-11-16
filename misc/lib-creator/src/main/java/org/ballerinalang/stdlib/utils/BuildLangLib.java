@@ -32,6 +32,7 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.ballerinalang.packerina.utils.FileUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -74,6 +75,7 @@ public class BuildLangLib {
             }
 
             Path targetPath = projectDir.resolve(ProjectConstants.TARGET_DIR_NAME);
+            clearTarget(targetPath);
             Path pkgTargetPath = targetPath.resolve(pkgName);
             ProjectEnvironmentBuilder environmentBuilder = createProjectEnvBuilder(pkgTargetPath);
 
@@ -129,7 +131,13 @@ public class BuildLangLib {
         } catch (Exception e) {
             out.println("Unknown error building : " + projectDir.toString());
             e.printStackTrace();
-            System.exit(1);
+            throw e;
+        }
+    }
+
+    private static void clearTarget(Path targetPath) throws IOException {
+        if (Files.exists(targetPath)) {
+            FileUtils.deleteDirectory(targetPath);
         }
     }
 

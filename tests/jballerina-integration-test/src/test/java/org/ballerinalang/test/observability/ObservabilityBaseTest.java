@@ -55,7 +55,7 @@ public class ObservabilityBaseTest extends BaseTest {
         copyFile(testUtilsJar, Paths.get(serverHome, "bre", "lib", testUtilsJar.getFileName().toString()));
 
         // Copy caches
-        copyDir(Paths.get(OBESERVABILITY_TEST_UTILS_DIR, "build", "new-project", TESTOBSERVE_MODULE_NAME,
+        copyDir(Paths.get(OBESERVABILITY_TEST_UTILS_DIR, "build", "ballerina-src",
                 "target", TESTOBSERVE_MODULE_NAME), Paths.get(serverHome, "distribution-cache"));
 
         String sourcesDir = Paths.get("src", "test", "resources", "observability", testProject).toFile()
