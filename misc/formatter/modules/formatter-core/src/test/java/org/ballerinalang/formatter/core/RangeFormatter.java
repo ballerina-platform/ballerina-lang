@@ -58,7 +58,7 @@ public abstract class RangeFormatter {
     }*/
 
     @Test(dataProvider = "test-file-provider")
-    public void test(String[] sourceData, LinePosition[] linePositions)
+    public void test(String[] sourceData, int[][] positions)
             throws IOException, FormatterException {
         Path assertFilePath = Paths.get(resourceDirectory.toString(), sourceData[0], ASSERT_DIR, sourceData[1]);
         Path sourceFilePath = Paths.get(resourceDirectory.toString(), sourceData[0], SOURCE_DIR, sourceData[1]);
@@ -66,10 +66,16 @@ public abstract class RangeFormatter {
         String content = getSourceText(sourceFilePath);
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument, sourceFilePath.toString());
-        LineRange lineRange = LineRange.from(syntaxTree.filePath(), linePositions[0], linePositions[1]);
+        SyntaxTree newSyntaxTree = syntaxTree;
+        for (int[] position : positions) {
+            LinePosition startPos = LinePosition.from(position[0], position[1]);
+            LinePosition endPos = LinePosition.from(position[2], position[3]);
+            LineRange lineRange = LineRange.from(syntaxTree.filePath(), startPos, endPos);
+            newSyntaxTree = Formatter.format(newSyntaxTree, lineRange);
+        }
         // linerange = floor(sqrt(no_of_lines_remaining))
         // TextDocuments.from(newSyntaxTree.toSourceCode())
-        SyntaxTree newSyntaxTree = Formatter.format(syntaxTree, lineRange);
+//        SyntaxTree newSyntaxTree = Formatter.format(syntaxTree, lineRange);
         Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
     }
 

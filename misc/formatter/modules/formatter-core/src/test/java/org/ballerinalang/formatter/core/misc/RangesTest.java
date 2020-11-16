@@ -18,7 +18,6 @@
 
 package org.ballerinalang.formatter.core.misc;
 
-import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.formatter.core.RangeFormatter;
 import org.testng.annotations.DataProvider;
@@ -31,9 +30,9 @@ public class RangesTest extends RangeFormatter {
 
     @Test(dataProvider = "test-file-provider")
     @Override
-    public void test(String[] sourceData, LinePosition[] linePositions) throws IOException, FormatterException {
+    public void test(String[] sourceData, int[][] positions) throws IOException, FormatterException {
 
-        super.test(sourceData, linePositions);
+        super.test(sourceData, positions);
     }
 
     /**
@@ -47,9 +46,13 @@ public class RangesTest extends RangeFormatter {
 
         return new Object[][]{
                 {
+                        new String[] {"misc/ranges", "ranges_1.bal"}, new int[][] {new int[] {5, 31, 8, 34},
+                        /*new int[] {10, 34, 12, 6}*/}
+                },
+                /*{
                     new String[] {"misc/ranges", "ranges_1.bal"}, new LinePosition[] {LinePosition.from(5, 31),
                         LinePosition.from(8, 34)}
-                },
+                },*/
         };
     }
 
