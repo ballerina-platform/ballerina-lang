@@ -40,7 +40,8 @@ import static org.ballerinalang.tool.LauncherUtils.createUsageExceptionWithHelp;
  */
 @CommandLine.Command(name = SEARCH_COMMAND, description = "search for packages within Ballerina Central")
 public class SearchCommand implements BLauncherCmd {
-    private static PrintStream outStream = System.err;
+    private PrintStream outStream;
+    private PrintStream errStream;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -50,6 +51,16 @@ public class SearchCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
+
+    public SearchCommand() {
+        this.outStream = System.out;
+        this.errStream = System.err;
+    }
+
+    public SearchCommand(PrintStream outStream, PrintStream errStream) {
+        this.outStream = outStream;
+        this.errStream = errStream;
+    }
 
     @Override
     public void execute() {
@@ -64,11 +75,15 @@ public class SearchCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.isEmpty()) {
-            throw createUsageExceptionWithHelp("no keyword given");
+            CommandUtil.printError(this.errStream, "no keyword given", "ballerina search [<org>|<package>|<text>] ",
+                    false);
+            return;
         }
 
         if (argList.size() > 1) {
-            throw createUsageExceptionWithHelp("too many arguments");
+            CommandUtil.printError(this.errStream, "too many arguments", "ballerina search [<org>|<package>|<text>] ",
+                    false);
+            return;
         }
 
         String searchArgs = argList.get(0);
@@ -100,7 +115,7 @@ public class SearchCommand implements BLauncherCmd {
      *
      * @param query search keyword.
      */
-    private static void searchInCentral(String query) {
+    private void searchInCentral(String query) {
         try {
             CentralAPIClient client = new CentralAPIClient();
             PackageSearchResult packageSearchResult = client.searchPackage(query);
@@ -117,7 +132,6 @@ public class SearchCommand implements BLauncherCmd {
                 if (errorMessage.contains("\n\tat")) {
                     errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));
                 }
-
                 outStream.println(errorMessage);
             }
         }

@@ -27,8 +27,7 @@ import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientException;
 import org.ballerinalang.central.client.NoPackageException;
 import org.ballerinalang.tool.BLauncherCmd;
-import org.ballerinalang.tool.LauncherUtils;
-import org.wso2.ballerinalang.util.RepoUtils;
+import org.ballerinalang.tool.BLauncherException;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -54,7 +53,6 @@ import static org.wso2.ballerinalang.util.RepoUtils.getRemoteRepoURL;
 @CommandLine.Command(name = PUSH_COMMAND, description = "push packages and binaries available locally to "
         + "Ballerina Central")
 public class PushCommand implements BLauncherCmd {
-    private static PrintStream outStream = System.err;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -76,14 +74,17 @@ public class PushCommand implements BLauncherCmd {
 
     private Path userDir;
     private PrintStream errStream;
+    private PrintStream outStream;
     
     public PushCommand() {
         userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         errStream = System.err;
+        outStream = System.out;
     }
     
-    public PushCommand(Path userDir, PrintStream errStream) {
+    public PushCommand(Path userDir,PrintStream outStream, PrintStream errStream) {
         this.userDir = userDir;
+        this.outStream = outStream;
         this.errStream = errStream;
     }
 
@@ -109,9 +110,15 @@ public class PushCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.isEmpty()) {
-            pushPackage(project);
+            try {
+                pushPackage(project);
+            } catch (BLauncherException e) {
+                CommandUtil.printError(this.errStream, e.getMessages().get(0), null, false);
+                return;
+            }
         } else {
-            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
+            CommandUtil.printError(this.errStream, "too many arguments", "ballerina push ", false);
+            return;
         }
 
         // Exit status, zero for OK, non-zero for error
@@ -142,7 +149,7 @@ public class PushCommand implements BLauncherCmd {
         pushBaloToRemote(baloFilePath);
     }
 
-    private static Path validateBalo(BuildProject project) {
+    private Path validateBalo(BuildProject project) {
         final PackageName pkgName = project.currentPackage().packageName();
         final PackageOrg orgName = project.currentPackage().packageOrg();
         final PackageVersion version = project.currentPackage().packageVersion();
@@ -157,25 +164,9 @@ public class PushCommand implements BLauncherCmd {
         }
 
         Path packageBaloFile = findBaloFile(pkgName, orgName, baloOutputDir);
-        if (null != packageBaloFile && !packageBaloFile.toFile().exists()) {
+        if (null == packageBaloFile) {
             throw createLauncherException("cannot find balo file for the package: " + pkgName + ". Run "
                     + "'ballerina build' to compile and generate the balo.");
-        }
-
-        // Validate the org-name
-        if (!RepoUtils.validateOrg(orgName.toString())) {
-            throw createLauncherException(
-                    "invalid organization name provided \'" + orgName
-                            + "\'. Only lowercase alphanumerics "
-                            + "and underscores are allowed in an organization name and the maximum "
-                            + "length is 256 characters");
-        }
-
-        // Validate the pkg-name
-        if (!RepoUtils.validatePkg(pkgName.toString())) {
-            throw createLauncherException("invalid package name provided \'" + pkgName + "\'. Only "
-                    + "alphanumerics, underscores and periods are allowed in a package name "
-                    + "and the maximum length is 256 characters");
         }
 
         // todo: need to add after ballerina.toml changes
