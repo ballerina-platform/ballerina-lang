@@ -14,52 +14,52 @@
 // specific language governing permissions and limitations
 // under the License.
 
-//import ballerina/test;
-//
-//# Before Suite Function
-//@test:BeforeSuite
-//function beforeSuiteFunc() {
-//    int x = 0;
-//}
-//
-//# Before test function
-//function beforeFunc() {
-//    int y = 0;
-//}
-//
-//# Test function
-//@test:Config {
-//    before: "beforeFunc",
-//    after: "afterFunc"
-//}
-//function testMain() {
-//    main();
-//    test:assertTrue(true, msg = "Failed!");
-//}
-//
-//@test:Config {
-//    dependsOn: ["testMain"]
-//}
-//function testFunction() {
-//    test:when(intAddMockFn).call("mockAdd");
-//    test:assertEquals(intAdd(10, 6), 125, msg = "function mocking failed");
-//
-//}
-//
-//# After test function
-//function afterFunc() {
-//    int z = 0;
-//}
-//
-//# After Suite Function
-//@test:AfterSuite {}
-//function afterSuiteFunc() {
-//    int a = 0;
-//}
-//
-//@test:Mock { functionName: "intAdd" }
-//test:MockFunction intAddMockFn = new();
-//
-//function mockAdd(int a, int b) returns int {
-//    return 125;
-//}
+import ballerina/test;
+
+# Before Suite Function
+@test:BeforeSuite
+function beforeSuiteFunc() {
+    int x = 0;
+}
+
+# Before test function
+function beforeFunc() {
+    int y = 0;
+}
+
+# Test function
+@test:Config {
+    before: "beforeFunc",
+    after: "afterFunc"
+}
+function testMain() {
+    main();
+    test:assertTrue(true, msg = "Failed!");
+}
+
+@test:Config {
+    dependsOn: ["testMain"]
+}
+function testFunction() {
+    test:when(intAddMockFn).call("mockAdd");
+    test:assertEquals(intAdd(10, 6), 125, msg = "function mocking failed");
+
+}
+
+# After test function
+function afterFunc() {
+    int z = 0;
+}
+
+# After Suite Function
+@test:AfterSuite {}
+function afterSuiteFunc() {
+    int a = 0;
+}
+
+@test:Mock { functionName: "intAdd" }
+test:MockFunction intAddMockFn = new();
+
+function mockAdd(int a, int b) returns int {
+    return 125;
+}
