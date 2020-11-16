@@ -85,7 +85,7 @@ task createDistributionCache() {
         configurations.distributionBalo.each { artifact ->
             copy {
                 from zipTree( artifact.getPath() )
-                into "$buildDir/distribution-cache"
+                into "$buildDir/repo"
             }
         }
     }
