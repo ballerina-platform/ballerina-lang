@@ -247,7 +247,7 @@ public class TypeParamAnalyzer {
         }
     }
 
-    private BType createBuiltInType(BType type, Name name, long flag) {
+    private BType createBuiltInType(BType type, Name name, long flags) {
         // Handle built-in types.
         switch (type.tag) {
             case TypeTags.INT:

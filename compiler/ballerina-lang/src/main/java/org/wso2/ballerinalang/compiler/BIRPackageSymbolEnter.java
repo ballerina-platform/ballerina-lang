@@ -1392,7 +1392,7 @@ public class BIRPackageSymbolEnter {
             readTypeFromCp();
         }
 
-        private BUnionType readUnionType(int flags, int cpI) throws IOException {
+        private BUnionType readUnionType(long flags, int cpI) throws IOException {
             boolean isCyclic = inputStream.readBoolean();
             Name unionNameValue;
             if (isCyclic) {
