@@ -29,7 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Test cases for checking configurable variables in Ballerina
+ * Test cases for checking configurable variables in Ballerina.
  */
 public class ConfigurableTest extends BaseTest {
 
