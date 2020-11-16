@@ -210,11 +210,10 @@ public class ReferenceFinder extends BaseVisitor {
         find(pkgNode.constants);
         find(pkgNode.globalVars);
         find(pkgNode.services);
-        find(pkgNode.functions.stream().filter(f -> !f.flagSet.contains(Flag.LAMBDA)).collect(Collectors.toList()));
+        find(pkgNode.annotations);
         find(pkgNode.typeDefinitions);
         find(pkgNode.classDefinitions);
-        find(pkgNode.annotations);
-        find(pkgNode.annotations);
+        find(pkgNode.functions.stream().filter(f -> !f.flagSet.contains(Flag.LAMBDA)).collect(Collectors.toList()));
     }
 
     @Override
@@ -230,8 +229,10 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        find(funcNode.annAttachments);
         find(funcNode.requiredParams);
         find(funcNode.restParam);
+        find(funcNode.returnTypeAnnAttachments);
         find(funcNode.returnTypeNode);
         find(funcNode.body);
 
@@ -280,6 +281,7 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
+        find(varNode.annAttachments);
         find(varNode.typeNode);
         find(varNode.expr);
         addIfSameSymbol(varNode.symbol, varNode.name.pos);
@@ -905,7 +907,7 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangAnnotAccessExpr annotAccessExpr) {
-        addIfSameSymbol(annotAccessExpr.symbol, annotAccessExpr.annotationName.pos);
+        addIfSameSymbol(annotAccessExpr.annotationSymbol, annotAccessExpr.annotationName.pos);
     }
 
     @Override
