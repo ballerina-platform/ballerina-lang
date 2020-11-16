@@ -105,7 +105,7 @@ public class CompilerPhaseRunner {
                 && Boolean.parseBoolean(this.options.get(TOOLING_COMPILATION));
     }
 
-    public void compile(BLangPackage pkgNode) {
+    public void performTypeCheckPhases(BLangPackage pkgNode) {
         if (this.stopCompilation(pkgNode, CompilerPhase.TYPE_CHECK)) {
             return;
         }
@@ -146,6 +146,9 @@ public class CompilerPhaseRunner {
         }
 
         annotationProcess(pkgNode);
+    }
+
+    public void performBirGenPhases(BLangPackage pkgNode) {
         if (this.stopCompilation(pkgNode, CompilerPhase.OBSERVABILITY_DATA_GEN)) {
             return;
         }
@@ -163,7 +166,7 @@ public class CompilerPhaseRunner {
         birGen(pkgNode);
     }
 
-    public void compileLangLibs(BLangPackage pkgNode) {
+    public void performLangLibTypeCheckPhases(BLangPackage pkgNode) {
         if (this.stopCompilation(pkgNode, CompilerPhase.TYPE_CHECK)) {
             return;
         }
@@ -184,6 +187,9 @@ public class CompilerPhaseRunner {
         }
 
         taintAnalyze(pkgNode);
+    }
+
+    public void performLangLibBirGenPhases(BLangPackage pkgNode) {
         if (this.stopCompilation(pkgNode, CompilerPhase.DESUGAR)) {
             return;
         }

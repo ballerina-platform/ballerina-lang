@@ -149,6 +149,12 @@ public class PackageCompilation {
         }
 
         ModuleContext moduleContext = this.packageContext.moduleContext(moduleId);
+        if (moduleContext.compilationState() != ModuleCompilationState.COMPILED) {
+            throw new IllegalStateException("Semantic model cannot be retrieved when the module is in " +
+                    "compilation state '" + moduleContext.compilationState().name() + "'. " +
+                    "This is an internal error which will be fixed in a later release.");
+        }
+
         return new BallerinaSemanticModel(moduleContext.bLangPackage(), this.compilerContext);
     }
 
