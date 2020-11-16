@@ -274,7 +274,7 @@ public function returnNullString(boolean nullVal) returns string? = @java:Method
 
 public function testGetCurrentModule() {
      string moduleString =  getCurrentModule(4);
-     assertEquality(moduleString, "$anon#.#0.0.0#4");
+     test:assertEquals(moduleString, "$anon#.#0.0.0#4");
 }
 
 function hashCode(int receiver) returns int = @java:Method {
@@ -286,16 +286,3 @@ function hashCode(int receiver) returns int = @java:Method {
 function getValue() returns MyType = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
-
-const ASSERTION_ERROR_REASON = "AssertionError";
-
-function assertEquality(any|error expected, any|error actual) {
-    if expected is anydata && actual is anydata && expected == actual {
-        return;
-    }
-    if expected === actual {
-        return;
-    }
-    panic error(ASSERTION_ERROR_REASON,
-                message = "found '" + expected.toString() + "', expected '" + actual.toString () + "'");
-}
