@@ -3255,7 +3255,7 @@ public class Types {
         return errorType;
     }
 
-    public BErrorType createErrorType(BType detailType, int flags, SymbolEnv env) {
+    public BErrorType createErrorType(BType detailType, long flags, SymbolEnv env) {
         BErrorTypeSymbol errorTypeSymbol = Symbols.createErrorSymbol(flags, Names.EMPTY,
                                                                      env.enclPkg.symbol.pkgID, null,
                                                                      env.scope.owner, null, VIRTUAL);
