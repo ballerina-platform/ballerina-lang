@@ -92,7 +92,7 @@ public class RunExecutableTask implements Task {
             commands.add("java");
             // Sets classpath with executable thin jar and all dependency jar paths.
             commands.add("-cp");
-            commands.add(getAllClassPaths(jarResolver, project));
+            commands.add(getAllClassPaths(jarResolver));
             if (isInDebugMode()) {
                 commands.add(getDebugArgs(err));
             }
@@ -110,7 +110,7 @@ public class RunExecutableTask implements Task {
         }
     }
 
-    private String getAllClassPaths(JarResolver jarResolver, Project project) {
+    private String getAllClassPaths(JarResolver jarResolver) {
 
         StringJoiner cp = new StringJoiner(File.pathSeparator);
         jarResolver.getJarFilePathsRequiredForExecution().stream().map(Path::toString).forEach(cp::add);
