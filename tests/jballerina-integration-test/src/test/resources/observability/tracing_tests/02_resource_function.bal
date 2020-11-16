@@ -15,8 +15,9 @@
 // under the License.
 
 import ballerina/testobserve;
+import intg_tests/tracing_tests.utils as utils;
 
-service testServiceOne on new testobserve:Listener(9091) {
+service testServiceOne on new testobserve:Listener(9092) {
     # Resource function for testing whether no return functions are instrumented properly.
     resource function resourceOne(testobserve:Caller caller, string body) {
         int numberCount = checkpanic 'int:fromString(body);
@@ -85,7 +86,7 @@ service testServiceOne on new testobserve:Listener(9091) {
 
     # Resource function for testing calling an observable function from within resource
     resource function resourceSeven(testobserve:Caller caller) {
-        MockClient testClient1 = new();
+        utils:MockClient testClient1 = new();
         var ret = checkpanic testClient1->callWithReturn(5, 7);
         var expectedSum = 12;
         if (ret != expectedSum) {   // Check for validating if normal execution is intact from instrumentation

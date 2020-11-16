@@ -15,8 +15,9 @@
 // under the License.
 
 import ballerina/testobserve;
+import intg_tests/tracing_tests.utils as utils;
 
-service testServiceFour on new testobserve:Listener(9094) {
+service testServiceFour on new testobserve:Listener(9095) {
     # Resource function for testing async remote call wait
     resource function resourceOne(testobserve:Caller caller) {
         future<int> futureSum = start testClient->calculateSum(6, 17);
@@ -41,7 +42,7 @@ service testServiceFour on new testobserve:Listener(9094) {
 
     # Resource function for testing async observable call wait
     resource function resourceThree(testobserve:Caller caller) {
-        ObservableAdderClass adder = new ObservableAdder(61, 23);
+        utils:ObservableAdderClass adder = new utils:ObservableAdder(61, 23);
         future<int> futureSum = start adder.getSum();
         var sum = wait futureSum;
         if (sum != 84) {    // Check for validating if normal execution is intact from instrumentation

@@ -33,7 +33,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols.is
  */
 public class Qualifiers {
 
-    public static Set<Qualifier> getMethodQualifiers(int flags) {
+    public static Set<Qualifier> getMethodQualifiers(long flags) {
         Set<Qualifier> qualifiers = new HashSet<>();
 
         if (isFlagOn(flags, Flags.PUBLIC)) {

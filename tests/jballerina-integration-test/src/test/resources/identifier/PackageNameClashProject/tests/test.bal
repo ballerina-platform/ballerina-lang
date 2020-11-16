@@ -16,7 +16,7 @@
 
 import ballerina/test;
 import a_b/foo;
-import b_foo;
+import a/main.b_foo;
 
 @test:Config {
 }

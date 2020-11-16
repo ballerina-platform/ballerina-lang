@@ -14,13 +14,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import pkg.test as pkg5;
-import pkg_test as pkg10;
+import ballerina/observe;
 
-type Address record {|
-    pkg5:Address road;
-    pkg10:Address city;
-|};
+public type ObservableAdderClass object {
+    @observe:Observable
+    public function getSum() returns int;
+};
 
-public function main() {
+public class ObservableAdder {
+    private int firstNumber;
+    private int secondNumber;
+
+    public function init(int a, int b) {
+        self.firstNumber = a;
+        self.secondNumber = b;
+    }
+
+    public function getSum() returns int {
+        return self.firstNumber + self.secondNumber;
+    }
 }

@@ -272,7 +272,7 @@ public class CommandUtil {
                     .resolve(pkg.packageOrg().toString())
                     .resolve(pkg.packageName().toString())
                     .resolve(pkg.packageVersion().toString()));
-            return packageJarCacheDir.resolve(ProjectUtils.getJarName(pkg) + BLANG_COMPILED_JAR_EXT);
+            return packageJarCacheDir.resolve(ProjectUtils.getJarFileName(pkg) + BLANG_COMPILED_JAR_EXT);
         } catch (IOException e) {
             throw new BLangCompilerException("error resolving bir_cache dir for package: " + pkg.packageName());
         }

@@ -26,8 +26,11 @@ import io.ballerina.cli.task.ListTestGroupsTask;
 import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.tool.BLauncherCmd;
@@ -64,7 +67,7 @@ public class TestCommand implements BLauncherCmd {
     private boolean exitWhenFinish;
 
     public TestCommand() {
-        this.projectPath = Paths.get(System.getProperty("user.dir"));
+        this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.out;
         this.errStream = System.err;
         this.exitWhenFinish = true;
@@ -144,8 +147,13 @@ public class TestCommand implements BLauncherCmd {
         String[] args;
         if (this.argList == null) {
             args = new String[0];
+            this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        } else if (this.argList.get(0).startsWith(RuntimeConstants.BALLERINA_ARGS_INIT_PREFIX)) {
+            args = argList.toArray(new String[0]);
+            this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         } else {
             args = argList.subList(1, argList.size()).toArray(new String[0]);
+            this.projectPath = Paths.get(argList.get(0));
         }
 
         String[] userArgs = LaunchUtils.getUserArgs(args, new HashMap<>());
@@ -154,11 +162,6 @@ public class TestCommand implements BLauncherCmd {
             CommandUtil.printError(this.errStream, "too many arguments.", testCmd, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
-        }
-        if (argList == null) {
-            this.projectPath = Paths.get(System.getProperty("user.dir"));
-        } else {
-            this.projectPath = Paths.get(argList.get(0));
         }
 
         // load project
@@ -181,6 +184,13 @@ public class TestCommand implements BLauncherCmd {
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
+        }
+
+        // Skip code coverage for single bal files if option is set
+        if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT) && coverage) {
+            coverage = false;
+            this.outStream.println("Code coverage is not yet supported with single bal files. Ignoring the flag " +
+                    "and continuing the test run...");
         }
 
         CompilerContext compilerContext = project.projectEnvironmentContext().getService(CompilerContext.class);

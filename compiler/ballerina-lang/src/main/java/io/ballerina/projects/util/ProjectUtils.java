@@ -86,7 +86,7 @@ public class ProjectUtils {
      * @return True if valid org-name or package name, else false.
      */
     public static boolean validateOrgName(String orgName) {
-        String validRegex = "^[a-z0-9_]*$";
+        String validRegex = "^[a-zA-Z0-9_]*$";
         return Pattern.matches(validRegex, orgName);
     }
 
@@ -98,7 +98,7 @@ public class ProjectUtils {
      */
     public static boolean validatePkgName(String packageName) {
         String validLanglib = "^[lang.a-z0-9_]*$";
-        String validRegex = "^[a-z0-9_]*$";
+        String validRegex = "^[a-zA-Z0-9_]*$";
         // We have special case for lang. packages
         // todo consider orgname when checking is it is a lang lib
         return Pattern.matches(validRegex, packageName) || Pattern.matches(validLanglib, packageName);
@@ -170,7 +170,7 @@ public class ProjectUtils {
      */
     public static String guessPkgName(String packageName) {
         if (!validatePkgName(packageName)) {
-            return packageName.replaceAll("[^a-z0-9_]", "_");
+            return packageName.replaceAll("[^a-zA-Z0-9_]", "_");
         }
         return packageName;
     }
@@ -191,7 +191,7 @@ public class ProjectUtils {
         return org + "-" + pkgName + "-" + platform + "-" + version + BLANG_COMPILED_PKG_BINARY_EXT;
     }
 
-    public static String getJarName(Package pkg) {
+    public static String getJarFileName(Package pkg) {
         // <orgname>-<packagename>-<version>.jar
         return pkg.packageOrg().toString() + "-" + pkg.packageName().toString()
                 + "-" + pkg.packageVersion() + BLANG_COMPILED_JAR_EXT;
@@ -386,7 +386,7 @@ public class ProjectUtils {
      * @param module Module instance
      * @return the name of the thin jar
      */
-    public static String getJarName(Module module) {
+    public static String getJarFileName(Module module) {
         String jarName;
         if (module.packageInstance().packageDescriptor().org().anonymous()) {
             DocumentId documentId = module.documentIds().iterator().next();
@@ -400,7 +400,7 @@ public class ProjectUtils {
                 jarName = moduleName.moduleNamePart();
             }
         }
-        return jarName + BLANG_COMPILED_JAR_EXT;
+        return jarName;
     }
 
     /**

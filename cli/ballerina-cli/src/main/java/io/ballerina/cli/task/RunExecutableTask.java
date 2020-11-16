@@ -24,6 +24,7 @@ import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
+import org.ballerinalang.tool.RuntimePanicException;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.File;
@@ -37,6 +38,7 @@ import java.util.StringJoiner;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * Task for running the executable.
@@ -99,8 +101,12 @@ public class RunExecutableTask implements Task {
             ProcessBuilder pb = new ProcessBuilder(commands).inheritIO();
             Process process = pb.start();
             process.waitFor();
+            int exitValue = process.exitValue();
+            if (exitValue != 0) {
+                throw new RuntimePanicException(exitValue);
+            }
         } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Error occurred while running the executable ", e.getCause());
+            throw createLauncherException("Error occurred while running the executable ", e.getCause());
         }
     }
 
