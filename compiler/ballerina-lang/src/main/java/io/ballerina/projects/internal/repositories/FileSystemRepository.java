@@ -43,7 +43,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -129,7 +128,11 @@ public class FileSystemRepository implements PackageRepository {
      */
     public Map<String, List<String>> getPackages() {
         Map<String, List<String>> packagesMap = new HashMap<>();
-        for (File file : Objects.requireNonNull(this.balo.toFile().listFiles())) {
+        File[] orgDirs = this.balo.toFile().listFiles();
+        if (orgDirs == null) {
+            return packagesMap;
+        }
+        for (File file : orgDirs) {
             if (!file.isDirectory()) {
                 continue;
             }
