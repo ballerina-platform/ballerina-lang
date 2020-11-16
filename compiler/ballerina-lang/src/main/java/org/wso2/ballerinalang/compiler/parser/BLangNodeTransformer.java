@@ -577,7 +577,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         if (unsupportedBP != null) {
             Location bindingPatternPos = getPosition(bindingPatternNode);
-            dlog.error(bindingPatternPos, DiagnosticCode.BINDING_PATTERN_NOT_SUPPORTED_IN_MODULE_VAR_DECL,
+            dlog.error(bindingPatternPos, DiagnosticCode.BINDING_PATTERN_NOT_YET_SUPPORTED_IN_MODULE_VAR_DECL,
                     unsupportedBP);
             variableName = NodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN,
                     NodeFactory.createEmptyMinutiaeList(), NodeFactory.createEmptyMinutiaeList());
