@@ -36,27 +36,30 @@ public class CreateDocsTask implements Task {
 
     private boolean excludeIndex;
     private final transient PrintStream out;
+    private Path outputPath;
 
-    public CreateDocsTask(boolean excludeIndex, PrintStream out) {
+    public CreateDocsTask(boolean excludeIndex, PrintStream out, Path outputPath) {
         this.excludeIndex = excludeIndex;
         this.out = out;
+        this.outputPath = outputPath;
     }
 
     @Override
     public void execute(Project project) {
         Path sourceRootPath = project.sourceRoot();
         Target target;
-        Path outputPath;
-        try {
-            target = new Target(sourceRootPath);
-            outputPath = target.getDocPath();
-        } catch (IOException e) {
-            throw createLauncherException("error occurred while generating docs: " + e.getMessage());
+        if (outputPath == null) {
+            try {
+                target = new Target(sourceRootPath);
+                outputPath = target.getDocPath();
+            } catch (IOException e) {
+                throw createLauncherException("error occurred while generating docs: " + e.getMessage());
+            }
         }
         this.out.println("Generating API Documentation");
         try {
             BallerinaDocGenerator.generateAPIDocs(project, outputPath.toString(), excludeIndex);
-            this.out.println("\t" + sourceRootPath.relativize(outputPath).toString());
+            this.out.println("Saved to: " + sourceRootPath.relativize(outputPath).toString());
 
         } catch (IOException e) {
             throw createLauncherException("Unable to generate API Documentation.", e.getCause());

@@ -29,7 +29,6 @@ import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -57,6 +56,7 @@ public class DocCommand implements BLauncherCmd {
     private final PrintStream outStream;
     private final PrintStream errStream;
     private Path projectPath;
+    private Path outputPath;
     private boolean exitWhenFinish;
 
     public DocCommand() {
@@ -72,10 +72,6 @@ public class DocCommand implements BLauncherCmd {
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
     }
-
-    @CommandLine.Option(names = {"--sourceroot"},
-            description = "Path to the directory containing source files and modules.")
-    private String sourceRoot;
 
     @CommandLine.Option(names = {"--o", "-o"}, description = "Location to save API Docs.")
     private String outputLoc;
@@ -112,6 +108,11 @@ public class DocCommand implements BLauncherCmd {
             this.errStream.println(commandUsageInfo);
             return;
         }
+        if (argList == null) {
+            this.projectPath = Paths.get(System.getProperty("user.dir"));
+        } else {
+            this.projectPath = Paths.get(argList.get(0));
+        }
         // combine docs
         if (this.combine) {
             outStream.println("Combining Docs");
@@ -134,28 +135,10 @@ public class DocCommand implements BLauncherCmd {
         if (this.argList != null && this.argList.size() > 1) {
             CommandUtil.printError(this.errStream,
                     "too many arguments.",
-                    "ballerina doc [--sourceroot] [--offline]\n",
+                    "ballerina doc <project_path> [--offline]\n",
                     false);
             CommandUtil.exitError(true);
             return;
-        }
-
-        // validation and decide source root and source full path
-        this.projectPath = null != this.sourceRoot ?
-                Paths.get(this.sourceRoot).toAbsolutePath() : this.projectPath;
-
-        // validate and set source root path
-        if (!ProjectDirs.isProject(this.projectPath)) {
-            Path findRoot = ProjectDirs.findProjectRoot(this.projectPath);
-            if (null == findRoot) {
-                CommandUtil.printError(this.errStream,
-                        "you are not in a Ballerina project.",
-                        null,
-                        false);
-                CommandUtil.exitError(true);
-                return;
-            }
-            this.projectPath = findRoot;
         }
 
         // load project
@@ -170,6 +153,7 @@ public class DocCommand implements BLauncherCmd {
 
         // normalize paths
         this.projectPath = this.projectPath.normalize();
+        this.outputPath = this.outputLoc != null ? Paths.get(this.outputLoc).toAbsolutePath() : null;
 
         // create compiler context
         CompilerContext compilerContext = project.projectEnvironmentContext().getService(CompilerContext.class);
@@ -186,7 +170,7 @@ public class DocCommand implements BLauncherCmd {
                 .addTask(new CreateTargetDirTask()) // create target directory.
                 //.addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
-                .addTask(new CreateDocsTask(excludeIndex, outStream)) // creates API documentation
+                .addTask(new CreateDocsTask(excludeIndex, outStream, outputPath)) // creates API documentation
                 .build();
 
         taskExecutor.executeTasks(project);
