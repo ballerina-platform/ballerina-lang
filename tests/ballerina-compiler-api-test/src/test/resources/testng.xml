@@ -21,7 +21,7 @@
 <suite name="ballerina-semantic-api-test-suite">
     <test name="semantic-api-test" parallel="false">
         <packages>
-<!--            <package name="io.ballerina.semantic.api.test.*" />-->
+            <package name="io.ballerina.semantic.api.test.*" />
         </packages>
 
         <classes>
@@ -33,6 +33,24 @@
                 <methods>
                     <exclude name="testCheckingExprs"/>
                     <exclude name="testCheckingExprs"/>
+                </methods>
+            </class>
+
+            <class name="io.ballerina.semantic.api.test.SymbolBIRTest">
+                <methods>
+                    <exclude name="testSymbolLookupInBIR"/>
+                </methods>
+            </class>
+
+            <class name="io.ballerina.semantic.api.test.SymbolLookupTest">
+                <methods>
+                    <exclude name="testSymbolLookupForComplexExpressions"/>
+                </methods>
+            </class>
+
+            <class name="io.ballerina.semantic.api.test.SymbolAtCursorTest">
+                <methods>
+                    <exclude name="testBasics"/>
                 </methods>
             </class>
 

@@ -24,10 +24,9 @@ import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
-import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -64,8 +63,7 @@ public class ExpressionTypeTest {
 
     @BeforeClass
     public void setup() {
-        CompileResult result = BCompileUtil.compile("test-src/expressions_test.bal");
-        model = result.defaultModuleSemanticModel();
+        model = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/expressions_test.bal");
     }
 
     @Test(dataProvider = "LiteralPosProvider")
