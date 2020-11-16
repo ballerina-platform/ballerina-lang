@@ -154,6 +154,11 @@ public class BallerinaDocGenerator {
         Map<String, ModuleDoc> moduleDocMap = generateModuleDocMap(project);
         Project docerinaProject = getDocsGenModel(moduleDocMap, project.currentPackage().packageOrg().toString(),
                 project.currentPackage().packageVersion().toString());
+        Path packageMdPath = project.sourceRoot().resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
+        if (packageMdPath.toFile().exists()) {
+            String mdContent = new String(Files.readAllBytes(packageMdPath), "UTF-8");
+            docerinaProject.description = BallerinaDocUtils.mdToHtml(mdContent, true);
+        }
         if (!docerinaProject.modules.isEmpty()) {
             writeAPIDocs(docerinaProject, output, excludeIndex);
         }
