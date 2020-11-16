@@ -20,6 +20,7 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
     implementation project(':ballerina-lang')
+    baloCreat project(':lib-creator')
 }
 
 configurations {
@@ -28,6 +29,9 @@ configurations {
     }
 
     distributionBirJar {
+        transitive false
+    }
+    baloCreat {
         transitive false
     }
 }
