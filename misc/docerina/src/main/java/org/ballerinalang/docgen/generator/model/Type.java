@@ -235,6 +235,8 @@ public class Type {
                 return "errors";
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.UNION)) {
                 return "types";
+            } else if (typeDescriptor.typeKind().equals(TypeDescKind.TYPE_REFERENCE)) {
+                return getTypeCategory(((TypeReferenceTypeSymbol) typeDescriptor).typeDescriptor());
             }
         } else if (typeDescriptor.kind().equals(SymbolKind.CLASS)) {
             Qualifiable classSymbol = (Qualifiable) typeDescriptor;
