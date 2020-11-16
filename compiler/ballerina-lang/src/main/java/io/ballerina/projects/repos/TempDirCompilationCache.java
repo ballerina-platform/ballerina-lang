@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.repos;
 
+import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Project;
 
 import java.io.IOException;
@@ -29,6 +30,7 @@ import java.nio.file.Path;
  * @since 2.0.0
  */
 public class TempDirCompilationCache extends FileSystemCache {
+    private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
     private TempDirCompilationCache(Project project, Path cacheDirPath) {
         super(project, cacheDirPath);
@@ -37,6 +39,13 @@ public class TempDirCompilationCache extends FileSystemCache {
     public static TempDirCompilationCache from(Project project) {
         Path targetPath = createTempProjectRoot();
         return new TempDirCompilationCache(project, targetPath);
+    }
+
+    @Override
+    public byte[] getBir(ModuleName moduleName) {
+        // Do not return the cached BIR in the target directory
+        // We can improve this implementation to cache the BIR later to enable incremental compilation.
+        return EMPTY_BYTE_ARRAY;
     }
 
     private static Path createTempProjectRoot() {
