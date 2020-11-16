@@ -105,6 +105,7 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
+import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -389,8 +390,7 @@ public class Types {
         if (mappingMatchPattern.matchExpr == null) {
             return patternType;
         }
-        this.env = env;
-        BType intersectionType = getTypeIntersection(mappingMatchPattern.matchExpr.type, patternType);
+        BType intersectionType = getTypeIntersection(mappingMatchPattern.matchExpr.type, patternType, env);
         if (intersectionType == symTable.semanticError) {
             return symTable.noType;
         }
@@ -2076,7 +2076,7 @@ public class Types {
         boolean validTypeCast = false;
 
         if (sourceType.tag == TypeTags.UNION) {
-            if (getTypeForUnionTypeMembersAssignableToType((BUnionType) sourceType, targetType)
+            if (getTypeForUnionTypeMembersAssignableToType((BUnionType) sourceType, targetType, null)
                     != symTable.semanticError) {
                 // string|typedesc v1 = "hello world";
                 // json|table<Foo> v2 = <json|table<Foo>> v1;
@@ -2085,7 +2085,7 @@ public class Types {
         }
 
         if (targetType.tag == TypeTags.UNION) {
-            if (getTypeForUnionTypeMembersAssignableToType((BUnionType) targetType, sourceType)
+            if (getTypeForUnionTypeMembersAssignableToType((BUnionType) targetType, sourceType, null)
                     != symTable.semanticError) {
                 // string|int v1 = "hello world";
                 // string|boolean v2 = <string|boolean> v1;
@@ -2865,14 +2865,14 @@ public class Types {
      * @return           a single type or a new union type if at least one member type of the union type is
      *                      assignable to targetType, else semanticError
      */
-    BType getTypeForUnionTypeMembersAssignableToType(BUnionType unionType, BType targetType) {
+    BType getTypeForUnionTypeMembersAssignableToType(BUnionType unionType, BType targetType, SymbolEnv env) {
         List<BType> intersection = new LinkedList<>();
 
         // type FooOne "foo"|1;
         // type FooBar "foo"|"bar";
         // unionType - boolean|FooOne, targetType - boolean|FooBar
         unionType.getMemberTypes().forEach(memType -> {
-            BType memberIntersectionType = getTypeIntersection(memType, targetType);
+            BType memberIntersectionType = getTypeIntersection(memType, targetType, env);
             if (memberIntersectionType != symTable.semanticError) {
                 intersection.add(memberIntersectionType);
             }
@@ -2889,48 +2889,44 @@ public class Types {
         }
     }
 
-    BType getTypeIntersectedWithMapType(BMapType mapType, BType targetType) {
+    BType getTypeIntersectedWithMapType(BMapType mapType, BType targetType, SymbolEnv env) {
         if (targetType.tag != TypeTags.MAP && targetType.tag != TypeTags.RECORD) {
             return symTable.semanticError;
         }
         if (targetType.tag == TypeTags.MAP) {
             BType intersectionConstraintType = getTypeIntersection(mapType.constraint,
-                    ((BMapType) targetType).constraint);
+                    ((BMapType) targetType).constraint, env);
             if (intersectionConstraintType == symTable.semanticError) {
                 return symTable.semanticError;
             }
             return new BMapType(TypeTags.MAP, intersectionConstraintType, null);
         }
-        return getTypeIntersectedWithRecordType((BRecordType) targetType, mapType);
+        return getTypeIntersectedWithRecordType((BRecordType) targetType, mapType, env);
     }
 
-    BType getTypeIntersectedWithRecordType(BRecordType recordType, BType targetType) {
+    BType getTypeIntersectedWithRecordType(BRecordType recordType, BType targetType, SymbolEnv env) {
         if (targetType.tag != TypeTags.MAP && targetType.tag != TypeTags.RECORD) {
             return symTable.semanticError;
         }
         if (targetType.tag == TypeTags.MAP) {
-            BRecordTypeSymbol recordSymbol =
-                    Symbols.createRecordSymbol(0, names.fromString("$anonRecordIntersectionType$" + recordCount++),
-                            env.enclPkg.symbol.pkgID, null, env.scope.owner, recordType.tsymbol.pos, VIRTUAL);
+            BRecordType intersectionRecordType = createAnonymousRecord(env);
             LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
             for (String key : recordType.fields.keySet()) {
                 BType intersectionKeyType = getTypeIntersection(recordType.fields.get(key).type,
-                        ((BMapType) targetType).constraint);
+                        ((BMapType) targetType).constraint, env);
                 if (intersectionKeyType == symTable.semanticError) {
                     return symTable.semanticError;
                 }
                 BVarSymbol fieldSymbol = new BVarSymbol(0, names.fromString(key), env.enclPkg.symbol.pkgID,
-                        intersectionKeyType, recordSymbol, recordType.fields.get(key).pos, COMPILED_SOURCE);
+                        intersectionKeyType, intersectionRecordType.tsymbol, recordType.fields.get(key).pos, COMPILED_SOURCE);
                 BField field = new BField(names.fromString(key), recordType.fields.get(key).pos, fieldSymbol);
                 fields.put(key, field);
             }
-            BRecordType intersectionRecordType = new BRecordType(recordSymbol);
-            recordSymbol.type = intersectionRecordType;
             intersectionRecordType.fields = fields;
 
             if (recordType.restFieldType != null) {
                 BType intersectionRestType = getTypeIntersection(recordType.restFieldType,
-                        ((BMapType) targetType).constraint);
+                        ((BMapType) targetType).constraint, env);
                 if (intersectionRestType == symTable.semanticError) {
                     intersectionRecordType.sealed = true;
                 }
@@ -2940,7 +2936,96 @@ public class Types {
             }
             return intersectionRecordType;
         }
-        return symTable.semanticError;
+        return createRecordIntersection(recordType, targetType, env);
+    }
+
+    private BType createRecordIntersection(BType recordTypeOne, BType recordTypeTwo, SymbolEnv env) {
+        BRecordType recordType = createAnonymousRecord(env);
+
+        if (!populateRecordFields(recordType, recordTypeOne, env) ||
+                !populateRecordFields(recordType, recordTypeTwo, env)) {
+            return symTable.semanticError;
+        }
+
+        recordType.restFieldType = getTypeIntersection(((BRecordType) recordTypeOne).restFieldType,
+                ((BRecordType) recordTypeTwo).restFieldType, env);
+
+        if (recordType.restFieldType == symTable.semanticError) {
+            return symTable.semanticError;
+        }
+        return recordType;
+    }
+
+    private boolean populateRecordFields(BRecordType recordType, BType originalType, SymbolEnv env) {
+        BTypeSymbol intersectionRecordSymbol = recordType.tsymbol;
+        // If the detail type is BMapType simply ignore since the resulting detail type has `anydata` as rest type.
+        if (originalType.getKind() != TypeKind.RECORD) {
+            return true;
+        }
+        BRecordType originalRecordType = (BRecordType) originalType;
+        LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
+        for (BField origField : originalRecordType.fields.values()) {
+            org.wso2.ballerinalang.compiler.util.Name origFieldName = origField.name;
+            String nameString = origFieldName.value;
+
+            BType recordFieldType = validateOverlappingFields(recordType, origField);
+            if (recordFieldType == symTable.semanticError) {
+                return false;
+            }
+
+            BVarSymbol recordFieldSymbol = new BVarSymbol(origField.symbol.flags, origFieldName,
+                    env.enclPkg.packageID, recordFieldType,
+                    intersectionRecordSymbol, origField.pos, SOURCE);
+            if (recordFieldType.tag == TypeTags.INVOKABLE && recordFieldType.tsymbol != null) {
+                BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) recordFieldType.tsymbol;
+                BInvokableSymbol invokableSymbol = (BInvokableSymbol) recordFieldSymbol;
+                invokableSymbol.params = tsymbol.params;
+                invokableSymbol.restParam = tsymbol.restParam;
+                invokableSymbol.retType = tsymbol.returnType;
+                invokableSymbol.flags = tsymbol.flags;
+            }
+            fields.put(nameString, new BField(origFieldName, null, recordFieldSymbol));
+        }
+        recordType.fields.putAll(fields);
+        return true;
+    }
+
+    private BType validateOverlappingFields(BRecordType recordType, BField origField) {
+        BField overlappingField = recordType.fields.get(origField.name.value);
+        if (overlappingField == null) {
+            return origField.type;
+        }
+
+        if (isAssignable(overlappingField.type, origField.type)) {
+            return overlappingField.type;
+        } else if (isAssignable(origField.type, overlappingField.type)) {
+            return origField.type;
+        } else {
+            return symTable.semanticError;
+        }
+    }
+
+    private BRecordType createAnonymousRecord(SymbolEnv env) {
+        EnumSet<Flag> flags = EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS);
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
+                env.enclPkg.packageID, null,
+                env.scope.owner, null, VIRTUAL);
+        recordSymbol.name = names.fromString(
+                anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
+        BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
+        BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
+                Flags.PUBLIC, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner, false,
+                symTable.builtinPos, VIRTUAL);
+        initFuncSymbol.retType = symTable.nilType;
+        recordSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol,
+                bInvokableType, symTable.builtinPos);
+        recordSymbol.scope = new Scope(recordSymbol);
+
+        BRecordType recordType = new BRecordType(recordSymbol);
+        recordType.tsymbol = recordSymbol;
+        recordSymbol.type = recordType;
+
+        return recordType;
     }
 
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {

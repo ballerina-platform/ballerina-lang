@@ -2834,7 +2834,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             matchPatternType.restType = restType;
         }
 
-        listMatchPattern.type = types.resolvePatternTypeFromMatchExpr(listMatchExpr, matchPatternType, this.env);
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
+        listMatchPattern.type = types.resolvePatternTypeFromMatchExpr(listMatchExpr, matchPatternType, pkgEnv);
         assignTypesToMemberPatterns(listMatchPattern, listMatchPattern.type);
     }
 

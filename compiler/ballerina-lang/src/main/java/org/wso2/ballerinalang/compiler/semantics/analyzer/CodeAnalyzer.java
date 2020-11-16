@@ -3410,9 +3410,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean indirectIntersectionExists(BLangExpression expression, BType testType) {
         BType expressionType = expression.type;
+        SymbolEnv symbolEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
         switch (expressionType.tag) {
             case TypeTags.UNION:
-                if (types.getTypeForUnionTypeMembersAssignableToType((BUnionType) expressionType, testType) !=
+                if (types.getTypeForUnionTypeMembersAssignableToType((BUnionType) expressionType, testType,
+                        symbolEnv) !=
                         symTable.semanticError) {
                     return true;
                 }
@@ -3426,7 +3428,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         switch (testType.tag) {
             case TypeTags.UNION:
-                return types.getTypeForUnionTypeMembersAssignableToType((BUnionType) testType, expressionType) !=
+                return types.getTypeForUnionTypeMembersAssignableToType((BUnionType) testType, expressionType,
+                        symbolEnv) !=
                         symTable.semanticError;
             case TypeTags.FINITE:
                 return types.getTypeForFiniteTypeValuesAssignableToType((BFiniteType) testType, expressionType) !=
