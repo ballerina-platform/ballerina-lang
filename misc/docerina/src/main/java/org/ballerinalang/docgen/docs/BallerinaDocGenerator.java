@@ -286,9 +286,9 @@ public class BallerinaDocGenerator {
                 }
 
                 // Create pages for types
-                if (!(module.unionTypes.isEmpty() && module.finiteTypes.isEmpty())) {
+                if (!module.types.isEmpty()) {
                     String typesFile = modDir + File.separator + "types" + HTML;
-                    TypesPageContext typesPageContext = new TypesPageContext(module.unionTypes, module, project,
+                    TypesPageContext typesPageContext = new TypesPageContext(module.types, module, project,
                             rootPathModuleLevel, "API Docs - Types : " + module.id, excludeIndex);
                     Writer.writeHtmlDocument(typesPageContext, typesTemplateName, typesFile);
                 }
@@ -457,13 +457,9 @@ public class BallerinaDocGenerator {
         module.errors.forEach((error) ->
                 searchErrors.add(new ConstructSearchJson(error.name, module.id, getFirstLine(error.description))));
 
-        module.unionTypes.forEach((unionType) ->
+        module.types.forEach((unionType) ->
                 searchTypes.add(new ConstructSearchJson(unionType.name, module.id,
                         getFirstLine(unionType.description))));
-
-        module.finiteTypes.forEach((finiteType) ->
-                searchTypes.add(new ConstructSearchJson(finiteType.name, module.id,
-                        getFirstLine(finiteType.description))));
 
         module.annotations.forEach((annotation) ->
                 searchAnnotations.add(new ConstructSearchJson(annotation.name, module.id,

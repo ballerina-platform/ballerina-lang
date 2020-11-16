@@ -21,6 +21,7 @@ package org.ballerinalang.test.documentation;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.generator.model.Annotation;
 import org.ballerinalang.docgen.generator.model.BClass;
+import org.ballerinalang.docgen.generator.model.BType;
 import org.ballerinalang.docgen.generator.model.Constant;
 import org.ballerinalang.docgen.generator.model.Construct;
 import org.ballerinalang.docgen.generator.model.DefaultableVariable;
@@ -30,7 +31,6 @@ import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.ModuleDoc;
 import org.ballerinalang.docgen.generator.model.Project;
 import org.ballerinalang.docgen.generator.model.Record;
-import org.ballerinalang.docgen.generator.model.UnionType;
 import org.ballerinalang.docgen.generator.model.Variable;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
@@ -62,38 +62,38 @@ public class DeprecatedAnnotationTest {
 
     @Test(description = "Test @deprecated annotation for module-level union type definitions")
     public void testDeprecatedUnionTypeDef() {
-        List<UnionType> unionTypes = testModule.unionTypes;
-        UnionType depUnionType = null;
-        UnionType nonDepUnionType = null;
+        List<BType> bTypes = testModule.types;
+        BType depBType = null;
+        BType nonDepBType = null;
 
-        for (UnionType type : unionTypes) {
+        for (BType type : bTypes) {
             String typeName = type.name;
             if ("CountryCode".equals(typeName)) {
-                depUnionType = type;
+                depBType = type;
             } else if ("NewCountryCode".equals(typeName)) {
-                nonDepUnionType = type;
+                nonDepBType = type;
             }
         }
 
-        Assert.assertNotNull(depUnionType);
-        Assert.assertTrue(depUnionType.isDeprecated);
+        Assert.assertNotNull(depBType);
+        Assert.assertTrue(depBType.isDeprecated);
 
-        Assert.assertNotNull(nonDepUnionType);
-        Assert.assertFalse(nonDepUnionType.isDeprecated);
+        Assert.assertNotNull(nonDepBType);
+        Assert.assertFalse(nonDepBType.isDeprecated);
     }
 
     @Test(description = "Test @deprecated annotation for module-level finite type definitions")
     public void testDeprecatedFiniteTypeDef() {
-        List<UnionType> unionTypes = testModule.unionTypes;
-        UnionType depFiniteType = null;
-        UnionType nonDepFiniteType = null;
+        List<BType> bTypes = testModule.types;
+        BType depFiniteType = null;
+        BType nonDepFiniteType = null;
 
-        for (UnionType unionType : unionTypes) {
-            String fTypeName = unionType.name;
+        for (BType bType : bTypes) {
+            String fTypeName = bType.name;
             if ("State".equals(fTypeName)) {
-                depFiniteType = unionType;
+                depFiniteType = bType;
             } else if ("NewState".equals(fTypeName)) {
-                nonDepFiniteType = unionType;
+                nonDepFiniteType = bType;
             }
         }
 

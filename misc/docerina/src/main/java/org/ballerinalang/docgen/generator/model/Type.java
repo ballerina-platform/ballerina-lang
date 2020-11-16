@@ -76,6 +76,8 @@ public class Type {
     @Expose
     public boolean isTuple;
     @Expose
+    public boolean isIntersectionType;
+    @Expose
     public boolean isRestParam;
     @Expose
     public boolean isLambda;

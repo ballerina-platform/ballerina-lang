@@ -88,11 +88,6 @@ public class Writer {
                             .map(variable -> getTypeLabel(variable.type, options.context) + " " + variable.name)
                             .collect(Collectors.joining(", "))
             );
-            handlebars.registerHelper("unionTypeSummary", (Helper<List<Type>>)
-                    (typeList, options) -> typeList.stream()
-                            .map(type -> getTypeLabel(type, options.context))
-                            .collect(Collectors.joining(" | "))
-            );
             handlebars.registerHelper("pipeJoin", (Helper<List<String>>)
                     (typeList, options) -> String.join(" | ", typeList)
             );
@@ -216,6 +211,10 @@ public class Writer {
             label = type.memberTypes.stream()
                     .map(type1 -> getTypeLabel(type1, context))
                     .collect(Collectors.joining(" | "));
+        } else if (type.isIntersectionType) {
+            label = type.memberTypes.stream()
+                    .map(type1 -> getTypeLabel(type1, context))
+                    .collect(Collectors.joining(" & "));
         } else if (type.isTuple) {
             label = "<span>[</span>" + type.memberTypes.stream()
                     .map(type1 -> getTypeLabel(type1, context))

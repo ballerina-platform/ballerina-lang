@@ -31,6 +31,7 @@ import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.MarkdownDocumentationLineNode;
 import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
 import io.ballerina.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
@@ -57,6 +58,7 @@ import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.generator.model.Annotation;
 import org.ballerinalang.docgen.generator.model.BAbstractObject;
 import org.ballerinalang.docgen.generator.model.BClass;
+import org.ballerinalang.docgen.generator.model.BType;
 import org.ballerinalang.docgen.generator.model.Client;
 import org.ballerinalang.docgen.generator.model.Constant;
 import org.ballerinalang.docgen.generator.model.DefaultableVariable;
@@ -66,7 +68,6 @@ import org.ballerinalang.docgen.generator.model.Listener;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.Record;
 import org.ballerinalang.docgen.generator.model.Type;
-import org.ballerinalang.docgen.generator.model.UnionType;
 import org.ballerinalang.docgen.generator.model.Variable;
 
 import java.util.ArrayList;
@@ -111,10 +112,10 @@ public class Generator {
                             module.abstractObjects.add(getAbstractObjectModel(typeDefinition, semanticModel, fileName));
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.UNION_TYPE_DESC) {
                             hasPublicConstructs = true;
-                            module.unionTypes.add(getUnionTypeModel(typeDefinition, semanticModel, fileName));
+                            module.types.add(getUnionTypeModel(typeDefinition, semanticModel, fileName));
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
                             hasPublicConstructs = true;
-                            module.unionTypes.add(getUnionTypeModel(typeDefinition, semanticModel, fileName));
+                            module.types.add(getUnionTypeModel(typeDefinition, semanticModel, fileName));
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
                                 ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
                                         == SyntaxKind.ERROR_TYPE_DESC) {
@@ -136,7 +137,10 @@ public class Generator {
                                     .metadata()), type));
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TUPLE_TYPE_DESC) {
                             hasPublicConstructs = true;
-                            module.unionTypes.add(getTupleTypeModel(typeDefinition, semanticModel, fileName));
+                            module.types.add(getTupleTypeModel(typeDefinition, semanticModel, fileName));
+                        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.INTERSECTION_TYPE_DESC) {
+                            hasPublicConstructs = true;
+                            module.types.add(getIntersectionTypeModel(typeDefinition, semanticModel, fileName));
                         }
                         // TODO: handle value type nodes
                         // TODO: handle function type nodes
@@ -230,19 +234,34 @@ public class Generator {
         }
         return new Constant(constantName, desc, isDeprecated(constantNode.metadata()), type, value);
     }
-    private static UnionType getTupleTypeModel(TypeDefinitionNode typeDefinition,
-                                               BallerinaSemanticModel semanticModel, String fileName) {
+
+    private static BType getIntersectionTypeModel(TypeDefinitionNode typeDefinition,
+                                                  BallerinaSemanticModel semanticModel, String fileName) {
+        List<Type> memberTypes = new ArrayList<>();
+        IntersectionTypeDescriptorNode typeDescriptor = (IntersectionTypeDescriptorNode) typeDefinition
+                .typeDescriptor();
+        memberTypes.add(Type.fromNode(typeDescriptor.leftTypeDesc(), semanticModel, fileName));
+        memberTypes.add(Type.fromNode(typeDescriptor.rightTypeDesc(), semanticModel, fileName));
+        BType bType = new BType(typeDefinition.typeName().text(),
+                getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition.metadata()), memberTypes);
+        bType.isIntersectionType = true;
+        return bType;
+    }
+
+    private static BType getTupleTypeModel(TypeDefinitionNode typeDefinition,
+                                           BallerinaSemanticModel semanticModel, String fileName) {
         List<Type> memberTypes = new ArrayList<>();
         TupleTypeDescriptorNode typeDescriptor = (TupleTypeDescriptorNode) typeDefinition.typeDescriptor();
         memberTypes.addAll(typeDescriptor.memberTypeDesc().stream().map(type ->
                 Type.fromNode(type, semanticModel, fileName)).collect(Collectors.toList()));
-        UnionType unionType = new UnionType(typeDefinition.typeName().text(),
+        BType bType = new BType(typeDefinition.typeName().text(),
                 getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition.metadata()), memberTypes);
-        unionType.isTuple = true;
-        return unionType;
+        bType.isTuple = true;
+        return bType;
     }
-    private static UnionType getUnionTypeModel(TypeDefinitionNode typeDefinition,
-                                               BallerinaSemanticModel semanticModel, String fileName) {
+
+    private static BType getUnionTypeModel(TypeDefinitionNode typeDefinition,
+                                           BallerinaSemanticModel semanticModel, String fileName) {
         List<Type> memberTypes = new ArrayList<>();
         Node typeDescriptor = typeDefinition.typeDescriptor();
         while (typeDescriptor.kind().equals(SyntaxKind.UNION_TYPE_DESC)) {
@@ -251,8 +270,10 @@ public class Generator {
             typeDescriptor = unionType.rightTypeDesc();
         }
         memberTypes.add(Type.fromNode(typeDescriptor, semanticModel, fileName));
-        return new UnionType(typeDefinition.typeName().text(), getDocFromMetadata(typeDefinition.metadata()),
+        BType bType = new BType(typeDefinition.typeName().text(), getDocFromMetadata(typeDefinition.metadata()),
                 isDeprecated(typeDefinition.metadata()), memberTypes);
+        bType.isAnonymousUnionType = true;
+        return bType;
     }
 
     private static BClass getClassModel(ClassDefinitionNode classDefinitionNode, BallerinaSemanticModel semanticModel,
