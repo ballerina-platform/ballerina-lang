@@ -18,6 +18,7 @@
 
 package io.ballerina.projects.internal;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
@@ -35,9 +36,11 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -138,9 +141,27 @@ public class BaloFiles {
             // Load `package.json`
             PackageJson packageJson = readPackageJson(balrPath, packageJsonPath);
             validatePackageJson(packageJson, balrPath);
+            extractPlatformLibraries(zipFileSystem, packageJson, balrPath);
             return getPackageDescriptor(packageJson);
         } catch (IOException e) {
             throw new ProjectException("Failed to read balr file:" + balrPath);
+        }
+    }
+
+    private static void extractPlatformLibraries(FileSystem zipFileSystem, PackageJson packageJson, Path balrPath) {
+        if (packageJson.getPlatformDependencies() != null) {
+            packageJson.getPlatformDependencies().forEach(dependency -> {
+                Path libPath = balrPath.getParent().resolve(dependency.getPath());
+                if (!Files.exists(libPath)) {
+                    try {
+                        Files.createDirectories(libPath.getParent());
+                        Files.copy(zipFileSystem.getPath(dependency.getPath()), libPath);
+                    } catch (IOException e) {
+                        throw new ProjectException("Failed to extract platform dependency:" + libPath.getFileName(), e);
+                    }
+                }
+                dependency.setPath(libPath.toString());
+            });
         }
     }
 
@@ -155,8 +176,20 @@ public class BaloFiles {
             dependencies = Collections.emptyList();
         }
 
+        Map<String, PackageDescriptor.Platform> platforms = new HashMap<>(Collections.emptyMap());;
+        if (packageJson.getPlatformDependencies() != null) {
+            List<Map<String, Object>> platformDependencies = new ArrayList<>();
+            ObjectMapper objectMapper = new ObjectMapper();
+            packageJson.getPlatformDependencies().forEach(dependency -> {
+                platformDependencies.add(objectMapper.convertValue(dependency, Map.class));
+
+            });
+            PackageDescriptor.Platform platform = new PackageDescriptor.Platform(platformDependencies);
+            platforms.put(packageJson.getPlatform(), platform);
+        }
+
         return PackageDescriptor.from(packageName, packageOrg, packageVersion,
-                dependencies, Collections.emptyMap(), Collections.emptyMap());
+                dependencies, platforms, Collections.emptyMap());
     }
 
     private static PackageJson readPackageJson(Path balrPath, Path packageJsonPath) {

@@ -30,6 +30,7 @@ dependencies {
     implementation 'org.ow2.asm:asm-util'
     implementation 'org.ow2.asm:asm-tree'
     implementation 'commons-io:commons-io'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
     testCompile 'org.testng:testng'
 }
 
