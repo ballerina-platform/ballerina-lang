@@ -1111,6 +1111,8 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
+        SymbolEnv transactionEnv = SymbolEnv.createRetryEnv(retryNode, this.symbolEnv);
+        this.acceptNode(retryNode.retryBody, transactionEnv);
     }
 
     @Override

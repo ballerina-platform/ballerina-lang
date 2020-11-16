@@ -292,6 +292,7 @@ import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createState
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVariable;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVariableRef;
 import static org.wso2.ballerinalang.compiler.util.Constants.INIT_METHOD_SPLIT_SIZE;
+import static org.wso2.ballerinalang.compiler.util.Names.CHECK_RETRY_MANAGER;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
 import static org.wso2.ballerinalang.compiler.util.Names.IS_TRANSACTIONAL;
@@ -362,6 +363,7 @@ public class Desugar extends BLangNodeVisitor {
     private int indexExprCount = 0;
     private int letCount = 0;
     private int varargCount = 0;
+//    private BVarSymbol managerSym;
 
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
@@ -2533,6 +2535,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangRetry retryNode) {
         BLangOnFailClause currentOnFailClause = this.onFailClause;
         BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
+        this.visitngTrx = true;
         if (retryNode.onFailClause != null) {
             BLangOnFailClause onFailClause = retryNode.onFailClause;
             retryNode.onFailClause = null;
@@ -2540,74 +2543,150 @@ public class Desugar extends BLangNodeVisitor {
             result = rewrite(doStmt, env);
         } else {
             boolean currentSkipFailDesugaring = this.skipFailDesugaring;
-            this.skipFailDesugaring = true;
+//            this.skipFailDesugaring = true;
             DiagnosticPos pos = retryNode.retryBody.pos;
             BLangBlockStmt retryBlockStmt = ASTBuilderUtil.createBlockStmt(retryNode.pos);
-//            retryBlockStmt.scope = new Scope(env.scope.owner);
+            retryBlockStmt.parent = env.enclInvokable;
+            retryBlockStmt.scope = new Scope(env.scope.owner);
 //            retryBlockStmt.scope = retryNode.retryBody.scope;
 //            retryBlockStmt.scope = env.scope;
             BLangSimpleVariableDef retryManagerVarDef = createRetryManagerDef(retryNode.retrySpec, retryNode.pos);
             retryBlockStmt.stmts.add(retryManagerVarDef);
+            BLangSimpleVarRef retryManagerVarRef = ASTBuilderUtil.createVariableRef(pos, retryManagerVarDef.var.symbol);
 
+            BVarSymbol retryMangerRefVarSymbol = new BVarSymbol(0, names.fromString("$retryManagerRef$"),
+                    env.scope.owner.pkgID, retryManagerVarDef.var.symbol.type, this.env.scope.owner, pos,
+                    VIRTUAL);
+            retryMangerRefVarSymbol.closure = true;
+
+            BLangSimpleVariable retryMangerRefVar = ASTBuilderUtil.createVariable(pos, "$retryManagerRef$",
+                    retryManagerVarDef.var.symbol.type, retryManagerVarRef, retryMangerRefVarSymbol);
+            retryBlockStmt.scope.define(retryMangerRefVarSymbol.name, retryMangerRefVarSymbol);
+            BLangSimpleVariableDef retryMangerRefDef = ASTBuilderUtil.createVariableDef(pos, retryMangerRefVar);
+            BLangSimpleVarRef retryManagerRef = ASTBuilderUtil.createVariableRef(pos, retryMangerRefVarSymbol);
+            retryBlockStmt.stmts.add(retryMangerRefDef);
+
+//            BLangSimpleVarRef retryManagerVarRef1 =
+//                    new BLangSimpleVarRef.BLangLocalVarRef(retryManagerVarDef.var.symbol);
+//            retryManagerVarRef1.type = retryManagerVarDef.var.symbol.type;
+//            BInvokableSymbol rollbackTransactionInvokableSymbol =
+//                    (BInvokableSymbol) transactionDesugar.getTransactionLibInvokableSymbol(CHECK_RETRY_MANAGER);
+//            List<BLangExpression> args = new ArrayList<>();
+//            args.add(retryManagerRef);
+//            BLangInvocation rollbackTransactionInvocation = ASTBuilderUtil.
+//                    createInvocationExprForMethod(pos, rollbackTransactionInvokableSymbol, args, symResolver);
+//            rollbackTransactionInvocation.argExprs = args;
+//            BLangExpressionStmt rollbackStmt = ASTBuilderUtil.createExpressionStmt(pos, retryBlockStmt);
+//            rollbackStmt.expr = rollbackTransactionInvocation;
+
+
+            //error? $retryResult$ = ();
+            BLangLiteral nillLiteral =  ASTBuilderUtil.createLiteral(pos, symTable.nilType, null);
+            BVarSymbol retryResultVarSymbol = new BVarSymbol(0, names.fromString("$retryResult$"),
+                    env.scope.owner.pkgID, symTable.errorOrNilType, this.env.scope.owner, pos, VIRTUAL);
+            retryResultVarSymbol.closure = true;
+            BLangSimpleVariable retryResultVariable = ASTBuilderUtil.createVariable(pos, "$retryResult$",
+                    symTable.errorOrNilType, nillLiteral, retryResultVarSymbol);
+            env.scope.define(retryResultVarSymbol.name, retryResultVarSymbol);
+            BLangSimpleVariableDef retryResultDef = ASTBuilderUtil.createVariableDef(pos, retryResultVariable);
+            BLangSimpleVarRef retryResultRef = ASTBuilderUtil.createVariableRef(pos, retryResultVarSymbol);
+            retryBlockStmt.stmts.add(retryResultDef);
+
+            //boolean $shouldRetry$ = false;
+            BLangLiteral falseLiteral =  ASTBuilderUtil.createLiteral(pos, symTable.booleanType, false);
+            BVarSymbol shouldRetryVarSymbol = new BVarSymbol(0, names.fromString("$shouldRetry$"),
+                    env.scope.owner.pkgID, symTable.booleanType, this.env.scope.owner, pos, VIRTUAL);
+            shouldRetryVarSymbol.closure = true;
+            BLangSimpleVariable shouldRetryVariable = ASTBuilderUtil.createVariable(pos, "$shouldRetry$",
+                    symTable.booleanType, falseLiteral, shouldRetryVarSymbol);
+            env.scope.define(shouldRetryVarSymbol.name, shouldRetryVarSymbol);
+            BLangSimpleVariableDef shouldRetryDef = ASTBuilderUtil.createVariableDef(pos, shouldRetryVariable);
+            BLangSimpleVarRef shouldRetryRef = ASTBuilderUtil.createVariableRef(pos, shouldRetryVarSymbol);
+            retryBlockStmt.stmts.add(shouldRetryDef);
+
+            BVarSymbol forceJumpVarSymbol = new BVarSymbol(0, names.fromString("$forceJump$"),
+                    env.scope.owner.pkgID, symTable.booleanType, this.env.scope.owner, pos, VIRTUAL);
+            forceJumpVarSymbol.closure = true;
+            BLangSimpleVariable forceJumpVariable = ASTBuilderUtil.createVariable(pos, "$forceJump$",
+                    symTable.booleanType, falseLiteral, forceJumpVarSymbol);
+            env.scope.define(forceJumpVarSymbol.name, forceJumpVarSymbol);
+            BLangSimpleVariableDef forceJumpDef = ASTBuilderUtil.createVariableDef(pos, forceJumpVariable);
+            BLangSimpleVarRef forceJumpRef = ASTBuilderUtil.createVariableRef(pos, forceJumpVarSymbol);
+            retryBlockStmt.stmts.add(forceJumpDef);
+
+
+
+            BLangOnFailClause internalOnFail = createInternalOnFail(pos, retryResultRef,
+                    retryMangerRefVarSymbol,
+                    shouldRetryRef, forceJumpRef);
+            BLangDo retryDo = wrapStatementWithinDo(pos, retryNode.retryBody, internalOnFail);
+
+            //while ((retryRes == ()) || (retryRes is error && shouldRetryRes)) {}
+            BLangWhile whileLoop = createRetryWhileLoop(pos, retryDo, retryResultRef,
+                    shouldRetryRef);
+
+            retryBlockStmt.stmts.add(whileLoop);
+            result = rewrite(retryBlockStmt, env);
+            this.visitngTrx = false;
             //  var $retryFunc$ = function () returns any|error {
             //    <"Content in retry block goes here">
             //  };
-            BLangType retryLambdaReturnType = ASTBuilderUtil.createTypeNode(symTable.anyOrErrorType);
-            BLangLambdaFunction retryFunc = createLambdaFunction(pos, "$retryFunc$",
-                    Collections.emptyList(), retryLambdaReturnType,
-                    retryNode.retryBody.stmts, env,
-                    retryNode.retryBody.scope);
-            BVarSymbol retryFuncVarSymbol = new BVarSymbol(0, names.fromString("$retryFunc$"),
-                    env.scope.owner.pkgID, retryFunc.type,
-                    retryFunc.function.symbol, pos, VIRTUAL);
-            BLangSimpleVariable retryLambdaVariable = ASTBuilderUtil.createVariable(pos, "$retryFunc$",
-                    retryFunc.type, retryFunc,
-                    retryFuncVarSymbol);
-            BLangSimpleVariableDef retryLambdaVariableDef = ASTBuilderUtil.createVariableDef(pos,
-                    retryLambdaVariable);
-            BLangSimpleVarRef retryLambdaVarRef = new BLangSimpleVarRef.BLangLocalVarRef(retryLambdaVariable.symbol);
-            retryLambdaVarRef.type = retryFuncVarSymbol.type;
-            retryBlockStmt.stmts.add(retryLambdaVariableDef);
+//            BLangType retryLambdaReturnType = ASTBuilderUtil.createTypeNode(symTable.anyOrErrorType);
+//            BLangLambdaFunction retryFunc = createLambdaFunction(pos, "$retryFunc$",
+//                    Collections.emptyList(), retryLambdaReturnType,
+//                    retryNode.retryBody.stmts, env,
+//                    retryNode.retryBody.scope);
+//            BVarSymbol retryFuncVarSymbol = new BVarSymbol(0, names.fromString("$retryFunc$"),
+//                    env.scope.owner.pkgID, retryFunc.type,
+//                    retryFunc.function.symbol, pos, VIRTUAL);
+//            BLangSimpleVariable retryLambdaVariable = ASTBuilderUtil.createVariable(pos, "$retryFunc$",
+//                    retryFunc.type, retryFunc,
+//                    retryFuncVarSymbol);
+//            BLangSimpleVariableDef retryLambdaVariableDef = ASTBuilderUtil.createVariableDef(pos,
+//                    retryLambdaVariable);
+//            BLangSimpleVarRef retryLambdaVarRef = new BLangSimpleVarRef.BLangLocalVarRef(retryLambdaVariable.symbol);
+//            retryLambdaVarRef.type = retryFuncVarSymbol.type;
+//            retryBlockStmt.stmts.add(retryLambdaVariableDef);
 
             // Add lambda function call
             //any|error $result$ = $retryFunc$();
-            BLangInvocation retryLambdaInvocation = new BLangInvocation.BFunctionPointerInvocation(pos,
-                    retryLambdaVarRef, retryLambdaVariable.symbol, retryLambdaReturnType.type);
-            retryLambdaInvocation.argExprs = new ArrayList<>();
-
-            retryFunc.capturedClosureEnv = env.createClone();
-
-            BVarSymbol retryFunctionVarSymbol = new BVarSymbol(0, new Name("$result$"),
-                    env.scope.owner.pkgID, retryLambdaReturnType.type,
-                    env.scope.owner, pos, VIRTUAL);
-            BLangSimpleVariable retryFunctionVariable = ASTBuilderUtil.createVariable(pos, "$result$",
-                    retryLambdaReturnType.type,
-                    retryLambdaInvocation,
-                    retryFunctionVarSymbol);
-            BLangSimpleVariableDef retryFunctionVariableDef = ASTBuilderUtil.createVariableDef(pos,
-                    retryFunctionVariable);
-            retryBlockStmt.stmts.add(retryFunctionVariableDef);
+//            BLangInvocation retryLambdaInvocation = new BLangInvocation.BFunctionPointerInvocation(pos,
+//                    retryLambdaVarRef, retryLambdaVariable.symbol, retryLambdaReturnType.type);
+//            retryLambdaInvocation.argExprs = new ArrayList<>();
+//
+//            retryFunc.capturedClosureEnv = env.createClone();
+//
+//            BVarSymbol retryFunctionVarSymbol = new BVarSymbol(0, new Name("$result$"),
+//                    env.scope.owner.pkgID, retryLambdaReturnType.type,
+//                    env.scope.owner, pos, VIRTUAL);
+//            BLangSimpleVariable retryFunctionVariable = ASTBuilderUtil.createVariable(pos, "$result$",
+//                    retryLambdaReturnType.type,
+//                    retryLambdaInvocation,
+//                    retryFunctionVarSymbol);
+//            BLangSimpleVariableDef retryFunctionVariableDef = ASTBuilderUtil.createVariableDef(pos,
+//                    retryFunctionVariable);
+//            retryBlockStmt.stmts.add(retryFunctionVariableDef);
 
             // create while loop: while ($result$ is error && $retryManager$.shouldRetry($result$))
-            BLangSimpleVarRef retryFunctionVariableRef =
-                    new BLangSimpleVarRef.BLangLocalVarRef(retryFunctionVariable.symbol);
-            retryFunctionVariableRef.type = retryFunctionVariable.symbol.type;
-
-            BLangWhile whileNode = createRetryWhileLoop(pos, retryManagerVarDef, retryLambdaInvocation,
-                    retryFunctionVariableRef);
-            retryBlockStmt.stmts.add(whileNode);
-            createErrorReturn(pos, retryBlockStmt, retryFunctionVariableRef);
-
-            BLangStatementExpression retryTransactionStmtExpr;
-            if (retryNode.retryBodyReturns) {
-                //  returns <TypeCast>$result$;
-                BLangInvokableNode encInvokable = env.enclInvokable;
-                retryTransactionStmtExpr = ASTBuilderUtil.createStatementExpression(retryBlockStmt,
-                        addConversionExprIfRequired(retryFunctionVariableRef, encInvokable.returnTypeNode.type));
-            } else {
-                retryTransactionStmtExpr = ASTBuilderUtil.createStatementExpression(retryBlockStmt,
-                        ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE));
-            }
+//            BLangSimpleVarRef retryFunctionVariableRef =
+//                    new BLangSimpleVarRef.BLangLocalVarRef(retryFunctionVariable.symbol);
+//            retryFunctionVariableRef.type = retryFunctionVariable.symbol.type;
+//
+//            BLangWhile whileNode = createRetryWhileLoop(pos, retryManagerVarDef, retryLambdaInvocation,
+//                    retryFunctionVariableRef);
+//            retryBlockStmt.stmts.add(whileNode);
+//            createErrorReturn(pos, retryBlockStmt, retryFunctionVariableRef);
+//
+//            BLangStatementExpression retryTransactionStmtExpr;
+//            if (retryNode.retryBodyReturns) {
+//                //  returns <TypeCast>$result$;
+//                BLangInvokableNode encInvokable = env.enclInvokable;
+//                retryTransactionStmtExpr = ASTBuilderUtil.createStatementExpression(retryBlockStmt,
+//                        addConversionExprIfRequired(retryFunctionVariableRef, encInvokable.returnTypeNode.type));
+//            } else {
+//                retryTransactionStmtExpr = ASTBuilderUtil.createStatementExpression(retryBlockStmt,
+//                        ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE));
+//            }
             this.skipFailDesugaring = currentSkipFailDesugaring;
             //  at this point;
             //  RetryManager $retryManager$ = new();
@@ -2623,27 +2702,37 @@ public class Desugar extends BLangNodeVisitor {
             //      fail $result$;
             //  }
             //  returns <TypeCast>$result$;
-            result = createExpressionStatement(pos, retryTransactionStmtExpr, retryNode.retryBodyReturns, env);
+//            result = createExpressionStatement(pos, retryTransactionStmtExpr, retryNode.retryBodyReturns, env);
         }
-        swapAndResetEnclosingOnFail(currentOnFailClause, currentOnFailCallDef);
+//        swapAndResetEnclosingOnFail(currentOnFailClause, currentOnFailCallDef);
     }
 
-    protected BLangWhile createRetryWhileLoop(DiagnosticPos retryBlockPos, BLangSimpleVariableDef retryManagerVarDef,
-                                            BLangExpression trapExpr, BLangSimpleVarRef result) {
+    protected BLangWhile createRetryWhileLoop(DiagnosticPos retryBlockPos,
+                                              BLangStatement retryBody,
+                                              BLangSimpleVarRef retryResultRef,
+                                              BLangSimpleVarRef shouldRetryRef) {
         BLangWhile whileNode = (BLangWhile) TreeBuilder.createWhileNode();
         whileNode.pos = retryBlockPos;
-        BLangTypeTestExpr isErrorCheck = createTypeCheckExpr(retryBlockPos, result,
+        BLangTypeTestExpr isErrorCheck = createTypeCheckExpr(retryBlockPos, retryResultRef,
                 getErrorTypeNode());
-        BLangSimpleVarRef retryManagerVarRef = new BLangLocalVarRef(retryManagerVarDef.var.symbol);
-        retryManagerVarRef.type = retryManagerVarDef.var.symbol.type;
-        BLangInvocation shouldRetryInvocation = createRetryManagerShouldRetryInvocation(retryBlockPos,
-                retryManagerVarRef, result);
-        whileNode.expr = ASTBuilderUtil.createBinaryExpr(retryBlockPos, isErrorCheck, shouldRetryInvocation,
+        BLangBinaryExpr shouldRetryCheck = ASTBuilderUtil.createBinaryExpr(retryBlockPos, isErrorCheck, shouldRetryRef,
                 symTable.booleanType, OperatorKind.AND, null);
+        BLangGroupExpr rhsCheck =  new BLangGroupExpr();
+        rhsCheck.type = symTable.booleanType;
+        rhsCheck.expression = shouldRetryCheck;
+
+        BLangLiteral nillLiteral = ASTBuilderUtil.createLiteral(retryBlockPos, symTable.nilType, null);
+        BLangBinaryExpr equalToNullCheck = ASTBuilderUtil.createBinaryExpr(retryBlockPos, retryResultRef, nillLiteral,
+                symTable.booleanType, OperatorKind.EQUAL, null);
+        BLangGroupExpr lhsCheck =  new BLangGroupExpr();
+        lhsCheck.type = symTable.booleanType;
+        lhsCheck.expression = equalToNullCheck;
+
+        whileNode.expr = ASTBuilderUtil.createBinaryExpr(retryBlockPos, lhsCheck, rhsCheck,
+                symTable.booleanType, OperatorKind.OR, null);
         BLangBlockStmt whileBlockStmnt = ASTBuilderUtil.createBlockStmt(retryBlockPos);
-        BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(retryBlockPos, result,
-                trapExpr);
-        whileBlockStmnt.stmts.add(assignment);
+//        whileBlockStmnt.scope = new Scope(env.scope.owner);
+        whileBlockStmnt.stmts.add(retryBody);
         whileNode.body = whileBlockStmnt;
         return whileNode;
     }
@@ -2660,6 +2749,8 @@ public class Desugar extends BLangNodeVisitor {
         BVarSymbol retryMangerSymbol = new BVarSymbol(0, names.fromString("$retryManager$"),
                                                       env.scope.owner.pkgID, retryManagerType, this.env.scope.owner,
                                                       pos, VIRTUAL);
+//        retryMangerSymbol.closure = true;
+//        env.scope.define(retryMangerSymbol.name, retryMangerSymbol);
         BLangTypeInit managerInit = ASTBuilderUtil.createEmptyTypeInit(pos, retryManagerType);
         managerInit.initInvocation.requiredArgs = retrySpec.argExprs;
         BLangSimpleVariable retryManagerVariable = ASTBuilderUtil.createVariable(pos, "$retryManager$",
@@ -3208,13 +3299,15 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariableDef onFailErrorVariableDef = (BLangSimpleVariableDef) onFailClause.variableDefinitionNode;
         BVarSymbol thrownErrorVarSymbol = new BVarSymbol(0, new Name("$thrownError$"),
                 env.scope.owner.pkgID, symTable.errorType, env.scope.owner, onFailClause.pos, VIRTUAL);
-        thrownErrorVarSymbol.closure = true;
+//        thrownErrorVarSymbol.closure = true;
         BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailClause.pos, "$thrownError$",
                 onFailErrorVariableDef.var.type, null, thrownErrorVarSymbol);
         BLangLambdaFunction onFailFunc = createLambdaFunction(onFailClause.pos, "$onFailFunc$",
                 Lists.of(errorVar), onFailReturnType, onFailClause.body.stmts,
                 env, onFailClause.body.scope);
-        onFailFunc.capturedClosureEnv = env;
+//        onFailFunc.function. closureVarSymbols.add(new ClosureVarSymbol(managerSym, onFailClause.pos));
+        onFailFunc.capturedClosureEnv = env.createClone();
+        onFailFunc.parent = env.enclInvokable;
         BLangSimpleVarRef thrownErrorRef = ASTBuilderUtil.createVariableRef(onFailClause.pos, errorVar.symbol);
         onFailErrorVariableDef.var.expr = addConversionExprIfRequired(thrownErrorRef, onFailErrorVariableDef.var.type);
         ((BLangBlockFunctionBody) onFailFunc.function.body).stmts.add(0, onFailErrorVariableDef);
@@ -3416,6 +3509,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangDo wrapStatementWithinDo(DiagnosticPos pos, BLangStatement statement, BLangOnFailClause onFailClause) {
         BLangDo bLDo = (BLangDo) TreeBuilder.createDoNode();
         BLangBlockStmt doBlock = ASTBuilderUtil.createBlockStmt(pos);
+        doBlock.scope = new Scope(env.scope.owner);
         bLDo.body = doBlock;
         bLDo.pos = pos;
         bLDo.onFailClause = onFailClause;
@@ -3621,6 +3715,61 @@ public class Desugar extends BLangNodeVisitor {
             rollbackFail.expr = ASTBuilderUtil.createLiteral(rollbackNode.pos, symTable.nilType, "nill");
         }
         result = rewrite(rollbackFail, env);
+    }
+
+    private BLangOnFailClause createInternalOnFail(DiagnosticPos pos, BLangSimpleVarRef retryResultRef,
+                                                   BVarSymbol retryManagerRef,
+                                                   BLangSimpleVarRef shouldRetryRef,
+                                                   BLangSimpleVarRef forceJumpRef) {
+        BLangOnFailClause internalOnFail = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
+        internalOnFail.pos = pos;
+        internalOnFail.body = ASTBuilderUtil.createBlockStmt(pos);
+        BVarSymbol caughtErrorSym = new BVarSymbol(0, names.fromString("$caughtError$"),
+                env.scope.owner.pkgID, symTable.errorType, env.scope.owner, pos, VIRTUAL);
+        BLangSimpleVariable caughtError = ASTBuilderUtil.createVariable(pos,
+                "$caughtError$", symTable.errorType, null, caughtErrorSym);
+        internalOnFail.variableDefinitionNode = ASTBuilderUtil.createVariableDef(pos,
+                caughtError);
+//        internalOnFail.body.scope = env.scope;
+        env.scope.define(caughtErrorSym.name, caughtErrorSym);
+        BLangSimpleVarRef caughtErrorRef = ASTBuilderUtil.createVariableRef(pos, caughtErrorSym);
+        BLangAssignment errAssignment = ASTBuilderUtil.createAssignmentStmt(pos, retryResultRef,
+                caughtErrorRef);
+        internalOnFail.body.stmts.add(errAssignment);
+
+
+//        BVarSymbol retryMangerSym = new BVarSymbol(0, names.fromString("$onFailRetryManager$"),
+//                env.scope.owner.pkgID, symTable.errorType, env.scope.owner, pos, VIRTUAL);
+//        BLangSimpleVariable retryManagerVar = ASTBuilderUtil.createVariable(pos,
+//                "$onFailRetryManager$", retryManagerRef.symbol.type, retryManagerRef, retryMangerSym);
+//        BLangSimpleVariableDef retryManagerDef = ASTBuilderUtil.createVariableDef(pos, retryManagerVar);
+//        env.scope.define(retryMangerSym.name, retryMangerSym);
+//        internalOnFail.body.stmts.add(retryManagerDef);
+
+        BLangSimpleVarRef retryManager = ASTBuilderUtil.createVariableRef(pos, retryManagerRef);
+        BLangInvocation shouldRetryInvocation = createRetryManagerShouldRetryInvocation(pos,
+                retryManager, caughtErrorRef);
+        BLangAssignment shouldRetryAssignment = ASTBuilderUtil.createAssignmentStmt(pos, shouldRetryRef,
+        shouldRetryInvocation);
+        internalOnFail.body.stmts.add(shouldRetryAssignment);
+
+//        BLangBinaryExpr shouldRetryCheck = ASTBuilderUtil.createBinaryExpr(retryBlockPos, isErrorCheck, shouldRetryRef,
+//                symTable.booleanType, OperatorKind.NOT, null);
+//        BLangGroupExpr rhsCheck =  new BLangGroupExpr();
+//        rhsCheck.type = symTable.booleanType;
+//        rhsCheck.expression = shouldRetryCheck;
+//        BLangIf
+
+        if (this.onFailClause != null) {
+            //adding fail statement to jump to actual on fail clause
+            BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
+            failStmt.pos = pos;
+            BLangSimpleVarRef result = ASTBuilderUtil.createVariableRef(failStmt.pos, caughtErrorSym);
+            failStmt.expr = result;
+            internalOnFail.body.stmts.add(failStmt);
+            internalOnFail.bodyContainsFail = true;
+        }
+        return internalOnFail;
     }
 
     BLangLambdaFunction createLambdaFunction(DiagnosticPos pos, String functionNamePrefix,
