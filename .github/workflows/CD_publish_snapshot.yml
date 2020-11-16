@@ -33,7 +33,7 @@ jobs:
                     NEXUS_USERNAME: ${{ secrets.BALLERINA_BOT_USERNAME }}
                     NEXUS_PASSWORD: ${{ secrets.BALLERINA_BOT_TOKEN }}
                 run: |
-                    ./gradlew publish -x test -x check --max-wrokers=2 -PpublishToGithub
+                    ./gradlew publish -x test -x check -PpublishToGithub
 
             -   name: Trigger Standard Library Module Builds
                 run: |
