@@ -27,8 +27,6 @@ public class BLangCompilerConstants {
 
     public static final String ITERABLE_COLLECTION_ITERATOR_FUNC = "iterator";
     public static final String ITERABLE_OBJECT_ITERATOR_FUNC = "__iterator";
-    public static final String ABSTRACT_ITERATOR_CLASS = "_Iterator";
-    public static final String ABSTRACT_CLOSEABLE_ITERATOR_CLASS  = "_CloseableIterator";
     public static final String RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC = "shouldRetry";
     public static final String NEXT_FUNC = "next";
     public static final String CLOSE_FUNC = "close";
