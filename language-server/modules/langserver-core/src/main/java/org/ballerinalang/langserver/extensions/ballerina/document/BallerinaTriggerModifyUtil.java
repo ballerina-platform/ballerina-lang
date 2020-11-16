@@ -58,6 +58,8 @@ public class BallerinaTriggerModifyUtil {
 
     private static final String MAIN = "main";
     private static final String SERVICE = "service";
+    private static final String SCHEDULE = "SCHEDULE";
+    private static final String CURRENT_TRIGGER = "CURRENT_TRIGGER";
     public static final String EMPTY_STRING = "";
 
     private BallerinaTriggerModifyUtil() {
@@ -124,6 +126,10 @@ public class BallerinaTriggerModifyUtil {
                                                      String type, JsonObject config) {
         List<TextEdit> edits = new ArrayList<>();
         Gson gson = new Gson();
+        String currentTrigger = EMPTY_STRING;
+        if (config != null && config.has(CURRENT_TRIGGER)) {
+            currentTrigger = config.get(CURRENT_TRIGGER).getAsString();
+        }
         if (oldTree.getFunctions().isEmpty() && oldTree.getServices().isEmpty()) {
             //insert new
             if (MAIN.equalsIgnoreCase(type)) {
@@ -147,8 +153,23 @@ public class BallerinaTriggerModifyUtil {
             if (mainFunction.isPresent()) {
                 //replace main
                 if (MAIN.equalsIgnoreCase(type)) {
+                    Optional<BLangImportPackage> httpImport = oldTree.getImports().stream().
+                            filter(aImport -> aImport.getOrgName().getValue().equalsIgnoreCase("ballerina")
+                                    && aImport.getPackageName().size() == 1 &&
+                                    aImport.getPackageName().get(0).getValue().equalsIgnoreCase("http")).
+                            findFirst();
+                    if (!httpImport.isPresent()) {
+                        edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument,
+                                gson.fromJson("{\"TYPE\":\"ballerina/http\"}",
+                                        JsonObject.class), "IMPORT",
+                                1, 1, 1, 1));
+                    }
+                    int startLine = mainFunction.get().getPosition().lineRange().startLine().line();
+                    if (SCHEDULE.equalsIgnoreCase(currentTrigger)) {
+                        --startLine;
+                    }
                     edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_START_MODIFY",
-                            mainFunction.get().getPosition().lineRange().startLine().line() - 1,
+                            startLine,
                             mainFunction.get().getPosition().lineRange().startLine().offset(),
                             mainFunction.get().getBody().getPosition().lineRange().startLine().line(),
                             mainFunction.get().getBody().getPosition().lineRange().startLine().offset() + 1));
@@ -164,8 +185,12 @@ public class BallerinaTriggerModifyUtil {
                                         JsonObject.class), "IMPORT",
                                 1, 1, 1, 1));
                     }
+                    int startLine =  mainFunction.get().getPosition().lineRange().startLine().line();
+                    if (SCHEDULE.equalsIgnoreCase(currentTrigger)) {
+                        --startLine;
+                    }
                     edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "SERVICE_START",
-                            mainFunction.get().getPosition().lineRange().startLine().line(),
+                            startLine,
                             mainFunction.get().getPosition().lineRange().startLine().offset(),
                             mainFunction.get().getBody().getPosition().lineRange().startLine().line(),
                             mainFunction.get().getBody().getPosition().lineRange().startLine().offset() + 1));
@@ -180,13 +205,26 @@ public class BallerinaTriggerModifyUtil {
                 if (service.isPresent()) {
                     //replace service
                     if (MAIN.equalsIgnoreCase(type)) {
-                        edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_START",
-                                service.get().getPosition().lineRange().startLine().line(),
-                                service.get().getPosition().lineRange().startLine().offset(),
-                                service.get().getResources().get(0).getBody().getPosition()
-                                        .lineRange().startLine().line(),
-                                service.get().getResources().get(0).getBody().getPosition()
-                                        .lineRange().startLine().offset() + 1));
+                        if (service.get().getAnnotationAttachments() != null &&
+                                service.get().getAnnotationAttachments().size() > 0) {
+                            edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config,
+                                    "MAIN_START", service.get().getAnnotationAttachments().get(0)
+                                            .getPosition().lineRange().startLine().line(),
+                                    service.get().getAnnotationAttachments().get(0).getPosition().lineRange()
+                                            .startLine().offset(),
+                                    service.get().getResources().get(0).getBody().getPosition().lineRange()
+                                            .startLine().line(),
+                                    service.get().getResources().get(0).getBody().getPosition().
+                                            lineRange().startLine().offset() + 1));
+                        } else {
+                            edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config,
+                                    "MAIN_START", service.get().getPosition().lineRange().startLine().line(),
+                                    service.get().getPosition().lineRange().startLine().offset(),
+                                    service.get().getResources().get(0).getBody().getPosition().lineRange()
+                                            .startLine().line(),
+                                    service.get().getResources().get(0).getBody().getPosition().lineRange()
+                                            .startLine().offset() + 1));
+                        }
                         edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_END",
                                 service.get().getResources().get(0).getBody().getPosition()
                                         .lineRange().endLine().line(),

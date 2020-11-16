@@ -15,17 +15,17 @@
 // under the License.
 
 # Represents the Transaction error.
-type TransactionError distinct error;
+public type TransactionError distinct error;
 
 # Represents the Transaction module related error.
-type Error TransactionError;
+public type Error TransactionError;
 
 # Log and prepare `error` as a `Error`.
 #
 # + message - Error message
 # + err - `error` instance
 # + return - Prepared `Error` instance
-function prepareError(string message, error? err = ()) returns Error {
+public function prepareError(string message, error? err = ()) returns Error {
     Error trxError;
     if (err is error) {
         trxError = TransactionError(message, err);

@@ -409,7 +409,7 @@ class InstructionEmitter {
         str += "newType";
         str += emitSpaces(1);
         str += emitTypeRef(ins.type, 0);
-        str = emitClosureParams(ins.closureVars);
+        str += emitClosureParams(ins.closureVars);
         str += ";";
         return str;
     }
