@@ -726,7 +726,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         pkgNode.globalVars.forEach(globalVar -> {
-            int globalVarFlags = globalVar.symbol.flags;
+            long globalVarFlags = globalVar.symbol.flags;
             if (globalVar.expr != null || Symbols.isFlagOn(globalVarFlags, Flags.CONFIGURABLE)) {
 
                 if (Symbols.isFlagOn(globalVarFlags, Flags.CONFIGURABLE)) {

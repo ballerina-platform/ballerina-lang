@@ -503,7 +503,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 return;
             }
             // Required configurations will be initialized at the run time
-            int varFlags = variable.symbol.flags;
+            long varFlags = variable.symbol.flags;
             if (Symbols.isFlagOn(varFlags, Flags.CONFIGURABLE) && Symbols.isFlagOn(varFlags, Flags.REQUIRED)) {
                 return;
             }
