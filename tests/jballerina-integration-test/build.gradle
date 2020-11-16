@@ -106,13 +106,13 @@ test {
     maxParallelForks = 1
     systemProperty 'basedir', "$buildDir"
     systemProperty 'libdir', "$buildDir"
-    systemProperty 'observability.test.utils', "$buildDir/../../observability-test-utils/"
     systemProperty 'server.zip', configurations.jballerinaTools.asPath
     systemProperty 'jballerina.server.zip', configurations.jballerinaTools.asPath
     systemProperty 'java.util.logging.config.file', "$buildDir/resources/test/logging.properties"
     systemProperty 'java.util.logging.manager', 'org.ballerinalang.logging.BLogManager'
     systemProperty 'ballerina.agent.path', configurations.testUtils.asPath
-    systemProperty 'observability-test-natives.jar', configurations.observeTestUtils.asPath
+    systemProperty 'observability.test.utils.dir', "$buildDir/../../observability-test-utils/"
+    systemProperty 'observability.test.utils.jar', configurations.observeTestUtils.asPath
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/testobserve;
+import intg_tests/tracing_tests.utils as utils;
 
 service testServiceThree on new testobserve:Listener(9094) {
     # Resource function for testing function call with observable annotation
@@ -29,7 +30,7 @@ service testServiceThree on new testobserve:Listener(9094) {
 
     # Resource function for testing attached function call with observable annotation
     resource function resourceTwo(testobserve:Caller caller) {
-        ObservableAdderClass adder = new ObservableAdder(20, 34);
+        utils:ObservableAdderClass adder = new utils:ObservableAdder(20, 34);
         var sum = adder.getSum();
         if (sum != 54) {    // Check for validating if normal execution is intact from instrumentation
             error err = error("failed to find the sum of 20 and 34. expected: 54 received: " + sum.toString());
