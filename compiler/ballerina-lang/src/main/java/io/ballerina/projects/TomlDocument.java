@@ -76,16 +76,20 @@ public abstract class TomlDocument {
 
     private void parseToml() {
         TextDocument textDocument = textDocument();
-        syntaxTree = SyntaxTree.from(textDocument, getFileName(filePath));
-
-        // TODO get semantic diagnostics
-        TomlTransformer nodeTransformer = new TomlTransformer();
-        tomlAstNode = (TomlTableNode) nodeTransformer.transform((DocumentNode) syntaxTree.rootNode());
+        try {
+            syntaxTree = SyntaxTree.from(textDocument, getFileName(filePath));
+            TomlTransformer nodeTransformer = new TomlTransformer();
+            tomlAstNode = (TomlTableNode) nodeTransformer.transform((DocumentNode) syntaxTree.rootNode());
+        } catch (RuntimeException e) {
+            // The toml parser throws runtime exceptions for some cases
+            throw new ProjectException("Failed to parse file: " + getFileName(filePath), e);
+        }
     }
 
     private String getFileName(Path filePath) {
-        if (filePath.getFileName() != null) {
-            return filePath.getFileName().toString();
+        final Path fileNamePath = filePath.getFileName();
+        if (fileNamePath != null) {
+            return fileNamePath.toString();
         } else {
             // This branch may never be executed.
             throw new ProjectException("Failed to retrieve the TOML file name from the path: " + filePath);
