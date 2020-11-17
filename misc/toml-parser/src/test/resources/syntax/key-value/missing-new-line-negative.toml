@@ -14,4 +14,6 @@
 # specific language governing permissions and limitations
 # under the License.
 
-key"value"
+key = 11 key1 = 22
+
+[table] key = 11

@@ -300,10 +300,11 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         return new TomlKeyValueNode(tomlKeyNode, tomlValue, getPosition(keyValue));
     }
 
-    private TomlKeyNode getTomlKeyNode(SeparatedNodeList<ValueNode> identifierList) { //Refactor
+    private TomlKeyNode getTomlKeyNode(SeparatedNodeList<ValueNode> identifierList) {
         List<TomlKeyEntryNode> nodeList = new ArrayList<>();
         for (Node node : identifierList) {
-            nodeList.add(new TomlKeyEntryNode ((TomlBasicValueNode) node.apply(this)));
+            TomlBasicValueNode transformedNode = (TomlBasicValueNode) node.apply(this);
+            nodeList.add(new TomlKeyEntryNode (transformedNode));
         }
 
         return new TomlKeyNode(nodeList);
@@ -343,11 +344,16 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
 
     @Override
     public TomlNode transform(NumericLiteralNode numericLiteralNode) {
+        String sign = "";
+        if (numericLiteralNode.sign().isPresent()) {
+            sign = numericLiteralNode.sign().get().text();
+        }
+        String value = sign + numericLiteralNode.value().text();
         if (numericLiteralNode.kind() == SyntaxKind.DEC_INT) {
-            return new TomlLongValueNode(Long.parseLong(numericLiteralNode.value().text()),
+            return new TomlLongValueNode(Long.parseLong(value),
                     getPosition(numericLiteralNode));
         } else {
-            return new TomlDoubleValueNodeNode(Double.parseDouble(numericLiteralNode.value().text()),
+            return new TomlDoubleValueNodeNode(Double.parseDouble(value),
                     getPosition(numericLiteralNode));
         }
     }

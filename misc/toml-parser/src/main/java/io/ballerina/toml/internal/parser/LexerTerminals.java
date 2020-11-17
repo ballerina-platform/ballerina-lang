@@ -44,7 +44,8 @@ public class LexerTerminals {
 
     // Arithmetic operators
     public static final char EQUAL = '=';
-    public static final char BACKSLASH = '\\';
+    public static final char PLUS = '+';
+    public static final char MINUS = '-';
 
     //Numbers
     public static final String INF = "inf";

@@ -883,7 +883,7 @@ public class Types {
         return isAssignable(sourceMapType.constraint, targetRecType.restFieldType);
     }
 
-    private boolean hasIncompatibleReadOnlyFlags(int targetFlags, int sourceFlags) {
+    private boolean hasIncompatibleReadOnlyFlags(long targetFlags, long sourceFlags) {
         return Symbols.isFlagOn(targetFlags, Flags.READONLY) && !Symbols.isFlagOn(sourceFlags, Flags.READONLY);
     }
 
@@ -1681,15 +1681,14 @@ public class Types {
     }
 
     public BType getResultTypeOfNextInvocation(BObjectType iteratorType) {
-        BAttachedFunction nextFunc = getNextFunc(iteratorType);
+        BAttachedFunction nextFunc = getAttachedFuncFromObject(iteratorType, BLangCompilerConstants.NEXT_FUNC);
         return Objects.requireNonNull(nextFunc).type.retType;
     }
 
-    private BAttachedFunction getNextFunc(BObjectType iteratorType) {
-        BObjectTypeSymbol iteratorSymbol = (BObjectTypeSymbol) iteratorType.tsymbol;
+    public BAttachedFunction getAttachedFuncFromObject(BObjectType objectType, String funcName) {
+        BObjectTypeSymbol iteratorSymbol = (BObjectTypeSymbol) objectType.tsymbol;
         for (BAttachedFunction bAttachedFunction : iteratorSymbol.attachedFuncs) {
-            if (bAttachedFunction.funcName.value
-                    .equals(BLangCompilerConstants.NEXT_FUNC)) {
+            if (funcName.equals(bAttachedFunction.funcName.value)) {
                 return bAttachedFunction;
             }
         }
