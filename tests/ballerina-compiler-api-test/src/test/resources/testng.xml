@@ -39,17 +39,20 @@
             <class name="io.ballerina.semantic.api.test.SymbolBIRTest">
                 <methods>
                     <exclude name="testSymbolLookupInBIR"/>
+                    <exclude name="testSymbolLookupInBIR"/>
                 </methods>
             </class>
 
             <class name="io.ballerina.semantic.api.test.SymbolLookupTest">
                 <methods>
                     <exclude name="testSymbolLookupForComplexExpressions"/>
+                    <exclude name="testSymbolLookupForComplexExpressions"/>
                 </methods>
             </class>
 
             <class name="io.ballerina.semantic.api.test.SymbolAtCursorTest">
                 <methods>
+                    <exclude name="testBasics"/>
                     <exclude name="testBasics"/>
                 </methods>
             </class>
