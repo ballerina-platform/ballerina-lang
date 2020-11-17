@@ -650,7 +650,8 @@ class SymbolFinder extends BLangNodeVisitor {
     public void visit(BLangInvocation invocationExpr) {
         // The assumption for the first condition is that if it's moduled-qualified, it must be a public symbol.
         // Hence owner would be a package symbol.
-        if (setEnclosingNode(invocationExpr.symbol.owner, invocationExpr.pkgAlias.pos)
+        if ((invocationExpr.symbol != null && setEnclosingNode(invocationExpr.symbol.owner,
+                                                               invocationExpr.pkgAlias.pos))
                 || setEnclosingNode(invocationExpr.symbol, invocationExpr.name.pos)) {
             return;
         }
@@ -670,7 +671,8 @@ class SymbolFinder extends BLangNodeVisitor {
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
         // The assumption for the first condition is that if it's moduled-qualified, it must be a public symbol.
         // Hence owner would be a package symbol.
-        if (setEnclosingNode(actionInvocationExpr.symbol.owner, actionInvocationExpr.pkgAlias.pos)
+        if ((actionInvocationExpr.symbol != null && setEnclosingNode(actionInvocationExpr.symbol.owner,
+                                                                     actionInvocationExpr.pkgAlias.pos))
                 || setEnclosingNode(actionInvocationExpr.symbol, actionInvocationExpr.name.pos)) {
             return;
         }
@@ -954,6 +956,11 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
+        // Becomes null for undefined types
+        if (userDefinedType.type.tsymbol == null) {
+            return;
+        }
+
         if (userDefinedType.type.tsymbol.origin == VIRTUAL
                 || setEnclosingNode(userDefinedType.type.tsymbol, userDefinedType.typeName.pos)) {
             return;

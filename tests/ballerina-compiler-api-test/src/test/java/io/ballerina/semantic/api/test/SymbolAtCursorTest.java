@@ -33,6 +33,7 @@ import java.util.Optional;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for the looking up a symbol of an identifier at a given position.
@@ -149,6 +150,27 @@ public class SymbolAtCursorTest {
                 {34, 14, "w1"},
                 {36, 20, "w1"},
                 {39, 20, "w2"},
+        };
+    }
+
+    @Test(dataProvider = "MissingConstructPosProvider")
+    public void testMissingConstructs(int line, int column) {
+        CompilerContext context = new CompilerContext();
+        CompileResult result = compile("test-src/symbol_at_cursor_undefined_constructs_test.bal", context);
+        BLangPackage pkg = (BLangPackage) result.getAST();
+        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
+
+        Optional<Symbol> symbol = model.symbol("symbol_at_cursor_undefined_constructs_test.bal",
+                                               LinePosition.from(line, column));
+        symbol.ifPresent(value -> assertTrue(true, "Unexpected symbol: " + value.name()));
+    }
+
+    @DataProvider(name = "MissingConstructPosProvider")
+    public Object[][] getMissingConstructsPos() {
+        return new Object[][]{
+                {20, 3},
+                {21, 25},
+                {23, 3},
         };
     }
 
