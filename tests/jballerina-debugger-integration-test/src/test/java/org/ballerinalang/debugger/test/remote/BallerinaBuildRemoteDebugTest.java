@@ -55,7 +55,7 @@ public class BallerinaBuildRemoteDebugTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSuspendOnBallerinaProjectBuild() throws BallerinaTestException {
         int port = findFreePort();
         String msg = "Listening for transport dt_socket at address: " + port;
