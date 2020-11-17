@@ -30,7 +30,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public interface NewLSContext {
+public interface DocumentServiceContext {
     
     /**
      * Get the symbols visible at a given cursor position. Visible symbols will be set on demand to the context once

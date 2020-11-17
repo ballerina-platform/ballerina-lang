@@ -16,7 +16,6 @@
  */
 
 apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaModuleToPackage.gradle"
 
 configurations {
     dist {
@@ -30,10 +29,14 @@ configurations {
         transitive false
     }
     interopImports
+    baloCreat {
+        transitive false
+    }
 }
 
 dependencies {
     dist project(':ballerina-rt')
+    baloCreat project(':lib-creator')
 
 
     distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
@@ -71,19 +74,19 @@ compileJava {
 class BallerinaLangLibBuildTask extends JavaExec {
     def projectDir = ''
     def distCache = ''
-    def moduleName = project.moduleName
+    def pkgName = project.name
     def skipBootstrap = 'false'
 
     BallerinaLangLibBuildTask() {
         setMain('org.ballerinalang.stdlib.utils.BuildLangLib')
     }
 
-
     @Override
     void exec() {
         def args = []
         args << projectDir
         args << distCache
+        args << pkgName
         args << skipBootstrap
 
         super.setArgs(args)
@@ -108,7 +111,7 @@ task createDistributionCache() {
         configurations.distributionBalo.each { artifact ->
             copy {
                 from zipTree( artifact.getPath() )
-                into "$buildDir/distribution-cache"
+                into "$buildDir/repo"
             }
         }
     }
@@ -133,17 +136,22 @@ task copyInteropImports(type: Copy) {
 
 ext {
     if (project.projectDir.name == "testerina-core") {
-        moduleName = "test"
+        modName = "test"
+    } else if (project.projectDir.name == 'langserver-stdlib'){
+        modName = 'module1'
     } else {
-        moduleName = files(file('src/main/ballerina/src').listFiles()).filter { File f ->
-            f.isDirectory() && f.name != 'target' && f.name != '.ballerina'
-        }.singleFile.name
+        modName = project.projectDir.name
     }
 }
 
 
+task copyBallerinaProject(type: Copy) {
+    from project.projectDir.toString() + "/src/main/ballerina/"
+    into project.buildDir.toString() + "/ballerina-src"
+}
+
 task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
-    projectDir = project.buildDir.toString() + "/new-project/" + project.moduleName
+    projectDir = project.buildDir.toString() + "/ballerina-src" // + modName
     distCache = project.buildDir.toString()
     classpath = project.configurations.baloCreat
     skipBootstrap = 'true'
@@ -151,19 +159,20 @@ task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
     maxHeapSize = "2048m"
     dependsOn copyRuntime
     dependsOn copyInteropImports
-    dependsOn moduleTopackage
+    dependsOn copyBallerinaProject
     dependsOn createDistributionCache
     dependsOn compileJava
-    outputs.files("$buildDir/new-project/" + project.moduleName+ "/target/" + project.moduleName + ".zip")
+    outputs.files("$buildDir/ballerina-src/target/" + modName + ".zip")
     classpath += files(jar.archivePath)
 }
 
 artifacts {
-    distributionBalo file("$buildDir/new-project/" + project.moduleName + "/target/" + project.moduleName + ".zip"), {
+    distributionBalo file("$buildDir/ballerina-src/target/" + modName + ".zip"), {
         builtBy(ballerinaLangLibBuild)
     }
-    distributionBirJar file("$buildDir/new-project/" + project.moduleName+ "/target/" +
-            project.moduleName + ".jar"), { builtBy(ballerinaLangLibBuild) }
+    distributionBirJar file("$buildDir/ballerina-src/target/" + modName + ".jar"), {
+        builtBy(ballerinaLangLibBuild)
+    }
 }
 
 build.dependsOn ballerinaLangLibBuild

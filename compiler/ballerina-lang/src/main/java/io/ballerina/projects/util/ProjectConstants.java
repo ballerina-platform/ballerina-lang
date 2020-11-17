@@ -69,7 +69,7 @@ public class ProjectConstants {
 
     public static final String TARGET_BALO_DIR_NAME = "balo";
     public static final String BALLERINA_HOME = "ballerina.home";
-    public static final String DIST_CACHE_DIRECTORY = "distribution-cache";
+    public static final String DIST_CACHE_DIRECTORY = "repo";
     public static final String BALLERINA_HOME_BRE = "bre";
 
     public static final String ANON_ORG = "$anon";

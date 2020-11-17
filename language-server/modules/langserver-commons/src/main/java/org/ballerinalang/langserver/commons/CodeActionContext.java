@@ -27,7 +27,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public interface CodeActionContext extends NewLSContext {
+public interface CodeActionContext extends DocumentServiceContext {
 
     /**
      * Get the cursor position.

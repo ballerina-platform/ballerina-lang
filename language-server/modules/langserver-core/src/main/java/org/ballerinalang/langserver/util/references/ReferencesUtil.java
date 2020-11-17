@@ -17,8 +17,8 @@ package org.ballerinalang.langserver.util.references;
 
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.NewLSContext;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
@@ -65,7 +65,7 @@ public class ReferencesUtil {
      * @throws CompilationFailedException when compilation failed
      */
     @Deprecated
-    public static Reference getReferenceAtCursor(NewLSContext context, LSDocumentIdentifier document,
+    public static Reference getReferenceAtCursor(DocumentServiceContext context, LSDocumentIdentifier document,
                                                  Position position)
             throws WorkspaceDocumentException, CompilationFailedException, TokenOrSymbolNotFoundException {
 //        TextDocumentIdentifier textDocIdentifier = new TextDocumentIdentifier(document.getURIString());

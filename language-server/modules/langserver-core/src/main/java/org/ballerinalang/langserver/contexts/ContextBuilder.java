@@ -17,17 +17,22 @@
  */
 package org.ballerinalang.langserver.contexts;
 
+import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.HoverContext;
-import org.ballerinalang.langserver.commons.NewLSContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
+
+import java.util.List;
 
 /**
  * Builds the language server operation contexts on demand.
@@ -44,10 +49,10 @@ public class ContextBuilder {
      * @param uri              file uri
      * @param workspaceManager workspace manager instance
      * @param operation        language server operation
-     * @return {@link NewLSContext} base context generated
+     * @return {@link DocumentServiceContext} base context generated
      */
-    public static NewLSContext buildBaseContext(String uri, WorkspaceManager workspaceManager,
-                                                LSContextOperation operation) {
+    public static DocumentServiceContext buildBaseContext(String uri, WorkspaceManager workspaceManager,
+                                                          LSContextOperation operation) {
         return new BaseContextImpl.BaseContextBuilder(operation)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
@@ -60,7 +65,7 @@ public class ContextBuilder {
      * @param uri              file uri
      * @param workspaceManager workspace manager instance
      * @param capabilities     completion capabilities
-     * @return {@link NewLSContext} base context generated
+     * @return {@link DocumentServiceContext} base context generated
      */
     public static CompletionContext buildCompletionContext(String uri,
                                                            WorkspaceManager workspaceManager,
@@ -117,11 +122,26 @@ public class ContextBuilder {
      *
      * @param uri              file uri
      * @param workspaceManager workspace manager instance
-     * @return {@link CodeActionContext} generated signature context
+     * @return {@link HoverContext} generated hover context
      */
     public static HoverContext buildHoverContext(String uri, WorkspaceManager workspaceManager) {
         return new HoverContextImpl.HoverContextBuilder()
                 .withFileUri(uri)
+                .withWorkspaceManager(workspaceManager)
+                .build();
+    }
+
+    /**
+     * Build the command execution context.
+     *
+     * @param workspaceManager workspace manager instance
+     * @return {@link ExecuteCommandContext} generated command execution context
+     */
+    public static ExecuteCommandContext buildExecuteCommandContext(WorkspaceManager workspaceManager,
+                                                                   List<Object> arguments,
+                                                                   LSClientCapabilities clientCapabilities,
+                                                                   BallerinaLanguageServer languageServer) {
+        return new ExecuteCommandContextImpl.ExecuteCommandContextBuilder(arguments, clientCapabilities, languageServer)
                 .withWorkspaceManager(workspaceManager)
                 .build();
     }

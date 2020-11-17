@@ -46,7 +46,7 @@ public class PackageJson {
 
     // Dependencies
     private List<PackageDescriptor.Dependency> dependencies; //?
-    private List<PlatformLibrary> platformLibraries; //?
+    private List<PlatformLibrary> platformDependencies; //?
 
     // Templating support
     private boolean template; //?
@@ -162,12 +162,12 @@ public class PackageJson {
         this.dependencies = dependencies;
     }
 
-    public List<PlatformLibrary> getPlatformLibraries() {
-        return platformLibraries;
+    public List<PlatformLibrary> getPlatformDependencies() {
+        return platformDependencies;
     }
 
-    public void setPlatformLibraries(List<PlatformLibrary> platformLibraries) {
-        this.platformLibraries = platformLibraries;
+    public void setPlatformDependencies(List<PlatformLibrary> platformDependencies) {
+        this.platformDependencies = platformDependencies;
     }
 
     public boolean isTemplate() {

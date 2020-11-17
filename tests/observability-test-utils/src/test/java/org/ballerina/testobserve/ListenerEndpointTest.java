@@ -62,8 +62,8 @@ public class ListenerEndpointTest {
         copyFile(testUtilsJar, Paths.get(serverHome, "bre", "lib", testUtilsJar.getFileName().toString()));
 
         // Copy caches
-        copyDir(Paths.get("build", "new-project", TESTOBSERVE_MODULE_NAME,
-                "target", TESTOBSERVE_MODULE_NAME), Paths.get(serverHome, "distribution-cache"));
+        copyDir(Paths.get("build", "ballerina-src",
+                "target", TESTOBSERVE_MODULE_NAME), Paths.get(serverHome, "repo"));
 
         // Don't use 9898 port here. It is used in metrics test cases.
         servicesServerInstance = new BServerInstance(balServer);
