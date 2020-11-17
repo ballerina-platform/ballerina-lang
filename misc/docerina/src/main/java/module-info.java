@@ -1,6 +1,5 @@
 module io.ballerina.docerina {
     exports org.ballerinalang.docgen.docs;
-    exports org.ballerinalang.docgen.model;
     requires org.apache.commons.lang3;
     requires io.ballerina.lang;
     requires handlebars;
@@ -10,4 +9,6 @@ module io.ballerina.docerina {
     requires slf4j.api;
     requires org.commonmark;
     requires org.commonmark.ext.gfm.tables;
+    requires io.ballerina.parser;
+    requires io.ballerina.tools.api;
 }

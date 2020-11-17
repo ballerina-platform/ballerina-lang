@@ -42,6 +42,7 @@ public class Target {
     private Path testsCachePath;
     private Path binPath;
     private Path reportPath;
+    private Path docPath;
 
     public Target(Path sourceRoot) throws IOException {
         this.targetPath = sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
@@ -52,7 +53,18 @@ public class Target {
         this.testsCachePath = this.cache.resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
         this.binPath = this.targetPath.resolve(ProjectConstants.BIN_DIR_NAME);
         this.reportPath = this.targetPath.resolve(ProjectConstants.REPORT_DIR_NAME);
+        this.docPath = this.targetPath.resolve(ProjectConstants.TARGET_API_DOC_DIRECTORY);
         Files.createDirectories(this.targetPath);
+    }
+
+    /**
+     * Returns the doc target path.
+     *
+     * @return path of the api doc directory
+     */
+    public Path getDocPath() throws IOException {
+        Files.createDirectories(docPath);
+        return docPath;
     }
 
     /**

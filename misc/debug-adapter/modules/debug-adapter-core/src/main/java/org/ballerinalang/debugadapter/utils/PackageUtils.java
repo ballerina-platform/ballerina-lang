@@ -223,7 +223,7 @@ public class PackageUtils {
         classNameJoiner.add(document.module().packageInstance().packageOrg().value())
                 .add(document.module().moduleName().toString().replace(".", "_"))
                 .add(document.module().packageInstance().packageVersion().toString().replace(".", "_"))
-                .add(document.name().replace(BAL_FILE_EXT, ""));
+                .add(document.name().replace(BAL_FILE_EXT, "").replace(SEPARATOR_REGEX, ".").replace("/", "."));
         return classNameJoiner.toString();
     }
 }

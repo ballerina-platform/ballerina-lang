@@ -26,7 +26,6 @@ public class Constants {
     static final String RUN_COMMAND = "runOld";
     static final String BUILD_COMMAND = "buildOld";
     static final String COMPILE_COMMAND = "compileOld";
-    static final String DOC_COMMAND = "docOld";
     static final String TEST_COMMAND = "testOld";
     static final String INIT_COMMAND = "initOld";
     static final String NEW_COMMAND = "newOld";

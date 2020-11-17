@@ -24,6 +24,7 @@ import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -38,27 +39,28 @@ public class ModuleBreakpointTest extends DebugAdapterBaseTestCase {
     @BeforeClass
     public void setup() {
         testProjectName = "breakpoint-tests";
-        testModuleName = "foo";
-        testModuleFileName = "mainBal" + File.separator + "main.bal";
-        testSingleFileName = "hello_world.bal";
+        testModuleFileName = "main.bal";
         testProjectPath = testProjectBaseDir.toString() + File.separator + testProjectName;
-        testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
+        testEntryFilePath = Paths.get(testProjectPath, testModuleFileName).toString();
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMultipleBreakpointsInSameFile() throws BallerinaTestException {
 
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 25));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 26));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 19));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 33));
         initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(10000);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(25000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(0));
 
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo2 = waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo2.getLeft(), testBreakpoints.get(1));
+    }
 
+    @AfterMethod(alwaysRun = true)
+    public void cleanUp() {
         terminateDebugSession();
     }
 }
