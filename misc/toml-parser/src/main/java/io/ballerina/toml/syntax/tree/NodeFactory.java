@@ -135,11 +135,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static NumericLiteralNode createNumericLiteralNode(
             SyntaxKind kind,
+            Token sign,
             Token value) {
         Objects.requireNonNull(value, "value must not be null");
 
         STNode stNumericLiteralNode = STNodeFactory.createNumericLiteralNode(
                 kind,
+                getOptionalSTNode(sign),
                 value.internalNode());
         return stNumericLiteralNode.createUnlinkedFacade();
     }
