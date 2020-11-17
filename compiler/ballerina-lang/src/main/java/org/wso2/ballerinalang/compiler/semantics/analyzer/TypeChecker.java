@@ -40,7 +40,6 @@ import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
-import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
@@ -3027,8 +3026,9 @@ public class TypeChecker extends BLangNodeVisitor {
                         BType closeableIteratorType = symTable.langQueryModuleSymbol.scope
                                 .lookup(Names.ABSTRACT_CLOSEABLE_ITERATOR).symbol.type;
                         if (!types.isAssignable(constructType, closeableIteratorType)) {
-                            dlog.error(iteratorExpr.pos, DiagnosticErrorCode.INVALID_STREAM_CONSTRUCTOR_CLOSEABLE_ITERATOR,
-                                    expectedNextReturnType, constructType);
+                            dlog.error(iteratorExpr.pos,
+                                       DiagnosticErrorCode.INVALID_STREAM_CONSTRUCTOR_CLOSEABLE_ITERATOR,
+                                       expectedNextReturnType, constructType);
                             resultType = symTable.semanticError;
                             return;
                         }

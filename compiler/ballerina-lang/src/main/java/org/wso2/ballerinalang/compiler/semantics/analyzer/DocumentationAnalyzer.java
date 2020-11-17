@@ -158,7 +158,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 DiagnosticWarningCode.PARAMETER_ALREADY_DOCUMENTED);
 
         validateDeprecatedParameters(funcNode, funcNode.getParameters(), funcNode.restParam,
-                DiagnosticWarningCode.PARAMETER_ALREADY_DOCUMENTED, DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_PARAMETER);
+                DiagnosticWarningCode.PARAMETER_ALREADY_DOCUMENTED,
+                DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_PARAMETER);
         validateReferences(funcNode);
 
         boolean hasReturn = true;

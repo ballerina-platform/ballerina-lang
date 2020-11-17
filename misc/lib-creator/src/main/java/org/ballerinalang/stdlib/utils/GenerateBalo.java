@@ -51,8 +51,8 @@ import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURE
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
-import static org.ballerinalang.util.diagnostic.DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT;
 import static org.ballerinalang.util.diagnostic.DiagnosticWarningCode.FUNCTION_CAN_BE_MARKED_ISOLATED;
+import static org.ballerinalang.util.diagnostic.DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT;
 import static org.ballerinalang.util.diagnostic.DiagnosticWarningCode.WARNING_INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT;
 import static org.ballerinalang.util.diagnostic.DiagnosticWarningCode.WARNING_INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT;
 import static org.ballerinalang.util.diagnostic.DiagnosticWarningCode.WARNING_INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT;

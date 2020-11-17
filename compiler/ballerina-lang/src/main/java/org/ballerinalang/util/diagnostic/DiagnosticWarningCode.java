@@ -20,6 +20,11 @@ package org.ballerinalang.util.diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
+/**
+ * This class contains a list of diagnostic warning codes.
+ *
+ * @since Swan Lake
+ */
 public enum DiagnosticWarningCode implements DiagnosticCode {
 
     NON_MODULE_QUALIFIED_ERROR_REASON("BCE20000", "non.module.qualified.error.reason"),
@@ -83,7 +88,6 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
         return messageKey;
     }
 
-    @Override
     public boolean equals(DiagnosticCode code) {
         return this.messageKey.equals(code.messageKey());
     }
