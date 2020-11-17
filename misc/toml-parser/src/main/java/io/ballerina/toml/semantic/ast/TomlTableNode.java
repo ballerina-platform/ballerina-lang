@@ -19,13 +19,18 @@
 package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
+import io.ballerina.toml.semantic.diagnostics.DiagnosticComparator;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.toml.syntax.tree.Node;
+import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Represents Table in TOML AST.
@@ -64,6 +69,15 @@ public class TomlTableNode extends TopLevelNode {
         return generated;
     }
 
+    @Override
+    public Set<Diagnostic> diagnostics() {
+        Set<Diagnostic> tomlDiagnostics = diagnostics;
+        for (Map.Entry<String, TopLevelNode> child : children.entrySet()) {
+            tomlDiagnostics.addAll(child.getValue().diagnostics());
+        }
+        return tomlDiagnostics;
+    }
+
     public void replaceGeneratedTable(TomlTableNode tomlTableNode) {
         TopLevelNode childNode = children.get(tomlTableNode.key().name());
         if (childNode instanceof TomlTableNode) {
@@ -83,13 +97,10 @@ public class TomlTableNode extends TopLevelNode {
                 '}';
     }
 
-    public List<TomlDiagnostic> collectSemanticDiagnostics() {
-        List<TomlDiagnostic> tomlDiagnostics = new ArrayList<>();
-        for (Map.Entry<String, TopLevelNode> child : children.entrySet()) {
-            tomlDiagnostics.addAll(child.getValue().diagnostics());
+    public void addSyntaxDiagnostics(Set<Diagnostic> diagnostics) {
+        for (Diagnostic diagnostic : diagnostics) {
+            this.addDiagnostic(diagnostic);
         }
-        this.diagnostics().addAll(tomlDiagnostics);
-        return tomlDiagnostics;
     }
 
     @Override

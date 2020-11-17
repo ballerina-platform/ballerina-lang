@@ -34,6 +34,8 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -46,10 +48,8 @@ public class TypeCheckerVisitor implements TomlNodeVisitor {
 
     private final String key;
     private final Schema schema;
-    private final Set<Diagnostic> diagnostics;
 
-    public TypeCheckerVisitor(Set<Diagnostic> diagnostics, Schema schema, String key) {
-        this.diagnostics = diagnostics;
+    public TypeCheckerVisitor(Schema schema, String key) {
         this.schema = schema;
         this.key = key;
     }
@@ -60,7 +60,7 @@ public class TypeCheckerVisitor implements TomlNodeVisitor {
             TomlDiagnostic diagnostic = getTomlDiagnostic(tomlTableNode.location(), "TVE0002", "error.invalid.type",
                     DiagnosticSeverity.ERROR, String.format("Key \"%s\" expects %s . Found object", this.key,
                             schema.getType()));
-            diagnostics.add(diagnostic);
+            tomlTableNode.addDiagnostic(diagnostic);
         }
     }
 
@@ -71,7 +71,7 @@ public class TypeCheckerVisitor implements TomlNodeVisitor {
                     getTomlDiagnostic(tomlTableArrayNode.location(), "TVE0002", "error.invalid.type",
                             DiagnosticSeverity.ERROR, String.format("Key \"%s\" expects %s . Found array", this.key,
                                     schema.getType()));
-            diagnostics.add(diagnostic);
+            tomlTableArrayNode.addDiagnostic(diagnostic);
         }
     }
 
@@ -93,7 +93,7 @@ public class TypeCheckerVisitor implements TomlNodeVisitor {
                     getTomlDiagnostic(tomlStringValueNode.location(), "TVE0002", "error.invalid.type",
                             DiagnosticSeverity.ERROR,
                             String.format("Key \"%s\" expects %s . Found string", this.key, schema.getType()));
-            diagnostics.add(diagnostic);
+            tomlStringValueNode.addDiagnostic(diagnostic);
         } else {
             if (schema.getPattern() != null) {
                 if (!Pattern.compile(schema.getPattern()).matcher(tomlStringValueNode.getValue()).matches()) {
@@ -101,7 +101,7 @@ public class TypeCheckerVisitor implements TomlNodeVisitor {
                             "error.regex.mismatch", DiagnosticSeverity.ERROR,
                             String.format("Key \"%s\" value does not match the Regex provided in Schema %s", this.key,
                                     schema.getPattern()));
-                    diagnostics.add(diagnostic);
+                    tomlStringValueNode.addDiagnostic(diagnostic);
                 }
             }
         }
@@ -113,9 +113,13 @@ public class TypeCheckerVisitor implements TomlNodeVisitor {
             TomlDiagnostic diagnostic = getTomlDiagnostic(tomlDoubleValueNodeNode.location(), "TVE0002",
                     "error.invalid.type", DiagnosticSeverity.ERROR,
                     String.format("Key \"%s\" expects %s . Found number", this.key, schema.getType()));
-            diagnostics.add(diagnostic);
+            tomlDoubleValueNodeNode.addDiagnostic(diagnostic);
         } else {
-            validateMinMaxValues(tomlDoubleValueNodeNode.getValue(), tomlDoubleValueNodeNode.location());
+            List<Diagnostic> diagnostics =
+                    validateMinMaxValues(tomlDoubleValueNodeNode.getValue(), tomlDoubleValueNodeNode.location());
+            for (Diagnostic diagnostic : diagnostics) {
+                tomlDoubleValueNodeNode.addDiagnostic(diagnostic);
+            }
         }
     }
 
@@ -125,13 +129,18 @@ public class TypeCheckerVisitor implements TomlNodeVisitor {
             TomlDiagnostic diagnostic = getTomlDiagnostic(tomlLongValueNode.location(), "TVE0002",
                     "error.invalid.type", DiagnosticSeverity.ERROR,
                     String.format("Key \"%s\" expects %s . Found integer", this.key, schema.getType()));
-            diagnostics.add(diagnostic);
+            tomlLongValueNode.addDiagnostic(diagnostic);
         } else {
-            validateMinMaxValues(Double.valueOf(tomlLongValueNode.getValue()), tomlLongValueNode.location());
+            List<Diagnostic> diagnostics =
+                    validateMinMaxValues(Double.valueOf(tomlLongValueNode.getValue()), tomlLongValueNode.location());
+            for (Diagnostic diagnostic : diagnostics) {
+                tomlLongValueNode.addDiagnostic(diagnostic);
+            }
         }
     }
 
-    private void validateMinMaxValues(Double value, TomlNodeLocation location) {
+    private List<Diagnostic> validateMinMaxValues(Double value, TomlNodeLocation location) {
+        List<Diagnostic> diagnostics = new ArrayList<>();
         if (schema.getMaximum() != null) {
             if (value >= schema.getMaximum()) {
                 TomlDiagnostic diagnostic = getTomlDiagnostic(location, "TVE0005", "error" +
@@ -148,6 +157,7 @@ public class TypeCheckerVisitor implements TomlNodeVisitor {
                 diagnostics.add(diagnostic);
             }
         }
+        return diagnostics;
     }
 
     @Override
@@ -156,7 +166,7 @@ public class TypeCheckerVisitor implements TomlNodeVisitor {
             TomlDiagnostic diagnostic = getTomlDiagnostic(tomlBooleanValueNode.location(), "TVE0002",
                     "error.invalid.type", DiagnosticSeverity.ERROR,
                     String.format("Key \"%s\" expects %s . Found boolean", this.key, schema.getType()));
-            diagnostics.add(diagnostic);
+            tomlBooleanValueNode.addDiagnostic(diagnostic);
         }
     }
 

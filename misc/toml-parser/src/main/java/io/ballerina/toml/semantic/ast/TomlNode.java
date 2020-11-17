@@ -18,11 +18,12 @@
 package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
-import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
+import io.ballerina.toml.semantic.diagnostics.DiagnosticComparator;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.tools.diagnostics.Diagnostic;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Represents a TOML Node AST.
@@ -32,28 +33,37 @@ import java.util.List;
 public abstract class TomlNode implements Node {
 
     private final TomlType kind;
-    private final List<TomlDiagnostic> diagnostics;
-    private final TomlNodeLocation location; //The position of this node in the source file.
+    private final TomlNodeLocation location;
+    protected Set<Diagnostic> diagnostics;
 
     public TomlNode(TomlType kind, TomlNodeLocation location) {
-        this.diagnostics = new ArrayList<>();
         this.kind = kind;
         this.location = location;
+        diagnostics = new TreeSet<>(new DiagnosticComparator());
+//        copySyntaxDiagnostics();
     }
 
     public abstract void accept(TomlNodeVisitor visitor);
 
-    public List<TomlDiagnostic> diagnostics() {
+    public Set<Diagnostic> diagnostics() {
         return diagnostics;
     }
 
-    public void addDiagnostic(TomlDiagnostic diagnostic) {
+    public void addDiagnostic(Diagnostic diagnostic) {
         diagnostics.add(diagnostic);
     }
 
     public TomlNodeLocation location() {
         return location;
     }
+
+//    private void copySyntaxDiagnostics() {
+//        if (stNode != null && stNode.hasDiagnostics()) {
+//            for (Diagnostic diagnostic : stNode.diagnostics()) {
+//                this.addDiagnostic(diagnostic);
+//            }
+//        }
+//    }
 
     @Override
     public TomlType kind() {

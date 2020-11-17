@@ -53,7 +53,6 @@ import java.util.TreeSet;
 public class Toml {
 
     private TomlTableNode rootNode;
-    private Set<Diagnostic> diagnostics;
 
     /**
      * Creates new Root TOML Node from AST.
@@ -61,18 +60,7 @@ public class Toml {
      * @param tomlTableNode AST representation of TOML Table.
      */
     private Toml(TomlTableNode tomlTableNode) {
-        this(tomlTableNode, new TreeSet<>(new DiagnosticComparator()));
-    }
-
-    /**
-     * Creates new Root TOML Node from AST.
-     *
-     * @param tomlTableNode AST representation of TOML Table.
-     * @param diagnostics Diagnostics of the Node.
-     */
-    private Toml(TomlTableNode tomlTableNode, Set<Diagnostic> diagnostics) {
         this.rootNode = tomlTableNode;
-        this.diagnostics = diagnostics;
     }
 
     /**
@@ -112,12 +100,12 @@ public class Toml {
     public static Toml read(String content, String filePath) {
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument, filePath);
-        Set<Diagnostic> tomlDiagnostics = reportSyntaxDiagnostics(syntaxTree);
         TomlTransformer nodeTransformer = new TomlTransformer();
         TomlTableNode
                 transformedTable = (TomlTableNode) nodeTransformer.transform((DocumentNode) syntaxTree.rootNode());
-        tomlDiagnostics.addAll(transformedTable.collectSemanticDiagnostics());
-        return new Toml(transformedTable, tomlDiagnostics);
+        transformedTable.addSyntaxDiagnostics(reportSyntaxDiagnostics(syntaxTree));
+        Toml toml = new Toml(transformedTable);
+        return toml;
     }
 
     private static Set<Diagnostic> reportSyntaxDiagnostics(SyntaxTree tree) {
@@ -183,7 +171,7 @@ public class Toml {
     }
 
     public Set<Diagnostic> getDiagnostics() {
-        return this.diagnostics;
+        return this.rootNode.diagnostics();
     }
 
     public TomlTableNode getRootNode() {

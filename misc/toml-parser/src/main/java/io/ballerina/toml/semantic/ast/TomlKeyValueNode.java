@@ -20,6 +20,11 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.toml.syntax.tree.Node;
+import io.ballerina.tools.diagnostics.Diagnostic;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Represents Key Value Pair in TOML AST.
@@ -37,6 +42,13 @@ public class TomlKeyValueNode extends TopLevelNode {
 
     public TomlValueNode value() {
         return value;
+    }
+
+    @Override
+    public Set<Diagnostic> diagnostics() {
+        Set<Diagnostic> tomlDiagnostics = diagnostics;
+        tomlDiagnostics.addAll(value.diagnostics());
+        return tomlDiagnostics;
     }
 
     @Override

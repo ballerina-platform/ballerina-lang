@@ -37,10 +37,8 @@ import java.util.Set;
  */
 public class AdditionalPropertiesVisitor implements TomlNodeVisitor {
     private final Schema schema;
-    private final Set<Diagnostic> diagnostics;
 
-    public AdditionalPropertiesVisitor(Set<Diagnostic> diagnostics, Schema schema) {
-        this.diagnostics = diagnostics;
+    public AdditionalPropertiesVisitor(Schema schema) {
         this.schema = schema;
     }
 
@@ -56,7 +54,7 @@ public class AdditionalPropertiesVisitor implements TomlNodeVisitor {
                             DiagnosticSeverity.WARNING);
                     TomlDiagnostic diagnostic = new TomlDiagnostic(subEntry.getValue().location(), diagnosticInfo,
                             "Unexpected Property \"" + subEntry.getKey() + "\"");
-                    this.diagnostics.add(diagnostic);
+                    tomlTableNode.addDiagnostic(diagnostic);
                 }
             }
         }

@@ -18,6 +18,8 @@
 
 package io.ballerina.toml.semantic.ast;
 
+import io.ballerina.toml.syntax.tree.Node;
+
 /**
  * Represents Key in TOML AST.
  *

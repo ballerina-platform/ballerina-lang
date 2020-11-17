@@ -25,7 +25,6 @@ import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.toml.validator.validations.AdditionalPropertiesVisitor;
 import io.ballerina.toml.validator.validations.TypeCheckerVisitor;
-import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.List;
 import java.util.Map;
@@ -46,10 +45,10 @@ public class TomlValidator {
 
     public void validate(Toml toml) {
         Map<String, Schema> rootSchemaProperties = rootSchema.getProperties();
-        processProperties(toml.getDiagnostics(), rootSchemaProperties, toml.getRootNode());
+        processProperties(rootSchemaProperties, toml.getRootNode());
     }
 
-    private void processProperties(Set<Diagnostic> toml, Map<String, Schema> schema, TomlTableNode tableNode) {
+    private void processProperties(Map<String, Schema> schema, TomlTableNode tableNode) {
         Set<Map.Entry<String, Schema>> entries = schema.entrySet();
         for (Map.Entry<String, Schema> entry : entries) {
             String key = entry.getKey();
@@ -57,16 +56,16 @@ public class TomlValidator {
 
             TopLevelNode topLevelNode = tableNode.children().get(key);
             if (topLevelNode != null) {
-                AdditionalPropertiesVisitor additionalPropertiesVisitor = new AdditionalPropertiesVisitor(toml, value);
+                AdditionalPropertiesVisitor additionalPropertiesVisitor = new AdditionalPropertiesVisitor(value);
                 topLevelNode.accept(additionalPropertiesVisitor);
 
-                TypeCheckerVisitor typeCheckerVisitor = new TypeCheckerVisitor(toml, value, key);
+                TypeCheckerVisitor typeCheckerVisitor = new TypeCheckerVisitor(value, key);
                 topLevelNode.accept(typeCheckerVisitor);
             }
 
             if (value.getType().equals("object")) {
                 if (topLevelNode != null && topLevelNode.kind() == TomlType.TABLE) {
-                    processProperties(toml, value.getProperties(), (TomlTableNode) topLevelNode);
+                    processProperties(value.getProperties(), (TomlTableNode) topLevelNode);
                 }
             } else if (value.getType().equals("array")) {
                 if (topLevelNode != null && topLevelNode.kind() == TomlType.TABLE_ARRAY) {
@@ -74,7 +73,7 @@ public class TomlValidator {
                     TomlTableArrayNode tableArrayNode = (TomlTableArrayNode) topLevelNode;
                     List<TomlTableNode> children = tableArrayNode.children();
                     for (TomlTableNode child : children) {
-                        processProperties(toml, items.getProperties(), child);
+                        processProperties(items.getProperties(), child);
                     }
                 }
             }
