@@ -10,4 +10,5 @@ function foo() returns [int, string... {
     [string..] i;
     [string % int a] j;
     [int]] k;
+    [function (, int] e;
 }
