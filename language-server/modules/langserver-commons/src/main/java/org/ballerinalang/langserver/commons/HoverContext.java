@@ -24,7 +24,7 @@ import io.ballerina.compiler.syntax.tree.Token;
  *
  * @since 2.0.0
  */
-public interface HoverContext extends NewLSContext {
+public interface HoverContext extends DocumentServiceContext {
 
     /**
      * Get the client's signature capabilities.

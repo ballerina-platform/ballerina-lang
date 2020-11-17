@@ -19,12 +19,10 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
 import io.ballerina.tools.text.LinePosition;
-import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Optional;
 
@@ -40,8 +38,8 @@ public class SymbolAtCursorTest {
 
     @Test(dataProvider = "BasicsPosProvider")
     public void testBasics(int line, int column, String expSymbolName) {
-        CompileResult result = BCompileUtil.compile("test-src/symbol_at_cursor_basic_test.bal");
-        SemanticModel model = result.defaultModuleSemanticModel();
+        SemanticModel model = SemanticAPITestUtils.getDefaultModulesSemanticModel(
+                "test-src/symbol_at_cursor_basic_test.bal");
 
         Optional<Symbol> symbol = model.symbol("symbol_at_cursor_basic_test.bal", LinePosition.from(line, column));
         symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
@@ -92,9 +90,8 @@ public class SymbolAtCursorTest {
 
     @Test(dataProvider = "EnumPosProvider")
     public void testEnum(int line, int column, String expSymbolName) {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = BCompileUtil.compile("test-src/symbol_at_cursor_enum_test.bal");
-        SemanticModel model = result.defaultModuleSemanticModel();
+        SemanticModel model = SemanticAPITestUtils.getDefaultModulesSemanticModel(
+                "test-src/symbol_at_cursor_enum_test.bal");
 
         Optional<Symbol> symbol = model.symbol("symbol_at_cursor_enum_test.bal", LinePosition.from(line, column));
         symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
@@ -118,8 +115,8 @@ public class SymbolAtCursorTest {
 
     @Test(dataProvider = "WorkerSymbolPosProvider")
     public void testWorkers(int line, int column, String expSymbolName) {
-        CompileResult result = BCompileUtil.compile("test-src/symbol_lookup_with_workers_test.bal");
-        SemanticModel model = result.defaultModuleSemanticModel();
+        SemanticModel model = SemanticAPITestUtils.getDefaultModulesSemanticModel(
+                "test-src/symbol_lookup_with_workers_test.bal");
 
         Optional<Symbol> symbol = model.symbol("symbol_lookup_with_workers_test.bal", LinePosition.from(line, column));
         symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));

@@ -191,7 +191,7 @@ public class ProjectUtils {
         return org + "-" + pkgName + "-" + platform + "-" + version + BLANG_COMPILED_PKG_BINARY_EXT;
     }
 
-    public static String getJarName(Package pkg) {
+    public static String getJarFileName(Package pkg) {
         // <orgname>-<packagename>-<version>.jar
         return pkg.packageOrg().toString() + "-" + pkg.packageName().toString()
                 + "-" + pkg.packageVersion() + BLANG_COMPILED_JAR_EXT;
@@ -386,7 +386,7 @@ public class ProjectUtils {
      * @param module Module instance
      * @return the name of the thin jar
      */
-    public static String getJarName(Module module) {
+    public static String getJarFileName(Module module) {
         String jarName;
         if (module.packageInstance().packageDescriptor().org().anonymous()) {
             DocumentId documentId = module.documentIds().iterator().next();
@@ -400,7 +400,7 @@ public class ProjectUtils {
                 jarName = moduleName.moduleNamePart();
             }
         }
-        return jarName + BLANG_COMPILED_JAR_EXT;
+        return jarName;
     }
 
     /**

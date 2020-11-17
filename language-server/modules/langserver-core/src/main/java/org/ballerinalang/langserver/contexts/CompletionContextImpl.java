@@ -35,7 +35,7 @@ import java.util.List;
  *
  * @since 1.2.0
  */
-public class CompletionContextImpl extends AbstractLSContext implements CompletionContext {
+public class CompletionContextImpl extends AbstractDocumentServiceContext implements CompletionContext {
 
     private final CompletionCapabilities capabilities;
     private final Position cursorPosition;

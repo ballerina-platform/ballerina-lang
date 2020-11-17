@@ -169,6 +169,10 @@ class ModuleContext {
         return getBLangPackageOrThrow();
     }
 
+    ModuleCompilationState compilationState() {
+        return moduleCompState;
+    }
+
     private BLangPackage getBLangPackageOrThrow() {
         if (bLangPackage == null) {
             throw new IllegalStateException("Compile the module first!");
@@ -314,12 +318,36 @@ class ModuleContext {
         packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
 
         if (bootstrapLangLibName != null) {
-            compilerPhaseRunner.compileLangLibs(pkgNode);
+            compilerPhaseRunner.performLangLibTypeCheckPhases(pkgNode);
         } else {
-            compilerPhaseRunner.compile(pkgNode);
+            compilerPhaseRunner.performTypeCheckPhases(pkgNode);
         }
         moduleContext.bLangPackage = pkgNode;
+    }
 
+    static void generateCodeInternal(ModuleContext moduleContext,
+                                     CompilerBackend compilerBackend,
+                                     CompilerContext compilerContext) {
+        // Perform the rest of the compilation phases before generating platform-specific code
+        String bootstrapLangLibName = System.getProperty("BOOTSTRAP_LANG_LIB");
+        CompilerPhaseRunner compilerPhaseRunner = CompilerPhaseRunner.getInstance(compilerContext);
+        if (bootstrapLangLibName != null) {
+            compilerPhaseRunner.performLangLibBirGenPhases(moduleContext.bLangPackage);
+        } else {
+            compilerPhaseRunner.performBirGenPhases(moduleContext.bLangPackage);
+        }
+
+        // Serialize the BIR  model
+        cacheBIR(moduleContext);
+
+        // Skip the code generation phase if there are diagnostics
+        if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
+            return;
+        }
+        compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
+    }
+
+    private static void cacheBIR(ModuleContext moduleContext) {
         // Skip caching BIR if there are diagnostics
         if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
             return;
@@ -336,14 +364,6 @@ class ModuleContext {
             // This path may never be executed
             throw new RuntimeException("Failed to convert BIR model to a byte array", e);
         }
-    }
-
-    static void generateCodeInternal(ModuleContext moduleContext, CompilerBackend compilerBackend) {
-        // Skip the code generation phase if there are diagnostics
-        if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
-            return;
-        }
-        compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
     }
 
     static void loadBirBytesInternal(ModuleContext moduleContext) {

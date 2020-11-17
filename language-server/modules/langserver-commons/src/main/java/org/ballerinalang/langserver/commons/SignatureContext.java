@@ -25,7 +25,7 @@ import org.eclipse.lsp4j.SignatureHelpCapabilities;
  *
  * @since 2.0.0
  */
-public interface SignatureContext extends NewLSContext {
+public interface SignatureContext extends DocumentServiceContext {
 
     /**
      * Get the client's signature capabilities.

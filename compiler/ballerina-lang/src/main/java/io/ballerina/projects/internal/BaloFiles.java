@@ -35,9 +35,11 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -62,11 +64,11 @@ public class BaloFiles {
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             // Load default module
             String pkgName = packageDescriptor.name().toString();
-            Path defaultModulePathInBalo = zipFileSystem.getPath(MODULES_ROOT, pkgName);
+            Path defaultModulePathInBalo = zipFileSystem.getPath("/" + MODULES_ROOT, pkgName);
             ModuleData defaultModule = loadModule(defaultModulePathInBalo);
 
             // load other modules
-            Path modulesPathInBalo = zipFileSystem.getPath(MODULES_ROOT);
+            Path modulesPathInBalo = zipFileSystem.getPath("/" + MODULES_ROOT);
             List<ModuleData> otherModules = loadOtherModules(modulesPathInBalo, defaultModulePathInBalo);
             return PackageData.from(balrPath, defaultModule, otherModules);
         } catch (IOException e) {
@@ -138,9 +140,27 @@ public class BaloFiles {
             // Load `package.json`
             PackageJson packageJson = readPackageJson(balrPath, packageJsonPath);
             validatePackageJson(packageJson, balrPath);
+            extractPlatformLibraries(zipFileSystem, packageJson, balrPath);
             return getPackageDescriptor(packageJson);
         } catch (IOException e) {
             throw new ProjectException("Failed to read balr file:" + balrPath);
+        }
+    }
+
+    private static void extractPlatformLibraries(FileSystem zipFileSystem, PackageJson packageJson, Path balrPath) {
+        if (packageJson.getPlatformDependencies() != null) {
+            packageJson.getPlatformDependencies().forEach(dependency -> {
+                Path libPath = balrPath.getParent().resolve(dependency.getPath());
+                if (!Files.exists(libPath)) {
+                    try {
+                        Files.createDirectories(libPath.getParent());
+                        Files.copy(zipFileSystem.getPath(dependency.getPath()), libPath);
+                    } catch (IOException e) {
+                        throw new ProjectException("Failed to extract platform dependency:" + libPath.getFileName(), e);
+                    }
+                }
+                dependency.setPath(libPath.toString());
+            });
         }
     }
 
@@ -155,8 +175,20 @@ public class BaloFiles {
             dependencies = Collections.emptyList();
         }
 
+        Map<String, PackageDescriptor.Platform> platforms = new HashMap<>(Collections.emptyMap());
+        if (packageJson.getPlatformDependencies() != null) {
+            List<Map<String, Object>> platformDependencies = new ArrayList<>();
+            packageJson.getPlatformDependencies().forEach(dependency -> {
+                String jsonStr = gson.toJson(dependency);
+                platformDependencies.add(gson.fromJson(jsonStr, Map.class));
+
+            });
+            PackageDescriptor.Platform platform = new PackageDescriptor.Platform(platformDependencies);
+            platforms.put(packageJson.getPlatform(), platform);
+        }
+
         return PackageDescriptor.from(packageName, packageOrg, packageVersion,
-                dependencies, Collections.emptyMap(), Collections.emptyMap());
+                dependencies, platforms, Collections.emptyMap());
     }
 
     private static PackageJson readPackageJson(Path balrPath, Path packageJsonPath) {
