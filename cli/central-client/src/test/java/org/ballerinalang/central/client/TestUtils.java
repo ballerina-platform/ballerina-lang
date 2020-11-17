@@ -18,6 +18,7 @@
 
 package org.ballerinalang.central.client;
 
+import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.toml.model.Settings;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;

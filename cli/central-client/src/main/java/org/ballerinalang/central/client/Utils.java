@@ -21,9 +21,11 @@ package org.ballerinalang.central.client;
 import io.ballerina.projects.util.ProjectConstants;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
+import org.ballerinalang.central.client.exceptions.CentralClientException;
+import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
+import org.ballerinalang.central.client.exceptions.UnauthorizedException;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.toml.parser.SettingsProcessor;
-import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.packaging.converters.URIDryConverter;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -53,7 +55,6 @@ import javax.net.ssl.X509TrustManager;
 import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_REQUESTED_URI;
 import static org.ballerinalang.central.client.CentralClientConstants.SSL;
 import static org.ballerinalang.central.client.CentralClientConstants.VERSION_REGEX;
-import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.util.RepoUtils.SET_BALLERINA_DEV_CENTRAL;
 import static org.wso2.ballerinalang.util.RepoUtils.SET_BALLERINA_STAGE_CENTRAL;
 
@@ -102,7 +103,7 @@ public class Utils {
 
                 BrowserLauncher.startInDefaultBrowser(ballerinaCentralCliTokenUrl);
             } catch (IOException e) {
-                throw LauncherUtils.createLauncherException(
+                throw new UnauthorizedException(
                         "Access token is missing in " + settingsTomlFilePath.toString()
                                 + "\nAuto update failed. Please visit https://central.ballerina.io");
             }
@@ -116,7 +117,7 @@ public class Utils {
                 if (modifiedTimeOfFileAtStart != modifiedTimeOfFileAfter) {
                     accessToken = getAccessTokenOfCLI(settings);
                     if (accessToken.isEmpty()) {
-                        throw createLauncherException(
+                        throw new UnauthorizedException(
                                 "Access token is missing in " + settingsTomlFilePath.toString() + "\nPlease "
                                         + "visit https://central.ballerina.io");
                     } else {
@@ -186,7 +187,7 @@ public class Utils {
         try {
             Thread.sleep(3000);
         } catch (InterruptedException ex) {
-            throw createLauncherException("Error occurred while retrieving the access token");
+            throw new CentralClientException("Error occurred while retrieving the access token");
         }
     }
 
@@ -203,7 +204,7 @@ public class Utils {
         try {
             return Files.getLastModifiedTime(path).toMillis();
         } catch (IOException ex) {
-            throw createLauncherException("Error occurred when reading file for token " + path.toString());
+            throw new CentralClientException("Error occurred when reading file for token " + path.toString());
         }
     }
 
@@ -234,7 +235,7 @@ public class Utils {
             LogFormatter logFormatter) {
         long responseContentLength = conn.getContentLengthLong();
         if (responseContentLength <= 0) {
-            throw ErrorUtil.createCentralClientException(
+            throw new CentralClientException(
                     logFormatter.formatLog("invalid response from the server, please try again"));
         }
         String resolvedURI = conn.getHeaderField(RESOLVED_REQUESTED_URI);
@@ -251,7 +252,7 @@ public class Utils {
 
         Path baloPath = Paths.get(baloCacheWithPkgPath.toString(), baloFile);
         if (baloPath.toFile().exists()) {
-            throw ErrorUtil.createCentralClientException(
+            throw new PackageAlreadyExistsException(
                     logFormatter.formatLog("package already exists in the home repository: " + baloPath.toString()));
         }
 
@@ -269,8 +270,7 @@ public class Utils {
      */
     static void validatePackageVersion(String pkgVersion, LogFormatter logFormatter) {
         if (!pkgVersion.matches(VERSION_REGEX)) {
-            throw ErrorUtil
-                    .createCentralClientException(logFormatter.formatLog("package version could not be detected"));
+            throw new CentralClientException(logFormatter.formatLog("package version could not be detected"));
         }
     }
 
@@ -300,8 +300,7 @@ public class Utils {
         try {
             Files.createDirectories(fullPathToStoreBalo);
         } catch (IOException e) {
-            throw ErrorUtil
-                    .createCentralClientException(logFormatter.formatLog("error creating directory for balo file"));
+            throw new CentralClientException(logFormatter.formatLog("error creating directory for balo file"));
         }
     }
 
@@ -322,7 +321,7 @@ public class Utils {
             writeAndHandleProgress(inputStream, outputStream, resContentLength / 1024, fullPkgName, outStream,
                     logFormatter);
         } catch (IOException e) {
-            throw ErrorUtil.createCentralClientException(
+            throw new CentralClientException(
                     logFormatter.formatLog("error occurred copying the balo file: " + e.getMessage()));
         }
     }
@@ -383,7 +382,7 @@ public class Utils {
         try {
             Files.createFile(nightlyBuildMetaFilePath);
         } catch (Exception e) {
-            throw ErrorUtil.createCentralClientException(
+            throw new CentralClientException(
                     logFormatter.formatLog("error occurred while creating nightly.build file."));
         }
     }
@@ -398,7 +397,7 @@ public class Utils {
         try {
             return new URL(url);
         } catch (MalformedURLException e) {
-            throw ErrorUtil.createCentralClientException(e.getMessage());
+            throw new CentralClientException(e.getMessage());
         }
     }
 
@@ -411,7 +410,7 @@ public class Utils {
             sc.init(null, trustAllCerts, new java.security.SecureRandom());
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            throw ErrorUtil.createCentralClientException("initializing SSL failed: " + e.getMessage());
+            throw new CentralClientException("initializing SSL failed: " + e.getMessage());
         }
     }
 
@@ -425,7 +424,7 @@ public class Utils {
         try {
             conn.setRequestMethod(method.name());
         } catch (ProtocolException e) {
-            throw ErrorUtil.createCentralClientException(e.getMessage());
+            throw new CentralClientException(e.getMessage());
         }
     }
 
@@ -439,8 +438,7 @@ public class Utils {
         try {
             return conn.getResponseCode();
         } catch (IOException e) {
-            throw ErrorUtil
-                    .createCentralClientException("connection to the remote repository host failed: " + e.getMessage());
+            throw new CentralClientException("connection to the remote repository host failed: " + e.getMessage());
         }
     }
 
@@ -456,7 +454,7 @@ public class Utils {
             baloContent = Files.readAllBytes(filePath);
             return baloContent.length / 1024;
         } catch (IOException e) {
-            throw ErrorUtil.createCentralClientException("cannot read the balo content");
+            throw new CentralClientException("cannot read the balo content");
         }
     }
 }

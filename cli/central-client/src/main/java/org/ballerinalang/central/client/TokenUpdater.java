@@ -21,6 +21,9 @@ package org.ballerinalang.central.client;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import org.ballerinalang.central.client.exceptions.CentralClientException;
+import org.ballerinalang.central.client.exceptions.SettingsTomlNotFoundException;
+import org.ballerinalang.central.client.exceptions.SettingsTomlUpdateException;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -58,7 +61,7 @@ public class TokenUpdater {
         try {
             server = HttpServer.create(new InetSocketAddress(9295), 0);
         } catch (IOException e) {
-            throw ErrorUtil.createCentralClientException(
+            throw new CentralClientException(
                     "error occurred while creating the server: " + e.getMessage() + "Access token is missing in "
                             + settingsTomlFilePath
                             + "\nAuto update failed. Please visit https://central.ballerina.io, "
@@ -85,10 +88,9 @@ public class TokenUpdater {
                 String str = "[central]\naccesstoken=\"" + token + "\"";
                 outputStream.write(str.getBytes(StandardCharsets.UTF_8));
             } catch (FileNotFoundException e) {
-                throw ErrorUtil.createCentralClientException("Settings.toml file could not be found: "
-                        + settingsTomlPath);
+                throw new SettingsTomlNotFoundException("Settings.toml file could not be found: " + settingsTomlPath);
             } catch (IOException e) {
-                throw ErrorUtil.createCentralClientException(
+                throw new SettingsTomlUpdateException(
                         "error occurred while writing to the Settings.toml file: " + e.getMessage());
             } finally {
                 try {
@@ -110,8 +112,7 @@ public class TokenUpdater {
                 os = httpExchange.getResponseBody();
                 os.write(response.getBytes(StandardCharsets.UTF_8));
             } catch (IOException e) {
-                throw ErrorUtil.createCentralClientException("error occurred while generating the response: "
-                        + e.getMessage());
+                throw new CentralClientException("error occurred while generating the response: " + e.getMessage());
             } finally {
                 try {
                     if (os != null) {

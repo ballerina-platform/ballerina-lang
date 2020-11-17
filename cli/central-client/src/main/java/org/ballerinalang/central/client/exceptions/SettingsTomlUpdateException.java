@@ -16,16 +16,16 @@
  *  under the License.
  */
 
-package org.ballerinalang.central.client;
+package org.ballerinalang.central.client.exceptions;
 
 /**
- * Thrown to indicate that package not found in the central for a given package id.
+ * Thrown to indicate that update 'Settings.toml' errors.
  *
  * @since 2.0.0
  */
-public class NoPackageException extends RuntimeException {
+public class SettingsTomlUpdateException extends RuntimeException {
 
-    public NoPackageException(String message) {
+    public SettingsTomlUpdateException(String message) {
         super(message);
     }
 }

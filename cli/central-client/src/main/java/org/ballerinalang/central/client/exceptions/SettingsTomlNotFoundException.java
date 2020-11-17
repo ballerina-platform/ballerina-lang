@@ -16,16 +16,16 @@
  *  under the License.
  */
 
-package org.ballerinalang.central.client;
+package org.ballerinalang.central.client.exceptions;
 
 /**
- * Thrown to indicate that an exception occurred in the central client.
+ * Thrown to indicate that 'Settings.toml' file not found in the expected location.
  *
- * @since 1.2.0
+ * @since 2.0.0
  */
-public class CentralClientException extends RuntimeException {
+public class SettingsTomlNotFoundException extends RuntimeException {
 
-    public CentralClientException(String message) {
+    public SettingsTomlNotFoundException(String message) {
         super(message);
     }
 }

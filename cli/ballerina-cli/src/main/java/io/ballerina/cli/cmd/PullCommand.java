@@ -21,6 +21,8 @@ package io.ballerina.cli.cmd;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
+import org.ballerinalang.central.client.exceptions.CentralClientException;
+import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.wso2.ballerinalang.compiler.util.Names;
 import picocli.CommandLine;
@@ -128,7 +130,11 @@ public class PullCommand implements BLauncherCmd {
             try {
                 CentralAPIClient client = new CentralAPIClient();
                 client.pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform, false);
-            } catch (Exception e) {
+            } catch (PackageAlreadyExistsException e) {
+                errStream.println(e.getMessage());
+                // Exit status, zero for OK, non-zero for error
+                Runtime.getRuntime().exit(0);
+            } catch (CentralClientException e) {
                 errStream.println("unexpected error occurred while pulling package:" + e.getMessage());
                 // Exit status, zero for OK, non-zero for error
                 Runtime.getRuntime().exit(1);
