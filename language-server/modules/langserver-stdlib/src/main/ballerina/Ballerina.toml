@@ -1,4 +1,4 @@
 [package]
 org = "ballerina"
-name = "langserverstdlib"
+name = "module1"
 version = "0.1.0"

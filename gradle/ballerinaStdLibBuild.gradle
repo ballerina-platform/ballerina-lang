@@ -138,7 +138,7 @@ ext {
     if (project.projectDir.name == "testerina-core") {
         modName = "test"
     } else if (project.projectDir.name == 'langserver-stdlib'){
-        modName = 'langserverstdlib'
+        modName = 'module1'
     } else {
         modName = project.projectDir.name
     }
