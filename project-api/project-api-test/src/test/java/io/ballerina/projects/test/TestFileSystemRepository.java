@@ -52,7 +52,7 @@ public class TestFileSystemRepository {
             Package aPackage = aOptionalPackage.get();
             Assert.assertEquals(aPackage.packageOrg().value(), "ballerina");
             Assert.assertEquals(aPackage.packageName().value(), "lang.annotations");
-            Assert.assertEquals(aPackage.packageVersion().version(), SemanticVersion.from("1.0.0"));
+            Assert.assertEquals(aPackage.packageVersion().value(), SemanticVersion.from("1.0.0"));
         }
 
         // Test if it returns for an empty package

@@ -68,7 +68,8 @@ public class LangLibResolver extends PackageResolver {
 
     @Override
     public Package getPackage(PackageId packageId) {
-        return globalPackageCache.get(packageId);
+        // TODO improve this logic
+        return globalPackageCache.getPackage(packageId).orElse(null);
     }
 
     private Module loadFromDistributionCache(ModuleLoadRequest modLoadRequest) {
@@ -91,7 +92,7 @@ public class LangLibResolver extends PackageResolver {
 
         return packageOptional.map(pkg -> {
             pkg.resolveDependencies();
-            globalPackageCache.put(pkg);
+            globalPackageCache.cache(pkg);
             // todo fetch the correct module and return
             return pkg.getDefaultModule();
         }).orElse(null);
@@ -104,12 +105,14 @@ public class LangLibResolver extends PackageResolver {
 
     private Module loadFromCache(ModuleLoadRequest modLoadRequest) {
         // TODO improve the logic
-        for (Package pkg : globalPackageCache.values()) {
-            // TODO this logic is wrong. We need to take org name into the equation
-            if (pkg.packageName().equals(modLoadRequest.packageName())) {
-                return pkg.module(modLoadRequest.moduleName());
-            }
+        List<Package> packageList = globalPackageCache.getPackages(
+                modLoadRequest.orgName().orElse(null), modLoadRequest.packageName());
+
+        if (packageList.isEmpty()) {
+            return null;
         }
-        return null;
+
+        Package pkg = packageList.get(0);
+        return pkg.module(modLoadRequest.moduleName());
     }
 }

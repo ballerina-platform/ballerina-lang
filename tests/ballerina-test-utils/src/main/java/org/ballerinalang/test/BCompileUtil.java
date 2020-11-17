@@ -136,7 +136,7 @@ public class BCompileUtil {
             Path balos = distributionCache.resolve("balo")
                     .resolve(pkg.packageOrg().toString())
                     .resolve(pkg.packageName().value())
-                    .resolve(pkg.packageVersion().version().toString());
+                    .resolve(pkg.packageVersion().value().toString());
             Files.createDirectories(balos);
 
             String baloName = ProjectUtils.getBaloName(pkg.packageDescriptor());

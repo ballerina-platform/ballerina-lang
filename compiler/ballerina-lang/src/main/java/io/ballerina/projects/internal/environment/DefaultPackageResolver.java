@@ -83,7 +83,8 @@ public class DefaultPackageResolver extends PackageResolver {
         if (project.currentPackage().packageId() == packageId) {
             return project.currentPackage();
         }
-        return globalPackageCache.get(packageId);
+        // TODO Improve this logic
+        return globalPackageCache.getPackage(packageId).orElse(null);
     }
 
     private Module loadFromDistributionCache(ModuleLoadRequest modLoadRequest) {
@@ -104,7 +105,7 @@ public class DefaultPackageResolver extends PackageResolver {
         Optional<Package> packageOptional = distRepository.getPackage(loadRequest);
         return packageOptional.map(pkg -> {
             pkg.resolveDependencies();
-            globalPackageCache.put(pkg);
+            globalPackageCache.cache(pkg);
             // todo fetch the correct module and return
             return pkg.getDefaultModule();
         }).orElse(null);
@@ -117,12 +118,14 @@ public class DefaultPackageResolver extends PackageResolver {
 
     private Module loadFromCache(ModuleLoadRequest modLoadRequest) {
         // TODO improve the logic
-        for (Package pkg : globalPackageCache.values()) {
-            // TODO this logic is wrong. We need to take org name into the equation
-            if (pkg.packageName().equals(modLoadRequest.packageName())) {
-                return pkg.module(modLoadRequest.moduleName());
-            }
+        List<Package> packageList = globalPackageCache.getPackages(
+                modLoadRequest.orgName().orElse(null), modLoadRequest.packageName());
+
+        if (packageList.isEmpty()) {
+            return null;
         }
-        return null;
+
+        Package pkg = packageList.get(0);
+        return pkg.module(modLoadRequest.moduleName());
     }
 }
