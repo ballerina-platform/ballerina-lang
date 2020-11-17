@@ -177,7 +177,7 @@ artifacts {
     distributionBirJar file("$buildDir/ballerina-src/target/" + modName + ".jar"), {
         builtBy(ballerinaLangLibBuild)
     }
-    balDoc file("$buildDir/new-project/" + project.moduleName + "/target/apidocs/"), {
+    balDoc file("$buildDir/ballerina-src/target/apidocs/"), {
         builtBy(ballerinaLangLibBuild)
     }
 }
