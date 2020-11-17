@@ -3042,5 +3042,25 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 closeBrace.internalNode());
         return stClassDefinitionNode.createUnlinkedFacade();
     }
+
+    public static ResourcePathParameterNode createResourcePathParameterNode(
+            Token openBracketToken,
+            TypeDescriptorNode typeDescriptor,
+            Token ellipsisToken,
+            Token paramName,
+            Token closeBracketToken) {
+        Objects.requireNonNull(openBracketToken, "openBracketToken must not be null");
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+        Objects.requireNonNull(paramName, "paramName must not be null");
+        Objects.requireNonNull(closeBracketToken, "closeBracketToken must not be null");
+
+        STNode stResourcePathParameterNode = STNodeFactory.createResourcePathParameterNode(
+                openBracketToken.internalNode(),
+                typeDescriptor.internalNode(),
+                getOptionalSTNode(ellipsisToken),
+                paramName.internalNode(),
+                closeBracketToken.internalNode());
+        return stResourcePathParameterNode.createUnlinkedFacade();
+    }
 }
 

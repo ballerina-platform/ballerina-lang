@@ -126,6 +126,9 @@ public enum ParserRuleContext {
     OPTIONAL_RELATIVE_PATH("optional-relative-path"),
     RELATIVE_RESOURCE_PATH("relative-resource-path"),
     RELATIVE_RESOURCE_PATH_START("relative-resource-path-start"),
+    RESOURCE_PATH_SEGMENT("resource-path-segment"),
+    RESOURCE_PATH_PARAM("resource-path-param"),
+    PATH_PARAM_ELLIPSIS("path-param-ellipsis"),
     RELATIVE_RESOURCE_PATH_END("relative-resource-path-end"),
     RESOURCE_PATH_END("relative-resource-path-end"),
     RESOURCE_ACCESSOR_DEF_OR_DECL_RHS("resource-accessor-def-or-decl-rhs"),
@@ -496,6 +499,7 @@ public enum ParserRuleContext {
     ANNOTATION_TAG("annotation-tag"),
     ATTACH_POINT_END("attach-point-end"),
     IDENTIFIER("identifier"),
+    PATH_SEGMENT_IDENT("path-segment-ident"),
     NAMESPACE_PREFIX("namespace-prefix"),
     WORKER_NAME("worker-name"),
     FIELD_OR_FUNC_NAME("field-or-func-name"),
@@ -583,6 +587,7 @@ public enum ParserRuleContext {
     TYPE_DESC_IN_NEW_EXPR("type-desc-in-new-expr"),
     VAR_DECL_STARTED_WITH_DENTIFIER("var-decl-started-with-dentifier"),
     TYPE_DESC_IN_SERVICE("type-desc-in-service"),
+    TYPE_DESC_IN_PATH_PARAM("type-desc-in-path-param"),
 
     // XML
     XML_CONTENT("xml-content"),

@@ -789,6 +789,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(classDefinitionNode);
     }
 
+    public T transform(STResourcePathParameterNode resourcePathParameterNode) {
+        return transformSyntaxNode(resourcePathParameterNode);
+    }
+
     // Tokens
 
     public T transform(STToken token) {

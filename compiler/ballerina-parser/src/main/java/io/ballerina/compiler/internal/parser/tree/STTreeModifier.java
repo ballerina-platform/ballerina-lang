@@ -2475,6 +2475,22 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 closeBrace);
     }
 
+    @Override
+    public STResourcePathParameterNode transform(
+            STResourcePathParameterNode resourcePathParameterNode) {
+        STNode openBracketToken = modifyNode(resourcePathParameterNode.openBracketToken);
+        STNode typeDescriptor = modifyNode(resourcePathParameterNode.typeDescriptor);
+        STNode ellipsisToken = modifyNode(resourcePathParameterNode.ellipsisToken);
+        STNode paramName = modifyNode(resourcePathParameterNode.paramName);
+        STNode closeBracketToken = modifyNode(resourcePathParameterNode.closeBracketToken);
+        return resourcePathParameterNode.modify(
+                openBracketToken,
+                typeDescriptor,
+                ellipsisToken,
+                paramName,
+                closeBracketToken);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {

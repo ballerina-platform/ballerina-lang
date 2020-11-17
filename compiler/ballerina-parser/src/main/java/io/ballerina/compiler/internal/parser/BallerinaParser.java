@@ -1015,6 +1015,7 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case DOT_TOKEN:
             case IDENTIFIER_TOKEN:
+            case OPEN_BRACKET_TOKEN:
                 resourcePath = parseRelativeResourcePath();
                 break;
             case OPEN_PAREN_TOKEN:
@@ -5810,12 +5811,9 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * <p>
      * Parse relative resource path.
-     * </p>
-     * <code>
-     * relative-resource-path := "." | (identifier ("/" identifier)*)
-     * </code>
+     * <p>
+     * <code>relative-resource-path := "." | (resource-path-segment ("/" resource-path-segment)*)</code>
      *
      * @return Parsed node
      */
@@ -5830,9 +5828,9 @@ public class BallerinaParser extends AbstractParser {
             return STNodeFactory.createNodeList(identifierList);
         }
 
-        // Parse first identifier, that has no leading slash
-        STNode identifier = parseIdentifier(ParserRuleContext.IDENTIFIER);
-        identifierList.add(identifier);
+        // Parse first resource path segment, that has no leading slash
+        STNode pathSegment = parseResourcePathSegment();
+        identifierList.add(pathSegment);
 
         STNode leadingSlash;
         while (!isEndRelativeResourcePath(nextToken.kind)) {
@@ -5842,8 +5840,8 @@ public class BallerinaParser extends AbstractParser {
             }
 
             identifierList.add(leadingSlash);
-            identifier = parseIdentifier(ParserRuleContext.IDENTIFIER);
-            identifierList.add(identifier);
+            pathSegment = parseResourcePathSegment();
+            identifierList.add(pathSegment);
             nextToken = peek();
         }
 
@@ -5862,6 +5860,55 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Parse resource path segment.
+     * <p>
+     * <code>resource-path-segment := identifier | resource-path-parameter</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseResourcePathSegment() {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case IDENTIFIER_TOKEN:
+                return consume();
+            case OPEN_BRACKET_TOKEN:
+                return parseResourcePathParameter();
+            default:
+                recover(nextToken, ParserRuleContext.RESOURCE_PATH_SEGMENT);
+                return parseResourcePathSegment();
+        }
+    }
+
+    /**
+     * Parse resource path parameter.
+     * <p>
+     * <code>resource-path-parameter := "[" type-descriptor [...] param-name "]"</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseResourcePathParameter() {
+        STNode openBracket = parseOpenBracket();
+        STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_PATH_PARAM);
+        STNode ellipsis = parseOptionalEllipsis();
+        STNode paramName = parseIdentifier(ParserRuleContext.VARIABLE_NAME);
+        STNode closeBracket = parseCloseBracket();
+        return STNodeFactory.createResourcePathParameterNode(openBracket, type, ellipsis, paramName, closeBracket);
+    }
+
+    private STNode parseOptionalEllipsis() {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case ELLIPSIS_TOKEN:
+                return consume();
+            case IDENTIFIER_TOKEN:
+                return STNodeFactory.createEmptyNode();
+            default:
+                recover(nextToken, ParserRuleContext.PATH_PARAM_ELLIPSIS);
+                return parseOptionalEllipsis();
+        }
+    }
+
+    /**
      * Parse relative resource path end.
      *
      * @return Parsed node
@@ -5876,8 +5923,8 @@ public class BallerinaParser extends AbstractParser {
             case SLASH_TOKEN:
                 return consume();
             default:
-                recover(nextToken, ParserRuleContext.RELATIVE_RESOURCE_PATH);
-                return parseAttachPointEnd();
+                recover(nextToken, ParserRuleContext.RELATIVE_RESOURCE_PATH_END);
+                return parseRelativeResourcePathEnd();
         }
     }
 

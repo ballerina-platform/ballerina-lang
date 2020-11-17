@@ -164,6 +164,7 @@ public class SyntaxErrors {
             case SIMPLE_BINDING_PATTERN:
             case ERROR_FIELD_BINDING_PATTERN:
             case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:
+            case PATH_SEGMENT_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
