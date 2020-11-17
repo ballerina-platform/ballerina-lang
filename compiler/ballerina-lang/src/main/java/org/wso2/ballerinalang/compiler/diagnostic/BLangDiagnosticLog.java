@@ -187,7 +187,8 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         }
 
         // TODO: Add 'code' and 'messageTemplate' to the DiagnosticInfo
-        DiagnosticInfo diagInfo = new DiagnosticInfo(null, msg, severity);
+        DiagnosticInfo diagInfo = new DiagnosticInfo(diagnosticCode.diagnosticId(), diagnosticCode.messageKey(),
+                                                     diagnosticCode.severity());
 
         BLangDiagnostic diagnostic = new BLangDiagnostic(location, msg, diagInfo, diagnosticCode);
         storeDiagnosticInModule(packageID, diagnostic);
@@ -203,8 +204,8 @@ public class BLangDiagnosticLog implements DiagnosticLog {
             return;
         }
 
-        // TODO: Add 'code' and 'messageTemplate' to the DiagnosticInfo
-        DiagnosticInfo diagInfo = new DiagnosticInfo(null, msg, severity);
+        DiagnosticInfo diagInfo = new DiagnosticInfo(diagnosticCode.diagnosticId(), diagnosticCode.messageKey(),
+                                                     severity);
 
         BLangDiagnostic diagnostic = new BLangDiagnostic(location, msg, diagInfo, diagnosticCode);
         storeDiagnosticInModule(currentPackageId, diagnostic);
