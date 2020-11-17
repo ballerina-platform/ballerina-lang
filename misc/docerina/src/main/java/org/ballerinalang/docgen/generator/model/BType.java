@@ -18,10 +18,10 @@ package org.ballerinalang.docgen.generator.model;
 import java.util.List;
 
 /**
- * Represents a union type.
+ * Represents ballerina types.
  */
-public class UnionType extends Type {
-    public UnionType(String name, String description, boolean isDeprecated, List<Type> memberTypes) {
+public class BType extends Type {
+    public BType(String name, String description, boolean isDeprecated, List<Type> memberTypes) {
         super(name, description, isDeprecated);
         this.memberTypes = memberTypes;
     }
