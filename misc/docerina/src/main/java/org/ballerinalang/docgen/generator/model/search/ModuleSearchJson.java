@@ -15,20 +15,18 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.docgen.model.search;
+package org.ballerinalang.docgen.generator.model.search;
 
 /**
- * JSON to hold search data for constructs.
+ * JSON to hold search data for modules.
  */
-public class ConstructSearchJson {
+public class ModuleSearchJson {
     private String id;
     private String description;
-    private String moduleId;
 
-    public ConstructSearchJson(String id, String moduleId, String description) {
+    public ModuleSearchJson(String id, String description) {
         this.setId(id);
         this.setDescription(description);
-        this.setModuleId(moduleId);
     }
 
     public String getId() {
@@ -45,13 +43,5 @@ public class ConstructSearchJson {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getModuleId() {
-        return moduleId;
-    }
-
-    public void setModuleId(String moduleId) {
-        this.moduleId = moduleId;
     }
 }
