@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -256,7 +257,8 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private boolean isTypeSymbol(BSymbol symbol) {
-        return symbol instanceof BTypeSymbol && !(symbol instanceof BPackageSymbol);
+        return symbol instanceof BTypeSymbol && !(symbol instanceof BPackageSymbol)
+                && !(symbol instanceof BAnnotationSymbol);
     }
 
     private boolean withinRange(LineRange range, LineRange specifiedRange) {

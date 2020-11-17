@@ -39,10 +39,10 @@ public class AnnotationRefsTest extends FindAllReferencesTest {
                                  location(60, 1, 3),
                                  location(57, 22, 24))
                 },
-//                {63, 1, List.of(location(38, 19, 21),
-//                                location(63, 1, 3),
-//                                location(66, 1, 3))
-//                },
+                {63, 1, List.of(location(38, 19, 21),
+                                location(63, 1, 3),
+                                location(66, 1, 3))
+                },
                 {38, 19, List.of(location(38, 19, 21),
                                  location(63, 1, 3),
                                  location(66, 1, 3))
