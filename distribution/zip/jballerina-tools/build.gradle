@@ -258,7 +258,7 @@ def copyBalxSpec = {
 def copyToDistCache = {
     path -> copySpec {
         from configurations.distributionBalo.collect { zipTree(it) }
-        into(path + 'distribution-cache')
+        into(path + 'repo')
     }
 }
 

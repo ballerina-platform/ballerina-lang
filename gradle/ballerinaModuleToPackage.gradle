@@ -58,8 +58,9 @@ class ModuleToPackageTask extends JavaExec {
 
 }
 
-task moduleTopackage(type: ModuleToPackageTask) {
-    classpath = project.configurations.baloCreat
-    moduleName = project.name
+task moduleTopackage() {
+    //classpath = project.configurations.baloCreat
+    //moduleName = project.name
+    print 'Module to Package'
 }
 

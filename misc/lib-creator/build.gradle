@@ -54,3 +54,7 @@ jar {
         exclude "META-INF/*.RSA"
     }
 }
+
+checkstyle {
+    sourceSets = []
+}

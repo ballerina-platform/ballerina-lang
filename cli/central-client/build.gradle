@@ -45,7 +45,7 @@ dependencies {
 task createTestDistributionCache(type: Copy) {
     dependsOn configurations.distributionBalo
     from configurations.distributionBalo
-    into "$buildDir/distribution-cache"
+    into "$buildDir/repo"
 }
 
 task createBirCache {
