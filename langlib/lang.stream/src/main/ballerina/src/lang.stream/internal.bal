@@ -24,7 +24,7 @@ class FilterSupport {
       self.func = func;
     }
 
-    public function next() returns record {|Type value;|}|ErrorType? {
+    public isolated function next() returns record {|Type value;|}|ErrorType? {
         // while loop is required to continue filtering until we find a value which matches the filter or ().
         while(true) {
             var nextVal = next(self.strm);
@@ -35,7 +35,8 @@ class FilterSupport {
             } else {
                 var value = nextVal?.value;
                 function(any|error) returns boolean func = internal:getFilterFunc(self.func);
-                if (func(value)) {
+                var filtered = internal:invokeAsExternal(func, value);
+                if (<boolean>filtered) {
                     return nextVal;
                 }
             }
@@ -53,7 +54,7 @@ class MapSupport {
         self.func = func;
     }
 
-    public function next() returns record {|Type value;|}|ErrorType? {
+    public isolated function next() returns record {|Type value;|}|ErrorType? {
         var nextVal = next(self.strm);
         if (nextVal is ()) {
             return ();
@@ -62,7 +63,7 @@ class MapSupport {
             if (nextVal is error) {
                  return nextVal;
             } else {
-                 var value = mappingFunc(nextVal.value);
+                 var value = internal:invokeAsExternal(mappingFunc, nextVal.value);
                  return internal:setNarrowType(typeof value, {value : value});
             }
         }
