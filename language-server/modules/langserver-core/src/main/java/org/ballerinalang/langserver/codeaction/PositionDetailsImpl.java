@@ -28,14 +28,14 @@ import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 public class PositionDetailsImpl implements PositionDetails {
     private final NonTerminalNode matchedNode;
     private final Symbol matchedSymbol;
-    private final TypeSymbol typeDesc;
+    private final TypeSymbol matchedTypeDesc;
 
     private PositionDetailsImpl(NonTerminalNode matchedNode,
                                 Symbol matchedSymbol,
                                 TypeSymbol optTypeDesc) {
         this.matchedNode = matchedNode;
         this.matchedSymbol = matchedSymbol;
-        this.typeDesc = optTypeDesc;
+        this.matchedTypeDesc = optTypeDesc;
     }
 
     public static PositionDetails from(NonTerminalNode matchedNode,
@@ -65,6 +65,6 @@ public class PositionDetailsImpl implements PositionDetails {
      */
     @Override
     public TypeSymbol matchedSymbolTypeDesc() {
-        return typeDesc;
+        return matchedTypeDesc;
     }
 }
