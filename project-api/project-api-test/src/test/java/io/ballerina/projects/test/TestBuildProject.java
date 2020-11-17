@@ -19,6 +19,7 @@ package io.ballerina.projects.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Document;
@@ -88,8 +89,9 @@ public class TestBuildProject {
         DependencyGraph<ModuleId> moduleDependencyGraph = currentPackage.moduleDependencyGraph();
         Assert.assertEquals(moduleDependencyGraph.getDirectDependencies(defaultModule.moduleId()).size(), 2);
 
-        // 5) Compile the module
-        ModuleCompilation compilation = defaultModule.getCompilation();
+        // 5) Get Ballerina.toml file
+        Optional<BallerinaToml> ballerinaTomlOptional = currentPackage.ballerinaToml();
+        Assert.assertTrue(ballerinaTomlOptional.isPresent());
 
         // TODO find an easy way to test the project structure. e.g. serialize the structure in a json file.
         int noOfSrcDocuments = 0;
