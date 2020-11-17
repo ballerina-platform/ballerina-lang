@@ -113,7 +113,10 @@ task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
     dependsOn copyBallerinaProject
     dependsOn createDistributionCache
     dependsOn jar
-    outputs.files("$buildDir/ballerina-src/target/" + modName + ".zip")
+    inputs.files("src/main/ballerina")
+    outputs.file("$buildDir/ballerina-src/target/" + modName + ".zip")
+    outputs.file("$buildDir/ballerina-src/target/" + modName + ".jar")
+    outputs.cacheIf { true }
     classpath += files(jar.archivePath)
 }
 

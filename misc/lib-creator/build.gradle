@@ -37,7 +37,6 @@ dependencies {
 
     dist project(':ballerina-lang')
     dist project(':ballerina-tool')
-    dist project(':ballerina-packerina')
     dist project(':docerina')
 
 }
