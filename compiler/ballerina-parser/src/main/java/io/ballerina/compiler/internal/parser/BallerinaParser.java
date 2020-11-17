@@ -13245,7 +13245,7 @@ public class BallerinaParser extends AbstractParser {
                 typeOrExpr = parseTypedDescOrExprStartsWithOpenParenthesis();
                 break;
             case FUNCTION_KEYWORD:
-                typeOrExpr = parseAnonFuncExprOrFuncTypeDesc(qualifiers);
+                typeOrExpr = parseAnonFuncExprOrFuncTypeDesc(qualifiers, false);
                 break;
             case IDENTIFIER_TOKEN:
                 reportInvalidQualifierList(qualifiers);
@@ -13321,7 +13321,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseAnonFuncExprOrTypedBPWithFuncType(List<STNode> qualifiers) {
-        STNode exprOrTypeDesc = parseAnonFuncExprOrFuncTypeDesc(qualifiers);
+        STNode exprOrTypeDesc = parseAnonFuncExprOrFuncTypeDesc(qualifiers, false);
         if (isAction(exprOrTypeDesc) || isExpression(exprOrTypeDesc.kind)) {
             return exprOrTypeDesc;
         }
@@ -13335,7 +13335,7 @@ public class BallerinaParser extends AbstractParser {
      * @param qualifiers Preceding qualifiers
      * @return Anon-func-expr or function-type-desc
      */
-    private STNode parseAnonFuncExprOrFuncTypeDesc(List<STNode> qualifiers) {
+    private STNode parseAnonFuncExprOrFuncTypeDesc(List<STNode> qualifiers, boolean isInBracketedList) {
         startContext(ParserRuleContext.FUNC_TYPE_DESC_OR_ANON_FUNC);
         STNode qualifierList = createFuncTypeQualNodeList(qualifiers);
         STNode functionKeyword = parseFunctionKeyword();
@@ -13345,7 +13345,9 @@ public class BallerinaParser extends AbstractParser {
         switch (peek().kind) {
             case OPEN_BRACE_TOKEN:
             case RIGHT_DOUBLE_ARROW_TOKEN:
-                switchContext(ParserRuleContext.EXPRESSION_STATEMENT);
+                if (!isInBracketedList) {
+                    switchContext(ParserRuleContext.EXPRESSION_STATEMENT);
+                }
                 startContext(ParserRuleContext.ANON_FUNC_EXPRESSION);
                 // Anon function cannot have missing param-names. So validate it.
                 funcSignature = validateAndGetFuncParams((STFunctionSignatureNode) funcSignature);
@@ -13357,11 +13359,15 @@ public class BallerinaParser extends AbstractParser {
                 return parseExpressionRhs(DEFAULT_OP_PRECEDENCE, anonFunc, false, true);
             case IDENTIFIER_TOKEN:
             default:
-                switchContext(ParserRuleContext.VAR_DECL_STMT);
                 STNode funcTypeDesc = STNodeFactory.createFunctionTypeDescriptorNode(qualifierList, functionKeyword,
                         funcSignature);
-                return parseComplexTypeDescriptor(funcTypeDesc, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN,
-                        true);
+                if (!isInBracketedList) {
+                    switchContext(ParserRuleContext.VAR_DECL_STMT);
+                    return parseComplexTypeDescriptor(funcTypeDesc, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN,
+                            true);
+                }
+                return parseComplexTypeDescriptor(funcTypeDesc, ParserRuleContext.TYPE_DESC_IN_TUPLE,
+                        false);
         }
     }
 
@@ -14841,7 +14847,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_PAREN_TOKEN:
                 return parseTypeDescOrExpr(qualifiers);
             case FUNCTION_KEYWORD:
-                return parseAnonFuncExprOrFuncTypeDesc(qualifiers);
+                return parseAnonFuncExprOrFuncTypeDesc(qualifiers, true);
             default:
                 if (isValidExpressionStart(nextToken.kind, 1)) {
                     reportInvalidQualifierList(qualifiers);
