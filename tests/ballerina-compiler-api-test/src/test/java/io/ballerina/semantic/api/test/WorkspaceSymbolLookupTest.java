@@ -19,8 +19,11 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.Project;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
@@ -39,9 +42,13 @@ public class WorkspaceSymbolLookupTest {
 
     @Test
     public void testWSSymbolLookup() {
-        CompileResult result = BCompileUtil.compile("test-src/testproject/");
-        BLangPackage pkg = (BLangPackage) result.getAST();
-        SemanticModel model = result.defaultModuleSemanticModel();
+        Project project = BCompileUtil.loadProject("test-src/testproject/");
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+
+        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
 
         List<Symbol> symbols = model.moduleLevelSymbols();
 
