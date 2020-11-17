@@ -50,8 +50,14 @@ public class TomlLexer extends AbstractLexer {
             case STRING:
                 token = readStringToken();
                 break;
+            case MULTILINE_STRING:
+                token = readMultilineStringToken();
+                break;
             case LITERAL_STRING:
                 token = readLiteralStringToken();
+                break;
+            case MULTILINE_LITERAL_STRING:
+                token = readMultilineLiteralStringToken();
                 break;
             case NEW_LINE:
                 token = readNewlineToken();
@@ -121,10 +127,11 @@ public class TomlLexer extends AbstractLexer {
                 if (this.reader.peek(1) == LexerTerminals.DOUBLE_QUOTE) {
                     this.reader.advance(2);
                     token = getDoubleQuoteToken(SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN);
+                    startMode(ParserMode.MULTILINE_STRING);
                 } else {
                     token = getDoubleQuoteToken(SyntaxKind.DOUBLE_QUOTE_TOKEN);
+                    startMode(ParserMode.STRING);
                 }
-                startMode(ParserMode.STRING);
                 break;
 
             // Numbers
@@ -230,20 +237,42 @@ public class TomlLexer extends AbstractLexer {
         }
 
         char nextChar = this.reader.peek();
-        char secondNextChar = this.reader.peek(1);
-        char thirdNextChar = this.reader.peek(2);
         if (nextChar == LexerTerminals.DOUBLE_QUOTE) {
             endMode();
-            if (secondNextChar == LexerTerminals.DOUBLE_QUOTE && thirdNextChar == LexerTerminals.DOUBLE_QUOTE) {
-                reader.advance(3);
-                return getSyntaxToken(SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN);
-            }
             reader.advance();
             return getSyntaxToken(SyntaxKind.DOUBLE_QUOTE_TOKEN);
         } else {
             while (!reader.isEOF()) {
                 nextChar = this.reader.peek();
-                if (nextChar != LexerTerminals.DOUBLE_QUOTE) {
+                if (nextChar == LexerTerminals.DOUBLE_QUOTE) {
+                    break;
+                } else if (nextChar == LexerTerminals.CARRIAGE_RETURN) {
+                    endMode();
+                    return getUnquotedKey(true);
+                } else if (nextChar == LexerTerminals.NEWLINE) {
+                    endMode();
+                    return getUnquotedKey(true);
+                } else if (nextChar == LexerTerminals.BACKSLASH) {
+                    switch (this.reader.peek(1)) {
+                        case 'n':
+                        case 'r':
+                            endMode();
+                            continue;
+                        case 't':
+                        case LexerTerminals.BACKSLASH:
+                        case LexerTerminals.DOUBLE_QUOTE:
+                            this.reader.advance(2);
+                            continue;
+                        case 'u':
+                        case 'U':
+                            processStringNumericEscape();
+                            continue;
+                        default:
+                            String escapeSequence = String.valueOf(this.reader.peek(2));
+                            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE, escapeSequence);
+                            this.reader.advance();
+                    }
+                } else {
                     reader.advance();
                     continue;
                 }
@@ -251,7 +280,7 @@ public class TomlLexer extends AbstractLexer {
             }
         }
 
-        return getUnquotedKey();
+        return getUnquotedKey(false);
     }
 
     private STToken readLiteralStringToken() {
@@ -261,28 +290,110 @@ public class TomlLexer extends AbstractLexer {
         }
 
         char nextChar = this.reader.peek();
-        char secondNextChar = this.reader.peek(1);
-        char thirdNextChar = this.reader.peek(2);
+//        char secondNextChar = this.reader.peek(1);
+//        char thirdNextChar = this.reader.peek(2);
         if (nextChar == LexerTerminals.SINGLE_QUOTE) {
             endMode();
-            if (secondNextChar == LexerTerminals.SINGLE_QUOTE && thirdNextChar == LexerTerminals.SINGLE_QUOTE) {
-                reader.advance(3);
-                return getSyntaxToken(SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN);
-            }
+//            if (secondNextChar == LexerTerminals.SINGLE_QUOTE && thirdNextChar == LexerTerminals.SINGLE_QUOTE) {
+//                reader.advance(3);
+//                return getSyntaxToken(SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN);
+//            }
             reader.advance();
             return getSyntaxToken(SyntaxKind.SINGLE_QUOTE_TOKEN);
         } else {
             while (!reader.isEOF()) {
                 nextChar = this.reader.peek();
-                if (nextChar != LexerTerminals.SINGLE_QUOTE) {
+                if (nextChar == LexerTerminals.SINGLE_QUOTE) {
+                    break;
+                }  else if (nextChar == LexerTerminals.CARRIAGE_RETURN) {
+                    break;
+                } else if (nextChar == LexerTerminals.NEWLINE) {
+                    break;
+                } else {
                     reader.advance();
-                    continue;
                 }
-                break;
             }
         }
 
-        return getUnquotedKey();
+        return getUnquotedKey(false);
+    }
+
+    private STToken readMultilineLiteralStringToken() {
+        reader.mark();
+        if (reader.isEOF()) {
+            return getSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
+        char nextChar = this.reader.peek();
+        char secondNextChar = this.reader.peek(1);
+        char thirdNextChar = this.reader.peek(2);
+        if (nextChar == LexerTerminals.SINGLE_QUOTE && secondNextChar == LexerTerminals.SINGLE_QUOTE &&
+                thirdNextChar == LexerTerminals.SINGLE_QUOTE) {
+            endMode();
+            reader.advance(3);
+            return getSyntaxToken(SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN);
+        } else {
+            while (!reader.isEOF()) {
+                nextChar = this.reader.peek();
+                if (nextChar == LexerTerminals.SINGLE_QUOTE) {
+                    break;
+                } else {
+                    reader.advance();
+                }
+            }
+        }
+
+        return getUnquotedKey(false);
+    }
+
+    private STToken readMultilineStringToken() {
+        reader.mark();
+        if (reader.isEOF()) {
+            return getSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
+        char nextChar = this.reader.peek();
+        char secondNextChar = this.reader.peek(1);
+        char thirdNextChar = this.reader.peek(2);
+        if (nextChar == LexerTerminals.DOUBLE_QUOTE && secondNextChar == LexerTerminals.DOUBLE_QUOTE && thirdNextChar
+                == LexerTerminals.DOUBLE_QUOTE) {
+            endMode();
+            reader.advance(3);
+            return getSyntaxToken(SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN);
+        } else {
+            while (!reader.isEOF()) {
+                nextChar = this.reader.peek();
+                if (nextChar == LexerTerminals.DOUBLE_QUOTE && this.reader.peek(1) == LexerTerminals.DOUBLE_QUOTE &&
+                        this.reader.peek(2) == LexerTerminals.DOUBLE_QUOTE) {
+                    break;
+                } else if (nextChar == LexerTerminals.BACKSLASH) {
+                    switch (this.reader.peek(1)) {
+                        case LexerTerminals.CARRIAGE_RETURN:
+                        case LexerTerminals.NEWLINE:
+                            reader.advance();
+                            continue;
+                        case 'n':
+                        case 't':
+                        case 'r':
+                        case LexerTerminals.BACKSLASH:
+                        case LexerTerminals.DOUBLE_QUOTE:
+                            this.reader.advance(2);
+                            continue;
+                        case 'u':
+                        case 'U':
+                            processStringNumericEscape();
+                            continue;
+                        default:
+                            String escapeSequence = String.valueOf(this.reader.peek(2));
+                            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE, escapeSequence);
+                            this.reader.advance();
+                    }
+                } else {
+                    reader.advance();
+                }
+            }
+        }
+        return getUnquotedKey(false);
     }
 
     private STToken getNewlineToken() {
@@ -297,10 +408,13 @@ public class TomlLexer extends AbstractLexer {
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
-    private STToken getUnquotedKey() {
+    private STToken getUnquotedKey(boolean skipTrailingTrivia) {
         STNode leadingTrivia = getLeadingTrivia();
         String lexeme = getLexeme();
-        STNode trailingTrivia = processTrailingTrivia();
+        STNode trailingTrivia = STNodeFactory.createEmptyNodeList();
+        if (!skipTrailingTrivia) {
+            trailingTrivia = processTrailingTrivia();
+        }
         return STNodeFactory.createIdentifierToken(lexeme, leadingTrivia, trailingTrivia);
     }
 
@@ -527,7 +641,7 @@ public class TomlLexer extends AbstractLexer {
             case LexerTerminals.NAN:
                 return getSyntaxToken(SyntaxKind.NAN_TOKEN);
             default:
-                return getUnquotedKey();
+                return getUnquotedKey(false);
         }
     }
 
@@ -672,4 +786,27 @@ public class TomlLexer extends AbstractLexer {
     private String getLexeme() {
         return reader.getMarkedChars();
     }
+
+    /**
+     * Process string numeric escape.
+     * <p>
+     * <code>StringNumericEscape := \u00E9 </code>
+     */
+    private void processStringNumericEscape() {
+        // Process '\ u {'
+        this.reader.advance(3);
+
+        // Process code-point
+        if (!isHexDigit(peek())) {
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
+            return;
+        }
+
+        reader.advance();
+        while (isHexDigit(peek())) {
+            reader.advance();
+        }
+        this.reader.advance();
+    }
+
 }
