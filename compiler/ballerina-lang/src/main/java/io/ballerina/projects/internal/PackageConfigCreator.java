@@ -48,6 +48,7 @@ public class PackageConfigCreator {
 
         Path balTomlFilePath = projectDirPath.resolve(ProjectConstants.BALLERINA_TOML);
         BallerinaToml ballerinaToml = BallerinaToml.from(balTomlFilePath);
+        // TODO Create the PackageDescriptor from the BallerinaToml file
         PackageDescriptor packageDescriptor = ProjectFiles.createPackageDescriptor(
                 balTomlFilePath);
         PackageData packageData = ProjectFiles.loadBuildProjectPackageData(projectDirPath);
