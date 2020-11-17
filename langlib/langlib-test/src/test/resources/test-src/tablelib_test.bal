@@ -115,7 +115,7 @@ function testTableLength() returns int {
 function testIterator() returns boolean {
     boolean testPassed = true;
     Person[] personList = getPersonList();
-    object { public function next() returns record {| Person value; |}?;} itr = tab.iterator();
+    object { public isolated function next() returns record {| Person value; |}?;} itr = tab.iterator();
 
     Person? person = getPerson(itr.next());
     testPassed = testPassed && person == personList[0];

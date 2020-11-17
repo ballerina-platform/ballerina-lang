@@ -1,12 +1,12 @@
 class Iterable {
     public function __iterator() returns object {
 
-        public function next() returns record {|int value;|}?;
+        public isolated function next() returns record {|int value;|}?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
             int cursorIndex = 0;
-            public function next() returns record {|int value;|}? {
+            public isolated function next() returns record {|int value;|}? {
                 self.cursorIndex += 1;
                 if (self.cursorIndex <= 7) {
                     return {
@@ -31,11 +31,11 @@ public function testIterableObject() returns int[] {
 class AnotherIterable {
     public function __iterator() returns object {
 
-        public function next() returns record {|Iterable value;|}?;
+        public isolated function next() returns record {|Iterable value;|}?;
     } {
         return object {
             int cursorIndex = 0;
-            public function next() returns record {|Iterable value;|}? {
+            public isolated function next() returns record {|Iterable value;|}? {
                 self.cursorIndex += 1;
                 if (self.cursorIndex <= 2) {
                     return {
@@ -61,12 +61,12 @@ public function testNestedIterableObject() returns int[] {
 class IterableWithError {
     public function __iterator() returns object {
 
-        public function next() returns record {|int value;|}|error?;
+        public isolated function next() returns record {|int value;|}|error?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78];
             int cursorIndex = 0;
-            public function next() returns record {|int value;|}|error? {
+            public isolated function next() returns record {|int value;|}|error? {
                 self.cursorIndex += 1;
                 if (self.cursorIndex == 3) {
                     return error("Custom error thrown.");
@@ -157,7 +157,7 @@ public function testIteratorInStream() returns int[]|error {
 }
 
 public type _Iterator object {
-    public function next() returns record {|any|error value;|}|error?;
+    public isolated function next() returns record {|any|error value;|}|error?;
 };
 
 class IterableFromIterator {

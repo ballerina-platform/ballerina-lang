@@ -28,13 +28,20 @@ public enum ParserRuleContext {
     // Productions
     EOF("eof"),
     TOP_LEVEL_NODE("top-level-node"),
+    NEWLINE("new-line"),
+    NEW_LINE_OR_TOP_LEVEL("new-line-or-top-level-node"),
 
-    ARRAY_VALUE_LIST("values"),
-    ARRAY_VALUE_START("value-start"),
     ARRAY_VALUE_LIST_START("["),
+    ARRAY_VALUE_LIST("array-values"),
+    ARRAY_VALUE_START("array-value-start"), // parsing an a value of the array
+    ARRAY_VALUE_END("array-value-end"), // parsing the end of the array comma or close
+    ARRAY_VALUE_START_OR_VALUE_LIST_END("array-value-start-or-array-values-list-end"), //multi
     ARRAY_VALUE_LIST_END("]"),
-    ARRAY_VALUE_START_OR_VALUE_LIST_END("value-start-or-values-list-end"),
-    ARRAY_VALUE_END("value-end"),
+
+    KEY_LIST("key-list"),
+    KEY_START("key-start"), // parsing an a value of the array
+    KEY_END("key-end"), // parsing the end of the array comma or close
+    KEY_LIST_END("key-list-end"),
 
     TABLE_START("["),
     TABLE_END("]"),
@@ -44,54 +51,33 @@ public enum ParserRuleContext {
     ARRAY_TABLE_FIRST_END("]"),
     ARRAY_TABLE_SECOND_END("]"),
 
-//    STRING_LIST("string-list"),
-//    STRING_START("string-start"),
-//    STRING_LIST_START("("),
-//    STRING_LIST_END(")"),
-//    STRING_START_OR_STRING_LIST_END("string-start-or-string-list-end"),
-//    STRING_END("arg-end"),
-
-    KEY_ENTRY("key-entry"),
-    KEYS_END("keys-entry"),
-
-
     // Syntax tokens
     ASSIGN_OP("="),
     COLON(":"),
     COMMA(","),
     DOT("."),
-    OPEN_BRACKET("["),
-    CLOSE_BRACKET("]"),
-    PLUS_TOKEN("+"),
-    MINUS_TOKEN("-"),
-
-    IDENTIFIER("identifier"),
+    SIGN_TOKEN("sign-token"),
+    IDENTIFIER_LITERAL("identifier"),
 
     // Expressions
     BASIC_LITERAL("basic-literal"),
     DECIMAL_INTEGER_LITERAL("decimal-int-literal"),
-    STRING_LITERAL("string-literal"),
-    HEX_INTEGER_LITERAL("hex-integer-literal"),
+    STRING_CONTENT("string-content"),
     NIL_LITERAL("nil-literal"),
     DECIMAL_FLOATING_POINT_LITERAL("decimal-floating-point-literal"),
-    HEX_FLOATING_POINT_LITERAL("hex-floating-point-literal"),
+    BOOLEAN_LITERAL("boolean-literal"),
+    NUMERICAL_LITERAL("numerical-literal"),
 
     //TOML
-    KEY("key-toml"),
-    KEY_LIST("key-list"),
     VALUE("value-toml"),
     START_SQUARE_BRACES("start-square-braces"),
     END_SQUARE_BRACES("end-square-braces"),
     KEY_VALUE_PAIR ("key-value-pair"),
     TOML_TABLE("toml-table"),
     TOML_TABLE_ARRAY("toml-table-array"),
-    DOUBLE_OPEN_BRACKET("[["),
-    DOUBLE_CLOSE_BRACKET("]]"),
-    TOML_ARRAY("toml-array-value"),
 
     STRING_START("\""),
     STRING_END("\""),
-
 
     ;
 
