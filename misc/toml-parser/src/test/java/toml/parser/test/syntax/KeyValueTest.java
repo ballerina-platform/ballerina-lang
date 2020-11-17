@@ -14,19 +14,32 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
-package io.ballerina.toml.internal.parser;
+package toml.parser.test.syntax;
 
-/**
- * Modes of parsing.
- *
- * @since 2.0.0
+import org.testng.annotations.Test;
+
+/***
+ * Syntax Tree tests for Key Value pairs.
  */
-public enum ParserMode {
-    DEFAULT,
-    STRING,
-    LITERAL_STRING,
-    NEW_LINE,
+public class KeyValueTest extends AbstractTomlParserTest {
+
+    public KeyValueTest() {
+        super("key-value");
+    }
+    @Test
+    public void testKeysJson() {
+        super.testFile("keys.toml", "keys.json");
+    }
+
+    @Test
+    public void testValuesJson() {
+        super.testFile("values.toml", "values.json");
+    }
+
+    @Test
+    public void testArrayJson() {
+        super.testFile("array.toml", "array.json");
+    }
 }

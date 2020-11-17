@@ -14,19 +14,26 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
-package io.ballerina.toml.internal.parser;
+package toml.parser.test.syntax;
+
+import toml.parser.test.ParserTestUtils;
+
+import java.nio.file.Paths;
 
 /**
- * Modes of parsing.
- *
- * @since 2.0.0
+ * Test util for testing toml.
  */
-public enum ParserMode {
-    DEFAULT,
-    STRING,
-    LITERAL_STRING,
-    NEW_LINE,
+public abstract class AbstractTomlParserTest {
+    private final String resourceDirectoryName;
+
+    public AbstractTomlParserTest(String resourceDirectoryName) {
+        this.resourceDirectoryName = resourceDirectoryName;
+    }
+
+    void testFile(String path, String filePath) {
+        ParserTestUtils.test(Paths.get("syntax", resourceDirectoryName, path), Paths.get("syntax",
+                resourceDirectoryName, filePath));
+    }
 }

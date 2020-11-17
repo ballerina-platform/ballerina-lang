@@ -14,19 +14,28 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
-package io.ballerina.toml.internal.parser;
+package toml.parser.test.syntax;
 
-/**
- * Modes of parsing.
- *
- * @since 2.0.0
+import org.testng.annotations.Test;
+
+/***
+ * Syntax Tree tests for Tables and Array of tables.
  */
-public enum ParserMode {
-    DEFAULT,
-    STRING,
-    LITERAL_STRING,
-    NEW_LINE,
+public class TableTest extends AbstractTomlParserTest {
+
+    public TableTest() {
+        super("tables");
+    }
+
+    @Test
+    public void testTableJson() {
+        super.testFile("table.toml", "table.json");
+    }
+
+    @Test
+    public void testArrayOfTableJson() {
+        super.testFile("array-of-tables.toml", "array-of-tables.json");
+    }
 }
