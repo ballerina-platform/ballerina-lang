@@ -92,7 +92,10 @@ class AIDataMapperCodeActionUtil {
         // Insert function call in the code where error is found
         Range newTextRange = diagnostic.getRange();
 
-        String symbolAtCursor = context.workspace().semanticModel(context.filePath()).get().symbol(context.filePath().getFileName().toString(), LinePosition.from(context.getCursorPosition().getLine(), context.getCursorPosition().getCharacter())).get().name();
+        String symbolAtCursor = context.workspace().semanticModel(context.filePath()).get().
+                symbol(context.filePath().getFileName().toString(), LinePosition.from(context.getCursorPosition().
+                        getLine(), context.getCursorPosition().getCharacter())).get().name();
+
         String generatedFunctionName =
                 String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, symbolAtCursor);
         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
@@ -135,6 +138,7 @@ class AIDataMapperCodeActionUtil {
                 semanticModel(context.filePath()).get().symbol(context.filePath().getFileName().toString(),
                 LinePosition.from(context.getCursorPosition().getLine(), context.getCursorPosition().getCharacter())).
                 get()).fieldDescriptors();
+
         JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields);
 
         rightRecordJSON.addProperty(SCHEMA, foundTypeRight);
