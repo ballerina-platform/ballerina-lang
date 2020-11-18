@@ -3003,6 +3003,25 @@ public class TypeChecker extends BLangNodeVisitor {
                     } else {
                         semanticAnalyzer.analyzeNode(classDefForConstructor, pkgEnv);
                     }
+
+                    if (Symbols.isFlagOn(actualObjectType.flags, Flags.READONLY)) {
+                        markTypeAsIsolated(actualType);
+                    } else {
+                        boolean allIsolatedFields = true;
+
+                        for (BField field : actualObjectType.fields.values()) {
+                            BType fieldType = field.type;
+                            if (!Symbols.isFlagOn(field.symbol.flags, Flags.FINAL) ||
+                                    (!Symbols.isFlagOn(fieldType.flags, Flags.READONLY) &&
+                                             !types.isIsolatedObjectTypes(fieldType))) {
+                                allIsolatedFields = false;
+                            }
+                        }
+
+                        if (allIsolatedFields) {
+                            markTypeAsIsolated(actualType);
+                        }
+                    }
                 }
 
                 if ((actualType.tsymbol.flags & Flags.CLASS) != Flags.CLASS) {
@@ -3015,8 +3034,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
                 if (Symbols.isFlagOn(actualType.tsymbol.flags, Flags.ANONYMOUS) &&
                         Symbols.isFlagOn(expType.flags, Flags.ISOLATED)) {
-                    actualType.flags |= Flags.ISOLATED;
-                    actualType.tsymbol.flags |= Flags.ISOLATED;
+                    markTypeAsIsolated(actualType);
                 }
 
                 if (((BObjectTypeSymbol) actualType.tsymbol).initializerFunc != null) {
@@ -7436,6 +7454,11 @@ public class TypeChecker extends BLangNodeVisitor {
         if (!missingNodesHelper.isMissingNode(name)) {
             dlog.error(pos, DiagnosticCode.UNDEFINED_SYMBOL, name);
         }
+    }
+
+    private void markTypeAsIsolated(BType actualType) {
+        actualType.flags |= Flags.ISOLATED;
+        actualType.tsymbol.flags |= Flags.ISOLATED;
     }
 
     private boolean isObjectConstructorExpr(BLangTypeInit cIExpr, BType actualType) {

@@ -991,7 +991,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         if (Symbols.isFlagOn(symbol.flags, Flags.FINAL) &&
                 (types.isInherentlyImmutableType(accessType) ||
                          Symbols.isFlagOn(accessType.flags, Flags.READONLY) ||
-                         isIsolatedObjectTypes(accessType))) {
+                         types.isIsolatedObjectTypes(accessType))) {
             return;
         }
 
@@ -2065,7 +2065,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         var flags = type.flags;
-        return !Symbols.isFlagOn(flags, Flags.READONLY) && !isIsolatedObjectTypes(type);
+        return !Symbols.isFlagOn(flags, Flags.READONLY) && !types.isIsolatedObjectTypes(type);
     }
 
     private boolean isIsolatedObjectFieldAccessViaSelf(BLangFieldBasedAccess fieldAccessExpr, boolean ignoreInit) {
@@ -2094,30 +2094,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateIsolatedExpression(BType type, BLangExpression expression) {
-        if (Symbols.isFlagOn(type.flags, Flags.READONLY) || isIsolatedObjectTypes(type)) {
+        if (Symbols.isFlagOn(type.flags, Flags.READONLY) || types.isIsolatedObjectTypes(type)) {
             return;
         }
 
         validateIsolatedExpression(expression);
-    }
-
-    private boolean isIsolatedObjectTypes(BType type) {
-        int tag = type.tag;
-
-        if (tag == TypeTags.OBJECT) {
-            return isIsolated(type.flags);
-        }
-
-        if (tag != TypeTags.UNION) {
-            return false;
-        }
-
-        for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-            if (!isIsolated(memberType.flags)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private void validateIsolatedExpression(BLangExpression expression) {
@@ -2126,7 +2107,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean isIsolatedExpression(BLangExpression expression, boolean logErrors) {
         BType type = expression.type;
-        if (type != null && (Symbols.isFlagOn(type.flags, Flags.READONLY) || isIsolatedObjectTypes(type))) {
+        if (type != null && (Symbols.isFlagOn(type.flags, Flags.READONLY) || types.isIsolatedObjectTypes(type))) {
             return true;
         }
 

@@ -3664,4 +3664,28 @@ public class Types {
         }
         return isSimpleBasicType(type.tag);
     }
+
+    // TODO: 11/18/20 Consider the union
+    public boolean isIsolatedObjectTypes(BType type) {
+        int tag = type.tag;
+
+        if (tag == TypeTags.OBJECT) {
+            return isIsolated(type);
+        }
+
+        if (tag != TypeTags.UNION) {
+            return false;
+        }
+
+        for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+            if (!isIsolated(memberType)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isIsolated(BType type) {
+        return Symbols.isFlagOn(type.flags, Flags.ISOLATED);
+    }
 }
