@@ -116,7 +116,7 @@ public abstract class BaloWriter {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String baloJson = gson.toJson(new BaloJson());
         try {
-            putZipEntry(baloOutputStream, BALO_JSON,
+            putZipEntry(baloOutputStream, Paths.get(BALO_JSON),
                     new ByteArrayInputStream(baloJson.getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
             throw new RuntimeException("Failed to write 'balo.json' file: " + e.getMessage(), e);
@@ -170,7 +170,7 @@ public abstract class BaloWriter {
                 .registerTypeHierarchyAdapter(String.class, new JsonStringsAdaptor()).setPrettyPrinting().create();
 
         try {
-            putZipEntry(baloOutputStream, PACKAGE_JSON,
+            putZipEntry(baloOutputStream, Paths.get(PACKAGE_JSON),
                     new ByteArrayInputStream(gson.toJson(packageJson).getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
             throw new RuntimeException("Failed to write 'package.json' file: " + e.getMessage(), e);
@@ -190,7 +190,7 @@ public abstract class BaloWriter {
         // If `Package.md` exists, create the docs directory & add `Package.md`
         if (packageMd.toFile().exists()) {
             Path packageMdInBalo = docsDirInBalo.resolve(packageMdFileName);
-            putZipEntry(baloOutputStream, String.valueOf(packageMdInBalo),
+            putZipEntry(baloOutputStream, packageMdInBalo,
                     new FileInputStream(String.valueOf(packageMd)));
         }
 
@@ -200,7 +200,7 @@ public abstract class BaloWriter {
 
         if (defaultModuleMd.toFile().exists()) {
             Path defaultModuleMdInBaloDocs = modulesDirInBaloDocs.resolve(pkgName).resolve(moduleMdFileName);
-            putZipEntry(baloOutputStream, String.valueOf(defaultModuleMdInBaloDocs),
+            putZipEntry(baloOutputStream, defaultModuleMdInBaloDocs,
                     new FileInputStream(String.valueOf(defaultModuleMd)));
         }
 
@@ -218,7 +218,7 @@ public abstract class BaloWriter {
                     if (otherModuleMd.toFile().exists()) {
                         Path otherModuleMdInBaloDocs = modulesDirInBaloDocs.resolve(pkgName + "." + moduleDir.getName())
                                 .resolve(moduleMdFileName);
-                        putZipEntry(baloOutputStream, String.valueOf(otherModuleMdInBaloDocs),
+                        putZipEntry(baloOutputStream, otherModuleMdInBaloDocs,
                                 new FileInputStream(String.valueOf(otherModuleMd)));
                     }
                 }
@@ -237,9 +237,8 @@ public abstract class BaloWriter {
             if (module.moduleName() != pkg.getDefaultModule().moduleName()) {
                 moduleRoot = moduleRoot.resolve(MODULES_ROOT).resolve(module.moduleName().moduleNamePart());
             }
-            String resourcesPathInBalo = Paths.get(MODULES_ROOT, module.moduleName().toString(), RESOURCE_DIR_NAME)
-                    .toString();
-            putDirectoryToZipFile(moduleRoot.resolve(RESOURCE_DIR_NAME).toString(), resourcesPathInBalo,
+            Path resourcesPathInBalo = Paths.get(MODULES_ROOT, module.moduleName().toString(), RESOURCE_DIR_NAME);
+            putDirectoryToZipFile(moduleRoot.resolve(RESOURCE_DIR_NAME), resourcesPathInBalo,
                     baloOutputStream);
 
             // only add .bal files of module
@@ -249,7 +248,7 @@ public abstract class BaloWriter {
                     Path documentPath = Paths.get(MODULES_ROOT, module.moduleName().toString(), document.name());
                     char[] documentContent = document.textDocument().toCharArray();
 
-                    putZipEntry(baloOutputStream, String.valueOf(documentPath),
+                    putZipEntry(baloOutputStream, documentPath,
                             new ByteArrayInputStream(new String(documentContent).getBytes(StandardCharsets.UTF_8)));
                 }
             }
@@ -262,7 +261,7 @@ public abstract class BaloWriter {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         try {
-            putZipEntry(baloOutputStream, DEPENDENCIES_JSON,
+            putZipEntry(baloOutputStream, Paths.get(DEPENDENCIES_JSON),
                     new ByteArrayInputStream(gson.toJson(dependenciesJson).getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
             throw new RuntimeException("Failed to write '" + DEPENDENCIES_JSON + "' file: " + e.getMessage(), e);
@@ -296,28 +295,27 @@ public abstract class BaloWriter {
         return new DependenciesJson(dependencies);
     }
 
-    protected void putZipEntry(ZipOutputStream baloOutputStream, String fileName, InputStream in)
+    protected void putZipEntry(ZipOutputStream baloOutputStream, Path fileName, InputStream in)
             throws IOException {
-        ZipEntry entry = new ZipEntry(fileName);
+        ZipEntry entry = new ZipEntry(convertPathSeperator(fileName));
         baloOutputStream.putNextEntry(entry);
 
         IOUtils.copy(in, baloOutputStream);
         IOUtils.closeQuietly(in);
     }
 
-    protected void putDirectoryToZipFile(String sourceDir, String pathInZipFile, ZipOutputStream out)
+    protected void putDirectoryToZipFile(Path sourceDir, Path pathInZipFile, ZipOutputStream out)
             throws IOException {
-        String sourceRootDirectory = sourceDir;
-        if (Paths.get(sourceDir).toFile().exists()) {
-            File[] files = new File(sourceDir).listFiles();
+        if (sourceDir.toFile().exists()) {
+            File[] files = new File(sourceDir.toString()).listFiles();
 
             if (files != null && files.length > 0) {
                 for (File file : files) {
                     if (file.isDirectory()) {
-                        putDirectoryToZipFile(sourceDir + File.separator + file.getName(), pathInZipFile, out);
+                        putDirectoryToZipFile(sourceDir.resolve(file.getName()), pathInZipFile, out);
                     } else {
-                        String fileNameInBalo =
-                                pathInZipFile + File.separator + file.getPath().replace(sourceRootDirectory, "");
+                        Path fileNameInBalo =
+                                pathInZipFile.resolve(sourceDir.relativize(Paths.get(file.getPath())));
                         putZipEntry(out, fileNameInBalo,
                                 new FileInputStream(sourceDir + File.separator + file.getName()));
                     }
@@ -328,4 +326,25 @@ public abstract class BaloWriter {
 
     protected abstract Optional<JsonArray> addPlatformLibs(ZipOutputStream baloOutputStream, Package pkg)
             throws IOException;
+
+    // Following function was put in to handle a bug in windows zipFileSystem
+    // Refer https://bugs.openjdk.java.net/browse/JDK-8195141
+    private String convertPathSeperator(Path file) {
+        if (file == null) {
+            return null;
+        } else {
+            if (File.separatorChar == '\\') {
+                String replaced = "";
+                // Following is to evade spotbug issue if file is null
+                replaced = Optional.ofNullable(file.getFileName()).orElse(Paths.get("")).toString();
+                Path parent = file.getParent();
+                while (parent != null) {
+                    replaced = parent.getFileName() + "/" + replaced;
+                    parent = parent.getParent();
+                }
+                return replaced;
+            }
+            return file.toString();
+        }
+    }
 }

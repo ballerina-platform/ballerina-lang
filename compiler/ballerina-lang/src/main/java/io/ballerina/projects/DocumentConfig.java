@@ -27,7 +27,7 @@ public class DocumentConfig {
     // This class should contain project-agnostic information
     private final DocumentId documentId;
     private final String content;
-    private String name;
+    private final String name;
 
     private DocumentConfig(DocumentId documentId, String content, String name) {
         this.documentId = documentId;

@@ -32,6 +32,7 @@ public class PackageConfig {
     // This class should contain Specific project-agnostic information
     private final PackageId packageId;
     private final PackageDescriptor packageDescriptor;
+    private final BallerinaToml ballerinaToml;
     private final Path packagePath;
     // Ballerina toml file config
     private final Collection<ModuleConfig> otherModules;
@@ -39,18 +40,21 @@ public class PackageConfig {
     private PackageConfig(PackageId packageId,
                           Path packagePath,
                           PackageDescriptor packageDescriptor,
+                          BallerinaToml ballerinaToml,
                           Collection<ModuleConfig> moduleConfigs) {
         this.packageId = packageId;
         this.packagePath = packagePath;
         this.packageDescriptor = packageDescriptor;
+        this.ballerinaToml = ballerinaToml;
         this.otherModules = moduleConfigs;
     }
 
     public static PackageConfig from(PackageId packageId,
                                      Path packagePath,
                                      PackageDescriptor packageDescriptor,
+                                     BallerinaToml ballerinaToml,
                                      Collection<ModuleConfig> moduleConfigs) {
-        return new PackageConfig(packageId, packagePath, packageDescriptor, moduleConfigs);
+        return new PackageConfig(packageId, packagePath, packageDescriptor, ballerinaToml, moduleConfigs);
     }
 
     public PackageId packageId() {
@@ -71,6 +75,10 @@ public class PackageConfig {
 
     public PackageDescriptor packageDescriptor() {
         return packageDescriptor;
+    }
+
+    public BallerinaToml ballerinaToml() {
+        return ballerinaToml;
     }
 
     public CompilationOptions compilationOptions() {

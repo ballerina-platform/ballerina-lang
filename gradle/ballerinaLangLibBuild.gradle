@@ -28,6 +28,10 @@ configurations {
         transitive false
     }
 
+    balDoc {
+        transitive false
+    }
+
     distributionBirJar {
         transitive false
     }
@@ -108,7 +112,7 @@ task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
     classpath = project.configurations.baloCreat
     dependsOn copyBallerinaProject
     dependsOn createDistributionCache
-    dependsOn compileJava
+    dependsOn jar
     outputs.files("$buildDir/ballerina-src/target/" + modName + ".zip")
     classpath += files(jar.archivePath)
 }
@@ -120,6 +124,7 @@ artifacts {
     distributionBirJar file("$buildDir/ballerina-src/target/" + modName + ".jar"), {
         builtBy(ballerinaLangLibBuild)
     }
+    balDoc file("$buildDir/ballerina-src/target/apidocs/"), {
+        builtBy(ballerinaLangLibBuild)
+    }
 }
-
-build.dependsOn ballerinaLangLibBuild

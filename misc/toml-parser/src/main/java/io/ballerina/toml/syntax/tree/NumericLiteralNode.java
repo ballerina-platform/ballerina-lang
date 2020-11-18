@@ -20,6 +20,7 @@ package io.ballerina.toml.syntax.tree;
 import io.ballerina.toml.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -32,8 +33,12 @@ public class NumericLiteralNode extends ValueNode {
         super(internalNode, position, parent);
     }
 
+    public Optional<Token> sign() {
+        return optionalChildInBucket(0);
+    }
+
     public Token value() {
-        return childInBucket(0);
+        return childInBucket(1);
     }
 
     @Override
@@ -49,19 +54,23 @@ public class NumericLiteralNode extends ValueNode {
     @Override
     protected String[] childNames() {
         return new String[]{
+                "sign",
                 "value"};
     }
 
     public NumericLiteralNode modify(
             SyntaxKind kind,
+            Token sign,
             Token value) {
         if (checkForReferenceEquality(
+                sign,
                 value)) {
             return this;
         }
 
         return NodeFactory.createNumericLiteralNode(
                 kind,
+                sign,
                 value);
     }
 
@@ -76,11 +85,20 @@ public class NumericLiteralNode extends ValueNode {
      */
     public static class NumericLiteralNodeModifier {
         private final NumericLiteralNode oldNode;
+        private Token sign;
         private Token value;
 
         public NumericLiteralNodeModifier(NumericLiteralNode oldNode) {
             this.oldNode = oldNode;
+            this.sign = oldNode.sign().orElse(null);
             this.value = oldNode.value();
+        }
+
+        public NumericLiteralNodeModifier withSign(
+                Token sign) {
+            Objects.requireNonNull(sign, "sign must not be null");
+            this.sign = sign;
+            return this;
         }
 
         public NumericLiteralNodeModifier withValue(
@@ -93,6 +111,7 @@ public class NumericLiteralNode extends ValueNode {
         public NumericLiteralNode apply() {
             return oldNode.modify(
                     oldNode.kind(),
+                    sign,
                     value);
         }
     }

@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -122,6 +123,8 @@ public class PackageCompilation {
             moduleContext.compile(compilerContext);
             diagnostics.addAll(moduleContext.diagnostics());
         }
+
+        addOtherDiagnostics(diagnostics);
         diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         compiled = true;
     }
@@ -169,5 +172,15 @@ public class PackageCompilation {
     <T extends CompilerBackend> T getCompilerBackend(TargetPlatform targetPlatform,
                                                      Function<TargetPlatform, T> backendCreator) {
         return (T) compilerBackends.computeIfAbsent(targetPlatform, backendCreator);
+    }
+
+    private void addOtherDiagnostics(List<Diagnostic> diagnostics) {
+        Optional<BallerinaToml> ballerinaTomlOptional = packageContext.ballerinaToml();
+        if (ballerinaTomlOptional.isEmpty()) {
+            return;
+        }
+
+        BallerinaToml ballerinaToml = ballerinaTomlOptional.get();
+        diagnostics.addAll(ballerinaToml.diagnostics().allDiagnostics);
     }
 }

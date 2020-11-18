@@ -67,6 +67,15 @@ public class BCompileUtil {
         return compileResult;
     }
 
+    public static Project getProject(String sourceFilePath) {
+        Path sourcePath = Paths.get(sourceFilePath);
+        String sourceFileName = sourcePath.getFileName().toString();
+        Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
+
+        Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
+        return ProjectLoader.loadProject(projectPath);
+    }
+
     public static CompileResult compileAndCacheBalo(String sourceFilePath) {
         Path sourcePath = Paths.get(sourceFilePath);
         String sourceFileName = sourcePath.getFileName().toString();
