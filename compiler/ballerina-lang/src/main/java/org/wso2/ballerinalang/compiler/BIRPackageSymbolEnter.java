@@ -349,7 +349,7 @@ public class BIRPackageSymbolEnter {
         // Consider attached functions.. remove the first variable
         String funcName = getStringCPEntryValue(dataInStream);
         String workerName = getStringCPEntryValue(dataInStream);
-        int flags = dataInStream.readInt();
+        var flags = dataInStream.readLong();
         byte origin = dataInStream.readByte();
 
         BInvokableType funcType = (BInvokableType) readBType(dataInStream);
@@ -422,7 +422,7 @@ public class BIRPackageSymbolEnter {
         Location pos = readPosition(dataInStream);
         String typeDefName = getStringCPEntryValue(dataInStream);
 
-        int flags = dataInStream.readInt();
+        var flags = dataInStream.readLong();
         boolean isLabel = dataInStream.readByte() == 1;
         byte origin = dataInStream.readByte();
 
@@ -570,7 +570,7 @@ public class BIRPackageSymbolEnter {
     private void defineAnnotations(DataInputStream dataInStream) throws IOException {
         String name = getStringCPEntryValue(dataInStream);
 
-        int flags = dataInStream.readInt();
+        var flags = dataInStream.readLong();
         byte origin = dataInStream.readByte();
         Location pos = readPosition(dataInStream);
 
@@ -599,7 +599,7 @@ public class BIRPackageSymbolEnter {
 
     private void defineConstant(DataInputStream dataInStream) throws IOException {
         String constantName = getStringCPEntryValue(dataInStream);
-        int flags = dataInStream.readInt();
+        var flags = dataInStream.readLong();
         byte origin = dataInStream.readByte();
         Location pos = readPosition(dataInStream);
 
@@ -660,7 +660,7 @@ public class BIRPackageSymbolEnter {
     private void definePackageLevelVariables(DataInputStream dataInStream) throws IOException {
         dataInStream.readByte(); // Read and ignore the kind as it is anyway global variable
         String varName = getStringCPEntryValue(dataInStream);
-        int flags = dataInStream.readInt();
+        var flags = dataInStream.readLong();
         byte origin = dataInStream.readByte();
 
         byte[] docBytes = readDocBytes(dataInStream);
@@ -701,7 +701,7 @@ public class BIRPackageSymbolEnter {
         BInvokableType invokableType = (BInvokableType) invokableSymbol.type;
         for (int i = 0; i < requiredParamCount; i++) {
             String paramName = getStringCPEntryValue(dataInStream);
-            int flags = dataInStream.readInt();
+            var flags = dataInStream.readLong();
             BVarSymbol varSymbol = new BVarSymbol(flags, names.fromString(paramName), this.env.pkgSymbol.pkgID,
                                                   invokableType.paramTypes.get(i), invokableSymbol,
                                                   symTable.builtinPos, COMPILED_SOURCE);
@@ -944,7 +944,7 @@ public class BIRPackageSymbolEnter {
         public BType readType(int cpI) throws IOException {
             byte tag = inputStream.readByte();
             Name name = names.fromString(getStringCPEntryValue(inputStream));
-            int flags = inputStream.readInt();
+            var flags = inputStream.readLong();
 
             // read and ignore type flags. These are only needed for runtime.
             inputStream.readInt();
@@ -1009,7 +1009,7 @@ public class BIRPackageSymbolEnter {
                     int recordFields = inputStream.readInt();
                     for (int i = 0; i < recordFields; i++) {
                         String fieldName = getStringCPEntryValue(inputStream);
-                        int fieldFlags = inputStream.readInt();
+                        var fieldFlags = inputStream.readLong();
 
                         byte[] docBytes = readDocBytes(inputStream);
 
@@ -1031,7 +1031,7 @@ public class BIRPackageSymbolEnter {
                     if (isInitAvailable) {
                         // read record init function
                         String recordInitFuncName = getStringCPEntryValue(inputStream);
-                        int recordInitFuncFlags = inputStream.readInt();
+                        var recordInitFuncFlags = inputStream.readLong();
                         BInvokableType recordInitFuncType = (BInvokableType) readTypeFromCp();
                         Name initFuncName = names.fromString(recordInitFuncName);
                         boolean isNative = Symbols.isFlagOn(recordInitFuncFlags, Flags.NATIVE);
@@ -1064,9 +1064,10 @@ public class BIRPackageSymbolEnter {
                     typedescType.flags = flags;
                     return typedescType;
                 case TypeTags.PARAMETERIZED_TYPE:
-                    BParameterizedType type = new BParameterizedType(null, null, null, name);
+                    BParameterizedType type = new BParameterizedType(null, null, null, name, -1);
                     type.paramValueType = readTypeFromCp();
                     type.flags = flags;
+                    type.paramIndex = inputStream.readInt();
                     return type;
                 case TypeTags.STREAM:
                     BStreamType bStreamType = new BStreamType(TypeTags.STREAM, null, null, symTable.streamType.tsymbol);
@@ -1243,7 +1244,7 @@ public class BIRPackageSymbolEnter {
                     return bFutureType;
                 case TypeTags.FINITE:
                     String finiteTypeName = getStringCPEntryValue(inputStream);
-                    int finiteTypeFlags = inputStream.readInt();
+                    var finiteTypeFlags = inputStream.readLong();
                     BTypeSymbol symbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteTypeFlags,
                                                                   names.fromString(finiteTypeName), env.pkgSymbol.pkgID,
                                                                   null, env.pkgSymbol, symTable.builtinPos,
@@ -1264,7 +1265,7 @@ public class BIRPackageSymbolEnter {
                     pkgId = getPackageId(pkgCpIndex);
 
                     String objName = getStringCPEntryValue(inputStream);
-                    int objFlags = (inputStream.readBoolean() ? Flags.CLASS : 0) | Flags.PUBLIC;
+                    var objFlags = (inputStream.readBoolean() ? Flags.CLASS : 0) | Flags.PUBLIC;
                     objFlags = inputStream.readBoolean() ? objFlags | Flags.CLIENT : objFlags;
                     BObjectTypeSymbol objectSymbol;
 
@@ -1297,7 +1298,7 @@ public class BIRPackageSymbolEnter {
                     int fieldCount = inputStream.readInt();
                     for (int i = 0; i < fieldCount; i++) {
                         String fieldName = getStringCPEntryValue(inputStream);
-                        int fieldFlags = inputStream.readInt();
+                        var fieldFlags = inputStream.readLong();
 
                         byte[] docBytes = readDocBytes(inputStream);
 
@@ -1400,7 +1401,8 @@ public class BIRPackageSymbolEnter {
 
         private void ignoreAttachedFunc() throws IOException {
             getStringCPEntryValue(inputStream);
-            inputStream.readInt();
+            // TODO: check
+            inputStream.readLong();
             readTypeFromCp();
         }
     }
@@ -1471,7 +1473,7 @@ public class BIRPackageSymbolEnter {
                 (BLangLiteral) TreeBuilder.createNumericLiteralExpression();
     }
 
-    private boolean isImmutable(int flags) {
+    private boolean isImmutable(long flags) {
         return Symbols.isFlagOn(flags, Flags.READONLY);
     }
 

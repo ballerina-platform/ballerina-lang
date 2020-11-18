@@ -61,6 +61,39 @@ function test() {
     Digit d = 1;
 
     Format fmt = DEFAULT;
+
+    json j = {name: "Pubudu"};
+
+    xml greet1 = xml `<greet>Hello</greet>`;
+
+    readonly ro = 12;
+
+    any a = "Hello World!";
+    anydata ad = 1234;
+
+    table<Person> key(name) tab = table [];
+    table<Person> tab2 = table [];
+    table<Person> key<string> tab3 = table key(name) [];
+
+    'int:Unsigned32 uInt32 = 1000;
+    'int:Signed32 sInt32 = -1000;
+    'int:Unsigned8 uInt8 = 10;
+    'int:Signed8 sInt8 = -10;
+    'int:Unsigned16 uInt16 = 100;
+    'int:Signed16 sInt16 = -100;
+
+    'string:Char ch = "A";
+
+    'xml:Element greet2 = xml `<greet>Hola!</greet>`;
+    'xml:ProcessingInstruction pi = xml `<?xml-stylesheet type="text/xsl" href="style.xsl"?>`;
+    'xml:Comment comment = xml `<!-- hello from comment -->`;
+    'xml:Text txt = xml `hello text`;
+
+    xml<'xml:Element> greet3 = xml `<greet>Ciao!</greet>`;
+
+    stream<Person> st1;
+    stream<Person, ()> st2;
+    stream<record {| string name; |}, error> st3;
 }
 
 type Number int|float|decimal;
@@ -72,3 +105,8 @@ public type Format DEFAULT|CSV|TDF;
 public const DEFAULT = "default";
 public const CSV = "csv";
 public const TDF = "tdf";
+
+type Person record {
+  readonly string name;
+  int age;
+};

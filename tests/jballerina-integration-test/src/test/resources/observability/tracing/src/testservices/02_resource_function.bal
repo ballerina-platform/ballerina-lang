@@ -16,7 +16,7 @@
 
 import ballerina/testobserve;
 
-service testServiceOne on new testobserve:Listener(9091) {
+service testServiceOne on new testobserve:Listener(9092) {
     # Resource function for testing whether no return functions are instrumented properly.
     resource function resourceOne(testobserve:Caller caller, string body) {
         int numberCount = checkpanic 'int:fromString(body);

@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.ballerina.runtime.internal.IdentifierUtils.decodeIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.jacoco.core.analysis.ICounter.FULLY_COVERED;
 import static org.jacoco.core.analysis.ICounter.NOT_COVERED;
@@ -131,7 +132,7 @@ public class CoverageReport {
                     // Extract the Module name individually for each source file
                     // This is done since some source files come from other modules
                     // sourceFileCoverage : "<orgname>/<moduleName>:<version>
-                    String sourceFileModule = sourceFileCoverage.getPackageName().split("/")[1];
+                    String sourceFileModule = decodeIdentifier(sourceFileCoverage.getPackageName().split("/")[1]);
 
                     if (sourceFileCoverage.getName().contains(BLANG_SRC_FILE_SUFFIX)
                             && !sourceFileCoverage.getName().contains("tests/")) {
@@ -153,14 +154,15 @@ public class CoverageReport {
                         }
 
                         // Only add the source files that belong to the same module
-                        if (sourceFileModule.equals(moduleName.replace(".", "_"))) {
+                        if (sourceFileModule.equals(moduleName)) {
                             ModuleCoverage.getInstance().addSourceFileCoverage(moduleName,
                                     sourceFileCoverage.getName(), coveredLines, missedLines);
                         } else {
-                            // Disabling temporarily till support for modules with '.' is implemented
-//                            // <org>/<modulename>/<version>
-//                            ModuleCoverage.getInstance().updateSourceFileCoverage(jsonCachePath, sourceFileModule,
-//                                    sourceFileCoverage.getName(), coveredLines, missedLines);
+                            // <org>/<modulename>/<version>
+                            String jsonCachePath = this.jsonCache.toString() +
+                                    resolveSourcePackage(sourceFileCoverage.getPackageName());
+                            ModuleCoverage.getInstance().updateSourceFileCoverage(jsonCachePath, sourceFileModule,
+                                    sourceFileCoverage.getName(), coveredLines, missedLines);
                         }
                     }
                 }

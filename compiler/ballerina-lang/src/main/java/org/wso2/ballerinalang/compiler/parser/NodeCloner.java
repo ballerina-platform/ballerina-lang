@@ -900,7 +900,6 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.expr = clone(source.expr);
         clone.workerIdentifier = source.workerIdentifier;
-        clone.keyExpr = clone(source.keyExpr);
     }
 
     @Override
@@ -910,8 +909,6 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
 
         clone.workerIdentifier = source.workerIdentifier;
-        clone.keyExpr = clone(source.keyExpr);
-        clone.isChannel = source.isChannel;
     }
 
     @Override
