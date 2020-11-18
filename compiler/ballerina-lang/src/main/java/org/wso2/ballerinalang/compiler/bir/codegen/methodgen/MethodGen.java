@@ -224,8 +224,7 @@ public class MethodGen {
         mv.visitLookupSwitchInsn(yieldLable, toIntArray(states), labels.toArray(new Label[0]));
 
         generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex,
-                            stateVarIndex, localVarOffset, module, attachedType,
-                            moduleClassName, asyncDataCollector);
+                            stateVarIndex, localVarOffset, module, attachedType, moduleClassName, asyncDataCollector);
         mv.visitLabel(resumeLabel);
         String frameName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(module), funcName,
                                                             attachedType);
@@ -443,9 +442,10 @@ public class MethodGen {
     }
 
     void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen,
-                                    JvmInstructionGen instGen, JvmTerminatorGen termGen, BIRFunction func,
-                                    int returnVarRefIndex, int stateVarIndex, int localVarOffset, BIRPackage module,
-                                    BType attachedType, String moduleClassName, AsyncDataCollector asyncDataCollector) {
+                             JvmInstructionGen instGen, JvmTerminatorGen termGen, BIRFunction func,
+                             int returnVarRefIndex, int stateVarIndex, int localVarOffset, BIRPackage module,
+                             BType attachedType, String moduleClassName,
+                             AsyncDataCollector asyncDataCollector) {
 
         String funcName = func.name.value;
         BirScope lastScope = null;
