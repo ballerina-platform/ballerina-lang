@@ -19,7 +19,7 @@ package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.Project;
 import io.ballerina.projects.environment.Environment;
-import io.ballerina.projects.environment.GlobalPackageCache;
+import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
@@ -41,8 +41,12 @@ public class DefaultProjectEnvironment extends ProjectEnvironment {
         this.services = services;
 
         PackageRepository packageRepository = environment.getService(PackageRepository.class);
-        GlobalPackageCache globalPackageCache = environment.getService(GlobalPackageCache.class);
-        services.put(PackageResolver.class, new DefaultPackageResolver(project, packageRepository, globalPackageCache));
+        WritablePackageCache globalPackageCache = (WritablePackageCache) environment.getService(PackageCache.class);
+        ProjectPackageCache projectPackageCache = new ProjectPackageCache(project, globalPackageCache);
+        services.put(PackageCache.class, projectPackageCache);
+
+        services.put(PackageResolver.class,
+                new DefaultPackageResolver(project, packageRepository, globalPackageCache));
     }
 
     @SuppressWarnings("unchecked")

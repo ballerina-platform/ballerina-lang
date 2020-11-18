@@ -19,6 +19,7 @@ package io.ballerina.projects.environment;
 
 import io.ballerina.projects.internal.environment.BallerinaDistribution;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
+import io.ballerina.projects.internal.environment.EnvironmentPackageCache;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -58,8 +59,8 @@ public class EnvironmentBuilder {
         PackageRepository packageRepository = ballerinaDistribution.packageRepository();
         environment.addService(PackageRepository.class, packageRepository);
 
-        GlobalPackageCache packageCache = new GlobalPackageCache();
-        environment.addService(GlobalPackageCache.class, packageCache);
+        PackageCache packageCache = new EnvironmentPackageCache();
+        environment.addService(PackageCache.class, packageCache);
 
         CompilerContext compilerContext = populateCompilerContext();
         environment.addService(CompilerContext.class, compilerContext);

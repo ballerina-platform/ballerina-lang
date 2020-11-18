@@ -20,12 +20,11 @@ package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageId;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.SemanticVersion;
-import io.ballerina.projects.environment.GlobalPackageCache;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.ModuleLoadResponse;
+import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.PackageLoadRequest;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.PackageResolver;
@@ -43,12 +42,12 @@ import java.util.Optional;
 public class DefaultPackageResolver extends PackageResolver {
     private final Project project;
     private final PackageRepository distRepository;
-    private final GlobalPackageCache globalPackageCache;
+    private final WritablePackageCache globalPackageCache;
 
-    public DefaultPackageResolver(Project project, PackageRepository distCache, GlobalPackageCache globalPackageCache) {
+    public DefaultPackageResolver(Project project, PackageRepository distCache, PackageCache globalPackageCache) {
         this.project = project;
         this.distRepository = distCache;
-        this.globalPackageCache = globalPackageCache;
+        this.globalPackageCache = (WritablePackageCache) globalPackageCache;
     }
 
     public Collection<ModuleLoadResponse> loadPackages(Collection<ModuleLoadRequest> moduleLoadRequests) {
@@ -77,14 +76,6 @@ public class DefaultPackageResolver extends PackageResolver {
                     modLoadRequest));
         }
         return modLoadResponses;
-    }
-
-    public Package getPackage(PackageId packageId) {
-        if (project.currentPackage().packageId() == packageId) {
-            return project.currentPackage();
-        }
-        // TODO Improve this logic
-        return globalPackageCache.getPackage(packageId).orElse(null);
     }
 
     private Module loadFromDistributionCache(ModuleLoadRequest modLoadRequest) {

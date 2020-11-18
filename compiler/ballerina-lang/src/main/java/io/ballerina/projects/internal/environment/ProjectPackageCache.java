@@ -32,12 +32,12 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class ProjectLevelPackageCache implements WritablePackageCache {
+public class ProjectPackageCache implements WritablePackageCache {
 
     private final Project project;
     private final WritablePackageCache globalPackageCache;
 
-    public ProjectLevelPackageCache(Project project, WritablePackageCache globalPackageCache) {
+    public ProjectPackageCache(Project project, WritablePackageCache globalPackageCache) {
         this.project = project;
         this.globalPackageCache = globalPackageCache;
     }

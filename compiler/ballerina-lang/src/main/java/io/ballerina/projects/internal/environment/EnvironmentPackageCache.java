@@ -19,7 +19,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class DefaultPackageCache implements WritablePackageCache {
+public class EnvironmentPackageCache implements WritablePackageCache {
 
     private final Map<PackageId, Project> projects = new HashMap<>();
 

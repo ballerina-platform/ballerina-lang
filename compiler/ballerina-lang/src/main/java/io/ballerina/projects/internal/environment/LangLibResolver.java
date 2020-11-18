@@ -19,11 +19,10 @@ package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageId;
 import io.ballerina.projects.SemanticVersion;
-import io.ballerina.projects.environment.GlobalPackageCache;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.ModuleLoadResponse;
+import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.PackageLoadRequest;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.PackageResolver;
@@ -40,11 +39,11 @@ import java.util.Optional;
  */
 public class LangLibResolver extends PackageResolver {
     private final PackageRepository distCache;
-    private final GlobalPackageCache globalPackageCache;
+    private final WritablePackageCache globalPackageCache;
 
-    public LangLibResolver(PackageRepository distCache, GlobalPackageCache globalPackageCache) {
+    public LangLibResolver(PackageRepository distCache, PackageCache globalPackageCache) {
         this.distCache = distCache;
-        this.globalPackageCache = globalPackageCache;
+        this.globalPackageCache = (WritablePackageCache) globalPackageCache;
     }
 
     @Override
@@ -64,12 +63,6 @@ public class LangLibResolver extends PackageResolver {
                     modLoadRequest));
         }
         return modLoadResponses;
-    }
-
-    @Override
-    public Package getPackage(PackageId packageId) {
-        // TODO improve this logic
-        return globalPackageCache.getPackage(packageId).orElse(null);
     }
 
     private Module loadFromDistributionCache(ModuleLoadRequest modLoadRequest) {
