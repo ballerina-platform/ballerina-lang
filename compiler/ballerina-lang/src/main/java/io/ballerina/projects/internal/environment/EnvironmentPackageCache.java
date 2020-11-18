@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Global Package instance cache.
+ * Environment-level Package cache.
  *
  * @since 2.0.0
  */
