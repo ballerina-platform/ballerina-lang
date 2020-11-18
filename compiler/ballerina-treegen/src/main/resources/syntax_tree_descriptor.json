@@ -4205,6 +4205,34 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "ResourcePathParameterNode",
+            "base": "Node",
+            "kind": "RESOURCE_PATH_PARAM",
+            "attributes": [
+                {
+                    "name": "openBracketToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeDescriptor",
+                    "type": "TypeDescriptorNode"
+                },
+                {
+                    "name": "ellipsisToken",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "paramName",
+                    "type": "Token"
+                },
+                {
+                    "name": "closeBracketToken",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }

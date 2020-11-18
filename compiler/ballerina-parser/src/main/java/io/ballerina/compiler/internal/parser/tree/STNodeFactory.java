@@ -2305,5 +2305,20 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 members,
                 closeBrace);
     }
+
+    public static STNode createResourcePathParameterNode(
+            STNode openBracketToken,
+            STNode typeDescriptor,
+            STNode ellipsisToken,
+            STNode paramName,
+            STNode closeBracketToken) {
+
+        return new STResourcePathParameterNode(
+                openBracketToken,
+                typeDescriptor,
+                ellipsisToken,
+                paramName,
+                closeBracketToken);
+    }
 }
 

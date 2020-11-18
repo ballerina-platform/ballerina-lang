@@ -3127,6 +3127,27 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 closeBrace);
     }
 
+    @Override
+    public ResourcePathParameterNode transform(
+            ResourcePathParameterNode resourcePathParameterNode) {
+        Token openBracketToken =
+                modifyToken(resourcePathParameterNode.openBracketToken());
+        TypeDescriptorNode typeDescriptor =
+                modifyNode(resourcePathParameterNode.typeDescriptor());
+        Token ellipsisToken =
+                modifyToken(resourcePathParameterNode.ellipsisToken().orElse(null));
+        Token paramName =
+                modifyToken(resourcePathParameterNode.paramName());
+        Token closeBracketToken =
+                modifyToken(resourcePathParameterNode.closeBracketToken());
+        return resourcePathParameterNode.modify(
+                openBracketToken,
+                typeDescriptor,
+                ellipsisToken,
+                paramName,
+                closeBracketToken);
+    }
+
     // Tokens
 
     @Override
