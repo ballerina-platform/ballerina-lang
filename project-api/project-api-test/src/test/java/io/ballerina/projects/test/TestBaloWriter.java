@@ -24,8 +24,10 @@ import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.internal.balo.DependenciesJson;
 import io.ballerina.projects.internal.balo.PackageJson;
 import io.ballerina.projects.model.BaloJson;
+import io.ballerina.projects.model.Dependency;
 import io.ballerina.projects.model.Target;
 import io.ballerina.projects.util.ProjectUtils;
 import org.testng.Assert;
@@ -41,6 +43,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_JSON;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -163,6 +166,19 @@ public class TestBaloWriter {
         Path platformDependancy = BALO_PATH.resolve("platform").resolve("java11")
                 .resolve("ballerina-io-1.0.0-java.txt");
         Assert.assertTrue(platformDependancy.toFile().exists());
+
+        // dependencies.json
+        Path dependenciesJsonPath = BALO_PATH.resolve(DEPENDENCIES_JSON);
+        Assert.assertTrue(dependenciesJsonPath.toFile().exists());
+
+        try (FileReader reader = new FileReader(String.valueOf(dependenciesJsonPath))) {
+            DependenciesJson dependenciesJson = gson.fromJson(reader, DependenciesJson.class);
+            Dependency dependency = dependenciesJson.getDependencies().get(0);
+
+            Assert.assertEquals(dependency.getOrg(), "foo");
+            Assert.assertEquals(dependency.getName(), "winery");
+            Assert.assertEquals(dependency.getVersion(), "0.1.0");
+        }
     }
 
     @Test

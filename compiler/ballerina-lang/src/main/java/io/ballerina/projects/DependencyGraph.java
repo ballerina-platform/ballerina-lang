@@ -84,6 +84,10 @@ public class DependencyGraph<T> {
         return topologicallySortedNodes;
     }
 
+    Map<T, Set<T>> dependencies() {
+        return dependencies;
+    }
+
     private void sortTopologically(Collection<T> nodesToSort, Set<T> visited, List<T> sorted) {
         for (T node : nodesToSort) {
             if (!visited.contains(node)) {
