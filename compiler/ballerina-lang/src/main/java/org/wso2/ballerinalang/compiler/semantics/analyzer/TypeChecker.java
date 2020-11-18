@@ -83,7 +83,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -168,10 +171,16 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
@@ -2967,6 +2976,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
         switch (actualType.tag) {
             case TypeTags.OBJECT:
+                BObjectType actualObjectType = (BObjectType) actualType;
+
+                if (isObjectConstructorExprWithImmutableCET(cIExpr, actualObjectType, expType)) {
+                    handleObjectConstrExprForReadOnlyCET(cIExpr, actualObjectType, env);
+                }
+
                 if ((actualType.tsymbol.flags & Flags.CLASS) != Flags.CLASS) {
                     dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INITIALIZE_ABSTRACT_OBJECT,
                             actualType.tsymbol);
@@ -7398,6 +7413,83 @@ public class TypeChecker extends BLangNodeVisitor {
         if (!missingNodesHelper.isMissingNode(name)) {
             dlog.error(pos, DiagnosticCode.UNDEFINED_SYMBOL, name);
         }
+    }
+
+    private boolean isObjectConstructorExprWithImmutableCET(BLangTypeInit cIExpr, BType actualType, BType expType) {
+        return cIExpr.getType() != null &&
+                Symbols.isFlagOn(actualType.tsymbol.flags, Flags.ANONYMOUS) &&
+                Symbols.isFlagOn(expType.flags, Flags.READONLY);
+    }
+
+    private void handleObjectConstrExprForReadOnlyCET(BLangTypeInit cIExpr, BObjectType actualObjectType,
+                                                      SymbolEnv env) {
+        for (BField field : actualObjectType.fields.values()) {
+            BType fieldType = field.type;
+            if (!types.isInherentlyImmutableType(fieldType) &&
+                    !types.isSelectivelyImmutableType(fieldType, false, false)) {
+                return;
+            }
+        }
+
+        List<BLangClassDefinition> classDefinitions = env.enclPkg.classDefinitions;
+
+        BLangClassDefinition classDefForConstructor = null;
+
+        BLangUserDefinedType userDefinedType = (BLangUserDefinedType) cIExpr.getType();
+        BSymbol symbol =
+                symResolver.lookupMainSpaceSymbolInPackage(userDefinedType.pos, env,
+                                                           names.fromIdNode(userDefinedType.pkgAlias),
+                                                           names.fromIdNode(userDefinedType.typeName));
+
+        for (BLangClassDefinition classDefinition : classDefinitions) {
+            if (classDefinition.symbol == symbol) {
+                classDefForConstructor = classDefinition;
+                break;
+            }
+        }
+
+        ImmutableTypeCloner.markFieldsAsImmutable(classDefForConstructor,
+                                                  symTable.pkgEnvMap.get(env.enclPkg.symbol),
+                                                  actualObjectType, types, anonymousModelHelper,
+                                                  symTable, names, cIExpr.pos);
+
+        // This is a temporary step to force semantic analysis for a class defined for an object-constructor-expr,
+        // based on the new immutable type, since semantic analysis has already happened for the class before reaching
+        // the type-checker for the object-constructor-expr.
+        for (BLangSimpleVariable field : classDefForConstructor.fields) {
+            BLangExpression expr = field.expr;
+            if (expr != null && expr.type != symTable.semanticError) {
+                expr.typeChecked = false;
+            }
+        }
+
+        BLangFunction initFunction = classDefForConstructor.initFunction;
+        if (initFunction != null) {
+            BLangFunctionBody body = initFunction.body;
+
+            if (body.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
+                BLangBlockFunctionBody blockFunctionBody = (BLangBlockFunctionBody) body;
+
+                for (BLangStatement stmt : blockFunctionBody.stmts) {
+                    switch (stmt.getKind()) {
+                        case ASSIGNMENT:
+                            ((BLangAssignment) stmt).expr.typeChecked = false;
+                            break;
+                        case RECORD_DESTRUCTURE:
+                            ((BLangRecordDestructure) stmt).expr.typeChecked = false;
+                            break;
+                        case TUPLE_DESTRUCTURE:
+                            ((BLangTupleDestructure) stmt).expr.typeChecked = false;
+                            break;
+                        case ERROR_DESTRUCTURE:
+                            ((BLangErrorDestructure) stmt).expr.typeChecked = false;
+                            break;
+                    }
+                }
+            }
+        }
+
+        semanticAnalyzer.analyzeNode(classDefForConstructor, env);
     }
 
     private static class FieldInfo {
