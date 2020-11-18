@@ -45,7 +45,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"--tests", "testFunc", "single-test-execution.bal"},
                 null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test
@@ -54,7 +54,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"--tests", "testFunc2", "single-test-execution.bal"},
                 null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"--tests", "testFunc,testFunc2",
                 "single-test-execution.bal"}, null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"--tests", "nonExistingFunc", "single-test-execution.bal"},
                 null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test
@@ -81,7 +81,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"--tests", "testDisabledFunc", "single-test-execution.bal"},
                 null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test
@@ -92,6 +92,6 @@ public class SelectedFunctionTest extends BaseTestCase {
         balClient.runMain("test", new String[]{"--tests", "testDependentDisabledFunc",
                         "single-test-execution.bal"}, null, new String[]{}, new LogLeecher[]{clientLeecher},
                 projectPath);
-        clientLeecher.waitForText(20000);
+        clientLeecher.waitForText(60000);
     }
 }

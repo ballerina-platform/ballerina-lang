@@ -44,6 +44,6 @@ public class ImportTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"predeclared-import-tests"}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
+        clientLeecher.waitForText(60000);
     }
 }

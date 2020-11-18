@@ -43,7 +43,7 @@ public class BasicCasesTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"assertions"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test
@@ -52,7 +52,7 @@ public class BasicCasesTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"assertions-diff-error"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class BasicCasesTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"assertions-error-messages"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class BasicCasesTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"assertions-behavioral-types"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test
@@ -79,7 +79,7 @@ public class BasicCasesTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"assertions-structural-types"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class BasicCasesTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"assertions-sequence-types"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test
@@ -97,7 +97,7 @@ public class BasicCasesTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"annotation-access"}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test
@@ -106,7 +106,7 @@ public class BasicCasesTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"interops"}, null, new String[]{}, new LogLeecher[]{clientLeecher},
                           projectPath);
-        clientLeecher.waitForText(20000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test
@@ -115,7 +115,7 @@ public class BasicCasesTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"before-after"}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test
@@ -124,7 +124,7 @@ public class BasicCasesTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"before-each-after-each"}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test(dependsOnMethods = "testBeforeAfter")
@@ -133,7 +133,7 @@ public class BasicCasesTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"depends-on"}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test(dependsOnMethods = "testDependsOn")
@@ -142,7 +142,7 @@ public class BasicCasesTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"annotations"}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test
@@ -151,7 +151,7 @@ public class BasicCasesTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"isolated-functions"}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
+        clientLeecher.waitForText(60000);
     }
 
 }

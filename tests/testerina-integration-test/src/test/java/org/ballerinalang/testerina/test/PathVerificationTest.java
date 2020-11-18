@@ -43,8 +43,8 @@ public class PathVerificationTest extends BaseTestCase {
         LogLeecher failingLeecher = new LogLeecher("0 failing");
         balClient.runMain("test", new String[]{"path-verification"}, null, new String[0],
                 new LogLeecher[]{passingLeecher, failingLeecher}, projectPath);
-        passingLeecher.waitForText(20000);
-        failingLeecher.waitForText(20000);
+        passingLeecher.waitForText(60000);
+        failingLeecher.waitForText(60000);
     }
 
     @Test
@@ -53,6 +53,6 @@ public class PathVerificationTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"missing-tests-dir"},
                 null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        clientLeecher.waitForText(60000);
     }
 }

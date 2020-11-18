@@ -45,7 +45,7 @@ public class GroupingTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"--groups", "g1", "groups-test.bal"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test
@@ -54,7 +54,7 @@ public class GroupingTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"--groups", "g2,g4", "groups-test.bal"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test
@@ -65,8 +65,8 @@ public class GroupingTest extends BaseTestCase {
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
         balClient.runMain("test", new String[]{"--disable-groups", "g5", "groups-test.bal"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
-        clientLeecher1.waitForText(50000);
-        clientLeecher2.waitForText(50000);
+        clientLeecher1.waitForText(60000);
+        clientLeecher2.waitForText(60000);
     }
 
     @Test
@@ -75,7 +75,7 @@ public class GroupingTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"--disable-groups", "g1,g5,g6", "groups-test.bal"}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test
@@ -84,7 +84,7 @@ public class GroupingTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"--groups", "g10", "groups-test.bal"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test
@@ -95,8 +95,8 @@ public class GroupingTest extends BaseTestCase {
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
         balClient.runMain("test", new String[]{"--disable-groups", "g10", "groups-test.bal"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
-        clientLeecher1.waitForText(80000);
-        clientLeecher2.waitForText(80000);
+        clientLeecher1.waitForText(90000);
+        clientLeecher2.waitForText(90000);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class GroupingTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"--list-groups", "groups-test.bal"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test

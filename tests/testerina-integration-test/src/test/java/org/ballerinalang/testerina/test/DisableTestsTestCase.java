@@ -43,6 +43,6 @@ public class DisableTestsTestCase extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"disable-test.bal"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        clientLeecher.waitForText(60000);
     }
 }

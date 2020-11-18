@@ -46,8 +46,8 @@ public class MockTest extends BaseTestCase {
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
         balClient.runMain("test", new String[]{"function-mocking-tests"}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
+        clientLeecher1.waitForText(60000);
+        clientLeecher2.waitForText(60000);
     }
 
     @Test()
@@ -58,7 +58,7 @@ public class MockTest extends BaseTestCase {
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
         balClient.runMain("test", new String[]{"object-mocking-tests"}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
+        clientLeecher1.waitForText(60000);
+        clientLeecher2.waitForText(60000);
     }
 }

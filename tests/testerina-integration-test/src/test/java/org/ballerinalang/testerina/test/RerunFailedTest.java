@@ -48,8 +48,8 @@ public class RerunFailedTest extends BaseTestCase {
         balClient.runMain("test", new String[]{"rerun-failed-tests"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
 
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
+        clientLeecher1.waitForText(60000);
+        clientLeecher2.waitForText(60000);
     }
 
     @Test (dependsOnMethods = "testFullTest")
@@ -62,8 +62,8 @@ public class RerunFailedTest extends BaseTestCase {
         balClient.runMain("test", new String[]{"--rerun-failed", "rerun-failed-tests"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
 
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
+        clientLeecher1.waitForText(60000);
+        clientLeecher2.waitForText(60000);
     }
 
     @Test
@@ -74,6 +74,6 @@ public class RerunFailedTest extends BaseTestCase {
         balClient.runMain("test", new String[]{"--rerun-failed", "module_2"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);
 
-        clientLeecher.waitForText(20000);
+        clientLeecher.waitForText(60000);
     }
 }
