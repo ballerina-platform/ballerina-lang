@@ -29,11 +29,8 @@ import java.util.StringJoiner;
  */
 public class BRemoteFunctionType extends BMemberFunctionType implements RemoteFunctionType {
 
-    public BRemoteFunctionType(String funcName, BObjectType parent, BFunctionType type, int flags) {
+    public BRemoteFunctionType(String funcName, BObjectType parent, BFunctionType type, long flags) {
         super(funcName, parent, type, flags);
-        this.funcName = funcName;
-        this.type = type;
-        this.flags = flags;
     }
 
     @Override

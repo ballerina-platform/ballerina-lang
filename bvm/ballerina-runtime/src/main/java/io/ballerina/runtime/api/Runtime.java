@@ -19,10 +19,11 @@ package io.ballerina.runtime.api;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.values.FutureValue;
+import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -85,9 +86,9 @@ public class Runtime {
      * @param args       Ballerina function arguments.
      * @return           {@link FutureValue} containing return value of executing this method.
      */
-    public FutureValue invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
-                                         Callback callback, Map<String, Object> properties,
-                                         Type returnType, Object... args) {
+    public BFuture invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
+                                     Callback callback, Map<String, Object> properties,
+                                     Type returnType, Object... args) {
         if (object == null) {
             throw new NullPointerException();
         }

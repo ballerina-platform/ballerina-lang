@@ -1102,7 +1102,7 @@ public class JvmTypeGen {
         }
 
         mv.visitMethodInsn(INVOKESPECIAL, RESOURCE_FUNCTION_IMPL, JVM_INIT_METHOD,
-                String.format("(L%s;L%s;L%s;IL%s;[L%s;[L%s;)V",
+                String.format("(L%s;L%s;L%s;JL%s;[L%s;[L%s;)V",
                         STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL, STRING_VALUE, STRING_VALUE, STRING_VALUE),
                 false);
     }

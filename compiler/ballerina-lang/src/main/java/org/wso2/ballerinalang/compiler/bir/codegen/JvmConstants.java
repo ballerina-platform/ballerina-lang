@@ -137,8 +137,8 @@ public class JvmConstants {
     public static final String TYPEDESC_TYPE_IMPL = "io/ballerina/runtime/internal/types/BTypedescType";
     public static final String PARAMETERIZED_TYPE_IMPL = "io/ballerina/runtime/internal/types/BParameterizedType";
     public static final String FIELD_IMPL = "io/ballerina/runtime/internal/types/BField";
-    public static final String MEMBER_FUNCTION_IMPL = "io/ballerina/runtime/types/BMemberFunctionType";
-    public static final String RESOURCE_FUNCTION_IMPL = "io/ballerina/runtime/types/BResourceFunctionType";
+    public static final String MEMBER_FUNCTION_IMPL = "io/ballerina/runtime/internal/types/BMemberFunctionType";
+    public static final String RESOURCE_FUNCTION_IMPL = "io/ballerina/runtime/internal/types/BResourceFunctionType";
     public static final String REMOTE_FUNCTION_IMPL = "io/ballerina/runtime/internal/types/BRemoteFunctionType";
     public static final String FINITE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BFiniteType";
     public static final String FUTURE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BFutureType";

@@ -33,7 +33,7 @@ public class BResourceFunctionType extends BMemberFunctionType implements Resour
     public final String[] resourcePath;
     public final String[] paramNames;
 
-    public BResourceFunctionType(String funcName, BObjectType parent, BFunctionType type, int flags,
+    public BResourceFunctionType(String funcName, BObjectType parent, BFunctionType type, long flags,
                                  String accessor, String[] resourcePath, String[] paramNames) {
         super(funcName, parent, type, flags);
         this.type = type;
