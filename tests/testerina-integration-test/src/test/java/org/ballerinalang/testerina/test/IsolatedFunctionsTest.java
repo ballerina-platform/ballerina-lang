@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
@@ -24,10 +23,10 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test class to test predeclared langlibs using a ballerina project.
- * @since 2.0.0
+ * Test class to test positive scenarios of testerina using a ballerina project.
  */
-public class ImportTest extends BaseTestCase {
+public class IsolatedFunctionsTest extends BaseTestCase {
+
     private BMainInstance balClient;
     private String projectPath;
 
@@ -36,10 +35,11 @@ public class ImportTest extends BaseTestCase {
         balClient = new BMainInstance(balServer);
         projectPath = projectBasedTestsPath.toString();
     }
-
-    @Test()
-    public void testBeforeAfter() throws BallerinaTestException {
-        balClient.runMain("test", new String[]{"predeclared-import-tests"}, null,
-                new String[]{}, projectPath);
+    
+    @Test
+    public void testIsolatedFunctions() throws BallerinaTestException {
+        balClient.runMain("test", new String[]{"isolated-functions"}, null, new String[]{},
+                projectPath);
     }
+
 }

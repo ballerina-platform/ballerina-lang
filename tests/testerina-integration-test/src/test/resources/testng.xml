@@ -30,7 +30,15 @@ under the License.
             </run>
         </groups>
         <classes>
-            <class name="org.ballerinalang.testerina.test.BasicCasesTest" />
+            <class name="org.ballerinalang.testerina.test.AnnotationAccessTest"/>
+            <class name="org.ballerinalang.testerina.test.AnnotationsTest"/>
+            <class name="org.ballerinalang.testerina.test.AssertionErrorsTest"/>
+            <class name="org.ballerinalang.testerina.test.AssertionsAdvancedTest"/>
+            <class name="org.ballerinalang.testerina.test.AssertionsBasicTest"/>
+            <class name="org.ballerinalang.testerina.test.BeforeAfterTest"/>
+            <class name="org.ballerinalang.testerina.test.DependsOnTest"/>
+            <class name="org.ballerinalang.testerina.test.InteropsTest"/>
+            <class name="org.ballerinalang.testerina.test.IsolatedFunctionsTest"/>
             <class name="org.ballerinalang.testerina.test.negative.MissingFunctionsTestCase"/>
             <class name="org.ballerinalang.testerina.test.GroupingTest" />
             <class name="org.ballerinalang.testerina.test.SelectedFunctionTest" />
