@@ -112,7 +112,7 @@ task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
     classpath = project.configurations.baloCreat
     dependsOn copyBallerinaProject
     dependsOn createDistributionCache
-    dependsOn compileJava
+    dependsOn jar
     outputs.files("$buildDir/ballerina-src/target/" + modName + ".zip")
     classpath += files(jar.archivePath)
 }
@@ -128,5 +128,3 @@ artifacts {
         builtBy(ballerinaLangLibBuild)
     }
 }
-
-build.dependsOn ballerinaLangLibBuild
