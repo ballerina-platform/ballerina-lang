@@ -67,7 +67,7 @@ public interface SemanticModel {
      * @param position a cursor position in the source
      * @return A {@link List} of line ranges of all the references
      */
-    List<Location> allReferences(String fileName, LinePosition position);
+    List<Location> references(String fileName, LinePosition position);
 
     /**
      * Retrieves the type of the expression in the specified text range. If it's not a valid expression, returns an
