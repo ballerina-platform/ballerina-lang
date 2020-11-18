@@ -2978,8 +2978,31 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.OBJECT:
                 BObjectType actualObjectType = (BObjectType) actualType;
 
-                if (isObjectConstructorExprWithImmutableCET(cIExpr, actualObjectType, expType)) {
-                    handleObjectConstrExprForReadOnlyCET(cIExpr, actualObjectType, env);
+                if (isObjectConstructorExpr(cIExpr, actualObjectType)) {
+                    List<BLangClassDefinition> classDefinitions = env.enclPkg.classDefinitions;
+
+                    BLangClassDefinition classDefForConstructor = null;
+
+                    BLangUserDefinedType userDefinedType = (BLangUserDefinedType) cIExpr.getType();
+                    BSymbol symbol =
+                            symResolver.lookupMainSpaceSymbolInPackage(userDefinedType.pos, env,
+                                                                       names.fromIdNode(userDefinedType.pkgAlias),
+                                                                       names.fromIdNode(userDefinedType.typeName));
+
+                    for (BLangClassDefinition classDefinition : classDefinitions) {
+                        if (classDefinition.symbol == symbol) {
+                            classDefForConstructor = classDefinition;
+                            break;
+                        }
+                    }
+
+                    SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
+
+                    if (Symbols.isFlagOn(expType.flags, Flags.READONLY)) {
+                        handleObjectConstrExprForReadOnlyCET(cIExpr, actualObjectType, classDefForConstructor, pkgEnv);
+                    } else {
+                        semanticAnalyzer.analyzeNode(classDefForConstructor, pkgEnv);
+                    }
                 }
 
                 if ((actualType.tsymbol.flags & Flags.CLASS) != Flags.CLASS) {
@@ -7415,79 +7438,27 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private boolean isObjectConstructorExprWithImmutableCET(BLangTypeInit cIExpr, BType actualType, BType expType) {
-        return cIExpr.getType() != null &&
-                Symbols.isFlagOn(actualType.tsymbol.flags, Flags.ANONYMOUS) &&
-                Symbols.isFlagOn(expType.flags, Flags.READONLY);
+    private boolean isObjectConstructorExpr(BLangTypeInit cIExpr, BType actualType) {
+        return cIExpr.getType() != null && Symbols.isFlagOn(actualType.tsymbol.flags, Flags.ANONYMOUS);
     }
 
     private void handleObjectConstrExprForReadOnlyCET(BLangTypeInit cIExpr, BObjectType actualObjectType,
-                                                      SymbolEnv env) {
+                                                      BLangClassDefinition classDefForConstructor, SymbolEnv env) {
         for (BField field : actualObjectType.fields.values()) {
             BType fieldType = field.type;
             if (!types.isInherentlyImmutableType(fieldType) &&
                     !types.isSelectivelyImmutableType(fieldType, false, false)) {
+                semanticAnalyzer.analyzeNode(classDefForConstructor, env);
                 return;
             }
         }
 
-        List<BLangClassDefinition> classDefinitions = env.enclPkg.classDefinitions;
+        classDefForConstructor.flagSet.add(Flag.READONLY);
+        actualObjectType.flags |= Flags.READONLY;
+        actualObjectType.tsymbol.flags |= Flags.READONLY;
 
-        BLangClassDefinition classDefForConstructor = null;
-
-        BLangUserDefinedType userDefinedType = (BLangUserDefinedType) cIExpr.getType();
-        BSymbol symbol =
-                symResolver.lookupMainSpaceSymbolInPackage(userDefinedType.pos, env,
-                                                           names.fromIdNode(userDefinedType.pkgAlias),
-                                                           names.fromIdNode(userDefinedType.typeName));
-
-        for (BLangClassDefinition classDefinition : classDefinitions) {
-            if (classDefinition.symbol == symbol) {
-                classDefForConstructor = classDefinition;
-                break;
-            }
-        }
-
-        ImmutableTypeCloner.markFieldsAsImmutable(classDefForConstructor,
-                                                  symTable.pkgEnvMap.get(env.enclPkg.symbol),
-                                                  actualObjectType, types, anonymousModelHelper,
-                                                  symTable, names, cIExpr.pos);
-
-        // This is a temporary step to force semantic analysis for a class defined for an object-constructor-expr,
-        // based on the new immutable type, since semantic analysis has already happened for the class before reaching
-        // the type-checker for the object-constructor-expr.
-        for (BLangSimpleVariable field : classDefForConstructor.fields) {
-            BLangExpression expr = field.expr;
-            if (expr != null && expr.type != symTable.semanticError) {
-                expr.typeChecked = false;
-            }
-        }
-
-        BLangFunction initFunction = classDefForConstructor.initFunction;
-        if (initFunction != null) {
-            BLangFunctionBody body = initFunction.body;
-
-            if (body.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
-                BLangBlockFunctionBody blockFunctionBody = (BLangBlockFunctionBody) body;
-
-                for (BLangStatement stmt : blockFunctionBody.stmts) {
-                    switch (stmt.getKind()) {
-                        case ASSIGNMENT:
-                            ((BLangAssignment) stmt).expr.typeChecked = false;
-                            break;
-                        case RECORD_DESTRUCTURE:
-                            ((BLangRecordDestructure) stmt).expr.typeChecked = false;
-                            break;
-                        case TUPLE_DESTRUCTURE:
-                            ((BLangTupleDestructure) stmt).expr.typeChecked = false;
-                            break;
-                        case ERROR_DESTRUCTURE:
-                            ((BLangErrorDestructure) stmt).expr.typeChecked = false;
-                            break;
-                    }
-                }
-            }
-        }
+        ImmutableTypeCloner.markFieldsAsImmutable(classDefForConstructor, env, actualObjectType, types,
+                                                  anonymousModelHelper, symTable, names, cIExpr.pos);
 
         semanticAnalyzer.analyzeNode(classDefForConstructor, env);
     }
