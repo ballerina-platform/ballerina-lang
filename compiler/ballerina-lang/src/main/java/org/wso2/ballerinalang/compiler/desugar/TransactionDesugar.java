@@ -316,14 +316,15 @@ public class TransactionDesugar extends BLangNodeVisitor {
     private BLangInvocation createStartTransactionInvocation(Location location,
                                                              BLangLiteral transactionBlockIDLiteral,
                                                              BLangSimpleVarRef prevAttempt) {
+        BInvokableSymbol startTransactionInvokableSymbol =
+                (BInvokableSymbol) getInternalTransactionModuleInvokableSymbol(START_TRANSACTION);
+
         // Include transaction-internal module as an import if not included
         if (!transactionInternalModuleIncluded) {
             desugar.addTransactionInternalModuleImport();
             transactionInternalModuleIncluded = true;
         }
 
-        BInvokableSymbol startTransactionInvokableSymbol =
-                (BInvokableSymbol) getInternalTransactionModuleInvokableSymbol(START_TRANSACTION);
         List<BLangExpression> args = new ArrayList<>();
         args.add(transactionBlockIDLiteral);
         args.add(prevAttempt);
@@ -334,14 +335,15 @@ public class TransactionDesugar extends BLangNodeVisitor {
     }
 
     public BLangInvocation createTransactionalCheckInvocation(Location pos) {
+        BInvokableSymbol startTransactionInvokableSymbol =
+                (BInvokableSymbol) getInternalTransactionModuleInvokableSymbol(CHECK_IF_TRANSACTIONAL);
+
         // Include transaction-internal module as an import if not included
         if (!transactionInternalModuleIncluded) {
             desugar.addTransactionInternalModuleImport();
             transactionInternalModuleIncluded = true;
         }
 
-        BInvokableSymbol startTransactionInvokableSymbol =
-                (BInvokableSymbol) getInternalTransactionModuleInvokableSymbol(CHECK_IF_TRANSACTIONAL);
         List<BLangExpression> args = new ArrayList<>();
         BLangInvocation startTransactionInvocation = ASTBuilderUtil.
                 createInvocationExprForMethod(pos, startTransactionInvokableSymbol, args, symResolver);
