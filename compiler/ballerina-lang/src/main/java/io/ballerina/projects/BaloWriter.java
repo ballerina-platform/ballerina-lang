@@ -283,7 +283,7 @@ public abstract class BaloWriter {
         } else {
             if (File.separatorChar == '\\') {
                 String replaced = "";
-                // Following if is to evade spotbug if file is null it will
+                // Following is to evade spotbug issue if file is null
                 replaced = Optional.ofNullable(file.getFileName()).orElse(Paths.get("")).toString();
                 Path parent = file.getParent();
                 while (parent != null) {
