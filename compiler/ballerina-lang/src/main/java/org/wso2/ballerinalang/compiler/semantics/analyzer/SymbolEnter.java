@@ -1566,9 +1566,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVariable varNode) {
-        // assign the type to var type node
-        if (varNode.type == null) {
-            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+        // If this is module level tuple variable define each member inside here since they are global variables
+        int ownerSymTag = env.scope.owner.tag;
+        if ((ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE) {
+            varNode.memberVariables.forEach(member -> {
+                defineNode(member,env);
+            });
         }
     }
 

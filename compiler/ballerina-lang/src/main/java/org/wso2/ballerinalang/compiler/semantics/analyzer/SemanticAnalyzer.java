@@ -789,7 +789,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        symbolEnter.defineNode(varNode, env);
+//        symbolEnter.defineNode(varNode, env);
 
         varNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
@@ -1224,6 +1224,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
             }
             var.type = type;
+            int ownerSymTag = env.scope.owner.tag;
+            if ((ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE) {
+                var.symbol.type = type;
+            }
             analyzeNode(var, env);
         }
 
