@@ -46,7 +46,7 @@ import static org.testng.Assert.assertEquals;
 public abstract class FindAllReferencesTest {
 
     public static final List<Location> EMPTY_LIST = Collections.unmodifiableList(new ArrayList<>());
-    private SemanticModel model;
+    protected SemanticModel model;
 
     @BeforeClass
     public void setup() {

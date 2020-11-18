@@ -16,7 +16,4 @@
 
 public const PI = 3.14;
 
-public const TRUE = "true";
-public const string FALSE = "false";
-
-const STATUS = "status";
+const ZERO = 0;
