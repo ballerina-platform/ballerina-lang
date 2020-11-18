@@ -165,11 +165,25 @@ class NodeFinder extends BaseVisitor {
     private BLangNode enclosingNode;
     private BLangNode enclosingContainer;
 
+    BLangNode lookup(BLangPackage module, LineRange range) {
+        return lookupTopLevelNodes(module.topLevelNodes, range);
+    }
+
     BLangNode lookup(BLangCompilationUnit unit, LineRange range) {
+        return lookupTopLevelNodes(unit.topLevelNodes, range);
+    }
+
+    BLangNode lookupEnclosingContainer(BLangPackage module, LineRange range) {
+        this.enclosingContainer = module;
+        lookup(module, range);
+        return this.enclosingContainer;
+    }
+
+    private BLangNode lookupTopLevelNodes(List<TopLevelNode> nodes, LineRange range) {
         this.range = range;
         this.enclosingNode = null;
 
-        for (TopLevelNode node : unit.topLevelNodes) {
+        for (TopLevelNode node : nodes) {
             if (!PositionUtil.withinRange(this.range, node.getPosition()) || isLambdaFunction(node)) {
                 continue;
             }
@@ -182,12 +196,6 @@ class NodeFinder extends BaseVisitor {
         }
 
         return this.enclosingNode;
-    }
-
-    BLangNode lookupEnclosingContainer(BLangPackage module, BLangCompilationUnit unit, LineRange range) {
-        this.enclosingContainer = module;
-        lookup(unit, range);
-        return this.enclosingContainer;
     }
 
     private void lookupNodes(List<? extends BLangNode> nodes) {

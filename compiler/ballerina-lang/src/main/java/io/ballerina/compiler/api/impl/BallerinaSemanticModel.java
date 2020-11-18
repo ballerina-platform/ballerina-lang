@@ -19,7 +19,6 @@ package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.symbols.BallerinaSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -158,17 +157,17 @@ public class BallerinaSemanticModel implements SemanticModel {
     @Override
     public List<Location> allReferences(String fileName, LinePosition position) {
         BLangCompilationUnit compilationUnit = getCompilationUnit(fileName);
-        Optional<Symbol> symbol = symbol(fileName, position);
+        SymbolFinder symbolFinder = new SymbolFinder();
+        BSymbol symbolAtCursor = symbolFinder.lookup(compilationUnit, position);
 
-        if (symbol.isEmpty()) {
+        if (symbolAtCursor == null) {
             return Collections.unmodifiableList(new ArrayList<>());
         }
 
-        BLangNode node = new NodeFinder().lookupEnclosingContainer(this.bLangPackage, compilationUnit,
-                                                                   symbol.get().location().lineRange());
+        BLangNode node = new NodeFinder().lookupEnclosingContainer(this.bLangPackage, symbolAtCursor.pos.lineRange());
 
         ReferenceFinder refFinder = new ReferenceFinder();
-        return refFinder.findReferences(node, ((BallerinaSymbol) symbol.get()).getInternalSymbol());
+        return refFinder.findReferences(node, symbolAtCursor);
     }
 
     /**
