@@ -65,6 +65,10 @@ public class Package {
         return packageContext.packageVersion();
     }
 
+    public PackageDescriptor descriptor() {
+        return packageContext.descriptor();
+    }
+
     public PackageManifest manifest() {
         return packageContext.manifest();
     }

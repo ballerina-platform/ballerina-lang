@@ -94,6 +94,10 @@ class PackageContext {
         return packageManifest.version();
     }
 
+    PackageDescriptor descriptor() {
+        return packageManifest.descriptor();
+    }
+
     PackageManifest manifest() {
         return packageManifest;
     }

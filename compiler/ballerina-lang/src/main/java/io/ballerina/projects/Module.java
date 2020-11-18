@@ -65,8 +65,8 @@ public class Module {
         return this.moduleContext.moduleName();
     }
 
-    public ModuleDescriptor moduleDescriptor() {
-        return moduleContext.moduleDescriptor();
+    public ModuleDescriptor descriptor() {
+        return moduleContext.descriptor();
     }
 
     public Collection<DocumentId> documentIds() {
@@ -156,7 +156,7 @@ public class Module {
 
         private Modifier(Module oldModule) {
             moduleId = oldModule.moduleId();
-            moduleDescriptor = oldModule.moduleDescriptor();
+            moduleDescriptor = oldModule.descriptor();
             srcDocContextMap = copySrcDocs(oldModule);
             testDocContextMap = copyTestDocs(oldModule);
             isDefaultModule = oldModule.isDefaultModule();

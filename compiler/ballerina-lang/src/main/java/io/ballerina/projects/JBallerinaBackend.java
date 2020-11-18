@@ -260,7 +260,7 @@ public class JBallerinaBackend extends CompilerBackend {
                 bLangPackage.packageID.orgName.value,
                 bLangPackage.packageID.version.value);
         TesterinaRegistry.getInstance().getTestSuites().put(
-                moduleContext.moduleDescriptor().name().toString(), testSuite);
+                moduleContext.descriptor().name().toString(), testSuite);
 
         // set data
         testSuite.setInitFunctionName(bLangPackage.initFunction.name.value);
