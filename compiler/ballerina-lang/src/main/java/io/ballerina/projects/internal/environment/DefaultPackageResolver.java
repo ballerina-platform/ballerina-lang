@@ -20,8 +20,8 @@ package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.ModuleLoadResponse;
 import io.ballerina.projects.environment.PackageCache;
@@ -83,14 +83,15 @@ public class DefaultPackageResolver extends PackageResolver {
         PackageLoadRequest loadRequest = PackageLoadRequest.from(modLoadRequest);
         if (loadRequest.version().isEmpty()) {
             // find the latest version
-            List<SemanticVersion> packageVersions = distRepository.getPackageVersions(loadRequest);
+            List<PackageVersion> packageVersions = distRepository.getPackageVersions(loadRequest);
             if (packageVersions.isEmpty()) {
                 // no versions found.
                 // todo handle package not found with exception
                 return null;
             }
-            SemanticVersion latest = findlatest(packageVersions);
-            loadRequest = new PackageLoadRequest(loadRequest.orgName().orElse(null), loadRequest.packageName(), latest);
+            PackageVersion latest = findlatest(packageVersions);
+            loadRequest = new PackageLoadRequest(loadRequest.orgName().orElse(null),
+                    loadRequest.packageName(), latest);
         }
 
         Optional<Package> packageOptional = distRepository.getPackage(loadRequest);
@@ -102,7 +103,7 @@ public class DefaultPackageResolver extends PackageResolver {
         }).orElse(null);
     }
 
-    private SemanticVersion findlatest(List<SemanticVersion> packageVersions) {
+    private PackageVersion findlatest(List<PackageVersion> packageVersions) {
         // todo Fix me
         return packageVersions.get(0);
     }

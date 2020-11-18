@@ -178,7 +178,7 @@ public class Bootstrap {
     private ModuleLoadRequest toModuleRequest(PackageID packageID) {
         PackageName packageName = PackageName.from(packageID.name.getValue());
         ModuleName moduleName = ModuleName.from(packageName);
-        SemanticVersion version = SemanticVersion.from(packageID.getPackageVersion().toString());
+        PackageVersion version = PackageVersion.from(packageID.getPackageVersion().toString());
         return new ModuleLoadRequest(PackageOrg.from(packageID.orgName.getValue()),
                 packageName, moduleName, version);
     }

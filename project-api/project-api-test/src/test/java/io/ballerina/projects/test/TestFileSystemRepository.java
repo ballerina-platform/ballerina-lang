@@ -3,6 +3,7 @@ package io.ballerina.projects.test;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.PackageLoadRequest;
 import io.ballerina.projects.environment.PackageRepository;
@@ -30,10 +31,10 @@ public class TestFileSystemRepository {
 
     PackageLoadRequest aPkg = new PackageLoadRequest(PackageOrg.BALLERINA_ORG,
             PackageName.from("lang.annotations"),
-            SemanticVersion.from("1.0.0"));
+            PackageVersion.from("1.0.0"));
     PackageLoadRequest bPkg = new PackageLoadRequest(PackageOrg.from("wso2"),
             PackageName.from("twitter"),
-            SemanticVersion.from("1.0.0"));
+            PackageVersion.from("1.0.0"));
 
 //    @BeforeSuite
     void setUpMockRepo() throws IOException {
@@ -63,10 +64,10 @@ public class TestFileSystemRepository {
 //    @Test
     public void testGetPackageVersions() {
         // Package that has versions
-        List<SemanticVersion> aPackageVersions = repo.getPackageVersions(aPkg);
+        List<PackageVersion> aPackageVersions = repo.getPackageVersions(aPkg);
         Assert.assertEquals(aPackageVersions.size(), 2);
         // Invalid package
-        List<SemanticVersion> bPackageVersions = repo.getPackageVersions(bPkg);
+        List<PackageVersion> bPackageVersions = repo.getPackageVersions(bPkg);
         Assert.assertEquals(bPackageVersions.size(), 0);
     }
 
