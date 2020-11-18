@@ -17,9 +17,6 @@
  */
 package io.ballerina.projects.environment;
 
-import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageId;
-
 import java.util.Collection;
 
 /**
@@ -31,6 +28,4 @@ import java.util.Collection;
 public abstract class PackageResolver {
 
     public abstract Collection<ModuleLoadResponse> loadPackages(Collection<ModuleLoadRequest> moduleLoadRequests);
-
-    public abstract Package getPackage(PackageId packageId);
 }

@@ -15,26 +15,22 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
-package io.ballerina.projects.environment;
+package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageVersion;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import io.ballerina.projects.environment.PackageCache;
 
 /**
- * This interface represent a repository of packages.
+ * Extends the {@code PackageCache} interface with methods to write to the cache.
  *
  * @since 2.0.0
  */
-public interface PackageRepository {
+public interface WritablePackageCache extends PackageCache {
 
-    Optional<Package> getPackage(PackageLoadRequest packageLoadRequest);
-
-    List<PackageVersion> getPackageVersions(PackageLoadRequest packageLoadRequest);
-
-    Map<String, List<String>> getPackages();
+    /**
+     * Caches the given package instance.
+     *
+     * @param pkg package instance to be cached
+     */
+    void cache(Package pkg);
 }

@@ -17,7 +17,7 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.jballerina.JarWriter;
@@ -78,7 +78,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private final PackageCompilation pkgCompilation;
     private final JdkVersion jdkVersion;
     private final PackageContext packageContext;
-    private final PackageResolver packageResolver;
+    private final PackageCache packageCache;
     private final CompilerContext compilerContext;
     private final CodeGenerator jvmCodeGenerator;
     private DiagnosticResult diagnosticResult;
@@ -97,7 +97,7 @@ public class JBallerinaBackend extends CompilerBackend {
         this.jarResolver = new JarResolver(this, pkgCompilation);
 
         ProjectEnvironment projectEnvContext = this.packageContext.project().projectEnvironmentContext();
-        this.packageResolver = projectEnvContext.getService(PackageResolver.class);
+        this.packageCache = projectEnvContext.getService(PackageCache.class);
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
         this.jvmCodeGenerator = CodeGenerator.getInstance(compilerContext);
 
@@ -149,16 +149,13 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private void emitBalo(Path filePath) {
         JBallerinaBaloWriter writer = new JBallerinaBaloWriter(jdkVersion);
-        writer.write(packageResolver.getPackage(packageContext.packageId()), filePath);
+        Package pkg = packageCache.getPackageOrThrow(packageContext.packageId());
+        writer.write(pkg, filePath);
     }
 
     @Override
     public Collection<PlatformLibrary> platformLibraryDependencies(PackageId packageId) {
-        Package pkg = packageResolver.getPackage(packageId);
-        if (pkg == null) {
-            // TODO Proper error handling
-            throw new IllegalStateException("Cannot find a Package for the given PackageId: " + packageId);
-        }
+        Package pkg = packageCache.getPackageOrThrow(packageId);
         PackageDescriptor.Platform javaPlatform = pkg.packageDescriptor().platform(jdkVersion.code());
         if (javaPlatform == null || javaPlatform.dependencies().isEmpty()) {
             return Collections.emptyList();
@@ -463,12 +460,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private PlatformLibrary codeGeneratedLibrary(PackageId packageId,
                                                  ModuleName moduleName,
                                                  String fileNameSuffix) {
-        Package pkg = packageResolver.getPackage(packageId);
-        if (pkg == null) {
-            // TODO Proper error handling
-            throw new IllegalStateException("Cannot find a Package for the given PackageId: " + packageId);
-        }
-
+        Package pkg = packageCache.getPackageOrThrow(packageId);
         ProjectEnvironment projectEnvironment = pkg.project().projectEnvironmentContext();
         CompilationCache compilationCache = projectEnvironment.getService(CompilationCache.class);
         String jarFileName = getJarFileName(pkg.packageContext().moduleContext(moduleName)) + fileNameSuffix;
