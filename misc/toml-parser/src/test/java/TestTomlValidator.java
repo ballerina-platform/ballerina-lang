@@ -17,6 +17,7 @@
  */
 
 import io.ballerina.toml.api.Toml;
+import io.ballerina.toml.validator.RootSchema;
 import io.ballerina.toml.validator.Schema;
 import io.ballerina.toml.validator.TomlValidator;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -36,7 +37,7 @@ public class TestTomlValidator {
 
     public static void main(String [] args) throws IOException {
         Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "c2c-schema.json");
-        TomlValidator validator = new TomlValidator(Schema.from(resourceDirectory));
+        TomlValidator validator = new TomlValidator(RootSchema.from(resourceDirectory));
 
         Path sampleInput = Paths.get("src", "test", "resources", "validator", "sample.toml");
 
@@ -46,6 +47,5 @@ public class TestTomlValidator {
         for (Diagnostic d: toml.getDiagnostics()) {
             OUT.println(d);
         }
-
     }
 }

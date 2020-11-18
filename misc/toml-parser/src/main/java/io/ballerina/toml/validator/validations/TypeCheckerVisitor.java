@@ -29,14 +29,16 @@ import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.toml.validator.NumericSchema;
 import io.ballerina.toml.validator.Schema;
+import io.ballerina.toml.validator.StringSchema;
+import io.ballerina.toml.validator.TypeEnum;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -56,7 +58,7 @@ public class TypeCheckerVisitor implements TomlNodeVisitor {
 
     @Override
     public void visit(TomlTableNode tomlTableNode) {
-        if (!schema.getType().equals("object")) {
+        if (schema.getType() != TypeEnum.OBJECT) {
             TomlDiagnostic diagnostic = getTomlDiagnostic(tomlTableNode.location(), "TVE0002", "error.invalid.type",
                     DiagnosticSeverity.ERROR, String.format("Key \"%s\" expects %s . Found object", this.key,
                             schema.getType()));
@@ -66,7 +68,7 @@ public class TypeCheckerVisitor implements TomlNodeVisitor {
 
     @Override
     public void visit(TomlTableArrayNode tomlTableArrayNode) {
-        if (!schema.getType().equals("array")) {
+        if (schema.getType() != TypeEnum.ARRAY) {
             TomlDiagnostic diagnostic =
                     getTomlDiagnostic(tomlTableArrayNode.location(), "TVE0002", "error.invalid.type",
                             DiagnosticSeverity.ERROR, String.format("Key \"%s\" expects %s . Found array", this.key,
@@ -88,19 +90,21 @@ public class TypeCheckerVisitor implements TomlNodeVisitor {
 
     @Override
     public void visit(TomlStringValueNode tomlStringValueNode) {
-        if (!schema.getType().equals("string")) {
+        if (schema.getType() != TypeEnum.STRING) {
             TomlDiagnostic diagnostic =
                     getTomlDiagnostic(tomlStringValueNode.location(), "TVE0002", "error.invalid.type",
                             DiagnosticSeverity.ERROR,
                             String.format("Key \"%s\" expects %s . Found string", this.key, schema.getType()));
             tomlStringValueNode.addDiagnostic(diagnostic);
         } else {
-            if (schema.getPattern() != null) {
-                if (!Pattern.compile(schema.getPattern()).matcher(tomlStringValueNode.getValue()).matches()) {
+            StringSchema stringSchema = (StringSchema) this.schema;
+            if (stringSchema.getPattern().isPresent()) {
+                String pattern = stringSchema.getPattern().get();
+                if (!Pattern.compile(pattern).matcher(tomlStringValueNode.getValue()).matches()) {
                     TomlDiagnostic diagnostic = getTomlDiagnostic(tomlStringValueNode.location(), "TVE0003",
                             "error.regex.mismatch", DiagnosticSeverity.ERROR,
                             String.format("Key \"%s\" value does not match the Regex provided in Schema %s", this.key,
-                                    schema.getPattern()));
+                                    pattern));
                     tomlStringValueNode.addDiagnostic(diagnostic);
                 }
             }
@@ -109,14 +113,15 @@ public class TypeCheckerVisitor implements TomlNodeVisitor {
 
     @Override
     public void visit(TomlDoubleValueNodeNode tomlDoubleValueNodeNode) {
-        if (!schema.getType().equals("number")) {
+        if (schema.getType() != TypeEnum.NUMBER) {
             TomlDiagnostic diagnostic = getTomlDiagnostic(tomlDoubleValueNodeNode.location(), "TVE0002",
                     "error.invalid.type", DiagnosticSeverity.ERROR,
                     String.format("Key \"%s\" expects %s . Found number", this.key, schema.getType()));
             tomlDoubleValueNodeNode.addDiagnostic(diagnostic);
         } else {
             List<Diagnostic> diagnostics =
-                    validateMinMaxValues(tomlDoubleValueNodeNode.getValue(), tomlDoubleValueNodeNode.location());
+                    validateMinMaxValues((NumericSchema) schema, tomlDoubleValueNodeNode.getValue(),
+                            tomlDoubleValueNodeNode.location());
             for (Diagnostic diagnostic : diagnostics) {
                 tomlDoubleValueNodeNode.addDiagnostic(diagnostic);
             }
@@ -125,35 +130,41 @@ public class TypeCheckerVisitor implements TomlNodeVisitor {
 
     @Override
     public void visit(TomlLongValueNode tomlLongValueNode) {
-        if (!schema.getType().equals("integer")) {
+        if (schema.getType() != TypeEnum.INTEGER) {
             TomlDiagnostic diagnostic = getTomlDiagnostic(tomlLongValueNode.location(), "TVE0002",
                     "error.invalid.type", DiagnosticSeverity.ERROR,
                     String.format("Key \"%s\" expects %s . Found integer", this.key, schema.getType()));
             tomlLongValueNode.addDiagnostic(diagnostic);
         } else {
             List<Diagnostic> diagnostics =
-                    validateMinMaxValues(Double.valueOf(tomlLongValueNode.getValue()), tomlLongValueNode.location());
+                    validateMinMaxValues((NumericSchema) schema, Double.valueOf(tomlLongValueNode.getValue()),
+                            tomlLongValueNode.location());
             for (Diagnostic diagnostic : diagnostics) {
                 tomlLongValueNode.addDiagnostic(diagnostic);
             }
         }
     }
 
-    private List<Diagnostic> validateMinMaxValues(Double value, TomlNodeLocation location) {
+    private List<Diagnostic> validateMinMaxValues(NumericSchema numericSchema, Double value,
+                                                  TomlNodeLocation location) {
         List<Diagnostic> diagnostics = new ArrayList<>();
-        if (schema.getMaximum() != null) {
-            if (value >= schema.getMaximum()) {
+        if (numericSchema.getMaximum().isPresent()) {
+            Double max = numericSchema.getMaximum().get();
+            if (value >= max) {
                 TomlDiagnostic diagnostic = getTomlDiagnostic(location, "TVE0005", "error" +
-                        ".maximum.value.exceed", DiagnosticSeverity.ERROR,
-                        String.format("Key \"%s\" value can't be higher than %d", this.key, schema.getMaximum()));
+                                ".maximum.value.exceed", DiagnosticSeverity.ERROR,
+                        String.format("Key \"%s\" value can't be higher than %f", this.key,
+                                max));
                 diagnostics.add(diagnostic);
             }
         }
-        if (schema.getMinimum() != null) {
-            if (value <= schema.getMinimum()) {
+        if (numericSchema.getMinimum().isPresent()) {
+            Double min = numericSchema.getMinimum().get();
+            if (value <= min) {
                 TomlDiagnostic diagnostic = getTomlDiagnostic(location, "TVE0004",
                         "error.minimum.value.deceed", DiagnosticSeverity.ERROR,
-                        String.format("Key \"%s\" value can't be lower than %d", this.key, schema.getMinimum()));
+                        String.format("Key \"%s\" value can't be lower than %f", this.key,
+                                min));
                 diagnostics.add(diagnostic);
             }
         }
@@ -162,7 +173,7 @@ public class TypeCheckerVisitor implements TomlNodeVisitor {
 
     @Override
     public void visit(TomlBooleanValueNode tomlBooleanValueNode) {
-        if (!schema.getType().equals("boolean")) {
+        if (schema.getType() != TypeEnum.BOOLEAN) {
             TomlDiagnostic diagnostic = getTomlDiagnostic(tomlBooleanValueNode.location(), "TVE0002",
                     "error.invalid.type", DiagnosticSeverity.ERROR,
                     String.format("Key \"%s\" expects %s . Found boolean", this.key, schema.getType()));

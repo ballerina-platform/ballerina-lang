@@ -22,6 +22,7 @@ import io.ballerina.toml.semantic.ast.TomlNodeVisitor;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
+import io.ballerina.toml.validator.ObjectSchema;
 import io.ballerina.toml.validator.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -36,9 +37,9 @@ import java.util.Set;
  * @since 2.0.0
  */
 public class AdditionalPropertiesVisitor implements TomlNodeVisitor {
-    private final Schema schema;
+    private final ObjectSchema schema;
 
-    public AdditionalPropertiesVisitor(Schema schema) {
+    public AdditionalPropertiesVisitor(ObjectSchema schema) {
         this.schema = schema;
     }
 

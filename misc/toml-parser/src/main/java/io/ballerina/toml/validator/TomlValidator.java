@@ -37,9 +37,9 @@ import java.util.Set;
  */
 public class TomlValidator {
 
-    private final Schema rootSchema;
+    private final RootSchema rootSchema;
 
-    public TomlValidator(Schema rootSchema) {
+    public TomlValidator(RootSchema rootSchema) {
         this.rootSchema = rootSchema;
     }
 
@@ -56,24 +56,27 @@ public class TomlValidator {
 
             TopLevelNode topLevelNode = tableNode.children().get(key);
             if (topLevelNode != null) {
-                AdditionalPropertiesVisitor additionalPropertiesVisitor = new AdditionalPropertiesVisitor(value);
-                topLevelNode.accept(additionalPropertiesVisitor);
+                if (value.getType() == TypeEnum.OBJECT) {
+                    AdditionalPropertiesVisitor additionalPropertiesVisitor =
+                            new AdditionalPropertiesVisitor((ObjectSchema) value);
+                    topLevelNode.accept(additionalPropertiesVisitor);
+                }
 
                 TypeCheckerVisitor typeCheckerVisitor = new TypeCheckerVisitor(value, key);
                 topLevelNode.accept(typeCheckerVisitor);
             }
 
-            if (value.getType().equals("object")) {
+            if (value.getType() == TypeEnum.OBJECT) {
                 if (topLevelNode != null && topLevelNode.kind() == TomlType.TABLE) {
-                    processProperties(value.getProperties(), (TomlTableNode) topLevelNode);
+                    processProperties(((ObjectSchema) value).getProperties(), (TomlTableNode) topLevelNode);
                 }
-            } else if (value.getType().equals("array")) {
+            } else if (value.getType() == TypeEnum.ARRAY) {
                 if (topLevelNode != null && topLevelNode.kind() == TomlType.TABLE_ARRAY) {
-                    Schema items = value.getItems();
+                    Schema items = ((ArraySchema) value).getItems();
                     TomlTableArrayNode tableArrayNode = (TomlTableArrayNode) topLevelNode;
                     List<TomlTableNode> children = tableArrayNode.children();
                     for (TomlTableNode child : children) {
-                        processProperties(items.getProperties(), child);
+                        processProperties(((ObjectSchema) items).getProperties(), child);
                     }
                 }
             }
