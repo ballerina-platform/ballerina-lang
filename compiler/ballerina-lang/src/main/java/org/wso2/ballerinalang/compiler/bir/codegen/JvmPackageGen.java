@@ -95,6 +95,7 @@ import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_ARRAY_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
@@ -111,6 +112,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_EP_AVAILABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VARIABLE_KEY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewriteRecordInits;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateCreateTypesMethod;
@@ -526,7 +528,9 @@ public class JvmPackageGen {
                 initMethodGen.generateLambdaForPackageInits(cw, module, moduleClass, moduleImports);
 
                 generateLockForVariable(cw);
+                generateConfigurationField(cw);
                 generateCreateTypesMethod(cw, module.typeDefs, moduleInitClass, symbolTable);
+                initMethodGen.populateConfigDataMethod(cw, moduleInitClass, module);
                 initMethodGen.generateModuleInitializer(cw, module, moduleInitClass);
                 moduleStopMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports,
                                                                 asyncDataCollector);
@@ -553,6 +557,12 @@ public class JvmPackageGen {
             byte[] bytes = getBytes(cw, module);
             jarEntries.put(moduleClass + ".class", bytes);
         });
+    }
+
+    private void generateConfigurationField(ClassWriter cw) {
+        FieldVisitor fv = cw.visitField(ACC_STATIC, CONFIGURATION_ARRAY_NAME, String.format("[L%s;",
+                VARIABLE_KEY), null, null);
+        fv.visitEnd();
     }
 
     private List<PackageID> flattenModuleImports(Set<PackageID> dependentModuleArray) {

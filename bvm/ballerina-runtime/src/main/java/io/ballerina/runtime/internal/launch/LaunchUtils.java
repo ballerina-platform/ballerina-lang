@@ -20,9 +20,9 @@ package io.ballerina.runtime.internal.launch;
 
 import io.ballerina.runtime.api.launch.LaunchListener;
 import io.ballerina.runtime.internal.configurable.TomlParser;
+import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.TomlException;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.logging.BLogManager;
 
@@ -133,11 +133,8 @@ public class LaunchUtils {
         }
     }
 
-    public static void initConfigurableVariables(String projectVersion) {
-        try {
-            TomlParser.populateConfigMap(projectVersion);
-        } catch (TomlException exception) {
-            throw new BLangRuntimeException(exception.getMessage());
-        }
+    public static void initConfigurableVariables(String moduleName, VariableKey[] configurationData)
+            throws TomlException {
+        TomlParser.populateConfigMap(moduleName, configurationData);
     }
 }

@@ -19,6 +19,7 @@
 package io.ballerina.runtime.internal.configurable;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.types.Type;
 
 import java.util.Objects;
 
@@ -30,15 +31,30 @@ import java.util.Objects;
 public class VariableKey {
     Module module;
     String variable;
+    Type type;
 
     public VariableKey(String org, String module, String version, String variable) {
         this.module = new Module(org, module, version);
         this.variable = variable;
+        this.type = null;
     }
 
     public VariableKey(Module module, String variable) {
         this.module = module;
         this.variable = variable;
+        this.type = null;
+    }
+
+    public VariableKey(String org, String module, String version, String variable, Type type) {
+        this.module = new Module(org, module, version);
+        this.variable = variable;
+        this.type = type;
+    }
+
+    public VariableKey(Module module, String variable, Type type) {
+        this.module = module;
+        this.variable = variable;
+        this.type = type;
     }
 
     @Override
@@ -50,8 +66,12 @@ public class VariableKey {
             return false;
         }
         VariableKey variableKey = (VariableKey) o;
-        return Objects.equals(module, variableKey.module) &&
+        boolean isEqual = Objects.equals(module, variableKey.module) &&
                 Objects.equals(variable, variableKey.variable);
+        if (type == null || variableKey.type == null) {
+            return isEqual;
+        }
+        return isEqual && Objects.equals(type, variableKey.type);
     }
 
     @Override

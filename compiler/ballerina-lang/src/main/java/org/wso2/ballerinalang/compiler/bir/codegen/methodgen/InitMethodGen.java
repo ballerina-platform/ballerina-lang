@@ -25,6 +25,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
@@ -34,10 +35,12 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,27 +49,40 @@ import java.util.Map;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.objectweb.asm.Opcodes.AALOAD;
+import static org.objectweb.asm.Opcodes.AASTORE;
+import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ASTORE;
+import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEW;
+import static org.objectweb.asm.Opcodes.PUTSTATIC;
+import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isBuiltInPackage;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_ARRAY_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_CONFIG_DATA_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VARIABLE_KEY;
 
 /**
  * Generates Jvm byte code for the init methods.
@@ -316,4 +332,50 @@ public class InitMethodGen {
         return nextId++;
     }
 
+    public void populateConfigDataMethod(ClassWriter cw, String moduleInitClass, BIRNode.BIRPackage module) {
+        MethodVisitor mv = cw.visitMethod(ACC_PRIVATE | ACC_STATIC, POPULATE_CONFIG_DATA_METHOD, "()V", null, null);
+        mv.visitCode();
+
+        //create configuration data array
+        mv.visitIntInsn(BIPUSH, calculateConfigArraySize(module.globalVars));
+        mv.visitTypeInsn(ANEWARRAY, VARIABLE_KEY);
+        mv.visitFieldInsn(PUTSTATIC, moduleInitClass, CONFIGURATION_ARRAY_NAME, "[L" + VARIABLE_KEY + ";");
+
+        int varCount = 0;
+
+        for (BIRNode.BIRGlobalVariableDcl globalVar : module.globalVars) {
+            long globalVarFlags = globalVar.flags;
+            if (Symbols.isFlagOn(globalVarFlags, Flags.CONFIGURABLE)) {
+
+                mv.visitTypeInsn(NEW, VARIABLE_KEY);
+                mv.visitInsn(DUP);
+                mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME,
+                        "L" + MODULE + ";");
+                mv.visitLdcInsn(globalVar.name.value);
+                JvmTypeGen.loadType(mv, globalVar.type);
+                mv.visitMethodInsn(INVOKESPECIAL, VARIABLE_KEY, JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;)V",
+                        MODULE, STRING_VALUE, TYPE), false);
+                mv.visitVarInsn(ASTORE, varCount + 1);
+
+                mv.visitFieldInsn(GETSTATIC, moduleInitClass, CONFIGURATION_ARRAY_NAME, "[L" + VARIABLE_KEY + ";");
+                mv.visitIntInsn(BIPUSH, varCount);
+                mv.visitVarInsn(ALOAD, varCount + 1);
+                mv.visitInsn(AASTORE);
+                varCount++;
+            }
+        }
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private int calculateConfigArraySize(List<BIRNode.BIRGlobalVariableDcl> globalVars) {
+        int count = 0;
+        for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
+            if (Symbols.isFlagOn(globalVar.flags, Flags.CONFIGURABLE)) {
+                count++;
+            }
+        }
+        return count;
+    }
 }
