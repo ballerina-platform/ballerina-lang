@@ -226,7 +226,7 @@ public abstract class BaloWriter {
                 moduleRoot = moduleRoot.resolve(MODULES_ROOT).resolve(module.moduleName().moduleNamePart());
             }
             Path resourcesPathInBalo = Paths.get(MODULES_ROOT, module.moduleName().toString(), RESOURCE_DIR_NAME);
-            putDirectoryToZipFile(moduleRoot.resolve(RESOURCE_DIR_NAME).toString(), resourcesPathInBalo,
+            putDirectoryToZipFile(moduleRoot.resolve(RESOURCE_DIR_NAME), resourcesPathInBalo,
                     baloOutputStream);
 
             // only add .bal files of module
@@ -252,19 +252,18 @@ public abstract class BaloWriter {
         IOUtils.closeQuietly(in);
     }
 
-    protected void putDirectoryToZipFile(String sourceDir, Path pathInZipFile, ZipOutputStream out)
+    protected void putDirectoryToZipFile(Path sourceDir, Path pathInZipFile, ZipOutputStream out)
             throws IOException {
-        String sourceRootDirectory = sourceDir;
-        if (Paths.get(sourceDir).toFile().exists()) {
-            File[] files = new File(sourceDir).listFiles();
+        if (sourceDir.toFile().exists()) {
+            File[] files = new File(sourceDir.toString()).listFiles();
 
             if (files != null && files.length > 0) {
                 for (File file : files) {
                     if (file.isDirectory()) {
-                        putDirectoryToZipFile(sourceDir + File.separator + file.getName(), pathInZipFile, out);
+                        putDirectoryToZipFile(sourceDir.resolve(file.getName()), pathInZipFile, out);
                     } else {
                         Path fileNameInBalo =
-                                pathInZipFile.resolve(file.getPath().replace(sourceRootDirectory, ""));
+                                pathInZipFile.resolve(sourceDir.relativize(Paths.get(file.getPath())));
                         putZipEntry(out, fileNameInBalo,
                                 new FileInputStream(sourceDir + File.separator + file.getName()));
                     }
