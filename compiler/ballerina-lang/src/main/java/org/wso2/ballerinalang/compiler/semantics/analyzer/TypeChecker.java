@@ -141,7 +141,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -6543,57 +6542,6 @@ public class TypeChecker extends BLangNodeVisitor {
             // hence, this needs to be set to xml type
             actualType = varRefType;
             indexBasedAccessExpr.originalType = actualType;
-        } else if (varRefType.tag == TypeTags.TABLE) {
-            BTableType tableType = (BTableType) indexBasedAccessExpr.expr.type;
-            BType keyTypeConstraint = tableType.keyTypeConstraint;
-            if (tableType.keyTypeConstraint == null) {
-                keyTypeConstraint = createTableKeyConstraint(((BTableType) indexBasedAccessExpr.expr.type).
-                        fieldNameList, ((BTableType) indexBasedAccessExpr.expr.type).constraint);
-
-                if (keyTypeConstraint == symTable.semanticError) {
-                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.MEMBER_ACCESS_NOT_SUPPORT_FOR_KEYLESS_TABLE,
-                            indexBasedAccessExpr.expr);
-                    return symTable.semanticError;
-                }
-            }
-
-            if (indexExpr.getKind() != NodeKind.TABLE_MULTI_KEY) {
-                checkExpr(indexExpr, this.env, keyTypeConstraint);
-                if (indexExpr.type == symTable.semanticError) {
-                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.INVALID_KEY_CONSTRAINT_PROVIDED_FOR_ACCESS,
-                            keyTypeConstraint);
-                    return symTable.semanticError;
-                }
-            } else {
-                List<BLangExpression> multiKeyExpressionList = ((BLangTableMultiKeyExpr)
-                        indexBasedAccessExpr.indexExpr).multiKeyIndexExprs;
-                List<BType> keyConstraintTypes = ((BTupleType) keyTypeConstraint).tupleTypes;
-                if (keyConstraintTypes.size() != multiKeyExpressionList.size()) {
-                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.INVALID_KEY_CONSTRAINT_PROVIDED_FOR_ACCESS,
-                            keyTypeConstraint);
-                    return symTable.semanticError;
-                }
-
-                for (int i = 0; i < multiKeyExpressionList.size(); i++) {
-                    BLangExpression keyExpr = multiKeyExpressionList.get(i);
-                    checkExpr(keyExpr, this.env, keyConstraintTypes.get(i));
-                    if (keyExpr.type == symTable.semanticError) {
-                        dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.INVALID_KEY_CONSTRAINT_PROVIDED_FOR_ACCESS,
-                                keyTypeConstraint);
-                        return symTable.semanticError;
-                    }
-                }
-            }
-
-            if (expType.tag != TypeTags.NONE) {
-                BType resultType = checkExpr(indexBasedAccessExpr.expr, env, expType);
-                if (resultType == symTable.semanticError) {
-                    return symTable.semanticError;
-                }
-            }
-
-            indexBasedAccessExpr.originalType = tableType.constraint;
-            actualType = tableType.constraint;
         } else if (varRefType == symTable.semanticError) {
             indexBasedAccessExpr.indexExpr.type = symTable.semanticError;
             return symTable.semanticError;
