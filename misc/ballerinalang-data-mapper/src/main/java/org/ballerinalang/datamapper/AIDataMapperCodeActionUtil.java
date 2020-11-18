@@ -21,8 +21,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import io.ballerina.compiler.api.impl.symbols.BallerinaRecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.text.LinePosition;
@@ -35,15 +35,11 @@ import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
-import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -77,12 +73,11 @@ class AIDataMapperCodeActionUtil {
      * @param diagnostic {@link Diagnostic}
      * @return edits for the data mapper code action
      * @throws IOException                throws if error occurred when getting generatedRecordMappingFunction
-     * @throws WorkspaceDocumentException throws if error occurred when reading file content
      */
     static List<TextEdit> getAIDataMapperCodeActionEdits(CodeActionContext context,
                                                          PositionDetails positionDetails,
                                                          Diagnostic diagnostic)
-            throws IOException, WorkspaceDocumentException {
+            throws IOException {
         List<TextEdit> fEdits = new ArrayList<>();
         String diagnosticMessage = diagnostic.getMessage();
         Matcher matcher = CommandConstants.INCOMPATIBLE_TYPE_PATTERN.matcher(diagnosticMessage);
@@ -136,7 +131,10 @@ class AIDataMapperCodeActionUtil {
 
 
         // Schema 1
-        List<FieldSymbol> rightSchemaFields = SymbolUtil.getTypeDescForRecordSymbol(context.workspace().semanticModel(context.filePath()).get().symbol(context.filePath().getFileName().toString(), LinePosition.from(context.getCursorPosition().getLine(), context.getCursorPosition().getCharacter())).get()).fieldDescriptors();
+        List<FieldSymbol> rightSchemaFields = SymbolUtil.getTypeDescForRecordSymbol(context.workspace().
+                semanticModel(context.filePath()).get().symbol(context.filePath().getFileName().toString(),
+                LinePosition.from(context.getCursorPosition().getLine(), context.getCursorPosition().getCharacter())).
+                get()).fieldDescriptors();
         JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields);
 
         rightRecordJSON.addProperty(SCHEMA, foundTypeRight);
@@ -145,7 +143,8 @@ class AIDataMapperCodeActionUtil {
         rightRecordJSON.add(PROPERTIES, rightSchema);
 
         // Schema 2
-        List<FieldSymbol> leftSchemaFields = SymbolUtil.getTypeDescForRecordSymbol(positionDetails.matchedSymbol()).fieldDescriptors();
+        List<FieldSymbol> leftSchemaFields = SymbolUtil.getTypeDescForRecordSymbol(positionDetails.matchedSymbol()).
+                fieldDescriptors();
         JsonObject leftSchema = (JsonObject) recordToJSON(leftSchemaFields);
 
         leftRecordJSON.addProperty(SCHEMA, foundTypeLeft);
@@ -187,7 +186,7 @@ class AIDataMapperCodeActionUtil {
             fieldDetails.addProperty(ID, "dummy_id");
             TypeSymbol attributeType = CommonUtil.getRawType(attribute.typeDescriptor());
             if (attributeType.typeKind() == TypeDescKind.RECORD) {
-                List<FieldSymbol> recordFields = ((BallerinaRecordTypeSymbol) attributeType).fieldDescriptors();
+                List<FieldSymbol> recordFields = ((RecordTypeSymbol) attributeType).fieldDescriptors();
                 fieldDetails.addProperty(TYPE, "ballerina_type");
                 fieldDetails.add(PROPERTIES, recordToJSON(recordFields));
             } else {

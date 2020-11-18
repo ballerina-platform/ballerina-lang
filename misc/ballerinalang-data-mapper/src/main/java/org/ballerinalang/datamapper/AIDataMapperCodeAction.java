@@ -24,7 +24,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -95,7 +94,7 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
                 action.setDiagnostics(new ArrayList<>());
                 return Optional.of(action);
             }
-        } catch (WorkspaceDocumentException | IOException e) {
+        } catch (IOException e) {
 //             ignore
         }
         return Optional.empty();
