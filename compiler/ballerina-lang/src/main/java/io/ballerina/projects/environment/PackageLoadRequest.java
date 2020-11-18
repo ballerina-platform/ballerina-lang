@@ -26,7 +26,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * {@code PackageLoadRequest} is ised to load package using repository.
+ * {@code PackageLoadRequest} is used to load package using repository.
  *
  * @since 2.0.0
  */
