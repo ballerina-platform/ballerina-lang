@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
-import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
@@ -32,6 +31,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.Position;
@@ -118,7 +118,8 @@ public class ScopedSymbolFinder extends NodeVisitor {
     @Override
     public void visit(VariableDeclarationNode variableDeclarationNode) {
         this.currentNode = variableDeclarationNode;
-        this.currentIdentifierPos = variableDeclarationNode.typedBindingPattern().bindingPattern().lineRange().startLine();
+        this.currentIdentifierPos = variableDeclarationNode.typedBindingPattern().bindingPattern().lineRange().
+                startLine();
     }
 
     public void visit(Node node) {
