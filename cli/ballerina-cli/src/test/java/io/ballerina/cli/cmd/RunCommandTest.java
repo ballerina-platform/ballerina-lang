@@ -149,4 +149,16 @@ public class RunCommandTest extends BaseCommandTest {
 
         Files.delete(tempFile);
     }
+
+    @Test(description = "Run a valid ballerina file that has an import having platform libs")
+    public void testRunProjectContainingImportsWithPlatformLibs() {
+        Path projectPath = this.testResources.resolve("validRunProjectImportsWithPlatformLibs");
+        // set valid source root
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        // name of the file as argument
+        new CommandLine(runCommand).parse(projectPath.toString());
+
+        // No assertions required since the command will fail upon expected behavior
+        runCommand.execute();
+    }
 }

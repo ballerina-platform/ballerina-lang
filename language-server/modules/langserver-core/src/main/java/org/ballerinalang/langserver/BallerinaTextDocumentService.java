@@ -30,8 +30,8 @@ import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderHolder;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.HoverContext;
-import org.ballerinalang.langserver.commons.NewLSContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -353,7 +353,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
             Path compilationPath = getUntitledFilePath(docSymbolFilePath.toString()).orElse(docSymbolFilePath.get());
 
-            NewLSContext codeLensContext = ContextBuilder.buildBaseContext(fileUri,
+            DocumentServiceContext codeLensContext = ContextBuilder.buildBaseContext(fileUri,
                     this.workspaceManager,
                     LSContextOperation.TXT_CODE_LENS);
 
@@ -461,7 +461,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public void didOpen(DidOpenTextDocumentParams params) {
         String fileUri = params.getTextDocument().getUri();
         try {
-            NewLSContext context = ContextBuilder.buildBaseContext(fileUri, this.workspaceManager,
+            DocumentServiceContext context = ContextBuilder.buildBaseContext(fileUri, this.workspaceManager,
                     LSContextOperation.TXT_DID_OPEN);
             this.workspaceManager.didOpen(context.filePath(), params);
             LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
@@ -479,7 +479,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         String fileUri = params.getTextDocument().getUri();
         try {
             // Update content
-            NewLSContext context = ContextBuilder.buildBaseContext(fileUri,
+            DocumentServiceContext context = ContextBuilder.buildBaseContext(fileUri,
                     this.workspaceManager,
                     LSContextOperation.TXT_DID_CHANGE);
             // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
@@ -501,7 +501,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public void didClose(DidCloseTextDocumentParams params) {
         String fileUri = params.getTextDocument().getUri();
         try {
-            NewLSContext context = ContextBuilder.buildBaseContext(fileUri,
+            DocumentServiceContext context = ContextBuilder.buildBaseContext(fileUri,
                     this.workspaceManager,
                     LSContextOperation.TXT_DID_CLOSE);
             workspaceManager.didClose(context.filePath(), params);

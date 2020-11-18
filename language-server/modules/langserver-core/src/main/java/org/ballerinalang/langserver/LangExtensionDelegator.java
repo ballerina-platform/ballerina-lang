@@ -20,9 +20,9 @@ package org.ballerinalang.langserver;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.CompletionExtension;
 import org.ballerinalang.langserver.commons.DiagnosticsExtension;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.FormattingExtension;
 import org.ballerinalang.langserver.commons.LanguageExtension;
-import org.ballerinalang.langserver.commons.NewLSContext;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
@@ -92,7 +92,8 @@ public class LangExtensionDelegator {
      * @return {@link List} of text edits
      * @throws Throwable while executing the extension
      */
-    public List<? extends TextEdit> formatting(DocumentFormattingParams params, NewLSContext context) throws Throwable {
+    public List<? extends TextEdit> formatting(DocumentFormattingParams params, DocumentServiceContext context)
+            throws Throwable {
         List<TextEdit> textEdits = new ArrayList<>();
         for (FormattingExtension ext : formatExtensions) {
             if (ext.validate(params)) {
@@ -110,7 +111,7 @@ public class LangExtensionDelegator {
      * @return {@link PublishDiagnosticsParams} diagnostic params calculated
      * @throws Throwable while executing the extension
      */
-    public List<PublishDiagnosticsParams> diagnostics(String uri, NewLSContext context) throws Throwable {
+    public List<PublishDiagnosticsParams> diagnostics(String uri, DocumentServiceContext context) throws Throwable {
         List<PublishDiagnosticsParams> diagnosticsParams = new ArrayList<>();
         for (DiagnosticsExtension ext : diagExtensions) {
             if (ext.validate(uri)) {

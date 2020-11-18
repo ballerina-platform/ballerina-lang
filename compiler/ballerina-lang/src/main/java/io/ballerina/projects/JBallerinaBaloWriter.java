@@ -79,7 +79,7 @@ public class JBallerinaBaloWriter extends BaloWriter {
                     .resolve(target)
                     .resolve(fileName);
             // create a zip entry for each file
-            putZipEntry(baloOutputStream, entryPath.toString(), new FileInputStream(libPath.toString()));
+            putZipEntry(baloOutputStream, entryPath, new FileInputStream(libPath.toString()));
 
             // Create the Package.json entry
             Gson gson = new Gson();

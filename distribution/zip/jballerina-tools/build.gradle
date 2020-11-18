@@ -182,6 +182,8 @@ dependencies {
     syntaxHighlighter project(path: ':docerina', configuration: 'syntaxHighlighter')
     htmlTemplateResources project(path: ':docerina', configuration: 'htmlTemplateResources')
 
+    distributionBalo project(path: ':ballerina-observability', configuration: 'distributionBalo')
+
     distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:internal', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
@@ -256,7 +258,7 @@ def copyBalxSpec = {
 def copyToDistCache = {
     path -> copySpec {
         from configurations.distributionBalo.collect { zipTree(it) }
-        into(path + 'distribution-cache')
+        into(path + 'repo')
     }
 }
 
@@ -384,12 +386,12 @@ task pathingJar(type: Jar) {
 }
 
 task copyApiDocs(type: Copy) {
-//    dependsOn configurations.balDoc
-//    from configurations.balDoc.files
-//    into "$buildDir/api-docs"
-//    exclude "index.html"
-//    exclude "html-template-resources"
-//    exclude "syntax-highlighter"
+    dependsOn configurations.balDoc
+    from configurations.balDoc.files
+    into "$buildDir/api-docs"
+    exclude "index.html"
+    exclude "html-template-resources"
+    exclude "syntax-highlighter"
 }
 
 task copyHighlighter(type: Copy) {

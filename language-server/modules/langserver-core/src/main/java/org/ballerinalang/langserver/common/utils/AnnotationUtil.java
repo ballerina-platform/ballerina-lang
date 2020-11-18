@@ -28,7 +28,7 @@ import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.projects.Module;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.CompletionContext;
-import org.ballerinalang.langserver.commons.NewLSContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -129,7 +129,7 @@ public class AnnotationUtil {
      * @param moduleID module id
      * @return {@link List} of text edits
      */
-    public static List<TextEdit> getAdditionalTextEdits(NewLSContext context, ModuleID moduleID) {
+    public static List<TextEdit> getAdditionalTextEdits(DocumentServiceContext context, ModuleID moduleID) {
         Optional<Module> currentModule = context.workspace().module(context.filePath());
         if (currentModule.isEmpty()) {
             return Collections.emptyList();

@@ -39,6 +39,7 @@ dependencies {
     implementation 'info.picocli:picocli'
     implementation 'org.apache.commons:commons-compress:1.18'
     implementation 'com.google.code.gson:gson:2.7'
+    implementation project(':docerina')
     implementation project(':testerina:testerina-runtime')
     testCompile 'org.testng:testng'
     testCompile 'org.mockito:mockito-all'
@@ -56,7 +57,7 @@ dependencies {
 task createTestDistributionCache(type: Copy) {
     dependsOn configurations.distributionBalo
     from configurations.distributionBalo
-    into "$buildDir/distribution-cache"
+    into "$buildDir/repo"
 }
 
 task createTestBre(type: Copy) {

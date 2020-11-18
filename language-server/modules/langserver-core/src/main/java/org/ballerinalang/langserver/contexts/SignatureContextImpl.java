@@ -29,7 +29,7 @@ import org.eclipse.lsp4j.SignatureHelpCapabilities;
  *
  * @since 1.2.0
  */
-public class SignatureContextImpl extends AbstractLSContext implements SignatureContext {
+public class SignatureContextImpl extends AbstractDocumentServiceContext implements SignatureContext {
 
     private final SignatureHelpCapabilities capabilities;
     private final Position cursorPos;

@@ -292,7 +292,7 @@ public class RunTestsTask implements Task {
             // Set projectName in test report
             String projectName;
             if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-                projectName = ProjectUtils.getJarName(project.currentPackage().getDefaultModule())
+                projectName = ProjectUtils.getJarFileName(project.currentPackage().getDefaultModule())
                         + ProjectConstants.BLANG_SOURCE_EXT;
             } else {
                 projectName = project.currentPackage().packageName().toString();

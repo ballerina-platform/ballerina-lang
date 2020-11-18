@@ -18,11 +18,10 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
-import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.Test;
 
 import java.util.List;
@@ -38,8 +37,8 @@ public class DiagnosticsTest {
 
     @Test
     public void testAllDiagnostics() {
-        CompileResult result = BCompileUtil.compile("test-src/testerrorproject/");
-        SemanticModel model = result.defaultModuleSemanticModel();
+        SemanticModel model = SemanticAPITestUtils.getDefaultModulesSemanticModel(
+                "test-src/testerrorproject/");
 
         List<Diagnostic> diagnostics = model.diagnostics();
         Object[][] expErrs = getExpectedErrors();
@@ -51,8 +50,8 @@ public class DiagnosticsTest {
 
     @Test
     public void testDiagnosticsInARange() {
-        CompileResult result = BCompileUtil.compile("test-src/testerrorproject/");
-        SemanticModel model = result.defaultModuleSemanticModel();
+        SemanticModel model = SemanticAPITestUtils.getDefaultModulesSemanticModel(
+                "test-src/testerrorproject/");
 
         LineRange range = LineRange.from("type_checking_errors.bal", LinePosition.from(1, 0),
                                          LinePosition.from(18, 19));

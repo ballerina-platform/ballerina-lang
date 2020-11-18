@@ -20,7 +20,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
-import org.ballerinalang.langserver.commons.NewLSContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.eclipse.lsp4j.Position;
 
@@ -41,7 +41,7 @@ public class TokensUtil {
      *
      * @return Token at position
      */
-    public static Token findTokenAtPosition(NewLSContext context, Position position)
+    public static Token findTokenAtPosition(DocumentServiceContext context, Position position)
             throws TokenOrSymbolNotFoundException {
         Optional<Document> document = context.workspace().document(context.filePath());
         if (document.isEmpty()) {

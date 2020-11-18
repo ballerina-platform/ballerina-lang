@@ -271,7 +271,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void unaryExpressionEvaluationTest() throws BallerinaTestException {
         // unary plus operator
         // int
@@ -299,7 +299,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void multiplicativeExpressionEvaluationTest() throws BallerinaTestException {
         ///////////////////////////////-----------multiplication----------------////////////////////////////////////////
         // int * int
@@ -361,7 +361,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void additiveExpressionEvaluationTest() throws BallerinaTestException {
         //////////////////////////////-------------addition------------------///////////////////////////////////////////
         // int + int
@@ -411,7 +411,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void shiftExpressionEvaluationTest() throws BallerinaTestException {
         assertExpression(context, String.format("%s << %s", INT_VAR, INT_VAR), "20971520", "int");
         assertExpression(context, String.format("%s << %s", SIGNED32INT_VAR, SIGNED8INT_VAR), "0", "int");
@@ -440,7 +440,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void comparisonEvaluationTest() throws BallerinaTestException {
         // expression < expression
         // int - int
@@ -549,7 +549,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void binaryBitwiseEvaluationTest() throws BallerinaTestException {
         // bitwise AND
         assertExpression(context, String.format("%s & %s", INT_VAR, INT_VAR), "20", "int");
@@ -560,7 +560,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void logicalEvaluationTest() throws BallerinaTestException {
         // logical AND
         assertExpression(context, String.format("%s && false", BOOLEAN_VAR), "false", "boolean");

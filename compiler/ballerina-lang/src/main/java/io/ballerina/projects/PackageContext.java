@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -37,6 +38,7 @@ class PackageContext {
     private final Project project;
     private final PackageId packageId;
     private final PackageDescriptor packageDescriptor;
+    private final BallerinaToml ballerinaToml;
     private ModuleContext defaultModuleContext;
     private boolean dependenciesResolved;
 
@@ -51,10 +53,12 @@ class PackageContext {
     PackageContext(Project project,
                    PackageId packageId,
                    PackageDescriptor packageDescriptor,
+                   BallerinaToml ballerinaToml,
                    Map<ModuleId, ModuleContext> moduleContextMap) {
         this.project = project;
         this.packageId = packageId;
         this.packageDescriptor = packageDescriptor;
+        this.ballerinaToml = ballerinaToml;
         this.moduleIds = Collections.unmodifiableCollection(moduleContextMap.keySet());
         this.moduleContextMap = moduleContextMap;
         // TODO Try to reuse previous unaffected compilations
@@ -71,7 +75,7 @@ class PackageContext {
 
         // Create module dependency graph
         return new PackageContext(project, packageConfig.packageId(),
-                packageConfig.packageDescriptor(), moduleContextMap);
+                packageConfig.packageDescriptor(), packageConfig.ballerinaToml(), moduleContextMap);
     }
 
     PackageId packageId() {
@@ -92,6 +96,10 @@ class PackageContext {
 
     PackageDescriptor packageDescriptor() {
         return packageDescriptor;
+    }
+
+    public Optional<BallerinaToml> ballerinaToml() {
+        return Optional.ofNullable(ballerinaToml);
     }
 
     Collection<ModuleId> moduleIds() {

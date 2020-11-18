@@ -19,7 +19,7 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.text.LineRange;
-import org.ballerinalang.langserver.commons.NewLSContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -62,7 +62,7 @@ public class DiagnosticsHelper {
      * @param client  Language server client
      * @param context LS context
      */
-    public synchronized void compileAndSendDiagnostics(ExtendedLanguageClient client, NewLSContext context) {
+    public synchronized void compileAndSendDiagnostics(ExtendedLanguageClient client, DocumentServiceContext context) {
         // Compile diagnostics
         Map<String, List<Diagnostic>> diagnosticMap = new HashMap<>();
         Optional<Project> project = context.workspace().project(context.filePath());

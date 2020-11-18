@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.internal;
 
+import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.ModuleConfig;
@@ -45,10 +46,14 @@ public class PackageConfigCreator {
     public static PackageConfig createBuildProjectConfig(Path projectDirPath) {
         ProjectFiles.validateBuildProjectDirPath(projectDirPath);
 
+        Path balTomlFilePath = projectDirPath.resolve(ProjectConstants.BALLERINA_TOML);
+        BallerinaToml ballerinaToml = BallerinaToml.from(balTomlFilePath);
+        // TODO Create the PackageDescriptor from the BallerinaToml file
+        // TODO Validate the ballerinaToml content inside the Ballerina toml file
         PackageDescriptor packageDescriptor = ProjectFiles.createPackageDescriptor(
-                projectDirPath.resolve(ProjectConstants.BALLERINA_TOML));
+                balTomlFilePath);
         PackageData packageData = ProjectFiles.loadBuildProjectPackageData(projectDirPath);
-        return createPackageConfig(packageData, packageDescriptor);
+        return createPackageConfig(packageData, packageDescriptor, ballerinaToml);
     }
 
     public static PackageConfig createSingleFileProjectConfig(Path filePath) {
@@ -73,6 +78,12 @@ public class PackageConfigCreator {
     }
 
     public static PackageConfig createPackageConfig(PackageData packageData, PackageDescriptor packageDescriptor) {
+        return createPackageConfig(packageData, packageDescriptor, null);
+    }
+
+    public static PackageConfig createPackageConfig(PackageData packageData,
+                                                    PackageDescriptor packageDescriptor,
+                                                    BallerinaToml ballerinaToml) {
         // TODO PackageData should contain the packageName. This should come from the Ballerina.toml file.
         // TODO For now, I take the directory name as the project name. I am not handling the case where the
         //  directory name is not a valid Ballerina identifier.
@@ -86,13 +97,14 @@ public class PackageConfigCreator {
                 .stream()
                 .map(moduleData -> createModuleConfig(packageDescriptor, moduleData, packageId))
                 .collect(Collectors.toList());
-        moduleConfigs.add(createDefaultModuleData(packageDescriptor, packageData.defaultModule(), packageId));
-        return PackageConfig.from(packageId, packageData.packagePath(), packageDescriptor, moduleConfigs);
+        moduleConfigs.add(createDefaultModuleConfig(packageDescriptor, packageData.defaultModule(), packageId));
+        return PackageConfig.from(packageId, packageData.packagePath(),
+                packageDescriptor, ballerinaToml, moduleConfigs);
     }
 
-    private static ModuleConfig createDefaultModuleData(PackageDescriptor pkgDescriptor,
-                                                        ModuleData moduleData,
-                                                        PackageId packageId) {
+    private static ModuleConfig createDefaultModuleConfig(PackageDescriptor pkgDescriptor,
+                                                          ModuleData moduleData,
+                                                          PackageId packageId) {
         ModuleName moduleName = ModuleName.from(pkgDescriptor.name());
         return createModuleConfig(createModuleDescriptor(pkgDescriptor, moduleName), moduleData, packageId);
     }

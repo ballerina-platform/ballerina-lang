@@ -11,4 +11,5 @@ module io.ballerina.cli {
     requires gson;
     requires org.jacoco.core;
     requires io.ballerina.central.client;
+    requires io.ballerina.docerina;
 }
