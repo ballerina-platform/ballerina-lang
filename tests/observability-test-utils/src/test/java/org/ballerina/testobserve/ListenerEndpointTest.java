@@ -29,6 +29,8 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,7 +43,8 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  */
 @Test(groups = "mock-listener-tests")
 public class ListenerEndpointTest {
-    private static final String TESTOBSERVE_MODULE_NAME = "testobserve";
+    private static final String TESTOBSERVE_MODULE_ZIP_NAME = "testobserve.zip";
+    private static final String OBESERVABILITY_TEST_UTILS_DIR = System.getProperty("observability.test.utils.dir");
     private static final String TEST_NATIVES_JAR = System.getProperty("observability.test.utils.jar");
     private static final String BALLERINA_TOML_TEST_NATIVES_JAR_NAME = "observability-test-utils.jar";
 
@@ -62,8 +65,10 @@ public class ListenerEndpointTest {
         copyFile(testUtilsJar, Paths.get(serverHome, "bre", "lib", testUtilsJar.getFileName().toString()));
 
         // Copy caches
-        copyDir(Paths.get("build", "ballerina-src",
-                "target", TESTOBSERVE_MODULE_NAME), Paths.get(serverHome, "repo"));
+        Path cacheZip = Paths.get(OBESERVABILITY_TEST_UTILS_DIR, "build", "ballerina-src", "target",
+                                  TESTOBSERVE_MODULE_ZIP_NAME);
+        FileSystem fs = FileSystems.newFileSystem(cacheZip, ListenerEndpointTest.class.getClassLoader());
+        copyDir(fs.getPath("/"), Paths.get(serverHome, "repo"));
 
         // Don't use 9898 port here. It is used in metrics test cases.
         servicesServerInstance = new BServerInstance(balServer);
@@ -114,7 +119,7 @@ public class ListenerEndpointTest {
     private void copyDir(Path source, Path dest) throws IOException {
         Files.walk(source).forEach(sourcePath -> {
             try {
-                Path targetPath = dest.resolve(source.relativize(sourcePath));
+                Path targetPath = dest.resolve(source.relativize(sourcePath).toString());
                 if (!targetPath.toFile().isDirectory() || !targetPath.toFile().exists()) {
                     copyFile(sourcePath, targetPath);
                 }
