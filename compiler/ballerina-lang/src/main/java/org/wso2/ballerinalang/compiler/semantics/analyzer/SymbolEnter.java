@@ -1570,7 +1570,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         int ownerSymTag = env.scope.owner.tag;
         if ((ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE) {
             varNode.memberVariables.forEach(member -> {
-                defineNode(member,env);
+                defineNode(member, env);
             });
         }
     }
