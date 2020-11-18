@@ -82,3 +82,16 @@ function testIsolatedFunctionSemanticsNegative() {
 
     Quuz v6 = {f: new Quux()};
 }
+
+class NonIsolatedClass {
+    int i = 1;
+}
+
+function testNonImplicitlyIsolatedObjectConstrExpr() {
+    var ob = object {
+        final int[] x = [];
+        final NonIsolatedClass y = new;
+    };
+
+    isolated object {} isolatedOb = ob;
+}

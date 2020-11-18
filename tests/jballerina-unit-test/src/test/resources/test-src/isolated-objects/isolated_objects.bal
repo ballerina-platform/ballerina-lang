@@ -380,3 +380,62 @@ isolated class IsolatedClassWithValidVarRefs {
         }
     }
 }
+
+function testObjectConstrExprImplicitIsolatedness() {
+    var ob = object {
+        final int[] & readonly x = [];
+        final IsolatedObjectType y = object {
+            final int a = 1;
+            final readonly & string[] b = [];
+        };
+        final IsolatedClassWithPrivateMutableFields z = new ({i: 2}, 3);
+    };
+
+    isolated object {} isolatedOb = ob;
+    assertTrue(<any> isolatedOb is isolated object {});
+
+    var ob2 = object {
+        final int[] x = [];
+        final object {} y = object {
+            final int a = 1;
+            final string[] b = [];
+        };
+        final IsolatedClassWithPrivateMutableFields z = new ({i: 2}, 3);
+    };
+
+    assertFalse(<any> ob2 is isolated object {});
+}
+
+class NonIsolatedClass {
+    int i = 1;
+}
+
+function testRuntimeIsolatedFlag() {
+    IsolatedClassWithPrivateMutableFields x = new ({i: 2}, 3);
+    assertTrue(<any> x is isolated object {});
+
+    NonIsolatedClass y = new;
+    assertFalse(<any> y is isolated object {});
+
+    testObjectConstrExprImplicitIsolatedness();
+}
+
+function assertTrue(any|error actual) {
+    assertEquality(true, actual);
+}
+
+function assertFalse(any|error actual) {
+    assertEquality(false, actual);
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}
