@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -40,6 +41,7 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
     private List<FieldSymbol> fieldSymbols;
     private final boolean isInclusive;
     private TypeSymbol restTypeDesc;
+    private List<TypeReferenceTypeSymbol> typeInclusions;
 
     public BallerinaRecordTypeSymbol(CompilerContext context, ModuleID moduleID, BRecordType recordType) {
         super(context, TypeDescKind.RECORD, moduleID, recordType);
@@ -81,6 +83,12 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
         }
 
         return Optional.ofNullable(this.restTypeDesc);
+    }
+
+    @Override
+    public List<TypeSymbol> typeInclusions() {
+
+        return null;
     }
 
     @Override
