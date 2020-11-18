@@ -20,13 +20,14 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
-import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -41,7 +42,7 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
     private List<FieldSymbol> fieldSymbols;
     private final boolean isInclusive;
     private TypeSymbol restTypeDesc;
-    private List<TypeReferenceTypeSymbol> typeInclusions;
+    private List<TypeSymbol> typeInclusions;
 
     public BallerinaRecordTypeSymbol(CompilerContext context, ModuleID moduleID, BRecordType recordType) {
         super(context, TypeDescKind.RECORD, moduleID, recordType);
@@ -87,8 +88,25 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
 
     @Override
     public List<TypeSymbol> typeInclusions() {
+        if (this.typeInclusions == null) {
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            List<BType> inclusions = ((BRecordType) this.getBType()).typeInclusions;
 
-        return null;
+            List<TypeSymbol> typeRefs = new ArrayList<>();
+            for (BType inclusion : inclusions) {
+                TypeSymbol type = typesFactory.getTypeDescriptor(inclusion);
+
+                // If the inclusion was not a type ref, the type would be semantic error and the type factory will
+                // return null. Therefore, skipping them.
+                if (type != null) {
+                    typeRefs.add(type);
+                }
+            }
+
+            this.typeInclusions = Collections.unmodifiableList(typeRefs);
+        }
+
+        return this.typeInclusions;
     }
 
     @Override
