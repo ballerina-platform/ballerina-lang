@@ -44,7 +44,7 @@ type FooRecord record {
     float d;
 };
 
-type FooObject object {
+class FooObject {
     string a;
     int b;
 
@@ -56,7 +56,7 @@ type FooObject object {
     function getValues() returns [string, int] {
         return [self.a, self.b];
     }
-};
+}
 
 function getIntOrError(int a) returns int|error {
     if (a == 0) {
@@ -213,7 +213,7 @@ function usingParamValues(string a1 = asyncRet(), string a2 = asyncRetWithVal(a1
     return a1 + a2;
 }
 
-public type Person object {
+public class Person {
 
     function funcWithAsyncDefaultParamExpression(string a1 = asyncRet(), string a2 = asyncRet()) returns string {
         return a1 + a2;
@@ -222,7 +222,7 @@ public type Person object {
     function usingParamValues(string a1 = asyncRet(), string a2 = asyncRetWithVal(a1)) returns string {
         return a1 + a2;
     }
-};
+}
 
 function testAttachedAsyncDefaultParam() returns string {
     Person p = new;

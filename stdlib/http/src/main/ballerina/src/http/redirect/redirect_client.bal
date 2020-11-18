@@ -23,7 +23,7 @@ import ballerina/log;
 # + redirectConfig - Configurations associated with redirect
 # + httpClient - HTTP client for outbound HTTP requests
 # + currentRedirectCount - Current redirect count of the HTTP client
-public type RedirectClient client object {
+public client class RedirectClient {
 
     public string url;
     public ClientConfiguration config;
@@ -243,7 +243,7 @@ public type RedirectClient client object {
     public remote function rejectPromise(PushPromise promise) {
         self.httpClient->rejectPromise(promise);
     }
-};
+}
 
 //Invoke relevant HTTP client action and check the response for redirect eligibility.
 function performRedirectIfEligible(RedirectClient redirectClient, string path, Request request,

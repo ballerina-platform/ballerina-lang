@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -43,8 +43,8 @@ public class ErrorTest {
     }
 
     @Test(description = "Test panic an error", expectedExceptions = RuntimeException.class, 
-          expectedExceptionsMessageRegExp = "error: reason foo 2 message=int value\n\tat errors:foo\\(errors"
-                  + ".bal:48\\)\n\t   errors:testPanic\\(errors.bal:20\\)")
+          expectedExceptionsMessageRegExp = "error: reason foo 2 \\{\"message\":\"int value\"\\}\n\tat errors:foo\\" +
+                  "(errors.bal:48\\)\n\t   errors:testPanic\\(errors.bal:20\\)")
     public void testPanic() {
             BRunUtil.invoke(compileResult, "testPanic", new BValue[] { new BInteger(0) });
     }

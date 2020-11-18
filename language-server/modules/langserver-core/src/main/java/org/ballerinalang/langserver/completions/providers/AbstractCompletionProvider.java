@@ -17,19 +17,28 @@
  */
 package org.ballerinalang.langserver.completions.providers;
 
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.api.symbols.WorkerSymbol;
+import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.completion.spi.CompletionProvider;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -38,37 +47,24 @@ import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
-import org.ballerinalang.langserver.completions.builder.BConstantCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.TypeCompletionItem;
+import org.ballerinalang.langserver.completions.builder.ConstantCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.TypeCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.VariableCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.WorkerCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
-import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -76,7 +72,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+
+import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
+import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 
 /**
  * Interface for completion item providers.
@@ -150,47 +148,35 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @param context      Language server operation context
      * @return {@link List}     list of completion items
      */
-    protected List<LSCompletionItem> getCompletionItemList(List<Scope.ScopeEntry> scopeEntries, LSContext context) {
-        List<BSymbol> processedSymbols = new ArrayList<>();
+    protected List<LSCompletionItem> getCompletionItemList(List<? extends Symbol> scopeEntries, LSContext context) {
+        List<Symbol> processedSymbols = new ArrayList<>();
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        scopeEntries.removeIf(CommonUtil.invalidSymbolsPredicate());
-        scopeEntries.forEach(scopeEntry -> {
-            BSymbol symbol = scopeEntry.symbol;
+        scopeEntries.forEach(symbol -> {
             if (processedSymbols.contains(symbol)) {
                 return;
             }
-            Optional<BSymbol> bTypeSymbol;
-            if (CommonUtil.isValidInvokableSymbol(symbol)) {
-                completionItems.add(populateBallerinaFunctionCompletionItem(scopeEntry, context));
-            } else if (symbol instanceof BConstantSymbol) {
-                CompletionItem constantCItem = BConstantCompletionItemBuilder.build((BConstantSymbol) symbol, context);
+            if (symbol.kind() == FUNCTION || symbol.kind() == METHOD) {
+                completionItems.add(populateBallerinaFunctionCompletionItem(symbol, context));
+            } else if (symbol.kind() == SymbolKind.CONSTANT) {
+                CompletionItem constantCItem = ConstantCompletionItemBuilder.build((ConstantSymbol) symbol, context);
                 completionItems.add(new SymbolCompletionItem(context, symbol, constantCItem));
-            } else if (!(symbol instanceof BInvokableSymbol) && symbol instanceof BVarSymbol) {
-                String typeName = CommonUtil.getBTypeName(symbol.type, context, false);
-                CompletionItem variableCItem = BVariableCompletionItemBuilder
-                        .build((BVarSymbol) symbol, scopeEntry.symbol.name.value, typeName);
+            } else if (symbol.kind() == SymbolKind.VARIABLE) {
+                VariableSymbol varSymbol = (VariableSymbol) symbol;
+                BallerinaTypeDescriptor typeDesc = (varSymbol).typeDescriptor();
+                String typeName = typeDesc.signature();
+                CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, symbol.name(), typeName);
                 completionItems.add(new SymbolCompletionItem(context, symbol, variableCItem));
-            } else if ((bTypeSymbol = FilterUtils.getBTypeEntry(scopeEntry)).isPresent()) {
+            } else if (symbol.kind() == SymbolKind.TYPE) {
                 // Here skip all the package symbols since the package is added separately
-                CompletionItem typeCItem = BTypeCompletionItemBuilder.build(bTypeSymbol.get(),
-                        scopeEntry.symbol.name.value);
-                completionItems.add(new SymbolCompletionItem(context, bTypeSymbol.get(), typeCItem));
+                CompletionItem typeCItem = TypeCompletionItemBuilder.build(symbol, symbol.name());
+                completionItems.add(new SymbolCompletionItem(context, symbol, typeCItem));
+            } else if (symbol.kind() == SymbolKind.WORKER) {
+                CompletionItem workerItem = WorkerCompletionItemBuilder.build((WorkerSymbol) symbol);
+                completionItems.add(new SymbolCompletionItem(context, symbol, workerItem));
             }
             processedSymbols.add(symbol);
         });
         return completionItems;
-    }
-
-    /**
-     * Populate the completion item list by either list.
-     *
-     * @param list    Either List of completion items or symbol info
-     * @param context LS Operation Context
-     * @return {@link List}     Completion Items List
-     */
-    protected List<LSCompletionItem> getCompletionItemList(Either<List<LSCompletionItem>, List<Scope.ScopeEntry>> list,
-                                                           LSContext context) {
-        return list.isLeft() ? list.getLeft() : this.getCompletionItemList(list.getRight(), context);
     }
 
     /**
@@ -200,24 +186,26 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @return {@link List}     List of completion items
      */
     protected List<LSCompletionItem> getTypeItems(LSContext context) {
-        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
+        List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        visibleSymbols.forEach(scopeEntry -> {
-            BSymbol bSymbol = scopeEntry.symbol;
-            if (((bSymbol instanceof BConstructorSymbol && bSymbol.type != null
-                    && bSymbol.type.getKind() == TypeKind.ERROR))
-                    || (bSymbol instanceof BTypeSymbol && !(bSymbol instanceof BPackageSymbol))) {
-                BSymbol symbol = bSymbol;
-                if (bSymbol instanceof BConstructorSymbol) {
-                    symbol = ((BConstructorSymbol) bSymbol).type.tsymbol;
-                }
-                CompletionItem cItem = BTypeCompletionItemBuilder.build(symbol, scopeEntry.symbol.name.getValue());
-                completionItems.add(new SymbolCompletionItem(context, symbol, cItem));
+        visibleSymbols.forEach(bSymbol -> {
+            if (bSymbol.kind() == SymbolKind.TYPE) {
+                CompletionItem cItem = TypeCompletionItemBuilder.build(bSymbol, bSymbol.name());
+                completionItems.add(new SymbolCompletionItem(context, bSymbol, cItem));
             }
         });
 
+        completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
+        completionItems.add(new TypeCompletionItem(context, null, Snippet.TYPE_MAP.get().build(context)));
+
         completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
+        completionItems.addAll(Arrays.asList(
+                new SnippetCompletionItem(context, Snippet.KW_RECORD.get()),
+                new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()),
+                new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD_TYPE_DESC.get()),
+                new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()),
+                new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get())
+        ));
 
         return completionItems;
     }
@@ -228,48 +216,9 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @param moduleSymbol package symbol
      * @return {@link List} list of filtered type entries
      */
-    protected List<Scope.ScopeEntry> filterTypesInModule(BSymbol moduleSymbol) {
-        return moduleSymbol.scope.entries.values().stream()
-                .filter(scopeEntry -> scopeEntry.symbol instanceof BTypeSymbol
-                        || (scopeEntry.symbol instanceof BConstructorSymbol
-                        && Names.ERROR.equals(scopeEntry.symbol.name)))
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Add top level items to the given completionItems List.
-     *
-     * @param context LS Context
-     * @return {@link List}     List of populated completion items
-     */
     @Deprecated
-    protected List<LSCompletionItem> addTopLevelItems(LSContext context) {
-        ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IMPORT.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TYPE.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PUBLIC.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CONST.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_LISTENER.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ENUM.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_XMLNS.get()));
-
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_MAIN_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_SERVICE.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_SERVICE_WEBSOCKET.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_SERVICE_WS_CLIENT.get()));
-//        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_SERVICE_WEBSUB));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_SERVICE_GRPC.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_ANNOTATION.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_NAMESPACE_DECLARATION.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_SNIPPET.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RECORD.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_ERROR_TYPE_DESC.get()));
-        return completionItems;
+    protected List<TypeSymbol> filterTypesInModule(ModuleSymbol moduleSymbol) {
+        return moduleSymbol.typeDefinitions();
     }
 
     /**
@@ -279,7 +228,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @param ctx LS Operation context
      * @return {@link List}     List of packages completion items
      */
-    protected List<LSCompletionItem> getPackagesCompletionItems(LSContext ctx) {
+    protected List<LSCompletionItem> getModuleCompletionItems(LSContext ctx) {
         // First we include the packages from the imported list.
         List<String> populatedList = new ArrayList<>();
         BLangPackage currentPkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
@@ -304,7 +253,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                     item.setDetail(ItemResolverConstants.MODULE_TYPE);
                     item.setKind(CompletionItemKind.Module);
                     populatedList.add(orgName + "/" + pkgName);
-                    return new SymbolCompletionItem(ctx, pkg.symbol, item);
+                    return new SymbolCompletionItem(ctx, null, item);
                 }).collect(Collectors.toList());
 
         List<BallerinaPackage> packages = LSPackageLoader.getSdkPackages();
@@ -449,26 +398,24 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     /**
      * Get the implicit new expression completion item.
      *
-     * @param objectTypeSymbol object type symbol
-     * @param context          Language server operation context
+     * @param objectType object type symbol
+     * @param context    Language server operation context
      * @return {@link LSCompletionItem} generated
      */
-    protected LSCompletionItem getImplicitNewCompletionItem(BObjectTypeSymbol objectTypeSymbol, LSContext context) {
-        CompletionItem cItem = BFunctionCompletionItemBuilder.build(objectTypeSymbol,
-                BFunctionCompletionItemBuilder.InitializerBuildMode.IMPLICIT, context);
+    protected LSCompletionItem getImplicitNewCompletionItem(ObjectTypeDescriptor objectType, LSContext context) {
+        CompletionItem cItem = FunctionCompletionItemBuilder.build(objectType,
+                FunctionCompletionItemBuilder.InitializerBuildMode.IMPLICIT, context);
+        MethodSymbol initMethod = objectType.initMethod().isPresent() ? objectType.initMethod().get() : null;
 
-        BInvokableSymbol invokableSymbol = objectTypeSymbol.initializerFunc == null
-                ? null : objectTypeSymbol.initializerFunc.symbol;
-        return new SymbolCompletionItem(context, invokableSymbol, cItem);
+        return new SymbolCompletionItem(context, initMethod, cItem);
     }
 
-    protected LSCompletionItem getExplicitNewCompletionItem(BObjectTypeSymbol objectTypeSymbol, LSContext context) {
-        CompletionItem cItem = BFunctionCompletionItemBuilder.build(objectTypeSymbol,
-                BFunctionCompletionItemBuilder.InitializerBuildMode.EXPLICIT, context);
-        BInvokableSymbol invokableSymbol = objectTypeSymbol.initializerFunc == null
-                ? null : objectTypeSymbol.initializerFunc.symbol;
-        return new SymbolCompletionItem(context, invokableSymbol, cItem);
+    protected LSCompletionItem getExplicitNewCompletionItem(ObjectTypeDescriptor objectType, LSContext context) {
+        CompletionItem cItem = FunctionCompletionItemBuilder.build(objectType,
+                FunctionCompletionItemBuilder.InitializerBuildMode.EXPLICIT, context);
+        MethodSymbol initMethod = objectType.initMethod().isPresent() ? objectType.initMethod().get() : null;
 
+        return new SymbolCompletionItem(context, initMethod, cItem);
     }
 
     // Private Methods
@@ -476,53 +423,15 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     /**
      * Populate the Ballerina Function Completion Item.
      *
-     * @param scopeEntry - symbol Entry
+     * @param symbol symbol Entry
      * @return completion item
      */
-    private LSCompletionItem populateBallerinaFunctionCompletionItem(Scope.ScopeEntry scopeEntry, LSContext context) {
-        BSymbol bSymbol = scopeEntry.symbol;
-        if (!(bSymbol instanceof BInvokableSymbol)) {
+    private LSCompletionItem populateBallerinaFunctionCompletionItem(Symbol symbol, LSContext context) {
+        if (symbol.kind() != SymbolKind.FUNCTION && symbol.kind() != SymbolKind.METHOD) {
             return null;
         }
-        CompletionItem completionItem = BFunctionCompletionItemBuilder.build((BInvokableSymbol) bSymbol, context);
-        return new SymbolCompletionItem(context, bSymbol, completionItem);
-    }
-
-    /**
-     * Get the function parameter signature generated dynamically, with the given list of parameter types.
-     * Parameter names will not be included for the arrow function snippets and the parameter names are generated
-     * dynamically
-     *
-     * @param paramTypes List of Parameter Types
-     * @param withType   Whether tha parameters included with the types. In case of arrow functions this value is false
-     * @param context    Language server operation context
-     * @return {@link String} Generated function parameter snippet
-     * @throws LSCompletionException Completion exception
-     */
-    protected String getDynamicParamsSnippet(List<BLangVariable> paramTypes, boolean withType, LSContext context)
-            throws LSCompletionException {
-        String paramName = "param";
-        StringBuilder signature = new StringBuilder("(");
-        List<String> params = IntStream.range(0, paramTypes.size())
-                .mapToObj(index -> {
-                    int paramIndex = index + 1;
-                    String paramPlaceHolder = "${" + paramIndex + ":" + paramName + paramIndex + "}";
-                    if (withType) {
-                        BType paramType = paramTypes.get(index).getTypeNode().type;
-                        paramPlaceHolder = CommonUtil.getBTypeName(paramType, context, true) + " " + paramPlaceHolder;
-                    }
-                    return paramPlaceHolder;
-                })
-                .collect(Collectors.toList());
-
-        if (params.contains("")) {
-            throw new LSCompletionException("Contains invalid parameter type");
-        }
-
-        signature.append(String.join(", ", params))
-                .append(") ");
-
-        return signature.toString();
+        CompletionItem completionItem = FunctionCompletionItemBuilder.build((FunctionSymbol) symbol, context);
+        return new SymbolCompletionItem(context, symbol, completionItem);
     }
 
     /**
@@ -558,12 +467,12 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     }
 
     protected List<LSCompletionItem> expressionCompletions(LSContext context) {
-        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         /*
         check and check panic expression starts with check and check panic keywords, Which has been added with actions.
         query pipeline starts with from keyword and also being added with the actions
          */
-        List<LSCompletionItem> completionItems = new ArrayList<>(this.getPackagesCompletionItems(context));
+        List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TABLE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SERVICE.get()));
         // to support start of string template expression
@@ -571,19 +480,35 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         // to support start of xml template expression
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_XML.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_LET.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TYPEOF.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRAP.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ERROR.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_ERROR_CONSTRUCTOR.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_OBJECT_CONSTRUCTOR.get()));
 
-        List<Scope.ScopeEntry> filteredList = visibleSymbols.stream()
-                .filter(scopeEntry -> scopeEntry.symbol instanceof BVarSymbol
-                        && !(scopeEntry.symbol instanceof BOperatorSymbol))
+        List<Symbol> filteredList = visibleSymbols.stream()
+                .filter(symbol -> symbol instanceof VariableSymbol || symbol.kind() == FUNCTION)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         // TODO: anon function expressions, 
+        return completionItems;
+    }
+    
+    private List<LSCompletionItem> getBasicAndOtherTypeCompletions(LSContext context) {
+        List<String> types = Arrays.asList("float", "xml", "readonly", "handle", "never", "decimal", "string", "stream",
+                "json", "table", "anydata", "any", "int", "boolean", "future", "service", "typedesc");
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        types.forEach(type -> {
+
+            CompletionItem cItem = TypeCompletionItemBuilder.build(null, type);
+            completionItems.add(new SymbolCompletionItem(context, null, cItem));
+        });
+        
         return completionItems;
     }
 

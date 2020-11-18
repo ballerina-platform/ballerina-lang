@@ -53,13 +53,13 @@ function testValRefType() returns Foo1 {
 
 // TESTS FOR RECORDS WHERE THE REFERENCED TYPE HAS COMPLEX REF TYPE FIELDS
 
-type Person object {
+class Person {
     string name;
 
     function init(string name) {
         self.name = name;
     }
-};
+}
 
 type Employee record {|
     int id;

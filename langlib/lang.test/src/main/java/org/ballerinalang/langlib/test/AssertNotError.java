@@ -18,31 +18,21 @@
 
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-
-import static org.ballerinalang.util.BLangCompilerConstants.TEST_VERSION;
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeTags;
 
 /**
  * Native implementation of assertNotError(anydata|error value).
  *
  * @since 1.3.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.test", version = TEST_VERSION, functionName = "assertNotError",
-        args = {@Argument(name = "value", type = TypeKind.UNION)},
-        isPublic = true
-)
 public class AssertNotError {
-    public static void assertNotError(Strand strand, Object value) {
+    public static void assertNotError(Object value) {
         if (TypeChecker.getType(value).getTag() == TypeTags.ERROR_TAG) {
-            throw BallerinaErrors.createError("{ballerina/lang.test}AssertionError",
-                    "expected a non-error type");
+            throw ErrorCreator.createError(StringUtils.fromString("{ballerina/lang.test}AssertionError"),
+                                           StringUtils.fromString("expected a non-error type"));
         }
     }
 }

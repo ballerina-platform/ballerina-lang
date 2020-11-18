@@ -17,7 +17,7 @@
 #
 # LoadBalancerRule provides a required interfaces to implement different algorithms.
 #
-public type LoadBalancerRule abstract object {
+public type LoadBalancerRule object {
 
     # Provides an HTTP client which is chosen according to the algorithm.
     #

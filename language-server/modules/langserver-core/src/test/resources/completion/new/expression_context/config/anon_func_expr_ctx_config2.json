@@ -6,93 +6,6 @@
   "source": "expression_context/source/anon_func_expr_ctx_source2.bal",
   "items": [
     {
-      "label": "float",
-      "kind": "Unit",
-      "detail": "Float",
-      "insertText": "float",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "readonly",
-      "kind": "Unit",
-      "detail": "Readonly",
-      "insertText": "readonly",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "xml",
-      "kind": "Unit",
-      "detail": "Xml",
-      "insertText": "xml",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "byte",
-      "kind": "Unit",
-      "detail": "Byte",
-      "insertText": "byte",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "handle",
-      "kind": "Unit",
-      "detail": "Handle",
-      "insertText": "handle",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ArgsData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Defaultable argument names. This is for internal use.\n"
-      },
-      "insertText": "ArgsData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "never",
-      "kind": "Unit",
-      "detail": "Never",
-      "insertText": "never",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "null",
-      "kind": "Unit",
-      "detail": "Nil",
-      "insertText": "null",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "decimal",
-      "kind": "Unit",
-      "detail": "Decimal",
-      "insertText": "decimal",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "string",
-      "kind": "Unit",
-      "detail": "String",
-      "insertText": "string",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "stream",
-      "kind": "Unit",
-      "detail": "Stream",
-      "insertText": "stream",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "json",
-      "kind": "Unit",
-      "detail": "Json",
-      "insertText": "json",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -103,73 +16,135 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "map",
+      "label": "Thread",
+      "detail": "Union",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "float",
       "kind": "Unit",
-      "detail": "Map",
-      "insertText": "map",
+      "detail": "type",
+      "insertText": "float",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "xml",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "xml",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "readonly",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "readonly",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "handle",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "handle",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "never",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "never",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "decimal",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "decimal",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "string",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "string",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stream",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "stream",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "json",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "json",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "table",
       "kind": "Unit",
-      "detail": "Table",
+      "detail": "type",
       "insertText": "table",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "anydata",
       "kind": "Unit",
-      "detail": "Anydata",
+      "detail": "type",
       "insertText": "anydata",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "any",
       "kind": "Unit",
-      "detail": "Any",
+      "detail": "type",
       "insertText": "any",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "int",
       "kind": "Unit",
-      "detail": "Int",
+      "detail": "type",
       "insertText": "int",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Finite",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "boolean",
       "kind": "Unit",
-      "detail": "Boolean",
+      "detail": "type",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "future",
       "kind": "Unit",
-      "detail": "Future",
+      "detail": "type",
       "insertText": "future",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "service",
       "kind": "Unit",
-      "detail": "Service",
+      "detail": "type",
       "insertText": "service",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "typedesc",
       "kind": "Unit",
-      "detail": "Typedesc",
+      "detail": "type",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "map",
+      "kind": "Unit",
+      "detail": "type ",
+      "insertText": "map",
       "insertTextFormat": "Snippet"
     },
     {
@@ -177,6 +152,41 @@
       "kind": "Event",
       "detail": "error",
       "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "record ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "record {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record {||}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "record {|\n\t${1}\n|}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "object {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -196,11 +206,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -218,11 +228,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -240,11 +250,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -262,11 +272,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -284,11 +294,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -306,15 +316,37 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
           "newText": "import ballerina/lang.'string;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
         }
       ]
     },
@@ -328,11 +360,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -350,11 +382,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -372,11 +404,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -394,11 +426,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -416,11 +448,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -438,11 +470,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -460,11 +492,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -482,11 +514,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -504,11 +536,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -526,11 +558,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -548,11 +580,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },

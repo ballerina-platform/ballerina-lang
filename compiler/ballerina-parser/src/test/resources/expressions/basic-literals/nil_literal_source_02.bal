@@ -1,4 +1,4 @@
 type Person record {
-    () a =  ();
+    () a = ();
     () b;
 };

@@ -15,11 +15,16 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import org.ballerinalang.jvm.util.Flags;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.UnionTypeDescriptor;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -31,16 +36,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,13 +68,13 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                 }
              */
             QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            Predicate<Scope.ScopeEntry> filter = scopeEntry -> {
-                BSymbol symbol = scopeEntry.symbol;
-                return !CommonUtil.isInvalidSymbol(symbol)
-                        && (symbol instanceof BTypeSymbol || symbol instanceof BInvokableSymbol)
-                        && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC;
-            };
-            List<Scope.ScopeEntry> moduleContent = QNameReferenceUtil.getModuleContent(context, nameRef, filter);
+            Predicate<Symbol> filter = symbol ->
+                    symbol.kind() == SymbolKind.TYPE
+                            || symbol.kind() == SymbolKind.VARIABLE
+                            || symbol.kind() == SymbolKind.CONSTANT
+                            || symbol.kind() == SymbolKind.FUNCTION;
+            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, nameRef, filter);
+
             return this.getCompletionItemList(moduleContent, context);
         }
         
@@ -92,7 +88,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(getStaticCompletionItems(context));
         completionItems.addAll(getStatementCompletionItems(context, node));
-        completionItems.addAll(this.getPackagesCompletionItems(context));
+        completionItems.addAll(this.getModuleCompletionItems(context));
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getSymbolCompletions(context));
 
@@ -103,26 +99,19 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
 
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
 
-        // Add the xmlns snippet
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_NAMESPACE_DECLARATION.get()));
-        // Add the xmlns keyword
+        completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_ON_FAIL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_XMLNS.get()));
-        // Add the var keyword
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
-        // Add the wait keyword
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_WAIT.get()));
-        // Add the start keyword
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_START.get()));
-        // Add the flush keyword
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FLUSH.get()));
-        // Add the function keyword
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
-        // Add the checkpanic keyword
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get()));
-        // Add the check keyword
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK.get()));
-        // Add the final keyword
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FAIL.get()));
 
         return completionItems;
     }
@@ -134,6 +123,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
 
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_IF.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_WHILE.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_DO.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_LOCK.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FOREACH.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FORK.get()));
@@ -155,20 +145,17 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_CONTINUE.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_BREAK.get()));
         }
-        if (context.get(CompletionKeys.TRANSACTION_COUNT_KEY) > 0) {
-            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_ROLLBACK.get()));
-        }
+        // Todo: Implement rollback statement suggestion
 
         return completionItems;
     }
 
     protected List<LSCompletionItem> getSymbolCompletions(LSContext context) {
-        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         List<LSCompletionItem> completionItems = new ArrayList<>();
         // TODO: Can we get this filter to a common place
-        List<Scope.ScopeEntry> filteredList = visibleSymbols.stream()
-                .filter(scopeEntry -> scopeEntry.symbol instanceof BVarSymbol
-                        && !(scopeEntry.symbol instanceof BOperatorSymbol))
+        List<Symbol> filteredList = visibleSymbols.stream()
+                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION || symbol instanceof VariableSymbol)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getTypeguardDestructedItems(visibleSymbols, context));
@@ -188,20 +175,26 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         return withinLoops;
     }
 
-    private List<LSCompletionItem> getTypeguardDestructedItems(List<Scope.ScopeEntry> scopeEntries,
-                                                               LSContext ctx) {
+    private List<LSCompletionItem> getTypeguardDestructedItems(List<Symbol> scopeEntries, LSContext ctx) {
         List<String> capturedSymbols = new ArrayList<>();
         // In the case of type guarded variables multiple symbols with the same symbol name and we ignore those
         return scopeEntries.stream()
-                .filter(scopeEntry -> (scopeEntry.symbol.type instanceof BUnionType)
-                        && !capturedSymbols.contains(scopeEntry.symbol.name.value))
-                .map(entry -> {
-                    capturedSymbols.add(entry.symbol.name.getValue());
-                    List<BType> errorTypes = new ArrayList<>();
-                    List<BType> resultTypes = new ArrayList<>();
-                    List<BType> members = new ArrayList<>(((BUnionType) entry.symbol.type).getMemberTypes());
+                .filter(symbol -> {
+                    if (symbol.kind() != SymbolKind.VARIABLE) {
+                        return false;
+                    }
+                    BallerinaTypeDescriptor typeDesc = ((VariableSymbol) symbol).typeDescriptor();
+                    return typeDesc.kind() == TypeDescKind.UNION && !capturedSymbols.contains(symbol.name());
+                })
+                .map(symbol -> {
+                    capturedSymbols.add(symbol.name());
+                    List<BallerinaTypeDescriptor> errorTypes = new ArrayList<>();
+                    List<BallerinaTypeDescriptor> resultTypes = new ArrayList<>();
+                    List<BallerinaTypeDescriptor> members
+                            = new ArrayList<>(((UnionTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor())
+                            .memberTypeDescriptors());
                     members.forEach(bType -> {
-                        if (bType.tag == TypeTags.ERROR) {
+                        if (bType.kind() == TypeDescKind.ERROR) {
                             errorTypes.add(bType);
                         } else {
                             resultTypes.add(bType);
@@ -210,7 +203,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                     if (errorTypes.size() == 1) {
                         resultTypes.addAll(errorTypes);
                     }
-                    String symbolName = entry.symbol.name.getValue();
+                    String symbolName = symbol.name();
                     String label = symbolName + " - typeguard " + symbolName;
                     String detail = "Destructure the variable " + symbolName + " with typeguard";
                     StringBuilder snippet = new StringBuilder();
@@ -222,7 +215,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                         paramCounter++;
                     } else if (errorTypes.size() == 1) {
                         snippet.append("if (").append(symbolName).append(" is ")
-                                .append(CommonUtil.getBTypeName(errorTypes.get(0), ctx, true)).append(") {")
+                                .append(errorTypes.get(0).signature()).append(") {")
                                 .append(CommonUtil.LINE_SEPARATOR).append("\t${1}").append(CommonUtil.LINE_SEPARATOR)
                                 .append("}");
                         paramCounter++;
@@ -230,9 +223,9 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                     int finalParamCounter = paramCounter;
                     String restSnippet = (!snippet.toString().isEmpty() && resultTypes.size() > 2) ? " else " : "";
                     restSnippet += IntStream.range(0, resultTypes.size() - paramCounter).mapToObj(value -> {
-                        BType bType = members.get(value);
+                        BallerinaTypeDescriptor bType = members.get(value);
                         String placeHolder = "\t${" + (value + finalParamCounter) + "}";
-                        return "if (" + symbolName + " is " + CommonUtil.getBTypeName(bType, ctx, true) + ") {"
+                        return "if (" + symbolName + " is " + bType.signature() + ") {"
                                 + CommonUtil.LINE_SEPARATOR + placeHolder + CommonUtil.LINE_SEPARATOR + "}";
                     }).collect(Collectors.joining(" else ")) + " else {" + CommonUtil.LINE_SEPARATOR + "\t${"
                             + members.size() + "}" + CommonUtil.LINE_SEPARATOR + "}";

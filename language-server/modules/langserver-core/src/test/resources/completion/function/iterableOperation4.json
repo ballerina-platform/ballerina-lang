@@ -114,11 +114,39 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format and returns the the value that it represents.\nAll numbers in the JSON will be represented as float values.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `(json|error)`   \n- `str` parsed to json or error  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format and returns the the value that it represents.\nAll integer numbers in the JSON will be represented as integer values.\nAll decimal numbers except -0.0 in the JSON will be represent as decimal values.\n-0.0 in the JSON will be represent as float value.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `(json|error)`   \n- `str` parsed to json or error  \n  \n"
         }
       },
       "sortText": "120",
       "insertText": "fromJsonString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fromJsonFloatString()((json|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format and returns the value that it represents.\nAll numbers in the JSON will be represented as float values.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `(json|error)`   \n- `str` parsed to json or error  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "fromJsonFloatString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fromJsonDecimalString()((json|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format and returns the value that it represents.\nAll numbers in the JSON will be represented as decimal values.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `(json|error)`   \n- `str` parsed to json or error  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "fromJsonDecimalString()",
       "insertTextFormat": "Snippet"
     },
     {

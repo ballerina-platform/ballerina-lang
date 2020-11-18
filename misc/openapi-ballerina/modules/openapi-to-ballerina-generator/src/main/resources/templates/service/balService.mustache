@@ -4,8 +4,8 @@ import ballerina/openapi;
 listener http:Listener ep{{@index}} = new({{port}}{{#host}}, config = {host: "{{host}}"}{{/host}});
 {{/servers}}
 @openapi:ServiceInfo {{=<% %>=}}{<%={{ }}=%>
-    contract: "{{defPath}}"{{#if tags}},
-    tags: [ ]{{/if}}{{#if operations}},
+    contract: "{{defPath}}"{{#if filteredTags}},
+    tags: [{{#each filteredTags}} {{#if @first}}"{{name}}"{{else}},"{{name}}"{{/if}} {{/each}}]{{/if}}{{#if operations}},
     operations: [ {{#operations}}{{name}}{{/operations}} ]{{/if}}
 }
 @http:ServiceConfig {

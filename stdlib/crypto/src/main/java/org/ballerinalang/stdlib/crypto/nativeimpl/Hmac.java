@@ -18,8 +18,8 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 /**
@@ -29,23 +29,26 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
  */
 public class Hmac {
 
-    public static ArrayValue hmacMd5(ArrayValue inputValue, ArrayValue keyValue) {
-        return new ArrayValueImpl(CryptoUtils.hmac("HmacMD5", keyValue.getBytes(), inputValue.getBytes()));
+    public static BArray hmacMd5(BArray inputValue, BArray keyValue) {
+        return ValueCreator.createArrayValue(CryptoUtils.hmac("HmacMD5", keyValue.getBytes(), inputValue.getBytes()));
     }
 
-    public static ArrayValue hmacSha1(ArrayValue inputValue, ArrayValue keyValue) {
-        return new ArrayValueImpl(CryptoUtils.hmac("HmacSHA1", keyValue.getBytes(), inputValue.getBytes()));
+    public static BArray hmacSha1(BArray inputValue, BArray keyValue) {
+        return ValueCreator.createArrayValue(CryptoUtils.hmac("HmacSHA1", keyValue.getBytes(), inputValue.getBytes()));
     }
 
-    public static ArrayValue hmacSha256(ArrayValue inputValue, ArrayValue keyValue) {
-        return new ArrayValueImpl(CryptoUtils.hmac("HmacSHA256", keyValue.getBytes(), inputValue.getBytes()));
+    public static BArray hmacSha256(BArray inputValue, BArray keyValue) {
+        return ValueCreator.createArrayValue(CryptoUtils.hmac("HmacSHA256", keyValue.getBytes(),
+                                                              inputValue.getBytes()));
     }
 
-    public static ArrayValue hmacSha384(ArrayValue inputValue, ArrayValue keyValue) {
-        return new ArrayValueImpl(CryptoUtils.hmac("HmacSHA384", keyValue.getBytes(), inputValue.getBytes()));
+    public static BArray hmacSha384(BArray inputValue, BArray keyValue) {
+        return ValueCreator.createArrayValue(CryptoUtils.hmac("HmacSHA384", keyValue.getBytes(),
+                                                              inputValue.getBytes()));
     }
 
-    public static ArrayValue hmacSha512(ArrayValue inputValue, ArrayValue keyValue) {
-        return new ArrayValueImpl(CryptoUtils.hmac("HmacSHA512", keyValue.getBytes(), inputValue.getBytes()));
+    public static BArray hmacSha512(BArray inputValue, BArray keyValue) {
+        return ValueCreator.createArrayValue(CryptoUtils.hmac("HmacSHA512", keyValue.getBytes(),
+                                                              inputValue.getBytes()));
     }
 }

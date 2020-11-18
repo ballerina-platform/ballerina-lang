@@ -107,7 +107,7 @@ function testResourceAnnotAccess() returns boolean {
     return false;
 }
 
-type Listener object {
+class Listener {
     *lang:Listener;
 
     public function init() {
@@ -129,4 +129,4 @@ type Listener object {
     public function __immediateStop() returns error? {
         return ();
     }
-};
+}

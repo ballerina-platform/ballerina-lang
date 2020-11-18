@@ -90,7 +90,7 @@ type Person record {
     int area = 0;
 };
 
-type Abc object {
+class Abc {
     public string name;
     private int area;
 
@@ -98,9 +98,9 @@ type Abc object {
         self.name = name;
         self.area = area;
     }
-};
+}
 
-type Def object {
+class Def {
     public string name;
     private int id;
 
@@ -108,4 +108,4 @@ type Def object {
         self.name = name;
         self.id = id;
     }
-};
+}

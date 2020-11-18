@@ -30,7 +30,9 @@ jar {
 }
 
 dependencies {
-    implementation 'org.apache.maven:maven-resolver-provider:3.6.3'
+    implementation ('org.apache.maven:maven-resolver-provider:3.6.3') {
+        exclude group: 'org.apache.maven' , module: 'maven-model-builder'
+    }
     implementation 'org.apache.maven.resolver:maven-resolver-api:1.4.2'
     implementation 'org.apache.maven.resolver:maven-resolver-spi:1.4.2'
     implementation 'org.apache.maven.resolver:maven-resolver-util:1.4.2'
@@ -39,6 +41,7 @@ dependencies {
     implementation 'org.apache.maven.resolver:maven-resolver-transport-file:1.4.2'
     implementation 'org.apache.maven.resolver:maven-resolver-transport-http:1.4.2'
     implementation 'me.tongfei:progressbar'
+    testImplementation 'org.apache.maven:maven-model-builder:3.6.3' 
     testCompile 'org.testng:testng'
 }
 
@@ -47,3 +50,12 @@ test {
 }
 
 description = 'Ballerina - Maven dependency resolver'
+
+compileJava {
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

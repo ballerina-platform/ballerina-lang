@@ -72,7 +72,7 @@ import static org.ballerinalang.langserver.Experimental.SEMANTIC_SYNTAX_HIGHLIGH
  * Language server implementation for Ballerina.
  */
 public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
-        implements ExtendedLanguageServer, ExtendedLanguageClientAware {
+        implements ExtendedLanguageClientAware, ExtendedLanguageServer {
     private ExtendedLanguageClient client = null;
     private final TextDocumentService textService;
     private final WorkspaceService workspaceService;
@@ -135,6 +135,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setCodeActionProvider(true);
         res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
         res.getCapabilities().setDocumentFormattingProvider(true);
+        res.getCapabilities().setDocumentRangeFormattingProvider(true);
         res.getCapabilities().setRenameProvider(false);
         res.getCapabilities().setWorkspaceSymbolProvider(false);
         res.getCapabilities().setImplementationProvider(false);
@@ -143,7 +144,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         HashMap experimentalClientCapabilities = null;
         if (params.getCapabilities().getExperimental() != null) {
             experimentalClientCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(),
-                                                                 HashMap.class);
+                    HashMap.class);
         }
 
         // Set AST provider and examples provider capabilities
@@ -171,8 +172,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         TextDocumentClientCapabilities textDocClientCapabilities = params.getCapabilities().getTextDocument();
         WorkspaceClientCapabilities workspaceClientCapabilities = params.getCapabilities().getWorkspace();
         LSClientCapabilities capabilities = new LSClientCapabilitiesImpl(textDocClientCapabilities,
-                                                                         workspaceClientCapabilities,
-                                                                         experimentalClientCapabilities);
+                workspaceClientCapabilities,
+                experimentalClientCapabilities);
         ((BallerinaTextDocumentService) textService).setClientCapabilities(capabilities);
         ((BallerinaWorkspaceService) workspaceService).setClientCapabilities(capabilities);
         return CompletableFuture.supplyAsync(() -> res);
@@ -240,7 +241,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         return documentManager;
     }
 
-    @Override
+    //    @Override
     public BallerinaFragmentService getBallerinaFragmentService() {
         return ballerinaFragmentService;
     }

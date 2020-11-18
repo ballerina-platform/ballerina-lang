@@ -1,0 +1,16 @@
+{
+  "position": {
+    "line": 6,
+    "character": 22
+  },
+  "source": "expression_context/source/query_expr_ctx_source2.bal",
+  "items": [
+    {
+      "label": "key",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "key",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

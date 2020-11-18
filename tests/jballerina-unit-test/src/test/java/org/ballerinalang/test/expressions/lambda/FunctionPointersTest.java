@@ -17,13 +17,13 @@
 */
 package org.ballerinalang.test.expressions.lambda;
 
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -191,6 +191,11 @@ public class FunctionPointersTest {
         Assert.assertEquals(returns[0].stringValue(), "truetest6");
     }
 
+    @Test(description = "Test global function type defs with closures")
+    public void testGlobalFunctionTypeDefWithClosures() {
+        BRunUtil.invoke(globalProgram, "testGlobalFunctionTypeDefWithClosures");
+    }
+
     @Test
     public void testStructFP() {
         BValue[] returns = BRunUtil.invoke(structProgram, "test1");
@@ -214,6 +219,16 @@ public class FunctionPointersTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "white, bob");
+    }
+
+    @Test
+    public void testClassTypeAsParamtype() {
+        BRunUtil.invoke(fpProgram, "testGetMemberFunctionAsAField");
+    }
+
+    @Test
+    public void testMemberTakenAsAFieldWithRestArgs() {
+        BRunUtil.invoke(fpProgram, "testMemberTakenAsAFieldWithRestArgs");
     }
 
     @Test
@@ -251,7 +266,8 @@ public class FunctionPointersTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible types: " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError " +
+                    "\\{\"message\":\"incompatible types: " +
                     "'function \\(Student\\) returns \\(int\\)' cannot be cast to 'function \\(Person\\)" +
                     " returns \\(int\\)'.*")
     public void testAnyToFuncPointerConversion_2() {

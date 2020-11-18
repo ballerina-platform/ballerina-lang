@@ -1,5 +1,4 @@
 type foo object {
-     remote transactional function foo(){
-
+     remote transactional function foo() {
      }
 };

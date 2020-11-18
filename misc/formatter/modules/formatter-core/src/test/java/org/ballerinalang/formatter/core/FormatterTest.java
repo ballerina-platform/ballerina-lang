@@ -17,16 +17,15 @@
  */
 package org.ballerinalang.formatter.core;
 
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,6 +42,7 @@ public abstract class FormatterTest {
     // TODO: Add test cases for syntax error scenarios as well
 
     private final Path resourceDirectory = Paths.get("src").resolve("test").resolve("resources").toAbsolutePath();
+    private Path buildDirectory = Paths.get("build").toAbsolutePath().normalize();
     private static final String ASSERT_DIR = "assert";
     private static final String SOURCE_DIR = "source";
 
@@ -60,8 +60,23 @@ public abstract class FormatterTest {
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
         SyntaxTree newSyntaxTree = Formatter.format(syntaxTree);
-        Assert.assertFalse(newSyntaxTree.hasDiagnostics());
-        Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath).replaceAll("\\r\\n", "\n"));
+        Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
+    }
+
+    /**
+     * Test the formatting functionality for parser test cases.
+     *
+     * @param sourcePath Source path of the parser test
+     */
+    public void testParserResources(String sourcePath) throws IOException {
+        Path filePath = Paths.get(sourcePath);
+        String content = getSourceText(filePath);
+        TextDocument textDocument = TextDocuments.from(content);
+        SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
+        if (!syntaxTree.hasDiagnostics()) {
+            SyntaxTree newSyntaxTree = Formatter.format(syntaxTree);
+            Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(filePath));
+        }
     }
 
     /**
@@ -116,7 +131,27 @@ public abstract class FormatterTest {
         }
     }
 
+    Object[][] getParserTestConfigs() {
+        if (this.testSubset().length != 0) {
+            return this.testSubset();
+        }
+        List<String> skippedTests = this.skipList();
+        try {
+            return Files.walk(this.buildDirectory.resolve("resources").resolve("test")
+                    .resolve(this.getTestResourceDir()))
+                    .filter(path -> {
+                        File file = path.toFile();
+                        return file.isFile() && file.getName().endsWith(".bal")
+                                && !skippedTests.contains(file.getName());
+                    })
+                    .map(path -> new Object[]{path.toFile().getName(), path.toString()})
+                    .toArray(size -> new Object[size][2]);
+        } catch (IOException e) {
+            return new Object[0][];
+        }
+    }
+
     private String getSourceText(Path sourceFilePath) throws IOException {
-        return new String(Files.readAllBytes(resourceDirectory.resolve(sourceFilePath)), StandardCharsets.UTF_8);
+        return Files.readString(resourceDirectory.resolve(sourceFilePath));
     }
 }

@@ -29,13 +29,13 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-java')
+
     implementation 'org.slf4j:slf4j-api'
     testCompile project(':ballerina-tool')
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'org.testng:testng'
 
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+
 
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-core')

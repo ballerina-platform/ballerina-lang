@@ -17,7 +17,7 @@
 # Implementation of round robin load balancing strategy.
 #
 # + index - Keep tracks the current point of the Client[]
-public type LoadBalancerRoundRobinRule object {
+public class LoadBalancerRoundRobinRule {
 
     public int index = 0;
 
@@ -39,4 +39,4 @@ public type LoadBalancerRoundRobinRule object {
         }
         return httpClient;
     }
-};
+}

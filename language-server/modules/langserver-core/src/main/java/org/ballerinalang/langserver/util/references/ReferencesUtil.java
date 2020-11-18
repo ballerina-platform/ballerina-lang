@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.util.references;
 
-import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -163,7 +163,7 @@ public class ReferencesUtil {
         Path compilationPath = getUntitledFilePath(defFilePath.toString()).orElse(defFilePath.get());
         Optional<Lock> lock = docManager.lockFile(compilationPath);
         try {
-            return LSModuleCompiler.getBLangPackages(context, docManager, null, compileProject, false, false, true);
+            return LSModuleCompiler.getBLangPackages(context, docManager, compileProject, false, false);
         } finally {
             lock.ifPresent(Lock::unlock);
         }

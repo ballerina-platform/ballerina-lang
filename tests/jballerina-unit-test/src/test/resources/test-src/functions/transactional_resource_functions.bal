@@ -11,7 +11,7 @@ service on ep {
     }
 }
 
-public type ABC object {
+public class ABC {
 
     *'object:Listener;
 
@@ -33,7 +33,7 @@ public type ABC object {
 
     public function __detach(service s) returns error? {
     }
-};
+}
 
 function test () returns [int, int] {
     return [startCount, attachCount];

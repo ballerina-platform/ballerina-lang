@@ -96,14 +96,21 @@ dependencies {
     dist 'org.jetbrains.kotlin:kotlin-stdlib-common:1.3.31'
     dist 'org.ow2.asm:asm:7.1'
     dist 'org.ow2.asm:asm-analysis:7.1'
-    dist 'org.ow2.asm:asm-tree:7.1'
+    dist 'org.ow2.asm:asm-tree:7.2'
     dist 'org.ow2.asm:asm-util:7.1'
     dist 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.5'
-    
+
+    // Following dependencies are required for transactions
+    dist 'com.atomikos:transactions-jta:5.0.8'
+    dist 'com.atomikos:transactions-api:5.0.8'
+    dist 'com.atomikos:atomikos-util:5.0.8'
+    dist 'com.atomikos:transactions:5.0.8'
+
     dist project(':ballerina-tools-api')
     dist project(':ballerina-parser')
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-tool')
+    dist project(':ballerina-tools-api')
     dist project(':ballerina-cli-module')
     dist project(':ballerina-rt')
     dist project(':ballerina-choreo-extension-rt')
@@ -116,10 +123,6 @@ dependencies {
     dist project(':language-server:language-server-compiler')
     dist project(':language-server:language-server-commons')
     dist project(':ballerina-packerina')
-    dist project(':openapi-ballerina:ballerina-to-openapi-generator')
-    dist project(':openapi-ballerina:openapi-to-ballerina-generator')
-    dist project(':openapi-ballerina:openapi-validator')
-    dist project(':openapi-ballerina:ballerina-client-generator')
     dist project(':docerina')
     dist project(':observerability-symbol-collector')
     dist project(':testerina:testerina-runtime')
@@ -148,18 +151,16 @@ dependencies {
     distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
     balSource project(path: ':testerina:testerina-core', configuration: 'balSource')
 
-    birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
-
     // ballerinax module cache
-    balxBir project(path: ':ballerina-java', configuration: 'bir')
+    balxBir project(path: ':ballerina-lang:java', configuration: 'bir')
 
     balDoc project(path: ':ballerina-observability', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-openapi', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-transactions', configuration: 'balDoc')
+//    balDoc project(path: ':ballerina-transactions', configuration: 'balDoc')
 
     // Lang Libs
     balDoc project(path: ':ballerina-lang:internal', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:annotations', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-lang:java', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:array', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:decimal', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:error', configuration: 'balDoc')
@@ -179,7 +180,7 @@ dependencies {
     balDoc project(path: ':ballerina-lang:transaction', configuration: 'balDoc')
 
     // ballerinax modules
-    balDoc project(path: ':ballerina-java', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-lang:java', configuration: 'balDoc')
 
     // testerina modules
     balDoc project(path: ':testerina:testerina-core', configuration: 'balDoc')
@@ -379,7 +380,7 @@ task pathingJar(type: Jar) {
 task copyApiDocs(type: Copy) {
     dependsOn configurations.balDoc
     from configurations.balDoc.files
-    into "$buildDir/api-docs";
+    into "$buildDir/api-docs"
     exclude "index.html"
     exclude "html-template-resources"
     exclude "syntax-highlighter"
@@ -388,13 +389,13 @@ task copyApiDocs(type: Copy) {
 task copyHighlighter(type: Copy) {
     dependsOn configurations.syntaxHighlighter
     from configurations.syntaxHighlighter
-    into "$buildDir/api-docs/syntax-highlighter";
+    into "$buildDir/api-docs/syntax-highlighter"
 }
 
 task copyHtmlTemplateResources(type: Copy) {
     dependsOn configurations.htmlTemplateResources
     from configurations.htmlTemplateResources
-    into "$buildDir/api-docs/html-template-resources";
+    into "$buildDir/api-docs/html-template-resources"
 }
 
 task generateDocs(type: JavaExec) {

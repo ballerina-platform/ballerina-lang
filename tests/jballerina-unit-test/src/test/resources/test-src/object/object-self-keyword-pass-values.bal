@@ -10,7 +10,7 @@ function testGetValueFromPassedSelf() returns string {
     return p.selfAsValue();
 }
 
-type Person object {
+class Person {
     public int age = 10;
     public string name = "sample name";
 
@@ -35,7 +35,7 @@ type Person object {
         return passSelfAsValue(self);
     }
 
-};
+}
 
 function passSelfAsValue(Person p) returns string {
     return p.getName();

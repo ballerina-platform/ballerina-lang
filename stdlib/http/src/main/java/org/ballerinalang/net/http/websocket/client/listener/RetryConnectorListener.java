@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.websocket.client.listener;
 
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
@@ -77,7 +77,7 @@ public class RetryConnectorListener implements ExtendedConnectorListener {
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
+        BObject webSocketClient = connectionInfo.getWebSocketEndpoint();
         int statusCode = webSocketCloseMessage.getCloseCode();
         if (WebSocketUtil.hasRetryContext(webSocketClient)) {
             if (statusCode == WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE &&
@@ -101,7 +101,7 @@ public class RetryConnectorListener implements ExtendedConnectorListener {
 
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
-        ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
+        BObject webSocketClient = connectionInfo.getWebSocketEndpoint();
         if (WebSocketUtil.hasRetryContext(webSocketClient) && throwable instanceof IOException &&
                 WebSocketUtil.reconnect(webSocketClient, connectionInfo.getService())) {
             return;

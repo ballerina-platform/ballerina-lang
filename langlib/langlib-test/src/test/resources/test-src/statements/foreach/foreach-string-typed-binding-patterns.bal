@@ -1,11 +1,11 @@
 string output = "";
 
 function concatIntString(int i, string s) {
-    output = output + i + ":" + s + " ";
+    output = output + i.toString() + ":" + s + " ";
 }
 
 function concatIntAny(int i, any a) {
-    output = output + i + ":" + string.convert(a) + " ";
+    output = output + i.toString() + ":" + a.toString() + " ";
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

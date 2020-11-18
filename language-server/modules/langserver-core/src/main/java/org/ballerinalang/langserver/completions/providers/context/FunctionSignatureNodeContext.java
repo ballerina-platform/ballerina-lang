@@ -15,11 +15,11 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.LinePosition;
-import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -90,7 +90,7 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
                 (2) function(T<cursor>)
                  */
                 completionItems.addAll(this.getTypeItems(context));
-                completionItems.addAll(this.getPackagesCompletionItems(context));
+                completionItems.addAll(this.getModuleCompletionItems(context));
             }
         }
         return completionItems;
@@ -115,6 +115,7 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
     @Override
     public boolean onPreValidation(LSContext context, FunctionSignatureNode node) {
         // If the signature belongs to the function type descriptor, we skip this resolver
-        return node.parent().kind() != SyntaxKind.FUNCTION_TYPE_DESC;
+        return !node.openParenToken().isMissing() && !node.closeParenToken().isMissing()
+                && node.parent().kind() != SyntaxKind.FUNCTION_TYPE_DESC;
     }
 }

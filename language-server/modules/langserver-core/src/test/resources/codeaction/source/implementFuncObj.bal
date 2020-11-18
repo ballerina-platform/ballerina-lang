@@ -1,8 +1,8 @@
-public type BaseConnector abstract object {
+public type BaseConnector object {
     public function pushText1(string text) returns error?;
 };
 
-public type Connector abstract object {
+public type Connector object {
     *BaseConnector;
 
     public function pushText2(string text) returns error?;

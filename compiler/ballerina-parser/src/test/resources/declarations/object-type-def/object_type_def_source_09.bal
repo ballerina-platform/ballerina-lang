@@ -1,3 +1,3 @@
 type Student object {
-    int b 7;
+    int b = 7;
 };

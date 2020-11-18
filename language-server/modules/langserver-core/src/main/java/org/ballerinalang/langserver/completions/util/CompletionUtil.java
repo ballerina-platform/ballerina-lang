@@ -15,13 +15,16 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
-import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
@@ -32,11 +35,8 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.ProviderFactory;
-import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.nio.file.Path;
@@ -50,8 +50,6 @@ import java.util.stream.Collectors;
  * Common utility methods for the completion operation.
  */
 public class CompletionUtil {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CompletionUtil.class);
-
     /**
      * Resolve the visible symbols from the given BLang Package and the current context.
      *
@@ -59,9 +57,13 @@ public class CompletionUtil {
      */
     public static void resolveSymbols(LSContext completionContext) {
         // Visit the package to resolve the symbols
-        TreeVisitor treeVisitor = new TreeVisitor(completionContext);
         BLangPackage bLangPackage = completionContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        bLangPackage.accept(treeVisitor);
+        SemanticModel semanticModel = new BallerinaSemanticModel(bLangPackage,
+                completionContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
+        Position position = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        String filePath = completionContext.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        completionContext.put(CommonKeys.VISIBLE_SYMBOLS_KEY, semanticModel
+                .visibleSymbols(filePath, LinePosition.from(position.getLine(), position.getCharacter())));
     }
 
     /**
@@ -127,7 +129,7 @@ public class CompletionUtil {
     public static void fillTokenInfoAtCursor(LSContext context) throws WorkspaceDocumentException {
         WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         Optional<Path> filePath = CommonUtil.getPathFromURI(context.get(DocumentServiceKeys.FILE_URI_KEY));
-        if (!filePath.isPresent()) {
+        if (filePath.isEmpty()) {
             return;
         }
         SyntaxTree syntaxTree = docManager.getTree(filePath.get());

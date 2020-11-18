@@ -18,14 +18,7 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
+import io.ballerina.runtime.api.values.BTable;
 
 /**
  * Extern function to check existence of key.
@@ -33,16 +26,16 @@ import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
  *
  * @since 1.3.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION, functionName = "hasKey",
-        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "key", type = TypeKind.ANYDATA)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.table", functionName = "hasKey",
+//        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "key", type = TypeKind.ANYDATA)},
+//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+//        isPublic = true
+//)
 public class HasKey {
 
     @Deprecated
-    public static boolean hasKey(Strand strand, TableValueImpl tbl, Object key) {
+    public static boolean hasKey(BTable tbl, Object key) {
         return tbl.containsKey(key);
     }
 }

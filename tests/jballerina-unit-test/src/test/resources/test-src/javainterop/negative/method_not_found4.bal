@@ -21,6 +21,6 @@ public function interopWithAnyReturn() returns boolean {
 }
 
 public function acceptIntAnyReturn(int s) returns any = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
     name:"acceptIntAndUnionReturn"
 } external;

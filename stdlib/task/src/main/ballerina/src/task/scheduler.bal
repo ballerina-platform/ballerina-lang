@@ -15,7 +15,7 @@
 // under the License.
 
 # Represents a ballerina task Scheduler, which can be used to run jobs periodically, using the given configurations.
-public type Scheduler object {
+public class Scheduler {
     private Listener taskListener;
 
     # Initializes a `task:Scheduler` object. This may panic if the initialization causes any error due to
@@ -103,4 +103,4 @@ public type Scheduler object {
     public function isStarted() returns boolean {
         return self.taskListener.isStarted();
     }
-};
+}

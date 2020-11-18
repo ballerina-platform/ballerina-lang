@@ -12,7 +12,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) operation,\ndefined in the Ballerina Language Specification.\n  \n"
         }
       },
       "insertText": "clone()",
@@ -25,7 +25,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) operation,\ndefined in the Ballerina Language Specification.\n  \n"
         }
       },
       "insertText": "cloneReadOnly()",
@@ -68,10 +68,23 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nPerforms a minimal conversion of a value to a string.\nThe conversion is minimal in particular in the sense\nthat the conversion applied to a value that is already\na string does nothing.  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nThe result of `toString(v)` is as follows:  \n  \n- if `v` is a string, then returns `v`  \n- if `v` is `()`, then returns an empty string  \n- if `v` is boolean, then the string `true` or `false`  \n- if `v` is an int, then return `v` represented as a decimal string  \n- if `v` is a float or decimal, then return `v` represented as a decimal string,  \n  with a decimal point only if necessary, but without any suffix indicating the type of `v`;  \n  return `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity  \n- if `v` is a list, then returns the results toString on each member of the list  \n  separated by a space character  \n- if `v` is a map, then returns key=value for each member separated by a space character  \n- if `v` is xml, then returns `v` in XML format (as if it occurred within an XML element)  \n- if `v` is table, TBD  \n- if `v` is an error, then a string consisting of the following in order  \n    1. the string `error`  \n    2. a space character  \n    3. the reason string  \n    4. if the detail record is non-empty  \n        1. a space character  \n        2. the result of calling toString on the detail record  \n- if `v` is an object, then  \n    - if `v` provides a `toString` method with a string return type and no required methods,  \n      then the result of calling that method on `v`  \n    - otherwise, `object` followed by some implementation-dependent string  \n- if `v` is any other behavioral type, then the identifier for the behavioral type  \n  (`function`, `future`, `service`, `typedesc` or `handle`)  \n  followed by some implementation-dependent string  \n  \nNote that `toString` may produce the same string for two Ballerina values  \nthat are not equal (in the sense of the `==` operator).  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nPerforms a direct conversion of a value to a string.\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nThe details of the conversion are specified by the ToString abstract operation  \ndefined in the Ballerina Language Specification, using the direct style.  \n  \n"
         }
       },
       "insertText": "toString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "toBalString()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nIf `v` is anydata and does not have cycles, then the result will  \nconform to the grammar for a Ballerina expression and when evaluated  \nwill result in a value that is == to v.  \n  \nThe details of the conversion are specified by the ToString abstract operation  \ndefined in the Ballerina Language Specification, using the expression style.  \n  \n"
+        }
+      },
+      "insertText": "toBalString()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -107,10 +120,36 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format and returns the the value that it represents.\nAll numbers in the JSON will be represented as float values.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `(json|error)`   \n- `str` parsed to json or error  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format and returns the the value that it represents.\nAll integer numbers in the JSON will be represented as integer values.\nAll decimal numbers except -0.0 in the JSON will be represent as decimal values.\n-0.0 in the JSON will be represent as float value.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `(json|error)`   \n- `str` parsed to json or error  \n  \n"
         }
       },
       "insertText": "fromJsonString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fromJsonFloatString()((json|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format and returns the value that it represents.\nAll numbers in the JSON will be represented as float values.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `(json|error)`   \n- `str` parsed to json or error  \n  \n"
+        }
+      },
+      "insertText": "fromJsonFloatString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fromJsonDecimalString()((json|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format and returns the value that it represents.\nAll numbers in the JSON will be represented as decimal values.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `(json|error)`   \n- `str` parsed to json or error  \n  \n"
+        }
+      },
+      "insertText": "fromJsonDecimalString()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -165,18 +204,21 @@
       }
     },
     {
-      "label": "orderFieldValsArr",
-      "kind": "Variable",
-      "detail": "anydata[][]",
-      "insertText": "orderFieldValsArr",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "orderDirectionsArr",
-      "kind": "Variable",
-      "detail": "boolean[]",
-      "insertText": "orderDirectionsArr",
-      "insertTextFormat": "Snippet"
+      "label": "requireType(typedesc<any> t)((any|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a field in map<json> to a user-specified basic simple type.\nbasic simple types are ()|int|float|decimal|string.  \n**Params**  \n- `typedesc<any>` t: basic simple type to convert to  \n  \n**Returns** `(any|error)`   \n- value belonging to `t`, or error if this cannot be done  \n  \n"
+        }
+      },
+      "insertText": "requireType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "createPipeline(typedesc<(any|error)> resType)(_StreamPipeline)",
@@ -364,23 +406,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "sortStream((any|error)[] arr, int lmt)(stream<(any|error),error?><(any|error)>)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n**Params**  \n- `(any|error)[]` arr  \n- `int` lmt"
-        }
-      },
-      "insertText": "sortStream(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "toArray((any|error)[] arr)(((any|error)[]|error))",
       "kind": "Function",
       "detail": "Function",
@@ -451,19 +476,6 @@
         }
       },
       "insertText": "consumeStream()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "checkNaN()(boolean)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n  \n  \n**Returns** `boolean`   \n  \n"
-        }
-      },
-      "insertText": "checkNaN()",
       "insertTextFormat": "Snippet"
     },
     {

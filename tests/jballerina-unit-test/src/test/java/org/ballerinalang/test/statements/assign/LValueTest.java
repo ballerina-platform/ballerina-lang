@@ -16,12 +16,12 @@
  */
 package org.ballerinalang.test.statements.assign;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -122,43 +122,45 @@ public class LValueTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.map\\}InherentTypeViolation message=invalid value " +
-                    "for record field 'i': expected value of type 'int', found 'string'.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.map\\}InherentTypeViolation " +
+                    "\\{\"message\":\"invalid value for record field 'i': expected value of type 'int', found " +
+                    "'string'\"\\}.*")
     public void testInherentTypeViolatingUpdate1() {
         BRunUtil.invoke(result, "testInherentTypeViolatingUpdate1");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.object\\}InherentTypeViolation message=invalid " +
-                    "value for object field 'i': expected value of type 'boolean', found 'int'.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.object\\}InherentTypeViolation " +
+                    "\\{\"message\":\"invalid value for object field 'i': expected value of type 'boolean', found " +
+                    "'int'\"\\}.*")
     public void testInherentTypeViolatingUpdate2() {
         BRunUtil.invoke(result, "testInherentTypeViolatingUpdate2");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}InherentTypeViolation message=incompatible" +
-                    " types: expected 'int', found 'string'.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}InherentTypeViolation " +
+                    "\\{\"message\":\"incompatible types: expected 'int', found 'string'\"\\}.*")
     public void testInherentTypeViolatingUpdate3() {
         BRunUtil.invoke(result, "testInherentTypeViolatingUpdate3");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.map\\}KeyNotFound message=invalid field access: " +
-                    "field 'g' not found in record type 'DRec'.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"invalid field "
+                    + "access: field 'g' not found in record type 'DRec'\"\\}.*")
     public void testInvalidUpdateOnClosedRecord() {
         BRunUtil.invoke(result, "testInvalidUpdateOnClosedRecord");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange message=array index out of" +
-                    " range: index: 2, size: 2.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"array " +
+                    "index out of range: index: 2, size: 2\"\\}.*")
     public void testInvalidUpdateOnClosedArray() {
         BRunUtil.invoke(result, "testInvalidUpdateOnClosedArray");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.map\\}InvalidUpdate message=Invalid update of " +
-                    "record field: modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.map\\}InvalidUpdate \\{\"message\":\"Invalid " +
+                    "update of record field: modification not allowed on readonly value\"\\}.*")
     public void testFrozenValueUpdate() {
         BRunUtil.invoke(result, "testFrozenValueUpdate");
     }
@@ -173,8 +175,9 @@ public class LValueTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IllegalListInsertion message=array of " +
-                    "length 2 cannot be expanded into array of length 4 without filler values.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IllegalListInsertion " +
+                    "\\{\"message\":\"array of length 2 cannot be expanded into array of length 4 without filler " +
+                    "values\"\\}.*")
     public void testArrayFillFailure() {
         BRunUtil.invoke(result, "testArrayFillFailure");
     }
@@ -195,19 +198,22 @@ public class LValueTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.map\\}KeyNotFound message=cannot find key 'one'.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot " +
+                    "find key 'one'\"\\}.*")
     public void testFillingReadOnMappingNegative() {
         BRunUtil.invoke(result, "testFillingReadOnMappingNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.map\\}KeyNotFound message=cannot find key 'l'.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot find key" +
+                    " 'l'\"\\}.*")
     public void testFillingReadOnRecordNegativeFieldAccessLvExpr() {
         BRunUtil.invoke(result, "testFillingReadOnRecordNegativeFieldAccessLvExpr");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.map\\}KeyNotFound message=cannot find key 'l'.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot find key" +
+                    " 'l'\"\\}\n.*")
     public void testFillingReadOnRecordNegativeMemberAccessLvExpr() {
         BRunUtil.invoke(result, "testFillingReadOnRecordNegativeMemberAccessLvExpr");
     }

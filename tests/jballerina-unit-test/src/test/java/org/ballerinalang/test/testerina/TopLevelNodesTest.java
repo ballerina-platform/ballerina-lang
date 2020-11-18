@@ -44,6 +44,6 @@ public class TopLevelNodesTest {
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'testDuplicate'", 4, 17);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'Person'", 8, 13);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'testString'", 13, 8);
-        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'Company'", 15, 13);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'Company'", 15, 1);
     }
 }

@@ -15,9 +15,9 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.KeySpecifierNode;
-import io.ballerinalang.compiler.syntax.tree.TableConstructorExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.KeySpecifierNode;
+import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,7 +48,18 @@ public class TableConstructorExpressionNodeContext extends AbstractCompletionPro
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (this.withinKeySpecifier(context, node)) {
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_KEY.get()));
+            return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_KEY.get()));
+        }
+        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        if (node.keySpecifier().isPresent() && node.keySpecifier().get().textRange().endOffset() < cursor) {
+            /*
+            Covers the following
+            (1) var test = table key(id) f<cursor>
+            (2) var test = stream f<cursor>
+            This particular section hits only when (1) and (2) are being the last statement of a block (ex: in function)
+             */
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_FROM.get()));
         }
         
         return completionItems;

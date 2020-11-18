@@ -63,4 +63,9 @@ public class ListConstructorTest extends AbstractExpressionsTest {
     public void testListWithMissingCommas() {
         test("[a b c]", "list-constructor/list_constructor_assert_08.json");
     }
+
+    @Test
+    public void testListWithInvalidAnnotations() {
+        test("@Annotation [a + b, c]", "list-constructor/list_constructor_assert_09.json");
+    }
 }

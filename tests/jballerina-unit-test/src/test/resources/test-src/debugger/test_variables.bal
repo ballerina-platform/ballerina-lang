@@ -19,7 +19,7 @@ type Foo record {
     string last;
 };
 
-type Person object {
+class Person {
     public int age = 0;
     public string name = "";
     public Person? parent = ();
@@ -28,7 +28,7 @@ type Person object {
     function init() {
 
     }
-};
+}
 
 function callFunc() returns (string) {
     string newStr = "ABCDEFG";

@@ -1,12 +1,12 @@
 
-public type Man object {
+public class Man {
     public int age = 10;
     public string name = "sample name";
     public int year = 50;
     public string month = "february";
-};
+}
 
-public type Human object {
+public class Human {
     public int age = 10;
     public string name = "sample name";
     public int year = 50;
@@ -18,9 +18,9 @@ public type Human object {
         self.age += count;
         self.month = val1;
     }
-};
+}
 
-public type Planet object {
+public class Planet {
     public int age = 10;
     public string name;
     public int year;
@@ -32,9 +32,9 @@ public type Planet object {
         self.age += count;
         self.month = val1;
     }
-};
+}
 
-public type Company object {
+public class Company {
     public int age = 10;
     public string name = "sample name";
     public int year = 50;
@@ -51,9 +51,9 @@ public type Company object {
         string val2 = value1 + self.month;
         return [count, val2];
     }
-};
+}
 
-public type Building object {
+public class Building {
     public int age = 10;
     public string name = "sample name";
 
@@ -83,9 +83,9 @@ public type Building object {
     public function getNameWrapperOutside2() returns string {
         return self.getNameOut();
     }
-};
+}
 
-public type Boy object {
+public class Boy {
     public int age = 10;
     public string name = "sample name";
 
@@ -109,13 +109,13 @@ public type Boy object {
     public function selfAsValue() returns string {
         return passSelfAsValue(self);
     }
-};
+}
 
 function passSelfAsValue(Boy p) returns string {
     return p.getName();
 }
 
-public type Bin abstract object {
+public type Bin object {
     public int age;
     public string name;
     public int year;
@@ -126,7 +126,7 @@ public type Bin abstract object {
     public function attachInterface(int add, string value1) returns [int, string];
 };
 
-public type Car object {
+public class Car {
     public int age = 10;
     public string name;
 
@@ -134,54 +134,54 @@ public type Car object {
         self.age = a;
         self.name = n;
     }
-};
+}
 
-public type Girl object {
+public class Girl {
     public int age;
 
     public function init (int age) {
         self.age = age;
     }
-};
+}
 
-public type Bus object {
+public class Bus {
     public int age;
     public string name;
 
-    public function init (int age = 6, string key = "abc") {
+    public isolated function init (int age = 6, string key = "abc") {
         self.age = age;
         self.name = "sample value";
     }
-};
+}
 
-public type Tyre object {
+public class Tyre {
     public int key = 0;
     public string value = "";
 
-    public function init () {
+    public isolated function init () {
 
     }
-};
+}
 
-public type Wheel object {
+public class Wheel {
     public string address = "";
-};
+}
 
-public type Tiger object {
+public class Tiger {
     public int age = 0;
     public Cat? emp = ();
-};
+}
 
-public type Cat object {
+public class Cat {
     public int age = 0;
     public Dog? foo = ();
     public Lion? bar = ();
-};
+}
 
-public type Dog object {
+public class Dog {
     public int calc = 0;
     public Lion? bar1 = ();
-};
+}
 
 public type Lion record {
     int barVal;
@@ -189,51 +189,51 @@ public type Lion record {
     Tiger? person;
 };
 
-public type Bird object {
+public class Bird {
     public int age = 90;
     public Parrot ep = new();
-};
+}
 
-public type Parrot object {
+public class Parrot {
     public int pp = 0;
     public Bird? p = ();
-};
+}
 
-public type Architect object {
+public class Architect {
     public int pp;
     public string name;
 
-    public function init (int pp, string name) {
+    public isolated function init (int pp, string name) {
         self.pp = pp;
         self.name = name;
     }
-};
+}
 
-public type Country abstract object {
+public type Country object {
     public int age;
     public string month;
 
     public function attachInterface(int add) returns int;
 };
 
-public type House object {
+public class House {
     public int age;
 
     public function init (int age) {
         self.age = age;
     }
-};
+}
 
-public type Apartment object {
+public class Apartment {
     public int age;
 
     public function init (int age, int addVal) {
         self.age = age;
         self.age += addVal;
     }
-};
+}
 
-public type Desk object {
+public class Desk {
 
     public int length = 23;
     public int width = 12;
@@ -244,4 +244,53 @@ public type Desk object {
 
     public function init () {
     }
-};
+}
+
+public class ObjectWithModuleLevelVisibilityField {
+    public int i;
+    boolean b;
+
+    public function init(int i, boolean b) {
+        self.i = i;
+        self.b = b;
+    }
+
+    public function getInt() returns int {
+        return self.i;
+    }
+}
+
+public class ObjectWithModuleLevelVisibilityMethod {
+    public int i;
+    public boolean b;
+
+    public function init(int i, boolean b) {
+        self.i = i;
+        self.b = b;
+    }
+
+    function getInt() returns int {
+        return self.i;
+    }
+}
+
+public class ObjectWithPublicFieldsAndMethods {
+    public int i;
+    public boolean b;
+
+    public function init(int i, boolean b = true) {
+        self.i = i;
+        self.b = b;
+    }
+
+    public function getInt() returns int {
+        return self.i;
+    }
+}
+
+public function getObjectWithModuleLevelVisibilityField() returns ObjectWithModuleLevelVisibilityField => new (1, true);
+
+public function getObjectWithModuleLevelVisibilityMethod() returns ObjectWithModuleLevelVisibilityMethod =>
+    new (2, false);
+
+public function getObjectWithPublicFieldsAndMethods() returns ObjectWithPublicFieldsAndMethods => new (3);

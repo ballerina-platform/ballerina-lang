@@ -56,7 +56,7 @@ public class ModuleExecutionFlowTests {
 
         String expectedConsoleString = "Initializing module a\n" +
                 "Initializing module b";
-        String expectedErrorString = "error: error returned while initializing module B ";
+        String expectedErrorString = "error: error returned while initializing module B {}";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
@@ -75,7 +75,7 @@ public class ModuleExecutionFlowTests {
                 "a:ABC listener __gracefulStop called, service name - ModB\n" +
                 "a:ABC listener __gracefulStop called, service name - ModA";
 
-        String expectedErrorString = "error: error returned while starting module B ";
+        String expectedErrorString = "error: error returned while starting module B {}";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
@@ -141,7 +141,7 @@ public class ModuleExecutionFlowTests {
                 "Initializing module b\n" +
                 "Initializing module c\n" +
                 "Module c main function invoked";
-        String expectedErrorString = "error: error returned while executing main method ";
+        String expectedErrorString = "error: error returned while executing main method {}";
         Assert.assertEquals(output.consoleOutput, expectedString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }

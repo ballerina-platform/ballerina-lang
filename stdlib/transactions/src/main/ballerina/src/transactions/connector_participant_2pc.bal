@@ -28,7 +28,7 @@ type Participant2pcClientConfig record {
 type PrepareResponseTypedesc typedesc<PrepareResponse>;
 type NotifyResponseTypedesc typedesc<NotifyResponse>;
 
-type Participant2pcClientEP client object {
+client class Participant2pcClientEP {
 
     http:Client httpClient;
     Participant2pcClientConfig conf = {};
@@ -88,4 +88,4 @@ type Participant2pcClientEP client object {
                 self.conf.participantURL);
         }
     }
-};
+}

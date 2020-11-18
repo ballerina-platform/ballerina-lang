@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.test.runtime.util;
 
-import org.ballerinalang.jvm.util.RuntimeUtils;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import io.ballerina.runtime.util.BLangConstants;
+import io.ballerina.runtime.util.RuntimeUtils;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 import org.ballerinalang.test.runtime.BTestRunner;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
@@ -77,6 +78,8 @@ public class TesterinaUtils {
             }
         } catch (BallerinaException e) {
             errStream.println("error: " + e.getMessage());
+            errStream.println(BLangConstants.INTERNAL_ERROR_MESSAGE);
+            RuntimeUtils.silentlyLogBadSad(e);
             throw e;
         } catch (Throwable e) {
             RuntimeUtils.silentlyLogBadSad(e);

@@ -17,11 +17,10 @@
  */
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -148,18 +147,19 @@ public class LimitClauseTest {
         Assert.assertEquals(fullName2.get("lastName").stringValue(), "Fonseka");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class, description = "Test limit clause with incompatible types",
-            groups = { "brokenOnNewParser" })
+    @Test(description = "Test limit clause a let expression")
+    public void testLetExpressionWithLimitClause() {
+        BValue[] values = BRunUtil.invoke(result, "testLetExpressionWithLimitClause");
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
+    @Test(description = "Test limit clause with incompatible types", groups = {"disableOnOldParser"})
     public void testNegativeScenarios() {
         negativeResult = BCompileUtil.compile("test-src/query/limit-clause-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 2);
-        int index = 0;
-
-        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'boolean'",
-                27, 19);
-        validateError(negativeResult, index, "incompatible types: expected 'int', found 'boolean'",
-                66, 19);
-
-        throw new BLangRuntimeException("Unable to assign limit", "limit cannot be < 0.");
+        Assert.assertEquals(negativeResult.getErrorCount(), 3);
+        int i = 0;
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 22, 19);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 62, 19);
+        validateError(negativeResult, i, "more clauses after select clause", 107, 13);
     }
 }

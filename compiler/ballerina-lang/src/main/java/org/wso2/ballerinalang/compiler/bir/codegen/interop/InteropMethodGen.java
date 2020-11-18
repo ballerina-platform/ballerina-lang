@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -50,7 +51,9 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -290,10 +293,14 @@ public class InteropMethodGen {
                                             BIRFunction func, String moduleClassName,
                                             AsyncDataCollector asyncDataCollector) {
         String funcName = JvmCodeGenUtil.cleanupFunctionName(func.name.value);
+        BirScope lastScope = null;
+        Set<BirScope> visitedScopesSet = new HashSet<>();
         for (BIRBasicBlock basicBlock : basicBlocks) {
             Label bbLabel = labelGen.getLabel(funcName + basicBlock.id.value);
             mv.visitLabel(bbLabel);
-            JvmCodeGenUtil.generateBbInstructions(mv, labelGen, instGen, -1, asyncDataCollector, funcName, basicBlock);
+            lastScope = JvmCodeGenUtil
+                    .getLastScopeFromBBInsGen(mv, labelGen, instGen, -1, asyncDataCollector, funcName, basicBlock,
+                                              visitedScopesSet, lastScope);
             Label bbEndLabel = labelGen.getLabel(funcName + basicBlock.id.value + "beforeTerm");
             mv.visitLabel(bbEndLabel);
             BIRTerminator terminator = basicBlock.terminator;
@@ -322,6 +329,10 @@ public class InteropMethodGen {
         Class<?>[] jMethodParamTypes = jMethod.getParamTypes();
         JType jMethodRetType = JInterop.getJType(jMethod.getReturnType());
 
+        if (jMethodRetType == JType.jVoid && jMethod.isBalEnvAcceptingMethod()) {
+            jMethodRetType = JType.getPrimitiveJTypeForBType(birFunc.returnVariable.type);
+        }
+
         jvmMethodGen.resetIds();
         String bbPrefix = WRAPPER_GEN_BB_ID_NAME;
 
@@ -346,6 +357,11 @@ public class InteropMethodGen {
             jMethodParamIndex++;
             args.add(new BIROperand(birFunc.receiver));
         }
+
+        if (jMethod.isBalEnvAcceptingMethod()) {
+            jMethodParamIndex++;
+        }
+
         int paramCount = birFuncParams.size();
         while (birFuncParamIndex < paramCount) {
             BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);

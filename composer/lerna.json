@@ -3,5 +3,5 @@
     "packages/*",
     "tools/*"
   ],
-  "version": "2.0.0-Preview4-SNAPSHOT"
+  "version": "2.0.0-Preview5"
 }

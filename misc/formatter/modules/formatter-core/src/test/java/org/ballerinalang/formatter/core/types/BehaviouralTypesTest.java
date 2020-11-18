@@ -41,13 +41,6 @@ public class BehaviouralTypesTest extends FormatterTest {
     }
 
     @Override
-    public Object[][] testSubset() {
-        return new Object[][] {
-                {"error_type_2.bal", this.getTestResourceDir()}
-        };
-    }
-
-    @Override
     public String getTestResourceDir() {
         return Paths.get("types", "behavioural").toString();
     }

@@ -115,7 +115,7 @@ function testTableAssignment() {
         ];
 
     anydata adt = t;
-    string employeeListAsString = "id=1 name=Mary salary=300.5\nid=2 name=John salary=200.5\nid=3 name=Jim salary=330.5";
+    string employeeListAsString = "[{\"id\":1,\"name\":\"Mary\",\"salary\":300.5},{\"id\":2,\"name\":\"John\",\"salary\":200.5},{\"id\":3,\"name\":\"Jim\",\"salary\":330.5}]";
     assertEquality(employeeListAsString, adt.toString());
 }
 
@@ -206,7 +206,7 @@ function testConstrainedMaps(){
     assertEquality(foo, adm["record"]);
     assertEquality(smap, adm["map"]);
     assertEquality(j, adm["json"]);
-    string employeeListAsString = "id=1 name=Mary salary=300.5\nid=2 name=John salary=200.5\nid=3 name=Jim salary=330.5";
+    string employeeListAsString = "[{\"id\":1,\"name\":\"Mary\",\"salary\":300.5},{\"id\":2,\"name\":\"John\",\"salary\":200.5},{\"id\":3,\"name\":\"Jim\",\"salary\":330.5}]";
     assertEquality(employeeListAsString, adm["table"].toString());
 }
 
@@ -351,9 +351,9 @@ function testUnionAssignment2(){
     i += 1;
 
     assertEquality("hello world!", rets[0].toString());
-    string employeeListAsString = "id=1 name=Mary salary=300.5\nid=2 name=John salary=200.5\nid=3 name=Jim salary=330.5";
+    string employeeListAsString = "[{\"id\":1,\"name\":\"Mary\",\"salary\":300.5},{\"id\":2,\"name\":\"John\",\"salary\":200.5},{\"id\":3,\"name\":\"Jim\",\"salary\":330.5}]";
     assertEquality(employeeListAsString, rets[1].toString());
-    assertEquality("name=apple color=red price=40", rets[2].toString());
+    assertEquality("{\"name\":\"apple\",\"color\":\"red\",\"price\":40}", rets[2].toString());
     assertEquality("<book>The Lost World</book>", rets[3].toString());
     assertEquality(foo, rets[4]);
     assertEquality(cfoo, rets[5]);
@@ -759,7 +759,7 @@ function testAnydataToTuple3() {
     ad = nt;
 
     if (ad is [[DataType[], string], int, float]) {
-        assertEquality("name=apple color=red price=40 <book>The Lost World</book> hello world!", ad[0].toString());
+        assertEquality("[{\"name\":\"apple\",\"color\":\"red\",\"price\":40},`<book>The Lost World</book>`] hello world!", ad[0].toString());
     }
 }
 

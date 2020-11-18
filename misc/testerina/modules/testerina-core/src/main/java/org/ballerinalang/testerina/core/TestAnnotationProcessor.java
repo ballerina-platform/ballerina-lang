@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -50,9 +51,11 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -247,8 +250,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                             continue;
                         }
 
-                        // check if groups attribute is present in the annotation
-                        if (GROUP_ANNOTATION_NAME.equals(name)) {
+                        // check if groups attribute is present in the annotation and it is not disabled
+                        if (GROUP_ANNOTATION_NAME.equals(name) && !shouldSkip.get()) {
                             if (valueExpr instanceof BLangListConstructorExpr) {
                                 BLangListConstructorExpr values = (BLangListConstructorExpr) valueExpr;
                                 test.setGroups(values.exprs.stream().map(node -> node.toString())
@@ -356,6 +359,15 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     BType functionToMockType = getFunctionType(packageEnvironmentMap, functionToMockID, vals[1]);
                     BType mockFunctionType = getFunctionType(packageEnvironmentMap, parent.packageID,
                             ((BLangFunction) functionNode).name.toString());
+                    if (functionToMockType != null && Symbols.isFlagOn(functionToMockType.flags, Flags.ISOLATED) &&
+                            !Symbols.isFlagOn(mockFunctionType.flags, Flags.ISOLATED)) {
+                        Set<Flag> flagList = Flags.unMask(functionToMockType.flags);
+                        if (flagList.contains(Flag.ISOLATED)) {
+                            flagList.remove(Flag.ISOLATED);
+                        }
+                        functionToMockType.flags = Flags.asMask(flagList);
+                    }
+
 
                     if (functionToMockType != null && mockFunctionType != null) {
                         if (!typeChecker.isAssignable(mockFunctionType, functionToMockType)) {

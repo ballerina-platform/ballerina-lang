@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 6,
+    "character": 22
+  },
+  "source": "expression_context/source/object_constructor_expr_ctx_source11.bal",
+  "items": [
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "function ${1:name}(${2}) {\n\t${3}\n}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

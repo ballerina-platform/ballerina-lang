@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -48,6 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -99,6 +101,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+
 /**
  * Some utils methods for building AST nodes at desugar phase.
  *
@@ -147,7 +151,7 @@ public class ASTBuilderUtil {
 
     static void defineVariable(BLangSimpleVariable variable, BSymbol targetSymbol, Names names) {
         variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name), targetSymbol.pkgID, variable.type,
-                                         targetSymbol, variable.pos);
+                                         targetSymbol, variable.pos, VIRTUAL);
         targetSymbol.scope.define(variable.symbol.name, variable.symbol);
     }
 
@@ -450,6 +454,18 @@ public class ASTBuilderUtil {
         return invokeLambda;
     }
 
+    public static BLangInvocation createLangLibInvocationNode(String name, ArrayList<BLangExpression> argExprs,
+                                                              BLangExpression onExpr, DiagnosticPos pos) {
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.name = createIdentifier(pos, name);
+        invocationNode.expr = onExpr;
+        invocationNode.pos = pos;
+        invocationNode.argExprs = argExprs;
+        invocationNode.langLibInvocation = true;
+
+        return invocationNode;
+    }
+
     static BLangInvocation createInvocationExprForMethod(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
                                                 List<BLangExpression> requiredArgs, SymbolResolver symResolver) {
         return createInvocationExprMethod(pos, invokableSymbol, requiredArgs, new ArrayList<>(), symResolver);
@@ -544,6 +560,15 @@ public class ASTBuilderUtil {
         return checkExpr;
     }
 
+    static BLangCheckPanickedExpr createCheckPanickedExpr(DiagnosticPos pos, BLangExpression expr, BType returnType) {
+        final BLangCheckPanickedExpr checkExpr = (BLangCheckPanickedExpr) TreeBuilder.createCheckPanicExpressionNode();
+        checkExpr.pos = pos;
+        checkExpr.expr = expr;
+        checkExpr.type = returnType;
+        checkExpr.equivalentErrorTypeList = new ArrayList<>();
+        return checkExpr;
+    }
+
     static BLangBinaryExpr createBinaryExpr(DiagnosticPos pos,
                                             BLangExpression lhsExpr,
                                             BLangExpression rhsExpr,
@@ -572,7 +597,7 @@ public class ASTBuilderUtil {
         assignableExpr.targetType = targetType;
         assignableExpr.type = type;
         assignableExpr.opSymbol = new BOperatorSymbol(names.fromString(assignableExpr.opKind.value()),
-                null, targetType, null, opSymPos);
+                                                      null, targetType, null, opSymPos, VIRTUAL);
         return assignableExpr;
     }
 
@@ -758,7 +783,7 @@ public class ASTBuilderUtil {
     public static BLangSimpleVariable createReceiver(DiagnosticPos pos, BType type) {
         BLangSimpleVariable receiver = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         receiver.pos = pos;
-        IdentifierNode identifier = createIdentifier(Names.SELF.getValue());
+        IdentifierNode identifier = createIdentifier(pos, Names.SELF.getValue());
         receiver.setName(identifier);
         receiver.type = type;
         return receiver;
@@ -784,7 +809,7 @@ public class ASTBuilderUtil {
         BInvokableSymbol dupFuncSymbol =
                 Symbols.createFunctionSymbol(invokableSymbol.flags, invokableSymbol.name, invokableSymbol.pkgID,
                                              invokableSymbol.type, invokableSymbol.owner, invokableSymbol.bodyExist,
-                                             invokableSymbol.pos);
+                                             invokableSymbol.pos, invokableSymbol.origin);
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
         dupFuncSymbol.restParam = invokableSymbol.restParam;
@@ -799,16 +824,27 @@ public class ASTBuilderUtil {
         dupFuncSymbol.strandName = invokableSymbol.strandName;
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
-        dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes),
-                                                prevFuncType.restType, prevFuncType.retType, prevFuncType.tsymbol);
+        BInvokableType dupInvokableType = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes),
+                                                          prevFuncType.restType, prevFuncType.retType,
+                                                          prevFuncType.tsymbol);
+
+        if (Symbols.isFlagOn(invokableSymbol.flags, Flags.ISOLATED)) {
+            dupFuncSymbol.flags |= Flags.ISOLATED;
+            dupInvokableType.flags |= Flags.ISOLATED;
+        }
+
+        dupFuncSymbol.type = dupInvokableType;
+        dupFuncSymbol.dependentGlobalVars = invokableSymbol.dependentGlobalVars;
+
         return dupFuncSymbol;
     }
 
     public static BInvokableSymbol duplicateFunctionDeclarationSymbol(BInvokableSymbol invokableSymbol, BSymbol owner,
                                                                       Name newName, PackageID newPkgID,
-                                                                      DiagnosticPos pos) {
+                                                                      DiagnosticPos pos, SymbolOrigin origin) {
         BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, newName, newPkgID,
-                                                                      null, owner, invokableSymbol.bodyExist, pos);
+                                                                      null, owner, invokableSymbol.bodyExist, pos,
+                                                                      origin);
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
         dupFuncSymbol.receiverSymbol = null;
@@ -835,7 +871,7 @@ public class ASTBuilderUtil {
 
     private static BVarSymbol duplicateParamSymbol(BVarSymbol paramSymbol, BInvokableSymbol owner) {
         BVarSymbol newParamSymbol = new BVarSymbol(paramSymbol.flags, paramSymbol.name, paramSymbol.pkgID,
-                                                   paramSymbol.type, owner, paramSymbol.pos);
+                                                   paramSymbol.type, owner, paramSymbol.pos, paramSymbol.origin);
         newParamSymbol.tainted = paramSymbol.tainted;
         newParamSymbol.defaultableParam = paramSymbol.defaultableParam;
         newParamSymbol.markdownDocumentation = paramSymbol.markdownDocumentation;

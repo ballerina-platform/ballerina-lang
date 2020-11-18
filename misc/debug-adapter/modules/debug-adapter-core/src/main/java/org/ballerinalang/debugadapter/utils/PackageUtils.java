@@ -19,6 +19,8 @@ package org.ballerinalang.debugadapter.utils;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
+import org.ballerinalang.debugadapter.DebugSourceType;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.toml.model.Manifest;
@@ -32,6 +34,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,6 +46,9 @@ public class PackageUtils {
     public static final String SRC_DIR_NAME = "src";
     public static final String BAL_FILE_EXT = ".bal";
     public static final String MANIFEST_FILE_NAME = "Ballerina.toml";
+    public static final String INIT_CLASS_NAME = "$_init";
+    public static final String GENERATED_VAR_PREFIX = "$";
+
     private static final String MODULE_VERSION_REGEX = "\\d+_\\d+_\\d+";
     private static final String SERVICE_REGEX = "(\\w+\\.){3}(\\$value\\$)(.*)(__service_)";
     private static final String SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
@@ -249,6 +255,23 @@ public class PackageUtils {
 
     public static boolean isBlank(String str) {
         return str == null || str.isEmpty() || str.chars().allMatch(Character::isWhitespace);
+    }
+
+    /**
+     * Returns full-qualified class name for a given ballerina JVM generated class name.
+     *
+     * @param context   suspended context
+     * @param className class name
+     * @return full-qualified class name
+     */
+    public static String getQualifiedClassName(SuspendedContext context, String className) {
+        if (context.getSourceType() == DebugSourceType.SINGLE_FILE) {
+            return className;
+        }
+        StringJoiner classNameJoiner = new StringJoiner(".");
+        classNameJoiner.add(context.getOrgName().get()).add(context.getModuleName().get())
+                .add(context.getVersion().get().replace(".", "_")).add(className);
+        return classNameJoiner.toString();
     }
 
     /**

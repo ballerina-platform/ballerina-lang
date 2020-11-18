@@ -15,27 +15,32 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.AnnotAccessExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.NameReferenceNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SymbolCompletionItem;
+import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -44,7 +49,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION;
+import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 
 /**
  * Completion provider for {@link AnnotAccessExpressionNode} context.
@@ -60,23 +67,26 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
 
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, AnnotAccessExpressionNode node) {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        Optional<Scope.ScopeEntry> expressionEntry = CommonUtil.getExpressionEntry(context, node.expression());
+//        List<LSCompletionItem> completionItems = new ArrayList<>();
+//        Optional<Symbol> expressionEntry = this.getExpressionEntry(context, node.expression());
 
-        if (!expressionEntry.isPresent()) {
-            return completionItems;
-        }
+        // Fixme
+//        if (!expressionEntry.isPresent()) {
+//            return completionItems;
+//        }
 
-        BType typeOfSymbol = CommonUtil.getTypeOfSymbol(expressionEntry.get().symbol);
+//        BType typeOfSymbol = CommonUtil.getTypeOfSymbol(expressionEntry.get());
+//
+//        if (!(typeOfSymbol instanceof BTypedescType)) {
+//            return completionItems;
+//        }
+//
+//        return getAnnotationTags(context, (BTypedescType) typeOfSymbol);
 
-        if (!(typeOfSymbol instanceof BTypedescType)) {
-            return completionItems;
-        }
-
-        return getAnnotationTags(context, (BTypedescType) typeOfSymbol);
+        return new ArrayList<>();
     }
 
-    private List<LSCompletionItem> getAnnotationTags(LSContext context, BTypedescType typedescType) {
+    public List<LSCompletionItem> getAnnotationTags(LSContext context, BTypedescType typedescType) {
         NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
         AttachPoint.Point attachPoint = getAttachPointForType(typedescType);
 
@@ -85,34 +95,33 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
         }
 
         if (onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            String alias = ((QualifiedNameReferenceNode) nodeAtCursor).modulePrefix().text();
-            Optional<Scope.ScopeEntry> scopeEntry = CommonUtil.packageSymbolFromAlias(context, alias);
+//            String alias = ((QualifiedNameReferenceNode) nodeAtCursor).modulePrefix().text();
+//            Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context, alias);
 
-            return scopeEntry.map(value -> value.symbol.scope.entries.values().stream()
-                    .filter(entry -> {
-                        BSymbol symbol = entry.symbol;
-                        return symbol instanceof BAnnotationSymbol && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC
-                                && ((BAnnotationSymbol) symbol).points.stream()
-                                .anyMatch(aPoint -> aPoint.point.getValue().equals(attachPoint.getValue()));
-                    })
-                    .map(entry -> {
-                        BAnnotationSymbol symbol = (BAnnotationSymbol) entry.symbol;
-                        return getAnnotationsCompletionItem(context, symbol);
-                    })
-                    .collect(Collectors.toList())).orElseGet(ArrayList::new);
-
+            // Fixme
+//            return scopeEntry.map(value -> value.symbol.scope.entries.values().stream()
+//                    .filter(entry -> {
+//                        BSymbol symbol = entry.symbol;
+//                        return symbol instanceof BAnnotationSymbol && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC
+//                                && ((BAnnotationSymbol) symbol).points.stream()
+//                                .anyMatch(aPoint -> aPoint.point.getValue().equals(attachPoint.getValue()));
+//                    })
+//                    .map(entry -> {
+//                        BAnnotationSymbol symbol = (BAnnotationSymbol) entry.symbol;
+//                        return getAnnotationsCompletionItem(context, symbol);
+//                    })
+//                    .collect(Collectors.toList())).orElseGet(ArrayList::new);
+            return new ArrayList<>();
         }
 
-        List<LSCompletionItem> completionItems = this.getPackagesCompletionItems(context);
-        List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
+        List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
         visibleSymbols.stream()
-                .filter(scopeEntry -> {
-                    BSymbol symbol = scopeEntry.symbol;
-                    return symbol instanceof BAnnotationSymbol && ((BAnnotationSymbol) symbol).points.stream()
-                            .anyMatch(aPoint -> aPoint.point.getValue().equals(attachPoint.getValue()));
-                })
-                .forEach(entry -> {
-                    BAnnotationSymbol symbol = (BAnnotationSymbol) entry.symbol;
+                .filter(symbol -> symbol.kind() == ANNOTATION && ((AnnotationSymbol) symbol).attachPoints()
+                        .stream()
+                        .anyMatch(aPoint -> aPoint.name().equals(attachPoint.getValue())))
+                .forEach(annotation -> {
+                    AnnotationSymbol symbol = (AnnotationSymbol) annotation;
                     completionItems.add(getAnnotationsCompletionItem(context, symbol));
                 });
 
@@ -130,15 +139,66 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
         }
     }
 
-    private LSCompletionItem getAnnotationsCompletionItem(LSContext ctx, BAnnotationSymbol annotationSymbol) {
-        BTypeSymbol attachedType = annotationSymbol.attachedType;
+    private LSCompletionItem getAnnotationsCompletionItem(LSContext ctx, AnnotationSymbol annotationSymbol) {
+        Optional<BallerinaTypeDescriptor> attachedType = annotationSymbol.typeDescriptor();
         CompletionItem item = new CompletionItem();
-        item.setInsertText(annotationSymbol.name.value);
-        item.setLabel(annotationSymbol.name.value);
+        item.setInsertText(annotationSymbol.name());
+        item.setLabel(annotationSymbol.name());
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
         item.setKind(CompletionItemKind.Property);
 
-        return new SymbolCompletionItem(ctx, attachedType, item);
+        return new TypeCompletionItem(ctx, attachedType.get(), item);
+    }
+
+    /**
+     * Get the expression entry, given the node.
+     *
+     * @param context        language server context
+     * @param expressionNode expression node
+     * @return {@link Optional} scope entry for the node
+     */
+    private Optional<Symbol> getExpressionEntry(LSContext context, Node expressionNode) {
+        List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+
+        switch (expressionNode.kind()) {
+            case SIMPLE_NAME_REFERENCE:
+                String nameRef = ((SimpleNameReferenceNode) expressionNode).name().text();
+                for (Symbol symbol : visibleSymbols) {
+                    if (symbol.name().equals(nameRef)) {
+                        return Optional.of(symbol);
+                    }
+                }
+                return Optional.empty();
+            case FUNCTION_CALL:
+                NameReferenceNode refName = ((FunctionCallExpressionNode) expressionNode).functionName();
+                if (refName.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                    String alias = ((QualifiedNameReferenceNode) refName).modulePrefix().text();
+                    String fName = ((QualifiedNameReferenceNode) refName).identifier().text();
+                    Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context, alias);
+                    if (moduleSymbol.isEmpty()) {
+                        return Optional.empty();
+                    }
+                    for (FunctionSymbol functionSymbol : moduleSymbol.get().functions()) {
+                        if (functionSymbol.name().equals(fName)) {
+                            return Optional.of(functionSymbol);
+                        }
+                    }
+                    return Optional.empty();
+                } else if (refName.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                    String funcName = ((SimpleNameReferenceNode) refName).name().text();
+                    for (Symbol symbol : visibleSymbols) {
+                        if (symbol.kind() == FUNCTION && symbol.name().equals(funcName)) {
+                            return Optional.of(symbol);
+                        }
+                    }
+                    return Optional.empty();
+                }
+                break;
+            default:
+                break;
+        }
+
+        return Optional.empty();
     }
 }

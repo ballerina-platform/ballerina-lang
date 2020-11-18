@@ -4,22 +4,22 @@ type Person record {
     function (string, string) returns (string) getName;
 };
 
-type Employee object {
+class Employee {
     string fname = "John";
     string lname = "Doe";
-    
+
     function () returns (string) getLname;
-    
+
     function init() {
         self.getLname = function () returns (string) {
                             return self.fname;
                         };
     }
-    
+
     public function getFname() returns (string) {
         return self.fname;
     }
-};
+}
 
 
 function getFullName (string f, string l) returns (string){

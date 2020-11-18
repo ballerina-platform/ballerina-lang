@@ -3,7 +3,7 @@ org-name = "toml"
 version = "0.7.2"
 
 [platform]
-target = "java8"
+target = "java11"
 
   [[platform.libraries]]
   artifactId = "toml4j"

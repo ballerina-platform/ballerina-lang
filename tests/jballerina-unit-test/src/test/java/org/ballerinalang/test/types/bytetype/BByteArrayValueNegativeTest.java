@@ -33,7 +33,6 @@ public class BByteArrayValueNegativeTest {
     @Test(description = "Test blob value negative")
     public void testBlobValueNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/byte/byte-array-value-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 32);
         int index = 0;
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'other'", 2, 16);
         BAssertUtil.validateError(result, index++, "undefined symbol 'base1'", 2, 16);
@@ -67,5 +66,6 @@ public class BByteArrayValueNegativeTest {
         BAssertUtil.validateError(result, index++, "missing plus token", 16, 23);
         BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 17, 23);
         BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 18, 23);
+        Assert.assertEquals(result.getErrorCount(), index);
     }
 }

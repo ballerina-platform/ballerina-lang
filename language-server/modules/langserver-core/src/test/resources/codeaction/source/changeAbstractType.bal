@@ -1,4 +1,4 @@
-type Apple abstract object {
+type Apple object {
     public function test(){}
 };
 

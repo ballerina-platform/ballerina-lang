@@ -15,16 +15,21 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.TextRange;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
-import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -32,11 +37,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +51,7 @@ import java.util.function.Predicate;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class RecordFieldWithDefaultValueNodeContext extends
         AbstractCompletionProvider<RecordFieldWithDefaultValueNode> {
-    
+
     public RecordFieldWithDefaultValueNodeContext() {
         super(RecordFieldWithDefaultValueNode.class);
     }
@@ -67,11 +67,8 @@ public class RecordFieldWithDefaultValueNodeContext extends
             (2) [module:]TypeName c = module:a<cursor>
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.expression();
-            Predicate<Scope.ScopeEntry> filter = scopeEntry -> {
-                BSymbol symbol = scopeEntry.symbol;
-                return symbol instanceof BVarSymbol && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC;
-            };
-            List<Scope.ScopeEntry> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, filter);
+            Predicate<Symbol> modSymbolFilter = symbol -> symbol instanceof VariableSymbol;
+            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, modSymbolFilter);
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
         } else {
             /*
@@ -90,31 +87,31 @@ public class RecordFieldWithDefaultValueNodeContext extends
 
     private List<LSCompletionItem> getNewExprCompletionItems(LSContext context, Node typeNameNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        ArrayList<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        Optional<Scope.ScopeEntry> objectType;
+        ArrayList<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        Optional<ObjectTypeDescriptor> objectType;
         if (this.onQualifiedNameIdentifier(context, typeNameNode)) {
             String modulePrefix = QNameReferenceUtil.getAlias(((QualifiedNameReferenceNode) typeNameNode));
-            Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context, modulePrefix);
-            if (!module.isPresent()) {
+            Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, modulePrefix);
+            if (module.isEmpty()) {
                 return completionItems;
             }
             String identifier = ((QualifiedNameReferenceNode) typeNameNode).identifier().text();
-            objectType = module.get().symbol.scope.entries.values().stream()
-                    .filter(scopeEntry -> scopeEntry.symbol instanceof BObjectTypeSymbol
-                            && scopeEntry.symbol.getName().getValue().equals(identifier))
+            objectType = module.get().typeDefinitions().stream()
+                    .filter(symbol -> SymbolUtil.isObject(symbol) && symbol.name().equals(identifier))
+                    .map(SymbolUtil::getTypeDescForObjectSymbol)
                     .findAny();
         } else if (typeNameNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String identifier = ((SimpleNameReferenceNode) typeNameNode).name().text();
             objectType = visibleSymbols.stream()
-                    .filter(scopeEntry -> scopeEntry.symbol instanceof BObjectTypeSymbol
-                            && scopeEntry.symbol.getName().getValue().equals(identifier))
+                    .filter(symbol -> SymbolUtil.isObject(symbol) && symbol.name().equals(identifier))
+                    .map(SymbolUtil::getTypeDescForObjectSymbol)
                     .findAny();
         } else {
             objectType = Optional.empty();
         }
 
-        objectType.ifPresent(scopeEntry ->
-                completionItems.add(this.getImplicitNewCompletionItem((BObjectTypeSymbol) scopeEntry.symbol, context)));
+        objectType.ifPresent(objectTypeDesc ->
+                completionItems.add(this.getImplicitNewCompletionItem(objectTypeDesc, context)));
 
         return completionItems;
     }

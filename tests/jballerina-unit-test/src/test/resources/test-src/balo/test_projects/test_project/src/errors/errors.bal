@@ -13,3 +13,10 @@ public type ApplicationError error<ApplicationErrorData>;
 public type OrderCreationError distinct ApplicationError;
 public type OrderProcessingError distinct ApplicationError;
 public type OrderCreationError2 distinct OrderCreationError;
+
+public type NewPostDefinedError distinct PostDefinedError;
+public type PostDefinedError error<ErrorData>;
+
+public type ErrorData record {|
+    string code;
+|};

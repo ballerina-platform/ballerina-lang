@@ -5,6 +5,6 @@ version= "0.1.0"
 [dependencies]
 
 [platform]
-target = "java8"
+target = "java11"
 
     [[platform.libraries]]

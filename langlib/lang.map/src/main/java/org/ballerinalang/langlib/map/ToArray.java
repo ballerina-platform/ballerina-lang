@@ -18,50 +18,44 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.langlib.map.util.MapLibUtils;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Collection;
 
-import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
-import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
+import static io.ballerina.runtime.MapUtils.createOpNotSupportedError;
 
 /**
  * Function for returning the values of the map as an array. T[] vals = m.toArray();
  *
  * @since 1.2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION,
-        functionName = "toArray",
-        args = {@Argument(name = "m", type = TypeKind.MAP)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANY)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.map",
+//        functionName = "toArray",
+//        args = {@Argument(name = "m", type = TypeKind.MAP)},
+//        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANY)},
+//        isPublic = true
+//)
 public class ToArray {
 
-    public static ArrayValue toArray(Strand strand, MapValue<?, ?> m) {
-        BType mapType = m.getType();
-        BType arrElemType;
+    public static BArray toArray(BMap<?, ?> m) {
+        Type mapType = m.getType();
+        Type arrElemType;
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
-                arrElemType = ((BMapType) mapType).getConstrainedType();
+                arrElemType = ((MapType) mapType).getConstrainedType();
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                arrElemType = MapLibUtils.getCommonTypeForRecordField((BRecordType) mapType);
+                arrElemType = MapLibUtils.getCommonTypeForRecordField((RecordType) mapType);
                 break;
             default:
                 throw createOpNotSupportedError(mapType, "toArray()");
@@ -76,33 +70,33 @@ public class ToArray {
                 for (Object val : values) {
                     intArr[i++] = (Long) val;
                 }
-                return new ArrayValueImpl(intArr);
+                return ValueCreator.createArrayValue(intArr);
             case TypeTags.FLOAT_TAG:
                 double[] floatArr = new double[size];
                 for (Object val : values) {
                     floatArr[i++] = (Double) val;
                 }
-                return new ArrayValueImpl(floatArr);
+                return ValueCreator.createArrayValue(floatArr);
             case TypeTags.BYTE_TAG:
                 byte[] byteArr = new byte[size];
                 for (Object val : values) {
                     byteArr[i++] = ((Integer) val).byteValue();
                 }
-                return new ArrayValueImpl(byteArr);
+                return ValueCreator.createArrayValue(byteArr);
             case TypeTags.BOOLEAN_TAG:
                 boolean[] booleanArr = new boolean[size];
                 for (Object val : values) {
                     booleanArr[i++] = (Boolean) val;
                 }
-                return new ArrayValueImpl(booleanArr);
+                return ValueCreator.createArrayValue(booleanArr);
             case TypeTags.STRING_TAG:
                 BString[] stringArr = new BString[size];
                 for (Object val : values) {
                     stringArr[i++] = (BString) val;
                 }
-                return new ArrayValueImpl(stringArr);
+                return ValueCreator.createArrayValue(stringArr);
             default:
-                return new ArrayValueImpl(values.toArray(), new BArrayType(arrElemType));
+                return ValueCreator.createArrayValue(values.toArray(), TypeCreator.createArrayType(arrElemType));
 
         }
     }

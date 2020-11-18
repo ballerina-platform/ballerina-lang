@@ -16,11 +16,11 @@
  */
 package org.ballerinalang.test.record;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -88,10 +88,11 @@ public class RecordDocumentationTest {
                 EMPTY_STRING), "struct `field c` documentation");
     }
 
-    @Test(description = "Test doc negative cases.", groups = { "disableOnOldParser" })
+    @Test(description = "Test doc negative cases.", groups = { "disableOnOldParser" }, enabled = false)
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_documentation_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
+        Assert.assertEquals(compileResult.getErrorCount(), 0,
+                            getErrorString(compileResult.getDiagnostics()));
         Assert.assertEquals(compileResult.getWarnCount(), 20);
         int i = 0;
         BAssertUtil.validateWarning(compileResult, i++, "field 'a' already documented", 6, 5);

@@ -65,6 +65,10 @@ public class OpenApiMesseges {
     public static final String DEFINITION_EXISTS = "There is already an OpenApi contract in the location.";
     public static final String EXPERIMENTAL_FEATURE = "Note: This is an experimental tool, which only" +
             " supports a limited set of functionality.";
+    public static final String MESSAGE_FOR_MISSING_INPUT = "An OpenApi definition file is required to generate the " +
+            "service. \nE.g: ballerina openapi --input <OpenApiContract> or <Ballerina file>";
+    public static final String MESSAGE_FOR_INVALID_MODULE = "The module provided is not found in the " +
+            "current location.";
 
     //TODO Update keywords if Ballerina Grammer changes
     private static final String[] KEYWORDS = new String[]{"abort", "aborted", "abstract", "all", "annotation",

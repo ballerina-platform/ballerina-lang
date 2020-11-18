@@ -1,14 +1,14 @@
 
-public type FooDepartment object {
+public class FooDepartment {
     public string dptName = "";
     public FooPerson?[] employees;
 
     public function init (FooPerson?[] employees) {
         self.employees = employees;
     }
-};
+}
 
-public type FooPerson object {
+public class FooPerson {
     public string name = "default first name";
     public string lname = "";
     public map<any> adrs = {};
@@ -20,15 +20,15 @@ public type FooPerson object {
         self.name = name;
         self.adrs = adrs;
     }
-};
+}
 
-type FooFamily object {
+class FooFamily {
     public string spouse = "";
     public int noOfChildren = 0;
     public string[] children = [];
-};
+}
 
-public type FooEmployee object {
+public class FooEmployee {
     public string fname;
     public string lname;
     public int age;
@@ -37,28 +37,24 @@ public type FooEmployee object {
             public string city;
             public string state;
             public string zipcode;
-
-            function init (string city, string state, string zipcode) {
-                self.city = city;
-                self.state = state;
-                self.zipcode = zipcode;
-            }
         } address;
 
 
-    public function init (string fname, string lname, int age, object {
-            public string city = "";
-            public string state = "";
-            public string zipcode = "";
-
-            function init (string city, string state, string zipcode) {}
-        } address) {
+    public function init (string fname, string lname, int age, DefaultAddress address) {
         self.fname = fname;
         self.lname = lname;
         self.age = age;
         self.address = address;
     }
-};
+}
+
+public class DefaultAddress {
+    public string city = "";
+    public string state = "";
+    public string zipcode = "";
+
+    function init (string city, string state, string zipcode) {}
+}
 
 public function createObj() returns (FooPerson) {
     map<any> address1 = {};

@@ -180,6 +180,28 @@
       ]
     },
     {
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/lang.future",
       "kind": "Module",
       "detail": "Module",
@@ -479,6 +501,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "isolated",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "isolated ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -514,6 +543,20 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "client",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "client ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -521,13 +564,20 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "bar((string|int|boolean) i)((string|int|boolean))",
+      "label": "object constructor",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "object {\n\t\n};",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "bar(string|int|boolean i)(string|int|boolean)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `(string|int|boolean)` i  \n  \n**Returns** `(string|int|boolean)`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string|int|boolean` i  \n  \n**Returns** `string|int|boolean`   \n  \n"
         }
       },
       "insertText": "bar(${1})",
@@ -561,14 +611,14 @@
     {
       "label": "var1",
       "kind": "Variable",
-      "detail": "(string|int|boolean)",
+      "detail": "string|int|boolean",
       "insertText": "var1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "i",
       "kind": "Variable",
-      "detail": "(string|int|boolean)",
+      "detail": "string|int|boolean",
       "insertText": "i",
       "insertTextFormat": "Snippet"
     },

@@ -17,10 +17,9 @@
  */
 package org.ballerinalang.langserver.commons.completion;
 
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.model.tree.Node;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
@@ -38,11 +37,7 @@ public class CompletionKeys {
 
     public static final LSContext.Key<BLangNode> SCOPE_NODE_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<Node> BLOCK_OWNER_KEY
-            = new LSContext.Key<>();
     public static final LSContext.Key<BLangNode> PREVIOUS_NODE_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<AnnotationNodeKind> NEXT_NODE_KEY
             = new LSContext.Key<>();
     @Deprecated
     public static final LSContext.Key<Integer> LOOP_COUNT_KEY
@@ -53,12 +48,6 @@ public class CompletionKeys {
     public static final LSContext.Key<Integer> TRANSACTION_COUNT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<CompletionCapabilities> CLIENT_CAPABILITIES_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<Integer> INVOCATION_TOKEN_TYPE_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<Boolean> IN_WORKER_RETURN_CONTEXT_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<Boolean> IN_INVOCATION_PARAM_CONTEXT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Token> TOKEN_AT_CURSOR_KEY
             = new LSContext.Key<>();

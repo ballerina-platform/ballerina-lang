@@ -16,11 +16,10 @@
  */
 package org.ballerinalang.tool.util;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.util.diagnostic.Diagnostic;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -253,16 +252,14 @@ public class BCompileUtil {
      * Compile with tests and return the semantic errors.
      *
      * @param context       Compiler Context
-     * @param listener      the diagnostic log common to a project
      * @param packageName   name of the module to compile
      * @param compilerPhase Compiler phase
      * @return Semantic errors
      */
     public static CompileResult compileWithTests(CompilerContext context,
-                                                 CompileResult.CompileResultDiagnosticListener listener,
                                                  String packageName,
                                                  CompilerPhase compilerPhase) {
-        return compile(context, listener, packageName, compilerPhase, true);
+        return compile(context, packageName, compilerPhase, true);
     }
 
     /**
@@ -299,36 +296,19 @@ public class BCompileUtil {
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
         context.put(SourceDirectory.class, sourceDirectory);
 
-        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
-        context.put(DiagnosticListener.class, listener);
-        CompileResult comResult = new CompileResult(listener);
-
         // compile
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage packageNode = compiler.compile(packageName);
-        comResult.setAST(packageNode);
+        CompileResult comResult = new CompileResult(context, packageNode);
 
         return comResult;
     }
 
     private static CompileResult compile(CompilerContext context, String packageName,
                                          CompilerPhase compilerPhase, boolean withTests) {
-        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
-        context.put(DiagnosticListener.class, listener);
-        return compile(context, listener, packageName, compilerPhase, withTests);
-    }
-
-    private static CompileResult compile(CompilerContext context,
-                                         CompileResult.CompileResultDiagnosticListener listener,
-                                         String packageName,
-                                         CompilerPhase compilerPhase,
-                                         boolean withTests) {
-        CompileResult comResult = new CompileResult(listener);
-
-        // compile
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage packageNode = compiler.compile(packageName, true);
-        comResult.setAST(packageNode);
+        CompileResult comResult = new CompileResult(context, packageNode);
         if (comResult.getErrorCount() > 0) {
             return comResult;
         } else if (CompilerPhase.CODE_GEN.compareTo(compilerPhase) > 0 || compilerPhase == CompilerPhase.BIR_GEN) {
@@ -353,9 +333,6 @@ public class BCompileUtil {
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
-
-        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
-        context.put(DiagnosticListener.class, listener);
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
@@ -417,13 +394,10 @@ public class BCompileUtil {
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
-        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
-        context.put(DiagnosticListener.class, listener);
-        CompileResult comResult = new CompileResult(listener);
-
         // compile
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage entryPackageNode = compiler.compile(fileName);
+        CompileResult comResult = new CompileResult(context, entryPackageNode);
         Diagnostic[] diagnostics = comResult.getDiagnostics();
         return Arrays.stream(diagnostics).collect(Collectors.toList());
     }

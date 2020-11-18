@@ -3,37 +3,31 @@ public function foo() {
 
         *A;
 
-        int age = 10 * 2;
+        int age;
         string name;
-        public int status = 0;
-        private float score;
-        
-        public function init() {
-        }
+        public int status;
+        public float score;
+
+        public function init();
 
         *B;
 
-        function getName() {
-        }
+        function getName();
 
-        private remote function get() {
-        
-        }
+        public remote function get();
 
         object {
             *A;
-            int age = 10 * 2;
+            int age;
             string name;
-            public int status = 0;
-            private float score;
+            public int status;
+            public float score;
 
-            public function init() {
-            }
+            public function init();
 
             *B;
 
-            function getName() {
-            }
+            function getName();
         } parent;
     };
 }

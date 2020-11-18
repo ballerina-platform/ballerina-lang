@@ -31,15 +31,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.Map;
 
 /**
  * Test class for control flow related debug scenarios.
  */
 public class ControlFlowDebugTest extends DebugAdapterBaseTestCase {
-
-    Comparator<Variable> compareByName = Comparator.comparing(Variable::getName);
 
     @BeforeClass
     public void setup() {
@@ -135,27 +132,22 @@ public class ControlFlowDebugTest extends DebugAdapterBaseTestCase {
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = waitForDebugHit(10000);
 
-        Variable[] variables = fetchDebugHitVariables(debugHitInfo.getRight());
-        Arrays.sort(variables, compareByName);
-
+        Map<String, Variable> variables = fetchVariables(debugHitInfo.getRight(), VariableScope.LOCAL);
         // Variable visibility test inside 'match' statement
-        assertVariable(variables[6], "v07_intVar", "7", "int");
-
+        assertVariable(variables, "v07_intVar", "7", "int");
         // Variable visibility test for lambda - iterable arrow operation
-        assertVariable(variables[8], "v09_animals", "map", "map");
+        assertVariable(variables, "v09_animals", "map", "map");
 
         // Variable visibility test for lambda child variables
-        Variable[] lamdaChildVariables = getChildVariable(variables[8]);
-        Arrays.sort(lamdaChildVariables, compareByName);
-        assertVariable(lamdaChildVariables[0], "a", "ANT", "string");
+        Map<String, Variable> lamdaChildVariables = fetchChildVariables(variables.get("v09_animals"));
+        assertVariable(lamdaChildVariables, "a", "ANT", "string");
 
         // Variable visibility test for Asynchronous function call (Non-blocking calls)
-        assertVariable(variables[9], "v10_future", "future", "future");
+        assertVariable(variables, "v10_future", "future", "future");
 
         // Variable visibility test for Asynchronous function call child variables
-        Variable[] asyncChildVariables = getChildVariable(variables[9]);
-        Arrays.sort(lamdaChildVariables, compareByName);
-        assertVariable(asyncChildVariables[1], "result", "90", "int");
+        Map<String, Variable> asyncChildVariables = fetchChildVariables(variables.get("v10_future"));
+        assertVariable(asyncChildVariables, "result", "90", "int");
     }
 
     @AfterMethod(alwaysRun = true)

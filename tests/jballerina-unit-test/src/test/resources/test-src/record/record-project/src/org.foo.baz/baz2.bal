@@ -28,10 +28,10 @@ public type FooEmployee record {
         string state = "";
         string zipcode = "";
     } address = {};
-    object {
+    object { public string desc; public string title; } job = object {
         public string desc = "";
         public string title = "";
-    } job = new;
+    };
 };
 
 public function createRecord() returns FooPerson {

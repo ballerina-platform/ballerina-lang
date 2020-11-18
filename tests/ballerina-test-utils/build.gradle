@@ -19,6 +19,7 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
+    implementation project(':ballerina-tools-api')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':ballerina-runtime')

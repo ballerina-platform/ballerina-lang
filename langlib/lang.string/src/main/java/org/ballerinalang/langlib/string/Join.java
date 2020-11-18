@@ -18,37 +18,31 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 
 import java.util.StringJoiner;
-
-import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
 
 /**
  * Extern function lang.string:join(string, string...).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "join",
-        args = {@Argument(name = "separator", type = TypeKind.STRING), @Argument(name = "strs", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.string", functionName = "join",
+//        args = {@Argument(name = "separator", type = TypeKind.STRING), @Argument(name = "strs", type = TypeKind
+//        .ARRAY)},
+//        returnType = {@ReturnType(type = TypeKind.STRING)},
+//        isPublic = true
+//)
 public class Join {
 
-    public static BString join(Strand strand, BString separator, ArrayValue strs) {
+    public static BString join(BString separator, Object... strs) {
         StringJoiner stringJoiner = new StringJoiner(separator.getValue());
-        int size = strs.size();
+        int size = strs.length;
         for (int i = 0; i < size; i++) {
-            stringJoiner.add(strs.getBString(i).getValue());
+            String str = ((BString) strs[i]).getValue();
+            stringJoiner.add(str);
         }
         return StringUtils.fromString(stringJoiner.toString());
     }

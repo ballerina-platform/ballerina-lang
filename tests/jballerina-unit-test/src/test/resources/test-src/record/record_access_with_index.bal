@@ -198,7 +198,7 @@ function testDynamicIndexAccessTypesWithRestParam(string arg) returns string {
     return result;
 }
 
-type Obj object {
+class Obj {
     private int intField;
 
     function init() {
@@ -208,7 +208,7 @@ type Obj object {
     function getIntField() returns int {
         return self.intField;
     }
-};
+}
 
 type FooBar record {
     Obj fieldOne?;

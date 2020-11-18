@@ -45,7 +45,7 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
         petProject = OpenAPICommandTest.createBalProject(tmpDir.toString());
     }
 
-    @Test(description = "Test openapi gen-service for invalid ballerina project")
+    @Test(description = "Test openapi gen-service for invalid ballerina project", enabled = false)
     public void testIsLocationBallerinaProject() {
         String[] args = {"petsModule:petService", "../petstore.yml"};
         OpenApiGenServiceCmd cmd = new OpenApiGenServiceCmd(printStream, tmpDir.toString());
@@ -61,7 +61,7 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
         Assert.assertTrue(output.contains("Ballerina service generation should be done from the project root."));
     }
 
-    @Test(description = "Test openapi gen-service with help option")
+    @Test(description = "Test openapi gen-service with help option", enabled = false)
     public void testWithHelpOption() throws IOException {
         String[] args = {"-h"};
 
@@ -74,7 +74,7 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
                                           "       Ballerina mock service"));
     }
 
-    @Test(description = "Test openapi gen-service without help option")
+    @Test(description = "Test openapi gen-service without help option", enabled = false)
     public void testWithOutHelpOption() {
         OpenApiGenServiceCmd cmd = new OpenApiGenServiceCmd(printStream, tmpDir.toString());
         new CommandLine(cmd);
@@ -90,7 +90,7 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
                 "the ballerina service for the provided OpenApi contract."));
     }
 
-    @Test(description = "Test openapi gen-service only with module name option")
+    @Test(description = "Test openapi gen-service only with module name option", enabled = false)
     public void testOnlyWithModuleNameOption() {
         String[] args = {"petsModule:"};
         OpenApiGenServiceCmd cmd = new OpenApiGenServiceCmd(printStream, tmpDir.toString());
@@ -107,7 +107,7 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
                 "generate the ballerina service for the provided OpenApi contract"));
     }
 
-    @Test(description = "Test openapi gen-service only with service name option ")
+    @Test(description = "Test openapi gen-service only with service name option ", enabled = false)
     public void testOnlyWithServiceNameOption() {
         String[] args = {":petService"};
         OpenApiGenServiceCmd cmd = new OpenApiGenServiceCmd(printStream, tmpDir.toString());
@@ -124,7 +124,7 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
                 "service for the provided OpenApi contract."));
     }
 
-    @Test(description = "Test openapi gen-service with a space as module name")
+    @Test(description = "Test openapi gen-service with a space as module name", enabled = false)
     public void testBlankAsModuleName() {
         String[] args = {" :petService"};
         OpenApiGenServiceCmd cmd = new OpenApiGenServiceCmd(printStream, tmpDir.toString());
@@ -141,7 +141,7 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
                 "service for the provided OpenApi contract."));
     }
 
-    @Test(description = "Test openapi gen-service with a space as service name")
+    @Test(description = "Test openapi gen-service with a space as service name", enabled = false)
     public void testBlankAsServiceName() {
         String[] args = {"petsModule: "};
         OpenApiGenServiceCmd cmd = new OpenApiGenServiceCmd(printStream, tmpDir.toString());
@@ -158,7 +158,7 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
                 " service for the provided OpenApi contract. "));
     }
 
-    @Test(description = "Test openapi gen-service without openapi contract file")
+    @Test(description = "Test openapi gen-service without openapi contract file", enabled = false)
     public void testWithoutOpenApiContract() {
         String[] args = {"petsModule:petService"};
         OpenApiGenServiceCmd cmd = new OpenApiGenServiceCmd(printStream, tmpDir.toString());
@@ -174,7 +174,7 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
         Assert.assertTrue(output.contains("An OpenApi definition file is required to generate the service."));
     }
 
-    @Test(description = "Test openapi gen-service for invalid openapi contract")
+    @Test(description = "Test openapi gen-service for invalid openapi contract", enabled = false)
     public void testInvalidOpenApiContract() {
         String[] args = {"petsModule:petService", "../petstore.yml"};
         OpenApiGenServiceCmd cmd = new OpenApiGenServiceCmd(printStream, petProject.getBalProjectPath().toString());
@@ -241,7 +241,8 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
         }
     }
 
-    @Test(description = "Test openapi gen-service for successful service generation with inline request body type")
+    @Test(description = "Test openapi gen-service for successful service generation with inline request body type",
+            enabled = false)
     public void testInlineRequestBodyServiceGen() throws IOException {
         Path inlineYaml = RES_DIR.resolve(Paths.get("inline-request-body.yaml"));
         createBalProjectModule(petProject, "inlineModule");
@@ -292,7 +293,8 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
         }
     }
 
-    @Test(description = "Test open-api genservice for successful service generation with all of schema type")
+    @Test(description = "Test open-api genservice for successful service generation with all of schema type",
+            enabled = false)
     public void testAllOfSchemaGen() throws IOException {
         Path allOfYaml = RES_DIR.resolve(Paths.get("allof-petstore.yaml"));
         createBalProjectModule(petProject, "allofmodule");
@@ -338,7 +340,8 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
         }
     }
 
-    @Test(description = "Test open-api genservice for successful service generation with OneOf schema type")
+    @Test(description = "Test open-api genservice for successful service generation with OneOf schema type",
+            enabled = false)
     public void testOneOfSchemaGen() throws IOException {
         Path allOfYaml = RES_DIR.resolve(Paths.get("oneof-petstore.yaml"));
         createBalProjectModule(petProject, "oneofmodule");

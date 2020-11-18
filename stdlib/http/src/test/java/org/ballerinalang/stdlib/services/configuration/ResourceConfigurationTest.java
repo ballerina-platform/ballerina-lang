@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.services.configuration;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -37,7 +37,7 @@ public class ResourceConfigurationTest {
                 .compile("test-src/services/configuration/resource-config-annotation.bal");
         Diagnostic[] diag = compileResult.getDiagnostics();
         Assert.assertEquals(diag.length, 1);
-        Assert.assertEquals(diag[0].getMessage(),
+        Assert.assertEquals(diag[0].message(),
                             "cannot specify more than one annotation value for annotation 'ResourceConfig'");
     }
 }

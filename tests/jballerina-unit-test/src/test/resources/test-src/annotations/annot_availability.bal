@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-annotation W on type;
+annotation W on type, class;
 annotation map<int> X on record field;
 annotation map<string> Y on object field;
 annotation Z on field;
@@ -29,14 +29,14 @@ type Foo record {
 };
 
 @W
-type Bar object {
+class Bar {
     @Y {
         q: "hello",
         r: "world"
     }
     @Z
     int j = 1;
-};
+}
 
 int glob = 2;
 

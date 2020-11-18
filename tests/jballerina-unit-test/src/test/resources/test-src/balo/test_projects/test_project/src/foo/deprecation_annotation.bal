@@ -16,15 +16,15 @@ public type Bar C1|C2;
 # + fieldOne - This is the description of the `DummyObject`'s `fieldOne` field.
 # + fieldTwo - This is the description of the `DummyObject`'s `fieldTwo` field.
 # # Deprecated
-# This object is deprecated
+# This class is deprecated
 @deprecated
-public type DummyObject1 object {
+public class DummyObject1 {
 
     public string fieldOne = "Foo";
     public string fieldTwo = "";
-};
+}
 
-public type DummyObject2 object {
+public class DummyObject2 {
 
     public string fieldOne = "Foo";
     public string fieldTwo = "";
@@ -36,7 +36,7 @@ public type DummyObject2 object {
     @deprecated
     public function doThatOnObject(string paramOne) {
     }
-};
+}
 
 # This function initialize the object
 #

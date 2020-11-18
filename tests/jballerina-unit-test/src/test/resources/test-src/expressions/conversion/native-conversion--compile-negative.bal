@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type PersonObj object { 
+class PersonObj {
     public string name = "Waruna";
     public int age = 10;
-};
+}
 
 type Person record {|
     string name = "";

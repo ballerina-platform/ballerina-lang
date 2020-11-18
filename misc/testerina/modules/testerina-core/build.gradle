@@ -20,6 +20,12 @@ import org.apache.tools.ant.taskdefs.condition.Os
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
+configurations {
+    dist {
+        transitive false
+    }
+}
+
 dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
@@ -27,9 +33,11 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-runtime-api')
-    implementation project(':ballerina-java')
-    implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
+    implementation project(':ballerina-lang:java')
     implementation 'org.testng:testng'
+    implementation 'com.google.guava:guava:23.0'
+
+    dist 'io.github.java-diff-utils:java-diff-utils:4.5'
 
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'io.swagger.core.v3:swagger-models'
@@ -37,12 +45,20 @@ dependencies {
     testCompile 'com.github.jknack:handlebars'
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-reflect')
+
+    compile group: 'io.github.java-diff-utils', name: 'java-diff-utils', version: '4.5'
 }
 
 jar.archiveName("${project.name}-${project.version}.jar")
+
+jar {
+    from {
+        configurations.dist.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
 
 task updateVersion {
     ant.replaceregexp(
@@ -58,3 +74,14 @@ createBalo {
 
 description = 'Ballerina - Testerina - Core'
 
+//ext.moduleName = 'testerina-core'
+//
+//compileJava {
+//    inputs.property("moduleName", moduleName)
+//    doFirst {
+//        options.compilerArgs = [
+//                '--module-path', classpath.asPath,
+//        ]
+//        classpath = files()
+//    }
+//}

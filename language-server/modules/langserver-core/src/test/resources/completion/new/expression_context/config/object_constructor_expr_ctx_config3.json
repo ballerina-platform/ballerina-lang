@@ -1,0 +1,43 @@
+{
+  "position": {
+    "line": 5,
+    "character": 44
+  },
+  "source": "expression_context/source/object_constructor_expr_ctx_source3.bal",
+  "items": [
+    {
+      "label": "Client",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
+      },
+      "insertText": "Client",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Response",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a response.\n"
+      },
+      "insertText": "Response",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Listener",
+      "kind": "Interface",
+      "detail": "Object",
+      "insertText": "Listener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Object",
+      "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

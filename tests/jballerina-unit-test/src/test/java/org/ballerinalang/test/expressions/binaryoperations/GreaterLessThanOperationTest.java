@@ -16,10 +16,10 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -144,5 +144,10 @@ public class GreaterLessThanOperationTest {
         BAssertUtil.validateError(resultNegative, 5, "operator '>=' not defined for 'int' and 'string'", 47, 12);
         BAssertUtil.validateError(resultNegative, 6, "operator '<' not defined for 'int' and 'string'", 53, 12);
         BAssertUtil.validateError(resultNegative, 7, "operator '<=' not defined for 'int' and 'string'", 59, 12);
+    }
+
+    @Test(description = "Test decimal greater than, less than expression")
+    public void testDecimalComparison() {
+        BRunUtil.invoke(result, "testDecimalComparison");
     }
 }

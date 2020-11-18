@@ -1,8 +1,8 @@
 public type Teacher object {
 
     # Teacher name
-    public string name = "Saman";
+    public string name;
 
     # Teacher age
-    public int age = 15;
+    public int age;
 };

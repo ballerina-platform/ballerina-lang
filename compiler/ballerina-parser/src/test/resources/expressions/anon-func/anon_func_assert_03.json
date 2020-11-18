@@ -42,6 +42,10 @@
                   "kind": "FUNCTION_TYPE_DESC",
                   "children": [
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "FUNCTION_KEYWORD"
                     },
                     {
@@ -90,6 +94,10 @@
                   "kind": "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
                   "hasDiagnostics": true,
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "LIST",
                       "children": []
@@ -348,6 +356,10 @@
                   "kind": "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
                   "hasDiagnostics": true,
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "LIST",
                       "children": []
@@ -729,6 +741,10 @@
                       "children": []
                     },
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "FUNCTION_KEYWORD",
                       "trailingMinutiae": [
                         {
@@ -915,6 +931,10 @@
                               "kind": "FUNCTION_TYPE_DESC",
                               "hasDiagnostics": true,
                               "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
                                 {
                                   "kind": "FUNCTION_KEYWORD"
                                 },

@@ -1,5 +1,5 @@
-import ballerina/mysql;
-import ballerina/sql;
+//import ballerina/mysql;
+//import ballerina/sql;
 
 type Foo record {|
     string s?;
@@ -77,3 +77,4 @@ function testMultipleSelectClausesWithSimpleVariable() {
 public function testAsync() {
     // do something
 }
+

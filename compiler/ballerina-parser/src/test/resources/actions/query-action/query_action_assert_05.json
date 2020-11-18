@@ -156,8 +156,8 @@
                                   "value": "b",
                                   "trailingMinutiae": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
                                     }
                                   ]
                                 }
@@ -173,6 +173,12 @@
                               "children": [
                                 {
                                   "kind": "WHERE_KEYWORD",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "        "
+                                    }
+                                  ],
                                   "trailingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
@@ -228,8 +234,43 @@
                                       "kind": "CLOSE_PAREN_TOKEN",
                                       "trailingMinutiae": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIMIT_CLAUSE",
+                              "children": [
+                                {
+                                  "kind": "LIMIT_KEYWORD",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "        "
+                                    }
+                                  ],
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "NUMERIC_LITERAL",
+                                  "children": [
+                                    {
+                                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                                      "value": "100",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
                                         }
                                       ]
                                     }
@@ -243,6 +284,12 @@
                     },
                     {
                       "kind": "DO_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "        "
+                        }
+                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -283,7 +330,7 @@
                                           "leadingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
+                                              "value": "            "
                                             }
                                           ],
                                           "trailingMinutiae": [
@@ -335,7 +382,7 @@
                                           "leadingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
+                                              "value": "            "
                                             }
                                           ],
                                           "trailingMinutiae": [
@@ -400,36 +447,7 @@
                           "leadingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "LIMIT_CLAUSE",
-                      "children": [
-                        {
-                          "kind": "LIMIT_KEYWORD",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "NUMERIC_LITERAL",
-                          "children": [
-                            {
-                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                              "value": "100"
+                              "value": "        "
                             }
                           ]
                         }

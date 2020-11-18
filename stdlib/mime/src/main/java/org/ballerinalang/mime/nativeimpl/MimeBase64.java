@@ -18,7 +18,7 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.stdlib.io.utils.Utils;
 
 import static org.ballerinalang.mime.util.MimeConstants.UTF_8;

@@ -4,7 +4,7 @@ function test () returns int {
     return 6;
 }
 
-type Person object {
+class Person {
 
     public int age = 0;
 
@@ -12,4 +12,4 @@ type Person object {
     function test2(int a, string name) returns string {
 
     }
-};
+}

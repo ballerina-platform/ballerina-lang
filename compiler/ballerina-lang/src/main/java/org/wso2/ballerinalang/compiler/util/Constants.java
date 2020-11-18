@@ -29,8 +29,8 @@ public class Constants {
     private Constants() {
     }
 
-    public static final int OPEN_SEALED_ARRAY_INDICATOR = -2;
-    public static final int UNSEALED_ARRAY_INDICATOR = -1;
+    public static final int INFERRED_ARRAY_INDICATOR = -2;
+    public static final int OPEN_ARRAY_INDICATOR = -1;
 
     public static final String MAIN_FUNCTION_NAME = "main";
     public static final String WORKER_LAMBDA_VAR_PREFIX = "0";
@@ -39,8 +39,6 @@ public class Constants {
     public static final String OPEN_SEALED_ARRAY = "*";
 
     public static final int INIT_METHOD_SPLIT_SIZE = 50;
-
-    public static final String UNICODE_REGEX = "\\\\u\\{([a-fA-F0-9]+)\\}";
 
     public static final int MIN_UNICODE = 0xD800;
     public static final int MIDDLE_LIMIT_UNICODE = 0xDFFF;

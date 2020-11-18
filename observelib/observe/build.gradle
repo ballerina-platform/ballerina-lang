@@ -27,7 +27,7 @@ configurations.testCompileClasspath {
 dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-java')
+    implementation project(':ballerina-lang:java')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-config')
@@ -38,7 +38,7 @@ dependencies {
     testRuntime 'org.slf4j:slf4j-jdk14'
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils')

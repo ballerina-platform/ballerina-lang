@@ -18,33 +18,18 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.values.BString;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
-import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
-
 /**
  * Extern function lang.string:equalsIgnoreCase(string, string).
  *
  * @since 1.2
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION,
-        functionName = "equalsIgnoreCaseAscii",
-        args = {@Argument(name = "str1", type = TypeKind.STRING), @Argument(name = "str2", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-        isPublic = true
-)
-
 public class EqualsIgnoreCaseAscii {
     private static CharsetDecoder decoder;
 
@@ -52,7 +37,7 @@ public class EqualsIgnoreCaseAscii {
         decoder = Charset.forName("US-ASCII").newDecoder();
     }
 
-    public static boolean equalsIgnoreCaseAscii(Strand strand, BString s1, BString s2) {
+    public static boolean equalsIgnoreCaseAscii(BString s1, BString s2) {
         if (s1.length() != s2.length()) {
             return false;
         }

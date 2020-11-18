@@ -121,8 +121,9 @@ public class OpenApiGenContractCmd implements BLauncherCmd {
      * This method will generate the OAS Contract if a file and a service name is provided.
      *
      * @param serviceName - Service Name
+     * @param servicePath - Path to resource file
      */
-    private void genOASfromFile(String serviceName, Path servicePath) {
+    public void genOASfromFile(String serviceName, Path servicePath) {
         Path outPath = Paths.get(exportLocation);
 
         try {

@@ -18,13 +18,13 @@
 
 package org.ballerinalang.stdlib.file.service.compiler;
 
+import io.ballerina.runtime.api.types.StructureType;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -76,10 +76,10 @@ public class DirectoryListenerCompilerPlugin extends AbstractCompilerPlugin {
                 }
                 BType fileEvent = parameters.get(0).getTypeNode().type;
                 if (fileEvent.getKind().equals(TypeKind.OBJECT)) {
-                    if (fileEvent instanceof BStructureType) {
-                        BStructureType event = (BStructureType) fileEvent;
-                        if (!"file".equals(event.tsymbol.pkgID.name.value) || !FILE_SYSTEM_EVENT
-                                .equals(event.tsymbol.name.value)) {
+                    if (fileEvent instanceof StructureType) {
+                        StructureType event = (StructureType) fileEvent;
+                        if (!"file".equals(event.getPkg().getName()) || !FILE_SYSTEM_EVENT
+                                .equals(event.getName())) {
                             dlog.logDiagnostic(ERROR, resource.getPosition(), msg);
                             return;
                         }

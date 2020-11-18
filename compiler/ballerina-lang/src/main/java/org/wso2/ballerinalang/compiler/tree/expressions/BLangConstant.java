@@ -122,4 +122,15 @@ public class BLangConstant extends BLangVariable implements ConstantNode, TypeDe
     public BLangTypeDefinition getAssociatedTypeDefinition() {
         return associatedTypeDefinition;
     }
+
+    @Override
+    public int getPrecedence() {
+        return 0;
+    }
+
+    @Override
+    public void setPrecedence(int precedence) {
+        // Ignore
+    }
+
 }

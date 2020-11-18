@@ -15,7 +15,7 @@ declare global {
 export async function highlightSnippets(selector = "code.language-ballerina") {
     await loadWASM(require("onigasm/lib/onigasm.wasm"));
     // tslint:disable-next-line: max-line-length
-    const content = require("./../../../../tool-plugins/vscode/grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage").default;
+    const content = require("./../../../../misc/ballerina-grammar/syntaxes/ballerina.tmLanguage").default;
     const registry = new Registry({
         getGrammarDefinition: async (scopeName) => {
             return {

@@ -17,10 +17,11 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.lang.reflect.Constructor;
@@ -41,6 +42,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
 class JMethod {
 
     static final JMethod NO_SUCH_METHOD = new JMethod(null, null, null);
+    public static final String BAL_ENV_CANONICAL_NAME = Environment.class.getCanonicalName();
 
     JMethodKind kind;
     private Executable method;
@@ -108,7 +110,6 @@ class JMethod {
     }
 
     Class<?>[] getParamTypes() {
-
         return method.getParameterTypes();
     }
 
@@ -129,7 +130,7 @@ class JMethod {
         this.receiverType = receiverType;
     }
 
-    ArrayValue getExceptionTypes(ClassLoader classLoader) {
+    BArray getExceptionTypes(ClassLoader classLoader) {
 
         List<Class> checkedExceptions = new ArrayList<>();
         try {
@@ -143,7 +144,8 @@ class JMethod {
             throw new JInteropException(CLASS_NOT_FOUND, e.getMessage(), e);
         }
 
-        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BTypes.typeString), checkedExceptions.size());
+        BArray arrayValue = ValueCreator
+                .createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING), checkedExceptions.size());
         int i = 0;
         for (Class<?> exceptionType : checkedExceptions) {
             arrayValue.add(i++, exceptionType.getName().replace(".", "/"));
@@ -166,5 +168,10 @@ class JMethod {
             throw new JInteropException(CLASS_NOT_FOUND, e.getMessage(), e);
         }
         return checkedExceptions.toArray(new Class[0]);
+    }
+
+    public boolean isBalEnvAcceptingMethod() {
+        Class<?>[] paramTypes = getParamTypes();
+        return paramTypes.length > 0 && paramTypes[0].getCanonicalName().equals(BAL_ENV_CANONICAL_NAME);
     }
 }

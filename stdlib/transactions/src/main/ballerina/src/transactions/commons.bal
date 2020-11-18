@@ -378,11 +378,11 @@ function getParticipantId(string transactionBlockId) returns string {
 }
 
 function getAvailablePort() returns int = @java:Method {
-    class: "io.ballerina.transactions.Utils",
+    'class: "io.ballerina.transactions.Utils",
     name: "getAvailablePort"
 } external;
 
 function getHostAddress() returns string = @java:Method {
-    class: "io.ballerina.transactions.Utils",
+    'class: "io.ballerina.transactions.Utils",
     name: "getHostAddress"
 } external;

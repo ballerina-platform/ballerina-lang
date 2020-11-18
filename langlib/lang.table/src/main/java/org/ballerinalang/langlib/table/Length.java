@@ -18,32 +18,26 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
+import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.scheduling.Strand;
 
 /**
  * Native implementation of lang.table:length(map).
  *
  * @since 1.3.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION, functionName = "length",
-        args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.table", functionName = "length",
+//        args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
+//        returnType = {@ReturnType(type = TypeKind.INT)},
+//        isPublic = true
+//)
 public class Length {
 
-    public static long length(Strand strand, TableValueImpl tbl) {
+    public static long length(BTable tbl) {
         return tbl.size();
     }
-    public static long length_bstring(Strand strand, TableValueImpl tbl) {
-        return length(strand, tbl);
+    public static long length_bstring(Strand strand, BTable tbl) {
+        return length(tbl);
     }
 }

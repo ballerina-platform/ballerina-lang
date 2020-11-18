@@ -38,6 +38,10 @@
                   "kind": "FUNCTION_TYPE_DESC",
                   "children": [
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "FUNCTION_KEYWORD"
                     },
                     {
@@ -90,6 +94,10 @@
                       "children": []
                     },
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "FUNCTION_KEYWORD"
                     },
                     {
@@ -135,7 +143,7 @@
                                   "trailingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "  "
+                                      "value": " "
                                     }
                                   ]
                                 }
@@ -265,6 +273,10 @@
                 {
                   "kind": "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "LIST",
                       "children": []

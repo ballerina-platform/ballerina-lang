@@ -29,6 +29,7 @@ dependencies {
     implementation project(':maven-resolver')
     implementation project(':ballerina-lang:annotations')
     testCompile 'org.testng:testng'
+    testImplementation 'org.apache.maven:maven-model-builder:3.6.3'
 }
 
 description = 'Ballerina - Bindings generator for Java APIs'

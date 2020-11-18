@@ -87,7 +87,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                     symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
                     symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, path.toUri().toString());
                     List<BLangPackage> bLangPackage = LSModuleCompiler.getBLangPackages(symbolsContext,
-                            workspaceDocumentManager, null, true, false, false, true);
+                            workspaceDocumentManager, true, false, false);
                     bLangPackage.forEach(aPackage -> aPackage.compUnits.forEach(compUnit -> {
                         String unitName = compUnit.getName();
                         String sourceRoot = LSCompilerUtil.getProjectRoot(path);

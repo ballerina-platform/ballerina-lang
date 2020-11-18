@@ -315,7 +315,7 @@ function test18() returns int {
     return globalVarAccessAndModifyTest();
 }
 
-type Person object {
+class Person {
     public int age = 3;
     public string name = "Hello Ballerina";
 
@@ -337,7 +337,7 @@ type Person object {
         };
         return foo;
     }
-};
+}
 
 function test19() returns (string) {
     Person p = new;

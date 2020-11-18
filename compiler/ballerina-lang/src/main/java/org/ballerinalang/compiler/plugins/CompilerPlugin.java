@@ -20,6 +20,7 @@ package org.ballerinalang.compiler.plugins;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
+import org.ballerinalang.model.tree.ClassDefinition;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
@@ -88,6 +89,15 @@ public interface CompilerPlugin {
      * @param annotations a list of annotations attached to the object node
      */
     void process(TypeDefinition typeDefinition, List<AnnotationAttachmentNode> annotations);
+
+    /**
+     * Processes a list of annotations attached to a class def node.
+     *
+     * @param classDefinition  the class def node being annotated
+     * @param annotations a list of annotations attached to the object node
+     */
+    default void process(ClassDefinition classDefinition, List<AnnotationAttachmentNode> annotations) {
+    }
 
     /**
      * Processes a list of annotations attached to a function node.

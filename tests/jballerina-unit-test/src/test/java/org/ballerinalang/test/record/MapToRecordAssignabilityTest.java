@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.record;
 
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -65,36 +65,36 @@ public class MapToRecordAssignabilityTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*InherentTypeViolation message=invalid map insertion: expected value of" +
-                  " type 'decimal', found 'float'.*")
+          expectedExceptionsMessageRegExp = ".*InherentTypeViolation \\{\"message\":\"invalid map insertion: " +
+                  "expected value of type 'decimal', found 'float'.*")
     public void testInherentTypeViolationInInclusiveRecords() {
         BRunUtil.invoke(compileResult, "testInherentTypeViolationInInclusiveRecords");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*InherentTypeViolation message=invalid map insertion: expected value of" +
-                  " type 'int', found 'string'.*")
+          expectedExceptionsMessageRegExp = ".*InherentTypeViolation \\{\"message\":\"invalid map insertion: " +
+                  "expected value of type 'int', found 'string'.*")
     public void testInherentTypeViolationInExclusiveRecords() {
         BRunUtil.invoke(compileResult, "testInherentTypeViolationInExclusiveRecords");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*KeyNotFound message=invalid field access: field 'cc' not found in " +
-                  "record type 'Bar'.*")
+          expectedExceptionsMessageRegExp = ".*KeyNotFound \\{\"message\":\"invalid field access: field 'cc' " +
+                  "not found in record type 'Bar'.*")
     public void testSubtyping() {
         BRunUtil.invoke(compileResult, "testSubtyping");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'Bar' cannot be cast to " +
-                  "'Baz'.*")
+          expectedExceptionsMessageRegExp = ".*TypeCastError \\{\"message\":\"incompatible types: 'Bar' cannot be " +
+                  "cast to 'Baz'.*")
     public void testComplexSubtyping() {
         BRunUtil.invoke(compileResult, "testComplexSubtyping");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*InherentTypeViolation message=invalid map insertion: expected value of" +
-                  " type 'Bar', found '\\$anonType\\$30'.*")
+          expectedExceptionsMessageRegExp = ".*InherentTypeViolation \\{\"message\":\"invalid map insertion: " +
+                  "expected value of type 'Bar', found '\\$anonType\\$_30'.*")
     public void testComplexSubtyping2() {
         BRunUtil.invoke(compileResult, "testComplexSubtyping2");
     }

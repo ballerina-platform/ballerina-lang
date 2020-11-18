@@ -1,7 +1,7 @@
 # Test Connector
 # + url - url for endpoint
 # + path - path for endpoint
-type TestConnector object {
+class TestConnector {
     string url = "";
     string path = "";
     private string abc = ""; // Test private field
@@ -20,7 +20,7 @@ type TestConnector object {
         boolean value = false;
         return value;
     }
-};
+}
 
  # Test type `typeDef`
  # Test service `helloWorld`
@@ -32,7 +32,7 @@ type TestConnector object {
  # Test annotation `annot`
  # + url - url for endpoint
  # + path - path for endpoint
- type TestConnector2 object {
+ class TestConnector2 {
      string url = "";
      string path = "";
      private string abc = ""; // Test private field
@@ -51,6 +51,6 @@ type TestConnector object {
          boolean value = false;
          return value;
      }
- };
+ }
 
 

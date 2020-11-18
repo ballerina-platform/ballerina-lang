@@ -18,31 +18,18 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 
 /**
  * Extern function lang.string:fromCodePointInts(string).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION,
-        functionName = "fromCodePointInts",
-        args = {@Argument(name = "codePoints", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.UNION)},
-        isPublic = true
-)
 public class FromCodePointInts {
 
-    public static Object fromCodePointInts(Strand strand, ArrayValue codePoints) {
+    public static Object fromCodePointInts(BArray codePoints) {
         int codePoint = 0;
         try {
             StringBuilder builder = new StringBuilder();
@@ -50,9 +37,9 @@ public class FromCodePointInts {
                 codePoint = (int) codePoints.getInt(i);
                 builder.appendCodePoint(codePoint);
             }
-            return builder.toString();
+            return StringUtils.fromString(builder.toString());
         } catch (IllegalArgumentException e) {
-            return BallerinaErrors.createError("Invalid codepoint: " + codePoint);
+            return ErrorCreator.createError(StringUtils.fromString("Invalid codepoint: " + codePoint));
         }
     }
 }

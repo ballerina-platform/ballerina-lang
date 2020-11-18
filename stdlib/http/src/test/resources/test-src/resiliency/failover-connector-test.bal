@@ -75,7 +75,7 @@ function testFailureScenario () returns @tainted http:Response | error {
     return response;
 }
 
-public type MockClient client object {
+public client class MockClient {
     public string url = "";
     public http:ClientConfiguration config = {};
     public http:Client httpClient;
@@ -178,7 +178,7 @@ public type MockClient client object {
     public function getCookieStore() returns http:CookieStore? {
         return self.cookieStore;
     }
-};
+}
 
 function handleFailoverScenario (int count) returns (http:Response | http:ClientError) {
     if (count == 0) {

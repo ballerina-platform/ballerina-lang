@@ -18,15 +18,15 @@
  */
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.types.BTypes;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -353,8 +353,8 @@ public class SealedArrayTest {
     @Test(description = "Test accessing invalid index of sealed array matched union type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array\\}IndexOutOfRange message=array index out of range: index: 4, " +
-                            "size: 3.*")
+                    "error: \\{ballerina/lang.array\\}IndexOutOfRange " +
+                            "\\{\"message\":\"array index out of range: index: 4, size: 3.*")
     public void accessInvalidIndexJSONArray() {
         BInteger bInteger = new BInteger(1);
         BInteger bInteger2 = new BInteger(4);
@@ -366,7 +366,7 @@ public class SealedArrayTest {
 
     @Test(description = "Test accessing invalid index of sealed array matched union type",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*message=array index out of range: index: 3, size: 3.*")
+            expectedExceptionsMessageRegExp = ".*\\{\"message\":\"array index out of range: index: 3, size: 3.*")
     public void invalidIndexReferenceJSONArray() {
         BRunUtil.invoke(compileResult, "invalidIndexReferenceJSONArray");
     }
@@ -407,6 +407,11 @@ public class SealedArrayTest {
         bIntArray.add(2, 5);
         BValue[] args = {bIntArray, new BInteger(3)};
         BRunUtil.invoke(compileResult, "testSealedArrayConstrainedMapInvalidIndex", args);
+    }
+
+    @Test(groups = { "disableOnOldParser" })
+    public void testArrayWithConstantSizeReferenceFill() {
+        BRunUtil.invokeFunction(compileResult, "testArrayWithConstantSizeReferenceFill");
     }
 
     @Test

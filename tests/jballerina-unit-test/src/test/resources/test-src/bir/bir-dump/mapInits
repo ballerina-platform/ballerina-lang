@@ -1,0 +1,131 @@
+private mapInits function() -> (string | (), int | ()) {
+    %0(RETURN) (string | (), int | ());
+    %0(RETURN) (string | (), int | ());
+    %1(LOCAL) map<Employee>;
+    %2(TEMP) typeDesc<any | error>;
+    %4(LOCAL) Person;
+    %7(TEMP) string;
+    %8(TEMP) string;
+    %9(TEMP) string;
+    %10(TEMP) int;
+    %11(TEMP) string;
+    %12(TEMP) string;
+    %13(TEMP) Employee;
+    %16(TEMP) string;
+    %18(TEMP) int;
+    %19(SYNTHETIC) string | ();
+    %20(SYNTHETIC) Employee | ();
+    %25(TEMP) ();
+    %26(TEMP) boolean;
+    %27(SYNTHETIC) ();
+    %33(SYNTHETIC) Employee;
+    %37(TEMP) string;
+    %45(SYNTHETIC) int | ();
+    %46(SYNTHETIC) Employee | ();
+    %53(SYNTHETIC) ();
+    %59(SYNTHETIC) Employee;
+    %63(TEMP) int;
+
+    bb0 {
+;
+        %1 = NewMap %2;
+;
+        %7 = ConstLoad name;
+        %8 = ConstLoad Jack;
+        %9 = ConstLoad age;
+        %10 = ConstLoad 25;
+        %11 = ConstLoad address;
+        %12 = ConstLoad Usa;
+        %4 = NewMap %2;
+        %13 = <Employee> %4;
+        %16 = ConstLoad jack;
+        %1[%16] = %13;
+        %18 = ConstLoad 2;
+        %16 = ConstLoad jack;
+        %20 = %1[%16];
+        %25 = ConstLoad 0;
+        %26 = %20 == %25;
+        %26? bb1 : bb2;
+    }
+    bb1 {
+        %27 = %20;
+        %19 = <string | ()> %27;
+        GOTO bb8;
+    }
+    bb2 {
+        %26 = %20 is Employee;
+        %26? bb3 : bb4;
+    }
+    bb3 {
+        %33 = <Employee> %20;
+        %16 = ConstLoad name;
+        %37 = %33[%16];
+        %19 = <string | ()> %37;
+        GOTO bb7;
+    }
+    bb4 {
+        %26 = %20 is any;
+        %26? bb5 : bb6;
+    }
+    bb5 {
+        %25 = ConstLoad 0;
+        %19 = <string | ()> %25;
+        GOTO bb6;
+    }
+    bb6 {
+        GOTO bb7;
+    }
+    bb7 {
+        GOTO bb8;
+    }
+    bb8 {
+        %16 = ConstLoad jack;
+        %46 = %1[%16];
+        %25 = ConstLoad 0;
+        %26 = %46 == %25;
+        %26? bb9 : bb10;
+    }
+    bb9 {
+        %53 = %46;
+        %45 = <int | ()> %53;
+        GOTO bb16;
+    }
+    bb10 {
+        %26 = %46 is Employee;
+        %26? bb11 : bb12;
+    }
+    bb11 {
+        %59 = <Employee> %46;
+        %37 = ConstLoad age;
+        %63 = %59[%37];
+        %45 = <int | ()> %63;
+        GOTO bb15;
+    }
+    bb12 {
+        %26 = %46 is any;
+        %26? bb13 : bb14;
+    }
+    bb13 {
+        %25 = ConstLoad 0;
+        %45 = <int | ()> %25;
+        GOTO bb14;
+    }
+    bb14 {
+        GOTO bb15;
+    }
+    bb15 {
+        GOTO bb16;
+    }
+    bb16 {
+        %0 = newArray (string | (), int | ())[%18];
+        GOTO bb18;
+    }
+    bb17 {
+        GOTO bb18;
+    }
+    bb18 {
+        return;
+    }
+
+
+}

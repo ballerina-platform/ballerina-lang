@@ -18,10 +18,10 @@
 
 package org.ballerinalang.test.expressions.literals;
 
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
 /**
  * Identifier literal test cases with package.
  */
-@Test(groups = { "disableOnOldParser" })
+@Test(groups = {"disableOnOldParser"})
 public class IdentifierLiteralPackageTest {
 
     private CompileResult result;

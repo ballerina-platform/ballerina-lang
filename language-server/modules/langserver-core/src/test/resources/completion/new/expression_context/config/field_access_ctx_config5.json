@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 4,
+    "character": 21
+  },
+  "source": "expression_context/source/field_access_ctx_source5.bal",
+  "items": [
+    {
+      "label": "testField",
+      "detail": "ballerina/module1:0.1.0:TestRecord1",
+      "insertText": "testField",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testOptional",
+      "detail": "int",
+      "insertText": "testOptional",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

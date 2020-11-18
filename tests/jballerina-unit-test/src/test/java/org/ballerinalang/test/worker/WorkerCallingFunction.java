@@ -17,31 +17,31 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+//import org.ballerinalang.core.model.values.BInteger;
+//import org.ballerinalang.core.model.values.BValue;
+//import org.ballerinalang.test.util.BCompileUtil;
+//import org.ballerinalang.test.util.BRunUtil;
+//import org.ballerinalang.test.util.CompileResult;
+//import org.testng.Assert;
+//import org.testng.annotations.BeforeClass;
+//import org.testng.annotations.Test;
 
 /**
  * Test cases for calling worker in functions.
  */
 public class WorkerCallingFunction {
-    private CompileResult result;
-
-    @BeforeClass
-    public void setup() {
-        this.result = BCompileUtil.compile("test-src/workers/worker-calling-function.bal");
-    }
-
-    @Test(description = "Test worker calling function")
-    public void testWorkerCallingFunction() {
-        BValue[] returns = BRunUtil.invoke(result, "testWorkerInVM");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
-    }
+//    private CompileResult result;
+//
+//    @BeforeClass
+//    public void setup() {
+//        this.result = BCompileUtil.compile("test-src/workers/worker-calling-function.bal");
+//    }
+//
+//    @Test(description = "Test worker calling function")
+//    public void testWorkerCallingFunction() {
+//        BValue[] returns = BRunUtil.invoke(result, "testWorkerInVM");
+//        Assert.assertEquals(returns.length, 1);
+//        Assert.assertTrue(returns[0] instanceof BInteger);
+//        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
+//    }
 }

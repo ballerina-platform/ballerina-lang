@@ -66,7 +66,8 @@ public class RawTemplateLiteralTest {
         validateError(errors, indx++, "invalid raw template assignment: 'Template1' should be an abstract object",
                       82, 19);
         validateError(errors, indx++, "invalid raw template assignment: 'object { public (string[] & readonly) " +
-                "strings; public [anydata...] insertions; string name; }' should be an abstract object", 94, 15);
+                "strings; public [anydata...] insertions; string name; }' should only have the 'strings' and " +
+                "'insertions' fields", 94, 15);
         validateError(errors, indx++, "invalid raw template assignment: 'object { public (string[] & readonly) " +
                 "strings; public int[] insertions; int name; }' should only have the 'strings' and " +
                 "'insertions' fields", 102, 13);
@@ -118,7 +119,7 @@ public class RawTemplateLiteralTest {
         assertEquals(errors.getErrorCount(), 1);
     }
 
-    @Test(dataProvider = "FunctionNames")
+    @Test(dataProvider = "FunctionNames", enabled = false)
     public void testRawTemplateLiteral(String func) {
         BRunUtil.invoke(result, func);
     }

@@ -30,7 +30,7 @@ public const BIG_ENDIAN = "BE";
 public const LITTLE_ENDIAN = "LE";
 
 # Represents a WritableDataChannel for writing data.
-public type WritableDataChannel object {
+public class WritableDataChannel {
 
     # Initializes data channel.
     #
@@ -57,7 +57,7 @@ public type WritableDataChannel object {
 # ```ballerina
 # io:Error? err = dataChannel.writeInt32(length);
 # ```
-# 
+#
 # + value - The integer, which will be written
 # + return - `()` if the content is written successfully or else `io:Error` if any error occurred
     public function writeInt32(int value) returns Error? {
@@ -140,56 +140,56 @@ public type WritableDataChannel object {
     public function close() returns Error? {
         return closeWritableDataChannelExtern(self);
     }
-};
+}
 
 function initWritableDataChannel(WritableDataChannel dataChannel, WritableByteChannel byteChannel,
                                  string bOrder) = @java:Method {
     name: "initWritableDataChannel",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
 function writeInt16Extern(WritableDataChannel dataChannel, int value) returns Error? = @java:Method {
     name: "writeInt16",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
 function writeInt32Extern(WritableDataChannel dataChannel, int value) returns Error? = @java:Method {
     name: "writeInt32",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
 function writeInt64Extern(WritableDataChannel dataChannel, int value) returns Error? = @java:Method {
     name: "writeInt64",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
 function writeFloat32Extern(WritableDataChannel dataChannel, float value) returns Error? = @java:Method {
     name: "writeFloat32",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
 function writeFloat64Extern(WritableDataChannel dataChannel, float value) returns Error? = @java:Method {
     name: "writeFloat64",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
 function writeBoolExtern(WritableDataChannel dataChannel, boolean value) returns Error? = @java:Method {
     name: "writeBool",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
 function writeStringExtern(WritableDataChannel dataChannel, string value, string encoding)
                            returns Error? = @java:Method {
     name: "writeString",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
 function writeVarIntExtern(WritableDataChannel dataChannel, int value) returns Error? = @java:Method {
     name: "writeVarInt",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
 function closeWritableDataChannelExtern(WritableDataChannel dataChannel) returns Error? = @java:Method {
     name: "closeDataChannel",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;

@@ -44,6 +44,13 @@ public class BExpressionValue {
         return bVariable.getBType();
     }
 
+    public String getStringValue() {
+        if (bVariable == null) {
+            bVariable = VariableFactory.getVariable(context, jdiValue);
+        }
+        return bVariable.getDapVariable().getValue();
+    }
+
     public Value getJdiValue() {
         return jdiValue;
     }

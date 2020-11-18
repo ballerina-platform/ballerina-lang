@@ -121,7 +121,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         moduleBuildLeecher.waitForText(5000);
     }
 
-    @Test(enabled = false, description = "Test pushing a module to central without any content in Module.md")
+    @Test(description = "Test pushing a module to central without any content in Module.md")
     public void testPushWithoutModuleMDContent() throws Exception {
         Path projectPath = Files.createDirectories(tempProjectDirectory).resolve("projectWithoutModuleMDContent");
         createProjectStructureAndGetProjectPath(projectPath, moduleName);
@@ -186,7 +186,7 @@ public class PackagingNegativeTestCase extends BaseTest {
 
     @Test(description = "Pull a non-existing module")
     public void testPullNonExistingPackage() throws Exception {
-        String msg = "error: module not found: natasha/nomodule:*_java8 or natasha/nomodule:*_any";
+        String msg = "error: module not found: natasha/nomodule:*_java11 or natasha/nomodule:*_any";
         LogLeecher leecher = new LogLeecher(msg, LogLeecher.LeecherType.ERROR);
         balClient.runMain("pull", new String[]{"natasha/nomodule"}, envVariables, new String[0],
                 new LogLeecher[]{leecher}, balServer.getServerHome());
@@ -228,7 +228,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         leecher.waitForText(5000);
     }
 
-    @Test(enabled = false, description = "Test build without any modules in the project")
+    @Test(description = "Test build without any modules in the project")
     public void testBuildAllWithoutPackages() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("projectWithoutPackages");
         initProject(tempProjectDirectory, "projectWithoutPackages");
@@ -245,7 +245,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         leecher.waitForText(5000);
     }
 
-    @Test(enabled = false, description = "Test pushing a package with an invalid org-name")
+    @Test(description = "Test pushing a package with an invalid org-name")
     public void testPushWithInvalidOrg() throws Exception {
         Path projectPath = Files.createDirectories(tempProjectDirectory).resolve("projectWithReservedOrg");
         createProjectStructureAndGetProjectPath(projectPath, moduleName);
@@ -278,7 +278,7 @@ public class PackagingNegativeTestCase extends BaseTest {
     }
 
 
-    @Test(enabled = false, description = "Test pushing a package with an invalid package name")
+    @Test(description = "Test pushing a package with an invalid package name")
     public void testPushWithInvalidPkg() throws Exception {
         Path projectPath = Files.createDirectories(tempProjectDirectory).resolve("projectWithInvalidPkg");
         createProjectStructureAndGetProjectPath(projectPath, "hello-pkg");
@@ -313,12 +313,12 @@ public class PackagingNegativeTestCase extends BaseTest {
         // Copy TestProject1 to projectDir
         Path originalTestProj = Paths.get("src", "test", "resources", "packaging", "packagingNegative", "TestProject1")
                 .toAbsolutePath();
-        new LockFileTestCase().copyFolder(originalTestProj, projectDirPath);
+        PackerinaTestUtils.copyFolder(originalTestProj, projectDirPath);
 
         // rename module names
         Path testProjModule1Path = projectDirPath.resolve("src").resolve(moduleName);
         Files.createDirectories(projectDirPath.resolve("src").resolve(moduleName));
-        new LockFileTestCase().copyFolder(projectDirPath.resolve("src").resolve("foo"), testProjModule1Path);
+        PackerinaTestUtils.copyFolder(projectDirPath.resolve("src").resolve("foo"), testProjModule1Path);
         deleteFiles(projectDirPath.resolve("src").resolve("foo"));
     }
 

@@ -18,38 +18,10 @@
 
 package org.ballerinalang.net.http.mock.nonlistening;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.net.http.HTTPServicesRegistry;
-import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.websocket.WebSocketConstants;
-import org.ballerinalang.net.http.websocket.server.WebSocketServerService;
-import org.ballerinalang.net.http.websocket.server.WebSocketServicesRegistry;
-
 /**
  * Register a service to the mock listener.
  *
  * @since 0.966
  */
 public class NonListeningRegister extends org.ballerinalang.net.http.serviceendpoint.Register {
-    public static void register(ObjectValue serviceEndpoint, ObjectValue service) {
-        HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
-        WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
-
-        BType param;
-        AttachedFunction[] resourceList = service.getType().getAttachedFunctions();
-        if (resourceList.length > 0 && (param = resourceList[0].getParameterType()[0]) != null) {
-            String callerType = param.getName();
-            if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) {
-                httpServicesRegistry.registerService(service);
-            } else if (WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(callerType)) {
-                webSocketServicesRegistry.registerService(
-                        new WebSocketServerService(service, Scheduler.getStrand().scheduler));
-            }
-        } else {
-            httpServicesRegistry.registerService(service);
-        }
-    }
 }

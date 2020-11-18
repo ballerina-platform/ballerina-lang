@@ -31,7 +31,7 @@ function testArray() {
     float x2 = x.pop(); // incompatible types: expected 'float', found 'string'
 
     (record {string x;})[] y = [ { x : "10"}];
-    abstract object {
+    object {
         public function next() returns record {|
             string value;
         |}?;

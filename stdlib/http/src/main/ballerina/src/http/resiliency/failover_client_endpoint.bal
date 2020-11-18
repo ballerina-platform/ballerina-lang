@@ -43,7 +43,7 @@ public type FailoverInferredConfig record {|
 # + failoverClientConfig - The configurations for the failover client endpoint
 # + failoverInferredConfig - Configurations derived from `FailoverConfig`
 # + succeededEndpointIndex - Index of the `CallerActions[]` array which given a successful response
-public type FailoverClient client object {
+public client class FailoverClient {
 
     public FailoverClientConfiguration failoverClientConfig;
     public FailoverInferredConfig failoverInferredConfig;
@@ -273,7 +273,7 @@ public type FailoverClient client object {
     # + promise - The Push Promise to be rejected
     public remote function rejectPromise(PushPromise promise) {
     }
-};
+}
 
 // Performs execute action of the Failover connector. extract the corresponding http integer value representation
 // of the http verb and invokes the perform action method.

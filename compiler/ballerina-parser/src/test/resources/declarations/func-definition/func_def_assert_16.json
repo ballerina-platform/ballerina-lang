@@ -1,79 +1,78 @@
 {
-  "kind": "FUNCTION_DEFINITION",
+  "kind": "MODULE_VAR_DECL",
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "LIST",
-      "children": []
-    },
-    {
-      "kind": "FUNCTION_KEYWORD",
-      "trailingMinutiae": [
-        {
-          "kind": "END_OF_LINE_MINUTIAE",
-          "value": "\n"
-        }
-      ]
-    },
-    {
-      "kind": "IDENTIFIER_TOKEN",
-      "isMissing": true,
-      "hasDiagnostics": true,
-      "diagnostics": [
-        "ERROR_MISSING_FUNCTION_NAME"
-      ]
-    },
-    {
-      "kind": "FUNCTION_SIGNATURE",
+      "kind": "TYPED_BINDING_PATTERN",
       "hasDiagnostics": true,
       "children": [
         {
-          "kind": "OPEN_PAREN_TOKEN",
-          "isMissing": true,
+          "kind": "FUNCTION_TYPE_DESC",
           "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_MISSING_OPEN_PAREN_TOKEN"
-          ]
-        },
-        {
-          "kind": "LIST",
-          "children": []
-        },
-        {
-          "kind": "CLOSE_PAREN_TOKEN",
-          "isMissing": true,
-          "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
-          ]
-        }
-      ]
-    },
-    {
-      "kind": "FUNCTION_BODY_BLOCK",
-      "hasDiagnostics": true,
-      "children": [
-        {
-          "kind": "OPEN_BRACE_TOKEN",
-          "isMissing": true,
-          "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_MISSING_OPEN_BRACE_TOKEN"
-          ]
-        },
-        {
-          "kind": "LIST",
-          "children": []
-        },
-        {
-          "kind": "CLOSE_BRACE_TOKEN",
-          "trailingMinutiae": [
+          "children": [
             {
-              "kind": "END_OF_LINE_MINUTIAE",
-              "value": "\n"
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "FUNCTION_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "FUNCTION_SIGNATURE",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "OPEN_PAREN_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_OPEN_PAREN_TOKEN"
+                  ]
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "CLOSE_PAREN_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_IDENTIFIER"
+              ]
             }
           ]
         }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_SEMICOLON_TOKEN"
       ]
     }
   ]

@@ -64,11 +64,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -86,11 +86,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -108,11 +108,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -130,11 +130,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -152,11 +152,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -174,15 +174,37 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
           "newText": "import ballerina/lang.'string;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
         }
       ]
     },
@@ -196,11 +218,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -218,11 +240,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -240,11 +262,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -262,11 +284,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -284,11 +306,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -306,11 +328,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -328,11 +350,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -350,11 +372,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -372,11 +394,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -394,11 +416,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -416,11 +438,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -464,6 +486,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "isolated",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "isolated ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -499,10 +528,31 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "client",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "client ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
       "insertText": "error(\"${1}\")",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object constructor",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "object {\n\t\n};",
       "insertTextFormat": "Snippet"
     },
     {
@@ -534,7 +584,7 @@
     {
       "label": "c",
       "kind": "Variable",
-      "detail": "module1:Client",
+      "detail": "ballerina/module1:0.1.0:Client",
       "insertText": "c",
       "insertTextFormat": "Snippet"
     },
@@ -558,7 +608,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `string` url"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `string` url  \n  \n**Returns** `()`   \n  \n"
         }
       },
       "insertText": "new(${1});",

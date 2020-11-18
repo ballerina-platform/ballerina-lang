@@ -125,13 +125,13 @@ function add_panic(int i, int j) returns int {
     return k;
 }
 
-type Student object {
+class Student {
     public string name;
     public function init() {
         future<int> accumulator = start add(2, 4);
         self.name = "ABC";
     }
-};
+}
 
 function asyncObjectCreationTest() {
     Student s = new();

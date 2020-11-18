@@ -18,7 +18,8 @@
 
 package org.ballerinalang.stdlib.file.service.endpoint;
 
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.stdlib.file.service.DirectoryListenerConstants;
 import org.ballerinalang.stdlib.file.utils.FileConstants;
 import org.ballerinalang.stdlib.file.utils.FileUtils;
@@ -33,18 +34,21 @@ import java.nio.file.Paths;
 
 public class InitEndpoint {
 
-    public static Object initEndpoint(ObjectValue listener) {
+    public static Object initEndpoint(BObject listener) {
         final String path = listener.getMapValue(DirectoryListenerConstants.SERVICE_ENDPOINT_CONFIG).
                 getStringValue(DirectoryListenerConstants.ANNOTATION_PATH).getValue();
         if (path == null || path.isEmpty()) {
-            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, "'path' field is empty");
+            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR,
+                                               StringUtils.fromString("'path' field is empty"));
         }
         final Path dirPath = Paths.get(path);
         if (Files.notExists(dirPath)) {
-            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, "Folder does not exist: " + path);
+            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR,
+                                               StringUtils.fromString("Folder does not exist: " + path));
         }
         if (!Files.isDirectory(dirPath)) {
-            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, "Unable to find a directory: " + path);
+            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR,
+                                               StringUtils.fromString("Unable to find a directory: " + path));
         }
         return null;
     }

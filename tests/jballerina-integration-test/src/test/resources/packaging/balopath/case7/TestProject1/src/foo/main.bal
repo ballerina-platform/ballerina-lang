@@ -1,4 +1,4 @@
-import ballerina/io;
+import ballerina/java;
 import wso2/utils;
 
 function testAcceptNothingButReturnString() returns handle {
@@ -6,5 +6,5 @@ function testAcceptNothingButReturnString() returns handle {
 }
 
 public function main() {
-    io:println(testAcceptNothingButReturnString());
+    string s = <string>java:toString(testAcceptNothingButReturnString());
 }

@@ -14,9 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type Foo object {
+public class Foo {
     public future<int> intFuture = getFuture();
-};
+
+    function init() {
+    }
+}
 
 Foo globalFoo = new;
 

@@ -16,7 +16,7 @@
 
 import testorg/subtyping;
 
-type Person1 object {
+class Person1 {
     public string name = "sample name";
     public int age = 10;
 
@@ -27,15 +27,15 @@ type Person1 object {
         self.age = age;
         self.name = name;
     }
-};
+}
 
-type Employee1 object {
+class Employee1 {
     public string name = "no name";
     public int age = 3;
 
     int year = 2;
     string month = "idk";
-    
+
     function init(string name, int age) {
         self.age = age;
         self.name = name;
@@ -50,7 +50,7 @@ type Employee1 object {
     function getYear() returns int {
         return self.year;
     }
-};
+}
 
 function testAdditionalMethodsInSourceType() returns Person1 {
     Employee1 e = new("John Doe", 25);
@@ -64,14 +64,14 @@ function testCastingRuntimeError() returns Person1 {
     return e;
 }
 
-type AbstractPerson abstract object {
+type AbstractPerson object {
     public string name;
     public int age;
 
     public function toString() returns string;
 };
 
-type Student1 object {
+class Student1 {
     public string name = "";
     public int age = 0;
     public string school = "";
@@ -85,7 +85,7 @@ type Student1 object {
     public function toString() returns string {
         return "Student1{" + self.name + ", " + self.age.toString() + ", " + self.school + "}";
     }
-};
+}
 
 function testSubtypingAPublicAbstractObject() returns string {
     AbstractPerson ap = new Student1("John Doe", 25, "Ballerina Academy");
@@ -97,7 +97,7 @@ function testSubtypingAPublicAbsObjectInAnotherModule() returns string {
     return ap.toString();
 }
 
-public type UniStudent1 object {
+public class UniStudent1 {
     public string name = "";
     public string school = "";
     public int age = 0;
@@ -117,20 +117,20 @@ public type UniStudent1 object {
     public function getSchool() returns string {
         return self.school;
     }
-};
+}
 
 function testSubtypingAPublicObjectInAnotherModule() returns string {
     subtyping:Student s = new UniStudent1("Jane Doe", "BA", 22, "CS");
     return s.toString();
 }
 
-type AbstractAnimal abstract object {
+type AbstractAnimal object {
     float weight;
 
     function move(int distance) returns string;
 };
 
-type Dog object {
+class Dog {
     string name;
     float weight;
 
@@ -142,7 +142,7 @@ type Dog object {
     function move(int distance) returns string {
         return self.name + " walked " + distance.toString() + " meters";
     }
-};
+}
 
 function testSubtypingAnAbsObjectInSameModule() returns string {
     AbstractAnimal a = new Dog("Rocky", 10);

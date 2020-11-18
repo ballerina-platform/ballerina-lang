@@ -48,6 +48,7 @@ public class Names {
     public static final Name LANG = new Name("lang");
     public static final Name INTERNAL = new Name("__internal");
     public static final Name ANNOTATIONS = new Name("annotations");
+    public static final Name JAVA = new Name("java");
     public static final Name ARRAY = new Name("array");
     public static final Name DECIMAL = new Name("decimal");
     public static final Name ERROR = new Name("error");
@@ -88,6 +89,7 @@ public class Names {
     public static final Name ALIAS_SEPARATOR = VERSION_SEPARATOR;
     public static final Name ANNOTATION_TYPE_PARAM = new Name("typeParam");
     public static final Name ANNOTATION_BUILTIN_SUBTYPE = new Name("builtinSubtype");
+    public static final Name ANNOTATION_ISOLATED_PARAM = new Name("isolatedParam");
 
     public static final Name BIR_BASIC_BLOCK_PREFIX = new Name("bb");
     public static final Name BIR_LOCAL_VAR_PREFIX = new Name("%");
@@ -129,6 +131,7 @@ public class Names {
 
     // Module Versions
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
+    public static final Name JAVA_VERSION = new Name(BLangCompilerConstants.JAVA_VERSION);
     public static final Name INTERNAL_VERSION = new Name(BLangCompilerConstants.INTERNAL_VERSION);
     public static final Name ANNOTATIONS_VERSION = new Name(BLangCompilerConstants.ANNOTATIONS_VERSION);
     public static final Name ARRAY_VERSION = new Name(BLangCompilerConstants.ARRAY_VERSION);

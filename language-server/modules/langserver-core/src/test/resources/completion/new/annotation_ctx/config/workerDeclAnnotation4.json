@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 13,
+    "character": 14
+  },
+  "source": "annotation_ctx/source/workerDeclAnnotation4.bal",
+  "items": [
+    {
+      "label": "sourceWorkerAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "sourceWorkerAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sourceWorkerAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "sourceWorkerAnnotation2",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

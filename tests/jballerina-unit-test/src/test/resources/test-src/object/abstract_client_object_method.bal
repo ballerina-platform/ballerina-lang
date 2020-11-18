@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type AbPersonOne abstract client object {
+public type AbPersonOne client object {
     int salary;
 
     remote function incrementAndGetSalary(int amount) returns int;
@@ -22,7 +22,7 @@ public type AbPersonOne abstract client object {
     remote function decrementAndGetSalary(int amount) returns int;
 };
 
-public type PersonOne client object {
+public client class PersonOne {
     *AbPersonOne;
 
     public function init(int salary) {
@@ -38,9 +38,9 @@ public type PersonOne client object {
         self.salary -= amount;
         return self.salary;
     }
-};
+}
 
-public type AbPersonTwo client abstract object {
+public type AbPersonTwo client object {
     int salary;
 
     remote function incrementAndGetSalary(int amount) returns int;
@@ -48,7 +48,7 @@ public type AbPersonTwo client abstract object {
     remote function decrementAndGetSalary(int amount) returns int;
 };
 
-public type PersonTwo client object {
+public client class PersonTwo {
     *AbPersonTwo;
 
     public function init(int salary) {
@@ -64,7 +64,7 @@ public type PersonTwo client object {
         self.salary -= amount;
         return self.salary;
     }
-};
+}
 
 function testAbstractClientObject() returns [int, int, int, int] {
     PersonOne personOne = new(10000);

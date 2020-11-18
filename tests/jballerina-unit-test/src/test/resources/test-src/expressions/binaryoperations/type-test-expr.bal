@@ -226,7 +226,7 @@ function testSealedRecordTypes() returns [boolean, boolean] {
 
 // ========================== Objects ==========================
 
-public type Person object {
+public class Person {
     public int age;
     public string name;
     public string address = "";
@@ -247,9 +247,9 @@ public type Person object {
     public function getAddress() returns (string) {
         return self.address;
     }
-};
+}
 
-public type SameAsPerson object {
+public class SameAsPerson {
     public int age;
     public string name;
     public string address = "";
@@ -270,7 +270,7 @@ public type SameAsPerson object {
     public function getAddress() returns (string) {
         return self.address;
     }
-};
+}
 
 function testObjectWithSameMembersButDifferentAlias() returns [string, string, string, string] {
     Person p1 = new("John", 35);
@@ -303,7 +303,7 @@ function testObjectWithSameMembersButDifferentAlias() returns [string, string, s
     return [s1, s2, s3, s4];
 }
 
-public type PersonInOrder object {
+public class PersonInOrder {
     public int age;
     public string name;
     public string address = "";
@@ -324,9 +324,9 @@ public type PersonInOrder object {
     public function getAddress() returns (string) {
         return self.address;
     }
-};
+}
 
-public type PersonNotInOrder object {
+public class PersonNotInOrder {
 
     public function getName() returns (string) {
         return self.name;
@@ -350,7 +350,7 @@ public type PersonNotInOrder object {
     }
 
     public string address = "";
-};
+}
 
 function testObjectWithUnorderedFields() returns [string, string, string, string] {
     PersonInOrder p1 = new("John", 35);
@@ -383,27 +383,27 @@ function testObjectWithUnorderedFields() returns [string, string, string, string
     return [s1, s2, s3, s4];
 }
 
-public type A4 abstract object {
+public type A4 object {
     public int p;
     public string q;
 };
 
-public type B4 abstract object {
+public type B4 object {
     public float r;
     *A4;
 };
 
-public type C4 object {
+public class C4 {
     *B4;
     public boolean s;
-    
+
     public function init(int p, string q, float r, boolean s) {
         self.p = p;
         self.q = q;
         self.r = r;
         self.s = s;
     }
-};
+}
 
 function testPublicObjectEquivalency() returns [string, string, string] {
     any x = new C4(5, "foo", 6.7, true);
@@ -426,27 +426,27 @@ function testPublicObjectEquivalency() returns [string, string, string] {
     return [s1, s2, s3];
 }
 
-type A5 abstract object {
+type A5 object {
     int p;
     string q;
 };
 
-type B5 abstract object {
+type B5 object {
     float r;
     *A5;
 };
 
-type C5 object {
+class C5 {
     *B5;
     boolean s;
-    
+
     public function init(int p, string q, float r, boolean s) {
         self.p = p;
         self.q = q;
         self.r = r;
         self.s = s;
     }
-};
+}
 
 function testPrivateObjectEquivalency() returns [string, string, string] {
     any x = new C5(5, "foo", 6.7, true);
@@ -475,21 +475,66 @@ function testAnonymousObjectEquivalency() returns [string, string, string] {
     string s2 = "n/a";
     string s3 = "n/a";
 
-    if(x is abstract object { public float r; *A4; }) {
+    if(x is object { public float r; *A4; }) {
         s1 = "values: " + x.p.toString() + ", " + x.q + ", " + x.r.toString();
     }
 
-    if(x is object {  public int p = 0;  public string q = "";  public float r = 0;  public boolean s = false;}) {
+    if(x is object {  public int p;  public string q;  public float r;  public boolean s;}) {
         s2 = "values: " + x.p.toString() + ", " + x.q + ", " + x.r.toString() + ", " + x.s.toString();
     }
 
-    if(x is object { public int p = 0;  public boolean q = false;  public float r = 0.0;}) {  // shouldn't match
+    if(x is object { public int p;  public boolean q;  public float r;}) {  // shouldn't match
         s3 = "values: " + x.p.toString() + ", " + x.q.toString() + ", " + x.r.toString();
     }
 
     return [s1, s2, s3];
 }
 
+class Qux {
+    Qux? fn;
+
+    public function init(Qux? fn = ()) {
+        self.fn = fn;
+    }
+}
+
+class Quux {
+    Quux? fn = ();
+}
+
+class Quuz {
+    Quuz? fn = ();
+    int i = 1;
+}
+
+class ABC {
+    Qux f;
+    string s;
+
+    function init(Qux f, string s) {
+        self.f = f;
+        self.s = s;
+    }
+}
+
+function testObjectIsCheckWithCycles() {
+    Qux f1 = new;
+    Qux f2 = new (f1);
+
+    any a1 = <any> f1;
+    assertTrue(a1 is Quux);
+    assertFalse(a1 is Quuz);
+
+    any a2 = <any> f2;
+    assertTrue(a2 is Quux);
+    assertFalse(a2 is Quuz);
+
+    ABC ob = new (f2, "ballerina");
+
+    any a3 = ob;
+    assertTrue(a3 is object { Qux f; });
+    assertFalse(a3 is object { Quuz f; });
+}
 
 // ========================== Arrays ==========================
 
@@ -507,6 +552,85 @@ function testRecordArrays() returns [boolean, boolean, boolean, boolean] {
     any c = a;
     any d = b;
     return [c is X[], d is X[][], c is Y[], d is Y[][]];
+}
+
+public function testUnionType() {
+    [int, ()] x = [1, ()];
+    any y = x;
+    assertEquality(y is (string|int?)[2], true);
+    assertEquality(y is (string|int?)[], true);
+    assertEquality(y is (int|string?)[], true);
+    assertEquality(y is (int|string?)[3], false);
+    assertEquality(y is (int|string)[], false);
+    assertEquality(y is int?[], true);
+    assertEquality(y is int?[2], true);
+
+    [int, string?] a = [1, "union"];
+    any b = a;
+    assertEquality(b is (int|string?)[], true);
+    assertEquality(b is (int|string?)[2], true);
+    assertEquality(b is (int?|string)[2], true);
+    assertEquality(b is (int|string?)[1], false);
+    assertEquality(b is int?[2], false);
+
+    (int|string)[] c = [1, 2];
+    any d = c;
+    assertEquality(d is (int|string?)[], true);
+    assertEquality(d is (int|string)[2], false);
+    assertEquality(d is [int, string], false);
+    assertEquality(d is [int, int], false);
+    assertEquality(d is [string, string], false);
+    assertEquality(d is [int, ()], false);
+    assertEquality(d is [int...], false);
+    assertEquality(d is [string...], false);
+    assertEquality(d is [string, int...], false);
+}
+
+public function testClosedArrayType(){
+      int[2] b = [1, 2];
+      any y = b;
+      assertEquality(y is [int, int], true);
+      assertEquality(y is [int...], true);
+      assertEquality(y is [int, int, int...], true);
+      assertEquality(y is [string, string, int...], false);
+      assertEquality(y is [int, int, int], false);
+      assertEquality(y is [int, int, int, int...], false);
+      assertEquality(y is [int, int, string...], true);
+}
+
+public function testInferredArrayType() {
+    int[*] b = [1, 2];
+    any y = b;
+    assertEquality(y is [int, int], true);
+    assertEquality(y is [int...], true);
+    assertEquality(y is [int, int, int...], true);
+    assertEquality(y is [string, string, int...], false);
+    assertEquality(y is [int, int, int], false);
+    assertEquality(y is [int, int, int, int...], false);
+    assertEquality(y is [int, int, string...], true);
+}
+
+public function testEmptyArrayType() {
+    var x = [];
+    any a = x;
+    assertEquality(a is int[2], false);
+    assertEquality(a is int[], true);
+    assertEquality(a is [int...], true);
+
+    string[] sa = [];
+    any arr = sa;
+    assertEquality(arr is string[], true);
+    assertEquality(arr is int[], false);
+
+    int[0] ia = [];
+    any iarr = ia;
+    assertEquality(iarr is int[0], true);
+    assertEquality(iarr is int[], true);
+
+    int[] b = [1, 2];
+    any c = b;
+    assertEquality(c is [int...], true);
+    assertEquality(c is int[], true);
 }
 
 // ========================== Tuples ==========================
@@ -539,6 +663,23 @@ function testTupleWithAssignableTypes_2() returns boolean {
     [X, Y] q = p;
     boolean b1 = q is [Y, Y];
     return q is [Y, Y];
+}
+
+public function testRestType() {
+    [int...] x = [1, 2];
+    any y = x;
+    assertEquality(y is string[], false);
+    assertEquality(y is [int...], true);
+    assertEquality(y is int[0], false);
+    assertEquality(y is int[], true);
+    assertEquality(y is [int], false);
+    assertEquality(y is int[2], false);
+
+    [int, int, int...] a = [1, 2];
+    any b = a;
+    assertEquality(b is int[2], false);
+    assertEquality(b is [int, int...], true);
+    assertEquality(b is [int...], true);
 }
 
 // ========================== Map ==========================
@@ -831,4 +972,98 @@ function testFutureFalse() returns boolean {
 
 function name() returns string {
     return "em";
+}
+
+type MarksWithOptionalPhysics record {|
+    int physics?;
+    int...;
+|};
+
+type MarksWithOptionalPhysicsAndFloatRestField record {|
+    int physics?;
+    float...;
+|};
+
+type MarksWithRequiredPhysics record {|
+    int physics;
+    int|float...;
+|};
+
+type OpenMarks record {|
+    int|float...;
+|};
+
+type NoRestFieldMarks record {|
+    int physics?;
+|};
+
+public function testMapAsRecord() {
+    map<int> mp1 = {
+        physics: 65,
+        chemistry: 75
+    };
+
+    map<int> mp2 = {
+        chemistry: 75,
+        biology: 80
+    };
+
+    map<anydata> mp3 = {
+        chemistry: 75,
+        biology: 80
+    };
+
+    map<int|float> mp4 = {
+        physics: 75,
+        biology: 80.5
+    };
+
+    assertTrue(<any> mp1 is MarksWithOptionalPhysics);
+    assertTrue(<any> mp1 is OpenMarks);
+    assertFalse(<any> mp1 is MarksWithRequiredPhysics);
+    assertFalse(<any> mp1 is NoRestFieldMarks);
+    assertFalse(<any> mp1 is MarksWithOptionalPhysicsAndFloatRestField);
+
+    assertTrue(<any> mp2 is MarksWithOptionalPhysics);
+    assertTrue(<any> mp2 is OpenMarks);
+    assertFalse(<any> mp2 is MarksWithRequiredPhysics);
+    assertFalse(<any> mp2 is NoRestFieldMarks);
+    assertFalse(<any> mp2 is MarksWithOptionalPhysicsAndFloatRestField);
+
+    assertFalse(<any> mp3 is MarksWithOptionalPhysics);
+    assertFalse(<any> mp3 is OpenMarks);
+    assertFalse(<any> mp3 is MarksWithRequiredPhysics);
+    assertFalse(<any> mp3 is NoRestFieldMarks);
+    assertFalse(<any> mp3 is MarksWithOptionalPhysicsAndFloatRestField);
+
+    assertFalse(<any> mp4 is MarksWithOptionalPhysics);
+    assertTrue(<any> mp4 is OpenMarks);
+    assertFalse(<any> mp4 is MarksWithRequiredPhysics);
+    assertFalse(<any> mp4 is NoRestFieldMarks);
+    assertFalse(<any> mp4 is MarksWithOptionalPhysicsAndFloatRestField);
+
+    int|error x = 'int:fromString("foo");
+    any det = ();
+    if x is error {
+        det = x.detail();
+    }
+    assertTrue(det is map<anydata|readonly>);
+    assertTrue(det is 'error:Detail);
+    assertFalse(det is record {| string message; |});
+}
+
+function assertTrue(anydata actual) {
+    assertEquality(true, actual);
+}
+
+function assertFalse(anydata actual) {
+    assertEquality(false, actual);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

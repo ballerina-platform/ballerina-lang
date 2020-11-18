@@ -34,22 +34,22 @@ import java.io.PrintStream;
 @Test
 public class PackageImportTest {
 
-    @Test(enabled = false)
+    @Test()
     public void testDuplicatePackageImports() {
         CompileResult result =
                 BCompileUtil.compile("test-src/statements/package/imports/duplicate-import-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length > 0);
-        BAssertUtil.validateError(result, 0, "redeclared import module 'ballerina/math'", 4, 1);
+        BAssertUtil.validateError(result, 0, "redeclared import module 'ballerina/java'", 2, 1);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testImportSamePkgWithDifferentAlias() {
         CompileResult result =
                 BCompileUtil.compile("test-src/statements/package/imports/import-same-pkg-with-different-alias.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testImportDifferentPkgsWithSameAlias() {
         CompileResult result = BCompileUtil
                 .compile("test-src/statements/package/imports/import-different-pkgs-with-same-alias-negative.bal");
@@ -72,7 +72,7 @@ public class PackageImportTest {
         BAssertUtil.validateError(result, 0, "cannot resolve module 'foo.x as x'", 1, 1);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testImportsPerfile() {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/sample-project-1", "invalid-imports");
         Assert.assertEquals(result.getErrorCount(), 6);

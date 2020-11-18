@@ -855,16 +855,16 @@ public type T3 record {
   int y = 0;
 };
 
-public type O1 object {
+public class O1 {
   public int x = 0;
   public int y = 0;
-};
+}
 
-public type O2 object {
+public class O2 {
   public int x = 0;
   public int y = 0;
   public int z = 0;
-};
+}
 
 //function testObjectRecordConversionFail() {
 //    O2 a = new;

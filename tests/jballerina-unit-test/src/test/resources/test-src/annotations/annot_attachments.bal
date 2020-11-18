@@ -20,8 +20,8 @@ type Annot record {
     string val;
 };
 
-public annotation Annot v1 on type;
-annotation Annot v2 on object type;
+public annotation Annot v1 on type, class;
+annotation Annot v2 on class;
 public annotation Annot v3 on function;
 annotation map<int> v4 on object function;
 public annotation Annot v5 on resource function;
@@ -49,7 +49,7 @@ public type T1 record {
 @v2 {
     val: "v2 value"
 }
-type T2 object {
+class T2 {
     string name = "ballerina";
 
     @v3 {
@@ -63,7 +63,7 @@ type T2 object {
                             @v6 { val: "v61 value rest" } string... others) returns @v7 () {
         self.name = name;
     }
-};
+}
 
 @v3 {
     val: "v33 value"
@@ -122,7 +122,7 @@ service serTwo = @v8 {
     }
 };
 
-type Listener object {
+class Listener {
     *lang:Listener;
 
     public function init() {
@@ -144,7 +144,7 @@ type Listener object {
     public function __immediateStop() returns error? {
         return ();
     }
-};
+}
 
 //function externalFunction(boolean b) returns @v7 string = @v13 { strOne: "one", strTwo: "two" } external;
 

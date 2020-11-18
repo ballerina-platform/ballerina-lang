@@ -33,7 +33,7 @@ function testInvalidImmutableListUpdateViaLangLibMethod() {
     array:removeAll(a);
     a.setLength(3);
     _ = array:reverse(b);
-    _ = a.sort(function (int i, int j) returns int { return i - j; });
+    _ = a.sort();
     Details|string v2 = array:pop(b);
     b.push("hello");
     int v3 = array:shift(a);

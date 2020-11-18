@@ -21,8 +21,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Test the formatting of call statements.
@@ -40,11 +38,6 @@ public class CallStatementsTest extends FormatterTest {
     @Override
     public Object[][] dataProvider() {
         return this.getConfigsList();
-    }
-
-    @Override
-    public List<String> skipList() {
-        return Collections.singletonList("call_statement_1.bal");
     }
 
     @Override

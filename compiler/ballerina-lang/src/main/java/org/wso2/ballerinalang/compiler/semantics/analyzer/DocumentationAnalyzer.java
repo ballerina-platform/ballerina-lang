@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -33,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
@@ -58,7 +60,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -78,7 +79,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     private static final CompilerContext.Key<DocumentationAnalyzer> DOCUMENTATION_ANALYZER_KEY =
             new CompilerContext.Key<>();
 
-    private BLangDiagnosticLogHelper dlog;
+    private BLangDiagnosticLog dlog;
     private final SymbolResolver symResolver;
     private final SymbolTable symTable;
     private SymbolEnv env;
@@ -95,7 +96,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     private DocumentationAnalyzer(CompilerContext context) {
         context.put(DOCUMENTATION_ANALYZER_KEY, this);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.names = Names.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
     }
@@ -208,10 +209,32 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 validateReferences(field);
             }
         }
-
-        validateDeprecationDocumentation(typeDefinition.markdownDocumentationAttachment,
-                Symbols.isFlagOn(typeDefinition.symbol.flags, Flags.DEPRECATED), typeDefinition.pos);
+        if (typeDefinition.symbol != null) {
+            validateDeprecationDocumentation(typeDefinition.markdownDocumentationAttachment,
+                    Symbols.isFlagOn(typeDefinition.symbol.flags, Flags.DEPRECATED), typeDefinition.pos);
+        }
         validateDeprecatedParametersDocumentation(typeDefinition.markdownDocumentationAttachment, typeDefinition.pos);
+    }
+
+    @Override
+    public void visit(BLangClassDefinition classDefinition) {
+        validateParameters(classDefinition, classDefinition.fields, null, DiagnosticCode.UNDOCUMENTED_FIELD,
+                DiagnosticCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticCode.FIELD_ALREADY_DOCUMENTED);
+        validateReturnParameter(classDefinition, null, false);
+        validateReferences(classDefinition);
+        for (SimpleVariableNode field : classDefinition.fields) {
+            validateReferences(field);
+            validateDeprecationDocumentation(field.getMarkdownDocumentationAttachment(),
+                    Symbols.isFlagOn(((BLangSimpleVariable) field).symbol.flags, Flags.DEPRECATED),
+                    (DiagnosticPos) field.getPosition());
+        }
+
+        classDefinition.functions.forEach(this::analyzeNode);
+
+        validateDeprecationDocumentation(classDefinition.markdownDocumentationAttachment,
+                Symbols.isFlagOn(classDefinition.symbol.flags, Flags.DEPRECATED), classDefinition.pos);
+        validateDeprecatedParametersDocumentation(classDefinition.markdownDocumentationAttachment, classDefinition.pos);
+
     }
 
     @Override
@@ -374,7 +397,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             // `pkgEnv` is `env` if no package was identified or else it's the package's environment
             String functionID = typeName + "." + identifierName;
             Name functionName = names.fromString(functionID);
-            return symResolver.lookupMemberSymbol(pos, objectTypeSymbol.methodScope, pkgEnv, functionName, tag);
+            return symResolver.lookupMemberSymbol(pos, objectTypeSymbol.scope, pkgEnv, functionName, tag);
         }
 
         return symTable.notFoundSymbol;

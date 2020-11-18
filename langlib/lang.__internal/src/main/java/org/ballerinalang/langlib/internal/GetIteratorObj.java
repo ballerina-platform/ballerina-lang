@@ -18,27 +18,16 @@
 
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.StreamValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.values.BStream;
 
 /**
  * Native implementation of lang.stream:getIteratorObj(stream&lt;Type&gt;).
  *
  * @since 1.2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0", functionName = "getIteratorObj",
-        args = {@Argument(name = "strm", type = TypeKind.STREAM)},
-        returnType = {@ReturnType(type = TypeKind.OBJECT)},
-        isPublic = true
-)
 public class GetIteratorObj {
 
-    public static Object getIteratorObj(Strand strand, StreamValue strm) {
+    public static Object getIteratorObj(BStream strm) {
         return strm.getIteratorObj();
     }
 }

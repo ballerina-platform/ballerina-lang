@@ -16,6 +16,7 @@
 package org.ballerinalang.openapi;
 
 import org.apache.commons.io.FileUtils;
+import org.ballerinalang.openapi.cmd.Filter;
 import org.ballerinalang.openapi.cmd.OpenAPIBallerinaProject;
 import org.ballerinalang.openapi.cmd.OpenAPICommandTest;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,7 +44,9 @@ public class CodeGeneratorTest {
     private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
     private Path projectPath;
     private Path sourceRoot;
-
+    List<String> list1 = new ArrayList<>();
+    List<String> list2 = new ArrayList<>();
+    Filter filter = new Filter(list1, list2);
     @BeforeClass
     public void setUp() {
         projectPath = RES_DIR.resolve(Paths.get("expected", "petStore"));
@@ -66,7 +70,7 @@ public class CodeGeneratorTest {
             OpenAPICommandTest.createBalProjectModule(ballerinaProject, pkgName);
             Path outFile = ballerinaProject.getImplPath().resolve(Paths.get("openapi_petstore.bal"));
             generator.generateService(projectPath.toString(), definitionPath, pathRelative.toString(), serviceName,
-                    projectPath.toString());
+                    projectPath.toString(), filter);
             if (Files.exists(outFile)) {
                 String result = new String(Files.readAllBytes(outFile));
                 Assert.assertTrue(result.contains("service openapi_petstore on ep0, ep1 {\n" +
@@ -118,7 +122,7 @@ public class CodeGeneratorTest {
             Path outFile = ballerinaProject.getImplPath().resolve("client")
                     .resolve(Paths.get("openapi_petstore.bal"));
             generator.generateClient(projectPath.toString(), definitionPath, "openapi_petstore",
-                    projectPath.toString());
+                    projectPath.toString(), filter);
             if (Files.exists(outFile)) {
                 String result = new String(Files.readAllBytes(outFile));
                 Assert.assertTrue(result.contains("public remote function listPets()"));
@@ -140,7 +144,7 @@ public class CodeGeneratorTest {
         try {
             String expectedContent = new String(Files.readAllBytes(expectedFilePath));
             List<GenSrcFile> generatedFileList = generator.generateBalSource(GenType.GEN_SERVICE,
-                    definitionPath, "", "");
+                    definitionPath, "", "", filter);
             if (generatedFileList.size() > 0) {
                 GenSrcFile actualGeneratedContent = generatedFileList.get(0);
                 Assert.assertEquals(actualGeneratedContent.getContent(), expectedContent,
@@ -159,6 +163,10 @@ public class CodeGeneratorTest {
         Assert.assertEquals(TypeExtractorUtil.escapeIdentifier("int"), "'int");
         Assert.assertEquals(TypeExtractorUtil.escapeIdentifier("io.foo.bar"), "'io\\.foo\\.bar");
         Assert.assertEquals(TypeExtractorUtil.escapeIdentifier("getV1CoreVersion"), "getV1CoreVersion");
+//        Assert.assertEquals(TypeExtractorUtil.escapeIdentifier
+//        ("sample_service_\\ \\!\\:\\[\\;"), "'sample_service_\\ \\!\\:\\[\\;");
+//        Assert.assertEquals(TypeExtractorUtil.escapeIdentifier
+//        ("listPets resource_!$:[;"), "'listPets\\ resource_\\!\\$\\:\\[\\;");
     }
     
     @Test

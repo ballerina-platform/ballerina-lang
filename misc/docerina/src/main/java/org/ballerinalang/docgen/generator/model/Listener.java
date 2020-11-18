@@ -23,14 +23,14 @@ import java.util.stream.Collectors;
 /**
  * Represent documentation for a Listener.
  */
-public class Listener extends Object {
+public class Listener extends BClass {
 
     @Expose
     public List<Function> lifeCycleMethods;
 
     public Listener(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
-            List<Function> methods, boolean isAnonymous) {
-        super(name, description, isDeprecated, fields, methods, isAnonymous);
+            List<Function> methods) {
+        super(name, description, isDeprecated, fields, methods);
         this.lifeCycleMethods = getLCMethods(methods);
         this.otherMethods = getOtherMethods(methods);
     }

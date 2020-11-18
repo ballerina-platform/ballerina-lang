@@ -229,7 +229,7 @@ public class ManifestProcessorTest {
         Files.createFile(libPath);
 
         Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock +
-                "[platform] \n target = \"java8\" \n \n " +
+                "[platform] \n target = \"java11\" \n \n " +
                 "[[platform.libraries]] \n " +
                 "artifactId = \"utils\" \n path = '" + libPath + "'\n groupId = \"wso2\" \n " +
                 "modules = [\"mymodule\"] ");
@@ -251,7 +251,7 @@ public class ManifestProcessorTest {
             libPath = Paths.get(libPath.toString().replace("/", "\\"));
         }
         Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock +
-                "[platform] \n target = \"java8\" \n \n " +
+                "[platform] \n target = \"java11\" \n \n " +
                 "[[platform.libraries]] \n " +
                 "artifactId = \"utils\" \n path = '" + libPath + "'\n groupId = \"wso2\" \n " +
                 "modules = [\"mymodule\"] ");

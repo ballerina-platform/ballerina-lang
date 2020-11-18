@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunctionParameter;
@@ -26,13 +27,20 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
@@ -40,10 +48,9 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.ballerina.runtime.IdentifierUtils.encodeIdentifier;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DESUGARED_BB_ID_NAME;
-import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
-import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 
 /**
  * BIR desugar phase related methods at JVM code generation.
@@ -239,5 +246,87 @@ public class JvmDesugarPhase {
     }
 
     private JvmDesugarPhase() {
+    }
+
+    static void encodeModuleIdentifiers(BIRNode.BIRPackage module, Names names) {
+        encodeGlobalVariableIdentifiers(module.globalVars, names);
+        encodeFunctionIdentifiers(module.functions, names);
+        encodeTypeDefIdentifiers(module.typeDefs, names);
+    }
+
+    private static void encodeTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs, Names names) {
+        for (BIRTypeDefinition typeDefinition : typeDefs) {
+            typeDefinition.type.tsymbol.name =
+                    names.fromString(encodeIdentifier(typeDefinition.type.tsymbol.name.value));
+            typeDefinition.name = names.fromString(encodeIdentifier(typeDefinition.name.value));
+
+            encodeFunctionIdentifiers(typeDefinition.attachedFuncs, names);
+            BType bType = typeDefinition.type;
+            if (bType.tag == TypeTags.OBJECT) {
+                BObjectType objectType = (BObjectType) bType;
+                BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bType.tsymbol;
+                if (objectTypeSymbol.attachedFuncs != null) {
+                    encodeAttachedFunctionIdentifiers(objectTypeSymbol.attachedFuncs, names);
+                }
+                for (BField field : objectType.fields.values()) {
+                    field.name = names.fromString(encodeIdentifier(field.name.value));
+                }
+            }
+            if (bType.tag == TypeTags.RECORD) {
+                BRecordType recordType = (BRecordType) bType;
+                for (BField field : recordType.fields.values()) {
+                    field.name = names.fromString(encodeIdentifier(field.name.value));
+                }
+            }
+        }
+    }
+
+    private static void encodeFunctionIdentifiers(List<BIRFunction> functions, Names names) {
+        for (BIRFunction function : functions) {
+            function.name = names.fromString(encodeIdentifier(function.name.value));
+            for (BIRNode.BIRVariableDcl localVar : function.localVars) {
+                if (localVar.metaVarName == null) {
+                    continue;
+                }
+                localVar.metaVarName = encodeIdentifier(localVar.metaVarName);
+            }
+            for (BIRNode.BIRParameter parameter : function.requiredParams) {
+                if (parameter.name == null) {
+                    continue;
+                }
+                parameter.name = names.fromString(encodeIdentifier(parameter.name.value));
+            }
+            encodeWorkerName(function, names);
+        }
+    }
+
+    private static void encodeWorkerName(BIRFunction function, Names names) {
+        if (function.workerName != null) {
+            function.workerName = names.fromString(encodeIdentifier(function.workerName.value));
+        }
+        for (BIRNode.ChannelDetails channel : function.workerChannels) {
+            channel.name = encodeIdentifier(channel.name);
+        }
+    }
+
+    private static void encodeAttachedFunctionIdentifiers(List<BAttachedFunction> functions, Names names) {
+        for (BAttachedFunction function : functions) {
+            function.funcName = names.fromString(encodeIdentifier(function.funcName.value));
+            function.symbol.name = names.fromString(encodeIdentifier(function.symbol.name.value));
+            if (function.symbol.receiverSymbol != null) {
+                function.symbol.receiverSymbol.name =
+                        names.fromString(encodeIdentifier(function.symbol.receiverSymbol.name.value));
+            }
+        }
+    }
+
+    private static void encodeGlobalVariableIdentifiers(List<BIRNode.BIRGlobalVariableDcl> globalVars,
+                                                        Names names) {
+        for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
+            if (globalVar == null) {
+                continue;
+            }
+            globalVar.name = names.fromString(encodeIdentifier(globalVar.name.value));
+        }
     }
 }

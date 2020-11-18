@@ -1,11 +1,3 @@
-type Person object {
-   string fname;
-
-   function init(string fname) {
-       self.fname = fname;
-   }
-};
-
 function lookupInfo(string id) returns any{any    a   =   9  ;
    return a;
 }

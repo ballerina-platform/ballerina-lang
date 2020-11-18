@@ -18,14 +18,9 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-
-import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 
 /**
  * Append children to an XML if its an element type XML. Error otherwise.
@@ -33,18 +28,18 @@ import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
  * 
  * @since 0.982.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
-        functionName = "appendChildren",
-        args = {@Argument(name = "children", type = TypeKind.XML)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "appendChildren",
+//        args = {@Argument(name = "children", type = TypeKind.XML)},
+//        isPublic = true
+//)
 public class AppendChildren {
 
     private static final String OPERATION = "add children to xml element";
 
     @Deprecated
-    public static void appendChildren(Strand strand, XMLValue xml, XMLValue children) {
+    public static void appendChildren(Strand strand, BXML xml, BXML children) {
         try {
             xml.addChildren(children);
         } catch (Throwable e) {

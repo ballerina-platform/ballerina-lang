@@ -15,20 +15,20 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.WaitFieldsListNode;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.syntax.tree.WaitFieldsListNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -46,10 +46,10 @@ public class WaitFieldsListNodeContext extends AbstractCompletionProvider<WaitFi
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, WaitFieldsListNode node)
             throws LSCompletionException {
-        ArrayList<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        List<Scope.ScopeEntry> filteredSymbols = visibleSymbols.stream().filter(scopeEntry -> {
-            BSymbol symbol = scopeEntry.symbol;
-            return symbol instanceof BVarSymbol && symbol.type instanceof BFutureType;
+        ArrayList<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<Symbol> filteredSymbols = visibleSymbols.stream().filter(symbol -> {
+            Optional<TypeDescKind> typeDescKind = SymbolUtil.getTypeKind(symbol);
+            return typeDescKind.isPresent() && typeDescKind.get() == TypeDescKind.FUTURE;
         }).collect(Collectors.toList());
 
         return this.getCompletionItemList(filteredSymbols, context);

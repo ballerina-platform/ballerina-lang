@@ -9,7 +9,7 @@
       "label": "mod",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "A",
+      "sortText": "C",
       "insertText": "mod",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +17,7 @@
       "label": "lang",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "A",
+      "sortText": "C",
       "insertText": "lang",
       "insertTextFormat": "Snippet"
     },
@@ -32,11 +32,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -55,11 +55,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -78,11 +78,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -101,11 +101,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -124,15 +124,38 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
           "newText": "import ballerina/lang.'string;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "BD",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
         }
       ]
     },
@@ -147,11 +170,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -170,11 +193,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -193,11 +216,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -216,11 +239,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -239,11 +262,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -262,11 +285,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -285,11 +308,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -308,11 +331,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -331,11 +354,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -354,11 +377,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -377,11 +400,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -393,7 +416,7 @@
       "label": "Listener",
       "kind": "Interface",
       "detail": "Object",
-      "sortText": "A",
+      "sortText": "C",
       "insertText": "Listener",
       "insertTextFormat": "Snippet"
     }

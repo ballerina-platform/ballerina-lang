@@ -15,19 +15,21 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.ArrayTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
+import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 
 import java.util.List;
 import java.util.Optional;
@@ -48,30 +50,34 @@ public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<A
 
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, ArrayTypeDescriptorNode node) {
-
-        List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
         Optional<Node> arrayLength = node.arrayLength();
+
         if (arrayLength.isPresent() && this.onQualifiedNameIdentifier(context, arrayLength.get())) {
-            Predicate<Scope.ScopeEntry> predicate = scopeEntry -> scopeEntry.symbol instanceof BConstantSymbol
-                    && ((BConstantSymbol) scopeEntry.symbol).literalType.getKind() == TypeKind.INT
-                    && (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC;
-            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) arrayLength.get();
-            List<Scope.ScopeEntry> moduleConstants = QNameReferenceUtil.getModuleContent(context, qNameRef, predicate);
+            QualifiedNameReferenceNode qName = (QualifiedNameReferenceNode) arrayLength.get();
+            List<Symbol> moduleConstants = QNameReferenceUtil.getModuleContent(context, qName, constantFilter());
 
             return this.getCompletionItemList(moduleConstants, context);
         }
 
-        List<Scope.ScopeEntry> constants = visibleSymbols.stream()
-                .filter(constantFilterPredicate())
+        List<Symbol> constants = visibleSymbols.stream()
+                .filter(constantFilter())
                 .collect(Collectors.toList());
-        List<LSCompletionItem> completionItems = this.getPackagesCompletionItems(context);
+        List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
         completionItems.addAll(this.getCompletionItemList(constants, context));
 
         return completionItems;
     }
 
-    private Predicate<Scope.ScopeEntry> constantFilterPredicate() {
-        return scopeEntry -> scopeEntry.symbol instanceof BConstantSymbol
-                && ((BConstantSymbol) scopeEntry.symbol).literalType.getKind() == TypeKind.INT;
+    private Predicate<Symbol> constantFilter() {
+        return symbol -> {
+            Optional<? extends BallerinaTypeDescriptor> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
+            typeDescriptor = typeDescriptor.isPresent() && typeDescriptor.get().kind() == TypeDescKind.TYPE_REFERENCE ?
+                    Optional.ofNullable(((TypeReferenceTypeDescriptor) typeDescriptor.get()).typeDescriptor())
+                    : typeDescriptor;
+            return symbol.kind() == SymbolKind.CONSTANT
+                    && typeDescriptor.isPresent()
+                    && typeDescriptor.get().kind() == TypeDescKind.INT;
+        };
     }
 }

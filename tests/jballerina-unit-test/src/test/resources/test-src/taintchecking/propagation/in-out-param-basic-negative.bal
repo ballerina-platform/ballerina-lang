@@ -1,6 +1,6 @@
-public type ExampleObject object {
+public class ExampleObject {
     string taintedData = "";
-};
+}
 
 public type ExampleRecord record {
     string taintedData = "";

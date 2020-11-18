@@ -19,6 +19,7 @@ import ballerina/java;
 const string assertFailureErrorCategory = "assert-failure";
 const string arraysNotEqualMessage = "Arrays are not equal";
 const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
+const int maxArgLength = 80;
 
 # The error struct for assertion errors.
 #
@@ -37,7 +38,7 @@ type AssertError record {
 # + category - error category
 #
 # + return - an AssertError with custom message and category
-public function createBallerinaError(string errorMessage, string category) returns error {
+public isolated function createBallerinaError(string errorMessage, string category) returns error {
     error e = error(errorMessage);
     return e;
 }
@@ -46,7 +47,7 @@ public function createBallerinaError(string errorMessage, string category) retur
 #
 # + condition - Boolean condition to evaluate
 # + msg - Assertion error message
-public function assertTrue(boolean condition, string msg = "Assertion Failed!") {
+public isolated function assertTrue(boolean condition, string msg = "Assertion Failed!") {
     if (!condition) {
         panic createBallerinaError(msg, assertFailureErrorCategory);
     }
@@ -56,7 +57,7 @@ public function assertTrue(boolean condition, string msg = "Assertion Failed!") 
 #
 # + condition - Boolean condition to evaluate
 # + msg - Assertion error message
-public function assertFalse(boolean condition, string msg = "Assertion Failed!") {
+public isolated function assertFalse(boolean condition, string msg = "Assertion Failed!") {
     if (condition) {
         panic createBallerinaError(msg, assertFailureErrorCategory);
     }
@@ -67,12 +68,10 @@ public function assertFalse(boolean condition, string msg = "Assertion Failed!")
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public function assertEquals(anydata|error actual, anydata|error expected, string msg = "Assertion Failed!") {
+public isolated function assertEquals(anydata|error actual, anydata|error expected, string msg = "Assertion Failed!") {
     boolean isEqual = (actual == expected);
     if (!isEqual) {
-        string expectedStr = sprintf("%s", expected);
-        string actualStr = sprintf("%s", actual);
-        string errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
+        string errorMsg = getInequalityErrorMsg(actual, expected, msg);
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }
@@ -82,7 +81,7 @@ public function assertEquals(anydata|error actual, anydata|error expected, strin
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public function assertNotEquals(anydata|error actual, anydata|error expected, string msg = "Assertion Failed!") {
+public isolated function assertNotEquals(anydata|error actual, anydata|error expected, string msg = "Assertion Failed!") {
     boolean isEqual = (actual == expected);
     if (isEqual) {
         string expectedStr = sprintf("%s", expected);
@@ -97,12 +96,10 @@ public function assertNotEquals(anydata|error actual, anydata|error expected, st
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public function assertExactEquals(any|error actual, any|error expected, string msg = "Assertion Failed!") {
+public isolated function assertExactEquals(any|error actual, any|error expected, string msg = "Assertion Failed!") {
     boolean isEqual = (actual === expected);
     if (!isEqual) {
-        string expectedStr = sprintf("%s", expected);
-        string actualStr = sprintf("%s", actual);
-        string errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
+        string errorMsg = getInequalityErrorMsg(actual, expected, msg);
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }
@@ -112,12 +109,12 @@ public function assertExactEquals(any|error actual, any|error expected, string m
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public function assertNotExactEquals(any|error actual, any|error expected, string msg = "Assertion Failed!") {
+public isolated function assertNotExactEquals(any|error actual, any|error expected, string msg = "Assertion Failed!") {
     boolean isEqual = (actual === expected);
     if (isEqual) {
         string expectedStr = sprintf("%s", expected);
         string actualStr = sprintf("%s", actual);
-        string errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
+        string errorMsg = string `${msg}: expected the actual value not to be '${expectedStr}'`;
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }
@@ -125,11 +122,54 @@ public function assertNotExactEquals(any|error actual, any|error expected, strin
 # Assert failure is triggered based on user discretion. AssertError is thrown with the given errorMessage.
 #
 # + msg - Assertion error message
-public function assertFail(string msg = "Test Failed!") {
+public isolated function assertFail(string msg = "Test Failed!") {
     panic createBallerinaError(msg, assertFailureErrorCategory);
 }
 
-function sprintf(string format, (any|error)... args) returns string = @java:Method {
+# Get the error message to be shown when there is an inequaklity while asserting two values.
+#
+# + actual - Actual value
+# + expected - Expected value
+# + msg - Assertion error message
+#
+# + return - Error message constructed based on the compared values
+isolated function getInequalityErrorMsg(any|error actual, any|error expected, string msg = "Assertion Failed!") returns string {
+        string expectedType = getBallerinaType(expected);
+        string actualType = getBallerinaType(actual);
+        string errorMsg = "";
+        string expectedStr = sprintf("%s", expected);
+        string actualStr = sprintf("%s", actual);
+        if (expectedStr.length() > maxArgLength) {
+            expectedStr = expectedStr.substring(0, maxArgLength) + "...";
+        }
+        if (actualStr.length() > maxArgLength) {
+            actualStr = actualStr.substring(0, maxArgLength) + "...";
+        }
+        if (expectedType != actualType) {
+            errorMsg = string `${msg}` + "\nexpected: " + string `<${expectedType}> '${expectedStr}'` + "\nactual\t: "
+                + string `<${actualType}> '${actualStr}'`;
+        } else if (actual is string && expected is string) {
+            string diff = getStringDiff(<string>actual, <string>expected);
+            errorMsg = string `${msg}` + "\nexpected: " + string `'${expectedStr}'` + "\nactual\t: "
+                                     + string `'${actualStr}'` + "\n\nDiff\t:\n\n" + string `${diff}` + "\n\n";
+        } else {
+            errorMsg = string `${msg}` + "\nexpected: " + string `'${expectedStr}'` + "\nactual\t: "
+                                                 + string `'${actualStr}'`;
+        }
+        return errorMsg;
+}
+
+isolated function sprintf(string format, (any|error)... args) returns string = @java:Method {
     name : "sprintf",
-    class : "org.ballerinalang.testerina.natives.io.Sprintf"
+    'class : "org.ballerinalang.testerina.natives.io.Sprintf"
 } external;
+
+isolated function getBallerinaType((any|error) value) returns string = @java:Method {
+    name : "getBallerinaType",
+    'class : "org.ballerinalang.testerina.core.BallerinaTypeCheck"
+} external;
+
+isolated function getStringDiff(string actual, string expected) returns string = @java:Method {
+     name : "getStringDiff",
+     'class : "org.ballerinalang.testerina.core.AssertionDiffEvaluator"
+ } external;

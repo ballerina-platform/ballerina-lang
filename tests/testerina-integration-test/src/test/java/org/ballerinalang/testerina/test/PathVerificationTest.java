@@ -37,7 +37,7 @@ public class PathVerificationTest extends BaseTestCase {
         projectPath = outsideTestsProjectPath.toString();
     }
 
-    @Test(enabled = true)
+    @Test
     public void verifyTestsOutsidePath() throws BallerinaTestException {
         LogLeecher passingLeecher = new LogLeecher("2 passing");
         LogLeecher failingLeecher = new LogLeecher("0 failing");
@@ -47,7 +47,7 @@ public class PathVerificationTest extends BaseTestCase {
         failingLeecher.waitForText(20000);
     }
 
-    @Test(enabled = true)
+    @Test
     public void verifyMissingTestsDirectory() throws BallerinaTestException {
         String msg = "No tests found";
         LogLeecher clientLeecher = new LogLeecher(msg);

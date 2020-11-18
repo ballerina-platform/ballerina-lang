@@ -1,12 +1,12 @@
 # An Apple Description
 #
 # + color - color of the apple
-public type Apple object {
+public class Apple {
     public string color = "red";
 };
 
 # A Grapes Description
-public type Grapes object {
+public class Grapes {
      private string color;
 
      # creates new Grapes

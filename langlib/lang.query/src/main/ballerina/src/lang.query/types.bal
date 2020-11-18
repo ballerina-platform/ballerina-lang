@@ -34,21 +34,18 @@ type Type any|error;
 @typeParam
 type ErrorType error?;
 
-anydata[][] orderFieldValsArr = [];
-boolean[] orderDirectionsArr = [];
-
-type _Iterator abstract object {
+type _Iterator object {
     public function next() returns record {|Type value;|}|error?;
 };
 
-type _Iterable abstract object {
+type _Iterable object {
     public function __iterator() returns
-        abstract object {
+        object {
             public function next() returns record {|Type value;|}|error?;
         };
 };
 
-type _StreamFunction abstract object {
+type _StreamFunction object {
     public _StreamFunction? prevFunc;
     public function process() returns _Frame|error?;
     public function reset();
@@ -58,7 +55,7 @@ type _Frame record {|
     (any|error|())...;
 |};
 
-type _StreamPipeline object {
+class _StreamPipeline {
     _StreamFunction streamFunction;
     typedesc<Type> resType;
 
@@ -86,40 +83,13 @@ type _StreamPipeline object {
     }
 
     public function getStream() returns stream <Type, error?> {
-        object {
-            public _StreamPipeline pipeline;
-            public typedesc<Type> outputType;
-
-            function init(_StreamPipeline pipeline, typedesc<Type> outputType) {
-                self.pipeline = pipeline;
-                self.outputType = outputType;
-            }
-
-            public function next() returns record {|Type value;|}|error? {
-                _StreamPipeline p = self.pipeline;
-                _Frame|error? f = p.next();
-                if (f is _Frame) {
-                    Type v = <Type>f["$value$"];
-                    // Add orderKey and orderDirection values to respective arrays.
-                    if ((!(f["$orderKey$"] is ())) && (!(f["$orderDirection$"] is ()))) {
-                        anydata[] orKey = <anydata[]>f["$orderKey$"];
-                        // Need to keep the stream value to sort the stream.
-                        orKey.push(<anydata>v);
-                        orderFieldValsArr.push(orKey);
-                        orderDirectionsArr = <boolean[]>f["$orderDirection$"];
-                    }
-                    return internal:setNarrowType(self.outputType, {value: v});
-                } else {
-                    return f;
-                }
-            }
-        } itrObj = new (self, self.resType);
+        IterHelper itrObj = new (self, self.resType);
         var strm = internal:construct(self.resType, itrObj);
         return strm;
     }
-};
+}
 
-type _InitFunction object {
+class _InitFunction {
     *_StreamFunction;
     _Iterator? itr;
     boolean resettable = true;
@@ -174,9 +144,9 @@ type _InitFunction object {
             return lang_stream:iterator(collection);
         }
     }
-};
+}
 
-type _InputFunction object {
+class _InputFunction {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -208,9 +178,9 @@ type _InputFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _NestedFromFunction object {
+class _NestedFromFunction {
     *_StreamFunction;
     _Iterator? itr;
 
@@ -247,7 +217,10 @@ type _NestedFromFunction object {
         if (cf is _Frame && itr is _Iterator) {
             record {|(any|error) value;|}|error? v = itr.next();
             if (v is record {|(any|error) value;|}) {
-                _Frame _frame = {...cf, ...v};
+                _Frame _frame = {...cf};
+                foreach var [k, val] in v.entries() {
+                    _frame[k] = val;
+                }
                 return _frame;
             } else if (v is error) {
                 return v;
@@ -290,9 +263,9 @@ type _NestedFromFunction object {
         }
         panic error("Unsuppored collection", message = "unsuppored collection type.");
     }
-};
+}
 
-type _LetFunction object {
+class _LetFunction {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -322,9 +295,9 @@ type _LetFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _InnerJoinFunction object {
+class _InnerJoinFunction {
     *_StreamFunction;
     function (_Frame _frame) returns any lhsKeyFunction;
     function (_Frame _frame) returns any rhsKeyFunction;
@@ -374,7 +347,10 @@ type _InnerJoinFunction object {
             if (rhsCandidates is _Frame[] && rhsCandidates.length() > 0) {
                 _Frame rhsFrame = rhsCandidates.shift();
                 self.rhsCandidates = rhsCandidates;
-                _Frame joinedFrame = {...lhsFrame, ...rhsFrame};
+                _Frame joinedFrame = {...lhsFrame};
+                foreach var [k, val] in rhsFrame.entries() {
+                    joinedFrame[k] = val;
+                }
                 return joinedFrame;
             } else {
                 // Move to next lhs frame
@@ -395,9 +371,9 @@ type _InnerJoinFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _OuterJoinFunction object {
+class _OuterJoinFunction {
     *_StreamFunction;
     function (_Frame _frame) returns any lhsKeyFunction;
     function (_Frame _frame) returns any rhsKeyFunction;
@@ -457,11 +433,17 @@ type _OuterJoinFunction object {
                     self.rhsCandidates = ();
                     self.lhsFrame = ();
                 }
-                _Frame joinedFrame = {...lhsFrame, ...rhsFrame};
+                _Frame joinedFrame = {...lhsFrame};
+                foreach var [k, val] in rhsFrame.entries() {
+                    joinedFrame[k] = val;
+                }
                 return joinedFrame;
             } else {
                 // rhsCandidates is nil, move to next lhs frame in next iteration.
-                _Frame joinedFrame = {...lhsFrame, ...nilFrame};
+                _Frame joinedFrame = {...lhsFrame};
+                foreach var [k, val] in nilFrame.entries() {
+                    joinedFrame[k] = val;
+                }
                 self.lhsFrame = ();
                 return joinedFrame;
             }
@@ -478,15 +460,13 @@ type _OuterJoinFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _FilterFunction object {
+class _FilterFunction {
     *_StreamFunction;
 
     # Desugared function to do;
-    # i.e
-    #   1. on dn equals dept.deptName
-    #   2. where person.age >= 70
+    # where person.age >= 70
     # emit the next frame which satisfies the condition
     function (_Frame _frame) returns boolean filterFunc;
 
@@ -511,42 +491,59 @@ type _FilterFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _OrderByFunction object {
+class _OrderByFunction {
     *_StreamFunction;
 
     # Desugared function to do;
     # order by person.fname true, person.age false
-    function(_Frame _frame) orderFunc;
+    function(_Frame _frame) orderKeyFunc;
+    stream<_Frame>? orderedStream;
 
-    function init(function(_Frame _frame) orderFunc) {
-        self.orderFunc = orderFunc;
+    function init(function(_Frame _frame) orderKeyFunc) {
+        self.orderKeyFunc = orderKeyFunc;
+        self.orderedStream = ();
         self.prevFunc = ();
-        orderFieldValsArr = [];
-        orderDirectionsArr = [];
     }
 
     public function process() returns _Frame|error? {
-        _StreamFunction pf = <_StreamFunction> self.prevFunc;
-        function(_Frame _frame) f = self.orderFunc;
-        _Frame|error? pFrame = pf.process();
-        if (pFrame is _Frame) {
-            f(pFrame);
-            return pFrame;
+        if (self.orderedStream is ()) {
+            _StreamFunction pf = <_StreamFunction> self.prevFunc;
+            function(_Frame _frame) orderKeyFunc = self.orderKeyFunc;
+            _Frame|error? f = pf.process();
+            boolean[] directions = [];
+            _OrderTreeNode oTree = new;
+            // consume all events for ordering.
+            while (f is _Frame) {
+                orderKeyFunc(f);
+                oTree.add(f, <any[]>f["$orderDirection$"], <any[]>f["$orderKey$"]);
+                f = pf.process();
+            }
+            if (f is error) {
+                return f;
+            }
+            self.orderedStream = oTree.get().toStream();
         }
-        return pFrame;
+
+        stream<_Frame> s = <stream<_Frame>>self.orderedStream;
+        record {|_Frame value;|}|error? f = s.next();
+        if (f is record {|_Frame value;|}) {
+            return f.value;
+        }
+        return f;
     }
 
     public function reset() {
+        self.orderedStream = ();
         _StreamFunction? pf = self.prevFunc;
         if (pf is _StreamFunction) {
             pf.reset();
         }
     }
-};
+}
 
-type _SelectFunction object {
+class _SelectFunction {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -579,9 +576,9 @@ type _SelectFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _DoFunction object {
+class _DoFunction {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -614,209 +611,50 @@ type _DoFunction object {
             pf.reset();
         }
     }
-};
+}
 
-type _LimitFunction object {
+class _LimitFunction {
     *_StreamFunction;
 
     # Desugared function to limit the number of results
-
-    public int lmt;
+    function (_Frame _frame) returns int limitFunc;
     public int count = 0;
 
-    function init(int lmt) {
-        self.lmt = lmt;
+    function init(function (_Frame _frame) returns int limitFunc) {
+        self.limitFunc = limitFunc;
         self.prevFunc = ();
-        if (lmt < 0) {
-            panic error("Unable to assign limit", message = "limit cannot be < 0.");
-        }
     }
 
     public function process() returns _Frame|error? {
         _StreamFunction pf = <_StreamFunction>self.prevFunc;
-        if (self.count < self.lmt) {
-            _Frame|error? pFrame = pf.process();
-            self.count += 1;
-            return pFrame;
+        function (_Frame _frame) returns int limitFunc = self.limitFunc;
+        _Frame|error? pFrame = pf.process();
+        if (pFrame is _Frame) {
+            int lmt = limitFunc(pFrame);
+            if (lmt < 1) {
+                panic error("Invalid limit", message = "limit cannot be < 1.");
+            }
+            if (self.count < lmt) {
+                self.count += 1;
+                return pFrame;
+            }
+            return ();
         }
-        return ();
+        return pFrame;
     }
 
     public function reset() {
+        self.count = 0;
         _StreamFunction? pf = self.prevFunc;
         if (pf is _StreamFunction) {
             pf.reset();
         }
     }
-};
+}
 
-type StreamOrderBy object {
-    anydata[][] sortFields = [];
-    boolean[] sortTypes = [];
+// ---- helper types ----
 
-    function init() {
-        self.sortFields = orderFieldValsArr;
-        self.sortTypes = orderDirectionsArr;
-    }
-
-    function topDownMergeSort() returns @tainted Type[] {
-        anydata[][] sortFieldsClone = self.sortFields.clone();
-        self.topDownSplitMerge(sortFieldsClone, 0, self.sortFields.length(), self.sortFields);
-        return self.sortFields;
-    }
-
-    function topDownSplitMerge(@tainted anydata[][] sortArrClone, int iBegin, int iEnd, @tainted anydata[][] sortArr) {
-        if (iEnd - iBegin < 2) {
-            return;
-        }
-        int iMiddle = (iEnd + iBegin) / 2;
-        self.topDownSplitMerge(sortArr, iBegin, iMiddle, sortArrClone);
-        self.topDownSplitMerge(sortArr, iMiddle, iEnd, sortArrClone);
-        self.topDownMerge(sortArrClone, iBegin, iMiddle, iEnd, sortArr);
-    }
-
-    function topDownMerge(@tainted anydata[][] sortArrClone, int iBegin, int iMiddle, int iEnd,
-    @tainted anydata[][] sortArr) {
-        int i = iBegin;
-        int j = iMiddle;
-        int k = iBegin;
-
-        while (k < iEnd) {
-            if (i < iMiddle && (j >= iEnd || self.sortFunc(sortArrClone[i], sortArrClone[j], 0) < 0)) {
-                sortArr[k] = sortArrClone[i];
-                i = i + 1;
-            } else {
-                sortArr[k] = sortArrClone[j];
-                j = j + 1;
-            }
-            k += 1;
-        }
-    }
-
-    function sortFunc(anydata[] x, anydata[] y, int i) returns @tainted int {
-        // () should always come last irrespective of the order direction.
-        if (x[i] is ()) {
-            if (y[i] is ()) {
-                return self.callNextSortFunc(x, y, 0, i + 1);
-            }
-            return 1;
-        } else if (y[i] is ()) {
-            return -1;
-        } else if (x[i] is string) {
-            if (y[i] is string) {
-                int c;
-                if (self.sortTypes[i]) {
-                    c = self.stringSort(<string>x[i], <string>y[i]);
-                } else {
-                    c = self.stringSort(<string>y[i], <string>x[i]);
-                }
-                return self.callNextSortFunc(x, y, c, i + 1);
-            } else {
-                panic error("Inconsistent order field value", message = "order field contain non-string type values");
-            }
-        } else if (x[i] is (int|float|decimal)) {
-             if (y[i] is (int|float|decimal)) {
-                 int c;
-                 if (self.sortTypes[i]) {
-                     c = self.numberSort(<int|float|decimal>x[i], <int|float|decimal>y[i], self.sortTypes[i]);
-                 } else {
-                     c = self.numberSort(<int|float|decimal>y[i], <int|float|decimal>x[i], self.sortTypes[i]);
-                 }
-                 return self.callNextSortFunc(x, y, c, i + 1);
-             } else {
-                 panic error("Inconsistent order field value", message = "order field contain non-numeric values");
-             }
-        } else if (x[i] is boolean) {
-            if (y[i] is boolean) {
-                int c;
-                if (self.sortTypes[i]) {
-                    c = self.booleanSort(<boolean>x[i], <boolean>y[i]);
-                } else {
-                    c = self.booleanSort(<boolean>y[i], <boolean>x[i]);
-                }
-                return self.callNextSortFunc(x, y, c, i + 1);
-            } else {
-                panic error("Inconsistent order field value", message = "order field contain non-boolean type values");
-            }
-        } else {
-            panic error("Unable to perform order by", message = "order field type incorrect");
-        }
-    }
-
-    public function numberSort(int|float|decimal val1, int|float|decimal val2, boolean dir) returns int {
-        if (val1 is int) {
-            if (val2 is int) {
-                return val1 - val2;
-            } else if (val2 is float) {
-                return <float>val1 < val2 ? -1 : <float>val1 == val2 ? 0 : 1;
-            } else {
-                return <decimal>val1 < val2 ? -1 : <decimal>val1 == val2 ? 0 : 1;
-            }
-        } else if (val1 is float) {
-            if (checkNaN(val1)) {
-                // need to check the direction because NaN should always come last.
-                if (dir) {
-                    return 1;
-                }
-                return -1;
-            } else if (val2 is int) {
-                return val1 < <float>val2 ? -1 : val1 == <float>val2 ? 0 : 1;
-            } else if (val2 is float){
-                if (checkNaN(val1)) {
-                    if (checkNaN(val2)) {
-                        return 0;
-                    }
-                } else if (checkNaN(val2)) {
-                    // need to check the direction because NaN should always come last.
-                    if (dir) {
-                        return -1;
-                    }
-                    return 1;
-                }
-                return val1 < val2 ? -1 : val1 == val2 ? 0 : 1;
-            } else {
-                return <decimal>val1 < val2 ? -1 : <decimal>val1 == val2 ? 0 : 1;
-            }
-        } else {
-             if (val2 is (int|float)) {
-                 return val1 < <decimal>val2 ? -1 : val1 == <decimal>val2 ? 0 : 1;
-             } else {
-                return val1 < val2 ? -1 : val1 == val2 ? 0 : 1;
-             }
-        }
-    }
-
-    public function stringSort(string st1, string st2) returns int {
-        return lang_string:codePointCompare(st1, st2);
-    }
-
-    public function booleanSort(boolean b1, boolean b2) returns int {
-        if (b1) {
-            if (b2) {
-                return 0;
-            } else {
-                return 1;
-            }
-        } else {
-            if (b2) {
-                return -1;
-            } else {
-                return 0;
-            }
-        }
-    }
-
-    function callNextSortFunc(anydata[] x, anydata[] y, int c, int i) returns @tainted int {
-        int result = c;
-        if (result == 0 && (self.sortTypes.length() > i) && (i < self.sortFields.length()-1)) {
-            result = self.sortFunc(x, y, i);
-        }
-        return result;
-    }
-};
-
-type _FrameMultiMap object {
-
+class _FrameMultiMap {
     map<_Frame[]> m;
 
     function init() {
@@ -843,4 +681,127 @@ type _FrameMultiMap object {
         }
     }
 
-};
+}
+
+class IterHelper {
+    public _StreamPipeline pipeline;
+    public typedesc<Type> outputType;
+
+    function init(_StreamPipeline pipeline, typedesc<Type> outputType) {
+      self.pipeline = pipeline;
+      self.outputType = outputType;
+    }
+
+    public isolated function next() returns record {|Type value;|}|error? {
+        _StreamPipeline p = self.pipeline;
+        _Frame|error? f = p.next();
+        if (f is _Frame) {
+            Type v = <Type>f["$value$"];
+            return internal:setNarrowType(self.outputType, {value: v});
+        } else {
+            return f;
+        }
+    }
+}
+
+class _OrderTreeNode {
+    any? key = ();
+    _Frame[]? frames = ();
+    lang_array:SortDirection nodesDirection = lang_array:ASCENDING;
+    map<_OrderTreeNode> nodes = {};
+    any[] keys = [];
+
+    # adds a _Frame into the _OrderTreeNode tree structure.
+    function add(_Frame f, any[] directions, any[] keys) {
+        if (keys.length() == 0 && directions.length() == 0) {
+            if (self.frames is _Frame[]) {
+                _Frame[] frames = <_Frame[]>self.frames;
+                frames.push(f);
+                self.frames = frames;
+            } else {
+                self.frames = [f];
+            }
+
+        } else {
+            if(!<boolean>directions.shift()) {
+                self.nodesDirection = lang_array:DESCENDING;
+            }
+            any key = keys.shift();
+            string keyStr = key.toString();
+            _OrderTreeNode o;
+            if (self.nodes.hasKey(keyStr)) {
+                o = self.nodes.get(keyStr);
+            } else {
+                o = new;
+                o.key = key;
+                self.nodes[keyStr] = o;
+                self.keys.push(key);
+            }
+            o.add(f, directions, keys);
+        }
+    }
+
+    # do a pre-order tree traversal and return collected leaf frames as orderedFrames.
+    # + return -  ordered frames.
+    function get() returns _Frame[] {
+        _Frame[] orderedFrames = [];
+        if (self.frames is _Frame[]) {
+            _Frame[] frames = <_Frame[]>self.frames;
+            foreach _Frame f in frames {
+                orderedFrames.push(f);
+            }
+        } else {
+            any[] keys = self.getSortedArray(self.keys);
+            foreach any k in keys {
+                _OrderTreeNode o = self.nodes.get(k.toString());
+                _Frame[] frms = o.get();
+                foreach _Frame f in frms {
+                    orderedFrames.push(f);
+                }
+            }
+        }
+        return orderedFrames;
+    }
+
+    # sorting is not supported for any[], therefore have to resolve runtime type and sort it.
+    # + return -  ordered array.
+    function getSortedArray(any[] arr) returns any[] {
+        if (arr.length() > 0) {
+            int i = 0;
+            while (i < arr.length()) {
+                if (arr[i] is ()) {
+                    i += 1;
+                    continue;
+                } else if (arr[i] is boolean) {
+                    boolean?[] res = [];
+                    self.copyArray(arr, res);
+                    return res.sort(self.nodesDirection, (v) => v);
+                } else if (arr[i] is int) {
+                    int?[] res = [];
+                    self.copyArray(arr, res);
+                    return res.sort(self.nodesDirection, (v) => v);
+                } else if (arr[i] is float) {
+                    float?[] res = [];
+                    self.copyArray(arr, res);
+                    return res.sort(self.nodesDirection, (v) => v);
+                } else if (arr[i] is decimal) {
+                    decimal?[] res = [];
+                    self.copyArray(arr, res);
+                    return res.sort(self.nodesDirection, (v) => v);
+                } else if (arr[i] is string) {
+                    string?[] res = [];
+                    self.copyArray(arr, res);
+                    return res.sort(self.nodesDirection, (v) => v);
+                }
+            }
+        }
+        return arr;
+    }
+
+    # copy every element of source array into empty target array.
+    function copyArray(any[] 'source, any[] 'target) {
+        foreach var v in 'source {
+            'target.push(v);
+        }
+    }
+}

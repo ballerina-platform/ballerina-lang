@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Person1 abstract object {
+type Person1 object {
     public int age;
     public string name;
 };
@@ -23,60 +23,60 @@ type Employee1 record {
     float salary = 0.0;
 };
 
-type Manager1 object {
+class Manager1 {
     *Person1;
 
     string dpt = "HR";
 
     // refering a non-object
     *Employee1;
-};
+}
 
-type EmployeeWithSalary abstract object {
+type EmployeeWithSalary object {
     public float salary;
 };
 
-type AnotherEmployeeWithSalary abstract object {
+type AnotherEmployeeWithSalary object {
     public int salary;
 };
 
-type ManagerWithTwoSalaries object {
+class ManagerWithTwoSalaries {
     *Person1;
 
     string dpt = "HR";
     *EmployeeWithSalary;
     *AnotherEmployeeWithSalary;
-};
+}
 
 // Direct circular reference
-type Foo abstract object {
+type Foo object {
     *Foo;
 };
 
 // Indirect circular references
-type A abstract object {
+type A object {
     *B;
 };
 
-type B abstract object {
+type B object {
     *C;
 };
 
-type C abstract object {
+type C object {
     *D;
     *E;
 };
 
-type D abstract object {
+type D object {
     *A;
 };
 
-type E abstract object {
+type E object {
     *C;
 };
 
 // Test errors for unimplemented methods
-type Person2 abstract object {
+type Person2 object {
     public int age;
     public string name;
 
@@ -84,7 +84,7 @@ type Person2 abstract object {
     public function getName(string? title) returns string;
 };
 
-type Employee2 abstract object {
+type Employee2 object {
     *Person2;
     public float salary;
 
@@ -92,44 +92,44 @@ type Employee2 abstract object {
     public function getSalary() returns float;
 };
 
-type Manager2 object {
+class Manager2 {
     string dpt = "HR";
     *Employee2;
-};
+}
 
-type P object {
+class P {
     *Q;
-};
+}
 
 type Q record {
     int x = 0;
     string y = "";
 };
 
-type R object {
+class R {
     *Person1;
     *Person1;
-};
+}
 
-type ObjectWithFunction abstract object {
+type ObjectWithFunction object {
     public function getName(string? title) returns string;
 };
 
-type ObjectWithRedeclaredFunction_1 abstract object {
+type ObjectWithRedeclaredFunction_1 object {
     *ObjectWithFunction;
     public function getName(string? title) returns string;
 };
 
-type ObjectWithRedeclaredFunction_2 abstract object {
+type ObjectWithRedeclaredFunction_2 object {
     *ObjectWithFunction;
     *ObjectWithRedeclaredFunction_1;
 };
 
-type Bar object {
+class Bar {
     *Baz;   // non existing type
-};
+}
 
-type Too object {
+class Too {
     *Tar; // non existing type
 
     string s; // with member
@@ -137,19 +137,19 @@ type Too object {
     public function init(string s) {
         self.s = s;
     }
-};
+}
 
-type ObjWithSameFunc1 abstract object {
+type ObjWithSameFunc1 object {
     function abc();
     function xyz(int i);
 };
 
-type ObjWithSameFunc2 abstract object {
+type ObjWithSameFunc2 object {
     function xyz(int i);
     function def(string s) returns string;
 };
 
-type ObjWithRedeclaredFuncsViaRefs object {
+class ObjWithRedeclaredFuncsViaRefs {
     *ObjWithSameFunc1;
     *ObjWithSameFunc2;
 
@@ -164,4 +164,4 @@ type ObjWithRedeclaredFuncsViaRefs object {
     function def(string s) returns string {
         return s;
     }
-};
+}

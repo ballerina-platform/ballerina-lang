@@ -1,16 +1,16 @@
 import pkg1;
 
-type Person object {
+class Person {
 
     public function func1() {
 
     }
 
     private function func2() = external;
-};
+}
 
 
-public type Employee object {
+public class Employee {
     public int age = 0;
     private string name = "";
     string email = "";
@@ -26,7 +26,7 @@ public type Employee object {
     function getEmail() returns string {
         return self.email;
     }
-};
+}
 
 function visibilityTest() {
     Employee emp1 = new;
@@ -50,7 +50,7 @@ function modVisibilityTest() {
     string e4 = emp2.getEmail();
 }
 
-public type Employee2 object {
+public class Employee2 {
     public int age = 0;
     private string name = "";
     string email = "";
@@ -66,4 +66,4 @@ public type Employee2 object {
     function getEmail() returns string {
         return "";
     }
-};
+}

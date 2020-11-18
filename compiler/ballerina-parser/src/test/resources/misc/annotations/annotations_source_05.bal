@@ -3,7 +3,7 @@ public function foo() {
 }
 
 
-@annot2} 
+@annot2}
 type foo record {
 
     @annot3{
@@ -16,10 +16,9 @@ type foo object {
 
     @annot6{
     int a;
-    
+
     @{
-    private function bar() {
-    }
+    public function bar();
 };
 
 
@@ -29,7 +28,7 @@ service foo on bar {
     @annot9{
     resource function getName() {
     }
-    
+
     @annot10{
     function getName() {
     }

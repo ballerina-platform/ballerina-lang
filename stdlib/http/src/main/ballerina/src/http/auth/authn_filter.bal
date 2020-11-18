@@ -17,7 +17,7 @@
 # Representation of the Authentication filter.
 #
 # + authHandlers - An array of authentication handlers or an array consisting of arrays of authentication handlers
-public type AuthnFilter object {
+public class AuthnFilter {
 
     *RequestFilter;
 
@@ -52,7 +52,7 @@ public type AuthnFilter object {
         send401(caller, context);
         return false;
     }
-};
+}
 
 function handleAuthRequest(InboundAuthHandlers authHandlers, Request request) returns boolean|AuthenticationError {
     if (authHandlers is InboundAuthHandler[]) {

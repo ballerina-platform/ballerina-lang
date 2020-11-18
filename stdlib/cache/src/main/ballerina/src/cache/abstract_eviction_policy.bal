@@ -16,7 +16,7 @@
 
 # The `cache:AbstractEvictionPolicy` Ballerina  object is used for custom implementations of the eviction policy for a
 # Ballerina cache object. Any custom eviction policy implementation should be object-wise similar.
-public type AbstractEvictionPolicy abstract object {
+public type AbstractEvictionPolicy object {
 
     # Updates the linked list based on the get operation.
     #

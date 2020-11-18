@@ -5,7 +5,7 @@ function test () returns int {
     return 1;
 }
 
-type Person object {
+class Person {
     public int age = 0;
     public string name = "";
-};
+}

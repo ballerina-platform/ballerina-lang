@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.types.TypeTags;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -44,7 +44,7 @@ import static org.testng.Assert.assertNull;
 @Test
 public class LangLibValueTest {
 
-    private CompileResult compileResult;
+    private CompileResult compileResult, testFile;
 
     @BeforeClass
     public void setup() {
@@ -71,15 +71,15 @@ public class LangLibValueTest {
         assertEquals(arr.get("anObject").stringValue(),
                 "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}");
         assertEquals(arr.get("anotherMap").stringValue(),
-                     "{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\", " +
-                     "\"intVal\":2324, \"boolVal\":true, \"floatVal\":45.4, " +
-                     "\"nestedMap\":{\"xx\":\"XXStr\", \"n\":343, \"nilVal\":null}}");
+                "{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\", " +
+                        "\"intVal\":2324, \"boolVal\":true, \"floatVal\":45.4, " +
+                        "\"nestedMap\":{\"xx\":\"XXStr\", \"n\":343, \"nilVal\":null}}");
         assertEquals(arr.get("aStringMap").stringValue(),
-                     "{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\"}");
+                "{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\"}");
         assertEquals(arr.get("aArr").stringValue(),
-                     "[{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\", \"intVal\":2324, " +
-                     "\"boolVal\":true, \"floatVal\":45.4, \"nestedMap\":{\"xx\":\"XXStr\", \"n\":343, " +
-                     "\"nilVal\":null}}, {\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\"}]");
+                "[{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\", \"intVal\":2324, " +
+                        "\"boolVal\":true, \"floatVal\":45.4, \"nestedMap\":{\"xx\":\"XXStr\", \"n\":343, " +
+                        "\"nilVal\":null}}, {\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\"}]");
         assertEquals(arr.get("iArr").stringValue(), "[0, 1, 255]");
         assertEquals(arr.get("arr1").stringValue(), "{\"country\":\"x\", \"city\":\"y\", \"street\":\"z\", \"no\":3}");
         assertEquals(arr.size(), 11);
@@ -88,6 +88,11 @@ public class LangLibValueTest {
     @Test
     public void testToJsonForNonJsonTypes() {
         BRunUtil.invokeFunction(compileResult, "testToJsonStringForNonJsonTypes");
+    }
+
+    @Test
+    public void testToStringOnCycles() {
+        BRunUtil.invokeFunction(compileResult, "testToStringOnCycles");
     }
 
     @Test
@@ -101,12 +106,62 @@ public class LangLibValueTest {
         assertNull(arr.get("aNull"));
         assertEquals(arr.get("aString").stringValue(), "aString");
         assertEquals(arr.get("aNumber").stringValue(), "10");
-//        assertEquals(arr.get("aFloatNumber").stringValue(), "10.5"); // TODO : Enable this. Bug in JVM Type checker.
+        assertEquals(arr.get("aFloatNumber").stringValue(), "10.5");
+        assertEquals(arr.get("positiveZero").stringValue(), "0");
+        assertEquals(arr.get("negativeZero").stringValue(), "-0.0");
+        assertEquals(arr.get("negativeNumber").stringValue(), "-25");
+        assertEquals(arr.get("negativeFloatNumber").stringValue(), "-10.5");
         assertEquals(arr.get("anArray").stringValue(), "[\"hello\", \"world\"]");
         assertEquals(arr.get("anObject").stringValue(),
                 "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}");
         assertEquals(arr.get("anInvalid").getType().getTag(), TypeTags.ERROR_TAG);
-        assertEquals(arr.size(), 7);
+        assertEquals(arr.size(), 12);
+    }
+
+    @Test
+    public void testFromJsonFloatString() {
+
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFromJsonFloatString");
+        assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
+
+        BMap<String, BValue> arr = (BMap<String, BValue>) returns[0];
+        assertEquals(arr.get("aNil").getType().getTag(), TypeTags.ERROR_TAG);
+        assertNull(arr.get("aNull"));
+        assertEquals(arr.get("aString").stringValue(), "aString");
+        assertEquals(arr.get("aNumber").stringValue(), "10.0");
+        assertEquals(arr.get("aFloatNumber").stringValue(), "10.5");
+        assertEquals(arr.get("positiveZero").stringValue(), "0.0");
+        assertEquals(arr.get("negativeZero").stringValue(), "-0.0");
+        assertEquals(arr.get("negativeNumber").stringValue(), "-25.0");
+        assertEquals(arr.get("negativeFloatNumber").stringValue(), "-10.5");
+        assertEquals(arr.get("anArray").stringValue(), "[\"hello\", \"world\"]");
+        assertEquals(arr.get("anObject").stringValue(),
+                "{\"name\":\"anObject\", \"value\":10.0, \"sub\":{\"subName\":\"subObject\", \"subValue\":10.0}}");
+        assertEquals(arr.get("anInvalid").getType().getTag(), TypeTags.ERROR_TAG);
+        assertEquals(arr.size(), 12);
+    }
+
+    @Test
+    public void testFromJsonDecimalString() {
+
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFromJsonDecimalString");
+        assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
+
+        BMap<String, BValue> arr = (BMap<String, BValue>) returns[0];
+        assertEquals(arr.get("aNil").getType().getTag(), TypeTags.ERROR_TAG);
+        assertNull(arr.get("aNull"));
+        assertEquals(arr.get("aString").stringValue(), "aString");
+        assertEquals(arr.get("aNumber").stringValue(), "10");
+        assertEquals(arr.get("aFloatNumber").stringValue(), "10.5");
+        assertEquals(arr.get("positiveZero").stringValue(), "0.0");
+        assertEquals(arr.get("negativeZero").stringValue(), "0.0");
+        assertEquals(arr.get("negativeNumber").stringValue(), "-25");
+        assertEquals(arr.get("negativeFloatNumber").stringValue(), "-10.5");
+        assertEquals(arr.get("anArray").stringValue(), "[\"hello\", \"world\"]");
+        assertEquals(arr.get("anObject").stringValue(),
+                "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}");
+        assertEquals(arr.get("anInvalid").getType().getTag(), TypeTags.ERROR_TAG);
+        assertEquals(arr.size(), 12);
     }
 
     @Test
@@ -127,39 +182,41 @@ public class LangLibValueTest {
         Assert.assertEquals(array.getString(i++), "");
         Assert.assertEquals(array.getString(i++), "true");
         Assert.assertEquals(array.getString(i++), "345.2425341");
-        Assert.assertEquals(array.getString(i++), "a=STRING b=12 c=12.4 d=true e=x=x y=");
+        Assert.assertEquals(array.getString(i++), "{\"a\":\"STRING\",\"b\":12,\"c\":12.4,\"d\":true," +
+                "\"e\":{\"x\":\"x\",\"y\":null}}");
         Assert.assertEquals(array.getString(i++),
                 "<CATALOG>" +
-                "<CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD>" +
-                "<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>" +
-                "<CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD>" +
-                "</CATALOG>");
-        Assert.assertEquals(array.getString(i++), "str 23 23.4 true");
-        Assert.assertEquals(array.getString(i++), "error Reason1 message=Test passing error union to a function");
+                        "<CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD>" +
+                        "<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>" +
+                        "<CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD>" +
+                        "</CATALOG>");
+        Assert.assertEquals(array.getString(i++), "[\"str\",23,23.4,true]");
+        Assert.assertEquals(array.getString(i++), "error FirstError (\"Reason1\",message=\"Test passing error " +
+                "union to a function\")");
         Assert.assertEquals(array.getString(i++), "object Student");
         Assert.assertEquals(array.getString(i++), "Rola from MMV");
-        Assert.assertEquals(array.getString(i++), "object Student Rola from MMV");
+        Assert.assertEquals(array.getString(i++), "[object Student,Rola from MMV]");
         Assert.assertEquals(array.getString(i++),
-                "name=Gima address=country=Sri Lanka city=Colombo street=Palm Grove age=12");
+                "{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\",\"city\":\"Colombo\"," +
+                        "\"street\":\"Palm Grove\"},\"age\":12}");
         Assert.assertEquals(array.getString(i),
-                            "varInt=6 " +
-                            "varFloat=6.0 " +
-                            "varStr=toString " +
-                            "varNil= " +
-                            "varBool=true " +
-                            "varDecimal=345.2425341 " +
-                            "varjson=a=STRING b=12 c=12.4 d=true e=x=x y= " +
-                            "varXml=<CATALOG>" +
-                            "<CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD>" +
-                            "<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>" +
-                            "<CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD>" +
-                            "</CATALOG> " +
-                            "varArr=str 23 23.4 true " +
-                            "varErr=error Reason1 message=Test passing error union to a function " +
-                            "varObj=object Student " +
-                            "varObj2=Rola from MMV " +
-                            "varObjArr=object Student Rola from MMV " +
-                            "varRecord=name=Gima address=country=Sri Lanka city=Colombo street=Palm Grove age=12");
+                "{\"varInt\":6,\"varFloat\":6.0," +
+                        "\"varStr\":\"toString\"," +
+                        "\"varNil\":null," +
+                        "\"varBool\":true," +
+                        "\"varDecimal\":345.2425341," +
+                        "\"varjson\":{\"a\":\"STRING\",\"b\":12,\"c\":12.4," +
+                        "\"d\":true,\"e\":{\"x\":\"x\",\"y\":null}}," +
+                        "\"varXml\":`<CATALOG><CD><TITLE>Empire Burlesque</TITLE>" +
+                        "<ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart" +
+                        "</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE>" +
+                        "<ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`," +
+                        "\"varArr\":[\"str\",23,23.4,true],\"varErr\":error FirstError (\"Reason1\"," +
+                        "message=\"Test passing error union to a function\")," +
+                        "\"varObj\":object Student,\"varObj2\":Rola from MMV," +
+                        "\"varObjArr\":[object Student,Rola from MMV]," +
+                        "\"varRecord\":{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\"," +
+                        "\"city\":\"Colombo\",\"street\":\"Palm Grove\"},\"age\":12}}");
     }
 
     @Test
@@ -167,7 +224,7 @@ public class LangLibValueTest {
         BRunUtil.invokeFunction(compileResult, "testToStringMethodForTable");
     }
 
-    @Test(dataProvider = "mergeJsonFunctions")
+    @Test(dataProvider = "mergeJsonFunctions", enabled = false)
     public void testMergeJson(String function) {
         BValue[] returns = BRunUtil.invoke(compileResult, function);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
@@ -177,6 +234,40 @@ public class LangLibValueTest {
     public void xmlSequenceFragmentToString() {
         BValue[] returns = BRunUtil.invoke(compileResult, "xmlSequenceFragmentToString");
         Assert.assertEquals((returns[0]).stringValue(), "<def>DEF</def><ghi>1</ghi>");
+    }
+
+    @Test
+    public void testToBalStringMethod() {
+        testFile = BCompileUtil.compile("test-src/valuelib_toBalString_test.bal");
+        BRunUtil.invokeFunction(testFile, "testIntValueToBalString");
+        BRunUtil.invokeFunction(testFile, "testStringValueToBalString");
+        BRunUtil.invokeFunction(testFile, "testFloatingPointNumbersToBalString");
+        BRunUtil.invokeFunction(testFile, "testAnyAnydataNilToBalString");
+        BRunUtil.invokeFunction(testFile, "testTableToBalString");
+        BRunUtil.invokeFunction(testFile, "testErrorToBalString");
+        BRunUtil.invokeFunction(testFile, "testArrayToBalString");
+        BRunUtil.invokeFunction(testFile, "testTupleToBalString");
+        BRunUtil.invokeFunction(testFile, "testJsonToBalString");
+        BRunUtil.invokeFunction(testFile, "testXmlToBalString");
+        BRunUtil.invokeFunction(testFile, "testObjectToString");
+        BRunUtil.invokeFunction(testFile, "testToBalStringOnCycles");
+    }
+
+    @Test
+    public void testXmlFromBalString() {
+        CompileResult file = BCompileUtil.compile("test-src/valuelib_fromBalString_test.bal");
+        BRunUtil.invokeFunction(file, "testIntValueFromBalString");
+        BRunUtil.invokeFunction(file, "testStringValueFromBalString");
+        BRunUtil.invokeFunction(file, "testFloatingPointNumbersFromBalString");
+        BRunUtil.invokeFunction(file, "testAnydataNilFromBalString");
+        BRunUtil.invokeFunction(file, "testMapFromBalString");
+        BRunUtil.invokeFunction(file, "testTableFromBalString");
+        BRunUtil.invokeFunction(file, "testArrayFromBalString");
+        BRunUtil.invokeFunction(file, "testTupleFromBalString");
+        BRunUtil.invokeFunction(file, "testJsonFromBalString");
+        BRunUtil.invokeFunction(file, "testXmlFromBalString");
+        BRunUtil.invokeFunction(file, "testObjectFromString");
+        BRunUtil.invokeFunction(file, "testFromBalStringOnCycles");
     }
 
     @DataProvider(name = "mergeJsonFunctions")
@@ -195,7 +286,7 @@ public class LangLibValueTest {
         };
     }
 
-    @Test(dataProvider = "cloneWithTypeFunctions")
+    @Test(dataProvider = "cloneWithTypeFunctions", enabled = false)
     public void testCloneWithType(String function) {
         BValue[] returns = BRunUtil.invoke(compileResult, function);
     }
@@ -281,5 +372,15 @@ public class LangLibValueTest {
                 { "testToJsonWithIntArray" },
                 { "testToJsonWithTable" }
         };
+    }
+
+    @Test
+    public void testEnsureType() {
+        BRunUtil.invokeFunction(compileResult, "testEnsureType");
+    }
+
+    @Test
+    public void testEnsureTypeNegative() {
+        BRunUtil.invokeFunction(compileResult, "testEnsureTypeNegative");
     }
 }

@@ -18,13 +18,11 @@
 
 package org.ballerinalang.stdlib.utils;
 
-
+import io.ballerina.runtime.api.BRuntime;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.util.exceptions.BallerinaConnectorException;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 import io.netty.handler.codec.http.HttpContent;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
@@ -38,7 +36,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.concurrent.Executors;
 
 /**
  * This contains test utils related to Ballerina service invocations.
@@ -94,10 +91,10 @@ public class Services {
                 request, registryHolder.getEndpointConfig());
         callback.setRequestStruct(signatureParams[0]);
 
-        ObjectValue service = resource.getParentService().getBalService();
-        Scheduler scheduler = registryHolder.getRegistry().getScheduler();
-        Executor.submit(scheduler, service, resource.getName(), null, null, callback, properties, signatureParams);
-        Executors.newSingleThreadExecutor().submit(scheduler::start);
+        BObject service = resource.getParentService().getBalService();
+
+        BRuntime runtime = registryHolder.getRegistry().getRuntime();
+        runtime.invokeMethodAsync(service, resource.getName(), null, null, callback, properties, signatureParams);
         callback.sync();
 
         HttpCarbonMessage originalMsg = callback.getResponseMsg();

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.mock.nonlistening;
 
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
 
@@ -30,7 +30,7 @@ import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG;
  * @since 0.966
  */
 public class NonListeningStart extends org.ballerinalang.net.http.serviceendpoint.Start {
-    public static Object start(ObjectValue listener) {
+    public static Object start(BObject listener) {
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(listener);
         MockHTTPConnectorListener httpListener = MockHTTPConnectorListener.getInstance();
         httpListener.setHttpServicesRegistry(((Long) listener.get(HttpConstants.ENDPOINT_CONFIG_PORT)).intValue(),

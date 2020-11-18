@@ -1,0 +1,16 @@
+{
+  "position": {
+    "line": 8,
+    "character": 38
+  },
+  "source": "typedesc_context/source/object_typedesc9.bal",
+  "items": [
+    {
+      "label": "returns",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "returns ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

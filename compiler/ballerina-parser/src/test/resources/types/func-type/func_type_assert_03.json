@@ -48,6 +48,10 @@
                           "kind": "FUNCTION_TYPE_DESC",
                           "children": [
                             {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
                               "kind": "FUNCTION_KEYWORD"
                             },
                             {
@@ -250,6 +254,10 @@
                               "kind": "FUNCTION_TYPE_DESC",
                               "children": [
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "FUNCTION_KEYWORD"
                                 },
                                 {
@@ -368,6 +376,10 @@
                                   "kind": "FUNCTION_TYPE_DESC",
                                   "children": [
                                     {
+                                      "kind": "LIST",
+                                      "children": []
+                                    },
+                                    {
                                       "kind": "FUNCTION_KEYWORD"
                                     },
                                     {
@@ -476,13 +488,7 @@
                               ]
                             },
                             {
-                              "kind": "GT_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "GT_TOKEN"
                             },
                             {
                               "kind": "SIMPLE_NAME_REFERENCE",
@@ -579,6 +585,10 @@
                         {
                           "kind": "FUNCTION_TYPE_DESC",
                           "children": [
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            },
                             {
                               "kind": "FUNCTION_KEYWORD",
                               "leadingMinutiae": [
@@ -739,6 +749,10 @@
                           "kind": "FUNCTION_TYPE_DESC",
                           "children": [
                             {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
                               "kind": "FUNCTION_KEYWORD",
                               "leadingMinutiae": [
                                 {
@@ -772,31 +786,7 @@
                         },
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "f1",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "EQUAL_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "SIMPLE_NAME_REFERENCE",
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "f2"
-                            }
-                          ]
+                          "value": "f1"
                         },
                         {
                           "kind": "SEMICOLON_TOKEN",

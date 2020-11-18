@@ -211,15 +211,25 @@ public class RunTestsTask implements Task {
                 if (coverageResult != 0) {
                     throw createLauncherException("error while generating test report");
                 }
-                Path coverageJsonPath = jsonPath.resolve(TesterinaConstants.COVERAGE_FILE);
+            }
+        }
+
+        // Load Coverage data from the files only after each module's coverage data has been finalized
+        for (BLangPackage bLangPackage : moduleBirMap) {
+            // Check and update coverage
+            Path jsonPath = buildContext.getTestJsonPathTargetCache(bLangPackage.packageID);
+            Path coverageJsonPath = jsonPath.resolve(TesterinaConstants.COVERAGE_FILE);
+
+            if (coverageJsonPath.toFile().exists()) {
                 try {
                     ModuleCoverage moduleCoverage = loadModuleCoverageFromFile(coverageJsonPath);
                     testReport.addCoverage(String.valueOf(bLangPackage.packageID.name), moduleCoverage);
                 } catch (IOException e) {
-                    throw createLauncherException("error while generating test report", e);
+                    throw createLauncherException("error while generating test report :", e);
                 }
             }
         }
+
         if ((report || coverage) && (testReport.getModuleStatus().size() > 0)) {
             testReport.finalizeTestResults(coverage);
             generateHtmlReport(buildContext.out(), testReport, targetDir);
@@ -349,6 +359,7 @@ public class RunTestsTask implements Task {
 
         String jacocoAgentJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
                 .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
+
         try {
             if (coverage) {
                 String agentCommand = "-javaagent:"
@@ -357,10 +368,12 @@ public class RunTestsTask implements Task {
                         + targetDir.resolve(TesterinaConstants.COVERAGE_DIR)
                         .resolve(TesterinaConstants.EXEC_FILE_NAME).toString();
                 if (!TesterinaConstants.DOT.equals(packageName)) {
-                    agentCommand += ",includes=" + orgName + "." + packageName + ".*";
+                    agentCommand += ",includes=" + orgName + ".*";
                 }
                 cmdArgs.add(agentCommand);
             }
+
+            resolveTestDependencies(testDependencies);
 
             String classPath = getClassPath(getTestRuntimeJar(buildContext), testDependencies);
             cmdArgs.addAll(Lists.of("-cp", classPath));
@@ -467,5 +480,24 @@ public class RunTestsTask implements Task {
         }
 
         return new ArrayList<String>();
+    }
+
+    private void resolveTestDependencies(HashSet<Path> testDependencies) {
+        Path jacocoCoreJarPath =  Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.JACOCO_CORE_JAR);
+        Path jacocoReportJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.JACOCO_REPORT_JAR);
+        Path asmJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.ASM_JAR);
+        Path asmTreeJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.ASM_TREE_JAR);
+        Path asmCommonsJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.ASM_COMMONS_JAR);
+
+        testDependencies.add(jacocoCoreJarPath);
+        testDependencies.add(jacocoReportJarPath);
+        testDependencies.add(asmJarPath);
+        testDependencies.add(asmTreeJarPath);
+        testDependencies.add(asmCommonsJarPath);
     }
 }

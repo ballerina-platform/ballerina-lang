@@ -53,6 +53,7 @@ import org.testng.annotations.BeforeSuite;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -338,13 +339,16 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
     /**
      * Can be used to fetch variable values when a debug hit is occurred.
      *
-     * @param args debug stopped event arguments.
-     * @return Variable array with debug hit variables information.
+     * @param args  debug stopped event arguments
+     * @param scope required variable scope
+     * @return variable map with debug hit variables information
      * @throws BallerinaTestException if an error occurs when fetching debug hit variables.
      */
-    protected Variable[] fetchDebugHitVariables(StoppedEventArguments args) throws BallerinaTestException {
+    protected Map<String, Variable> fetchVariables(StoppedEventArguments args, VariableScope scope)
+            throws BallerinaTestException {
+        Map<String, Variable> variables = new HashMap<>();
         if (!DebugHitListener.connector.isConnected()) {
-            return new Variable[0];
+            return variables;
         }
         StackTraceArguments stackTraceArgs = new StackTraceArguments();
         VariablesArguments variableArgs = new VariablesArguments();
@@ -356,15 +360,15 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
                     .stackTrace(stackTraceArgs);
             StackFrame[] stackFrames = stackTraceResp.getStackFrames();
             if (stackFrames.length == 0) {
-                return new Variable[0];
+                return variables;
             }
-
-            scopeArgs.setFrameId(stackFrames[0].getId());
+            scopeArgs.setFrameId(scope == VariableScope.LOCAL ? stackFrames[0].getId() : -stackFrames[0].getId());
             ScopesResponse scopesResp = DebugHitListener.connector.getRequestManager().scopes(scopeArgs);
             variableArgs.setVariablesReference(scopesResp.getScopes()[0].getVariablesReference());
             VariablesResponse variableResp = DebugHitListener.connector.getRequestManager().variables(variableArgs);
-            return variableResp.getVariables();
-
+            Arrays.stream(variableResp.getVariables())
+                    .forEach(variable -> variables.put(variable.getName(), variable));
+            return variables;
         } catch (Exception e) {
             LOGGER.warn("Error occurred when fetching debug hit variables", e);
             throw new BallerinaTestException("Error occurred when fetching debug hit variables", e);
@@ -372,19 +376,48 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
     }
 
     /**
+     * Can be used to fetch stack frames when a debug hit is occurred.
+     *
+     * @param args debug stopped event arguments.
+     * @return StackFrame array with stack frames information.
+     * @throws BallerinaTestException if an error occurs when fetching stack frames.
+     */
+    protected StackFrame[] fetchStackFrames(StoppedEventArguments args) throws BallerinaTestException {
+        if (!DebugHitListener.connector.isConnected()) {
+            throw new BallerinaTestException("DAP Client connector is not connected");
+        }
+        StackTraceArguments stackTraceArgs = new StackTraceArguments();
+        stackTraceArgs.setThreadId(args.getThreadId());
+        StackFrame[] stackFrames = null;
+        StackTraceResponse stackTraceResp = null;
+
+        try {
+            stackTraceResp = DebugHitListener.connector.getRequestManager().stackTrace(stackTraceArgs);
+            stackFrames = stackTraceResp.getStackFrames();
+        } catch (Exception e) {
+            LOGGER.warn("Error occurred when fetching stack frames", e);
+            throw new BallerinaTestException("Error occurred when fetching stack frames", e);
+        }
+        return stackFrames;
+    }
+
+    /**
      * Can be used to get child variables from parent variable.
      *
-     * @param childVariable child variable.
-     * @return Variable array with child variables information.
-     * @throws BallerinaTestException if an error occurs when fetching debug hit child variables.
+     * @param childVariable child variable
+     * @return variable map with child variables information
+     * @throws BallerinaTestException if an error occurs when fetching debug hit child variables
      */
-    protected Variable[] getChildVariable(Variable childVariable) throws BallerinaTestException {
+    protected Map<String, Variable> fetchChildVariables(Variable childVariable) throws BallerinaTestException {
+        Map<String, Variable> variables = new HashMap<>();
         VariablesArguments childVariableArgs = new VariablesArguments();
         childVariableArgs.setVariablesReference(childVariable.getVariablesReference());
         try {
             VariablesResponse childVariableResp = DebugHitListener.connector.getRequestManager()
                     .variables(childVariableArgs);
-            return childVariableResp.getVariables();
+            Arrays.stream(childVariableResp.getVariables())
+                    .forEach(variable -> variables.put(variable.getName(), variable));
+            return variables;
         } catch (Exception e) {
             LOGGER.warn("Error occurred when fetching debug hit child variables", e);
             throw new BallerinaTestException("Error occurred when fetching debug hit child variables", e);
@@ -394,15 +427,15 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
     /**
      * Can be used to assert variable name, value and type.
      *
-     * @param variable      debug hit variable
-     * @param variableName  variable name
-     * @param variableValue variable value
-     * @param variableType  variable type
+     * @param variables debug hit variables
+     * @param name      variable name
+     * @param value     variable value
+     * @param type      variable type
      */
-    protected void assertVariable(Variable variable, String variableName, String variableValue, String variableType) {
-        Assert.assertEquals(variable.getName(), variableName);
-        Assert.assertEquals(variable.getValue(), variableValue);
-        Assert.assertEquals(variable.getType(), variableType);
+    protected void assertVariable(Map<String, Variable> variables, String name, String value, String type) {
+        Assert.assertTrue(variables.containsKey(name));
+        Assert.assertEquals(variables.get(name).getValue(), value);
+        Assert.assertEquals(variables.get(name).getType(), type);
     }
 
     /**
@@ -433,6 +466,20 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
         Variable result = evaluateExpression(context, expression);
         Assert.assertEquals(result.getValue(), errorMessage);
         Assert.assertEquals(result.getType(), "string");
+    }
+
+    /**
+     * Can be used to assert stack frame name, line and source.
+     *
+     * @param frame  debug hit stack frame.
+     * @param name   stack frame name.
+     * @param line   stack frame line.
+     * @param source stack frame source.
+     */
+    protected void assertCallStack(StackFrame frame, String name, int line, String source) {
+        Assert.assertEquals(frame.getName(), name);
+        Assert.assertEquals(frame.getLine().intValue(), line);
+        Assert.assertEquals(frame.getSource().getName(), source);
     }
 
     /**
@@ -485,6 +532,14 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
         STEP_IN,
         STEP_OUT,
         STEP_OVER
+    }
+
+    /**
+     * Debug variable scope types.
+     */
+    public enum VariableScope {
+        GLOBAL,
+        LOCAL
     }
 
     @AfterSuite(alwaysRun = true)

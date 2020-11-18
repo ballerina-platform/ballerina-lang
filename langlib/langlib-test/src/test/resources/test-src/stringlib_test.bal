@@ -34,7 +34,7 @@ function testSubString() returns [string,string, string] {
 function testIterator() returns string[] {
     string str = "Foo Bar";
 
-    abstract object {
+    object {
          public function next() returns record {| string value; |}?;
     } itr = str.iterator();
 

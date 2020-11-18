@@ -47,16 +47,18 @@ public class RecordDefNegativeTest {
         int indx = 0;
         BAssertUtil.validateError(compileResult, indx++, "undefined symbol 'a'", 19, 13);
         BAssertUtil.validateError(compileResult, indx++, "undefined symbol 'a'", 21, 17);
-        BAssertUtil.validateError(compileResult, indx++, "undefined symbol 'a'", 25, 17);
+        BAssertUtil.validateError(compileResult, indx++, "undefined symbol 'a'", 26, 28);
         BAssertUtil.validateError(compileResult, indx++, "undefined symbol 'fname'", 33, 27);
         BAssertUtil.validateError(compileResult, indx++, "undefined symbol 'lname'", 33, 41);
         BAssertUtil.validateError(compileResult, indx++, "undefined symbol 'a'", 38, 17);
         BAssertUtil.validateError(compileResult, indx++, "undefined symbol 'a'", 41, 21);
-        BAssertUtil.validateError(compileResult, indx++, "undefined symbol 'a'", 45, 21);
+        BAssertUtil.validateError(compileResult, indx++, "undefined symbol 'a'", 46, 32);
         BAssertUtil.validateError(compileResult, indx++, "undefined symbol 'x'", 52, 57);
         BAssertUtil.validateError(compileResult, indx++, "undefined symbol 'a'", 59, 21);
         BAssertUtil.validateError(compileResult, indx++, "undefined symbol 'a'", 61, 25);
-        BAssertUtil.validateError(compileResult, indx++, "incompatible types: expected 'string', found 'int'", 71, 16);
+        BAssertUtil.validateError(compileResult, indx++, "undefined symbol 'a'", 67, 33);
+        BAssertUtil.validateError(compileResult, indx++, "undefined symbol 'a'", 69, 37);
+        BAssertUtil.validateError(compileResult, indx++, "incompatible types: expected 'string', found 'int'", 79, 16);
         assertEquals(compileResult.getErrorCount(), indx);
     }
 }

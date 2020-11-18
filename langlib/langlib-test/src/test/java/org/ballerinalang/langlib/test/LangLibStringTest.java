@@ -19,16 +19,16 @@
 package org.ballerinalang.langlib.test;
 
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -145,7 +145,8 @@ public class LangLibStringTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-        expectedExceptionsMessageRegExp = ".*IndexOutOfRange message=String codepoint index out of range: 1.*")
+        expectedExceptionsMessageRegExp = ".*IndexOutOfRange \\{\"message\":\"String codepoint index out of range: " +
+                "1\"\\}.*")
     public void testGetCodepointNegative() {
         testGetCodepoint("", 1, 0);
     }
@@ -237,7 +238,7 @@ public class LangLibStringTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.string\\}StringOperationError " +
-                    "message=string index out of range. Length:'6' requested: '7' to '9'.*")
+                    "\\{\"message\":\"string index out of range. Length:'6' requested: '7' to '9'\"\\}.*")
     public void testSubstringOutRange() {
         BRunUtil.invoke(compileResult, "testSubstringOutRange");
         Assert.fail();

@@ -1,0 +1,38 @@
+{
+    "position": {
+        "line": 43,
+        "character": 15
+    },
+    "source": "actions/actions.bal",
+    "expected": {
+        "result": {
+            "signatures": [
+                {
+                    "label": "send(string msg)",
+                    "documentation": {
+                        "right": {
+                            "kind": "markdown",
+                            "value": "**Description**  \nSend a message"
+                        }
+                    },
+                    "parameters": [
+                        {
+                            "label": {
+                                "left": "string msg"
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`string`msg**: message"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            "activeSignature": 0,
+            "activeParameter": 0
+        },
+        "jsonrpc": "2.0"
+    }
+}

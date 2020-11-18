@@ -17,19 +17,22 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
+import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,33 +57,33 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
         TypeDescriptorNode typeDescriptor = node.typeDescriptor();
 
         if (typeDescriptor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+            List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
             /*
             Supports the following
             (1) public listener mod:Listener test = new <cursor>
             (2) public listener mod:Listener test = new a<cursor>
              */
-            List<BObjectTypeSymbol> filteredList = visibleSymbols.stream()
-                    .filter(scopeEntry -> CommonUtil.isListenerObject(scopeEntry.symbol))
-                    .map(scopeEntry -> (BObjectTypeSymbol) scopeEntry.symbol)
+            List<ObjectTypeDescriptor> filteredList = visibleSymbols.stream()
+                    .filter(SymbolUtil::isListener)
+                    .map(symbol -> (ObjectTypeDescriptor) ((TypeSymbol) symbol).typeDescriptor())
                     .collect(Collectors.toList());
-            for (BObjectTypeSymbol objectTypeSymbol : filteredList) {
-                completionItems.add(this.getExplicitNewCompletionItem(objectTypeSymbol, context));
+            for (ObjectTypeDescriptor objectTypeDesc : filteredList) {
+                completionItems.add(this.getExplicitNewCompletionItem(objectTypeDesc, context));
             }
-            completionItems.addAll(this.getPackagesCompletionItems(context));
+            completionItems.addAll(this.getModuleCompletionItems(context));
         } else if (this.onQualifiedNameIdentifier(context, typeDescriptor)) {
             QualifiedNameReferenceNode referenceNode = (QualifiedNameReferenceNode) typeDescriptor;
             String moduleName = QNameReferenceUtil.getAlias(referenceNode);
-            Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context, moduleName);
-            if (!module.isPresent()) {
+            Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, moduleName);
+            if (module.isEmpty()) {
                 return completionItems;
             }
-            List<BObjectTypeSymbol> filteredList = module.get().symbol.scope.entries.values().stream()
-                    .filter(scopeEntry -> CommonUtil.isListenerObject(scopeEntry.symbol))
-                    .map(scopeEntry -> (BObjectTypeSymbol) scopeEntry.symbol)
+            List<ObjectTypeDescriptor> filteredList = module.get().allSymbols().stream()
+                    .filter(SymbolUtil::isListener)
+                    .map(symbol -> (ObjectTypeDescriptor) ((TypeSymbol) symbol).typeDescriptor())
                     .collect(Collectors.toList());
-            for (BObjectTypeSymbol objectTypeSymbol : filteredList) {
-                completionItems.add(this.getExplicitNewCompletionItem(objectTypeSymbol, context));
+            for (ObjectTypeDescriptor objectTypeDesc : filteredList) {
+                completionItems.add(this.getExplicitNewCompletionItem(objectTypeDesc, context));
             }
         }
 

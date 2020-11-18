@@ -55,7 +55,7 @@ function testRecord() returns T5 {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-type T6 object { G g = ""; };
+class T6 { G g = ""; }
 
 type G string;
 
@@ -66,17 +66,17 @@ function testObject() returns T6 {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-type T7 int[]|A[]|[B, C]|map<string>|map<D>|E|int|record { F f; }|object { public G g = ""; }|error;
+type T7 int[]|A[]|[B, C]|map<string>|map<D>|E|int|record { F f; }|object { public G g; }|error;
 
 function testUnion() returns T7 {
-    object { public G g = ""; } o = new;
+    var o = object { public G g = ""; };
     T7 t7 = o;
     return t7;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-type T8 [int[], A[], [B, C], map<string>, map<D>, E, int, record { F f; }, object { public G g = ""; }, error];
+type T8 [int[], A[], [B, C], map<string>, map<D>, E, int, record { F f; }, object { public G g; }, error];
 
 function testComplexTuple() returns T8 {
     int[] iarr = [1, 2];
@@ -87,7 +87,7 @@ function testComplexTuple() returns T8 {
     E e = "Ballerina";
     int i = 10;
     record { F f; } r = { f: "Ballerina" };
-    object { public G g = ""; } o = new;
+    var o = object { public G g = ""; };
     error err = error("reason");
     T8 t8 = [iarr, aarr, bc, ms, md, e, i, r, o, err];
     return t8;
@@ -107,7 +107,7 @@ type J map<A>;
 
 type K record { F f = ""; };
 
-type L error|object { public G g = ""; };
+type L error|object { public G g; };
 
 function testComplexUnion() returns T10 {
     A[] a = [4, 5, 6];
@@ -138,15 +138,15 @@ function testXml() returns T12 {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-type FB "A" | object { string f; function init(string f) { self.f = f; }};
+type FB "A" | object { string f;};
 
-type Foo object {
+class Foo {
     string f;
 
     function init(string f) {
         self.f = f;
     }
-};
+}
 
 function testAnonObjectUnionTypeDef() {
     FB a = new Foo("FOO");

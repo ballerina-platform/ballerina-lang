@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.statements.transaction;
 
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -123,5 +123,10 @@ public class NestedTransactionTest {
     public void testUnreachableCode() {
         BValue[] result = BRunUtil.invoke(programFile, "testUnreachableCode");
         Assert.assertEquals(result[0].stringValue(), "trxStarted -> trxCommited -> trxEnded.");
+    }
+
+    @Test
+    public void testNestedReturns() {
+        BRunUtil.invoke(programFile, "testNestedReturns");
     }
 }

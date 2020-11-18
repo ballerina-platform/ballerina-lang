@@ -1,0 +1,43 @@
+{
+    "position": {
+        "line": 105,
+        "character": 28
+    },
+    "source": "expressions/expressions.bal",
+	"expected": {
+        "result": {
+            "signatures": [
+                {
+                    "label": "fooF(float a, boolean b)",
+                    "parameters": [
+                        {
+                            "label": {
+                                "left": "float a"
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`float`a**: "
+                                }
+                            }
+                        },
+                        {
+                            "label": {
+                                "left": "boolean b"
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`boolean`b**: "
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            "activeSignature": 0,
+            "activeParameter": 1
+        },
+        "jsonrpc": "2.0"
+    }
+}

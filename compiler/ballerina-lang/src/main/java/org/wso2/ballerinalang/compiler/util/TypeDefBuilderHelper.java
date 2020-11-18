@@ -26,7 +26,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -37,12 +39,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -51,6 +53,8 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
  * Helper class with util methods to create type definitions.
@@ -65,7 +69,8 @@ public class TypeDefBuilderHelper {
         for (BField field : recordType.fields.values()) {
             BVarSymbol symbol = field.symbol;
             if (symbol == null) {
-                symbol = new BVarSymbol(Flags.PUBLIC, field.name, packageID, symTable.pureType, null, field.pos);
+                symbol = new BVarSymbol(Flags.PUBLIC, field.name, packageID, symTable.pureType, null, field.pos,
+                                        VIRTUAL);
             }
 
             BLangSimpleVariable fieldVar = ASTBuilderUtil.createVariable(field.pos, symbol.name.value, field.type,
@@ -110,8 +115,8 @@ public class TypeDefBuilderHelper {
 
     public static BLangFunction createInitFunctionForRecordType(BLangRecordTypeNode recordTypeNode, SymbolEnv env,
                                                                 Names names, SymbolTable symTable) {
-        BLangFunction initFunction = createInitFunctionForStructureType(recordTypeNode, env,
-                                                                        Names.INIT_FUNCTION_SUFFIX, names, symTable);
+        BLangFunction initFunction = createInitFunctionForStructureType(recordTypeNode.pos, recordTypeNode.symbol, env,
+                names, Names.INIT_FUNCTION_SUFFIX, symTable, recordTypeNode.type);
         BStructureTypeSymbol structureSymbol = ((BStructureTypeSymbol) recordTypeNode.type.tsymbol);
         structureSymbol.initializerFunc = new BAttachedFunction(initFunction.symbol.name, initFunction.symbol,
                                                                 (BInvokableType) initFunction.type, initFunction.pos);
@@ -121,19 +126,18 @@ public class TypeDefBuilderHelper {
         return initFunction;
     }
 
-    public static BLangFunction createInitFunctionForStructureType(BLangStructureTypeNode structureTypeNode,
-                                                                   SymbolEnv env, Name suffix, Names names,
-                                                                   SymbolTable symTable) {
-        String structTypeName = structureTypeNode.type.tsymbol.name.value;
+    public static BLangFunction createInitFunctionForStructureType(DiagnosticPos pos, BSymbol symbol, SymbolEnv env,
+                                                                   Names names, Name suffix,
+                                                                   SymbolTable symTable, BType type) {
+        String structTypeName = type.tsymbol.name.value;
         BLangFunction initFunction = ASTBuilderUtil
-                .createInitFunctionWithNilReturn(structureTypeNode.pos, structTypeName, suffix);
+                .createInitFunctionWithNilReturn(pos, structTypeName, suffix);
 
         // Create the receiver and add receiver details to the node
-        initFunction.receiver = ASTBuilderUtil.createReceiver(structureTypeNode.pos, structureTypeNode.type);
+        initFunction.receiver = ASTBuilderUtil.createReceiver(pos, type);
         BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
                                                    names.fromIdNode(initFunction.receiver.name),
-                                                   env.enclPkg.symbol.pkgID, structureTypeNode.type, null,
-                                                   structureTypeNode.pos);
+                                                   env.enclPkg.symbol.pkgID, type, null, pos, VIRTUAL);
         initFunction.receiver.symbol = receiverSymbol;
         initFunction.attachedFunction = true;
         initFunction.flagSet.add(Flag.ATTACHED);
@@ -145,18 +149,19 @@ public class TypeDefBuilderHelper {
         Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(structTypeName, suffix.value));
         initFunction.symbol = Symbols
                 .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, env.enclPkg.symbol.pkgID,
-                                      initFunction.type, structureTypeNode.symbol, initFunction.body != null,
-                                      initFunction.pos);
+                                      initFunction.type, symbol, initFunction.body != null,
+                                      initFunction.pos, VIRTUAL);
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
-        initFunction.name = ASTBuilderUtil.createIdentifier(structureTypeNode.pos, funcSymbolName.value);
+        initFunction.name = ASTBuilderUtil.createIdentifier(pos, funcSymbolName.value);
 
         // Create the function type symbol
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
                                                                          initFunction.symbol.flags,
                                                                          env.enclPkg.packageID, initFunction.type,
-                                                                         initFunction.symbol, initFunction.pos);
+                                                                         initFunction.symbol, initFunction.pos,
+                                                                         VIRTUAL);
         tsymbol.params = initFunction.symbol.params;
         tsymbol.restParam = initFunction.symbol.restParam;
         tsymbol.returnType = initFunction.symbol.retType;
@@ -183,5 +188,27 @@ public class TypeDefBuilderHelper {
         typeDefinition.type = type;
         typeDefinition.symbol = symbol;
         return typeDefinition;
+    }
+
+    public static BLangClassDefinition createClassDef(DiagnosticPos pos, BObjectTypeSymbol classTSymbol,
+                                                      SymbolEnv env) {
+        BObjectType objType = (BObjectType) classTSymbol.type;
+        List<BLangSimpleVariable> fieldList = new ArrayList<>();
+        for (BField field : objType.fields.values()) {
+            BVarSymbol symbol = field.symbol;
+            BLangSimpleVariable fieldVar = ASTBuilderUtil.createVariable(field.pos, symbol.name.value, field.type,
+                    null, symbol);
+            fieldList.add(fieldVar);
+        }
+
+        BLangClassDefinition classDefNode = (BLangClassDefinition) TreeBuilder.createClassDefNode();
+        classDefNode.type = objType;
+        classDefNode.fields = fieldList;
+        classDefNode.symbol = classTSymbol;
+        classDefNode.pos = pos;
+
+        env.enclPkg.addClassDefinition(classDefNode);
+
+        return classDefNode;
     }
 }

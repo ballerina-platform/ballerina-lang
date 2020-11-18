@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.array;
 
 function testPushOnFixedLengthArray() {
     int[1] fixedLengthArray = [1];
@@ -117,4 +118,60 @@ function testShiftOnUnionOfDifferentTuplesTypeNarrowed() {
     if (tuples is [string, int]) {
         var x = tuples.shift();
     }
+}
+
+function testArrSortNegativeScenarios() {
+    int[] arr = [21, 76, 2, 20, 10, 5];
+
+    int[] sortedArr = arr.sort(function(int x) returns int {
+        return x;
+    });
+
+    int[] sortedArr2 = arr.sort(function(int x) returns int {
+        return x;
+    }, array:DESCENDING);
+
+    (string|int)[] arr2 = [23, "A", "Z", 10, "D"];
+
+    (string|int)[] sortedArr3 = arr2.sort();
+
+    (string|int)[] sortedArr4 = arr2.sort(array:DESCENDING);
+
+    (string|int)[] sortedArr5 = arr2.sort(array:DESCENDING, ());
+
+    (string|int)[] sortedArr6 = arr2.sort(array:DESCENDING, isolated function((string|int) val) returns string|int {
+        return val;
+    });
+
+    (map<string>)?[] arr3 = [{"A": "a", "B": "b"}, (), {"X": "x", "Y": "y"}];
+
+    (map<string>)?[] sortedArr7 = arr3.sort();
+
+    (map<string>)?[] sortedArr8 = arr3.sort(array:ASCENDING, isolated function((map<string>)? x) returns (map<string>)? {
+        return x;
+    });
+
+    int[] sortedArr9 = arr.sort(array:ASCENDING, isolated function(int x) returns int {
+            return x;
+    }, "descending");
+
+    (string|int)[] sortedArr10 = array:sort(arr2);
+
+    (string|int)[] sortedArr11 = array:sort(arr2, array:DESCENDING);
+
+    (string|int)[] sortedArr12 = array:sort(arr2, array:DESCENDING, ());
+
+    (map<string>)?[] sortedArr13 = array:sort(arr3);
+
+    int[] sortedArr14 = array:sort(arr, array:ASCENDING, isolated function(int x) returns string[]|int => [x.toString(),
+    "World"]);
+
+    var addFunc1 = isolated function (int funcInt1) returns (int|string) {
+        return funcInt1;
+    };
+
+    int[] sortedArr15 = arr.sort(array:DESCENDING, addFunc1);
+
+    any[] arr4 = [2, "AC", {"x":10}, 12.30];
+    any[] sortedArr16 = arr4.sort(array:DESCENDING, (x) => x);
 }

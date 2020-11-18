@@ -1,5 +1,9 @@
 import bar/bee;
 
 public function main() {
-    bee:say();
+    string s = print();
+}
+
+public function print() returns string {
+    return bee:say();
 }

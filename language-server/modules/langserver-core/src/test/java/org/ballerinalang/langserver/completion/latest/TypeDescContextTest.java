@@ -19,6 +19,9 @@ package org.ballerinalang.langserver.completion.latest;
 
 import org.testng.annotations.DataProvider;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Expression Context tests.
  * 
@@ -34,5 +37,29 @@ public class TypeDescContextTest extends CompletionTestNew {
     @Override
     public String getTestResourceDir() {
         return "typedesc_context";
+    }
+
+    @Override
+    public List<String> skipList() {
+        return Arrays.asList(
+                "object_typedesc1.json",
+                "object_typedesc2.json",
+                "object_typedesc3.json",
+                "object_typedesc4.json",
+                "object_typedesc5.json",
+                "object_typedesc6.json",
+                "object_typedesc7.json",
+                "object_typedesc8.json",
+                "object_typedesc9.json",
+                "object_typedesc10.json",
+                "object_typedesc11.json",
+                "object_typedesc12.json",
+                "function_typedesc16.json",
+                "function_typedesc17.json",
+                "function_typedesc18.json",
+                "function_typedesc19.json",
+                "table_typedesc4.json",
+                "table_typedesc7.json"
+        );
     }
 }

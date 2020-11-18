@@ -17,28 +17,34 @@
  */
 package org.ballerinalang.testerina.natives.mock;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.AbstractObjectValue;
-import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A generic mock object to create a mock of any given typedesc.
  */
-public class GenericMockObjectValue extends AbstractObjectValue {
+public class GenericMockObjectValue implements BObject {
 
-    private ObjectValue mockObj;
+    private BObject mockObj;
 
-    public GenericMockObjectValue(BObjectType type, ObjectValue mockObj) {
-        super(type);
+    private ObjectType type;
+
+    public GenericMockObjectValue(ObjectType type, BObject mockObj) {
+        this.type = type;
         this.mockObj = mockObj;
     }
 
@@ -80,25 +86,91 @@ public class GenericMockObjectValue extends AbstractObjectValue {
     }
 
     @Override
+    public long getIntValue(BString fieldName) {
+        return 0;
+    }
+
+    @Override
+    public double getFloatValue(BString fieldName) {
+        return 0;
+    }
+
+    @Override
+    public BString getStringValue(BString fieldName) {
+        return null;
+    }
+
+    @Override
+    public boolean getBooleanValue(BString fieldName) {
+        return false;
+    }
+
+    @Override
+    public BMap getMapValue(BString fieldName) {
+        return null;
+    }
+
+    @Override
+    public BObject getObjectValue(BString fieldName) {
+        return null;
+    }
+
+    @Override
+    public BArray getArrayValue(BString fieldName) {
+        return null;
+    }
+
+    @Override
+    public void addNativeData(String key, Object data) {
+
+    }
+
+    @Override
+    public Object getNativeData(String key) {
+        return null;
+    }
+
+    @Override
+    public HashMap<String, Object> getNativeData() {
+        return null;
+    }
+
+    @Override
     public void set(BString fieldName, Object value) {
 
     }
 
 
     @Override
-    public FutureValue start(Strand strand, String funcName, Object... args) {
+    public BFuture start(Strand strand, String funcName, Object... args) {
         return null;
     }
 
-    public ObjectValue getMockObj() {
+
+    @Override
+    public String stringValue(BLink parent) {
+        return null;
+    }
+
+    @Override
+    public String expressionStringValue(BLink parent) {
+        return null;
+    }
+
+    @Override
+    public ObjectType getType() {
+        return type;
+    }
+
+    public BObject getMockObj() {
         return this.mockObj;
     }
 
-    private String getCaseIds(ObjectValue mockObj, String fieldName) {
+    private String getCaseIds(BObject mockObj, String fieldName) {
         return mockObj.hashCode() + "-" + fieldName;
     }
 
-    private List<String> getCaseIds(ObjectValue mockObj, String funcName, Object[] args) {
+    private List<String> getCaseIds(BObject mockObj, String funcName, Object[] args) {
         List<String> caseIdList = new ArrayList<>();
         StringBuilder caseId = new StringBuilder();
         // args contain an extra boolean value arg after every proper argument.
@@ -112,7 +184,7 @@ public class GenericMockObjectValue extends AbstractObjectValue {
         // 2) add case for function with ANY specified for objects and records
         for (Object arg : args) {
             caseId.append("-");
-            if (arg instanceof AbstractObjectValue || arg instanceof BRecordType) {
+            if (arg instanceof BObject || arg instanceof RecordType) {
                 caseId.append(MockRegistry.ANY);
             } else {
                 caseId.append(arg);
@@ -125,7 +197,7 @@ public class GenericMockObjectValue extends AbstractObjectValue {
         // 3) add case for function with ANY specified for objects
         for (Object arg : args) {
             caseId.append("-");
-            if (arg instanceof AbstractObjectValue) {
+            if (arg instanceof BObject) {
                 caseId.append(MockRegistry.ANY);
             } else {
                 caseId.append(arg);
@@ -160,5 +232,15 @@ public class GenericMockObjectValue extends AbstractObjectValue {
             i += 2;
         }
         return newArgs.toArray();
+    }
+
+    @Override
+    public Object copy(Map<Object, Object> refs) {
+        return null;
+    }
+
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        return null;
     }
 }

@@ -19,7 +19,7 @@
 package org.ballerinalang.net.uri.parser;
 
 
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 
 /**
  * This class is use to set and return data in the template tree.

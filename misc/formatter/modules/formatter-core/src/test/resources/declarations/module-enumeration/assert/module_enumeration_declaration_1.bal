@@ -1,17 +1,20 @@
-enum Color {
-   RED,
-   GREEN,
-   BLUE
+public enum Color {
+    RED,
+    GREEN,
+    BLUE
 }
-enum Language {
-   EN = "English",
-   TA = "Tamil"
+
+public enum Language {
+    EN = "English",
+    TA = "Tamil"
 }
-enum Bands {
-   QUEEN,
-   PF = "Pink " + "Floyd"
+
+public enum Bands {
+    QUEEN,
+    PF = "Pink " + "Floyd"
 }
+
 public function foo() {
-   string skyColor = BLUE;
-   string concatenated = QUEEN + PF;
+    string skyColor = BLUE;
+    string concatenated = QUEEN + PF;
 }

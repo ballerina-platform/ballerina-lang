@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.compiler;
 
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
@@ -49,11 +50,15 @@ public class DocumentServiceKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<String> CURRENT_PKG_NAME_KEY
             = new LSContext.Key<>();
+    @Deprecated
     public static final LSContext.Key<PackageID> CURRENT_PACKAGE_ID_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<String> SOURCE_ROOT_KEY
             = new LSContext.Key<>();
+    @Deprecated
     public static final LSContext.Key<BLangPackage> CURRENT_BLANG_PACKAGE_CONTEXT_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<ModuleSymbol> CURRENT_MODULE_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<List<BLangPackage>> BLANG_PACKAGES_CONTEXT_KEY
             = new LSContext.Key<>();

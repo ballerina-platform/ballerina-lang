@@ -16,9 +16,9 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -40,7 +40,8 @@ public class VarMutabilityWithWorkersTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/workers/var-mutability-with-workers.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 0, Arrays.asList(compileResult.getDiagnostics()).toString());
+        Assert.assertEquals(compileResult.getErrorCount(), 0,
+                            Arrays.asList(compileResult.getDiagnostics()).toString());
     }
 
     @Test(description = "Test variable mutability with basic types")

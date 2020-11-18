@@ -19,6 +19,7 @@ import ballerina/mime;
 import ballerina/stringutils;
 import ballerina/java;
 import ballerina/time;
+import ballerina/lang.array;
 
 # Represents an HTTP request.
 #
@@ -30,7 +31,7 @@ import ballerina/time;
 # + cacheControl - The cache-control directives for the request. This needs to be explicitly initialized if intending
 #                  on utilizing HTTP caching.
 # + mutualSslHandshake - A record providing mutual ssl handshake results.
-public type Request object {
+public class Request {
 
     public string rawPath = "";
     public string method = "";
@@ -534,7 +535,16 @@ public type Request object {
     # + cookiesToAdd - Represents the cookies to be added
     public function addCookies(Cookie[] cookiesToAdd) {
         string cookieheader = "";
-        Cookie[] sortedCookies = cookiesToAdd.sort(comparator);
+
+        Cookie[] sortedCookies = cookiesToAdd.sort(array:ASCENDING, isolated function(Cookie c) returns int {
+                var cookiePath = c.path;
+                int l = 0;
+                if (cookiePath is string) {
+                    l = cookiePath.length();
+                }
+                return l;
+            });
+
         foreach var cookie in sortedCookies {
             var cookieName = cookie.name;
             var cookieValue = cookie.value;
@@ -564,59 +574,59 @@ public type Request object {
         }
         return cookiesInRequest;
     }
-};
+}
 
 function externCreateNewReqEntity(Request request) returns mime:Entity =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "createNewEntity"
 } external;
 
 function externSetReqEntity(Request request, mime:Entity entity) =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "setEntity"
 } external;
 
 function externSetReqEntityAndUpdateContentTypeHeader(Request request, mime:Entity entity) =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "setEntityAndUpdateContentTypeHeader"
 } external;
 
 function externGetQueryParams(Request request) returns map<string[]> =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "getQueryParams"
 } external;
 
 function externGetMatrixParams(Request request, string path) returns map<any> =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "getMatrixParams"
 } external;
 
 function externGetReqEntity(Request request) returns mime:Entity|ClientError =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "getEntity"
 } external;
 
 function externGetEntityWithoutBodyAndHeaders(Request request) returns mime:Entity =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "getEntityWithoutBodyAndHeaders"
 } external;
 
 function externGetEntityWithBodyAndWithoutHeaders(Request request) returns mime:Entity =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "getEntityWithBodyAndWithoutHeaders"
 } external;
 
 function externCheckReqEntityBodyAvailability(Request request) returns boolean =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "checkEntityBodyAvailability"
 } external;
 
@@ -647,46 +657,46 @@ public const NONE = ();
 // HTTP header related external functions
 function externRequestGetHeader(Request request, string headerName, HeaderPosition position = LEADING)
                          returns @tainted string = @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
     name: "getHeader"
 } external;
 
 function externRequestGetHeaders(Request request, string headerName, HeaderPosition position = LEADING)
                           returns @tainted string[] = @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
     name: "getHeaders"
 } external;
 
 function externRequestGetHeaderNames(Request request, HeaderPosition position = LEADING) returns @tainted string[] =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
     name: "getHeaderNames"
 } external;
 
 function externRequestAddHeader(Request request, string headerName, string headerValue, HeaderPosition position = LEADING) =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
     name: "addHeader"
 } external;
 
 function externRequestSetHeader(Request request, string headerName, string headerValue, HeaderPosition position = LEADING) =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
     name: "setHeader"
 } external;
 
 function externRequestRemoveHeader(Request request, string headerName, HeaderPosition position = LEADING) = @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
     name: "removeHeader"
 } external;
 
 function externRequestRemoveAllHeaders(Request request, HeaderPosition position = LEADING) = @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
     name: "removeAllHeaders"
 } external;
 
 function externRequestHasHeader(Request request, string headerName, HeaderPosition position = LEADING) returns boolean =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
     name: "hasHeader"
 } external;

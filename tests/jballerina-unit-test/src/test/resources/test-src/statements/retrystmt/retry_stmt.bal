@@ -1,4 +1,4 @@
-public type MyRetryManager object {
+public class MyRetryManager {
     private int count;
     public function init(int count = 3) {
         self.count = count;
@@ -11,7 +11,7 @@ public type MyRetryManager object {
             return false;
         }
     }
-};
+}
 
 function testRetryStatement() {
     string|error x = retryError();

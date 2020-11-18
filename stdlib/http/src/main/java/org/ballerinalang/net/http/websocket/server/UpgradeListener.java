@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.websocket.server;
 
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
@@ -43,8 +43,8 @@ class UpgradeListener implements ServerHandshakeListener {
 
     @Override
     public void onSuccess(WebSocketConnection webSocketConnection) {
-        ObjectValue webSocketCaller = WebSocketUtil.createAndPopulateWebSocketCaller(webSocketConnection, wsService,
-                                                                                     connectionManager);
+        BObject webSocketCaller = WebSocketUtil.createAndPopulateWebSocketCaller(webSocketConnection, wsService,
+                                                                                 connectionManager);
         WebSocketResourceDispatcher.dispatchOnOpen(webSocketConnection, webSocketCaller, wsService);
     }
 

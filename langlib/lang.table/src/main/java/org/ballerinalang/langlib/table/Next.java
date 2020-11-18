@@ -18,49 +18,37 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.jvm.values.api.BValueCreator;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BIterator;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.ITERATOR_MUTABILITY_ERROR;
-import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.ITERATOR_MUTABILITY_ERROR;
 
 /**
  * Native implementation of lang.table.TableIterator:next().
  *
  * @since 1.3.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION, functionName = "next",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "TableIterator",
-                structPackage = "ballerina/lang.table"),
-        returnType = {@ReturnType(type = TypeKind.RECORD)},
-        isPublic = true
-)
 public class Next {
+
+    private static final BString MUTATED_TABLE_ERROR_DETAIL =  StringUtils.fromString("Table was mutated after the " +
+                                                                                               "iterator was created");
     //TODO: refactor hard coded values
-    public static Object next(Strand strand, ObjectValue t) {
-        IteratorValue tableIterator = (IteratorValue) t.getNativeData("&iterator&");
-        TableValueImpl table = (TableValueImpl) t.get(StringUtils.fromString("t"));
-        ArrayValueImpl keys = (ArrayValueImpl) t.get(StringUtils.fromString("keys"));
+    public static Object next(BObject t) {
+        BIterator tableIterator = (BIterator) t.getNativeData("&iterator&");
+        BTable table = (BTable) t.get(StringUtils.fromString("t"));
+        BArray keys = (BArray) t.get(StringUtils.fromString("keys"));
         long initialSize = (long) t.get(StringUtils.fromString("size"));
         if (tableIterator == null) {
             tableIterator = table.getIterator();
@@ -73,22 +61,21 @@ public class Next {
         List<Object> returnedKeys = (ArrayList<Object>) t.getNativeData("&returnedKeys&");
         handleMutation(table, keys, returnedKeys, initialSize);
         if (tableIterator.hasNext()) {
-            ArrayValue keyValueTuple = (ArrayValue) tableIterator.next();
+            BArray keyValueTuple = (BArray) tableIterator.next();
             returnedKeys.add(keyValueTuple.get(0));
-            return BallerinaValues.createRecord(new MapValueImpl<>(table.getIteratorNextReturnType()),
-                    keyValueTuple.get(1));
+            return ValueCreator.createRecordValue(ValueCreator.createMapValue(table.getIteratorNextReturnType()),
+                                                  keyValueTuple.get(1));
         }
 
         return null;
     }
 
-    private static void handleMutation(TableValueImpl table, ArrayValueImpl keys,
+    private static void handleMutation(BTable table, BArray keys,
                                        List<Object> returnedKeys, long initialSize) {
         if (initialSize < table.size() ||
                 // Key-less situation, mutation can occur only by calling add() or removeAll()
                 (initialSize > 0 && table.size() == 0)) {
-            throw BallerinaErrors.createError(ITERATOR_MUTABILITY_ERROR,
-                    "Table was mutated after the iterator was created");
+            throw ErrorCreator.createError(ITERATOR_MUTABILITY_ERROR, MUTATED_TABLE_ERROR_DETAIL);
         }
 
         if (keys.isEmpty()) {
@@ -102,16 +89,15 @@ public class Next {
             }
         }
 
-        ArrayValueImpl currentKeyArray = (ArrayValueImpl) BValueCreator.createArrayValue((BArrayType) keys.getType(),
-                currentKeys.size());
+        BArray currentKeyArray = (BArray) ValueCreator.createArrayValue((ArrayType) keys.getType(),
+                                                                        currentKeys.size());
         for (int i = 0; i < currentKeys.size(); i++) {
             Object key = currentKeys.get(i);
             currentKeyArray.add(i, key);
         }
 
         if (!TypeChecker.isEqual(currentKeyArray, keys)) {
-            throw BallerinaErrors.createError(ITERATOR_MUTABILITY_ERROR,
-                    "Table was mutated after the iterator was created");
+            throw ErrorCreator.createError(ITERATOR_MUTABILITY_ERROR, MUTATED_TABLE_ERROR_DETAIL);
         }
 
         keys.shift();

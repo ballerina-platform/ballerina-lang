@@ -18,9 +18,9 @@
 
 package org.ballerinalang.net.http.websocket.client.listener;
 
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
@@ -46,12 +46,12 @@ public class WebSocketHandshakeListener implements ExtendedHandshakeListener {
 
     private final WebSocketService wsService;
     private final ExtendedConnectorListener connectorListener;
-    private final ObjectValue webSocketClient;
+    private final BObject webSocketClient;
     private CountDownLatch countDownLatch;
     private WebSocketConnectionInfo connectionInfo;
     private boolean readyOnConnect;
 
-    public WebSocketHandshakeListener(ObjectValue webSocketClient, WebSocketService wsService,
+    public WebSocketHandshakeListener(BObject webSocketClient, WebSocketService wsService,
                                       ExtendedConnectorListener connectorListener,
                                       CountDownLatch countDownLatch, boolean readyOnConnect) {
         this.webSocketClient = webSocketClient;
@@ -63,12 +63,12 @@ public class WebSocketHandshakeListener implements ExtendedHandshakeListener {
 
     @Override
     public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse carbonResponse) {
-        ObjectValue webSocketConnector;
+        BObject webSocketConnector;
         webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(carbonResponse));
         if (isFirstConnectionEstablished(webSocketClient)) {
-            webSocketConnector = (ObjectValue) webSocketClient.get(WebSocketConstants.CLIENT_CONNECTOR_FIELD);
+            webSocketConnector = (BObject) webSocketClient.get(WebSocketConstants.CLIENT_CONNECTOR_FIELD);
             webSocketClient.set(WebSocketConstants.LISTENER_ID_FIELD,
-                                StringUtils.fromString(webSocketConnection.getChannelId()));
+                                BStringUtils.fromString(webSocketConnection.getChannelId()));
         } else {
             webSocketConnector = createWebSocketConnector(readyOnConnect);
             WebSocketUtil.populateWebSocketEndpoint(webSocketConnection, webSocketClient);
@@ -89,8 +89,8 @@ public class WebSocketHandshakeListener implements ExtendedHandshakeListener {
         if (response != null) {
             webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(response));
         }
-        ObjectValue webSocketConnector = BallerinaValues.createObjectValue(WebSocketConstants.PROTOCOL_HTTP_PKG_ID,
-                WebSocketConstants.WEBSOCKET_CONNECTOR);
+        BObject webSocketConnector = BValueCreator.createObjectValue(WebSocketConstants.PROTOCOL_HTTP_PKG_ID,
+                                                                     WebSocketConstants.WEBSOCKET_CONNECTOR);
         setWebSocketOpenConnectionInfo(null, webSocketConnector, webSocketClient, wsService);
         webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
         webSocketClient.set(WebSocketConstants.CLIENT_CONNECTOR_FIELD, webSocketConnector);
@@ -98,7 +98,7 @@ public class WebSocketHandshakeListener implements ExtendedHandshakeListener {
     }
 
     @Override
-    public ObjectValue getWebSocketClient() {
+    public BObject getWebSocketClient() {
         return webSocketClient;
     }
 
@@ -108,16 +108,16 @@ public class WebSocketHandshakeListener implements ExtendedHandshakeListener {
     }
 
     private void setWebSocketOpenConnectionInfo(WebSocketConnection webSocketConnection,
-                                                ObjectValue webSocketConnector,
-                                                ObjectValue webSocketClient, WebSocketService wsService) {
+                                                BObject webSocketConnector,
+                                                BObject webSocketClient, WebSocketService wsService) {
         this.connectionInfo = new WebSocketConnectionInfo(wsService, webSocketConnection, webSocketClient);
         webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
         webSocketClient.set(WebSocketConstants.CLIENT_CONNECTOR_FIELD, webSocketConnector);
     }
 
-    private static ObjectValue createWebSocketConnector(boolean readyOnConnect) {
-        ObjectValue webSocketConnector = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
-                WebSocketConstants.WEBSOCKET_CONNECTOR);
+    private static BObject createWebSocketConnector(boolean readyOnConnect) {
+        BObject webSocketConnector = BValueCreator.createObjectValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
+                                                                             WebSocketConstants.WEBSOCKET_CONNECTOR);
         // Sets the value of `readyOnConnect` to the created `isReady' field of the webSocketConnector.
         // It checks whether the `readNextFrame` function is already called or not when the `ready()` function
         // is called.
@@ -125,7 +125,7 @@ public class WebSocketHandshakeListener implements ExtendedHandshakeListener {
         return webSocketConnector;
     }
 
-    private boolean isFirstConnectionEstablished(ObjectValue webSocketClient) {
+    private boolean isFirstConnectionEstablished(BObject webSocketClient) {
         return (webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG).getMapValue(
                 WebSocketConstants.RETRY_CONTEXT) != null && ((RetryContext) webSocketClient.getNativeData(
                 WebSocketConstants.RETRY_CONTEXT.getValue())).isFirstConnectionEstablished()) ||

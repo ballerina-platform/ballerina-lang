@@ -22,9 +22,9 @@ type Pet record {
     Animal lion;
 };
 
-type Bar object {
+class Bar {
     int a = 0;
-};
+}
 
 function testInvalidRestFieldAddition() {
     PersonA p = {};

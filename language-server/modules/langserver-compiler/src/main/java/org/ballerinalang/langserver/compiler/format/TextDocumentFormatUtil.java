@@ -104,8 +104,7 @@ public class TextDocumentFormatUtil {
         String[] breakFromPackage = path.split(Pattern.quote(packageName + File.separator));
         String relativePath = breakFromPackage[breakFromPackage.length - 1];
 
-        final BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager,
-                FormatterCustomErrorStrategy.class, false, false, false);
+        final BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager, false, false);
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();
         JsonObject result = new JsonObject();

@@ -78,6 +78,10 @@
                               "kind": "FUNCTION_TYPE_DESC",
                               "children": [
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "FUNCTION_KEYWORD",
                                   "leadingMinutiae": [
                                     {
@@ -173,12 +177,12 @@
                                   "children": []
                                 },
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "FUNCTION_KEYWORD",
                                   "leadingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "    "
-                                    },
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
                                       "value": "\n"

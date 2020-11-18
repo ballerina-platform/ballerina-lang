@@ -153,31 +153,7 @@
                         },
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "name",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "EQUAL_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "STRING_LITERAL",
-                          "children": [
-                            {
-                              "kind": "STRING_LITERAL_TOKEN",
-                              "value": "Saman"
-                            }
-                          ]
+                          "value": "name"
                         },
                         {
                           "kind": "SEMICOLON_TOKEN",
@@ -276,31 +252,7 @@
                         },
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "age",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "EQUAL_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "NUMERIC_LITERAL",
-                          "children": [
-                            {
-                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                              "value": "15"
-                            }
-                          ]
+                          "value": "age"
                         },
                         {
                           "kind": "SEMICOLON_TOKEN",

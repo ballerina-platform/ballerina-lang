@@ -55,7 +55,7 @@ public class CheckedExprNegativeTest {
         BAssertUtil.validateError(compile, 0, ERROR_MISMATCH_ERR_MSG, 11, 19);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testSemanticErrorsWithResources() {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expr_within_resource_negative.bal");

@@ -19,29 +19,29 @@ type Foo1 record {|
     int...;
 |};
 
-annotation Foo1 f1 on type;
+annotation Foo1 f1 on type, class;
 
 @f1 {
     s: "str",
     i: 1 // invalid key 'i': identifiers cannot be used as rest field keys, expected a string literal or an expression
 }
-type Bar1 object {
-};
+class Bar1 {
+}
 
 type Foo2 record {
     string s1;
     string? s2;
 };
 
-annotation Foo2 f2 on type;
+annotation Foo2 f2 on type, class;
 
 @f2 {
     s1: "str",
     s2: null // 'null' literal is only supported for 'json'
 }
-type Bar2 object {
+class Bar2 {
 
-};
+}
 
 type Foo3 record {|
     string s;
@@ -56,7 +56,7 @@ type Foo4 record {|
 
 Foo4 fl = {s: "str", i: 2};
 
-annotation Foo3 f3 on type;
+annotation Foo3 f3 on type, class;
 
 @f3 {
     i: 1,
@@ -64,5 +64,5 @@ annotation Foo3 f3 on type;
     ...fl, // invalid usage of record literal: duplicate key 'i' via spread operator '...f'
     s: "hi" // invalid usage of record literal: duplicate key 's'
 }
-type Bar3 object {
-};
+class Bar3 {
+}

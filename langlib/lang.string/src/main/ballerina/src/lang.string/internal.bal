@@ -14,8 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/java;
+
 # Represent the iterator type returned when `iterator` method is invoked.
-type StringIterator object {
+class StringIterator {
 
     private string m;
 
@@ -25,7 +27,12 @@ type StringIterator object {
 
     # Return the next member in string iterator, nil if end of iterator is reached.
     # + return - iterator result
-    public function next() returns record {|
-        string value;
-    |}? = external;
-};
+    public isolated function next() returns record {| string value; |}? {
+        return externNext(self);
+    }
+}
+
+function externNext(StringIterator iterator) returns record {| string value; |}? = @java:Method {
+    'class: "org.ballerinalang.langlib.string.Next",
+    name: "next"
+} external;

@@ -25,7 +25,6 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
@@ -71,8 +70,7 @@ public class BallerinaProjectServiceImpl implements BallerinaProjectService {
                         .ProjectServiceContextBuilder(LSContextOperation.PROJ_MODULES)
                         .withModulesParams(sourceRoot, documentManager)
                         .build();
-                List<BLangPackage> modules = LSModuleCompiler.getBLangModules(astContext, this.documentManager,
-                        LSCustomErrorStrategy.class, false, false);
+                List<BLangPackage> modules = LSModuleCompiler.getBLangModules(astContext, this.documentManager, false);
                 JsonObject jsonModulesInfo = getJsonReply(astContext, modules);
                 reply.setModules(jsonModulesInfo);
                 reply.setParseSuccess(true);

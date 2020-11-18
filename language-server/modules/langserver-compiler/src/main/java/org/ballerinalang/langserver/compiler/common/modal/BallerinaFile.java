@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.compiler.common.modal;
 
-import org.ballerinalang.util.diagnostic.Diagnostic;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -44,7 +44,7 @@ public class BallerinaFile {
     public Optional<List<Diagnostic>> getDiagnostics() {
         Optional<List<Diagnostic>> diagnostics = Optional.ofNullable(this.diagnostics);
         diagnostics.ifPresent(
-                diag -> diag.sort(Comparator.comparingInt(a -> a.getPosition().getStartLine()))
+                diag -> diag.sort(Comparator.comparingInt(a -> a.location().lineRange().startLine().line()))
         );
         return diagnostics;
     }

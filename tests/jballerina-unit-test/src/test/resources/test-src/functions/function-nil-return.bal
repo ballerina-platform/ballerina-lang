@@ -217,9 +217,9 @@ function testNilableClosedRecord() returns ClosedPerson? {
 function testNilableClosedRecordArray() returns ClosedPerson[]? {
 }
 
-type PersonObj object {
+class PersonObj {
     string name = "John Doe";
-};
+}
 
 function testNilableObject() returns PersonObj? {
 }

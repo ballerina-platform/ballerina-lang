@@ -39,9 +39,14 @@ public class LangLibNegativeTest {
     }
 
     @Test
-    public void testTypeParamNegative() {
+    public void testLangLibNegative() {
         int err = 0;
         BAssertUtil.validateError(negativeResult, err++, "undefined function 'indexOf' in type 'map<string>'", 19, 47);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected '(float[]|error)', found " +
+                "'(json|error)'", 34, 25);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected '(int|string|float[]|error)', " +
+                "found '(json|error)'", 38, 37);
+
         Assert.assertEquals(negativeResult.getErrorCount(), err);
     }
 

@@ -18,16 +18,16 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
+import io.ballerina.runtime.api.Env;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.observability.ObserveUtils;
+import io.ballerina.runtime.observability.ObserverContext;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.State;
+import io.ballerina.runtime.scheduling.Strand;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import org.ballerinalang.jvm.observability.ObserveUtils;
-import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.State;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
@@ -41,7 +41,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Optional;
 
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIELD;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.executePipeliningLogic;
@@ -57,11 +57,11 @@ public class Respond extends ConnectionAction {
 
     private static final Logger log = LoggerFactory.getLogger(Respond.class);
 
-    public static Object nativeRespond(ObjectValue connectionObj, ObjectValue outboundResponseObj) {
+    public static Object nativeRespond(Env env, BObject connectionObj, BObject outboundResponseObj) {
 
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
         Strand strand = Scheduler.getStrand();
-        DataContext dataContext = new DataContext(strand, new NonBlockingCallback(strand), inboundRequestMsg);
+        DataContext dataContext = new DataContext(strand, env.markAsync(), inboundRequestMsg);
         if (isDirtyResponse(outboundResponseObj)) {
             String errorMessage = "Couldn't complete the respond operation as the response has been already used.";
             HttpUtil.sendOutboundResponse(inboundRequestMsg, HttpUtil.createErrorMessage(errorMessage, 500));
@@ -108,7 +108,7 @@ public class Respond extends ConnectionAction {
             } else {
                 sendOutboundResponseRobust(dataContext, inboundRequestMsg, outboundResponseObj, outboundResponseMsg);
             }
-        } catch (ErrorValue e) {
+        } catch (BError e) {
             unBlockStrand(strand);
             log.debug(e.getPrintableStackTrace(), e);
             return e;
@@ -129,8 +129,8 @@ public class Respond extends ConnectionAction {
         strand.blockedOnExtern = false;
     }
 
-    private static void setCacheControlHeader(ObjectValue outboundRespObj, HttpCarbonMessage outboundResponse) {
-        ObjectValue cacheControl = (ObjectValue) outboundRespObj.get(RESPONSE_CACHE_CONTROL_FIELD);
+    private static void setCacheControlHeader(BObject outboundRespObj, HttpCarbonMessage outboundResponse) {
+        BObject cacheControl = (BObject) outboundRespObj.get(RESPONSE_CACHE_CONTROL_FIELD);
         if (cacheControl != null &&
                 outboundResponse.getHeader(HttpHeaderNames.CACHE_CONTROL.toString()) == null) {
             ResponseCacheControlObj respCC = new ResponseCacheControlObj(cacheControl);
@@ -138,7 +138,7 @@ public class Respond extends ConnectionAction {
         }
     }
 
-    private static boolean isDirtyResponse(ObjectValue outboundResponseObj) {
+    private static boolean isDirtyResponse(BObject outboundResponseObj) {
         return outboundResponseObj.get(RESPONSE_CACHE_CONTROL_FIELD) == null && outboundResponseObj.
                 getNativeData(HttpConstants.DIRTY_RESPONSE) != null;
     }

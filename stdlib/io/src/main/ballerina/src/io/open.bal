@@ -25,7 +25,7 @@ import ballerina/java;
 # + return - The `ByteChannel` representation of the file resource or else an `io:Error` if any error occurred
 public function openReadableFile(@untainted string path) returns ReadableByteChannel|Error = @java:Method {
     name: "openReadableFile",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
 } external;
 
 # Retrieves a `WritableByteChannel` from a given file path.
@@ -39,7 +39,7 @@ public function openReadableFile(@untainted string path) returns ReadableByteCha
 public function openWritableFile(@untainted string path, boolean append = false)
     returns WritableByteChannel|Error = @java:Method {
     name: "openWritableFile",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
 } external;
 
 # Creates an in-memory channel, which will be a reference stream of bytes.
@@ -51,7 +51,7 @@ public function openWritableFile(@untainted string path, boolean append = false)
 # + return - The `ByteChannel` representation to read the memory content or else an `io:Error` if any error occurred
 public function createReadableChannel(byte[] content) returns ReadableByteChannel|Error = @java:Method {
     name: "createReadableChannel",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
 } external;
 
 # Retrieves a readable CSV channel from a given file path.

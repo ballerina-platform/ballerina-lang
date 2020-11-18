@@ -17,23 +17,24 @@
  */
 package org.ballerinalang.langserver.common.utils.completion;
 
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.FieldDescriptor;
+import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
+import io.ballerina.compiler.api.types.MapTypeDescriptor;
+import io.ballerina.compiler.api.types.RecordTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.UnionTypeDescriptor;
 import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
-import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.VariableCompletionItemBuilder;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,41 +52,42 @@ public class BLangRecordLiteralUtil {
     private BLangRecordLiteralUtil() {
     }
 
-    public static List<LSCompletionItem> getSpreadCompletionItems(LSContext context, BType evalType) {
+    public static List<LSCompletionItem> getSpreadCompletionItems(LSContext context, BallerinaTypeDescriptor evalType) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<BType> typeList = getTypeListForMapAndRecords(evalType);
-        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
+        List<BallerinaTypeDescriptor> typeList = getTypeListForMapAndRecords(evalType);
+        List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
 
-        for (Scope.ScopeEntry visibleSymbol : visibleSymbols) {
-            BSymbol symbol = visibleSymbol.symbol;
+        for (Symbol symbol : visibleSymbols) {
             getSpreadableCompletionItem(context, symbol, typeList).ifPresent(completionItems::add);
         }
 
         return completionItems;
     }
 
-    private static Optional<LSCompletionItem> getSpreadableCompletionItem(LSContext context, BSymbol bSymbol,
-                                                                          List<BType> refTypeList) {
-        BType bType;
-        if (bSymbol instanceof BInvokableSymbol && !(bSymbol instanceof BConstructorSymbol)) {
-            bType = ((BInvokableSymbol) bSymbol).retType;
-        } else if (bSymbol instanceof BVarSymbol && !(bSymbol instanceof BConstructorSymbol)) {
-            bType = bSymbol.type;
-        } else {
+    private static Optional<LSCompletionItem> getSpreadableCompletionItem(LSContext context, Symbol symbol,
+                                                                          List<BallerinaTypeDescriptor> refTypeList) {
+        Optional<BallerinaTypeDescriptor> typeDescriptor = Optional.empty();
+        if (symbol.kind() == SymbolKind.FUNCTION) {
+            FunctionTypeDescriptor fTypeDesc = ((FunctionSymbol) symbol).typeDescriptor();
+            typeDescriptor = fTypeDesc.returnTypeDescriptor();
+        } else if (symbol.kind() == SymbolKind.VARIABLE) {
+            typeDescriptor = Optional.of(((VariableSymbol) symbol).typeDescriptor());
+        }
+
+        if (typeDescriptor.isEmpty()) {
             return Optional.empty();
         }
 
-        List<BType> symbolTypeList = getTypeListForMapAndRecords(bType);
+        List<BallerinaTypeDescriptor> symbolTypeList = getTypeListForMapAndRecords(typeDescriptor.get());
         // if bType is not a map or record, then the symbol type list is empty 
         boolean canSpread = !symbolTypeList.isEmpty() && refTypeList.containsAll(symbolTypeList);
 
         CompletionItem cItem;
-        if (canSpread && bSymbol instanceof BInvokableSymbol) {
-            cItem = BFunctionCompletionItemBuilder.build((BInvokableSymbol) bSymbol, context);
+        if (canSpread && symbol.kind() == SymbolKind.FUNCTION) {
+            cItem = FunctionCompletionItemBuilder.build((FunctionSymbol) symbol, context);
         } else if (canSpread) {
-            cItem = BVariableCompletionItemBuilder.build((BVarSymbol) bSymbol, bSymbol.name.getValue(),
-                    CommonUtil.getBTypeName(bType, context, false));
+            cItem = VariableCompletionItemBuilder.build((VariableSymbol) symbol, symbol.name(),
+                    typeDescriptor.get().signature());
         } else {
             return Optional.empty();
         }
@@ -93,19 +95,22 @@ public class BLangRecordLiteralUtil {
         // TODO: Fix
         modifySpreadCompletionItem(context, cItem);
 
-        return Optional.of(new SymbolCompletionItem(context, bSymbol, cItem));
+        return Optional.of(new SymbolCompletionItem(context, symbol, cItem));
     }
 
-    private static List<BType> getTypeListForMapAndRecords(BType bType) {
-        if (bType instanceof BMapType) {
-            BType constraint = ((BMapType) bType).constraint;
-            if (constraint instanceof BUnionType) {
-                return new ArrayList<>(((BUnionType) constraint).getMemberTypes());
+    private static List<BallerinaTypeDescriptor> getTypeListForMapAndRecords(BallerinaTypeDescriptor typeDesc) {
+        if (typeDesc.kind() == TypeDescKind.MAP) {
+            Optional<BallerinaTypeDescriptor> memberType = ((MapTypeDescriptor) typeDesc).typeParameter();
+            if (memberType.isEmpty()) {
+                return new ArrayList<>();
             }
-            return Collections.singletonList(constraint);
-        } else if (bType instanceof BRecordType) {
-            return ((BRecordType) bType).fields.values().stream()
-                    .map(bField -> bField.type)
+            if (memberType.get().kind() == TypeDescKind.UNION) {
+                return new ArrayList<>(((UnionTypeDescriptor) memberType.get()).memberTypeDescriptors());
+            }
+            return Collections.singletonList(memberType.get());
+        } else if (typeDesc.kind() == TypeDescKind.RECORD) {
+            return ((RecordTypeDescriptor) typeDesc).fieldDescriptors().stream()
+                    .map(FieldDescriptor::typeDescriptor)
                     .collect(Collectors.toList());
         }
 

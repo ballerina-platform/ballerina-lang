@@ -14,13 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type ObjInitWithParam object {
+class ObjInitWithParam {
     int i;
 
     function init(int i) {
         self.i = i;
     }
-};
+}
 
 function testArrayFillWithObjWithInitParam() {
     ObjInitWithParam[] objWithParamsArray = [];
@@ -58,7 +58,7 @@ function testArrayFillWithTypedesc() {
     typedescArr[1] = int;
 }
 
-type Student object {
+class Student {
     public string name;
     public int age;
 
@@ -66,7 +66,7 @@ type Student object {
         self.name = name;
         self.age = age;
     }
-};
+}
 
 function testNonSequentialArrayInsertion() returns Student[] {
     Student s = new("Grainier", 28);

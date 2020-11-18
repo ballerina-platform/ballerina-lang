@@ -1,3 +1,5 @@
+import ballerina/test;
+
 function testIntRanges(int a) returns (int) {
     int retunType = 0;
     if (a <= 0) {
@@ -56,4 +58,25 @@ function intGTEFloat(int a, float b) returns (boolean) {
 
 function floatGTEInt(float a, int b) returns (boolean) {
     return a >= b;
+}
+
+function testDecimalComparison() {
+    decimal lowValue = 3;
+    decimal highValue = 5;
+
+    test:assertTrue(lowValue < highValue);
+    test:assertTrue(lowValue <= highValue);
+
+    test:assertTrue(highValue > lowValue);
+    test:assertTrue(highValue >= lowValue);
+
+    test:assertFalse(highValue < lowValue);
+    test:assertFalse(highValue <= lowValue);
+    test:assertFalse(lowValue > highValue);
+    test:assertFalse(lowValue >= highValue);
+
+    test:assertFalse(lowValue > lowValue);
+    test:assertFalse(lowValue < lowValue);
+    test:assertTrue(lowValue >= lowValue);
+    test:assertTrue(lowValue <= lowValue);
 }

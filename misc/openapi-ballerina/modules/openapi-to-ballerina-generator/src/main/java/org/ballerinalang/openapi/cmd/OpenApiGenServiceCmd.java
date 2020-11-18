@@ -31,6 +31,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.openapi.OpenApiMesseges.DEFINITION_EXISTS;
@@ -76,6 +77,13 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
     @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
 
+    @CommandLine.Option(names = {"--tags"}, description = "Tag that need to write service")
+    private List<String> tags;
+
+    @CommandLine.Option(names = {"--operations"}, description = "Operations that need to write service")
+    private List<String> operations;
+
+
     public OpenApiGenServiceCmd() {
         this.outStream = System.err;
         this.executionPath = System.getProperty("user.dir");
@@ -93,6 +101,11 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
 
         CodeGenerator generator = new CodeGenerator();
 
+        List<String> tag = new ArrayList<>();
+        List<String> operation = new ArrayList<>();
+        Filter filter = new Filter(tag, operation);
+        tag.add("pet");
+        operation.add("operation");
         //Check if cli help argument is present
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());
@@ -217,7 +230,7 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
 
         try {
             generator.generateService(executionPath, resourcePath.toString(), relativeResourcePath.toString(),
-                    moduleArgs.get(1), output);
+                    moduleArgs.get(1), output, filter);
         } catch (IOException | BallerinaOpenApiException e) {
             throw LauncherUtils.createLauncherException("Error occurred when generating service for openapi " +
                     "contract at " + argList.get(0) + ". " + e.getMessage() + ".");

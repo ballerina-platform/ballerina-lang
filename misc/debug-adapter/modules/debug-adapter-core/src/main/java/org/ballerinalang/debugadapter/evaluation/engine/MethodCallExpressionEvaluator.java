@@ -20,7 +20,7 @@ import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
-import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -42,9 +42,8 @@ public class MethodCallExpressionEvaluator extends Evaluator {
     private final Evaluator objectExpressionEvaluator;
     private final List<Evaluator> argEvaluators;
 
-    public MethodCallExpressionEvaluator(SuspendedContext context, Evaluator expression,
-                                         MethodCallExpressionNode methodCallExpressionNode,
-                                         List<Evaluator> argEvaluators) {
+    public MethodCallExpressionEvaluator(SuspendedContext context, MethodCallExpressionNode methodCallExpressionNode,
+                                         Evaluator expression, List<Evaluator> argEvaluators) {
         super(context);
         this.syntaxNode = methodCallExpressionNode;
         this.objectExpressionEvaluator = expression;
@@ -79,6 +78,6 @@ public class MethodCallExpressionEvaluator extends Evaluator {
             throw new EvaluationException(String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(),
                     syntaxNode.methodName().toString().trim()));
         }
-        return new JvmInstanceMethod(context, objectValueRef, methods.get(0), argEvaluators);
+        return new JvmInstanceMethod(context, objectValueRef, methods.get(0), argEvaluators, null);
     }
 }

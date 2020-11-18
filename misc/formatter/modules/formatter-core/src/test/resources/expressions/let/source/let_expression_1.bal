@@ -25,7 +25,7 @@ public function foo() {
        in  d3 * 2;
 
    int age = let
-   Person8 {
+   Person {
                    age: personAge
              } = getPerson()
 

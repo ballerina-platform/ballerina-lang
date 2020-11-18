@@ -6,45 +6,146 @@
   "source": "expression_context/source/var_ref_ctx_source5.bal",
   "items": [
     {
-      "label": "Signed32",
-      "kind": "Unit",
-      "detail": "Int",
-      "insertText": "Signed32",
+      "label": "MAX_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Maximum value of type `int`."
+        }
+      },
+      "insertText": "MAX_VALUE",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Signed16",
-      "kind": "Unit",
-      "detail": "Int",
-      "insertText": "Signed16",
+      "label": "MIN_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Minimum value of type `int`."
+        }
+      },
+      "insertText": "MIN_VALUE",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Signed8",
-      "kind": "Unit",
-      "detail": "Int",
-      "insertText": "Signed8",
+      "label": "SIGNED32_MAX_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Maximum value of type `Signed32`."
+        }
+      },
+      "insertText": "SIGNED32_MAX_VALUE",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Unsigned32",
-      "kind": "Unit",
-      "detail": "Int",
-      "insertText": "Unsigned32",
+      "label": "SIGNED32_MIN_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Minimum value of type `Signed32`."
+        }
+      },
+      "insertText": "SIGNED32_MIN_VALUE",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Unsigned16",
-      "kind": "Unit",
-      "detail": "Int",
-      "insertText": "Unsigned16",
+      "label": "SIGNED16_MAX_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Maximum value of type `Signed16`."
+        }
+      },
+      "insertText": "SIGNED16_MAX_VALUE",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Unsigned8",
-      "kind": "Unit",
-      "detail": "Int",
-      "insertText": "Unsigned8",
+      "label": "SIGNED16_MIN_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Minimum value of type `Signed16`."
+        }
+      },
+      "insertText": "SIGNED16_MIN_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SIGNED8_MAX_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Maximum value of type `Signed8`."
+        }
+      },
+      "insertText": "SIGNED8_MAX_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SIGNED8_MIN_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Minimum value of type `Signed8`."
+        }
+      },
+      "insertText": "SIGNED8_MIN_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "UNSIGNED32_MAX_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Maximum value of type `Unsigned32`."
+        }
+      },
+      "insertText": "UNSIGNED32_MAX_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "UNSIGNED16_MAX_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Maximum value of type `Unsigned16`."
+        }
+      },
+      "insertText": "UNSIGNED16_MAX_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "UNSIGNED8_MAX_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Maximum value of type `Unsigned8`."
+        }
+      },
+      "insertText": "UNSIGNED8_MAX_VALUE",
       "insertTextFormat": "Snippet"
     },
     {
@@ -65,7 +166,7 @@
       }
     },
     {
-      "label": "sum(int... ns)(int)",
+      "label": "sum(int[]... ns)(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -82,7 +183,7 @@
       }
     },
     {
-      "label": "max(int n, int... ns)(int)",
+      "label": "max(int n, int[]... ns)(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -99,7 +200,7 @@
       }
     },
     {
-      "label": "min(int n, int... ns)(int)",
+      "label": "min(int n, int[]... ns)(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -116,13 +217,13 @@
       }
     },
     {
-      "label": "fromString(string s)((int|error))",
+      "label": "fromString(string s)(int|)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the integer that `s` represents in decimal.\nReturns error if `s` is not the decimal representation of an integer.\nThe first character may be `+` or `-`.\nThis is the inverse of `value:toString` applied to an `int`.\n  \n**Params**  \n- `string` s: string representation of a integer value  \n  \n**Returns** `(int|error)`   \n- int representation of the argument or error  \n  \n"
+          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the integer that `s` represents in decimal.\nReturns error if `s` is not the decimal representation of an integer.\nThe first character may be `+` or `-`.\nThis is the inverse of `value:toString` applied to an `int`.\n  \n**Params**  \n- `string` s: string representation of a integer value  \n  \n**Returns** `int|`   \n- int representation of the argument or error  \n  \n"
         }
       },
       "insertText": "fromString(${1})",
@@ -150,13 +251,13 @@
       }
     },
     {
-      "label": "fromHexString(string s)((int|error))",
+      "label": "fromHexString(string s)(int|)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the integer that `s` represents in hexadecimal.\nBoth uppercase A-F and lowercase a-f are allowed.\nIt may start with an optional `+` or `-` sign.\nNo `0x` or `0X` prefix is allowed.\nReturns an error if the `s` is not in an allowed format.\n  \n**Params**  \n- `string` s: hexadecimal string representation of int value  \n  \n**Returns** `(int|error)`   \n- int value or error  \n  \n"
+          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the integer that `s` represents in hexadecimal.\nBoth uppercase A-F and lowercase a-f are allowed.\nIt may start with an optional `+` or `-` sign.\nNo `0x` or `0X` prefix is allowed.\nReturns an error if the `s` is not in an allowed format.\n  \n**Params**  \n- `string` s: hexadecimal string representation of int value  \n  \n**Returns** `int|`   \n- int value or error  \n  \n"
         }
       },
       "insertText": "fromHexString(${1})",

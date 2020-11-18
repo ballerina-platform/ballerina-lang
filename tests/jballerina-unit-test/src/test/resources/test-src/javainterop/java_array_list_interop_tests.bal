@@ -12,30 +12,30 @@ public function interopWithJavaArrayList() returns [handle, int, string] {
 }
 
 public function newArrayList() returns handle = @java:Constructor {
-    class:"java.util.ArrayList"
+    'class:"java.util.ArrayList"
 } external;
 
 public function newArrayListWithInitialSize(int initialSize) returns handle = @java:Constructor {
-    class:"java.util.ArrayList",
+    'class:"java.util.ArrayList",
     paramTypes:["int"]
 } external;
 
 public function addElement(handle receiver, handle e) returns boolean = @java:Method {
     name:"add",
-    class: "java.util.ArrayList"
+    'class: "java.util.ArrayList"
 } external;
 
 public function toString(handle receiver) returns handle = @java:Method {
-    class: "java.util.ArrayList",
+    'class: "java.util.ArrayList",
     name:"toString"
 } external;
 
 public function size(handle receiver) returns int = @java:Method {
-    class: "java.util.ArrayList"
+    'class: "java.util.ArrayList"
 } external;
 
 public function getElement(handle receiver, int index) returns handle = @java:Method {
     name: "get",
-    class: "java.util.ArrayList"
+    'class: "java.util.ArrayList"
 } external;
 

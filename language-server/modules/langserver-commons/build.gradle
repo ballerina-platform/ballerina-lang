@@ -22,8 +22,8 @@ dependencies {
     // Thus, refrain from adding extra dependencies.
     implementation project(':ballerina-lang')
     implementation project(':ballerina-parser')
+    implementation project(':ballerina-tools-api')
     implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j'
-    implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     testCompile 'org.testng:testng'
 }
 
@@ -33,5 +33,17 @@ test {
     exclude '**/*'
     useTestNG() {
         suites 'src/test/resources/testng.xml'
+    }
+}
+
+ext.moduleName = 'language-server-commons'
+
+compileJava {
+//    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
     }
 }

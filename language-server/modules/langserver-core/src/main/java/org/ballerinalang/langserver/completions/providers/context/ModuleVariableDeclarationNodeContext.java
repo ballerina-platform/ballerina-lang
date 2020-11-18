@@ -15,12 +15,12 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
-import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
@@ -74,16 +74,16 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
     }
 
     private boolean withinInitializerContext(LSContext context, ModuleVariableDeclarationNode node) {
-        if (node.equalsToken() == null || node.equalsToken().isMissing()) {
+        if (node.equalsToken() == null || node.equalsToken().isEmpty()) {
             return false;
         }
         Integer textPosition = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
-        TextRange equalTokenRange = node.equalsToken().textRange();
+        TextRange equalTokenRange = node.equalsToken().get().textRange();
         return equalTokenRange.endOffset() <= textPosition;
     }
 
     @Override
     public boolean onPreValidation(LSContext context, ModuleVariableDeclarationNode node) {
-        return node.equalsToken() != null && !node.equalsToken().isMissing();
+        return node.equalsToken() != null && node.equalsToken().isPresent();
     }
 }

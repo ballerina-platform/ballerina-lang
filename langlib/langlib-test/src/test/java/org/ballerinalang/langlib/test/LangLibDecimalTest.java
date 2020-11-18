@@ -18,12 +18,11 @@
 
 package org.ballerinalang.langlib.test;
 
-
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.types.BTypes;
+import org.ballerinalang.core.model.values.BDecimal;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -33,7 +32,7 @@ import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
 
-import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 /**
  * Test cases for the lang.float library.

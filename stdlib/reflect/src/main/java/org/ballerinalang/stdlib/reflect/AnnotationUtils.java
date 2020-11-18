@@ -18,10 +18,10 @@
 
 package org.ballerinalang.stdlib.reflect;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * Utility class represents annotation related functionality.
@@ -38,11 +38,11 @@ public class AnnotationUtils {
      * @param annot annotation name.
      * @return annotation value object.
      */
-    public static Object externGetResourceAnnotations(ObjectValue service, BString resourceName, BString annot) {
-        AttachedFunction[] functions = service.getType().getAttachedFunctions();
+    public static Object externGetResourceAnnotations(BObject service, BString resourceName, BString annot) {
+        AttachedFunctionType[] functions = service.getType().getAttachedFunctions();
 
-        for (AttachedFunction function : functions) {
-            if (function.funcName.equals(resourceName.getValue())) {
+        for (AttachedFunctionType function : functions) {
+            if (function.getName().equals(resourceName.getValue())) {
                 Object resourceAnnotation = function.getAnnotation(annot);
                 if (resourceAnnotation instanceof String) {
                     return StringUtils.fromString((String) resourceAnnotation);
@@ -60,7 +60,7 @@ public class AnnotationUtils {
      * @param annot annotation name.
      * @return annotation value object.
      */
-    public static Object externGetServiceAnnotations(ObjectValue service, BString annot) {
+    public static Object externGetServiceAnnotations(BObject service, BString annot) {
         Object serviceAnnotation = service.getType().getAnnotation(annot);
         if (serviceAnnotation instanceof String) {
             return StringUtils.fromString((String) serviceAnnotation);

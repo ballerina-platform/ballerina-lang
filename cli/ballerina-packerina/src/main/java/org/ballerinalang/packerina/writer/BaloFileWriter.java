@@ -317,7 +317,8 @@ public class BaloFileWriter {
                 try {
                     Files.copy(nativeFile, targetPath, StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException e) {
-                    throw new BLangCompilerException("Dependency jar not found : " + lib.toString());
+                    throw new BLangCompilerException("Dependency jar '" + libFileName +
+                            "' is not found in the provided path.");
                 }
             }
         }

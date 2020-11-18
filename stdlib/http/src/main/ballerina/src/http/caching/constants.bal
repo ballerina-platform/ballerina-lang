@@ -84,5 +84,5 @@ function getWarningAgent() returns string {
 
 function getProperty(@untainted string name) returns string = @java:Method {
     name: "getProperty",
-    class: "org.ballerinalang.net.http.util.CacheUtils"
+    'class: "org.ballerinalang.net.http.util.CacheUtils"
 } external;

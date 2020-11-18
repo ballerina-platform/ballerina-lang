@@ -306,7 +306,7 @@ function testRecordRestFieldRHSIndexAccess() returns [Department?, Department?] 
     return [p["dept"], dept];
 }
 
-type Animal object {
+class Animal {
     public string kind = "";
     public string name = "";
 
@@ -314,7 +314,7 @@ type Animal object {
         self.name = name;
         self.kind = kind;
     }
-};
+}
 
 type Person10 record {|
     string name = "";
@@ -415,7 +415,7 @@ public type Foo record {
     int a = getAsInt("777");
 };
 
-function getAsInt(string s) returns int {
+isolated function getAsInt(string s) returns int {
     return 777;
 }
 
@@ -575,7 +575,7 @@ function removeIfHasKeyRest() {
     }
 }
 
-int a = 10;
+final int a = 10;
 
 type Foo2 record {
     int a;

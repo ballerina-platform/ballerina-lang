@@ -18,60 +18,43 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.transactions.TransactionConstants;
-import org.ballerinalang.jvm.transactions.TransactionLocalContext;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.transactions.TransactionConstants;
+import io.ballerina.runtime.transactions.TransactionLocalContext;
 
 import java.nio.charset.Charset;
 import java.util.Map;
 
-import static org.ballerinalang.jvm.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
-import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
+import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
 
 /**
  * Extern function transaction:setTransactionContext.
  *
  * @since 2.0.0-preview1
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.transaction", version = TRANSACTION_VERSION,
-        functionName = "setTransactionContext",
-        args = {
-                @Argument(name = "transactionContext", type = TypeKind.RECORD),
-                @Argument(name = "prevAttempt", type = TypeKind.UNION)
-        },
-        returnType = {@ReturnType(type = TypeKind.NIL)},
-        isPublic = true
-)
 public class SetTransactionContext {
 
-    public static void setTransactionContext(Strand strand, MapValue txDataStruct, Object prevAttemptInfo) {
+    public static void setTransactionContext(BMap txDataStruct, Object prevAttemptInfo) {
         String globalTransactionId = txDataStruct.get(TransactionConstants.TRANSACTION_ID).toString();
         String transactionBlockId = txDataStruct.get(TransactionConstants.TRANSACTION_BLOCK_ID).toString();
         String url = txDataStruct.get(TransactionConstants.REGISTER_AT_URL).toString();
         String protocol = txDataStruct.get(TransactionConstants.CORDINATION_TYPE).toString();
         long retryNmbr = getRetryNumber(prevAttemptInfo);
-        MapValue<BString, Object> trxContext = BallerinaValues.createRecordValue(TRANSACTION_PACKAGE_ID,
-                "Info");
+        BMap<BString, Object> trxContext = ValueCreator.createRecordValue(TRANSACTION_PACKAGE_ID,
+                                                                          "Info");
         Object[] trxContextData = new Object[]{
-                BValueCreator.createArrayValue(globalTransactionId.getBytes(Charset.defaultCharset())), retryNmbr,
+                ValueCreator.createArrayValue(globalTransactionId.getBytes(Charset.defaultCharset())), retryNmbr,
                 System.currentTimeMillis(), prevAttemptInfo
         };
-        MapValue<BString, Object> infoRecord = BallerinaValues.createRecord(trxContext, trxContextData);
+        BMap<BString, Object> infoRecord = ValueCreator.createRecordValue(trxContext, trxContextData);
         TransactionLocalContext trxCtx = TransactionLocalContext
                 .createTransactionParticipantLocalCtx(globalTransactionId, url, protocol, infoRecord);
         trxCtx.beginTransactionBlock(transactionBlockId);
-        strand.setCurrentTransactionContext(trxCtx);
-
+        Scheduler.getStrand().setCurrentTransactionContext(trxCtx);
     }
 
     private static long getRetryNumber(Object prevAttemptInfo) {

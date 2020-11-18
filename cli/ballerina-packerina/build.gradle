@@ -38,6 +38,7 @@ dependencies {
     implementation project(':ballerina-logging')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-tool')
+    implementation project(':ballerina-tools-api')
     implementation project(':testerina:testerina-core')
     implementation project(':testerina:testerina-runtime')
     implementation project(':docerina')
@@ -46,6 +47,8 @@ dependencies {
     implementation 'com.moandjiezana.toml:toml4j'
     implementation 'info.picocli:picocli'
     implementation 'org.apache.commons:commons-compress:1.18'
+
+    testImplementation 'org.apache.maven:maven-model-builder:3.6.3'
 
     testCompile 'org.testng:testng'
     testCompile 'com.moandjiezana.toml:toml4j'
@@ -89,3 +92,15 @@ test {
 }
 
 description = 'Ballerina - Packerina'
+
+ext.moduleName = 'ballerina-packerina'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

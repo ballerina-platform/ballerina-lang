@@ -17,16 +17,12 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.observability.metrics.Gauge;
-import org.ballerinalang.jvm.observability.metrics.StatisticConfig;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.observability.metrics.Gauge;
+import io.ballerina.runtime.observability.metrics.StatisticConfig;
 
 import java.time.Duration;
 
@@ -35,28 +31,22 @@ import java.time.Duration;
  *
  * @since 0.980.0
  */
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "observe", version = "0.8.0",
-        functionName = "initialize",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ObserveNativeImplConstants.GAUGE,
-                structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH)
-)
+
 public class GaugeInitialize {
 
-    public static void initialize(Strand strand, ObjectValue guage) {
-        ArrayValue summaryConfigs = (ArrayValue) guage.get(ObserveNativeImplConstants.STATISTICS_CONFIG_FIELD);
+    public static void initialize(BObject guage) {
+        BArray summaryConfigs = (BArray) guage.get(ObserveNativeImplConstants.STATISTICS_CONFIG_FIELD);
         Gauge.Builder gaugeBuilder = Gauge.builder(guage.get(ObserveNativeImplConstants.NAME_FIELD).toString())
                 .description(guage.get(ObserveNativeImplConstants.DESCRIPTION_FIELD).toString())
-                .tags(Utils.toStringMap((MapValue<BString, ?>) guage.get(ObserveNativeImplConstants.TAGS_FIELD)));
+                .tags(Utils.toStringMap((BMap<BString, ?>) guage.get(ObserveNativeImplConstants.TAGS_FIELD)));
         if (summaryConfigs != null && summaryConfigs.size() > 0) {
             for (int i = 0; i < summaryConfigs.size(); i++) {
-                MapValue<BString, Object> summaryConfigStruct = (MapValue<BString, Object>) summaryConfigs.get(i);
+                BMap<BString, Object> summaryConfigStruct = (BMap<BString, Object>) summaryConfigs.get(i);
                 StatisticConfig.Builder statisticBuilder = StatisticConfig.builder().expiry(
                         Duration.ofMillis(((long) summaryConfigStruct.get(ObserveNativeImplConstants.EXPIRY_FIELD))))
                         .buckets(((long) summaryConfigStruct.get(ObserveNativeImplConstants.BUCKETS_FIELD)));
-                ArrayValue bFloatArray =
-                        (ArrayValue) summaryConfigStruct.get(ObserveNativeImplConstants.PERCENTILES_FIELD);
+                BArray bFloatArray =
+                        (BArray) summaryConfigStruct.get(ObserveNativeImplConstants.PERCENTILES_FIELD);
                 double[] percentiles = new double[(int) bFloatArray.size()];
                 for (int j = 0; j < bFloatArray.size(); j++) {
                     percentiles[j] = bFloatArray.getFloat(j);

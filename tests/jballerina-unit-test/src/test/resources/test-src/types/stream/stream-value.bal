@@ -18,29 +18,29 @@ type ResultValue record {|
     int value;
 |};
 
-type NumberGenerator object {
+class NumberGenerator {
     int i = 0;
-    public function next() returns record {| int value; |}? {
+    public isolated function next() returns record {| int value; |}? {
         self.i += 1;
         return { value: self.i };
     }
-};
+}
 
-type EvenNumberGenerator object {
+class EvenNumberGenerator {
     int i = 0;
-    public function next() returns record {| int value; |}|error? {
+    public isolated function next() returns record {| int value; |}|error? {
         self.i += 2;
         return { value: self.i };
     }
-};
+}
 
-type OddNumberGenerator object {
+class OddNumberGenerator {
     int i = 1;
-    public function next() returns record {| int value; |}|error? {
+    public isolated function next() returns record {| int value; |}|error? {
         self.i += 2;
         return { value: self.i };
     }
-};
+}
 
 function getRecordValue((record {| int value; |}|error?)|(record {| int value; |}?) returnedVal) returns ResultValue? {
     if (returnedVal is ResultValue) {
@@ -171,10 +171,10 @@ type CustomErrorData record {|
 type CustomError distinct error<CustomErrorData>;
 boolean closed = false;
 
-type IteratorWithCustomError object {
+class IteratorWithCustomError {
     int i = 0;
 
-    public function next() returns record {| int value; |}|CustomError? {
+    public isolated function next() returns record {| int value; |}|CustomError? {
         self.i += 1;
         if (self.i == 2) {
             CustomError e = CustomError("CustomError", message = "custom error occured", accountID = 1);
@@ -187,7 +187,7 @@ type IteratorWithCustomError object {
     public function close() returns CustomError? {
         closed = true;
     }
-};
+}
 
 function testIteratorWithCustomError() returns boolean {
     boolean testPassed = true;
@@ -212,10 +212,10 @@ function testIteratorWithCustomError() returns boolean {
     return testPassed;
 }
 
-type IteratorWithGenericError object {
+class IteratorWithGenericError {
     int i = 0;
 
-    public function next() returns record {| int value; |}|error? {
+    public isolated function next() returns record {| int value; |}|error? {
         self.i += 1;
         if (self.i == 2) {
             return error("GenericError", message = "generic error occured");
@@ -223,7 +223,7 @@ type IteratorWithGenericError object {
             return { value: self.i };
         }
     }
-};
+}
 
 function testIteratorWithGenericError() returns boolean {
     boolean testPassed = true;
@@ -247,14 +247,14 @@ function testIteratorWithGenericError() returns boolean {
     return testPassed;
 }
 
-type IteratorWithOutError object {
+class IteratorWithOutError {
     int i = 0;
 
-    public function next() returns record {| int value; |}? {
+    public isolated function next() returns record {| int value; |}? {
         self.i += 1;
         return { value: self.i };
     }
-};
+}
 
 function testIteratorWithOutError() returns boolean {
     boolean testPassed = true;
@@ -281,10 +281,10 @@ function testIteratorWithOutError() returns boolean {
 type CustomError1 distinct error<CustomErrorData>;
 type Error CustomError | CustomError1;
 
-type IteratorWithErrorUnion object {
+class IteratorWithErrorUnion {
     int i = 0;
 
-    public function next() returns record {| int value; |}|Error? {
+    public isolated function next() returns record {| int value; |}|Error? {
         self.i += 1;
         if (self.i == 2) {
             CustomError e = CustomError("CustomError", message = "custom error occured", accountID = 2);
@@ -296,7 +296,7 @@ type IteratorWithErrorUnion object {
             return { value: self.i };
         }
     }
-};
+}
 
 function testIteratorWithErrorUnion() returns boolean {
     boolean testPassed = true;
@@ -320,15 +320,15 @@ function testIteratorWithErrorUnion() returns boolean {
     return testPassed;
 }
 
-type NeverNumberGenerator object {
+class NeverNumberGenerator {
     int i = 0;
-    public function next() returns record {| int value; |}?|never {
+    public isolated function next() returns record {| int value; |}?|never {
         self.i += 1;
         if (self.i < 3) {
             return { value: self.i };
         }
     }
-};
+}
 
 function testStreamConstructWithNever() returns boolean {
     boolean testPassed = true;
@@ -354,13 +354,13 @@ function testStreamConstructWithNever() returns boolean {
     return testPassed;
 }
 
-type NumberStreamGenerator object {
-    public function next() returns record {| stream<int> value; |}? {
+class NumberStreamGenerator {
+    public isolated function next() returns record {| stream<int> value; |}? {
          NumberGenerator numGen = new();
          stream<int> numberStream = new (numGen);
          return { value: numberStream};
     }
-};
+}
 
 function testStreamOfStreams() returns boolean {
     boolean testPassed = false;
@@ -380,5 +380,29 @@ function testStreamOfStreams() returns boolean {
        int? num = val?.value;
        testPassed = testPassed && (num == 1);
     }
+    return testPassed;
+}
+
+function testEmptyStreamConstructs() returns boolean {
+    boolean testPassed = true;
+    stream<int> emptyStream1 = new;
+    stream<int> emptyStream2 = new stream<int>();
+    stream<int, never> emptyStream3 = new;
+    stream<int, error> emptyStream4 = new;
+    stream<int, never> emptyStream5 = new stream<int, never>();
+    stream<int, error> emptyStream6 = new stream<int, error>();
+    var emptyStream7 = new stream<int>();
+    var emptyStream8 = new stream<int, never>();
+    var emptyStream9 = new stream<int, error>();
+
+    testPassed = testPassed && (emptyStream1.next() == ());
+    testPassed = testPassed && (emptyStream2.next() == ());
+    testPassed = testPassed && (emptyStream3.next() == ());
+    testPassed = testPassed && (emptyStream4.next() == ());
+    testPassed = testPassed && (emptyStream5.next() == ());
+    testPassed = testPassed && (emptyStream6.next() == ());
+    testPassed = testPassed && (emptyStream7.next() == ());
+    testPassed = testPassed && (emptyStream8.next() == ());
+    testPassed = testPassed && (emptyStream9.next() == ());
     return testPassed;
 }

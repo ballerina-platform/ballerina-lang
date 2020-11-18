@@ -18,18 +18,18 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.RefValue;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
-import org.ballerinalang.jvm.values.utils.StringUtils;
+import io.ballerina.runtime.JSONParser;
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BRefValue;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityHeaderHandler;
 import org.ballerinalang.mime.util.MimeConstants;
@@ -51,13 +51,13 @@ import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
  */
 public abstract class MimeDataSourceBuilder {
 
-    public static Object getByteArray(ObjectValue entityObj) {
+    public static Object getByteArray(BObject entityObj) {
         try {
             Object messageDataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (messageDataSource != null) {
                 return getAlreadyBuiltByteArray(entityObj, messageDataSource);
             }
-            ArrayValue result = EntityBodyHandler.constructBlobDataSource(entityObj);
+            BArray result = EntityBodyHandler.constructBlobDataSource(entityObj);
             updateDataSource(entityObj, result);
             return result;
         } catch (Exception ex) {
@@ -65,32 +65,32 @@ public abstract class MimeDataSourceBuilder {
         }
     }
 
-    protected static Object getAlreadyBuiltByteArray(ObjectValue entityObj, Object messageDataSource)
+    protected static Object getAlreadyBuiltByteArray(BObject entityObj, Object messageDataSource)
             throws UnsupportedEncodingException {
-        if (messageDataSource instanceof ArrayValue) {
+        if (messageDataSource instanceof BArray) {
             return messageDataSource;
         }
         String contentTypeValue = EntityHeaderHandler.getHeaderValue(entityObj, MimeConstants.CONTENT_TYPE);
         if (isNotNullAndEmpty(contentTypeValue)) {
             String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
             if (isNotNullAndEmpty(charsetValue)) {
-                return BValueCreator.createArrayValue(
+                return ValueCreator.createArrayValue(
                         StringUtils.getJsonString(messageDataSource).getBytes(charsetValue));
             }
-            return BValueCreator.createArrayValue(
+            return ValueCreator.createArrayValue(
                     StringUtils.getJsonString(messageDataSource).getBytes(Charset.defaultCharset()));
         }
-        return BValueCreator.createArrayValue(new byte[0]);
+        return ValueCreator.createArrayValue(new byte[0]);
     }
 
-    public static Object getJson(ObjectValue entityObj) {
-        RefValue result;
+    public static Object getJson(BObject entityObj) {
+        BRefValue result;
         try {
             Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
                 return getAlreadyBuiltJson(dataSource);
             }
-            result = (RefValue) EntityBodyHandler.constructJsonDataSource(entityObj);
+            result = (BRefValue) EntityBodyHandler.constructJsonDataSource(entityObj);
             updateJsonDataSource(entityObj, result);
             return result;
         } catch (Exception ex) {
@@ -100,13 +100,13 @@ public abstract class MimeDataSourceBuilder {
 
     protected static Object getAlreadyBuiltJson(Object dataSource) {
         // If the value is already a JSON, then return as it is.
-        RefValue result;
+        BRefValue result;
         if (isJSON(dataSource)) {
-            result = (RefValue) dataSource;
+            result = (BRefValue) dataSource;
         } else {
             // Else, build the JSON from the string representation of the payload.
             String payload = MimeUtil.getMessageAsString(dataSource);
-            result = (RefValue) JSONParser.parse(payload);
+            result = (BRefValue) JSONParser.parse(payload);
         }
         return result;
     }
@@ -114,16 +114,16 @@ public abstract class MimeDataSourceBuilder {
     private static boolean isJSON(Object value) {
         // If the value is string, it could represent any type of payload.
         // Therefore it needs to be parsed as JSON.
-        BType objectType = TypeChecker.getType(value);
+        Type objectType = TypeChecker.getType(value);
         return objectType.getTag() != TypeTags.STRING && MimeUtil.isJSONCompatible(objectType);
     }
 
-    public static Object getText(ObjectValue entityObj) {
+    public static Object getText(BObject entityObj) {
         BString result;
         try {
             Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
-                return org.ballerinalang.jvm.StringUtils.fromString(MimeUtil.getMessageAsString(dataSource));
+                return StringUtils.fromString(MimeUtil.getMessageAsString(dataSource));
             }
             result = EntityBodyHandler.constructStringDataSource(entityObj);
             updateDataSource(entityObj, result);
@@ -133,8 +133,8 @@ public abstract class MimeDataSourceBuilder {
         }
     }
 
-    public static Object getXml(ObjectValue entityObj) {
-        XMLValue result;
+    public static Object getXml(BObject entityObj) {
+        BXML result;
         try {
             Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
@@ -150,7 +150,7 @@ public abstract class MimeDataSourceBuilder {
     }
 
     protected static Object getAlreadyBuiltXml(Object dataSource) {
-        if (dataSource instanceof XMLValue) {
+        if (dataSource instanceof BXML) {
             return dataSource;
         }
         // Build the XML from string representation of the payload.
@@ -158,30 +158,30 @@ public abstract class MimeDataSourceBuilder {
         return XMLFactory.parse(payload);
     }
 
-    protected static void updateDataSource(ObjectValue entityObj, Object result) {
+    protected static void updateDataSource(BObject entityObj, Object result) {
         EntityBodyHandler.addMessageDataSource(entityObj, result);
         removeByteChannel(entityObj);
     }
 
-    protected static void updateJsonDataSource(ObjectValue entityObj, Object result) {
+    protected static void updateJsonDataSource(BObject entityObj, Object result) {
         EntityBodyHandler.addJsonMessageDataSource(entityObj, result);
         removeByteChannel(entityObj);
     }
 
-    private static void removeByteChannel(ObjectValue entityObj) {
+    private static void removeByteChannel(BObject entityObj) {
         //Set byte channel to null, once the message data source has been constructed
         entityObj.addNativeData(ENTITY_BYTE_CHANNEL, null);
     }
 
     protected static Object createError(Exception ex, String type) {
         String message = "Error occurred while extracting " + type + " data from entity";
-        if (ex instanceof ErrorValue) {
-            return MimeUtil.createError(PARSER_ERROR, message, (ErrorValue) ex);
+        if (ex instanceof BError) {
+            return MimeUtil.createError(PARSER_ERROR, message, (BError) ex);
         }
         return MimeUtil.createError(PARSER_ERROR, message + ": " + getErrorMsg(ex), null);
     }
 
     protected static String getErrorMsg(Throwable err) {
-        return err instanceof ErrorValue ? err.toString() : err.getMessage();
+        return err instanceof BError ? err.toString() : err.getMessage();
     }
 }

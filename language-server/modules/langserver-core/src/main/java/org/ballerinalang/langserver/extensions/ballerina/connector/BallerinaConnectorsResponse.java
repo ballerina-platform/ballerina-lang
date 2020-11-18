@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class BallerinaConnectorsResponse {
 
-    private List<BallerinaConnectorInfo> connectors = new ArrayList<>();
+    private List<BallerinaConnectorInfo> connectors = new ArrayList<BallerinaConnectorInfo>();
 
     public BallerinaConnectorsResponse() {
     }

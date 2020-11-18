@@ -1,9 +1,9 @@
-import ballerina/module1 as mod;
+import ballerina/module1;
 import ballerina/lang.'object as lang;
 
 public listener module1:
 
-public type Listener object {
+public class Listener {
 
     *lang:Listener;
 

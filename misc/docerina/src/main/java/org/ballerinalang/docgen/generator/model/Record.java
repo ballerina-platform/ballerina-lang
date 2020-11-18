@@ -27,14 +27,11 @@ public class Record extends Construct {
     @Expose
     public List<DefaultableVariable> fields;
     @Expose
-    public boolean isAnonymous = false;
-    @Expose
     public boolean isClosed;
 
-    public Record(String name, String description, boolean isDeprecated, boolean isAnonymous, boolean isClosed,
+    public Record(String name, String description, boolean isDeprecated, boolean isClosed,
                   List<DefaultableVariable> fields) {
         super(name, description, isDeprecated);
-        this.isAnonymous = isAnonymous;
         this.isClosed = isClosed;
         this.fields = fields;
     }

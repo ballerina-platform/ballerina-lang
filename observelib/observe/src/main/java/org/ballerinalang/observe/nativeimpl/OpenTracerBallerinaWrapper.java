@@ -19,22 +19,22 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
+import io.ballerina.runtime.observability.ObserveUtils;
+import io.ballerina.runtime.observability.ObserverContext;
+import io.ballerina.runtime.observability.TracingUtils;
+import io.ballerina.runtime.observability.tracer.TracersStore;
+import io.ballerina.runtime.scheduling.Strand;
 import io.opentracing.Tracer;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.jvm.observability.ObserveUtils;
-import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.observability.TracingUtils;
-import org.ballerinalang.jvm.observability.tracer.TracersStore;
-import org.ballerinalang.jvm.scheduling.Strand;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_RESOURCE;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_SERVICE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
+import static io.ballerina.runtime.observability.ObservabilityConstants.UNKNOWN_RESOURCE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.UNKNOWN_SERVICE;
 
 /**
  * This class wraps opentracing apis and exposes extern functions to use within ballerina.
@@ -159,7 +159,6 @@ public class OpenTracerBallerinaWrapper {
         if (!enabled) {
             return false;
         }
-        ObserverContext observerContext = observerContextMap.get(spanId);
         if (spanId == -1) {
             Optional<ObserverContext> observer = ObserveUtils.getObserverContextOfCurrentFrame(strand);
             if (observer.isPresent()) {
@@ -167,6 +166,7 @@ public class OpenTracerBallerinaWrapper {
                 return true;
             }
         }
+        ObserverContext observerContext = observerContextMap.get(spanId);
         if (observerContext != null) {
             observerContext.addTag(tagKey, tagValue);
             return true;

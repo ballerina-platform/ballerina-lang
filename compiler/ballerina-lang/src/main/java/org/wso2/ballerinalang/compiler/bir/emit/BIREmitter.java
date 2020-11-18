@@ -180,7 +180,6 @@ public class BIREmitter {
     }
 
     private String emitFunctions(List<BIRNode.BIRFunction> funcs, int tabs) {
-
         StringBuilder funcString = new StringBuilder();
         for (BIRNode.BIRFunction func : funcs) {
             funcString.append(emitFunction(func, tabs));
@@ -189,8 +188,7 @@ public class BIREmitter {
         return funcString.toString();
     }
 
-    private String emitFunction(BIRNode.BIRFunction func, int tabs) {
-
+    public String emitFunction(BIRNode.BIRFunction func, int tabs) {
         String funcString = "";
         funcString += emitTabs(tabs);
         funcString += emitFlags(func.flags);

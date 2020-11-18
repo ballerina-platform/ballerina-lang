@@ -1,4 +1,4 @@
-function foo () {
+function foo() {
     match bar {
         _ => {}
         a => {}
@@ -7,6 +7,6 @@ function foo () {
         () => {}
         "south"|"north" => {}
         "east" => {}
-        "west"  if getX() | getY() => {}
+        "west" if getX() | getY() => {}
     }
 }

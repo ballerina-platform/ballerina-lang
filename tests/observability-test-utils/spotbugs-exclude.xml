@@ -17,5 +17,7 @@
   -->
 
 <FindBugsFilter>
-
+    <Match>
+        <Package name="org.ballerinalang.test"/>
+    </Match>
 </FindBugsFilter>

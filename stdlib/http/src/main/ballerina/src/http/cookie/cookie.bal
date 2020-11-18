@@ -32,7 +32,7 @@ import ballerina/time;
 # + createdTime - At what time the cookie was created
 # + lastAccessedTime - Last-accessed time of the cookie
 # + hostOnly - Cookie is sent only to the requested host
-public type Cookie object {
+public class Cookie {
 
     public string? name = ();
     public string? value = ();
@@ -152,7 +152,7 @@ public type Cookie object {
         setCookieHeaderValue = setCookieHeaderValue.substring(0, setCookieHeaderValue.length() - 2);
         return setCookieHeaderValue;
     }
-};
+}
 
 // Converts the cookie's expiry time into the GMT format.
 function toGmtFormat(Cookie cookie, string expires) returns boolean {

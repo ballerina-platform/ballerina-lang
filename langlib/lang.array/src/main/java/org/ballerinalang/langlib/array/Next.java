@@ -18,37 +18,22 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.AbstractArrayValue;
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BIterator;
+import io.ballerina.runtime.api.values.BObject;
 
 /**
  * Native implementation of lang.array.ArrayIterator:next().
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "next",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ArrayIterator",
-                structPackage = "ballerina/lang.array"),
-        returnType = {@ReturnType(type = TypeKind.RECORD)},
-        isPublic = true
-)
 public class Next {
     //TODO: refactor hard coded values
-    public static Object next(Strand strand, ObjectValue m) {
-        IteratorValue arrIterator = (IteratorValue) m.getNativeData("&iterator&");
-        AbstractArrayValue arr = (AbstractArrayValue) m.get(StringUtils.fromString("m"));
+    public static Object next(BObject m) {
+        BIterator arrIterator = (BIterator) m.getNativeData("&iterator&");
+        BArray arr = (BArray) m.get(StringUtils.fromString("m"));
         if (arrIterator == null) {
             arrIterator = arr.getIterator();
             m.addNativeData("&iterator&", arrIterator);
@@ -56,7 +41,8 @@ public class Next {
 
         if (arrIterator.hasNext()) {
             Object element = arrIterator.next();
-            return BallerinaValues.createRecord(new MapValueImpl<>(arr.getIteratorNextReturnType()), element);
+            return ValueCreator.createRecordValue(ValueCreator.createMapValue(arr.getIteratorNextReturnType()),
+                                                  element);
         }
 
         return null;

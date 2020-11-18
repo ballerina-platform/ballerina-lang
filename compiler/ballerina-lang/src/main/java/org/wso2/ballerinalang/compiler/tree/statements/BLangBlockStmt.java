@@ -36,6 +36,8 @@ public class BLangBlockStmt extends BLangStatement implements BlockStatementNode
     public List<BLangStatement> stmts;
 
     public BVarSymbol mapSymbol;
+
+    public boolean isBreakable;
     /**
      * We need to keep a reference to the block statements scope here.
      * This is the only place where we have a link from the node to a scope

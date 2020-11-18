@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.record;
 
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -37,7 +37,7 @@ public class RecordWithClosureTest {
         compileResult = BCompileUtil.compile("test-src/record/record_closure_default.bal");
     }
 
-    @Test(description = "Test record type with closure variable in default value")
+    @Test(description = "Test record type with closure variable in default value", enabled = false)
     public void testRecordWithClosureInDefaults() {
         BValue[] returns = BRunUtil.invoke(compileResult, "recordWithClosureInDefaults");
         Assert.assertEquals(returns.length, 1);

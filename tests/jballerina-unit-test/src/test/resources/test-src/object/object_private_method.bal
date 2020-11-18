@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type Person object {
+public class Person {
     private int salary;
 
     public function init(int salary) {
@@ -38,7 +38,7 @@ public type Person object {
     public function decrementAndGetSalary(int amount) returns int {
         return self.decrementAndUpdateSalary(amount);
     }
-};
+}
 
 function testPrivateMethodAccess() returns [int, int] {
     Person person = new(10000);

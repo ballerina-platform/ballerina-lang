@@ -27,7 +27,10 @@ final map<string> DEFAULT_TAGS = {};
 # + spanName - Name of the span
 # + tags - Tags to be associated to the span
 # + return - SpanId of the started span
-public function startRootSpan(string spanName, map<string>? tags = ()) returns int = external;
+public function startRootSpan(string spanName, map<string>? tags = ()) returns int = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.StartRootSpan",
+    name: "startRootSpan"
+} external;
 
 # Start a span and create child relationship to current active span or user specified span.
 #
@@ -35,7 +38,10 @@ public function startRootSpan(string spanName, map<string>? tags = ()) returns i
 # + tags - Tags to be associated to the span
 # + parentSpanId - Id of the parent span or -1 if parent span should be taken from system trace
 # + return - SpanId of the started span
-public function startSpan(string spanName, map<string>? tags = (), int parentSpanId = -1) returns int|error = external;
+public function startSpan(string spanName, map<string>? tags = (), int parentSpanId = -1) returns int|error = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.StartSpan",
+    name: "startSpan"
+} external;
 
 # Add a key value pair as a tag to the span.
 #
@@ -43,32 +49,44 @@ public function startSpan(string spanName, map<string>? tags = (), int parentSpa
 # + tagKey - Key of the tag
 # + tagValue - Value of the tag
 # + return - An error if an error occurred while attaching tag to the span
-public function addTagToSpan(string tagKey, string tagValue, int spanId = -1) returns error? = external;
+public isolated function addTagToSpan(string tagKey, string tagValue, int spanId = -1) returns error? = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.AddTagToSpan",
+    name: "addTagToSpan"
+} external;
 
 # Finish the current span.
 #
 # + spanId - Id of span to finish
 # + return - An error if an error occurred while finishing the span
-public function finishSpan(int spanId) returns error? = external;
+public function finishSpan(int spanId) returns error? = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.FinishSpan",
+    name: "finishSpan"
+} external;
 
 # Retrieve all registered metrics including default metrics from the ballerina runtime, and user defined metrics.
 #
 # + return - Array of all registered metrics.
-public function getAllMetrics() returns Metric[] = external;
+public function getAllMetrics() returns Metric[] = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.GetAllMetrics",
+    name: "getAllMetrics"
+} external;
 
 # Retrieves the specific metric that is described by the given name and tags.
 #
 # + name - Name of the metric to lookup.
 # + tags - The key/value pair tags that associated with the metric that should be looked up.
 # + return - The metric instance.
-public function lookupMetric(string name, map<string>? tags = ()) returns Counter|Gauge? = external;
+public function lookupMetric(string name, map<string>? tags = ()) returns Counter|Gauge? = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.LookupMetric",
+    name: "lookupMetric"
+} external;
 
 # Checks of either metrics or tracing had been enabled.
 #
 # + return - True if observability had been enabled.
-public function isObservabilityEnabled() returns boolean = @java:Method {
+public isolated function isObservabilityEnabled() returns boolean = @java:Method {
     name: "isObservabilityEnabled",
-    class: "org.ballerinalang.jvm.observability.ObserveUtils"
+    'class: "io.ballerina.runtime.observability.ObserveUtils"
 } external;
 
 # This represents the metric type - counter, that can be only increased by an integer number.
@@ -76,7 +94,7 @@ public function isObservabilityEnabled() returns boolean = @java:Method {
 # + name - Name of the counter metric.
 # + description - Description of the counter metric.
 # + metricTags - Tags associated with the counter metric.
-public type Counter object {
+public  class Counter {
 
     public string name;
     public string description;
@@ -101,36 +119,75 @@ public type Counter object {
         } else {
             self.metricTags = DEFAULT_TAGS;
         }
-        self.initialize();
+        externCounterInit(self);
     }
 
-    # Performs the necessary native operations during the initialization of the counter.
-    function initialize() = external;
+    //# Performs the necessary native operations during the initialization of the counter.
+    //function initialize() = external;
 
     # Register the counter metric instance with the Metric Registry.
     #
     # + return - Returns error if there is any metric registered already with the same name
     #            but different parameters or in a different kind.
-    public function register() returns error? = external;
+    public function register() returns error? {
+        return externCounterRegister(self);
+    }
 
     # Unregister the counter metric instance with the Metric Registry.
-    public function unregister() = external;
+    public function unregister() {
+        externCounterUnRegister(self);
+    }
 
     # Increment the counter's value by an amount.
     #
     # + amount - The amount by which the value needs to be increased. The amount is defaulted as 1 and will be
     #            used if there is no amount passed in.
-    public function increment(int amount = 1) = external;
+    public function increment(int amount = 1) {
+        externCounterIncrement(self, amount);
+    }
 
     # Resets the counter's value to zero.
-    public function reset() = external;
+    public function reset() {
+        externCounterReset(self);
+    }
 
     # Retrieves the counter's current value.
     #
     # + return - The current value of the counter.
-    public function getValue() returns int = external;
+    public function getValue() returns int {
+        return externCounterGetValue(self);
+    }
+}
 
-};
+function externCounterInit(Counter counter) = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.CounterInitialize",
+    name: "initialize"
+} external;
+
+function externCounterRegister(Counter counter) returns error? = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.CounterRegister",
+    name: "register"
+} external;
+
+function externCounterUnRegister(Counter counter) = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.CounterUnregister",
+    name: "unregister"
+} external;
+
+function externCounterIncrement(Counter counter, int amount) = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.CounterIncrement",
+    name: "increment"
+} external;
+
+function externCounterReset(Counter counter) = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.CounterReset",
+    name: "reset"
+} external;
+
+function externCounterGetValue(Counter counter) returns int = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.CounterGetValue",
+    name: "getValue"
+} external;
 
 # This represents the metric type - gauge, that can hold instantaneous, increased or decreased value
 # during the usage.
@@ -140,7 +197,7 @@ public type Counter object {
 # + metricTags - Tags associated with the counter metric.
 # + statisticConfigs - Array of StatisticConfig objects which defines about the statistical calculation
 #                      of the gauge during its usage.
-public type Gauge object {
+public class Gauge {
 
     public string name;
     public string description;
@@ -164,50 +221,103 @@ public type Gauge object {
         self.description = desc ?: "";
         self.metricTags = tags ?: DEFAULT_TAGS;
         self.statisticConfigs = statisticConfig ?: DEFAULT_GAUGE_STATS_CONFIG;
-        self.initialize();
+        externGaugeInit(self);
     }
 
-    # Performs the necessary native operations during the initialization of the gauge.
-    function initialize() = external;
+    //# Performs the necessary native operations during the initialization of the gauge.
+    //function initialize() = external;
 
     # Register the gauge metric instance with the Metric Registry.
     #
     # + return - Returns error if there is any metric registered already with the same name
     #            but different parameters or in a different kind.
-    public function register() returns error? = external;
+    public function register() returns error? {
+        return externGaugeRegister(self);
+    }
 
     # Unregister the counter metric instance with the Metric Registry.
-    public function unregister() = external;
+    public function unregister() {
+        externGaugeUnRegister(self);
+    }
 
     # Increment the gauge's value by an amount.
     #
     # + amount - The amount by which the value of gauge needs to be increased.
     #            The amount is defaulted as 1.0 and will be used if there is no amount passed in.
-    public function increment(float amount = 1.0) = external;
+    public function increment(float amount = 1.0) {
+        externGaugeIncrement(self, amount);
+    }
 
     # Decrement the gauge's value by an amount.
     #
     # + amount - The amount by which the value of gauge needs to be decreased.
     #            The amount is defaulted as 1.0 and will be used if there is no amount passed in.
-    public function decrement(float amount = 1.0) = external;
+    public function decrement(float amount = 1.0) {
+        externGaugeDecrement(self, amount);
+    }
 
     # Sets the instantaneous value for gauge.
     #
     # + amount - The instantaneous value that needs to be set as gauge value.
-    public function setValue(float amount) = external;
+    public function setValue(float amount) {
+        return externGaugeSetValue(self, amount);
+    }
 
     # Retrieves the gauge's current value.
     #
     # + return - The current value of the gauge.
-    public function getValue() returns float = external;
+    public function getValue() returns float {
+        return externGaugeGetValue(self);
+    }
 
     # Retrieves statistics snapshots based on the statistics configs of the gauge.
     #
     # + return - Array of the statistics snapshots.
     #            If there is no statisticsConfigs provided, then it will be nil.
-    public function getSnapshot() returns Snapshot[]? = external;
+    public function getSnapshot() returns Snapshot[]? {
+        return externGaugeGetSnapshot(self);
+    }
+}
 
-};
+function externGaugeInit(Gauge gauge) = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.GaugeInitialize",
+    name: "initialize"
+} external;
+
+function externGaugeRegister(Gauge gauge) returns error? = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.GaugeRegister",
+    name: "register"
+} external;
+
+function externGaugeUnRegister(Gauge gauge) = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.GaugeUnregister",
+    name: "unregister"
+} external;
+
+function externGaugeIncrement(Gauge gauge, float amount) = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.GaugeIncrement",
+    name: "increment"
+} external;
+
+function externGaugeDecrement(Gauge gauge, float amount) = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.GaugeDecrement",
+    name: "decrement"
+} external;
+
+function externGaugeGetValue(Gauge gauge) returns float = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.GaugeGetValue",
+    name: "getValue"
+} external;
+
+function externGaugeSetValue(Gauge gauge, float amount) = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.GaugeSetValue",
+    name: "setValue"
+} external;
+
+function externGaugeGetSnapshot(Gauge gauge) returns Snapshot[]? = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.GaugeGetSnapshot",
+    name: "getSnapshot"
+} external;
 
 # This represents the generic metric record that can represent both counter and gauge.
 #

@@ -23,7 +23,7 @@ type Department record {
     string name = "IT";
 };
 
-type Employee readonly object {
+readonly class Employee {
     Details details;
     Department dept;
     int id;
@@ -38,9 +38,9 @@ type Employee readonly object {
         self.id = 2345;
         self.details.yob = 1998;
     }
-};
+}
 
-type Controller readonly object {
+readonly class Controller {
     map<int|float> config = {
         quota: 10,
         factor: 2.0
@@ -49,17 +49,17 @@ type Controller readonly object {
     function getConfig() returns map<int|float> {
         return self.config;
     }
-};
+}
 
 function testInvalidReadOnlyIntersection() {
     Controller & readonly x = new;
 }
 
-type InvalidReadOnlyObject readonly object {
+readonly class InvalidReadOnlyObject {
     int i = 1;
     future<int> f;
 
     function init(future<int> g) {
         self.f = g;
     }
-};
+}

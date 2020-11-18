@@ -39,36 +39,9 @@ type Type1 any|error;
 # + stm - the stream
 # + func - a predicate to apply to each member to test whether it should be selected
 # + return - new stream only containing members of `stm` for which `func` evaluates to true
-public function filter(stream<Type,ErrorType> stm, function(Type val) returns boolean func)
+public isolated function filter(stream<Type,ErrorType> stm, @isolatedParam function(Type val) returns boolean func)
    returns stream<Type,ErrorType>  {
-    object {
-        public stream<Type, ErrorType> strm;
-        public any func;
-
-        public function init(stream<Type, ErrorType> strm, function(Type val) returns boolean func) {
-            self.strm = strm;
-            self.func = func;
-        }
-
-        public function next() returns record {|Type value;|}|ErrorType? {
-            // while loop is required to continue filtering until we find a value which matches the filter or ().
-            while(true) {
-                var nextVal = next(self.strm);
-                if (nextVal is ()) {
-                    return ();
-                } else if (nextVal is error) {
-                    return nextVal;
-                } else {
-                    var value = nextVal?.value;
-                    function(any|error) returns boolean func = internal:getFilterFunc(self.func);
-                    if (func(value)) {
-                        return nextVal;
-                    }
-                }
-            }
-            return ();
-        }
-    } itrObj = new(stm, func);
+    FilterSupport itrObj = new(stm, func);
     return internal:construct(internal:getElementType(typeof stm), itrObj);
 }
 
@@ -78,9 +51,9 @@ public function filter(stream<Type,ErrorType> stm, function(Type val) returns bo
 # + return - If the stream has elements, return the element wrapped in a record with single field called `value`,
 #            otherwise returns ()
 public function next(stream<Type, ErrorType> strm) returns record {| Type value; |}|ErrorType? {
-    abstract object {
+    object {
         public function next() returns record {|Type value;|}|ErrorType?;
-    } iteratorObj = <abstract object {
+    } iteratorObj = <object {
                             public function next() returns record {|Type value;|}|ErrorType?;
                      }>internal:getIteratorObj(strm);
     var val = iteratorObj.next();
@@ -98,32 +71,9 @@ public function next(stream<Type, ErrorType> strm) returns record {| Type value;
 # + stm - the stream
 # + func - a function to apply to each member
 # + return - new stream containing result of applying `func` to each member of `stm` in order
-public function 'map(stream<Type,ErrorType> stm, function(Type val) returns Type1 func)
+public isolated function 'map(stream<Type,ErrorType> stm, @isolatedParam function(Type val) returns Type1 func)
    returns stream<Type1,ErrorType> {
-    object {
-       public stream<Type, ErrorType> strm;
-       public any func;
-
-       public function init(stream<Type, ErrorType> strm, function(Type val) returns Type1 func) {
-           self.strm = strm;
-           self.func = func;
-       }
-
-       public function next() returns record {|Type value;|}|ErrorType? {
-           var nextVal = next(self.strm);
-           if (nextVal is ()) {
-               return ();
-           } else {
-               function(any | error) returns any | error mappingFunc = internal:getMapFunc(self.func);
-               if (nextVal is error) {
-                    return nextVal;
-               } else {
-                    var value = mappingFunc(nextVal.value);
-                    return internal:setNarrowType(typeof value, {value : value});
-               }
-           }
-       }
-    } iteratorObj = new(stm, func);
+    MapSupport  iteratorObj = new(stm, func);
     return internal:construct(internal:getReturnType(func), iteratorObj);
 }
 
@@ -136,7 +86,7 @@ public function 'map(stream<Type,ErrorType> stm, function(Type val) returns Type
 # + func - combining function
 # + initial - initial value for the first argument of combining function
 # + return - result of combining the members of `stm` using the combining function
-public function reduce(stream<Type,ErrorType> stm, function(Type1 accum, Type val) returns Type1 func, Type1 initial)
+public isolated function reduce(stream<Type,ErrorType> stm, @isolatedParam function(Type1 accum, Type val) returns Type1 func, Type1 initial)
    returns Type1|ErrorType {
     any | error reducedValue = initial;
     while (true) {
@@ -158,7 +108,7 @@ public function reduce(stream<Type,ErrorType> stm, function(Type1 accum, Type va
 # + stm - the stream
 # + func - a function to apply to each member
 # + return - An error if iterating the stream encounters an error
-public function forEach(stream<Type,ErrorType> stm, function(Type val) returns () func) returns ErrorType? {
+public isolated function forEach(stream<Type,ErrorType> stm, @isolatedParam function(Type val) returns () func) returns ErrorType? {
     var nextVal = next(stm);
     while(true) {
         if (nextVal is ()) {
@@ -177,8 +127,8 @@ public function forEach(stream<Type,ErrorType> stm, function(Type val) returns (
 #
 # + stm - the stream
 # + return - a new iterator object that will iterate over the members of `stm`.
-public function iterator(stream<Type,ErrorType> stm) returns abstract object {
-    public function next() returns record {|
+public isolated function iterator(stream<Type,ErrorType> stm) returns object {
+    public isolated function next() returns record {|
         Type value;
     |}|ErrorType?;
 }{
@@ -190,9 +140,9 @@ public function iterator(stream<Type,ErrorType> stm) returns abstract object {
 #
 # + stm - the stream to close
 # + return - () if the close completed successfully, otherwise an error
-public function close(stream<Type,ErrorType> stm) returns ErrorType? {
+public isolated function close(stream<Type,ErrorType> stm) returns ErrorType? {
     var itrObj = internal:getIteratorObj(stm);
-    if (itrObj is abstract object {
+    if (itrObj is object {
         public function next() returns record {|Type value;|}|ErrorType?;
         public function close() returns ErrorType?;
     }) {

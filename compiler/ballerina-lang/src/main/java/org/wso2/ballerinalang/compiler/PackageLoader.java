@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler;
 
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompiledPackage;
@@ -61,7 +60,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.PrintStream;
@@ -103,7 +101,6 @@ public class PackageLoader {
     private final boolean offline;
     private final boolean testEnabled;
     private final boolean lockEnabled;
-    private final boolean newParserEnabled;
 
     /**
      * Manifest of the current project.
@@ -118,7 +115,6 @@ public class PackageLoader {
     private final SymbolEnter symbolEnter;
     private final BIRPackageSymbolEnter birPackageSymbolEnter;
     private final Names names;
-    private final BLangDiagnosticLogHelper dlog;
     private static final boolean shouldReadBalo = true;
     private final CompilerPhase compilerPhase;
     
@@ -151,11 +147,9 @@ public class PackageLoader {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.birPackageSymbolEnter = BIRPackageSymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.offline = Boolean.parseBoolean(options.get(OFFLINE));
         this.testEnabled = Boolean.parseBoolean(options.get(TEST_ENABLED));
         this.lockEnabled = Boolean.parseBoolean(options.get(LOCK_ENABLED));
-        this.newParserEnabled = Boolean.parseBoolean(options.get(CompilerOptionName.NEW_PARSER_ENABLED));
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
         this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
         this.lockFile = LockFileProcessor.getInstance(context, this.lockEnabled).getLockFile();
@@ -378,10 +372,6 @@ public class PackageLoader {
         }
 
         BLangPackage packageNode = parse(pkgId, (PackageSource) pkgEntity);
-        if (!newParserEnabled && packageNode.diagCollector.hasErrors()) {
-            return packageNode;
-        }
-
         define(packageNode);
         return packageNode;
     }
@@ -494,13 +484,7 @@ public class PackageLoader {
     }
 
     private BLangPackage parse(PackageID pkgId, PackageSource pkgSource) {
-        BLangPackage packageNode;
-
-        if (newParserEnabled) {
-            packageNode = this.parser.parseNew(pkgSource, this.sourceDirectory.getPath());
-        } else {
-            packageNode = this.parser.parse(pkgSource, this.sourceDirectory.getPath());
-        }
+        BLangPackage packageNode = this.parser.parse(pkgSource, this.sourceDirectory.getPath());
         packageNode.packageID = pkgId;
         // Set the same packageId to the testable node
         packageNode.getTestablePkgs().forEach(testablePkg -> testablePkg.packageID = pkgId);

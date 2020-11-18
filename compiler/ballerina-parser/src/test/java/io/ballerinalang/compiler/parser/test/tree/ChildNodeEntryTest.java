@@ -19,12 +19,12 @@ package io.ballerinalang.compiler.parser.test.tree;
 
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
-import io.ballerinalang.compiler.syntax.tree.ChildNodeEntry;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.ChildNodeEntry;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeTransformer;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

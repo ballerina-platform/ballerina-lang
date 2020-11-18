@@ -21,7 +21,7 @@ package org.ballerinalang.net.http.compiler.websocket;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.ArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -85,8 +85,8 @@ public abstract class WebSocketResourceValidator {
         int secondParamTypeTag = secondParamType.tag;
         if (secondParamTypeTag != TypeTags.STRING && secondParamTypeTag != TypeTags.JSON &&
                 secondParamTypeTag != TypeTags.XML && secondParamTypeTag != TypeTags.RECORD &&
-                (secondParamTypeTag != TypeTags.ARRAY || (secondParamType instanceof BArrayType &&
-                        ((BArrayType) secondParamType).getElementType().tag != TypeTags.BYTE))) {
+                (secondParamTypeTag != TypeTags.ARRAY || (secondParamType instanceof ArrayType &&
+                        ((ArrayType) secondParamType).getElementType().tag != TypeTags.BYTE))) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
                     + resource.getName().getValue() + RESOURCE_IN_SERVICE +
                     ": The second parameter should be a string, json, xml, byte[] or a record type");

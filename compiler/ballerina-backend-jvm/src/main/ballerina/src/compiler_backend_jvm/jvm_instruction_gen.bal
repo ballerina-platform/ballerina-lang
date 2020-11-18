@@ -22,9 +22,9 @@ import ballerina/runtime;
 boolean IS_BSTRING = runtime:getProperty("ballerina.bstring") != "";
 string BSTRING_VALUE = runtime:getProperty("ballerina.bstring") == "" ? STRING_VALUE : B_STRING_VALUE;
 
-const string B_STRING_VALUE = "org/ballerinalang/jvm/values/api/BString";
-const string I_STRING_VALUE = "org/ballerinalang/jvm/values/StringValue";
-const string NON_BMP_STRING_VALUE = "org/ballerinalang/jvm/values/NonBmpStringValue";
+const string B_STRING_VALUE = "io/ballerina/runtime/values/api/BString";
+const string I_STRING_VALUE = "io/ballerina/runtime/values/StringValue";
+const string NON_BMP_STRING_VALUE = "io/ballerina/runtime/values/NonBmpStringValue";
 
 type InstructionGenerator object {
     jvm:MethodVisitor mv;

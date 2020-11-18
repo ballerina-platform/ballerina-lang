@@ -20,14 +20,222 @@
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="ballerina-root-test-suite" time-out="120000">
-    <listeners>
-        <listener class-name="org.ballerinalang.test.utils.BLogInitializer"/>
-        <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
-        <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
-    </listeners>
-    <suite-files>
-        <suite-file path="./testng-jballerina.xml" />
-        <suite-file path="./testng-new-parser.xml" />
-    </suite-files>
+<suite name="ballerina-new-parser-test-suite" time-out="120000">
+    <test name="jballerina-test" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+                <exclude name="brokenOnSpecDeviation"/>
+                <exclude name="brokenOnXMLLangLibChange"/>
+                <exclude name="brokenOnNewParser"/>
+                <exclude name="brokenOnErrorChange"/>
+                <exclude name="brokenOnClassChange"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="org.ballerinalang.test.vm.*"/>
+            <package name="org.ballerinalang.test.annotations.*"/>
+            <package name="org.ballerinalang.test.action.*"/>
+            <package name="org.ballerinalang.test.imports.*"/>
+<!--            <package name="org.ballerinalang.test.parser.*"/>-->
+            <package name="org.ballerinalang.test.closures.*"/>
+            <package name="org.ballerinalang.test.bir.*"/>
+
+            <!-- has complex match stmt usages -->
+            <!-- <package name="org.ballerinalang.test.dataflow.analysis.*"/> -->
+            <package name="org.ballerinalang.test.isolation.*"/>
+
+            <package name="org.ballerinalang.test.variable.shadowing.*"/>
+            <package name="org.ballerinalang.test.net.*"/>
+            <package name="org.ballerinalang.test.typedefs.*"/>
+<!--            <package name="org.ballerinalang.test.access.*"/>-->
+            <package name="org.ballerinalang.test.structs.*"/>
+            <package name="org.ballerinalang.test.testerina.*"/>
+            <package name="org.ballerinalang.test.jvm.*"/>
+            <package name="org.ballerinalang.test.types.integer"/>
+            <package name="org.ballerinalang.test.types.floattype"/>
+            <package name="org.ballerinalang.test.main.function.*"/>
+            <package name="org.ballerinalang.test.types.decimaltype.*"/>
+            <package name="org.ballerinalang.test.types.any.*"/>
+            <package name="org.ballerinalang.test.error.*"/>
+            <package name="org.ballerinalang.test.enums.*"/>
+            <package name="org.ballerinalang.test.types.finaltypes.*"/>
+            <package name="org.ballerinalang.test.types.finite.*"/>
+            <package name="org.ballerinalang.test.types.map.*"/>
+            <package name="org.ballerinalang.test.types.string.*"/>
+            <package name="org.ballerinalang.test.types.stream.*"/>
+            <package name="org.ballerinalang.test.types.table.*"/>
+            <package name="org.ballerinalang.test.types.errors.*"/>
+            <package name="org.ballerinalang.test.types.var.*"/>
+            <package name="org.ballerinalang.test.types.uniontypes.*"/>
+            <package name="org.ballerinalang.test.types.typedesc.*"/>
+            <package name="org.ballerinalang.test.types.tuples.*"/>
+            <package name="org.ballerinalang.test.types.anydata.*"/>
+            <package name="org.ballerinalang.test.statements.arrays.*"/>
+            <package name="org.ballerinalang.test.statements.assign.*"/>
+            <package name="org.ballerinalang.test.statements.block.*"/>
+            <package name="org.ballerinalang.test.statements.breakstatement.*"/>
+            <package name="org.ballerinalang.test.statements.comment.*"/>
+            <package name="org.ballerinalang.test.statements.compoundassignment.*"/>
+            <package name="org.ballerinalang.test.statements.continuestatement.*"/>
+            <package name="org.ballerinalang.test.statements.dostatement.*"/>
+            <package name="org.ballerinalang.test.statements.fail.*"/>
+            <package name="org.ballerinalang.test.statements.onfail.*"/>
+
+            <!-- No longer valid since new parser handles those -->
+            <!-- <package name="org.ballerinalang.test.statements.expressionstmt.*"/> -->
+
+            <package name="org.ballerinalang.test.statements.ifelse.*"/>
+            <package name="org.ballerinalang.test.statements.packageimport.*"/>
+            <package name="org.ballerinalang.test.statements.returnstmt.*"/>
+            <package name="org.ballerinalang.test.statements.vardeclr.*"/>
+            <package name="org.ballerinalang.test.statements.whilestatement.*"/>
+            <package name="org.ballerinalang.test.statements.variabledef.*"/>
+<!--            <package name="org.ballerinalang.test.statements.matchstmt.*"/>-->
+            <package name="org.ballerinalang.test.types.json.*"/>
+            <package name="org.ballerinalang.test.types.nullable.*"/>
+            <package name="org.ballerinalang.test.types.nullvalue.*"/>
+            <package name="org.ballerinalang.test.types.service.*"/>
+            <package name="org.ballerinalang.test.types.globalvar.*"/>
+            <package name="org.ballerinalang.test.types.intersection.*"/>
+            <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>
+            <package name="org.ballerinalang.test.expressions.let.*"/>
+            <package name="org.ballerinalang.test.expressions.checkpanicexpr.*"/>
+            <package name="org.ballerinalang.test.expressions.builtinfunctions.*"/>
+            <package name="org.ballerinalang.test.expressions.conversion.*"/>
+            <package name="org.ballerinalang.test.expressions.unaryoperations.*"/>
+            <package name="org.ballerinalang.test.expressions.access.*"/>
+            <package name="org.ballerinalang.test.expressions.binaryoperations.*"/>
+            <package name="org.ballerinalang.test.expressions.checkedexpr.*"/>
+            <package name="org.ballerinalang.test.expressions.elvis.*"/>
+            <package name="org.ballerinalang.test.expressions.ternary.*"/>
+            <package name="org.ballerinalang.test.expressions.typeof.*"/>
+            <package name="org.ballerinalang.test.expressions.stamp.*"/>
+            <package name="org.ballerinalang.test.expressions.group.*"/>
+            <package name="org.ballerinalang.test.expressions.lambda.*"/>
+            <package name="org.ballerinalang.test.expressions.invocations.*"/>
+            <package name="org.ballerinalang.test.expressions.mappingconstructor.*"/>
+            <package name="org.ballerinalang.test.expressions.listconstructor.*"/>
+            <package name="org.ballerinalang.test.expressions.rawtemplate.*"/>
+            <package name="org.ballerinalang.test.expressions.object.*" />
+            <package name="org.ballerinalang.test.object.*" />
+            <package name="org.ballerinalang.test.documentation.*" />
+            <package name="org.ballerinalang.test.endpoint.*" />
+            <package name="org.ballerinalang.test.packaging.*" />
+            <package name="org.ballerinalang.test.types.xml.*" />
+            <package name="org.ballerinalang.test.record.*"/>
+            <package name="org.ballerinalang.test.types.constant.*" />
+            <package name="org.ballerinalang.test.types.bytetype.*"/>
+            <package name="org.ballerinalang.test.types.handle.*"/>
+            <package name="org.ballerinalang.test.balo.*"/>
+            <package name="org.ballerinalang.test.expressions.typecast.*"/>
+            <package name="org.ballerinalang.test.expressions.literals.*"/>
+            <package name="org.ballerinalang.test.expressions.varref.*"/>
+            <package name="org.ballerinalang.test.worker.*"/>
+            <package name="org.ballerinalang.test.taintchecking.*"/>
+            <package name="org.ballerinalang.test.functions.*"/>
+            <package name="org.ballerinalang.test.javainterop.*"/>
+            <package name="org.ballerinalang.test.execution.*" />
+            <package name="org.ballerinalang.test.taintchecking*"/>
+            <package name="org.ballerinalang.test.query.*"/>
+            <package name="org.ballerinalang.test.statements.retrystmt.*"/>
+            <package name="org.ballerinalang.test.types.readonly.*"/>
+            <package name="org.ballerinalang.test.strand.*"/>
+            <package name="org.ballerinalang.test.klass.*"/>
+            <package name="org.ballerinalang.test.services.*"/>
+        </packages>
+
+        <classes>
+            <class name="org.ballerinalang.test.parser.ResilientParserTest"/>
+            <class name="org.ballerinalang.test.typedefs.DistinctTypeDefTest"/>
+            <class name="org.ballerinalang.test.statements.transaction.TransactionStmtTest"/>
+            <class name="org.ballerinalang.test.statements.transaction.TransactionalWorkerTest"/>
+            <class name="org.ballerinalang.test.statements.transaction.RetryTransactionBlockStmtOutcomesTest"/>
+            <class name="org.ballerinalang.test.statements.transaction.NestedTransactionTest"/>
+            <class name="org.ballerinalang.test.statements.transaction.NestedRetryTransactionStmtsTest" />
+            <class name="org.ballerinalang.test.statements.transaction.SetRollbackOnlyTest" />
+            <class name="org.ballerinalang.test.statements.transaction.RetryTransactionStmtTest"></class>
+            <class name="org.ballerinalang.test.statements.transaction.TransactionOnFailTest" />
+            <class name="org.ballerinalang.test.balo.constant.SimpleConstantBaloNegativeTests"></class>
+            <class name="org.ballerinalang.test.expressions.builtinoperations.BuiltinOperationsTest"></class>
+            <class name="org.ballerinalang.test.expressions.invocations.StringFunctionInvocationExprTest"></class>
+            <class name="org.ballerinalang.test.expressions.invocations.PackageInitInvocationTest"></class>
+            <class name="org.ballerinalang.test.expressions.unaryoperations.UnaryExprTest"></class>
+            <class name="org.ballerinalang.test.statements.ifelse.IfElseStmtTest"></class>
+            <class name="org.ballerinalang.test.worker.StackOverflowTest"></class>
+            <class name="org.ballerinalang.test.worker.WaitForAllWorkersTest"></class>
+            <class name="org.ballerinalang.test.javainterop.basic.AsyncTest"></class>
+            <class name="org.ballerinalang.test.javainterop.basic.ConstructorTest"></class>
+            <class name="org.ballerinalang.test.javainterop.basic.FieldAccessMutateTest"></class>
+            <class name="org.ballerinalang.test.javainterop.basic.JavaToBallerinaTest"></class>
+            <class name="org.ballerinalang.test.javainterop.primitivetypes.FunctionsReturningPrimitivesTest"></class>
+            <class name="org.ballerinalang.test.javainterop.basic.HandleRefersNullTest"></class>
+            <class name="org.ballerinalang.test.javainterop.primitivetypes.PrimitiveConversionInFunctionReturnsTest"></class>
+            <class name="org.ballerinalang.test.javainterop.primitivetypes.PrimitiveConversionsInFunctionParamsTest"></class>
+            <class name="org.ballerinalang.test.javainterop.primitivetypes.PrimitiveTypeFunctionParamTest"></class>
+            <class name="org.ballerinalang.test.javainterop.primitivetypes.UnionsWithPrimitiveTypesTest"></class>
+            <class name="org.ballerinalang.test.jvm.BuiltinMethodTest"></class>
+            <class name="org.ballerinalang.test.jvm.TypeTestExprTest"></class>
+            <class name="org.ballerinalang.test.record.RecordValueTest"></class>
+            <class name="org.ballerinalang.test.statements.arrays.ArrayIndexTooLargeTest"></class>
+            <class name="org.ballerinalang.test.statements.arrays.ArrayLengthAccessExprTest"></class>
+            <class name="org.ballerinalang.test.statements.arrays.BArrayValueTest"></class>
+            <class name="org.ballerinalang.test.statements.ifelse.IfElseStmtTest"></class>
+            <class name="org.ballerinalang.test.statements.returnstmt.NamedReturnParameterTest"></class>
+            <class name="org.ballerinalang.test.statements.returnstmt.ReturnStmtInBranchTest"></class>
+            <class name="org.ballerinalang.test.statements.variabledef.VariableDefinitionTest"></class>
+            <class name="org.ballerinalang.test.structs.StructEquivalencyNegativeTest"></class>
+            <class name="org.ballerinalang.test.testerina.TopLevelNodesTest"></class>
+            <class name="org.ballerinalang.test.types.any.BAnyTypeInvalidCastError"></class>
+            <class name="org.ballerinalang.test.types.globalvar.GlobalVarFunctionTest"></class>
+            <class name="org.ballerinalang.test.types.var.TopLevelVarDeclarationTest"></class>
+            <class name="org.ballerinalang.test.vm.DynamicControlStackTest"></class>
+            <class name="org.ballerinalang.test.javainterop.RefTypeNegativeTests"></class>
+            <class name="org.ballerinalang.test.types.constant.ConstantAccessNegativeTest"></class>
+            <class name="org.ballerinalang.test.types.constant.ConstantAccessTest"></class>
+            <class name="org.ballerinalang.test.types.var.VarIgnoreTest"></class>
+            <class name="org.ballerinalang.test.documentation.MultilineDocsTest"></class>
+            <class name="org.ballerinalang.test.documentation.ObjectFieldDefaultValueTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtConstPatternTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.MatchStatementSyntaxErrorsTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.CaptureBindingPatternTest"></class>
+<!--            <class name="org.ballerinalang.test.statements.matchstmt.MatchStatementOnFailTest"></class>-->
+<!--            <class name="org.ballerinalang.test.lock.LocksWithOnFailTest"></class>-->
+            <!--<class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />-->
+            <!--<class name="org.ballerinalang.test.lock.LocksInMainTest">-->
+            <!--<methods>-->
+            <!--<include name="simpleLock"/>-->
+            <!--</methods>-->
+            <!--</class>-->
+<!--            <class name="org.ballerinalang.test.lock.LocksInServicesTest">-->
+<!--                <methods>-->
+<!--                    &lt;!&ndash; Not supported at the moment &ndash;&gt;-->
+<!--                    <exclude name="testFieldLock"></exclude>-->
+<!--                </methods>-->
+<!--            </class>-->
+            <class name="org.ballerinalang.test.lock.LocksInMainTest" />
+            <class name="org.ballerinalang.test.lock.FieldLockTest">
+                <methods>
+                    <!-- Not supported at the moment -->
+                    <exclude name="testObjectLock" />
+                    <exclude name="testLockInRecords" />
+                </methods>
+            </class>
+            <!-- <class name="org.ballerinalang.test.types.TypeUnificationTest"/> -->
+            <!--<class name="org.ballerinalang.test.error.ErrorTest" />-->
+            <class name="org.ballerinalang.test.expressions.async.BasicAsyncOperationsTest">
+                <methods>
+                    <exclude name="testAsyncNonNativeBasic6" />
+                    <exclude name="testAsyncNonNativeBasic7" />
+                    <exclude name="testAsyncNonNativeBasic8" />
+                    <exclude name="testAsyncNonNativeBasic9" />
+                    <exclude name="testAsyncNonNativeBasic10" />
+                    <exclude name="testAsyncNonNativeBasic11" />
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest" />
+            <class name="org.ballerinalang.test.balo.record.ClosedRecordTypeReferenceTest" />
+        </classes>
+    </test>
 </suite>

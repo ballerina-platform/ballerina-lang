@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.websocket.server;
 
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketService;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
@@ -30,7 +30,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 public class WebSocketConnectionInfo {
 
     private final WebSocketService webSocketService;
-    private final ObjectValue webSocketEndpoint;
+    private final BObject webSocketEndpoint;
     private final WebSocketConnection webSocketConnection;
     private StringAggregator stringAggregator = null;
 
@@ -40,7 +40,7 @@ public class WebSocketConnectionInfo {
      * @param webSocketEndpoint   can be the WebSocketCaller or the WebSocketClient
      */
     public WebSocketConnectionInfo(WebSocketService webSocketService, WebSocketConnection webSocketConnection,
-                                   ObjectValue webSocketEndpoint) {
+                                   BObject webSocketEndpoint) {
         this.webSocketService = webSocketService;
         this.webSocketConnection = webSocketConnection;
         this.webSocketEndpoint = webSocketEndpoint;
@@ -50,7 +50,7 @@ public class WebSocketConnectionInfo {
         return webSocketService;
     }
 
-    public ObjectValue getWebSocketEndpoint() {
+    public BObject getWebSocketEndpoint() {
         return webSocketEndpoint;
     }
 

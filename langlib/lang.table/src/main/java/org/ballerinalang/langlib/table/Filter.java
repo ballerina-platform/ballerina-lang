@@ -18,22 +18,20 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.types.BTableType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.types.TableType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.scheduling.AsyncUtils;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.TABLE_LANG_LIB;
 import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 
 /**
@@ -41,26 +39,28 @@ import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
  *
  * @since 1.3.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION, functionName = "filter",
-        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION)},
-        returnType = {@ReturnType(type = TypeKind.TABLE)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.table", functionName = "filter",
+//        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION)},
+//        returnType = {@ReturnType(type = TypeKind.TABLE)},
+//        isPublic = true
+//)
 public class Filter {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "filter");
 
-    public static TableValueImpl filter(Strand strand, TableValueImpl tbl, FPValue<Object, Boolean> func) {
-        BType newTableType = tbl.getType();
-        TableValueImpl newTable = new TableValueImpl((BTableType) newTableType);
+    public static BTable filter(BTable tbl, BFunctionPointer<Object, Boolean> func) {
+        Type newTableType = tbl.getType();
+        BTable newTable = ValueCreator.createTableValue((TableType) newTableType);
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
+        // accessing the parent strand here to use it with each iteration
+        Strand parentStrand = Scheduler.getStrand();
 
-        BRuntime.getCurrentRuntime()
+        AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                        () -> new Object[]{strand,
+                        () -> new Object[]{parentStrand,
                                 tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
                         result -> {
                             if ((Boolean) result) {
@@ -68,11 +68,11 @@ public class Filter {
                                 Object value = tbl.get(key);
                                 newTable.put(key, value);
                             }
-                        }, () -> newTable);
+                        }, () -> newTable, Scheduler.getStrand().scheduler);
         return newTable;
     }
 
-    public static TableValueImpl filter_bstring(Strand strand, TableValueImpl tbl, FPValue<Object, Boolean> func) {
-        return filter(strand, tbl, func);
+    public static BTable filter_bstring(Strand strand, BTable tbl, BFunctionPointer<Object, Boolean> func) {
+        return filter(tbl, func);
     }
 }

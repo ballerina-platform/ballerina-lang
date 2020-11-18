@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -31,6 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -142,12 +144,23 @@ public class SymbolEnv {
         return objectEnv;
     }
 
+    public static SymbolEnv createClassEnv(BLangClassDefinition node, Scope scope, SymbolEnv env) {
+        SymbolEnv objectEnv = createPkgLevelSymbolEnv(node, scope, env);
+        objectEnv.envCount = env.envCount;
+        return objectEnv;
+    }
+
     public static SymbolEnv createObjectMethodsEnv(BLangObjectTypeNode node, BObjectTypeSymbol objSymbol,
                                                    SymbolEnv env) {
-        if (objSymbol.methodScope == null) {
-            objSymbol.methodScope = new Scope(objSymbol);
-        }
-        SymbolEnv symbolEnv = createPkgLevelSymbolEnv(node, objSymbol.methodScope, env);
+        SymbolEnv symbolEnv = createPkgLevelSymbolEnv(node, objSymbol.scope, env);
+        symbolEnv.envCount = env.envCount + 1;
+        env.copyTo(symbolEnv);
+        return symbolEnv;
+    }
+
+    public static SymbolEnv createClassMethodsEnv(BLangClassDefinition node, BObjectTypeSymbol objSymbol,
+                                                   SymbolEnv env) {
+        SymbolEnv symbolEnv = createPkgLevelSymbolEnv(node, objSymbol.scope, env);
         symbolEnv.envCount = env.envCount + 1;
         env.copyTo(symbolEnv);
         return symbolEnv;
@@ -200,6 +213,17 @@ public class SymbolEnv {
 
     public static SymbolEnv createRetryEnv(BLangRetry node, SymbolEnv env) {
         SymbolEnv symbolEnv = new SymbolEnv(node, new Scope(env.scope.owner));
+        symbolEnv.enclEnv = env;
+        symbolEnv.enclInvokable = env.enclInvokable;
+        symbolEnv.node = node;
+        symbolEnv.enclPkg = env.enclPkg;
+        return symbolEnv;
+    }
+
+    public static SymbolEnv createOnFailEnv(BLangOnFailClause node, SymbolEnv env) {
+        SymbolEnv symbolEnv = new SymbolEnv(node, new Scope(env.scope.owner));
+        env.copyTo(symbolEnv);
+        symbolEnv.envCount = env.envCount + 1;
         symbolEnv.enclEnv = env;
         symbolEnv.enclInvokable = env.enclInvokable;
         symbolEnv.node = node;
@@ -307,11 +331,14 @@ public class SymbolEnv {
         return createEnv(node, env);
     }
 
+    public static SymbolEnv createLockEnv(BLangNode node, SymbolEnv env) {
+        return createEnv(node, env);
+    }
+
     private static SymbolEnv createEnv(BLangNode node, SymbolEnv env) {
         SymbolEnv symbolEnv = new SymbolEnv(node, new Scope(env.scope.owner));
         symbolEnv.envCount = 0;
         env.copyTo(symbolEnv);
-        symbolEnv.node = node;
         return symbolEnv;
     }
 

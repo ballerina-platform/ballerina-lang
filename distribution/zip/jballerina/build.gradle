@@ -52,12 +52,11 @@ dependencies {
     dist project(':ballerina-choreo-extension-rt')
 
     distBal project(path: ':ballerina-observability', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-openapi', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-java', configuration: 'baloImplementation')
 
     // Lang libs
     distBal project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:array', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:decimal', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:error', configuration: 'baloImplementation')
@@ -77,11 +76,11 @@ dependencies {
     distBal project(path: ':ballerina-lang:transaction', configuration: 'baloImplementation')
 
     balSource project(path: ':ballerina-observability', configuration: 'balSource')
-    balSource project(path: ':ballerina-openapi', configuration: 'balSource')
-    balSource project(path: ':ballerina-transactions', configuration: 'balSource')
+//    balSource project(path: ':ballerina-transactions', configuration: 'balSource')
 
     // Lang Libs
     balSource project(path: ':ballerina-lang:internal', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:java', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:annotations', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:array', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:decimal', configuration: 'balSource')
@@ -100,11 +99,6 @@ dependencies {
     balSource project(path: ':ballerina-lang:bool', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:query', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:transaction', configuration: 'balSource')
-
-    // ballerinax modules
-    balSource project(path: ':ballerina-java', configuration: 'balSource')
-
-    birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
 
     staticArtifacts files('COPYRIGHT', 'LICENSE', 'README.md')
 }

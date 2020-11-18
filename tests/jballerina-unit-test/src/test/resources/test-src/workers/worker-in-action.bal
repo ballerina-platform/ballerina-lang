@@ -4,7 +4,7 @@ public type ClientEndpointConfiguration record {
 
 };
 
-public type ABCClient client object {
+public client class ABCClient {
 
     remote function testAction1() returns string {
         @strand{thread:"any"}
@@ -32,9 +32,9 @@ public type ABCClient client object {
         return result;
     }
 
-};
+}
 
-public type Client object {
+public class Client {
     public ABCClient abcClient = new;
 
     public function _init_(ClientEndpointConfiguration config) {
@@ -53,7 +53,7 @@ public type Client object {
 
     public function stop() {
     }
-};
+}
 
 function testAction1() returns string {
     ABCClient ep1 = new;

@@ -27,6 +27,7 @@ import java.util.Locale;
 import static org.ballerinalang.bindgen.command.BindingsGenerator.getAllJavaClasses;
 import static org.ballerinalang.bindgen.command.BindingsGenerator.setClassListForLooping;
 import static org.ballerinalang.bindgen.command.BindingsGenerator.setExceptionList;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.ARRAY_BRACKETS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_RESERVED_WORDS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING_ARRAY;
@@ -142,6 +143,7 @@ public class JMethod {
             } else {
                 returnComponentType = getAlias(returnTypeClass.getComponentType());
                 returnComponentType = getExceptionName(returnTypeClass.getComponentType(), returnComponentType);
+                returnType = returnComponentType + ARRAY_BRACKETS;
                 objectReturn = true;
             }
         } else if (returnTypeClass.isPrimitive()) {

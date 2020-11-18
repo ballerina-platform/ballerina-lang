@@ -18,10 +18,10 @@
  */
 package org.ballerinalang.test.types.tuples;
 
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -50,14 +50,16 @@ public class TupleLValueFillTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion message=array of " +
+          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion " +
+                  "\\{\"message\":\"array of " +
                   "length 0 cannot be expanded into array of length 2 without filler values.*")
     public void testRecordsWithoutFillerValues() {
         BRunUtil.invoke(compileResult, "testRecordsWithoutFillerValues");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion message=tuple of " +
+          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion " +
+                  "\\{\"message\":\"tuple of " +
                   "length 1 cannot be expanded into tuple of length 3 without filler values.*")
     public void testRecordsWithoutFillerValues2() {
         BRunUtil.invoke(compileResult, "testRecordsWithoutFillerValues2");

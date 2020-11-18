@@ -17,11 +17,13 @@
 */
 package org.wso2.ballerinalang.compiler.tree.statements;
 
+import org.ballerinalang.model.clauses.OnFailClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.LockNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.HashSet;
@@ -39,6 +41,8 @@ public class BLangLock extends BLangStatement implements LockNode {
 
     public String uuid;
 
+    public BLangOnFailClause onFailClause;
+
     public BLangLock() {
     }
 
@@ -50,6 +54,16 @@ public class BLangLock extends BLangStatement implements LockNode {
     @Override
     public void setBody(BlockStatementNode body) {
         this.body = (BLangBlockStmt) body;
+    }
+
+    @Override
+    public OnFailClauseNode getOnFailClause() {
+        return this.onFailClause;
+    }
+
+    @Override
+    public void setOnFailClause(OnFailClauseNode onFailClause) {
+        this.onFailClause = (BLangOnFailClause) onFailClause;
     }
 
     @Override
@@ -93,6 +107,10 @@ public class BLangLock extends BLangStatement implements LockNode {
 
         public boolean addLockVariable(BVarSymbol variable) {
             return lockVariables.add(variable);
+        }
+
+        public boolean addLockVariable(Set<BVarSymbol> variables) {
+            return lockVariables.addAll(variables);
         }
     }
 

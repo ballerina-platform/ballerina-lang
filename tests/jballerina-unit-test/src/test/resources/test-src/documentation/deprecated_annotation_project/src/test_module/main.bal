@@ -31,7 +31,7 @@ public type NewState "on"|"off";
 // also used for object member methods test
 
 @deprecated
-public type Person object {
+public class Person {
     public string firstName = "John";
     public string lastName = "Doe";
 
@@ -50,9 +50,9 @@ public type Person object {
     public function getCity() returns string {
         return self.addr.city;
     }
-};
+}
 
-public type Student object {
+public class Student {
     @deprecated
     public string name = "Saman";
     public int age = 15;
@@ -65,7 +65,7 @@ public type Student object {
     public function getAge() returns int {
         return self.age;
     }
-};
+}
 
 //========= 4.records =======================================
 
@@ -183,7 +183,7 @@ public function getFullName(string title, @deprecated string fName,  string mNam
 
 //========= OBJECT MEMBERS ================================
 
-public type Player object {
+public class Player {
     @deprecated
     public string name = "Saman";
     public int age = 15;
@@ -196,7 +196,7 @@ public type Player object {
     public function getAge() returns int {
         return self.age;
     }
-};
+}
 
 // main method
 

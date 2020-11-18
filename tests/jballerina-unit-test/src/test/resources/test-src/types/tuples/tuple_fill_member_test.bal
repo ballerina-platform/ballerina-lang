@@ -156,13 +156,13 @@ type Foo record {
     boolean b?;
 };
 
-type Bar object {
+class Bar {
     int b;
 
     public function init() {
         self.b = 11;
     }
-};
+}
 
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {

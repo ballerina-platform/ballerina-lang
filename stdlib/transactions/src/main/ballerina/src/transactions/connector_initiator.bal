@@ -27,7 +27,7 @@ type InitiatorClientConfig record {
 
 type RegistrationResponseTypedesc typedesc<RegistrationResponse>;
 
-type InitiatorClientEP client object {
+client class InitiatorClientEP {
     http:Client httpClient;
 
     function init(InitiatorClientConfig conf) {
@@ -62,4 +62,4 @@ type InitiatorClientEP client object {
         json resPayload = check res.getJsonPayload();
         return <@untainted> resPayload.cloneWithType(RegistrationResponseTypedesc);
     }
-};
+}

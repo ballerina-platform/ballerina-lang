@@ -19,10 +19,10 @@ type Person record {
     int age;
 };
 
-type PersonObj object {
+class PersonObj {
     string name = "";
     int age = 0;
-};
+}
 
 type Student record {
     *PersonObj;

@@ -45,6 +45,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+
 /**
  * 
  * Responsible for evaluate an expression and narrow the types of the variables
@@ -100,7 +102,9 @@ public class TypeNarrower extends BLangNodeVisitor {
             NarrowedTypes typeInfo = entry.getValue();
             BType narrowedType = isBinaryExpr && typeInfo.trueType == symTable.semanticError ? typeInfo.falseType :
                     typeInfo.trueType;
-            symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, getOriginalVarSymbol(symbol), narrowedType);
+            BVarSymbol originalSym = getOriginalVarSymbol(symbol);
+            symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, originalSym, narrowedType,
+                                                 originalSym.origin == VIRTUAL);
         }
 
         return targetEnv;
@@ -128,7 +132,9 @@ public class TypeNarrower extends BLangNodeVisitor {
 
         SymbolEnv targetEnv = getTargetEnv(targetNode, env);
         narrowedTypes.forEach((symbol, typeInfo) -> {
-            symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, getOriginalVarSymbol(symbol), typeInfo.falseType);
+            BVarSymbol originalSym = getOriginalVarSymbol(symbol);
+            symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, originalSym,
+                                                 typeInfo.falseType, originalSym.origin == VIRTUAL);
         });
 
         return targetEnv;

@@ -1,7 +1,7 @@
 annotation Foo on source parameter,
                   parameter
                   type,
-                  source object type,
+                  source type,
                   object function
                   resource function,
                   function,

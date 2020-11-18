@@ -16,8 +16,8 @@
  *  under the License.
  */
 package org.ballerinalang.test.query;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -116,7 +116,7 @@ public class JoinClauseTest {
 
     @Test(groups = {"disableOnOldParser"}, description = "Test negative scenarios for query expr with join clause")
     public void testNegativeScenarios() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 29);
+        Assert.assertEquals(negativeResult.getErrorCount(), 32);
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'Department', found 'Person'", 30, 13);
         validateError(negativeResult, i++, "invalid operation: type 'Person' does not support field access for " +
@@ -147,6 +147,9 @@ public class JoinClauseTest {
         validateError(negativeResult, i++, "missing equals keyword", 293, 1);
         validateError(negativeResult, i++, "missing identifier", 293, 1);
         validateError(negativeResult, i++, "missing identifier", 293, 1);
-        validateError(negativeResult, i, "missing on keyword", 293, 1);
+        validateError(negativeResult, i++, "missing on keyword", 293, 1);
+        validateError(negativeResult, i++, "undefined symbol 'dept'", 313, 24);
+        validateError(negativeResult, i++, "missing equals keyword", 314, 1);
+        validateError(negativeResult, i, "missing identifier", 314, 1);
     }
 }

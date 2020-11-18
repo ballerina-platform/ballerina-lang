@@ -38,7 +38,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
       "insertText": "function1();",
@@ -51,7 +51,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
       "insertText": "function2();",
@@ -64,7 +64,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n  \n**Returns** `()`   \n  \n"
         }
       },
       "insertText": "function3(${1});",
@@ -81,7 +81,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n  \n**Returns** `()`   \n  \n"
         }
       },
       "insertText": "function4(${1});",

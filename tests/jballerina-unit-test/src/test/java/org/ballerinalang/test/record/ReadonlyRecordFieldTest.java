@@ -33,7 +33,7 @@ import static org.testng.Assert.assertEquals;
  */
 public class ReadonlyRecordFieldTest {
 
-    @Test
+    @Test(groups = "disableOnOldParser", enabled = false)
     public void testReadonlyRecordFields() {
         CompileResult result = BCompileUtil.compile("test-src/record/readonly_record_fields.bal");
         BRunUtil.invoke(result, "testReadonlyRecordFields");

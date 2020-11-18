@@ -18,48 +18,39 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.MapUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 
-import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
-import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
+import static io.ballerina.runtime.MapUtils.checkIsMapOnlyOperation;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFieldForRecord;
 import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
 
 /**
  * Extern function to remove element from the map.
  * ballerina.model.map:remove(string)
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION, functionName = "remove",
-        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "k", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.ANY)},
-        isPublic = true
-)
 public class Remove {
 
-    public static Object remove(Strand strand, MapValue<?, ?> m, BString k) {
-        BType type = m.getType();
+    public static Object remove(BMap<?, ?> m, BString k) {
+        Type type = m.getType();
 
         checkIsMapOnlyOperation(type, REMOVE);
-        MapUtils.validateRequiredFieldForRecord(m, k.getValue());
+        validateRequiredFieldForRecord(m, k.getValue());
         if (m.containsKey(k)) {
             try {
                 return m.remove(k);
-            } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
-                throw BallerinaErrors.createError(e.getMessage(),
-                                                  "Failed to remove element from map: " + e.getDetail());
+            } catch (io.ballerina.runtime.util.exceptions.BLangFreezeException e) {
+                throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()),
+                                               StringUtils.fromString(
+                                                        "Failed to remove element from map: " + e.getDetail()));
             }
         }
 
-        throw BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR, "cannot find key '" + k + "'");
+        throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, StringUtils
+                .fromString("cannot find key '" + k + "'"));
     }
 }

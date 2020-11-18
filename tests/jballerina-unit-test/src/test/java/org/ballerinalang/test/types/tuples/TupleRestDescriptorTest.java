@@ -16,12 +16,12 @@
  */
 package org.ballerinalang.test.types.tuples;
 
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -65,16 +65,16 @@ public class TupleRestDescriptorTest {
     public void testTupleCovarianceWithRestDescriptor() {
         BValue[] returns = BRunUtil.invoke(result, "tupleCovarianceWithRestDescriptor", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "s name=John intern=true name=John intern=true name=John " +
-                "intern=true ");
+        Assert.assertEquals(returns[0].stringValue(), "s {\"name\":\"John\",\"intern\":true} {\"name\":\"John\"," +
+                "\"intern\":true} {\"name\":\"John\",\"intern\":true} ");
     }
 
     @Test(description = "Test tuple covariance with only rest descriptor")
     public void tupleCovarianceWithOnlyRestDescriptor() {
         BValue[] returns = BRunUtil.invoke(result, "tupleCovarianceWithOnlyRestDescriptor", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "name=John intern=true name=John intern=true name=John " +
-                "intern=true ");
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John\",\"intern\":true} {\"name\":\"John\"," +
+                "\"intern\":true} {\"name\":\"John\",\"intern\":true} ");
     }
 
     @Test(description = "Test function invocation with tuples with rest descriptor")
@@ -101,8 +101,8 @@ public class TupleRestDescriptorTest {
     @Test(description = "Test out of bound indexed based access on tuples with rest descriptor",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array\\}IndexOutOfRange message=tuple index out of range: index: 4, " +
-                            "size: 4.*")
+                    "error: \\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"tuple index out of range: " +
+                            "index: 4, size: 4.*")
     public void testIndexBasedAccessNegative() {
         BRunUtil.invoke(result, "testIndexBasedAccessNegative");
     }

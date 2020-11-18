@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.TextDocuments;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.eclipse.lsp4j.CodeLens;
@@ -41,7 +41,13 @@ public class WorkspaceDocument {
     public WorkspaceDocument(Path path, String content, boolean isTempFile) {
         this.path = path;
         this.content = content;
-        setTree(SyntaxTree.from(TextDocuments.from(this.content)));
+        Path namePart = path.getFileName();
+        if (namePart != null) {
+            String fileName = namePart.toString();
+            setTree(SyntaxTree.from(TextDocuments.from(this.content), fileName));
+        } else {
+            setTree(SyntaxTree.from(TextDocuments.from(this.content)));
+        }
         this.codeLenses = new ArrayList<>();
         lsDocument = isTempFile ? null : new LSDocumentIdentifierImpl(path.toUri().toString());
     }
@@ -72,14 +78,24 @@ public class WorkspaceDocument {
 
     public void setContent(String content) {
         this.content = content;
+        Path namePart = this.path.getFileName();
         // TODO: Fix this, each time creates a new tree
-        setTree(SyntaxTree.from(TextDocuments.from(this.content)));
+        if (namePart != null) {
+            setTree(SyntaxTree.from(TextDocuments.from(this.content), namePart.toString()));
+        } else {
+            setTree(SyntaxTree.from(TextDocuments.from(this.content)));
+        }
     }
 
     public void setIncrementContent(String content) {
         this.content = content;
         // TODO: Fix this, each time creates a new tree
-        setTree(SyntaxTree.from(TextDocuments.from(this.content)));
+        Path namePath = this.path.getFileName();
+        if (namePath != null) {
+            setTree(SyntaxTree.from(TextDocuments.from(this.content), namePath.toString()));
+        } else {
+            setTree(SyntaxTree.from(TextDocuments.from(this.content)));
+        }
     }
 
     public SyntaxTree getTree() {

@@ -25,3 +25,15 @@ dependencies {
 }
 
 description = 'Ballerina - Language server - Stdio launcher'
+
+ext.moduleName = 'io.ballerina.language.server.stdio.launcher'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

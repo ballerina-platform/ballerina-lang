@@ -18,38 +18,28 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.transactions.TransactionLocalContext;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.transactions.TransactionLocalContext;
 
 /**
  * Extern function transaction:info.
  *
  * @since 2.0.0-preview1
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.transaction", version = TRANSACTION_VERSION,
-        functionName = "info",
-        args = {},
-        returnType = {@ReturnType(type = TypeKind.RECORD)},
-        isPublic = true
-)
 public class Info {
 
-    public static MapValue<BString, Object> info(Strand strand) {
-        if (IsTransactional.isTransactional(strand)) {
+    public static BMap<BString, Object> info() {
+        Strand strand = Scheduler.getStrand();
+        if (IsTransactional.isTransactional()) {
             TransactionLocalContext context = strand.currentTrxContext;
-            return (MapValue<BString, Object>) context.getInfoRecord();
+            return (BMap<BString, Object>) context.getInfoRecord();
         }
-        throw BallerinaErrors.createError(StringUtils
+        throw ErrorCreator.createError(StringUtils
                 .fromString("cannot call info() if the strand is not in transaction mode"));
     }
 }

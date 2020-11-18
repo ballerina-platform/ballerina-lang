@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewInstance;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -54,7 +55,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -68,6 +68,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -125,9 +126,9 @@ public class JvmPackageGen {
     private Map<String, String> externClassMap;
     private Map<String, String> globalVarClassMap;
     private Map<String, PackageID> dependentModules;
-    private BLangDiagnosticLogHelper dlog;
+    private BLangDiagnosticLog dlog;
 
-    JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLogHelper dlog) {
+    JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLog dlog) {
 
         birFunctionMap = new HashMap<>();
         globalVarClassMap = new HashMap<>();
@@ -152,11 +153,22 @@ public class JvmPackageGen {
     }
 
     private static void addBuiltinImports(BIRPackage currentModule, Set<PackageID> dependentModuleArray) {
+        Name ballerinaOrgName = new Name("ballerina");
+        Name builtInVersion = new Name("");
+
         // Add the builtin and utils modules to the imported list of modules
         if (isSameModule(currentModule, PackageID.ANNOTATIONS)) {
             return;
         }
+
         dependentModuleArray.add(PackageID.ANNOTATIONS);
+
+        if (isSameModule(currentModule, PackageID.JAVA)) {
+            return;
+        }
+
+        dependentModuleArray.add(PackageID.JAVA);
+
         if (isLangModule(currentModule)) {
             return;
         }
@@ -200,7 +212,7 @@ public class JvmPackageGen {
         if (!BALLERINA.equals(moduleId.org.value)) {
             return false;
         }
-        return moduleId.name.value.indexOf("lang.") == 0;
+        return moduleId.name.value.indexOf("lang.") == 0 || moduleId.name.equals(Names.JAVA);
     }
 
     private static void generatePackageVariable(BIRGlobalVariableDcl globalVar, ClassWriter cw) {
@@ -386,7 +398,7 @@ public class JvmPackageGen {
             BPackageSymbol pkgSymbol = packageCache.getSymbol(getBvmAlias(importModule.org.value,
                     importModule.name.value));
             generateDependencyList(pkgSymbol, interopValidator);
-            if (dlog.getErrorCount() > 0) {
+            if (dlog.errorCount() > 0) {
                 return new CompiledJarFile(Collections.emptyMap());
             }
         }
@@ -399,7 +411,7 @@ public class JvmPackageGen {
         String pkgName = JvmCodeGenUtil.getPackageName(module);
         Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, pkgName, moduleInitClass,
                                                                           interopValidator, isEntry);
-        if (!isEntry || dlog.getErrorCount() > 0) {
+        if (!isEntry || dlog.errorCount() > 0) {
             return new CompiledJarFile(Collections.emptyMap());
         }
 
@@ -521,7 +533,7 @@ public class JvmPackageGen {
 
     /**
      * Java Class will be generate for each source file. This method add class mappings to globalVar and filters the
-     * unctions based on their source file name and then returns map of associated java class contents.
+     * functions based on their source file name and then returns map of associated java class contents.
      *
      * @param module           bir module
      * @param pkgName          module name
@@ -563,7 +575,8 @@ public class JvmPackageGen {
         if (isEntry) {
             for (BIRNode.BIRConstant constant : module.constants) {
                 module.globalVars.add(new BIRGlobalVariableDcl(constant.pos, constant.flags, constant.type, null,
-                        constant.name, VarScope.GLOBAL, VarKind.CONSTANT, ""));
+                                                               constant.name, VarScope.GLOBAL, VarKind.CONSTANT, "",
+                                                               constant.origin));
             }
         }
         for (BIRGlobalVariableDcl globalVar : module.globalVars) {
@@ -572,7 +585,7 @@ public class JvmPackageGen {
             }
         }
 
-        globalVarClassMap.put(pkgName + "LOCK_STORE", initClass);
+        globalVarClassMap.put(pkgName + LOCK_STORE_VAR_NAME, initClass);
     }
 
     private void linkTypeDefinitions(BIRPackage module, String pkgName,
@@ -586,7 +599,7 @@ public class JvmPackageGen {
             BType bType = optionalTypeDef.type;
 
             if ((bType.tag != TypeTags.OBJECT ||
-                    Symbols.isFlagOn(bType.tsymbol.flags, Flags.ABSTRACT)) &&
+                    !Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) &&
                     !(bType instanceof BServiceType)) {
                 continue;
             }
@@ -614,20 +627,20 @@ public class JvmPackageGen {
 
     private void linkModuleStopFunction(String pkgName, String initClass, String orgName, String moduleName,
                                         String version) {
-
-        BIRFunction moduleStopFunction = new BIRFunction(null, new Name(MODULE_STOP), 0,
-                new BInvokableType(Collections.emptyList(), null, new BNilType(), null), new Name(""), 0, null);
+        BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, new BNilType(), null);
+        BIRFunction moduleStopFunction = new BIRFunction(null, new Name(MODULE_STOP), 0, funcType, new Name(""), 0,
+                                                         null, VIRTUAL);
         birFunctionMap.put(pkgName + MODULE_STOP, getFunctionWrapper(moduleStopFunction, orgName, moduleName,
-                version, initClass));
+                                                                     version, initClass));
     }
 
     private void linkModuleInitFunction(String pkgName, String initClass, String orgName, String moduleName,
                                         String version) {
-
-        BIRFunction moduleInitFunction = new BIRFunction(null, new Name(CURRENT_MODULE_INIT), 0,
-                new BInvokableType(Collections.emptyList(), null, new BNilType(), null), new Name(""), 0, null);
+        BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, new BNilType(), null);
+        BIRFunction moduleInitFunction = new BIRFunction(null, new Name(CURRENT_MODULE_INIT), 0, funcType, new Name(""),
+                                                         0, null, VIRTUAL);
         birFunctionMap.put(pkgName + CURRENT_MODULE_INIT, getFunctionWrapper(moduleInitFunction, orgName, moduleName,
-                version, initClass));
+                                                                             version, initClass));
     }
 
     private void linkModuleFunctions(BIRPackage module, String pkgName, String initClass,

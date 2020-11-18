@@ -13,8 +13,11 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
+import ballerina/java;
+
 # Represent the iterator type returned when `iterator` method is invoked.
-type TableIterator object {
+class TableIterator {
 
     private table<Type> t;
     private KeyType[] keys;
@@ -32,7 +35,11 @@ type TableIterator object {
 
     # Return the next member in table iterator, nil if end of iterator is reached.
     # + return - iterator result
-    public function next() returns record {|
-        Type value;
-    |}? = external;
-};
+    public isolated function next() returns record {| Type value; |}? {
+       return externNext(self);
+    }
+}
+function externNext(TableIterator iterator) returns record {| Type value; |}? = @java:Method {
+    'class: "org.ballerinalang.langlib.table.Next",
+    name: "next"
+} external;

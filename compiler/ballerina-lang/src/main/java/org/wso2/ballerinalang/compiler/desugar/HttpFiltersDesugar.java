@@ -84,6 +84,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 
@@ -233,7 +234,7 @@ public class HttpFiltersDesugar {
         BLangSimpleVariable filterContextVar = ASTBuilderUtil.createVariable(
                 resourceNode.pos, filterContextVarName, filterContextType, filterInitNode,
                 new BVarSymbol(0, names.fromString(filterContextVarName), resourceNode.symbol.pkgID, filterContextType,
-                               resourceNode.symbol, resourceNode.pos));
+                               resourceNode.symbol, resourceNode.pos, VIRTUAL));
         filterContextVar.typeNode = filterContextUserDefinedType;
         addStatementToResourceBody(resourceNode.body,
                                    ASTBuilderUtil.createVariableDef(resourceNode.pos, filterContextVar), 0);
@@ -372,7 +373,7 @@ public class HttpFiltersDesugar {
 
         BLangSimpleVarRef unionFilterRef = ASTBuilderUtil.createVariableRef(
                 resourceNode.pos, new BVarSymbol(0, new Name(filterVarName), resourceNode.symbol.pkgID, filterUnionType,
-                                                 resourceNode.symbol, resourceNode.pos));
+                                                 resourceNode.symbol, resourceNode.pos, VIRTUAL));
         unionFilterRef.variableName = ASTBuilderUtil.createIdentifier(resourceNode.pos, filterVarName);
         unionFilterRef.type = filterType;
         unionFilterRef.pos = resourceNode.pos;
@@ -421,12 +422,12 @@ public class HttpFiltersDesugar {
                                                  null);
         BOperatorSymbol notOperatorSymbol = new BOperatorSymbol(
                 names.fromString(OperatorKind.NOT.value()), symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol,
-                symTable.builtinPos);
+                symTable.builtinPos, VIRTUAL);
         BLangUnaryExpr unaryExpr = ASTBuilderUtil.createUnaryExpr(
                 resourceNode.pos, filterRequestInvocation, symTable.booleanType, OperatorKind.NOT, notOperatorSymbol);
         BOperatorSymbol andOperatorSymbol = new BOperatorSymbol(
                 names.fromString(OperatorKind.AND.value()), symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol,
-                symTable.builtinPos);
+                symTable.builtinPos, VIRTUAL);
         BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(
                 resourceNode.pos, filterTypeCheckExpr, unaryExpr, symTable.booleanType, OperatorKind.AND,
                 andOperatorSymbol);

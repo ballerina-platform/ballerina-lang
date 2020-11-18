@@ -21,7 +21,7 @@
 # + cookieConfig - Configurations associated with the cookies
 # + httpClient - HTTP client for outbound HTTP requests
 # + cookieStore - Stores the cookies of the client
-public type CookieClient client object {
+public client class CookieClient {
 
     public string url;
     public ClientConfiguration config;
@@ -224,7 +224,7 @@ public type CookieClient client object {
     public remote function rejectPromise(PushPromise promise) {
         self.httpClient->rejectPromise(promise);
     }
-};
+}
 
 // Gets the relevant cookies from the cookieStore and adds them to the request.
 function addStoredCookiesToRequest(string url, string path, CookieStore? cookieStore, Request request) {

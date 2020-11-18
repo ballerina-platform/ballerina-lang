@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
@@ -72,6 +73,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+
+import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
  * @since 0.94
@@ -170,6 +174,7 @@ public class SymbolTable {
 
     public BPackageSymbol langInternalModuleSymbol;
     public BPackageSymbol langAnnotationModuleSymbol;
+    public BPackageSymbol langJavaModuleSymbol;
     public BPackageSymbol langArrayModuleSymbol;
     public BPackageSymbol langDecimalModuleSymbol;
     public BPackageSymbol langErrorModuleSymbol;
@@ -207,40 +212,40 @@ public class SymbolTable {
         this.names = Names.getInstance(context);
 
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
-        this.rootPkgSymbol = new BPackageSymbol(PackageID.ANNOTATIONS, null, null);
-        this.builtinPos = new DiagnosticPos(new BDiagnosticSource(rootPkgSymbol.pkgID, Names.EMPTY.value), 0, 0,
-                                            0, 0);
+        this.rootPkgSymbol = new BPackageSymbol(PackageID.ANNOTATIONS, null, null, BUILTIN);
+        this.builtinPos = new DiagnosticPos(new BDiagnosticSource(rootPkgSymbol.pkgID, Names.EMPTY.value), -1, -1,
+                                            -1, -1);
         this.rootPkgNode.pos = this.builtinPos;
         this.rootPkgNode.symbol = this.rootPkgSymbol;
         this.rootScope = new Scope(rootPkgSymbol);
         this.rootPkgSymbol.scope = this.rootScope;
         this.rootPkgSymbol.pos = this.builtinPos;
 
-        this.notFoundSymbol = new BSymbol(SymTag.NIL, Flags.PUBLIC, Names.INVALID,
-                                          rootPkgSymbol.pkgID, noType, rootPkgSymbol, builtinPos);
+        this.notFoundSymbol = new BSymbol(SymTag.NIL, Flags.PUBLIC, Names.INVALID, rootPkgSymbol.pkgID, noType,
+                                          rootPkgSymbol, builtinPos, SymbolOrigin.VIRTUAL);
         // Initialize built-in types in Ballerina
-        initializeType(intType, TypeKind.INT.typeName());
-        initializeType(byteType, TypeKind.BYTE.typeName());
-        initializeType(floatType, TypeKind.FLOAT.typeName());
-        initializeType(decimalType, TypeKind.DECIMAL.typeName());
-        initializeType(stringType, TypeKind.STRING.typeName());
-        initializeType(booleanType, TypeKind.BOOLEAN.typeName());
-        initializeType(jsonType, TypeKind.JSON.typeName());
-        initializeType(xmlType, TypeKind.XML.typeName());
-        initializeType(streamType, TypeKind.STREAM.typeName());
-        initializeType(tableType, TypeKind.TABLE.typeName());
-        initializeType(mapType, TypeKind.MAP.typeName());
-        initializeType(mapStringType, TypeKind.MAP.typeName());
-        initializeType(mapAnydataType, TypeKind.MAP.typeName());
-        initializeType(futureType, TypeKind.FUTURE.typeName());
-        initializeType(anyType, TypeKind.ANY.typeName());
-        initializeType(anydataType, TypeKind.ANYDATA.typeName());
-        initializeType(nilType, TypeKind.NIL.typeName());
-        initializeType(neverType, TypeKind.NEVER.typeName());
-        initializeType(anyServiceType, TypeKind.SERVICE.typeName());
-        initializeType(handleType, TypeKind.HANDLE.typeName());
-        initializeType(typeDesc, TypeKind.TYPEDESC.typeName());
-        initializeType(readonlyType, TypeKind.READONLY.typeName());
+        initializeType(intType, TypeKind.INT.typeName(), BUILTIN);
+        initializeType(byteType, TypeKind.BYTE.typeName(), BUILTIN);
+        initializeType(floatType, TypeKind.FLOAT.typeName(), BUILTIN);
+        initializeType(decimalType, TypeKind.DECIMAL.typeName(), BUILTIN);
+        initializeType(stringType, TypeKind.STRING.typeName(), BUILTIN);
+        initializeType(booleanType, TypeKind.BOOLEAN.typeName(), BUILTIN);
+        initializeType(jsonType, TypeKind.JSON.typeName(), BUILTIN);
+        initializeType(xmlType, TypeKind.XML.typeName(), BUILTIN);
+        initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);
+        initializeType(tableType, TypeKind.TABLE.typeName(), BUILTIN);
+        initializeType(mapType, TypeKind.MAP.typeName(), VIRTUAL);
+        initializeType(mapStringType, TypeKind.MAP.typeName(), VIRTUAL);
+        initializeType(mapAnydataType, TypeKind.MAP.typeName(), VIRTUAL);
+        initializeType(futureType, TypeKind.FUTURE.typeName(), BUILTIN);
+        initializeType(anyType, TypeKind.ANY.typeName(), BUILTIN);
+        initializeType(anydataType, TypeKind.ANYDATA.typeName(), BUILTIN);
+        initializeType(nilType, TypeKind.NIL.typeName(), BUILTIN);
+        initializeType(neverType, TypeKind.NEVER.typeName(), BUILTIN);
+        initializeType(anyServiceType, TypeKind.SERVICE.typeName(), BUILTIN);
+        initializeType(handleType, TypeKind.HANDLE.typeName(), BUILTIN);
+        initializeType(typeDesc, TypeKind.TYPEDESC.typeName(), BUILTIN);
+        initializeType(readonlyType, TypeKind.READONLY.typeName(), BUILTIN);
 
         // Define subtypes
         initializeTSymbol(signed32IntType, Names.SIGNED32, PackageID.INT);
@@ -260,8 +265,9 @@ public class SymbolTable {
         trueLiteral.value = Boolean.TRUE;
 
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
-                names.fromString("$anonType$TRUE"),
-                rootPkgNode.packageID, null, rootPkgNode.symbol.owner, this.builtinPos);
+                                                                names.fromString("$anonType$TRUE"),
+                                                                rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
+                                                                this.builtinPos, VIRTUAL);
         this.trueType = new BFiniteType(finiteTypeSymbol, new HashSet<BLangExpression>() {{
             add(trueLiteral);
         }});
@@ -353,25 +359,35 @@ public class SymbolTable {
 
     public void loadPredeclaredModules() {
         Map<Name, BPackageSymbol> modules = new HashMap<>();
+        modules.put(Names.BOOLEAN, this.langBooleanModuleSymbol);
+        modules.put(Names.DECIMAL, this.langDecimalModuleSymbol);
         modules.put(Names.ERROR, this.langErrorModuleSymbol);
+        modules.put(Names.FLOAT, this.langFloatModuleSymbol);
+        modules.put(Names.FUTURE, this.langFutureModuleSymbol);
+        modules.put(Names.INT, this.langIntModuleSymbol);
+        modules.put(Names.MAP, this.langMapModuleSymbol);
         modules.put(Names.OBJECT, this.langObjectModuleSymbol);
+        modules.put(Names.STREAM, this.langStreamModuleSymbol);
+        modules.put(Names.STRING, this.langStringModuleSymbol);
+        modules.put(Names.TABLE, this.langTableModuleSymbol);
+        modules.put(Names.TYPEDESC, this.langTypedescModuleSymbol);
         modules.put(Names.XML, this.langXmlModuleSymbol);
 
         this.predeclaredModules = Collections.unmodifiableMap(modules);
     }
 
-    private void initializeType(BType type, String name) {
-        initializeType(type, names.fromString(name));
+    private void initializeType(BType type, String name, SymbolOrigin origin) {
+        initializeType(type, names.fromString(name), origin);
     }
 
-    private void initializeType(BType type, Name name) {
+    private void initializeType(BType type, Name name, SymbolOrigin origin) {
         defineType(type, new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, rootPkgSymbol.pkgID, type, rootPkgSymbol,
-                                         builtinPos));
+                                         builtinPos, origin));
     }
 
     private void initializeTSymbol(BType type, Name name, PackageID packageID) {
-
-        type.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, packageID, type, rootPkgSymbol, builtinPos);
+        type.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, packageID, type, rootPkgSymbol, builtinPos,
+                                       BUILTIN);
     }
 
     private void defineType(BType type, BTypeSymbol tSymbol) {
@@ -704,7 +720,8 @@ public class SymbolTable {
                                 List<BType> paramTypes,
                                 BType retType) {
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        BOperatorSymbol symbol = new BOperatorSymbol(name, rootPkgSymbol.pkgID, opType, rootPkgSymbol, this.builtinPos);
+        BOperatorSymbol symbol = new BOperatorSymbol(name, rootPkgSymbol.pkgID, opType, rootPkgSymbol, this.builtinPos,
+                                                     BUILTIN);
         rootScope.define(name, symbol);
     }
 }

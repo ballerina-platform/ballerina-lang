@@ -18,29 +18,22 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * Extern function lang.string:endsWith(string, string).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "endsWith",
-        args = {@Argument(name = "str", type = TypeKind.STRING), @Argument(name = "substr", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.string", functionName = "endsWith",
+//        args = {@Argument(name = "str", type = TypeKind.STRING), @Argument(name = "substr", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+//        isPublic = true
+//)
 public class EndsWith {
 
-    public static boolean endsWith(Strand strand, BString str, BString substr) {
+    public static boolean endsWith(BString str, BString substr) {
         return str.getValue().endsWith(substr.getValue());
     }
 }

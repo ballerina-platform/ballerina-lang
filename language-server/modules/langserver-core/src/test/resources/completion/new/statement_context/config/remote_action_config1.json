@@ -6,13 +6,13 @@
   "source": "statement_context/source/remote_action_source1.bal",
   "items": [
     {
-      "label": "post(string path, (string|xml|json|byte[]) message)(module1:Response)",
+      "label": "post(string path, string|xml|json|byte[] message)(ballerina/module1:0.1.0:Response)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThe `Client.post()` function can be used to send HTTP POST requests to HTTP endpoints.\n  \n**Params**  \n- `string` path: Resource path  \n- `(string|xml|json|byte[])` message: An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`  \n  \n**Returns** `module1:Response`   \n- The response for the request   \n  \n"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThe `Client.post()` function can be used to send HTTP POST requests to HTTP endpoints.\n  \n**Params**  \n- `string` path: Resource path  \n- `string|xml|json|byte[]` message: An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`  \n  \n**Returns** `ballerina/module1:0.1.0:Response`   \n- The response for the request  \n  \n"
         }
       },
       "insertText": "post(${1})",

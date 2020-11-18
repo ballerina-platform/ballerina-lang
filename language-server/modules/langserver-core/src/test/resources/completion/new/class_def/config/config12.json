@@ -1,0 +1,16 @@
+{
+  "position": {
+    "line": 3,
+    "character": 13
+  },
+  "source": "class_def/source/source12.bal",
+  "items": [
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

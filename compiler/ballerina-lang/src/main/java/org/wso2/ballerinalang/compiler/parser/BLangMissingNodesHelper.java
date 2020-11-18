@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.ballerina.runtime.util.BLangConstants.UNDERSCORE;
+
 /**
  * {@link BLangMissingNodesHelper} contains utility methods to handle missing nodes
  * in the syntax tree.
@@ -55,7 +57,7 @@ public class BLangMissingNodesHelper {
     public String getNextMissingNodeName(PackageID packageID) {
         Integer nextValue = Optional.ofNullable(missingIdentifierCount.get(packageID)).orElse(0);
         missingIdentifierCount.put(packageID, nextValue + 1);
-        return MISSING_NODE_PREFIX + nextValue;
+        return MISSING_NODE_PREFIX + UNDERSCORE + nextValue;
     }
     
     public boolean isMissingNode(Name nodeName) {

@@ -18,19 +18,17 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
+import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.scheduling.AsyncUtils;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.XML_LANG_LIB;
 import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
@@ -38,29 +36,23 @@ import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION, functionName = "forEach",
-        args = {
-                @Argument(name = "x", type = TypeKind.XML),
-                @Argument(name = "func", type = TypeKind.FUNCTION)},
-        isPublic = true
-)
 public class ForEach {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
                                                                       XML_VERSION, "forEach");
 
-    public static void forEach(Strand strand, XMLValue x, FPValue<Object, Object> func) {
+    public static void forEach(BXML x, BFunctionPointer<Object, Object> func) {
         if (x.isSingleton()) {
-            func.asyncCall(new Object[]{strand, x, true}, METADATA);
+            func.asyncCall(new Object[]{Scheduler.getStrand(), x, true}, METADATA);
             return;
         }
         AtomicInteger index = new AtomicInteger(-1);
-        BRuntime.getCurrentRuntime()
+        Strand parentStrand = Scheduler.getStrand();
+        AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, x.size(),
-                                                       () -> new Object[]{strand, x.getItem(index.incrementAndGet()),
-                                                               true},
-                                                       result -> {
-                                                       }, () -> null);
+                        () -> new Object[]{parentStrand, x.getItem(index.incrementAndGet()),
+                                true},
+                        result -> {
+                                                       }, () -> null, Scheduler.getStrand().scheduler);
     }
 }

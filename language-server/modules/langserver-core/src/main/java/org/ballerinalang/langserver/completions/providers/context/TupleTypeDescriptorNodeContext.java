@@ -15,9 +15,10 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -25,7 +26,6 @@ import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,13 +46,13 @@ public class TupleTypeDescriptorNodeContext extends AbstractCompletionProvider<T
             throws LSCompletionException {
         NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            List<Scope.ScopeEntry> typesInModule = QNameReferenceUtil.getTypesInModule(context,
+            List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context,
                     (QualifiedNameReferenceNode) nodeAtCursor);
             return this.getCompletionItemList(typesInModule, context);
         }
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(this.getPackagesCompletionItems(context));
+        completionItems.addAll(this.getModuleCompletionItems(context));
         completionItems.addAll(this.getTypeItems(context));
 
         return completionItems;

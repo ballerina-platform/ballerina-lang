@@ -4,10 +4,7 @@ function foo() {
         int y;
         string z;
 
-        function init(int x, int y, string z) {
-            self.x = x;
-            self.y = y;
-            self.z = z;
-        }
+        function init(int x, int y, string z);
+
     } (10, a, "z";
 }

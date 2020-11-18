@@ -18,24 +18,22 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocumentChange;
 import io.ballerina.tools.text.TextDocuments;
 import io.ballerina.tools.text.TextEdit;
 import io.ballerina.tools.text.TextRange;
+import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.format.FormattingVisitorEntry;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
-import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
-import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.DeleteRange;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedNodeVisitor;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -190,8 +188,7 @@ public class BallerinaTreeModifyUtil {
                 .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
                 .withCommonParams(null, fileUri, documentManager)
                 .build();
-        LSModuleCompiler.getBLangPackage(astContext, documentManager, LSCustomErrorStrategy.class,
-                false, false, false);
+        LSModuleCompiler.getBLangPackage(astContext, documentManager, false, false);
         BLangPackage oldTree = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         String fileName = compilationPath.toFile().getName();
 
@@ -241,14 +238,10 @@ public class BallerinaTreeModifyUtil {
         documentManager.updateFile(compilationPath, Collections
                 .singletonList(new TextDocumentContentChangeEvent(newTextDocument.toString())));
 
-        //Format bal file code
-        JsonObject jsonAST = TextDocumentFormatUtil.getAST(compilationPath, documentManager, astContext);
-        JsonObject model = jsonAST.getAsJsonObject("model");
-        FormattingSourceGen.build(model, "CompilationUnit");
-        FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
-        formattingUtil.accept(model);
+        // Use formatter to format the source document.
+        SyntaxTree syntaxTree = SyntaxTree.from(newTextDocument, compilationPath.toString());
+        String formattedSource = Formatter.format(syntaxTree).toSourceCode();
 
-        String formattedSource = FormattingSourceGen.getSourceOf(model);
         TextDocumentContentChangeEvent changeEvent = new TextDocumentContentChangeEvent(formattedSource);
         documentManager.updateFile(compilationPath, Collections.singletonList(changeEvent));
         astContext.put(BallerinaDocumentServiceImpl.UPDATED_SOURCE, formattedSource);

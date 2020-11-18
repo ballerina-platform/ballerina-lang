@@ -23,7 +23,6 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-cli-module')
     implementation 'com.moandjiezana.toml:toml4j'
-    implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'io.netty:netty-buffer'
     implementation 'org.ow2.asm:asm'
@@ -35,7 +34,6 @@ dependencies {
 description = 'Ballerina - Lang'
 
 checkstyleMain {
-    exclude 'org/wso2/ballerinalang/compiler/parser/antlr4/*'
     exclude 'org/ballerinalang/toml/model/Module.java'
     exclude 'org/ballerinalang/toml/model/Balo.java'
     exclude 'org/ballerinalang/toml/model/LockFile.java'
@@ -46,5 +44,17 @@ checkstyleMain {
 test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
+    }
+}
+
+ext.moduleName = 'ballerina.lang'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
     }
 }

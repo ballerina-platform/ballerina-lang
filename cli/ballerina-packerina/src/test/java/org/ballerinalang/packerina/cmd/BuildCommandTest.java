@@ -441,7 +441,7 @@ public class BuildCommandTest extends CommandTest {
         Assert.assertTrue(Files.exists(target.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY)),
                 "Check if balo directory exists");
         // {module}-{lang spec version}-{platform}-{version}.balo
-        String baloName = "mymodule-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-0.1.0.balo";
+        String baloName = "mymodule-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.1.0.balo";
         this.moduleBalo = target.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY)
                 .resolve(baloName);
         Assert.assertTrue(Files.exists(this.moduleBalo),

@@ -80,6 +80,7 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:query', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:transaction', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
 }
 
 task createBre(type: org.gradle.api.tasks.Copy) {

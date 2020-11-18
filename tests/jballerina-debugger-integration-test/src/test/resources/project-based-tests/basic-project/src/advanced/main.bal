@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Student record {
-    string name;
-    int age;
+type '\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_Student record {
+    string '1st_name;
+    int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{2324};
     Grades grades;
 };
 
@@ -40,46 +40,65 @@ type Employee record {
 
 type EmployeeTable table<Employee> key(id);
 
-type Person object {
-    public string name = "";
-    public int age = 0;
-    public Person? parent = ();
-    private string email = "default@abc.com";
+class 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ {
+    public string '1st_name = "John";
+    public int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{2324} = 0;
+    public 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ? parent = ();
+    string email = "default@abc.com";
     string address = "No 20, Palm grove";
 
     public function getSum(int a, int b) returns int {
         return a + b;
     }
-};
+}
 
-public type AnonPerson record {
-    string name;
-    int age;
-    object {
-        public string city;
-        public string country;
+public class Location {
+   public string city;
+   public string country;
 
-        public function init(string city, string country) {
-            self.city = city;
-            self.country = country;
-        }
+   public function init(string city, string country) {
+       self.city = city;
+       self.country = country;
+   }
 
-        public function value() returns string {
-            return self.city + ", " + self.country;
-        }
-    } address;
+   public function value() returns string {
+       return self.city + ", " + self.country;
+   }
+}
+
+public type AnonPerson object {
+    public string '1st_name;
+    public int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{2324};
+    public 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ? parent;
+    string email;
+    string address;
 };
 
 type EventType "CURRENT"|"EXPIRED"|"ALL"|"RESET"|"TIMER";
 
-type OddNumberGenerator object {
+class OddNumberGenerator {
     int i = 1;
 
     public function next() returns record {|int value;|}|error? {
         self.i += 2;
         return {value: self.i};
     }
-};
+}
+
+// constants
+const gv01_nameWithoutType = "Ballerina";
+const string gv02_nameWithType = "Ballerina";
+const map<string> gv03_nameMap = {"name":"John"};
+const gv04_nilWithoutType = ();
+const () gv05_nilWithType = ();
+
+// global variables
+var gv06_stringValue = "Ballerina";
+var gv07_decimalValue = 100.0d;
+var gv08_byteValue = <byte>2;
+var gv09_floatValue = 2.0;
+json gv10_jsonVar = {name:"John", age:20};
+var 'gv11_\ \/\:\@\[\`\{\~\u{2324}_IL = "IL with global var";
 
 public function main() {
     //------------------------ basic, simple type variables ------------------------//
@@ -101,9 +120,9 @@ public function main() {
     [int, string] v09_tupleVar = [20, "foo"];
     map<string> v10_mapVar = {line1: "No. 20", line2: "Palm Grove", city: "Colombo 03", country: "Sri Lanka"};
 
-    Student v11_john = {
-        name: "John Doe",
-        age: 20,
+    '\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_Student v11_recordVar = {
+        '1st_name: "John Doe",
+        'Ȧɢέ_\ \/\:\@\[\`\{\~⌤: 20,
         grades: {
             maths: 80,
             physics: 75,
@@ -131,13 +150,9 @@ public function main() {
     future<int> v15_futureVar = start sum(40, 50);
     _ = wait v15_futureVar;
 
-    Person v16_objectVar = new;
+    'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ v16_objectVar = new;
 
-    AnonPerson v17_anonObjectVar = {
-        name: "John Doe",
-        age: 25,
-        address: new ("Colombo", "Sri Lanka")
-    };
+    AnonPerson v17_anonObjectVar = new 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ();
 
     typedesc<int> v18_typedescVar = int;
     stream<int, error> v26_oddNumberStream = new stream<int, error>(new OddNumberGenerator());
@@ -151,8 +166,9 @@ public function main() {
     byte v23_byteVar = 128;
     json v24_jsonVar = {name: "apple", color: "red", price: 40};
     xml<never> v27_neverVar = <xml<never>> 'xml:concat();
-}
 
-function sum(int a, int b) returns int {
-    return a + b;
+    // quoted identifiers
+    string 'v28_\ \/\:\@\[\`\{\~\u{2324}_var = "IL with special characters in var";
+    string 'v29_üňĩćőđę_var = "IL with unicode characters in var";
+    json 'v30_ĠĿŐΒȂɭ_\ \/\:\@\[\`\{\~\u{2324}_json = {};
 }

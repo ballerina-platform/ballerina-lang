@@ -16,6 +16,6 @@
 
 # Represents a 'future' that returns as a result of an asynchronous HTTP request submission.
 # This can be used as a reference to fetch the results of the submission.
-public type HttpFuture object {
+public class HttpFuture {
     private int value = 0; // dummy value to prevent pattern ordering issue when matching results
-};
+}

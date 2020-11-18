@@ -9,4 +9,3 @@ function test(int x) returns float {
    float f = 0.0;
    return f + x;
 }
-

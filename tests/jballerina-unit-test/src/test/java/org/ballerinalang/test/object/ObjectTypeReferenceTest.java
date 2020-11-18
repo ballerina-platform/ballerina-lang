@@ -17,10 +17,10 @@
 */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -71,11 +71,14 @@ public class ObjectTypeReferenceTest {
                                   "cyclic type reference in '[C, D, A, B, C]'", 74, 1);
         BAssertUtil.validateError(negativeResult, i++,
                                   "cyclic type reference in '[E, C, E]'", 74, 1);
-        BAssertUtil.validateError(negativeResult, i++,
-                                  "no implementation found for the function 'getName' of non-abstract object " +
-                                          "'Manager2'", 96, 5);
-        BAssertUtil.validateError(negativeResult, i++,
-                "no implementation found for the function 'getSalary' of non-abstract object 'Manager2'", 96, 5);
+        // Disable as new class definition will replace objects that can have method implementations.
+//        BAssertUtil.validateError(negativeResult, i++,
+//                                  "no implementation found for the function 'getName' of non-abstract object " +
+//                                          "'Manager2'", 96, 5);
+        i++;
+//        BAssertUtil.validateError(negativeResult, i++,
+//                "no implementation found for the function 'getSalary' of non-abstract object 'Manager2'", 96, 5);
+        i++;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Q' is not an object", 101, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared type reference 'Person1'", 111, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'getName': trying to copy a duplicate " +

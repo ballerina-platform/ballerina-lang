@@ -201,24 +201,12 @@
                                       "kind": "OPEN_BRACKET_TOKEN"
                                     },
                                     {
-                                      "kind": "CLOSE_BRACKET_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "CLOSE_BRACKET_TOKEN"
                                     }
                                   ]
                                 },
                                 {
-                                  "kind": "PIPE_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "kind": "PIPE_TOKEN"
                                 },
                                 {
                                   "kind": "ARRAY_TYPE_DESC",
@@ -484,7 +472,13 @@
                                   "children": [
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "T2"
+                                      "value": "T2",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -643,24 +637,12 @@
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_BRACKET_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
+                                          "kind": "CLOSE_BRACKET_TOKEN"
                                         }
                                       ]
                                     },
                                     {
-                                      "kind": "PIPE_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "PIPE_TOKEN"
                                     },
                                     {
                                       "kind": "UNION_TYPE_DESC",
@@ -690,31 +672,25 @@
                                               ]
                                             },
                                             {
-                                              "kind": "CLOSE_BRACKET_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
+                                              "kind": "CLOSE_BRACKET_TOKEN"
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "PIPE_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
+                                          "kind": "PIPE_TOKEN"
                                         },
                                         {
                                           "kind": "SIMPLE_NAME_REFERENCE",
                                           "children": [
                                             {
                                               "kind": "IDENTIFIER_TOKEN",
-                                              "value": "T4"
+                                              "value": "T4",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
                                             }
                                           ]
                                         }
@@ -877,24 +853,12 @@
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_BRACKET_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
+                                          "kind": "CLOSE_BRACKET_TOKEN"
                                         }
                                       ]
                                     },
                                     {
-                                      "kind": "PIPE_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "PIPE_TOKEN"
                                     },
                                     {
                                       "kind": "UNION_TYPE_DESC",
@@ -924,24 +888,12 @@
                                               ]
                                             },
                                             {
-                                              "kind": "CLOSE_BRACKET_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
+                                              "kind": "CLOSE_BRACKET_TOKEN"
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "PIPE_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
+                                          "kind": "PIPE_TOKEN"
                                         },
                                         {
                                           "kind": "ARRAY_TYPE_DESC",
@@ -1049,7 +1001,13 @@
                   ]
                 },
                 {
-                  "kind": "CLOSE_BRACE_TOKEN"
+                  "kind": "CLOSE_BRACE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
                 }
               ]
             }

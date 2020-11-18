@@ -20,11 +20,11 @@ type Employee record {
     string batch;
 };
 
-type EmployeeObject object {
+class EmployeeObject {
     string name = "Mohan";
     string status = "Single";
     string batch = "LK2014";
-};
+}
 
 //----------------------------Array Stamp Negative Test cases -------------------------------------------------------------
 

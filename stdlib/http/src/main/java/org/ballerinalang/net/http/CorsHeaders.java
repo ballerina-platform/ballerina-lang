@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,12 +31,12 @@ import java.util.List;
  */
 public class CorsHeaders {
 
-    private static final BString ALLOW_CREDENTIALS_FIELD = StringUtils.fromString("allowCredentials");
-    private static final BString ALLOW_HEADERS_FIELD = StringUtils.fromString("allowHeaders");
-    private static final BString ALLOW_METHODS_FIELD = StringUtils.fromString("allowMethods");
-    private static final BString ALLOWS_ORIGINS_FIELD = StringUtils.fromString("allowOrigins");
-    private static final BString EXPOSE_HEADERS_FIELD = StringUtils.fromString("exposeHeaders");
-    private static final BString MAX_AGE_FIELD = StringUtils.fromString("maxAge");
+    private static final BString ALLOW_CREDENTIALS_FIELD = BStringUtils.fromString("allowCredentials");
+    private static final BString ALLOW_HEADERS_FIELD = BStringUtils.fromString("allowHeaders");
+    private static final BString ALLOW_METHODS_FIELD = BStringUtils.fromString("allowMethods");
+    private static final BString ALLOWS_ORIGINS_FIELD = BStringUtils.fromString("allowOrigins");
+    private static final BString EXPOSE_HEADERS_FIELD = BStringUtils.fromString("exposeHeaders");
+    private static final BString MAX_AGE_FIELD = BStringUtils.fromString("maxAge");
 
     private boolean available;
     private List<String> allowOrigins;
@@ -122,17 +122,17 @@ public class CorsHeaders {
         this.exposeHeaders = exposeHeaders;
     }
 
-    static CorsHeaders buildCorsHeaders(MapValue corsConfig) {
+    static CorsHeaders buildCorsHeaders(BMap corsConfig) {
         CorsHeaders corsHeaders = new CorsHeaders();
 
         if (corsConfig == null) {
             return corsHeaders;
         }
 
-        corsHeaders.setAllowHeaders(getAsStringList(corsConfig.getArrayValue(ALLOW_HEADERS_FIELD).getStringArray()));
-        corsHeaders.setAllowMethods(getAsStringList(corsConfig.getArrayValue(ALLOW_METHODS_FIELD).getStringArray()));
-        corsHeaders.setAllowOrigins(getAsStringList(corsConfig.getArrayValue(ALLOWS_ORIGINS_FIELD).getStringArray()));
-        corsHeaders.setExposeHeaders(getAsStringList(corsConfig.getArrayValue(EXPOSE_HEADERS_FIELD).getStringArray()));
+        corsHeaders.setAllowHeaders(getAsStringList(corsConfig.getBArray(ALLOW_HEADERS_FIELD).getStringArray()));
+        corsHeaders.setAllowMethods(getAsStringList(corsConfig.getBArray(ALLOW_METHODS_FIELD).getStringArray()));
+        corsHeaders.setAllowOrigins(getAsStringList(corsConfig.getBArray(ALLOWS_ORIGINS_FIELD).getStringArray()));
+        corsHeaders.setExposeHeaders(getAsStringList(corsConfig.getBArray(EXPOSE_HEADERS_FIELD).getStringArray()));
         corsHeaders.setAllowCredentials(corsConfig.getBooleanValue(ALLOW_CREDENTIALS_FIELD) ? 1 : 0);
         corsHeaders.setMaxAge(corsConfig.getIntValue(MAX_AGE_FIELD));
 

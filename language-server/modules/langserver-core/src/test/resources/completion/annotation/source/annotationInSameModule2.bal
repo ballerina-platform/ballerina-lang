@@ -4,7 +4,7 @@ type Annot record {
 };
 
 public annotation Annot v1 on type;
-annotation Annot[] v2 on object type;
+annotation Annot[] v2 on class;
 public annotation Annot v3 on function;
 annotation map<int> v4 on object function;
 public annotation map<string> v5 on resource function;

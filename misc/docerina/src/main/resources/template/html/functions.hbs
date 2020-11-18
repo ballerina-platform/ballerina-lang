@@ -24,6 +24,9 @@
                         <td width="30%"><a class="functions {{#if isDeprecated}}strike{{/if}}" href="#{{name}}">{{name}}</a></td>
                         <td width="70%">
                             <div class="function-desc">
+                                {{#if isIsolated}}
+                                <div class="ui horizontal label" data-tooltip="Isolated Function" data-position="top left">I</div>
+                                {{/if}}
                                 {{#if isDeprecated}}
                                     <span class="stab">Deprecated</span>
                                 {{/if}}

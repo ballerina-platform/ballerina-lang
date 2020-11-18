@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Obj object {
+class Obj {
     int var1 = 12;
-};
+}
 
 function nonAnydataTypes() returns string {
     Obj y = new;

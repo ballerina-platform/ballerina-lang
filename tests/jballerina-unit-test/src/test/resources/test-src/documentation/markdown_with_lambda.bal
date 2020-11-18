@@ -1,7 +1,7 @@
 # Documentation for TimeOrderWindow.
 #
 # + f - documentation
-public type TimeOrderWindow object {
+public class TimeOrderWindow {
 
     public function (int i) f;
 
@@ -11,4 +11,4 @@ public type TimeOrderWindow object {
 
         };
     }
-};
+}

@@ -24,7 +24,7 @@ function init() {
 public function main() {
 }
 
-public type TestListener object {
+public class TestListener {
 
     *'object:Listener;
     private string name = "";
@@ -68,6 +68,6 @@ public type TestListener object {
             panic error(errorMsg);
         }
     }
-};
+}
 
 listener TestListener ep = new TestListener("basic");

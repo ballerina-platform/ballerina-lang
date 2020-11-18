@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.serviceendpoint;
 
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
 import org.ballerinalang.net.http.HttpUtil;
@@ -29,7 +29,7 @@ import org.ballerinalang.net.http.HttpUtil;
  * @since 0.966
  */
 public class GracefulStop extends AbstractHttpNativeFunction {
-    public static Object gracefulStop(ObjectValue serverEndpoint) {
+    public static Object gracefulStop(BObject serverEndpoint) {
         try {
             getServerConnector(serverEndpoint).stop();
             serverEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, false);

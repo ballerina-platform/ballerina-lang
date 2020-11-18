@@ -1,5 +1,6 @@
 {
   "kind": "TYPE_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "TYPE_KEYWORD",
@@ -22,31 +23,50 @@
     },
     {
       "kind": "OBJECT_TYPE_DESC",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "CLIENT_KEYWORD",
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_QUALIFIER_NOT_ALLOWED",
+                "ERROR_QUALIFIER_NOT_ALLOWED"
+              ],
               "trailingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",
                   "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "READONLY_KEYWORD",
-              "trailingMinutiae": [
+                },
+                {
+                  "kind": "INVALID_NODE_MINUTIAE",
+                  "invalidNode": {
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "children": [
+                      {
+                        "kind": "READONLY_KEYWORD"
+                      }
+                    ]
+                  }
+                },
                 {
                   "kind": "WHITESPACE_MINUTIAE",
                   "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "ABSTRACT_KEYWORD",
-              "trailingMinutiae": [
+                },
+                {
+                  "kind": "INVALID_NODE_MINUTIAE",
+                  "invalidNode": {
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "children": [
+                      {
+                        "kind": "ABSTRACT_KEYWORD"
+                      }
+                    ]
+                  }
+                },
                 {
                   "kind": "WHITESPACE_MINUTIAE",
                   "value": " "

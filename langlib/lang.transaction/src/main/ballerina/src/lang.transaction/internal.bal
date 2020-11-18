@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/lang.'value as value;
+import ballerina/java;
 
 const string TWO_PHASE_COMMIT = "2pc";
 const string PROTOCOL_COMPLETION = "completion";
@@ -75,7 +76,7 @@ const PREPARE_DECISION_ABORT = "abort";
 
 type UProtocol LocalProtocol|RemoteProtocol;
 
-type Participant abstract object {
+type Participant object {
 
     string participantId;
 
@@ -84,7 +85,7 @@ type Participant abstract object {
     function notify(string action, string? protocolName) returns (NotifyResult|error)?;
 };
 
-type LocalParticipant object {
+class LocalParticipant {
 
     string participantId;
     private TwoPhaseCommitTransaction participatedTxn;
@@ -182,7 +183,7 @@ type LocalParticipant object {
             panic err;
         }
     }
-};
+}
 
 function getParticipatedTransactionId(string transactionId, string transactionBlockId) returns string {
     string id = transactionId + ":" + transactionBlockId;
@@ -219,7 +220,7 @@ function isValidCoordinationType(string coordinationType) returns boolean {
     return false;
 }
 
-type TwoPhaseCommitTransaction object {
+class TwoPhaseCommitTransaction {
 
     string transactionId;
     string transactionBlockId;
@@ -476,7 +477,7 @@ type TwoPhaseCommitTransaction object {
             //TODO: do what?
         }
     }
-};
+}
 
 # This map is used for caching transaction that are initiated.
 map<TwoPhaseCommitTransaction> initiatedTransactions = {};
@@ -569,54 +570,96 @@ function createTransactionContext(string coordinationType, string transactionBlo
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether the commit is successful or not.
-function commitResourceManagers(string transactionId, string transactionBlockId) returns boolean = external;
+function commitResourceManagers(string transactionId, string transactionBlockId) returns boolean = @java:Method {
+    'class: "org.ballerinalang.langlib.transaction.CommitResourceManagers",
+    name: "commitResourceManagers"
+} external;
 
 # Prepare local resource managers.
 #
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether the resource manager preparation is successful or not.
-function prepareResourceManagers(string transactionId, string transactionBlockId) returns boolean = external;
+function prepareResourceManagers(string transactionId, string transactionBlockId) returns boolean = @java:Method {
+    'class: "org.ballerinalang.langlib.transaction.PrepareResourceManagers",
+    name: "prepareResourceManagers"
+} external;
 
 # Abort local resource managers.
 #
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether the resource manager abortion is successful or not.
-function abortResourceManagers(string transactionId, string transactionBlockId) returns boolean = external;
+function abortResourceManagers(string transactionId, string transactionBlockId) returns boolean = @java:Method {
+    'class: "org.ballerinalang.langlib.transaction.AbortResourceManagers",
+    name: "abortResourceManagers"
+} external;
 
 # Set the transactionContext.
 #
 # + transactionContext - Transaction context.
 # + prevAttempt - Information related to previous attempt.
-function setTransactionContext(TransactionContext transactionContext, Info? prevAttempt = ()) = external;
+function setTransactionContext(TransactionContext transactionContext, Info? prevAttempt = ()) = @java:Method {
+    'class: "org.ballerinalang.langlib.transaction.SetTransactionContext",
+    name: "setTransactionContext"
+} external;
 
 # Rollback the transaction.
 #
 # + transactionBlockId - ID of the transaction block.
 # + err - The cause of the rollback.
-function rollbackTransaction(string transactionBlockId, error? err = ()) = external;
+function rollbackTransaction(string transactionBlockId, error? err = ()) = @java:Method {
+    'class: "org.ballerinalang.langlib.transaction.RollbackTransaction",
+    name: "rollbackTransaction"
+} external;
 
 # Get and Cleanup the failure.
 #
 # + return - is failed.
-function getAndClearFailure() returns boolean = external;
+function getAndClearFailure() returns boolean = @java:Method {
+    'class: "org.ballerinalang.langlib.transaction.GetAndClearFailure",
+    name: "getAndClearFailure"
+} external;
 
 # Cleanup the transaction context.
 #
 # + transactionBlockId - ID of the transaction block.
-function cleanupTransactionContext(string transactionBlockId) = external;
+function cleanupTransactionContext(string transactionBlockId) = @java:Method {
+    'class: "org.ballerinalang.langlib.transaction.CleanUpTransactionContext",
+    name: "cleanupTransactionContext"
+} external;
 
-function isTransactional() returns boolean = external;
+function isTransactional() returns boolean = @java:Method {
+    'class: "org.ballerinalang.langlib.transaction.IsTransactional",
+    name: "isTransactional"
+} external;
 
-function getAvailablePort() returns int = external;
+function getAvailablePort() returns int = @java:Method {
+    'class: "org.ballerinalang.langlib.transaction.GetAvailablePort",
+    name: "getAvailablePort"
+} external;
 
-function getHostAddress() returns string = external;
+function getHostAddress() returns string = @java:Method {
+    'class: "org.ballerinalang.langlib.transaction.GetHostAddress",
+    name: "getHostAddress"
+} external;
 
-function uuid() returns string = external;
+function uuid() returns string = @java:Method {
+    'class: "org.ballerinalang.langlib.transaction.UUID",
+    name: "uuid"
+} external;
 
-function timeNow() returns int = external;
+function timeNow() returns int = @java:Method {
+    'class: "org.ballerinalang.langlib.transaction.CurrentTime",
+    name: "timeNow"
+} external;
 
-function getRollbackOnlyError() returns Error? = external;
+function getRollbackOnlyError() returns Error? = @java:Method {
+    'class: "org.ballerinalang.langlib.transaction.GetRollbackOnlyError",
+    name: "getRollbackOnlyError"
+} external;
 
-function setContextAsNonTransactional() = external;
+function setContextAsNonTransactional() = @java:Method {
+    'class: "org.ballerinalang.langlib.transaction.SetContextAsNonTransactional",
+    name: "setContextAsNonTransactional"
+} external;

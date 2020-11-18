@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
  *
  * @deprecated since 0.983.0, use {@link PanicNode} instead.
  */
+@Deprecated
 public interface ThrowNode extends StatementNode {
     ExpressionNode getExpressions();
 }

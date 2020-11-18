@@ -17,10 +17,12 @@
 */
 package org.wso2.ballerinalang.compiler.tree.statements;
 
+import org.ballerinalang.model.clauses.OnFailClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.RetryNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 
 /**
  * {@code BLangRetry} represents a retry statement within a transaction in Ballerina.
@@ -32,6 +34,7 @@ public class BLangRetry extends BLangStatement implements RetryNode {
     public BLangRetrySpec retrySpec;
     public BLangBlockStmt retryBody;
     public boolean retryBodyReturns;
+    public BLangOnFailClause onFailClause;
 
     public BLangRetrySpec getRetrySpec() {
         return retrySpec;
@@ -47,6 +50,16 @@ public class BLangRetry extends BLangStatement implements RetryNode {
 
     public void setRetryBody(BLangBlockStmt retryBody) {
         this.retryBody = retryBody;
+    }
+
+    @Override
+    public OnFailClauseNode getOnFailClause() {
+        return this.onFailClause;
+    }
+
+    @Override
+    public void setOnFailClause(OnFailClauseNode onFailClause) {
+        this.onFailClause = (BLangOnFailClause) onFailClause;
     }
 
     @Override

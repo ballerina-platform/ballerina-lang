@@ -31,6 +31,8 @@ public class BLangCompilerConstants {
     public static final String NEXT_FUNC = "next";
     public static final String VALUE_FIELD = "value";
 
+    // java module version
+    public static final String JAVA_VERSION = "0.9.0";
     // lang lib versions
     public static final String INTERNAL_VERSION = "0.1.0";
     public static final String ANNOTATIONS_VERSION = "1.0.0";

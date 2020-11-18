@@ -49,7 +49,7 @@ type TableEmployeeTwo record {|
     string name;
 |};
 
-type EmployeeObject object {
+class EmployeeObject {
     string name;
     int id = 10000;
 
@@ -60,9 +60,9 @@ type EmployeeObject object {
     function getName() returns string {
         return self.name;
     }
-};
+}
 
-type LeadObject object {
+class LeadObject {
     string name;
     int id = 10000;
     float rating = 100.0;
@@ -74,9 +74,9 @@ type LeadObject object {
     function getName() returns string {
         return self.name;
     }
-};
+}
 
-type PersonObject object {
+class PersonObject {
     string name;
 
     function init(string name) {
@@ -86,7 +86,7 @@ type PersonObject object {
     function getName() returns string {
         return self.name;
     }
-};
+}
 
 function testNilCastPositive() returns boolean {
     () a = ();

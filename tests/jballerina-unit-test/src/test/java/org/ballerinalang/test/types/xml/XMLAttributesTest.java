@@ -17,14 +17,14 @@
 */
 package org.ballerinalang.test.types.xml;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BXML;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -269,7 +269,7 @@ public class XMLAttributesTest {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(xmlAttrProgFile, "testPrintAttribMap");
             Assert.assertEquals(outContent.toString(),
-                    "{http://www.w3.org/2000/xmlns/}xmlns=http://sample.com/wso2/c1 name=Foo",
+                    "{\"{http://www.w3.org/2000/xmlns/}xmlns\":\"http://sample.com/wso2/c1\",\"name\":\"Foo\"}",
                     "Invalid attribute map printed");
         } finally {
             try {

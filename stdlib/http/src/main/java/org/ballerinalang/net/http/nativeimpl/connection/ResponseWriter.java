@@ -18,10 +18,11 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
@@ -57,14 +58,14 @@ public class ResponseWriter {
      * @param responseMessage  Represents native response message
      */
     public static void sendResponseRobust(DataContext dataContext, HttpCarbonMessage requestMessage,
-                                          ObjectValue outboundResponse, HttpCarbonMessage responseMessage) {
+                                          BObject outboundResponse, HttpCarbonMessage responseMessage) {
         String contentType = HttpUtil.getContentTypeFromTransportMessage(responseMessage);
         String boundaryString = null;
         if (HeaderUtil.isMultipart(contentType)) {
             boundaryString = HttpUtil.addBoundaryIfNotExist(responseMessage, contentType);
         }
         HttpMessageDataStreamer outboundMsgDataStreamer = getResponseDataStreamer(responseMessage);
-        ObjectValue entityObj = extractEntity(outboundResponse);
+        BObject entityObj = extractEntity(outboundResponse);
         if (entityObj == null) {
             responseMessage.setPassthrough(true);
         }
@@ -91,9 +92,9 @@ public class ResponseWriter {
      * @param entity              Represents the entity that holds the actual body
      * @param messageOutputStream Represents the output stream
      */
-    private static void serializeMultiparts(String boundaryString, ObjectValue entity,
+    private static void serializeMultiparts(String boundaryString, BObject entity,
                                             OutputStream messageOutputStream) {
-        ArrayValue bodyParts = EntityBodyHandler.getBodyPartArray(entity);
+        BArray bodyParts = EntityBodyHandler.getBodyPartArray(entity);
         try {
             if (bodyParts != null && bodyParts.size() > 0) {
                 MultipartDataSource multipartDataSource = new MultipartDataSource(entity, boundaryString);
@@ -104,8 +105,8 @@ public class ResponseWriter {
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             }
         } catch (IOException ex) {
-            throw BallerinaErrors.createError(SERIALIZATION_ERROR, "error occurred while serializing " +
-                    "byte channel content : " + ex.getMessage());
+            throw BErrorCreator.createError(SERIALIZATION_ERROR, BStringUtils
+                    .fromString("error occurred while serializing " + "byte channel content : " + ex.getMessage()));
         }
     }
 
@@ -116,7 +117,7 @@ public class ResponseWriter {
      * @param entity                Represents the entity that holds headers and body content
      * @param messageOutputStream   Represents the output stream
      */
-    static void serializeDataSource(Object outboundMessageSource, ObjectValue entity,
+    static void serializeDataSource(Object outboundMessageSource, BObject entity,
                                     OutputStream messageOutputStream) {
         try {
             if (outboundMessageSource != null) {
@@ -127,8 +128,9 @@ public class ResponseWriter {
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             }
         } catch (IOException ex) {
-            throw BallerinaErrors.createError(SERIALIZATION_ERROR, "error occurred while serializing message" +
-                    " data source : " + ex.getMessage());
+            throw BErrorCreator.createError(SERIALIZATION_ERROR,
+                                            BStringUtils.fromString("error occurred while serializing message" +
+                                                                           " data source : " + ex.getMessage()));
         }
     }
 
@@ -174,8 +176,8 @@ public class ResponseWriter {
 
         @Override
         public void onError(Throwable throwable) {
-            ErrorValue httpConnectorError = HttpUtil.createHttpError(throwable.getMessage(),
-                    HttpErrorType.GENERIC_LISTENER_ERROR);
+            BError httpConnectorError = HttpUtil.createHttpError(throwable.getMessage(),
+                                                                 HttpErrorType.GENERIC_LISTENER_ERROR);
             if (outboundMsgDataStreamer != null) {
                 // Relevant transport state should set the IO Exception. Following code snippet is for other exceptions
                 if (!(throwable instanceof IOException)) {

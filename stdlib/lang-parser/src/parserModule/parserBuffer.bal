@@ -16,7 +16,7 @@
 
 # The lexemes which are tokenized are pushed to the parser buffer reader.
 # ParserBufferReader functions as a circular buffer and the capacity of the buffer can be specified.
-public type ParserBufferReader object {
+public class ParserBufferReader {
     //size of the token array
     private int capacity;
     //pointer which reads the token array
@@ -64,4 +64,4 @@ public type ParserBufferReader object {
         int a = (self.readPointer - 1 + lookAheadCount) % self.capacity;
         return self.tokenArray[a];
     }
-};
+}

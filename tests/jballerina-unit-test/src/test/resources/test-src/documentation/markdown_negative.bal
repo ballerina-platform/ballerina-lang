@@ -41,7 +41,7 @@ type Test record {
 # const `9invalidConst`
 # const `invalidConst`
 # parameter `invalidParameter`
-public type File object {
+public class File {
     public string path = "";
     public string path3 = "";
 
@@ -55,7 +55,7 @@ public type File object {
         boolean successful = false;
         return successful;
     }
-};
+}
 
 type Person record {
     string firstName;

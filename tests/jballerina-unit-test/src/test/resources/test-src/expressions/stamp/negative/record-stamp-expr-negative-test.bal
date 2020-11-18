@@ -97,11 +97,11 @@ type ExtendedEmployee record {
     Address address;
 };
 
-type Address object {
+class Address {
     public int no = 10;
     public string streetName = "Palm Grove";
     public string city = "colombo";
-};
+}
 
 type StringMap map<string>;
 type StringString [string, string];

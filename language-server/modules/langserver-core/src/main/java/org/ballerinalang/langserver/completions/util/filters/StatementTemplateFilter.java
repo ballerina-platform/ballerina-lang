@@ -56,25 +56,18 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_ELSE.get()));
         }
 
-        // Populate While Statement template
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_WHILE.get()));
-        // Populate Lock Statement template
+        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_DO.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_LOCK.get()));
-        // Populate Foreach Statement template
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FOREACH.get()));
-        // Populate Fork Statement template
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FORK.get()));
-        // Populate Transaction Statement template
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_TRANSACTION.get()));
-        // Populate Retry Transaction Statement template
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY_TRANSACTION.get()));
-        // Populate Match statement template
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_MATCH.get()));
         if ((bLangNode instanceof BLangBlockStmt && bLangNode.parent instanceof BLangForkJoin)
                 || (bLangNode instanceof BLangFunctionBody
                 && !(bLangNode.parent instanceof  BLangLambdaFunction
                 && (((BLangLambdaFunction) bLangNode.parent).function.flagSet.contains(Flag.WORKER))))) {
-            // Populate Worker Declaration statement template
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_WORKER.get()));
         }
 
@@ -91,13 +84,11 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
             // Populate Break Statement template only if there is an enclosing looping construct such as while/ foreach
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_BREAK.get()));
         }
-        // Populate Return Statement template
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN.get()));
 
         if (context.get(CompletionKeys.TRANSACTION_COUNT_KEY) > 0) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_ROLLBACK.get()));
         }
-        // Populate Throw Statement template
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_PANIC.get()));
 
         completionItems.sort(Comparator.comparing(lsCompletionItem -> lsCompletionItem.getCompletionItem().getLabel()));

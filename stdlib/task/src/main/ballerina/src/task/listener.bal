@@ -18,7 +18,7 @@ import ballerina/lang.'object;
 import ballerina/java;
 
 # Represents a ballerina task listener, which can be used to schedule and execute tasks periodically.
-public type Listener object {
+public class Listener {
     *'object:Listener;
     boolean started = false;
 
@@ -122,39 +122,39 @@ public type Listener object {
     public function resume() returns ListenerError? {
         return resumeExternal(self);
     }
-};
+}
 
 function pauseExternal(Listener task) returns ListenerError? = @java:Method {
     name: "pause",
-    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
+    'class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
 
 function resumeExternal(Listener task) returns ListenerError? = @java:Method {
     name: "resume",
-    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
+    'class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
 
 function stopExternal(Listener task) returns ListenerError? = @java:Method {
     name: "stop",
-    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
+    'class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
 
 function startExternal(Listener task) returns ListenerError? = @java:Method {
     name: "start",
-    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
+    'class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
 
 function initExternal(Listener task) returns ListenerError? = @java:Method {
     name: "init",
-    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
+    'class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
 
 function detachExternal(Listener task, service attachedService) returns ListenerError? = @java:Method {
     name: "detach",
-    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
+    'class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
 
 function attachExternal(Listener task, service s, any... attachments) returns ListenerError? = @java:Method {
     name: "attach",
-    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
+    'class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;

@@ -18,30 +18,24 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.values.BArray;
 
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOperation;
-import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
 
 /**
  * Native implementation of lang.array:remove((any|error)[], int).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "remove",
-        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "i", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.ANY)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "remove",
+//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "i", type = TypeKind.INT)},
+//        returnType = {@ReturnType(type = TypeKind.ANY)},
+//        isPublic = true
+//)
 public class Remove {
 
-    public static Object remove(Strand strand, ArrayValue arr, long i) {
+    public static Object remove(BArray arr, long i) {
         checkIsArrayOnlyOperation(arr.getType(), "remove()");
         return arr.shift(i);
     }

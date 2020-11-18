@@ -131,9 +131,9 @@ function getCurrentThreadName() returns string {
 }
 
 function currentThread() returns handle = @java:Method {
-    class: "java.lang.Thread"
+    'class: "java.lang.Thread"
 } external;
 
 function getName(handle thread) returns handle = @java:Method {
-    class: "java.lang.Thread"
+    'class: "java.lang.Thread"
 } external;

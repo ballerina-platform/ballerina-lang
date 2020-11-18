@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.io.utils;
 
-import org.ballerinalang.jvm.types.BPackage;
+import io.ballerina.runtime.api.Module;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
 /**
  * I/O related constants.
@@ -55,7 +55,7 @@ public class IOConstants {
 
     public static final String IO_PACKAGE_VERSION =  "0.5.0";
 
-    public static final BPackage IO_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "io", IO_PACKAGE_VERSION);
+    public static final Module IO_PACKAGE_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "io", IO_PACKAGE_VERSION);
 
     /**
      * Represents the base number of proto-buf.

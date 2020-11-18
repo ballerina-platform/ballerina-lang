@@ -4,6 +4,7 @@
   "children": [
     {
       "kind": "QUERY_PIPELINE",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "FROM_CLAUSE",
@@ -79,7 +80,38 @@
         },
         {
           "kind": "LIST",
-          "children": []
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "LIMIT_CLAUSE",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "LIMIT_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_IDENTIFIER"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -88,36 +120,7 @@
       "hasDiagnostics": true,
       "children": [
         {
-          "kind": "SELECT_KEYWORD",
-          "trailingMinutiae": [
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
-            }
-          ]
-        },
-        {
-          "kind": "SIMPLE_NAME_REFERENCE",
-          "hasDiagnostics": true,
-          "children": [
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true,
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_IDENTIFIER"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "kind": "LIMIT_CLAUSE",
-      "hasDiagnostics": true,
-      "children": [
-        {
-          "kind": "LIMIT_KEYWORD"
+          "kind": "SELECT_KEYWORD"
         },
         {
           "kind": "SIMPLE_NAME_REFERENCE",
