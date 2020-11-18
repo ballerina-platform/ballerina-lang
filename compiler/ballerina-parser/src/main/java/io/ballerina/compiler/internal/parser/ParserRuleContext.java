@@ -198,7 +198,7 @@ public enum ParserRuleContext {
     FIELD_BINDING_PATTERN_END("field-binding-pattern-end-or-continue"),
     ERROR_BINDING_PATTERN("error-binding-pattern"),
     ERROR_BINDING_PATTERN_ERROR_KEYWORD_RHS("error-binding-pattern-error-keyword-rhs"),
-    ERROR_ARG_LIST_BINDING_PATTERN_START("error-arg-list-binding-pattern"),
+    ERROR_ARG_LIST_BINDING_PATTERN_START("error-arg-list-binding-pattern-start"),
     SIMPLE_BINDING_PATTERN("simple-binding-pattern"),
     ERROR_MESSAGE_BINDING_PATTERN_END("error-message-binding-pattern-end"),
     ERROR_MESSAGE_BINDING_PATTERN_END_COMMA("error-message-binding-pattern-end-comma"),

@@ -4914,7 +4914,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
             case REST_ARG:
                 // Nothing is allowed after a rest arg
-                errorCode = DiagnosticErrorCode.ERROR_ARG_FOLLOWED_BY_REST_ARG;
+                errorCode = DiagnosticErrorCode.ERROR_REST_ARG_FOLLOWED_BY_ANOTHER_ARG;
                 break;
             default:
                 // This line should never get reached
@@ -12925,7 +12925,7 @@ public class BallerinaParser extends AbstractParser {
             case REST_MATCH_PATTERN:
                 // Nothing is allowed after a rest arg
                 if (prevArgKind == SyntaxKind.REST_MATCH_PATTERN) {
-                    return DiagnosticErrorCode.ERROR_ARG_FOLLOWED_BY_REST_ARG;
+                    return DiagnosticErrorCode.ERROR_REST_ARG_FOLLOWED_BY_ANOTHER_ARG;
                 }
                 return null;
             default:
@@ -14083,57 +14083,82 @@ public class BallerinaParser extends AbstractParser {
         if (isEndOfErrorFieldBindingPatterns()) {
             return STNodeFactory.createNodeList(argListBindingPatterns);
         }
-        STNode firstArg = parseErrorArgListBindingPattern(ParserRuleContext.ERROR_ARG_LIST_BINDING_PATTERN_START);
-        if (firstArg.kind == SyntaxKind.CAPTURE_BINDING_PATTERN ||
-                firstArg.kind == SyntaxKind.WILDCARD_BINDING_PATTERN) {
-
-            argListBindingPatterns.add(firstArg);
-            STNode argEnd = parseErrorArgsBindingPatternEnd(ParserRuleContext.ERROR_MESSAGE_BINDING_PATTERN_END);
-            if (argEnd != null) {
-                // null marks the end of args
-                STNode secondArg = parseErrorArgListBindingPattern(ParserRuleContext.ERROR_MESSAGE_BINDING_PATTERN_RHS);
-                if (isValidSecondArgBindingPattern(secondArg.kind)) {
-                    argListBindingPatterns.add(argEnd);
-                    argListBindingPatterns.add(secondArg);
-                } else {
-                    updateLastNodeInListWithInvalidNode(argListBindingPatterns, argEnd, null);
-                    updateLastNodeInListWithInvalidNode(argListBindingPatterns, secondArg,
-                            DiagnosticErrorCode.ERROR_BINDING_PATTERN_NOT_ALLOWED);
-                }
-            }
-        } else if (firstArg.kind != SyntaxKind.NAMED_ARG_BINDING_PATTERN &&
-                firstArg.kind != SyntaxKind.REST_BINDING_PATTERN) {
-            addInvalidNodeToNextToken(firstArg, DiagnosticErrorCode.ERROR_BINDING_PATTERN_NOT_ALLOWED);
-        } else {
-            argListBindingPatterns.add(firstArg);
-        }
-
-        parseErrorFieldBindingPatterns(argListBindingPatterns);
-        return STNodeFactory.createNodeList(argListBindingPatterns);
+        return parseErrorArgListBindingPatterns(argListBindingPatterns);
     }
 
-    private boolean isValidSecondArgBindingPattern(SyntaxKind syntaxKind) {
-        switch (syntaxKind) {
+    private STNode parseErrorArgListBindingPatterns(List<STNode> argListBindingPatterns) {
+        STNode firstArg = parseErrorArgListBindingPattern(ParserRuleContext.ERROR_ARG_LIST_BINDING_PATTERN_START, true);
+        if (firstArg == null) {
+            // null marks the end of args
+            return STNodeFactory.createNodeList(argListBindingPatterns);
+        }
+
+        switch (firstArg.kind) {
+            case CAPTURE_BINDING_PATTERN:
+            case WILDCARD_BINDING_PATTERN:
+                argListBindingPatterns.add(firstArg);
+                return parseErrorArgListBPWithoutErrorMsg(argListBindingPatterns);
+            case ERROR_BINDING_PATTERN:
+                STNode missingIdentifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+                STNode missingErrorMsgBP = STNodeFactory.createCaptureBindingPatternNode(missingIdentifier);
+                missingErrorMsgBP = SyntaxErrors.addDiagnostic(missingErrorMsgBP,
+                        DiagnosticErrorCode.ERROR_MISSING_ERROR_MESSAGE_BINDING_PATTERN);
+                STNode missingComma = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.COMMA_TOKEN,
+                        DiagnosticErrorCode.ERROR_MISSING_COMMA_TOKEN);
+                argListBindingPatterns.add(missingErrorMsgBP);
+                argListBindingPatterns.add(missingComma);
+                argListBindingPatterns.add(firstArg);
+                return parseErrorArgListBPWithoutErrorMsgAndCause(argListBindingPatterns, firstArg.kind);
+            case REST_BINDING_PATTERN:
+            case NAMED_ARG_BINDING_PATTERN:
+                argListBindingPatterns.add(firstArg);
+                return parseErrorArgListBPWithoutErrorMsgAndCause(argListBindingPatterns, firstArg.kind);
+            default:
+                // we reach here for list and mapping binding patterns
+                // mark them as invalid and re-parse the first arg.
+                addInvalidNodeToNextToken(firstArg, DiagnosticErrorCode.ERROR_BINDING_PATTERN_NOT_ALLOWED);
+                return parseErrorArgListBindingPatterns(argListBindingPatterns);
+        }
+    }
+
+    private STNode parseErrorArgListBPWithoutErrorMsg(List<STNode> argListBindingPatterns) {
+        STNode argEnd = parseErrorArgsBindingPatternEnd(ParserRuleContext.ERROR_MESSAGE_BINDING_PATTERN_END);
+        if (argEnd == null) {
+            // null marks the end of args
+            return STNodeFactory.createNodeList(argListBindingPatterns);
+        }
+
+        STNode secondArg = parseErrorArgListBindingPattern(ParserRuleContext.ERROR_MESSAGE_BINDING_PATTERN_RHS, false);
+        assert secondArg != null; // depending on the recovery context we will not get null here
+        switch (secondArg.kind) {
             case CAPTURE_BINDING_PATTERN:
             case WILDCARD_BINDING_PATTERN:
             case ERROR_BINDING_PATTERN:
-            case NAMED_ARG_BINDING_PATTERN:
             case REST_BINDING_PATTERN:
-                return true;
+            case NAMED_ARG_BINDING_PATTERN:
+                argListBindingPatterns.add(argEnd);
+                argListBindingPatterns.add(secondArg);
+                return parseErrorArgListBPWithoutErrorMsgAndCause(argListBindingPatterns, secondArg.kind);
             default:
-                return false;
+                // we reach here for list and mapping binding patterns
+                // mark them as invalid and re-parse the second arg.
+                updateLastNodeInListWithInvalidNode(argListBindingPatterns, argEnd, null);
+                updateLastNodeInListWithInvalidNode(argListBindingPatterns, secondArg,
+                        DiagnosticErrorCode.ERROR_BINDING_PATTERN_NOT_ALLOWED);
+                return parseErrorArgListBPWithoutErrorMsg(argListBindingPatterns);
         }
     }
 
-    private void parseErrorFieldBindingPatterns(List<STNode> argListBindingPatterns) {
-        SyntaxKind lastValidArgKind = SyntaxKind.NAMED_ARG_BINDING_PATTERN;
+    private STNode parseErrorArgListBPWithoutErrorMsgAndCause(List<STNode> argListBindingPatterns,
+                                                              SyntaxKind lastValidArgKind) {
         while (!isEndOfErrorFieldBindingPatterns()) {
             STNode argEnd = parseErrorArgsBindingPatternEnd(ParserRuleContext.ERROR_FIELD_BINDING_PATTERN_END);
             if (argEnd == null) {
                 // null marks the end of args
                 break;
             }
-            STNode currentArg = parseErrorArgListBindingPattern(ParserRuleContext.ERROR_FIELD_BINDING_PATTERN);
+            STNode currentArg = parseErrorArgListBindingPattern(ParserRuleContext.ERROR_FIELD_BINDING_PATTERN, false);
+            assert currentArg != null; // depending on the recovery context we will not get null here
             DiagnosticErrorCode errorCode = validateErrorFieldBindingPatternOrder(lastValidArgKind, currentArg.kind);
             if (errorCode == null) {
                 argListBindingPatterns.add(argEnd);
@@ -14147,6 +14172,8 @@ public class BallerinaParser extends AbstractParser {
                 updateLastNodeInListWithInvalidNode(argListBindingPatterns, currentArg, errorCode);
             }
         }
+        
+        return STNodeFactory.createNodeList(argListBindingPatterns);
     }
 
     private boolean isEndOfErrorFieldBindingPatterns() {
@@ -14172,25 +14199,31 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseErrorArgListBindingPattern(ParserRuleContext context) {
+    private STNode parseErrorArgListBindingPattern(ParserRuleContext context, boolean isFirstArg) {
         switch (peek().kind) {
             case ELLIPSIS_TOKEN:
                 return parseRestBindingPattern();
             case IDENTIFIER_TOKEN:
                 // Identifier can means two things: either its a named-arg, or its simple binding pattern.
-                return parseNamedOrSimpleArgBindingPattern();
+                STNode argNameOrSimpleBindingPattern = consume();
+                return parseNamedOrSimpleArgBindingPattern(argNameOrSimpleBindingPattern);
             case OPEN_BRACKET_TOKEN:
             case OPEN_BRACE_TOKEN:
             case ERROR_KEYWORD:
                 return parseBindingPattern();
+            case CLOSE_PAREN_TOKEN:
+                if (isFirstArg) {
+                    // null marks the end of error-arg-list-BP
+                    return null;
+                }
+                // else fall through
             default:
                 recover(peek(), context);
-                return parseErrorArgListBindingPattern(context);
+                return parseErrorArgListBindingPattern(context, isFirstArg);
         }
     }
 
-    private STNode parseNamedOrSimpleArgBindingPattern() {
-        STNode argNameOrSimpleBindingPattern = consume(); // We only approach here by seeing identifier.
+    private STNode parseNamedOrSimpleArgBindingPattern(STNode argNameOrSimpleBindingPattern) {
         STToken secondToken = peek();
         switch (secondToken.kind) {
             case EQUAL_TOKEN:
@@ -14212,7 +14245,7 @@ public class BallerinaParser extends AbstractParser {
             case REST_BINDING_PATTERN:
                 // Nothing is allowed after a rest arg
                 if (prevArgKind == SyntaxKind.REST_BINDING_PATTERN) {
-                    return DiagnosticErrorCode.ERROR_ARG_FOLLOWED_BY_REST_ARG;
+                    return DiagnosticErrorCode.ERROR_REST_ARG_FOLLOWED_BY_ANOTHER_ARG;
                 }
                 return null;
             case CAPTURE_BINDING_PATTERN:

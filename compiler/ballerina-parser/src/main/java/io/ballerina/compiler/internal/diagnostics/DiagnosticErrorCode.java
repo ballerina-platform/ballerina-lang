@@ -226,6 +226,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_NAMED_WORKER_DECLARATION_IN_FORK_STMT("BCE0513",
             "error.missing.named.worker.declaration.in.fork.stmt"),
     ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR("BCE0514", "error.missing.key.expr.in.member.access.expr"),
+    ERROR_MISSING_ERROR_MESSAGE_BINDING_PATTERN("BCE0515", "error.missing.error.message.binding.pattern"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),
@@ -268,7 +269,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_REQUIRED_PARAMETER_AFTER_THE_DEFAULTABLE_PARAMETER("BCE0631",
             "error.required.parameter.after.the.defaultable.parameter"),
     ERROR_NAMED_ARG_FOLLOWED_BY_POSITIONAL_ARG("BCE0632", "error.named.arg.followed.by.positional.arg"),
-    ERROR_ARG_FOLLOWED_BY_REST_ARG("BCE0633", "error.arg.followed.by.rest.arg"),
+    ERROR_REST_ARG_FOLLOWED_BY_ANOTHER_ARG("BCE0633", "error.rest.arg.followed.by.another.arg"),
     ERROR_BINDING_PATTERN_NOT_ALLOWED("BCE0634", "error.binding.pattern.not.allowed"),
     ERROR_INVALID_BASE16_CONTENT_IN_BYTE_ARRAY_LITERAL("BCE0635", "error.invalid.base16.content.in.byte.array.literal"),
     ERROR_INVALID_BASE64_CONTENT_IN_BYTE_ARRAY_LITERAL("BCE0636", "error.invalid.base64.content.in.byte.array.literal"),
