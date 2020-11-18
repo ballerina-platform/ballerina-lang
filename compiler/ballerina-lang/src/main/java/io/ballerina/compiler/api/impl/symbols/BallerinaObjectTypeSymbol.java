@@ -113,12 +113,13 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
             String value = typeQualifier.getValue();
             qualifierJoiner.add(value);
         }
-        signature.append(qualifierJoiner.toString()).append(" object {");
+        qualifierJoiner.add("object {");
+        signature.append(qualifierJoiner.toString());
 
         // this.getObjectTypeReference()
         //         .ifPresent(typeDescriptor -> fieldJoiner.add("*" + typeDescriptor.getSignature()));
         this.fieldDescriptors().forEach(objectFieldDescriptor -> fieldJoiner.add(objectFieldDescriptor.signature()));
-        this.methods().forEach(method -> methodJoiner.add(method.typeDescriptor().signature()));
+        this.methods().forEach(method -> methodJoiner.add(method.signature()).add(";"));
 
         return signature.append(fieldJoiner.toString())
                 .append(methodJoiner.toString())
