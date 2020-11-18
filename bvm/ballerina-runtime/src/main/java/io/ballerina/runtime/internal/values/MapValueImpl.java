@@ -271,6 +271,9 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     protected void populateInitialValues(BMapInitialValueEntry[] initialValues) {
         for (BMapInitialValueEntry initialValue : initialValues) {
+            if (initialValue == null) {
+                continue;
+            }
             if (initialValue.isKeyValueEntry()) {
                 MappingInitialValueEntry.KeyValueEntry keyValueEntry =
                         (MappingInitialValueEntry.KeyValueEntry) initialValue;
