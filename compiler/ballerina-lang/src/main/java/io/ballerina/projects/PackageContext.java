@@ -37,7 +37,7 @@ class PackageContext {
     private final Collection<ModuleId> moduleIds;
     private final Project project;
     private final PackageId packageId;
-    private final PackageDescriptor packageDescriptor;
+    private final PackageManifest packageManifest;
     private final BallerinaToml ballerinaToml;
     private ModuleContext defaultModuleContext;
     private boolean dependenciesResolved;
@@ -52,12 +52,12 @@ class PackageContext {
 
     PackageContext(Project project,
                    PackageId packageId,
-                   PackageDescriptor packageDescriptor,
+                   PackageManifest packageManifest,
                    BallerinaToml ballerinaToml,
                    Map<ModuleId, ModuleContext> moduleContextMap) {
         this.project = project;
         this.packageId = packageId;
-        this.packageDescriptor = packageDescriptor;
+        this.packageManifest = packageManifest;
         this.ballerinaToml = ballerinaToml;
         this.moduleIds = Collections.unmodifiableCollection(moduleContextMap.keySet());
         this.moduleContextMap = moduleContextMap;
@@ -75,7 +75,7 @@ class PackageContext {
 
         // Create module dependency graph
         return new PackageContext(project, packageConfig.packageId(),
-                packageConfig.packageDescriptor(), packageConfig.ballerinaToml(), moduleContextMap);
+                packageConfig.packageManifest(), packageConfig.ballerinaToml(), moduleContextMap);
     }
 
     PackageId packageId() {
@@ -83,19 +83,19 @@ class PackageContext {
     }
 
     PackageName packageName() {
-        return packageDescriptor.name();
+        return packageManifest.name();
     }
 
     PackageOrg packageOrg() {
-        return packageDescriptor.org();
+        return packageManifest.org();
     }
 
     PackageVersion packageVersion() {
-        return packageDescriptor.version();
+        return packageManifest.version();
     }
 
-    PackageDescriptor packageDescriptor() {
-        return packageDescriptor;
+    PackageManifest manifest() {
+        return packageManifest;
     }
 
     public Optional<BallerinaToml> ballerinaToml() {

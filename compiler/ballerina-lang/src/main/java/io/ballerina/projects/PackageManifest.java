@@ -26,7 +26,7 @@ import java.util.Map;
  *
  * @since 2.0.0
  */
-public class PackageDescriptor {
+public class PackageManifest {
     private final PackageName packageName;
     private final PackageOrg packageOrg;
     private final PackageVersion packageVersion;
@@ -37,12 +37,12 @@ public class PackageDescriptor {
     // These keys are not part of the Ballerina package specification.
     private final Map<String, Object> otherEntries;
 
-    private PackageDescriptor(PackageName packageName,
-                              PackageOrg packageOrg,
-                              PackageVersion packageVersion,
-                              List<Dependency> dependencies,
-                              Map<String, Platform> platforms,
-                              Map<String, Object> otherEntries) {
+    private PackageManifest(PackageName packageName,
+                            PackageOrg packageOrg,
+                            PackageVersion packageVersion,
+                            List<Dependency> dependencies,
+                            Map<String, Platform> platforms,
+                            Map<String, Object> otherEntries) {
         this.packageName = packageName;
         this.packageOrg = packageOrg;
         this.packageVersion = packageVersion;
@@ -51,20 +51,20 @@ public class PackageDescriptor {
         this.otherEntries = Collections.unmodifiableMap(otherEntries);
     }
 
-    public static PackageDescriptor from(PackageName packageName,
-                                         PackageOrg packageOrg,
-                                         PackageVersion packageVersion) {
-        return new PackageDescriptor(packageName, packageOrg, packageVersion, Collections.emptyList(),
+    public static PackageManifest from(PackageName packageName,
+                                       PackageOrg packageOrg,
+                                       PackageVersion packageVersion) {
+        return new PackageManifest(packageName, packageOrg, packageVersion, Collections.emptyList(),
                 Collections.emptyMap(), Collections.emptyMap());
     }
 
-    public static PackageDescriptor from(PackageName packageName,
-                                         PackageOrg packageOrg,
-                                         PackageVersion packageVersion,
-                                         List<Dependency> dependencies,
-                                         Map<String, Platform> platforms,
-                                         Map<String, Object> otherEntries) {
-        return new PackageDescriptor(packageName, packageOrg, packageVersion, dependencies, platforms, otherEntries);
+    public static PackageManifest from(PackageName packageName,
+                                       PackageOrg packageOrg,
+                                       PackageVersion packageVersion,
+                                       List<Dependency> dependencies,
+                                       Map<String, Platform> platforms,
+                                       Map<String, Object> otherEntries) {
+        return new PackageManifest(packageName, packageOrg, packageVersion, dependencies, platforms, otherEntries);
     }
 
     public PackageName name() {

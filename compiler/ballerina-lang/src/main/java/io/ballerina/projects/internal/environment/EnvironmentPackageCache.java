@@ -1,8 +1,8 @@
 package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageId;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.Project;
@@ -52,7 +52,7 @@ public class EnvironmentPackageCache implements WritablePackageCache {
                                         SemanticVersion semanticVersion) {
         // Do we have a need to improve this logic?
         for (Project project : projects.values()) {
-            PackageDescriptor pkgDesc = project.currentPackage().packageDescriptor();
+            PackageManifest pkgDesc = project.currentPackage().manifest();
             if (pkgDesc.org().equals(packageOrg) &&
                     pkgDesc.name().equals(packageName) &&
                     pkgDesc.version().value().equals(semanticVersion)) {
@@ -67,7 +67,7 @@ public class EnvironmentPackageCache implements WritablePackageCache {
         // Do we have a need to improve this logic?
         List<Package> foundList = new ArrayList<>();
         for (Project project : projects.values()) {
-            PackageDescriptor pkgDesc = project.currentPackage().packageDescriptor();
+            PackageManifest pkgDesc = project.currentPackage().manifest();
             if (pkgDesc.org().equals(packageOrg) &&
                     pkgDesc.name().equals(packageName)) {
                 foundList.add(project.currentPackage());

@@ -156,7 +156,7 @@ public class JBallerinaBackend extends CompilerBackend {
     @Override
     public Collection<PlatformLibrary> platformLibraryDependencies(PackageId packageId) {
         Package pkg = packageCache.getPackageOrThrow(packageId);
-        PackageDescriptor.Platform javaPlatform = pkg.packageDescriptor().platform(jdkVersion.code());
+        PackageManifest.Platform javaPlatform = pkg.manifest().platform(jdkVersion.code());
         if (javaPlatform == null || javaPlatform.dependencies().isEmpty()) {
             return Collections.emptyList();
         }

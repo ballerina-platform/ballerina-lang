@@ -139,7 +139,7 @@ public class BCompileUtil {
                     .resolve(pkg.packageVersion().value().toString());
             Files.createDirectories(balos);
 
-            String baloName = ProjectUtils.getBaloName(pkg.packageDescriptor());
+            String baloName = ProjectUtils.getBaloName(pkg.manifest());
             return balos.resolve(baloName);
         } catch (IOException e) {
             throw new RuntimeException("error while creating the balo distribution cache directory at " +

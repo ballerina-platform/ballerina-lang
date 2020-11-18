@@ -123,10 +123,6 @@ public class Module {
         return moduleContext;
     }
 
-    public HashSet<Path> getNativeDependancies() {
-        return new HashSet<>();
-    }
-
     private static class DocumentIterable implements Iterable {
         private final Collection<Document> documentList;
 

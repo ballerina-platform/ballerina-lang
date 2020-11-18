@@ -31,7 +31,7 @@ public class PackageConfig {
 
     // This class should contain Specific project-agnostic information
     private final PackageId packageId;
-    private final PackageDescriptor packageDescriptor;
+    private final PackageManifest packageManifest;
     private final BallerinaToml ballerinaToml;
     private final Path packagePath;
     // Ballerina toml file config
@@ -39,22 +39,22 @@ public class PackageConfig {
 
     private PackageConfig(PackageId packageId,
                           Path packagePath,
-                          PackageDescriptor packageDescriptor,
+                          PackageManifest packageManifest,
                           BallerinaToml ballerinaToml,
                           Collection<ModuleConfig> moduleConfigs) {
         this.packageId = packageId;
         this.packagePath = packagePath;
-        this.packageDescriptor = packageDescriptor;
+        this.packageManifest = packageManifest;
         this.ballerinaToml = ballerinaToml;
         this.otherModules = moduleConfigs;
     }
 
     public static PackageConfig from(PackageId packageId,
                                      Path packagePath,
-                                     PackageDescriptor packageDescriptor,
+                                     PackageManifest packageManifest,
                                      BallerinaToml ballerinaToml,
                                      Collection<ModuleConfig> moduleConfigs) {
-        return new PackageConfig(packageId, packagePath, packageDescriptor, ballerinaToml, moduleConfigs);
+        return new PackageConfig(packageId, packagePath, packageManifest, ballerinaToml, moduleConfigs);
     }
 
     public PackageId packageId() {
@@ -62,19 +62,19 @@ public class PackageConfig {
     }
 
     public PackageName packageName() {
-        return packageDescriptor.name();
+        return packageManifest.name();
     }
 
     public PackageOrg packageOrg() {
-        return packageDescriptor.org();
+        return packageManifest.org();
     }
 
     public PackageVersion packageVersion() {
-        return packageDescriptor.version();
+        return packageManifest.version();
     }
 
-    public PackageDescriptor packageDescriptor() {
-        return packageDescriptor;
+    public PackageManifest packageManifest() {
+        return packageManifest;
     }
 
     public BallerinaToml ballerinaToml() {

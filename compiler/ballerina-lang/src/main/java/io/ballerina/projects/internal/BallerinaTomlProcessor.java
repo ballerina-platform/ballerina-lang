@@ -20,9 +20,9 @@ package io.ballerina.projects.internal;
 
 import com.google.gson.JsonSyntaxException;
 import com.moandjiezana.toml.Toml;
-import io.ballerina.projects.PackageDescriptor;
-import io.ballerina.projects.PackageDescriptor.Dependency;
-import io.ballerina.projects.PackageDescriptor.Platform;
+import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.PackageManifest.Dependency;
+import io.ballerina.projects.PackageManifest.Platform;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
@@ -73,7 +73,7 @@ public class BallerinaTomlProcessor {
     }
 
     @SuppressWarnings("unchecked")
-    public static PackageDescriptor parseAsPackageDescriptor(Path tomlPath) {
+    public static PackageManifest parseAsPackageManifest(Path tomlPath) {
         Toml toml;
         try {
             toml = parseAsToml(tomlPath);
@@ -100,7 +100,7 @@ public class BallerinaTomlProcessor {
         Map<String, Object> platformEntries = (Map<String, Object>) otherEntries.remove("platform");
         Map<String, Platform> platforms = getPlatforms(platformEntries);
 
-        return PackageDescriptor.from(packageName, packageOrg, packageVersion,
+        return PackageManifest.from(packageName, packageOrg, packageVersion,
                 dependencies, platforms, otherEntries);
     }
 

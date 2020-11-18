@@ -286,7 +286,7 @@
     </Match>
     <Match>
         <Class name="io.ballerina.projects.internal.BaloFiles"/>
-        <Method name="createPackageDescriptor"/>
+        <Method name="createPackageManifest"/>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
     </Match>
 </FindBugsFilter>

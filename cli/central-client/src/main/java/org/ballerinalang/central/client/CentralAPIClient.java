@@ -182,9 +182,9 @@ public class CentralAPIClient {
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
         BaloProject baloProject = BaloProject.loadProject(defaultBuilder, baloPath);
-        String org = baloProject.currentPackage().packageDescriptor().org().toString();
-        String name = baloProject.currentPackage().packageDescriptor().name().toString();
-        String version = baloProject.currentPackage().packageDescriptor().version().toString();
+        String org = baloProject.currentPackage().manifest().org().toString();
+        String name = baloProject.currentPackage().manifest().name().toString();
+        String version = baloProject.currentPackage().manifest().version().toString();
 
         // Get access token
         String ballerinaCentralCliTokenUrl = getBallerinaCentralCliTokenUrl();
