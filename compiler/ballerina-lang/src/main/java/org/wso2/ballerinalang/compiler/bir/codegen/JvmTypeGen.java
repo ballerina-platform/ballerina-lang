@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -157,6 +158,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NULL_TYPE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARAMETERIZED_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PREDEFINED_TYPES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.READONLY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_TYPE_IMPL;
@@ -1252,6 +1254,9 @@ public class JvmTypeGen {
                 case TypeTags.READONLY:
                     typeFieldName = "TYPE_READONLY";
                     break;
+                case TypeTags.PARAMETERIZED_TYPE:
+                    loadParameterizedType(mv, (BParameterizedType) bType);
+                    return;
                 default:
                     return;
             }
@@ -1696,21 +1701,25 @@ public class JvmTypeGen {
             loadType(mv, restType);
         }
 
-        BType retType;
-        if (Symbols.isFlagOn(bType.retType.flags, Flags.PARAMETERIZED)) {
-            retType = typeBuilder.build(bType.retType);
-        } else {
-            retType = bType.retType;
-        }
-
         // load return type type
-        loadType(mv, retType);
+        loadType(mv, bType.retType);
 
         mv.visitLdcInsn(bType.flags);
 
         // initialize the function type using the param types array and the return type
         mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE_IMPL, JVM_INIT_METHOD,
                            String.format("([L%s;L%s;L%s;J)V", TYPE, TYPE, TYPE), false);
+    }
+
+    private static void loadParameterizedType(MethodVisitor mv, BParameterizedType bType) {
+        mv.visitTypeInsn(NEW, PARAMETERIZED_TYPE_IMPL);
+        mv.visitInsn(DUP);
+
+        loadType(mv, bType.paramValueType);
+        mv.visitLdcInsn(bType.paramIndex);
+
+        mv.visitMethodInsn(INVOKESPECIAL, PARAMETERIZED_TYPE_IMPL, JVM_INIT_METHOD, String.format("(L%s;I)V", TYPE),
+                           false);
     }
 
     static String getTypeDesc(BType bType) {

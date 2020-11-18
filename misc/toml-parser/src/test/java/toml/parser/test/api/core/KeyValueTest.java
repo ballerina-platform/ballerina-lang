@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package toml.parser.test.core;
+package toml.parser.test.api.core;
 
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
@@ -38,7 +38,8 @@ public class KeyValueTest {
     @Test
     public void testKeys() throws IOException {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("syntax/core/keys.toml");
+                .getResourceAsStream("syntax/key-value/keys.toml");
+
         Toml read = Toml.read(inputStream);
         String basicKey = ((TomlStringValueNode) read.get("key")).getValue();
         String underscoreKey = ((TomlStringValueNode) read.get("underscore_key")).getValue();
@@ -67,7 +68,7 @@ public class KeyValueTest {
     @Test
     public void testBasicValues() throws IOException {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("syntax/core/values.toml");
+                .getResourceAsStream("syntax/key-value/values.toml");
         Toml read = Toml.read(inputStream);
         String stringValue = ((TomlStringValueNode) read.get("key1")).getValue();
         Long longValue = ((TomlLongValueNode) read.get("key2")).getValue();
@@ -79,9 +80,7 @@ public class KeyValueTest {
         Assert.assertEquals(stringValue, "hello");
         Assert.assertEquals(longValue, Long.valueOf(123L));
         Assert.assertEquals(doubleValue, 56.55);
-        Assert.assertEquals(multiString, "\n" +
-                "Roses are red\n" +
-                "Violets are blue");
+        Assert.assertEquals(multiString, "\nRoses are red\nViolets are blue");
         Assert.assertFalse(boolfalse);
         Assert.assertTrue(booltrue);
     }
@@ -89,7 +88,7 @@ public class KeyValueTest {
     @Test
     public void testArrayValues() throws IOException {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("syntax/core/array.toml");
+                .getResourceAsStream("syntax/key-value/array.toml");
         Toml read = Toml.read(inputStream);
 
         TomlArrayValueNode mixedType = read.get("mixed_type");
