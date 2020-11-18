@@ -14,30 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/baz;
-import ballerina/lang.'string as str;
+public const PI = 3.14;
 
-baz:Digit zero = 0;
+public const TRUE = "true";
+public const string FALSE = "false";
 
-function test() {
-    baz:Person p = {name: "John Doe", age: 24};
-
-    if (true) {
-        int x = 'int:fromString("100");
-
-        if (false) {
-            int d = 40;
-
-            if (true) {
-                int e = 'int:max(d, x);
-            }
-
-            int f = 60;
-            byte[] bytes = str:toBytes(p.name);
-            var pObj = new baz:PersonObj("Jane", 20);
-        }
-
-        float circum  = 2 * baz:PI * 10;
-        int xum = baz:add(10, 20);
-    }
-}
+const STATUS = "status";

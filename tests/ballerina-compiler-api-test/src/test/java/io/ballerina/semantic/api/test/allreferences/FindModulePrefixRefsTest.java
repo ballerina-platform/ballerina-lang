@@ -37,7 +37,7 @@ public class FindModulePrefixRefsTest extends FindAllReferencesTest {
     @BeforeClass
     public void setup() {
         BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo("test-src/test-project", "testorg", "foo");
+        BaloCreator.createAndSetupBalo("test-src/test-project", "testorg", "baz");
         super.setup();
     }
 
@@ -72,6 +72,6 @@ public class FindModulePrefixRefsTest extends FindAllReferencesTest {
 
     @AfterClass
     public void tearDown() {
-        BaloCreator.clearPackageFromRepository("test-src/test-project", "testorg", "foo");
+        BaloCreator.clearPackageFromRepository("test-src/test-project", "testorg", "baz");
     }
 }
