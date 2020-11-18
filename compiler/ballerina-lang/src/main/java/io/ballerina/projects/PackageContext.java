@@ -180,7 +180,7 @@ class PackageContext {
             populateModuleDependencies(moduleContext, moduleDependencyIdMap, packageDependencies);
         }
 
-        DependencyGraph<ModuleId> moduleDependencyGraph = new DependencyGraph<>(moduleDependencyIdMap);
+        DependencyGraph<ModuleId> moduleDependencyGraph = DependencyGraph.from(moduleDependencyIdMap);
         this.packageDependencies = packageDependencies;
         this.moduleDependencyGraph = moduleDependencyGraph;
         this.dependenciesResolved = true;

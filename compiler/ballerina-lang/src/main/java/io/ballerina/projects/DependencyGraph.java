@@ -44,6 +44,15 @@ public class DependencyGraph<T> {
         return (DependencyGraph<T>) EMPTY_GRAPH;
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T> DependencyGraph<T> from(Map<T, Set<T>> dependencies) {
+        if (dependencies.isEmpty()) {
+            return (DependencyGraph<T>) EMPTY_GRAPH;
+        }
+
+        return new DependencyGraph<>(dependencies);
+    }
+
     public DependencyGraph(Map<T, Set<T>> dependencies) {
         this.dependencies = Collections.unmodifiableMap(dependencies);
     }
@@ -82,6 +91,10 @@ public class DependencyGraph<T> {
         sortTopologically(dependencies.keySet(), new HashSet<>(), sorted);
         topologicallySortedNodes = Collections.unmodifiableList(sorted);
         return topologicallySortedNodes;
+    }
+
+    public boolean isEmpty() {
+        return this == EMPTY_GRAPH;
     }
 
     private void sortTopologically(Collection<T> nodesToSort, Set<T> visited, List<T> sorted) {
