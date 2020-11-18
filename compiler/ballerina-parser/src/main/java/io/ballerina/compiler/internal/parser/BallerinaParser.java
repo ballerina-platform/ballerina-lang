@@ -13245,7 +13245,7 @@ public class BallerinaParser extends AbstractParser {
                 typeOrExpr = parseTypedDescOrExprStartsWithOpenParenthesis();
                 break;
             case FUNCTION_KEYWORD:
-                typeOrExpr = parseAnonFuncExprOrFuncTypeDesc(qualifiers, false);
+                typeOrExpr = parseAnonFuncExprOrFuncTypeDesc(qualifiers);
                 break;
             case IDENTIFIER_TOKEN:
                 reportInvalidQualifierList(qualifiers);
@@ -13321,7 +13321,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseAnonFuncExprOrTypedBPWithFuncType(List<STNode> qualifiers) {
-        STNode exprOrTypeDesc = parseAnonFuncExprOrFuncTypeDesc(qualifiers, false);
+        STNode exprOrTypeDesc = parseAnonFuncExprOrFuncTypeDesc(qualifiers);
         if (isAction(exprOrTypeDesc) || isExpression(exprOrTypeDesc.kind)) {
             return exprOrTypeDesc;
         }
@@ -13335,17 +13335,18 @@ public class BallerinaParser extends AbstractParser {
      * @param qualifiers Preceding qualifiers
      * @return Anon-func-expr or function-type-desc
      */
-    private STNode parseAnonFuncExprOrFuncTypeDesc(List<STNode> qualifiers, boolean isInBracketedList) {
+    private STNode parseAnonFuncExprOrFuncTypeDesc(List<STNode> qualifiers) {
         startContext(ParserRuleContext.FUNC_TYPE_DESC_OR_ANON_FUNC);
         STNode qualifierList = createFuncTypeQualNodeList(qualifiers);
         STNode functionKeyword = parseFunctionKeyword();
         STNode funcSignature = parseFuncSignature(true);
         endContext();
 
+        ParserRuleContext currentCtx = getCurrentContext();
         switch (peek().kind) {
             case OPEN_BRACE_TOKEN:
             case RIGHT_DOUBLE_ARROW_TOKEN:
-                if (!isInBracketedList) {
+                if (currentCtx != ParserRuleContext.STMT_START_BRACKETED_LIST) {
                     switchContext(ParserRuleContext.EXPRESSION_STATEMENT);
                 }
                 startContext(ParserRuleContext.ANON_FUNC_EXPRESSION);
@@ -13361,7 +13362,7 @@ public class BallerinaParser extends AbstractParser {
             default:
                 STNode funcTypeDesc = STNodeFactory.createFunctionTypeDescriptorNode(qualifierList, functionKeyword,
                         funcSignature);
-                if (!isInBracketedList) {
+                if (currentCtx != ParserRuleContext.STMT_START_BRACKETED_LIST) {
                     switchContext(ParserRuleContext.VAR_DECL_STMT);
                     return parseComplexTypeDescriptor(funcTypeDesc, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN,
                             true);
@@ -14847,7 +14848,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_PAREN_TOKEN:
                 return parseTypeDescOrExpr(qualifiers);
             case FUNCTION_KEYWORD:
-                return parseAnonFuncExprOrFuncTypeDesc(qualifiers, true);
+                return parseAnonFuncExprOrFuncTypeDesc(qualifiers);
             default:
                 if (isValidExpressionStart(nextToken.kind, 1)) {
                     reportInvalidQualifierList(qualifiers);
