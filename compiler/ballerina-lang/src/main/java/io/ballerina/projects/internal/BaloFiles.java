@@ -64,11 +64,11 @@ public class BaloFiles {
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             // Load default module
             String pkgName = packageDescriptor.name().toString();
-            Path defaultModulePathInBalo = zipFileSystem.getPath("/" + MODULES_ROOT, pkgName);
+            Path defaultModulePathInBalo = zipFileSystem.getPath(MODULES_ROOT, pkgName);
             ModuleData defaultModule = loadModule(defaultModulePathInBalo);
 
             // load other modules
-            Path modulesPathInBalo = zipFileSystem.getPath("/" + MODULES_ROOT);
+            Path modulesPathInBalo = zipFileSystem.getPath(MODULES_ROOT);
             List<ModuleData> otherModules = loadOtherModules(modulesPathInBalo, defaultModulePathInBalo);
             return PackageData.from(balrPath, defaultModule, otherModules);
         } catch (IOException e) {
