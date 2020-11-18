@@ -32,7 +32,7 @@ function testArray() {
 
     (record {string x;})[] y = [ { x : "10"}];
     object {
-        public function next() returns record {|
+        public isolated function next() returns record {|
             string value;
         |}?;
     } yy = y.iterator();

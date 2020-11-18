@@ -35,7 +35,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
     public Type[] paramTypes;
     public Type restType;
     public Type retType;
-    public int flags;
+    public long flags;
 
     public BFunctionType() {
         super("function ()", null, Object.class);
@@ -44,7 +44,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         this.flags = 0;
     }
 
-    public BFunctionType(Type[] paramTypes, Type restType, Type retType, int flags) {
+    public BFunctionType(Type[] paramTypes, Type restType, Type retType, long flags) {
         super("function ()", null, Object.class);
         this.paramTypes = paramTypes;
         this.restType = restType;
@@ -153,7 +153,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         return retType;
     }
 
-    public int getFlags() {
+    public long getFlags() {
         return flags;
     }
 }

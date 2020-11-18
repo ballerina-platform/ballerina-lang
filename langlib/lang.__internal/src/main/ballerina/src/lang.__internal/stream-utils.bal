@@ -53,7 +53,7 @@ public isolated function setNarrowType(typedesc<Type> td, record {|Type value;|}
 # + td - A type description.
 # + iteratorObj - An iterator object.
 # + return - New stream containing results of `iteratorObj` object's next function invocations.
-public isolated function construct(typedesc<Type> td, object { public function next() returns
+public isolated function construct(typedesc<Type> td, object { public isolated function next() returns
         record {|Type value;|}|ErrorType?;} iteratorObj = new EmptyIterator())
         returns stream<Type, ErrorType> = @java:Method {
             'class: "org.ballerinalang.langlib.internal.Construct",
@@ -82,7 +82,7 @@ public isolated function getFilterFunc(any func) returns function(Type) returns 
 #
 # + func - The input map function
 # + return - The input function with the changed parameter type
-public function getMapFunc(any func) returns function(Type) returns Type1 = @java:Method {
+public isolated function getMapFunc(any func) returns function(Type) returns Type1 = @java:Method {
     'class: "org.ballerinalang.langlib.internal.GetMapFunc",
     name: "getMapFunc"
 } external;
@@ -100,13 +100,23 @@ public isolated function getReturnType(any func) returns typedesc<Type> = @java:
 #
 # + strm - The stream
 # + return - An abstract object which is iterable
-public function getIteratorObj(stream<Type, ErrorType> strm) returns
+public isolated function getIteratorObj(stream<Type, ErrorType> strm) returns
     object {
-        public function next() returns record {|Type value;|}|ErrorType?;} |
+        public isolated function next() returns record {|Type value;|}|ErrorType?;} |
     object {
-        public function next() returns record {|Type value;|}|ErrorType?;
-        public function close() returns ErrorType?;
+        public isolated function next() returns record {|Type value;|}|ErrorType?;
+        public isolated function close() returns ErrorType?;
     } = @java:Method {
         'class: "org.ballerinalang.langlib.internal.GetIteratorObj",
         name: "getIteratorObj"
     } external;
+
+# Invoke a non-isolated function as an external function (workaround for isolated invocations).
+#
+# + func - function to invoke
+# + args - args for the function to invoke
+# + return - result of the invocation
+public isolated function invokeAsExternal(any func, any|error... args) returns any|error = @java:Method {
+    'class: "org.ballerinalang.langlib.internal.InvokeAsExternal",
+    name: "invokeAsExternal"
+} external;

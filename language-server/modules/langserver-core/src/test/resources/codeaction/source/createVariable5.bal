@@ -1,6 +1,3 @@
-//import ballerina/mysql;
-//import ballerina/sql;
-
 type Foo record {|
     string s?;
 |};
@@ -14,17 +11,35 @@ type Person record {|
    string firstName;
    string lastName;
    string deptAccess;
+   int age = 0;
 |};
+
+type FullName record {
+    string firstName;
+    string lastName;
+};
 
 type Department record {|
    string name;
 |};
 
-function queryBinaryType(mysql:Client mysqlClient) {
+
+client class MySQLClient {
+    remote function query(string q, any rec) returns stream<record{}, error> {
+        return 1;
+    }
+}
+
+public type ApplicationErrorData record {
+    string message;
+    error cause?;
+};
+
+function queryBinaryType(MySQLClient mysqlClient) {
     Foo f = {};
     mysqlClient->query("Select * from Customers", Foo);
-    stream<record{}, error> resultStream = mysqlClient->query("Select * from Customers", Foo);
-    <stream<Foo, sql:Error>>resultStream;
+    var resultStream = mysqlClient->query("Select * from Customers", Foo);
+    <stream<Foo, ApplicationErrorData>>resultStream;
     <int>1.1;
     Address address = {city: "Colombo", country: "Sri Lanka"};
     {
@@ -64,7 +79,6 @@ function testMultipleSelectClausesWithSimpleVariable() {
                 where (person.age * 2) < 50
                 do {
                     FullName fullName = {firstName: person.firstName, lastName: person.lastName};
-                    nameList[nameList.length()] = fullName;
                     10;
                 };
 
@@ -77,4 +91,3 @@ function testMultipleSelectClausesWithSimpleVariable() {
 public function testAsync() {
     // do something
 }
-

@@ -146,26 +146,26 @@
       }
     },
     {
-      "label": "iterator()( object {function () returns {| any|error value |}|()})",
+      "label": "iterator()( object {function () returns record {| any|error value; |}|()})",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns an iterator over a map.\nThe iterator will iterate over the members of the map not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n  \n  \n  \n**Returns** ` object {function () returns {| any|error value |}|()}`   \n- a new iterator object that will iterate over the members of `m`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns an iterator over a map.\nThe iterator will iterate over the members of the map not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n  \n  \n  \n**Returns** ` object {function () returns record {| any|error value; |}|()}`   \n- a new iterator object that will iterate over the members of `m`  \n  \n"
         }
       },
       "insertText": "iterator()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "entries()(map<[string,any|error]>)",
+      "label": "entries()(map<[string, any|error]>)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a map containing [key, member] pair as the value for each key.\n  \n  \n  \n**Returns** `map<[string,any|error]>`   \n- a new map of [key, member] pairs  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a map containing [key, member] pair as the value for each key.\n  \n  \n  \n**Returns** `map<[string, any|error]>`   \n- a new map of [key, member] pairs  \n  \n"
         }
       },
       "insertText": "entries()",

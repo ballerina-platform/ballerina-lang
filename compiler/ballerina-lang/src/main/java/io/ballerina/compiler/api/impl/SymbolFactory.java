@@ -361,7 +361,7 @@ public class SymbolFactory {
     }
 
     // Private methods
-    public static boolean isFlagOn(int mask, int flag) {
-        return (mask & flag) == flag;
+    public static boolean isFlagOn(long mask, long flags) {
+        return (mask & flags) == flags;
     }
 }
