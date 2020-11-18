@@ -175,6 +175,7 @@ public class Package {
         private BallerinaToml ballerinaToml;
         private Map<ModuleId, ModuleContext> moduleContextMap;
         private Project project;
+        private final DependencyGraph<PackageDescriptor> pkgDescDependencyGraph;
 
         public Modifier(Package oldPackage) {
             this.packageId = oldPackage.packageId();
@@ -182,6 +183,7 @@ public class Package {
             this.ballerinaToml = oldPackage.ballerinaToml().orElse(null);
             this.moduleContextMap = copyModules(oldPackage);
             this.project = oldPackage.project;
+            this.pkgDescDependencyGraph = oldPackage.packageContext().packageDescriptorDependencyGraph();
         }
 
         Modifier updateModule(ModuleContext newModuleContext) {
@@ -232,7 +234,7 @@ public class Package {
 
         private Package createNewPackage() {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId,
-                    this.packageManifest, this.ballerinaToml, this.moduleContextMap);
+                    this.packageManifest, this.ballerinaToml, this.moduleContextMap, pkgDescDependencyGraph);
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
             return this.project.currentPackage();
         }

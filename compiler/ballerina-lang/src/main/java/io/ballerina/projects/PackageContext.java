@@ -40,11 +40,15 @@ class PackageContext {
     private final PackageManifest packageManifest;
     private final BallerinaToml ballerinaToml;
     private ModuleContext defaultModuleContext;
-    private boolean dependenciesResolved;
+    /**
+     * This variable holds the dependency graph cached in a project.
+     * At the moment, we cache the dependency graph in a balr file.
+     */
+    private final DependencyGraph<PackageDescriptor> pkgDescDependencyGraph;
 
+    private boolean dependenciesResolved;
     private Set<PackageDependency> packageDependencies;
     private DependencyGraph<ModuleId> moduleDependencyGraph;
-
     private PackageCompilation packageCompilation;
 
     // TODO Try to reuse the unaffected compilations if possible
@@ -54,7 +58,8 @@ class PackageContext {
                    PackageId packageId,
                    PackageManifest packageManifest,
                    BallerinaToml ballerinaToml,
-                   Map<ModuleId, ModuleContext> moduleContextMap) {
+                   Map<ModuleId, ModuleContext> moduleContextMap,
+                   DependencyGraph<PackageDescriptor> pkgDescDependencyGraph) {
         this.project = project;
         this.packageId = packageId;
         this.packageManifest = packageManifest;
@@ -65,6 +70,7 @@ class PackageContext {
         this.moduleCompilationMap = new HashMap<>();
         this.packageDependencies = Collections.emptySet();
         this.moduleDependencyGraph = DependencyGraph.emptyGraph();
+        this.pkgDescDependencyGraph = pkgDescDependencyGraph;
     }
 
     static PackageContext from(Project project, PackageConfig packageConfig) {
@@ -73,9 +79,8 @@ class PackageContext {
             moduleContextMap.put(moduleConfig.moduleId(), ModuleContext.from(project, moduleConfig));
         }
 
-        // Create module dependency graph
-        return new PackageContext(project, packageConfig.packageId(),
-                packageConfig.packageManifest(), packageConfig.ballerinaToml(), moduleContextMap);
+        return new PackageContext(project, packageConfig.packageId(), packageConfig.packageManifest(),
+                packageConfig.ballerinaToml(), moduleContextMap, packageConfig.dependencyGraph());
     }
 
     PackageId packageId() {
@@ -164,6 +169,10 @@ class PackageContext {
 
     Project project() {
         return this.project;
+    }
+
+    DependencyGraph<PackageDescriptor> packageDescriptorDependencyGraph() {
+        return pkgDescDependencyGraph;
     }
 
     void resolveDependencies() {
