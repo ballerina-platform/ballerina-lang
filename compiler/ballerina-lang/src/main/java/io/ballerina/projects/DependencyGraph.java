@@ -53,7 +53,7 @@ public class DependencyGraph<T> {
         return new DependencyGraph<>(dependencies);
     }
 
-    public DependencyGraph(Map<T, Set<T>> dependencies) {
+    private DependencyGraph(Map<T, Set<T>> dependencies) {
         this.dependencies = Collections.unmodifiableMap(dependencies);
     }
 
@@ -72,6 +72,10 @@ public class DependencyGraph<T> {
 
     public DependencyGraph<T> addDependencies(T dependent, Collection<T> dependencies) {
         throw new UnsupportedOperationException();
+    }
+
+    public Collection<T> getNodes() {
+        return dependencies.keySet();
     }
 
     public Collection<T> getDirectDependents(T node) {
@@ -104,6 +108,72 @@ public class DependencyGraph<T> {
                 sortTopologically(dependencies.get(node), visited, sorted);
                 sorted.add(node);
             }
+        }
+    }
+
+    /**
+     * Builds a {@code DependencyGraph}.
+     *
+     * @param <T> type of the node
+     * @since 2.0.0
+     */
+    public static class DependencyGraphBuilder<T> {
+        private final Map<T, Set<T>> dependenciesMap;
+
+        private DependencyGraphBuilder(Map<T, Set<T>> dependencies) {
+            this.dependenciesMap = dependencies;
+        }
+
+        public static <T> DependencyGraphBuilder<T> getBuilder() {
+            return new DependencyGraphBuilder<>(new HashMap<>());
+        }
+
+        public DependencyGraphBuilder<T> add(T node) {
+            if (!dependenciesMap.containsKey(node)) {
+                dependenciesMap.put(node, new HashSet<>());
+            }
+            return this;
+        }
+
+        public DependencyGraphBuilder<T> addDependency(T dependent, T dependency) {
+            getCurrentDependencies(dependent).add(dependency);
+            // This step guaranties that all the nodes have an entry in the map
+            return add(dependency);
+        }
+
+        public DependencyGraphBuilder<T> addDependencies(T dependent, Collection<T> dependencies) {
+            getCurrentDependencies(dependent).addAll(dependencies);
+            // This step guaranties that all the nodes have an entry in the map
+            dependencies.forEach(this::add);
+            return this;
+        }
+
+        public DependencyGraphBuilder<T> mergeGraph(DependencyGraph<T> theirGraph) {
+            Map<T, Set<T>> ourDependenciesMap = dependenciesMap;
+            for (Map.Entry<T, Set<T>> theirDependencyEntry : theirGraph.dependencies.entrySet()) {
+                if (ourDependenciesMap.containsKey(theirDependencyEntry.getKey())) {
+                    Set<T> ourCurrentDependencies = ourDependenciesMap.get(theirDependencyEntry.getKey());
+                    ourCurrentDependencies.addAll(theirDependencyEntry.getValue());
+                } else {
+                    ourDependenciesMap.put(theirDependencyEntry.getKey(), theirDependencyEntry.getValue());
+                }
+            }
+            return this;
+        }
+
+        public DependencyGraph<T> build() {
+            return new DependencyGraph<>(dependenciesMap);
+        }
+
+        private Set<T> getCurrentDependencies(T dependent) {
+            Set<T> currentDependencies;
+            if (dependenciesMap.containsKey(dependent)) {
+                currentDependencies = dependenciesMap.get(dependent);
+            } else {
+                currentDependencies = new HashSet<>();
+                dependenciesMap.put(dependent, currentDependencies);
+            }
+            return currentDependencies;
         }
     }
 }
