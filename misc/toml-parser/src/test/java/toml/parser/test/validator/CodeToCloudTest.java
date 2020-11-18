@@ -19,9 +19,8 @@
 package toml.parser.test.validator;
 
 import io.ballerina.toml.api.Toml;
-import io.ballerina.toml.validator.RootSchema;
-import io.ballerina.toml.validator.Schema;
 import io.ballerina.toml.validator.TomlValidator;
+import io.ballerina.toml.validator.schema.RootSchema;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.Test;

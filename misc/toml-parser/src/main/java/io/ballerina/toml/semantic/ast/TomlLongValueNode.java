@@ -20,8 +20,6 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
-import io.ballerina.toml.syntax.tree.Node;
-
 /**
  * Represents A Long Value in Toml AST.
  *

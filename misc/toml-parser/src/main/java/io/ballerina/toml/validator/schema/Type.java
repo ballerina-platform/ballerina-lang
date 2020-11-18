@@ -16,28 +16,18 @@
  * under the License.
  */
 
-package io.ballerina.toml.validator;
-
-import io.ballerina.toml.api.Toml;
-import io.ballerina.toml.semantic.ast.TomlTableNode;
-import io.ballerina.toml.validator.schema.RootSchema;
+package io.ballerina.toml.validator.schema;
 
 /**
- * Contains the validation logic for AdditionalProperties in the JSON schema.
+ * Represents Types for each Schema.
  *
  * @since 2.0.0
  */
-public class TomlValidator {
-
-    private final RootSchema rootSchema;
-
-    public TomlValidator(RootSchema rootSchema) {
-        this.rootSchema = rootSchema;
-    }
-
-    public void validate(Toml toml) {
-        SchemaValidator schemaValidator = new SchemaValidator(rootSchema);
-        TomlTableNode rootNode = toml.getRootNode();
-        rootNode.accept(schemaValidator);
-    }
+public enum Type {
+    OBJECT,
+    NUMBER,
+    INTEGER,
+    STRING,
+    ARRAY,
+    BOOLEAN,
 }

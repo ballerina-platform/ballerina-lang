@@ -20,10 +20,6 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
-import io.ballerina.toml.syntax.tree.Node;
-import io.ballerina.tools.diagnostics.Diagnostic;
-
-import java.util.Set;
 
 /**
  * Represents A String Value in Toml AST.

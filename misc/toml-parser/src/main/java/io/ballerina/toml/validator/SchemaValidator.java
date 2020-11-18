@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.toml.validator.validations;
+package io.ballerina.toml.validator;
 
 import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
 import io.ballerina.toml.semantic.ast.TomlDoubleValueNodeNode;
@@ -27,53 +27,87 @@ import io.ballerina.toml.semantic.ast.TomlStringValueNode;
 import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
+import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
-import io.ballerina.toml.validator.NumericSchema;
-import io.ballerina.toml.validator.Schema;
-import io.ballerina.toml.validator.StringSchema;
-import io.ballerina.toml.validator.TypeEnum;
+import io.ballerina.toml.validator.schema.ArraySchema;
+import io.ballerina.toml.validator.schema.NumericSchema;
+import io.ballerina.toml.validator.schema.ObjectSchema;
+import io.ballerina.toml.validator.schema.RootSchema;
+import io.ballerina.toml.validator.schema.Schema;
+import io.ballerina.toml.validator.schema.StringSchema;
+import io.ballerina.toml.validator.schema.Type;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- * Visitor to validate type related validations in json schema.
+ * Visitor to validate toml object against rules in json schema.
  *
  * @since 2.0.0
  */
-public class TypeCheckerVisitor implements TomlNodeVisitor {
+public class SchemaValidator implements TomlNodeVisitor {
 
-    private final String key;
-    private final Schema schema;
+    private Schema schema;
+    private String key;
 
-    public TypeCheckerVisitor(Schema schema, String key) {
+    public SchemaValidator(RootSchema schema) {
         this.schema = schema;
-        this.key = key;
     }
 
     @Override
     public void visit(TomlTableNode tomlTableNode) {
-        if (schema.getType() != TypeEnum.OBJECT) {
+        if (schema.getType() != Type.OBJECT) {
             TomlDiagnostic diagnostic = getTomlDiagnostic(tomlTableNode.location(), "TVE0002", "error.invalid.type",
                     DiagnosticSeverity.ERROR, String.format("Key \"%s\" expects %s . Found object", this.key,
                             schema.getType()));
             tomlTableNode.addDiagnostic(diagnostic);
+        } else {
+            ObjectSchema objectSchema = (ObjectSchema) schema;
+            Map<String, Schema> properties = objectSchema.getProperties();
+            Map<String, TopLevelNode> tableChildren = tomlTableNode.children();
+            for (Map.Entry<String, TopLevelNode> propertyEntry : tableChildren.entrySet()) {
+                String key = propertyEntry.getKey();
+                TopLevelNode value = propertyEntry.getValue();
+                Schema schema = properties.get(key);
+                if (schema != null) {
+                    this.schema = schema;
+                    this.key = key;
+                    value.accept(this);
+                } else {
+                    if (!objectSchema.isAdditionalProperties()) {
+                        DiagnosticInfo diagnosticInfo = new DiagnosticInfo("TVE0001", "warn.unexpected.property",
+                                DiagnosticSeverity.WARNING);
+                        TomlDiagnostic diagnostic = new TomlDiagnostic(value.location(), diagnosticInfo,
+                                "Unexpected Property \"" + key + "\"");
+                        tomlTableNode.addDiagnostic(diagnostic);
+                    }
+                }
+            }
         }
     }
 
     @Override
     public void visit(TomlTableArrayNode tomlTableArrayNode) {
-        if (schema.getType() != TypeEnum.ARRAY) {
+        if (schema.getType() != Type.ARRAY) {
             TomlDiagnostic diagnostic =
                     getTomlDiagnostic(tomlTableArrayNode.location(), "TVE0002", "error.invalid.type",
                             DiagnosticSeverity.ERROR, String.format("Key \"%s\" expects %s . Found array", this.key,
                                     schema.getType()));
             tomlTableArrayNode.addDiagnostic(diagnostic);
+        } else {
+            ArraySchema arraySchema = (ArraySchema) schema;
+            Schema items = arraySchema.getItems();
+            List<TomlTableNode> children = tomlTableArrayNode.children();
+            for (TomlTableNode child : children) {
+                this.schema = items;
+                child.accept(this);
+            }
         }
     }
 
@@ -90,7 +124,7 @@ public class TypeCheckerVisitor implements TomlNodeVisitor {
 
     @Override
     public void visit(TomlStringValueNode tomlStringValueNode) {
-        if (schema.getType() != TypeEnum.STRING) {
+        if (schema.getType() != Type.STRING) {
             TomlDiagnostic diagnostic =
                     getTomlDiagnostic(tomlStringValueNode.location(), "TVE0002", "error.invalid.type",
                             DiagnosticSeverity.ERROR,
@@ -113,7 +147,7 @@ public class TypeCheckerVisitor implements TomlNodeVisitor {
 
     @Override
     public void visit(TomlDoubleValueNodeNode tomlDoubleValueNodeNode) {
-        if (schema.getType() != TypeEnum.NUMBER) {
+        if (schema.getType() != Type.NUMBER) {
             TomlDiagnostic diagnostic = getTomlDiagnostic(tomlDoubleValueNodeNode.location(), "TVE0002",
                     "error.invalid.type", DiagnosticSeverity.ERROR,
                     String.format("Key \"%s\" expects %s . Found number", this.key, schema.getType()));
@@ -130,7 +164,7 @@ public class TypeCheckerVisitor implements TomlNodeVisitor {
 
     @Override
     public void visit(TomlLongValueNode tomlLongValueNode) {
-        if (schema.getType() != TypeEnum.INTEGER) {
+        if (schema.getType() != Type.INTEGER) {
             TomlDiagnostic diagnostic = getTomlDiagnostic(tomlLongValueNode.location(), "TVE0002",
                     "error.invalid.type", DiagnosticSeverity.ERROR,
                     String.format("Key \"%s\" expects %s . Found integer", this.key, schema.getType()));
@@ -173,7 +207,7 @@ public class TypeCheckerVisitor implements TomlNodeVisitor {
 
     @Override
     public void visit(TomlBooleanValueNode tomlBooleanValueNode) {
-        if (schema.getType() != TypeEnum.BOOLEAN) {
+        if (schema.getType() != Type.BOOLEAN) {
             TomlDiagnostic diagnostic = getTomlDiagnostic(tomlBooleanValueNode.location(), "TVE0002",
                     "error.invalid.type", DiagnosticSeverity.ERROR,
                     String.format("Key \"%s\" expects %s . Found boolean", this.key, schema.getType()));

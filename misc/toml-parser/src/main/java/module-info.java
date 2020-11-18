@@ -7,6 +7,5 @@ module io.ballerina.toml {
     exports io.ballerina.toml.semantic.ast;
     exports io.ballerina.toml.api;
     exports io.ballerina.toml.validator;
-    exports io.ballerina.toml.validator.validations;
-    opens io.ballerina.toml.validator.validations;
+    opens io.ballerina.toml.validator;
 }

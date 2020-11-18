@@ -19,18 +19,12 @@
 package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
-import io.ballerina.toml.semantic.diagnostics.DiagnosticComparator;
-import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
-import io.ballerina.toml.syntax.tree.Node;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * Represents Table in TOML AST.

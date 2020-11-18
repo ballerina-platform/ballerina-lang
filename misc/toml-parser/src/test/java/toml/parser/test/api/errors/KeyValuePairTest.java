@@ -40,7 +40,7 @@ public class KeyValuePairTest {
                 .getResourceAsStream("syntax/key-value/missing-equal-negative.toml");
         Toml read = Toml.read(inputStream);
         Set<Diagnostic> diagnostics = read.getDiagnostics();
-        LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 4, 4);
+        LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 5, 5);
         Diagnostic actualDiag = diagnostics.iterator().next();
 
         ErrorTestUtils
@@ -113,7 +113,7 @@ public class KeyValuePairTest {
         Toml read = Toml.read(inputStream);
         Set<Diagnostic> diagnostics = read.getDiagnostics();
 
-        LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 10, 11);
+        LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 10, 10);
         Diagnostic actualDiag = diagnostics.iterator().next();
 
         ErrorTestUtils
