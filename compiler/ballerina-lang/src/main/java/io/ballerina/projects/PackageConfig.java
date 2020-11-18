@@ -34,19 +34,21 @@ public class PackageConfig {
     private final PackageManifest packageManifest;
     private final BallerinaToml ballerinaToml;
     private final Path packagePath;
-    // Ballerina toml file config
+    private final DependencyGraph<PackageDescriptor> dependencyGraph;
     private final Collection<ModuleConfig> otherModules;
 
     private PackageConfig(PackageId packageId,
                           Path packagePath,
                           PackageManifest packageManifest,
                           BallerinaToml ballerinaToml,
-                          Collection<ModuleConfig> moduleConfigs) {
+                          Collection<ModuleConfig> moduleConfigs,
+                          DependencyGraph<PackageDescriptor> dependencyGraph) {
         this.packageId = packageId;
         this.packagePath = packagePath;
         this.packageManifest = packageManifest;
         this.ballerinaToml = ballerinaToml;
         this.otherModules = moduleConfigs;
+        this.dependencyGraph = dependencyGraph;
     }
 
     public static PackageConfig from(PackageId packageId,
@@ -54,7 +56,18 @@ public class PackageConfig {
                                      PackageManifest packageManifest,
                                      BallerinaToml ballerinaToml,
                                      Collection<ModuleConfig> moduleConfigs) {
-        return new PackageConfig(packageId, packagePath, packageManifest, ballerinaToml, moduleConfigs);
+        return new PackageConfig(packageId, packagePath, packageManifest, ballerinaToml,
+                moduleConfigs, DependencyGraph.emptyGraph());
+    }
+
+    public static PackageConfig from(PackageId packageId,
+                                     Path packagePath,
+                                     PackageManifest packageManifest,
+                                     BallerinaToml ballerinaToml,
+                                     Collection<ModuleConfig> moduleConfigs,
+                                     DependencyGraph<PackageDescriptor> dependencyGraph) {
+        return new PackageConfig(packageId, packagePath, packageManifest, ballerinaToml,
+                moduleConfigs, dependencyGraph);
     }
 
     public PackageId packageId() {
@@ -83,6 +96,10 @@ public class PackageConfig {
 
     public CompilationOptions compilationOptions() {
         return null;
+    }
+
+    public DependencyGraph<PackageDescriptor> dependencyGraph() {
+        return dependencyGraph;
     }
 
     // TODO Check whether it makes sense to expose Java Path in the API
