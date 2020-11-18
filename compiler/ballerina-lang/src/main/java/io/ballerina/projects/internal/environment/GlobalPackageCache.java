@@ -1,4 +1,4 @@
-package io.ballerina.projects.environment;
+package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDescriptor;
@@ -19,7 +19,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class GlobalPackageCache {
+public class DefaultPackageCache implements WritablePackageCache {
 
     private final Map<PackageId, Project> projects = new HashMap<>();
 
@@ -27,14 +27,9 @@ public class GlobalPackageCache {
         projects.put(pkg.packageId(), pkg.project());
     }
 
-    /**
-     * Returns the package with the given {@code PackageId}.
-     *
-     * @param id the packageId
-     * @return the package with the given {@code PackageId}.
-     */
-    public Optional<Package> getPackage(PackageId id) {
-        Project project = projects.get(id);
+    @Override
+    public Optional<Package> getPackage(PackageId packageId) {
+        Project project = projects.get(packageId);
         if (project == null) {
             return Optional.empty();
         }
@@ -42,14 +37,16 @@ public class GlobalPackageCache {
         return Optional.of(project.currentPackage());
     }
 
-    /**
-     * Returns the package with the given organization, name and version.
-     *
-     * @param packageOrg      organization name
-     * @param packageName     package name
-     * @param semanticVersion package version
-     * @return the package with given organization, name and version
-     */
+    @Override
+    public Package getPackageOrThrow(PackageId packageId) {
+        Project project = projects.get(packageId);
+        if (project == null) {
+            throw new IllegalStateException("Cannot find a Package for the given PackageId: " + packageId);
+        }
+        return project.currentPackage();
+    }
+
+    @Override
     public Optional<Package> getPackage(PackageOrg packageOrg,
                                         PackageName packageName,
                                         SemanticVersion semanticVersion) {
@@ -65,13 +62,7 @@ public class GlobalPackageCache {
         return Optional.empty();
     }
 
-    /**
-     * Returns all the package versions with the given org and name.
-     *
-     * @param packageOrg  organization name
-     * @param packageName package name
-     * @return all the package versions with the given org and name
-     */
+    @Override
     public List<Package> getPackages(PackageOrg packageOrg, PackageName packageName) {
         // Do we have a need to improve this logic?
         List<Package> foundList = new ArrayList<>();
