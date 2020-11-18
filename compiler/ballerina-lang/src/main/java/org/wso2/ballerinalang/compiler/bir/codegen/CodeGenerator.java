@@ -147,6 +147,13 @@ public class CodeGenerator {
         Set<Path> moduleDependencies = getPlatformDependencyPaths(moduleId, compilerBackend, null);
         Set<Path> testDependencies = getPlatformDependencyPaths(moduleId, compilerBackend, "testOnly");
         testDependencies.addAll(moduleDependencies);
+
+        // Add runtime library
+        Path runtimeJar = compilerBackend.runtimeLibrary().path();
+        // We check if the runtime jar exist to support bootstrap
+        if (Files.exists(runtimeJar)) {
+            testDependencies.add(runtimeJar);
+        }
         return generate(bLangTestablePackage.symbol, testDependencies);
     }
 

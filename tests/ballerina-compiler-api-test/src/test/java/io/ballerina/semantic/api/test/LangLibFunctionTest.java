@@ -26,8 +26,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.CompileResult;
+import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -74,8 +73,7 @@ public class LangLibFunctionTest {
 
     @BeforeClass
     public void setup() {
-        CompileResult result = BCompileUtil.compile("test-src/langlib_test.bal");
-        model = result.defaultModuleSemanticModel();
+        model = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/langlib_test.bal");
     }
 
     @Test

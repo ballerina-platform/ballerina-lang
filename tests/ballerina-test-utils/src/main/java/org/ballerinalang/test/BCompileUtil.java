@@ -40,16 +40,20 @@ import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
  */
 public class BCompileUtil {
 
-    private static Path testSourcesDirectory = Paths.get("src/test/resources").toAbsolutePath().normalize();
-    private static Path testBuildDirectory = Paths.get("build").toAbsolutePath().normalize();
+    private static final Path testSourcesDirectory = Paths.get("src/test/resources").toAbsolutePath().normalize();
+    private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath().normalize();
 
-    public static CompileResult compile(String sourceFilePath) {
+    public static Project loadProject(String sourceFilePath) {
         Path sourcePath = Paths.get(sourceFilePath);
         String sourceFileName = sourcePath.getFileName().toString();
         Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
 
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
-        Project project = ProjectLoader.loadProject(projectPath);
+        return ProjectLoader.loadProject(projectPath);
+    }
+
+    public static CompileResult compile(String sourceFilePath) {
+        Project project = loadProject(sourceFilePath);
 
         Package currentPackage = project.currentPackage();
         PackageCompilation packageCompilation = currentPackage.getCompilation();
@@ -61,6 +65,15 @@ public class BCompileUtil {
         CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
         invokeModuleInit(compileResult);
         return compileResult;
+    }
+
+    public static Project getProject(String sourceFilePath) {
+        Path sourcePath = Paths.get(sourceFilePath);
+        String sourceFileName = sourcePath.getFileName().toString();
+        Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
+
+        Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
+        return ProjectLoader.loadProject(projectPath);
     }
 
     public static CompileResult compileAndCacheBalo(String sourceFilePath) {

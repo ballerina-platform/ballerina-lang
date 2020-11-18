@@ -19,10 +19,9 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
-import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -43,8 +42,7 @@ public class SymbolPositionTest {
 
     @BeforeClass
     public void setup() {
-        CompileResult result = BCompileUtil.compile("test-src/symbol_position_test.bal");
-        model = result.defaultModuleSemanticModel();
+        model = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/symbol_position_test.bal");
     }
 
     @Test(dataProvider = "PositionProvider")

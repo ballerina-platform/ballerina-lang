@@ -20,6 +20,11 @@ package io.ballerina.semantic.api.test;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.Project;
+import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
@@ -61,17 +66,21 @@ public class SymbolBIRTest {
 
     @Test
     public void testSymbolLookupInBIR() {
-        CompileResult result = BCompileUtil.compile("test-src/symbol_lookup_with_imports_test.bal");
-        BLangPackage pkg = (BLangPackage) result.getAST();
+        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_imports_test.bal");
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
         BPackageSymbol fooPkgSymbol = pkg.imports.get(0).symbol;
-        SemanticModel model = result.defaultModuleSemanticModel();
 
         List<String> annotationModuleSymbols = asList("deprecated", "untainted", "tainted", "icon", "strand",
-                                                      "StrandData", "typeParam", "Thread", "builtinSubtype",
-                                                      "isolatedParam");
+                "StrandData", "typeParam", "Thread", "builtinSubtype",
+                "isolatedParam");
         List<String> moduleLevelSymbols = asList("aString", "anInt", "HELLO", "testAnonTypes");
         List<String> moduleSymbols = asList("xml", "testproject", "object", "error", "boolean", "decimal", "typedesc",
-                                            "float", "future", "int", "map", "stream", "string", "table");
+                "float", "future", "int", "map", "stream", "string", "table");
         List<String> expSymbolNames = getSymbolNames(annotationModuleSymbols, moduleLevelSymbols, moduleSymbols);
 
         Map<String, Symbol> symbolsInScope =
@@ -99,8 +108,8 @@ public class SymbolBIRTest {
 
     @Test(dataProvider = "ImportSymbolPosProvider")
     public void testImportSymbols(int line, int column, String expSymbolName) {
-        CompileResult result = BCompileUtil.compile("test-src/symbol_at_cursor_import_test.bal");
-        SemanticModel model = result.defaultModuleSemanticModel();
+        SemanticModel model = SemanticAPITestUtils.getDefaultModulesSemanticModel(
+                "test-src/symbol_at_cursor_import_test.bal");
 
         Optional<Symbol> symbol = model.symbol("symbol_at_cursor_import_test.bal", LinePosition.from(line, column));
         symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
