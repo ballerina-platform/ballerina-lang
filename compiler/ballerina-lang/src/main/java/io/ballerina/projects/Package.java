@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -16,7 +17,7 @@ import java.util.function.Function;
  * @since 2.0.0
  */
 public class Package {
-    private Project project;
+    private final Project project;
     private final PackageContext packageContext;
     private final Map<ModuleId, Module> moduleMap;
     private final Function<ModuleId, Module> populateModuleFunc;
@@ -46,6 +47,10 @@ public class Package {
 
     public Project project() {
         return this.project;
+    }
+
+    public Optional<BallerinaToml> ballerinaToml() {
+        return packageContext.ballerinaToml();
     }
 
     public PackageId packageId() {
@@ -108,7 +113,6 @@ public class Package {
         return module(this.packageContext.defaultModuleContext().moduleId());
     }
 
-    // PackageCompilation has the emit method
     public PackageCompilation getCompilation() {
         return this.packageContext.getPackageCompilation();
     }
@@ -164,12 +168,14 @@ public class Package {
     public static class Modifier {
         private PackageId packageId;
         private PackageDescriptor packageDescriptor;
+        private BallerinaToml ballerinaToml;
         private Map<ModuleId, ModuleContext> moduleContextMap;
         private Project project;
 
         public Modifier(Package oldPackage) {
             this.packageId = oldPackage.packageId();
             this.packageDescriptor = oldPackage.packageDescriptor();
+            this.ballerinaToml = oldPackage.ballerinaToml().orElse(null);
             this.moduleContextMap = copyModules(oldPackage);
             this.project = oldPackage.project;
         }
@@ -222,7 +228,7 @@ public class Package {
 
         private Package createNewPackage() {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId,
-                    this.packageDescriptor, this.moduleContextMap);
+                    this.packageDescriptor, this.ballerinaToml, this.moduleContextMap);
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
             return this.project.currentPackage();
         }
