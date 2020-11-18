@@ -641,9 +641,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             analyzeVarNode(varNode, env, AttachPoint.Point.OBJECT_FIELD, AttachPoint.Point.FIELD);
         } else if ((ownerSymTag & SymTag.RECORD) == SymTag.RECORD) {
             analyzeVarNode(varNode, env, AttachPoint.Point.RECORD_FIELD, AttachPoint.Point.FIELD);
-        } else if (varNode.symbol == null && (ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE) {
-            // module variable declaration except capture binding pattern will analyzed here
-            analyzeVarNode(varNode, env, AttachPoint.Point.VAR);
         } else {
             varNode.annAttachments.forEach(annotationAttachment -> {
                 if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
@@ -1222,12 +1219,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                             DiagnosticCode.INCOMPATIBLE_TYPES);
                     continue;
                 }
+                int ownerSymTag = env.scope.owner.tag;
+                // If this is a module tuple variable, symbols of member variables are already entered at symbolEnter.
+                // Since we do not resolve type there we need to update the type of the symbol here.
+                if ((ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE) {
+                    var.symbol.type = type;
+                }
             }
             var.type = type;
-            int ownerSymTag = env.scope.owner.tag;
-            if ((ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE) {
-                var.symbol.type = type;
-            }
             analyzeNode(var, env);
         }
 

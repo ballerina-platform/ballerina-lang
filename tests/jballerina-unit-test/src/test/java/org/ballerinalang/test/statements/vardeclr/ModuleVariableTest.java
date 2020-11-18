@@ -83,7 +83,7 @@ public class ModuleVariableTest {
     public void testModuleLevelTupleVarDeclNegetive() {
         int index = 0;
         validateError(compileResultNegative, index++, "redeclared symbol 'a'", 19, 23);
-        validateError(compileResultNegative, index++, "redeclared symbol 'b'", 19, 26);
+        validateError(compileResultNegative, index++, "redeclared symbol 'b'", 20, 7);
         validateError(compileResultNegative, index++, "undefined symbol 'd'", 23, 12);
         validateError(compileResultNegative, index++, "undefined symbol 'd'", 24, 9);
         assertEquals(compileResultNegative.getErrorCount(), index++);
