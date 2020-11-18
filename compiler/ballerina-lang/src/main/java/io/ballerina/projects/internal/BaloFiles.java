@@ -21,10 +21,8 @@ package io.ballerina.projects.internal;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
-import io.ballerina.projects.PackageName;
-import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.model.PackageJson;
 import io.ballerina.projects.util.ProjectUtils;
@@ -165,9 +163,8 @@ public class BaloFiles {
     }
 
     private static PackageManifest getPackageManifest(PackageJson packageJson) {
-        PackageName packageName = PackageName.from(packageJson.getName());
-        PackageOrg packageOrg = PackageOrg.from(packageJson.getOrganization());
-        PackageVersion packageVersion = PackageVersion.from(packageJson.getVersion());
+        PackageDescriptor pkgDesc = PackageDescriptor.from(packageJson.getName(),
+                packageJson.getOrganization(), packageJson.getVersion());
         List<PackageManifest.Dependency> dependencies;
         if (packageJson.getDependencies() != null) {
             dependencies = packageJson.getDependencies();
@@ -187,8 +184,7 @@ public class BaloFiles {
             platforms.put(packageJson.getPlatform(), platform);
         }
 
-        return PackageManifest.from(packageName, packageOrg, packageVersion,
-                dependencies, platforms, Collections.emptyMap());
+        return PackageManifest.from(pkgDesc, dependencies, platforms, Collections.emptyMap());
     }
 
     private static PackageJson readPackageJson(Path balrPath, Path packageJsonPath) {

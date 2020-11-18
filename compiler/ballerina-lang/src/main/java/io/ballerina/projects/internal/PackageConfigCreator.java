@@ -25,11 +25,10 @@ import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageConfig;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageId;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
-import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
@@ -60,10 +59,9 @@ public class PackageConfigCreator {
         ProjectFiles.validateSingleFileProjectFilePath(filePath);
 
         // Create a PackageManifest instance
-        PackageName packageName = PackageName.from(ProjectConstants.DOT);
-        PackageOrg packageOrg = PackageOrg.from(ProjectConstants.ANON_ORG);
-        PackageVersion packageVersion = PackageVersion.from(ProjectConstants.DEFAULT_VERSION);
-        PackageManifest packageManifest = PackageManifest.from(packageName, packageOrg, packageVersion);
+        PackageDescriptor packageDesc = PackageDescriptor.from(ProjectConstants.DOT, ProjectConstants.ANON_ORG,
+                ProjectConstants.DEFAULT_VERSION);
+        PackageManifest packageManifest = PackageManifest.from(packageDesc);
 
         PackageData packageData = ProjectFiles.loadSingleFileProjectPackageData(filePath);
         return createPackageConfig(packageData, packageManifest);
@@ -95,25 +93,26 @@ public class PackageConfigCreator {
 
         List<ModuleConfig> moduleConfigs = packageData.otherModules()
                 .stream()
-                .map(moduleData -> createModuleConfig(packageManifest, moduleData, packageId))
+                .map(moduleData -> createModuleConfig(packageManifest.descriptor(), moduleData, packageId))
                 .collect(Collectors.toList());
-        moduleConfigs.add(createDefaultModuleConfig(packageManifest, packageData.defaultModule(), packageId));
+        moduleConfigs.add(createDefaultModuleConfig(packageManifest.descriptor(),
+                packageData.defaultModule(), packageId));
         return PackageConfig.from(packageId, packageData.packagePath(),
                 packageManifest, ballerinaToml, moduleConfigs);
     }
 
-    private static ModuleConfig createDefaultModuleConfig(PackageManifest pkgDescriptor,
+    private static ModuleConfig createDefaultModuleConfig(PackageDescriptor pkgDesc,
                                                           ModuleData moduleData,
                                                           PackageId packageId) {
-        ModuleName moduleName = ModuleName.from(pkgDescriptor.name());
-        return createModuleConfig(createModuleDescriptor(pkgDescriptor, moduleName), moduleData, packageId);
+        ModuleName moduleName = ModuleName.from(pkgDesc.name());
+        return createModuleConfig(createModuleDescriptor(pkgDesc, moduleName), moduleData, packageId);
     }
 
-    private static ModuleDescriptor createModuleDescriptor(PackageManifest pkgDesc, ModuleName moduleName) {
+    private static ModuleDescriptor createModuleDescriptor(PackageDescriptor pkgDesc, ModuleName moduleName) {
         return ModuleDescriptor.from(pkgDesc.name(), pkgDesc.org(), pkgDesc.version(), moduleName);
     }
 
-    private static ModuleConfig createModuleConfig(PackageManifest pkgDescriptor,
+    private static ModuleConfig createModuleConfig(PackageDescriptor pkgDesc,
                                                    ModuleData moduleData,
                                                    PackageId packageId) {
         Path fileName = moduleData.moduleDirectoryPath().getFileName();
@@ -121,8 +120,8 @@ public class PackageConfigCreator {
             // TODO Proper error handling
             throw new IllegalStateException("This branch cannot be reached");
         }
-        ModuleName moduleName = ModuleName.from(pkgDescriptor.name(), moduleData.moduleName());
-        return createModuleConfig(createModuleDescriptor(pkgDescriptor, moduleName), moduleData, packageId);
+        ModuleName moduleName = ModuleName.from(pkgDesc.name(), moduleData.moduleName());
+        return createModuleConfig(createModuleDescriptor(pkgDesc, moduleName), moduleData, packageId);
     }
 
     private static ModuleConfig createModuleConfig(ModuleDescriptor moduleDescriptor,

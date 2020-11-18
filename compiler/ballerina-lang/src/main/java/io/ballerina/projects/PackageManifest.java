@@ -27,9 +27,7 @@ import java.util.Map;
  * @since 2.0.0
  */
 public class PackageManifest {
-    private final PackageName packageName;
-    private final PackageOrg packageOrg;
-    private final PackageVersion packageVersion;
+    private final PackageDescriptor packageDesc;
     private final List<Dependency> dependencies;
     private final Map<String, Platform> platforms;
 
@@ -37,46 +35,42 @@ public class PackageManifest {
     // These keys are not part of the Ballerina package specification.
     private final Map<String, Object> otherEntries;
 
-    private PackageManifest(PackageName packageName,
-                            PackageOrg packageOrg,
-                            PackageVersion packageVersion,
+    private PackageManifest(PackageDescriptor packageDesc,
                             List<Dependency> dependencies,
                             Map<String, Platform> platforms,
                             Map<String, Object> otherEntries) {
-        this.packageName = packageName;
-        this.packageOrg = packageOrg;
-        this.packageVersion = packageVersion;
+        this.packageDesc = packageDesc;
         this.dependencies = Collections.unmodifiableList(dependencies);
         this.platforms = Collections.unmodifiableMap(platforms);
         this.otherEntries = Collections.unmodifiableMap(otherEntries);
     }
 
-    public static PackageManifest from(PackageName packageName,
-                                       PackageOrg packageOrg,
-                                       PackageVersion packageVersion) {
-        return new PackageManifest(packageName, packageOrg, packageVersion, Collections.emptyList(),
+    public static PackageManifest from(PackageDescriptor packageDesc) {
+        return new PackageManifest(packageDesc, Collections.emptyList(),
                 Collections.emptyMap(), Collections.emptyMap());
     }
 
-    public static PackageManifest from(PackageName packageName,
-                                       PackageOrg packageOrg,
-                                       PackageVersion packageVersion,
+    public static PackageManifest from(PackageDescriptor packageDesc,
                                        List<Dependency> dependencies,
                                        Map<String, Platform> platforms,
                                        Map<String, Object> otherEntries) {
-        return new PackageManifest(packageName, packageOrg, packageVersion, dependencies, platforms, otherEntries);
+        return new PackageManifest(packageDesc, dependencies, platforms, otherEntries);
     }
 
     public PackageName name() {
-        return packageName;
+        return packageDesc.name();
     }
 
     public PackageOrg org() {
-        return packageOrg;
+        return packageDesc.org();
     }
 
     public PackageVersion version() {
-        return packageVersion;
+        return packageDesc.version();
+    }
+
+    public PackageDescriptor descriptor() {
+        return packageDesc;
     }
 
     public List<Dependency> dependencies() {

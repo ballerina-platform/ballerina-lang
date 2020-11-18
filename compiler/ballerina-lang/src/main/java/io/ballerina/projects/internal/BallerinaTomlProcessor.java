@@ -20,6 +20,7 @@ package io.ballerina.projects.internal;
 
 import com.google.gson.JsonSyntaxException;
 import com.moandjiezana.toml.Toml;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageManifest.Dependency;
 import io.ballerina.projects.PackageManifest.Platform;
@@ -87,9 +88,8 @@ public class BallerinaTomlProcessor {
         Map<String, Object> otherEntries = toml.toMap();
         Map<String, Object> packageEntry = (Map<String, Object>) otherEntries.remove("package");
 
-        PackageName packageName = PackageName.from((String) packageEntry.get("name"));
-        PackageOrg packageOrg = PackageOrg.from((String) packageEntry.get("org"));
-        PackageVersion packageVersion = PackageVersion.from((String) packageEntry.get("version"));
+        PackageDescriptor pkgDesc = PackageDescriptor.from((String) packageEntry.get("name"),
+                (String) packageEntry.get("org"), (String) packageEntry.get("version"));
 
         // Process dependencies
         List<Map<String, Object>> dependencyEntries =
@@ -100,8 +100,7 @@ public class BallerinaTomlProcessor {
         Map<String, Object> platformEntries = (Map<String, Object>) otherEntries.remove("platform");
         Map<String, Platform> platforms = getPlatforms(platformEntries);
 
-        return PackageManifest.from(packageName, packageOrg, packageVersion,
-                dependencies, platforms, otherEntries);
+        return PackageManifest.from(pkgDesc, dependencies, platforms, otherEntries);
     }
 
     @SuppressWarnings("unchecked")
