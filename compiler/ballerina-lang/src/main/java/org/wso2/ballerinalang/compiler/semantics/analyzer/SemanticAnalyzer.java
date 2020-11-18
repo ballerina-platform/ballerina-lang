@@ -174,6 +174,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -203,6 +204,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private static final String NULL_LITERAL = "null";
     public static final String COLON = ":";
     private static final String LISTENER_NAME = "listener";
+    private final BLangAnonymousModelHelper anonymousModelHelper;
 
     private SymbolTable symTable;
     private SymbolEnter symbolEnter;
@@ -2612,9 +2614,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMappingMatchPattern mappingMatchPattern) {
-        BRecordTypeSymbol recordSymbol =
-                Symbols.createRecordSymbol(0, names.fromString("$anonRecordType$" + recordCount++),
-                        env.enclPkg.symbol.pkgID, null, env.scope.owner, mappingMatchPattern.pos, VIRTUAL);
+        EnumSet<Flag> flags = EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS);
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
+                env.enclPkg.packageID, null, env.scope.owner, mappingMatchPattern.pos, VIRTUAL);
+        recordSymbol.name = names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
 
         for (BLangFieldMatchPattern fieldMatchPattern : mappingMatchPattern.fieldMatchPatterns) {

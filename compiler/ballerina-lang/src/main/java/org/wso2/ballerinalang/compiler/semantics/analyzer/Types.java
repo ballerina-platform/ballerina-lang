@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -424,16 +425,16 @@ public class Types {
     }
 
     public BType mergeTypes(BType typeFirst, BType typeSecond) {
-        if (containsAnyType(typeFirst)) {
+        if (containsAnyType(typeFirst) && !containsErrorType(typeSecond)) {
             return typeSecond;
         }
-        if (containsAnyType(typeSecond)) {
+        if (containsAnyType(typeSecond) && !containsErrorType(typeFirst)) {
             return typeFirst;
         }
-        if (containsAnyDataType(typeFirst)) {
+        if (containsAnyDataType(typeFirst) && !containsErrorType(typeSecond)) {
             return typeSecond;
         }
-        if (containsAnyDataType(typeSecond)) {
+        if (containsAnyDataType(typeSecond) && !containsErrorType(typeFirst)) {
             return typeFirst;
         }
         if (isSameBasicType(typeFirst, typeSecond)) {
@@ -2918,7 +2919,8 @@ public class Types {
                     return symTable.semanticError;
                 }
                 BVarSymbol fieldSymbol = new BVarSymbol(0, names.fromString(key), env.enclPkg.symbol.pkgID,
-                        intersectionKeyType, intersectionRecordType.tsymbol, recordType.fields.get(key).pos, COMPILED_SOURCE);
+                        intersectionKeyType, intersectionRecordType.tsymbol, recordType.fields.get(key).pos,
+                        COMPILED_SOURCE);
                 BField field = new BField(names.fromString(key), recordType.fields.get(key).pos, fieldSymbol);
                 fields.put(key, field);
             }

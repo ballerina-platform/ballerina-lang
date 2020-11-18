@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * The interface with the APIs to implement the mapping-match-pattern.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public interface MappingMatchPatternNode extends Node {
     List<? extends FieldMatchPatternNode> getFieldMatchPatterns();
