@@ -20,7 +20,6 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -40,10 +39,7 @@ public class ImportTest extends BaseTestCase {
 
     @Test()
     public void testBeforeAfter() throws BallerinaTestException {
-        String msg = "4 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"predeclared-import-tests"}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
+                new String[]{}, projectPath);
     }
 }

@@ -19,7 +19,6 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -39,119 +38,75 @@ public class BasicCasesTest extends BaseTestCase {
 
     @Test
     public void testAssertions() throws BallerinaTestException {
-        String msg = "33 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"assertions"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        balClient.runMain("test", new String[]{"assertions"}, null, new String[]{}, projectPath);
     }
 
     @Test
     public void testAssertDiffError() throws BallerinaTestException {
-        String msg = "13 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"assertions-diff-error"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+                projectPath);
     }
 
     @Test
     public void testAssertionErrorMessage() throws BallerinaTestException {
-        String msg = "9 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"assertions-error-messages"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+                projectPath);
     }
 
     @Test
     public void testAssertBehavioralTypes() throws BallerinaTestException {
-        String msg = "12 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"assertions-behavioral-types"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+                projectPath);
     }
 
     @Test
     public void testAssertStructuralTypes() throws BallerinaTestException {
-        String msg = "36 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"assertions-structural-types"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+                projectPath);
     }
 
     @Test
     public void testAssertSequenceTypes() throws BallerinaTestException {
-        String msg = "8 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"assertions-sequence-types"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+                projectPath);
     }
 
     @Test
     public void testAnnotationAccess() throws BallerinaTestException {
-        String msg = "3 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"annotation-access"}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
+        balClient.runMain("test", new String[]{"annotation-access"}, null, new String[]{},
+                projectPath);
     }
 
     @Test
     public void testJavaInterops() throws BallerinaTestException {
-        String msg = "1 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"interops"}, null, new String[]{}, new LogLeecher[]{clientLeecher},
-                          projectPath);
-        clientLeecher.waitForText(20000);
+        balClient.runMain("test", new String[]{"interops"}, null, new String[]{}, projectPath);
     }
 
     @Test
     public void testBeforeAfter() throws BallerinaTestException {
-        String msg = "2 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"before-after"}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
+        balClient.runMain("test", new String[]{"before-after"}, null, new String[]{}, projectPath);
     }
 
     @Test
     public void testBeforeEachAfterEach() throws BallerinaTestException {
-        String msg = "3 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"before-each-after-each"}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
+                new String[]{}, projectPath);
     }
 
     @Test(dependsOnMethods = "testBeforeAfter")
     public void testDependsOn() throws BallerinaTestException {
-        String msg = "8 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"depends-on"}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
+        balClient.runMain("test", new String[]{"depends-on"}, null, new String[]{}, projectPath);
     }
 
     @Test(dependsOnMethods = "testDependsOn")
     public void testAnnotations() throws BallerinaTestException {
-        String msg = "15 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"annotations"}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
+        balClient.runMain("test", new String[]{"annotations"}, null, new String[]{}, projectPath);
     }
 
     @Test
     public void testIsolatedFunctions() throws BallerinaTestException {
-        String msg = "3 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"isolated-functions"}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
+        balClient.runMain("test", new String[]{"isolated-functions"}, null, new String[]{},
+                projectPath);
     }
 
 }

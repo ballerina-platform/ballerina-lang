@@ -39,12 +39,7 @@ public class PathVerificationTest extends BaseTestCase {
 
     @Test
     public void verifyTestsOutsidePath() throws BallerinaTestException {
-        LogLeecher passingLeecher = new LogLeecher("2 passing");
-        LogLeecher failingLeecher = new LogLeecher("0 failing");
-        balClient.runMain("test", new String[]{"path-verification"}, null, new String[0],
-                new LogLeecher[]{passingLeecher, failingLeecher}, projectPath);
-        passingLeecher.waitForText(20000);
-        failingLeecher.waitForText(20000);
+        balClient.runMain("test", new String[]{"path-verification"}, null, new String[0], projectPath);
     }
 
     @Test

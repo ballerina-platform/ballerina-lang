@@ -203,6 +203,68 @@ public class BMainInstance implements BMain {
     }
 
     /**
+     * Executing the sh or bat file to start the server which fails for non-zero exitValue of the command.
+     *
+     * @param command       command to run
+     * @param args          command line arguments to pass when executing the sh or bat file
+     * @param envProperties environmental properties to be appended to the environment
+     * @param clientArgs    arguments which program expects
+     * @param commandDir    where to execute the command
+     * @throws BallerinaTestException if starting services failed
+     */
+    public void runMain(String command, String[] args, Map<String, String> envProperties, String[] clientArgs,
+                        String commandDir) throws BallerinaTestException {
+        String scriptName;
+        if (BCompileUtil.jBallerinaTestsEnabled()) {
+            scriptName = Constant.JBALLERINA_SERVER_SCRIPT_NAME;
+        } else {
+            scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+        }
+        String[] cmdArray;
+        try {
+
+            if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
+                cmdArray = new String[]{"cmd.exe", "/c", balServer.getServerHome() +
+                        File.separator + "bin" + File.separator + scriptName + ".bat", command};
+            } else {
+                cmdArray = new String[]{"bash", balServer.getServerHome() +
+                        File.separator + "bin/" + scriptName, command};
+            }
+
+            String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
+            if (envProperties != null) {
+                Map<String, String> env = processBuilder.environment();
+                for (Map.Entry<String, String> entry : envProperties.entrySet()) {
+                    env.put(entry.getKey(), entry.getValue());
+                }
+            }
+
+            Process process = processBuilder.start();
+
+            ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
+            ServerLogReader serverErrorLogReader = new ServerLogReader("errorStream", process.getErrorStream());
+            serverInfoLogReader.start();
+            serverErrorLogReader.start();
+            if (clientArgs != null && clientArgs.length > 0) {
+                writeClientArgsToProcess(clientArgs, process);
+            }
+            process.waitFor();
+
+            serverInfoLogReader.stop();
+            serverErrorLogReader.stop();
+
+            if (process.exitValue() != 0) {
+                throw new BallerinaTestException("Command exited with error");
+            }
+        } catch (IOException e) {
+            throw new BallerinaTestException("Error executing ballerina", e);
+        } catch (InterruptedException e) {
+            throw new BallerinaTestException("Error waiting for execution to finish", e);
+        }
+    }
+
+    /**
      * Executing the sh or bat file to start the server.
      *
      * @param command       command to run

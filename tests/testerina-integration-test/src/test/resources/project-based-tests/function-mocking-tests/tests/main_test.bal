@@ -131,21 +131,27 @@ public function call_Test2() {
 }
 public function call_Test3() {
     test:when(mock_intAdd).call("invalidMockFunction");
-    test:assertEquals(intAdd(10, 6), 4);
+    error? err = trap test:assertEquals(intAdd(10, 6), 4);
+    error result = <error>err;
+    test:assertEquals(result.message().toString(), "Mock function 'invalidMockFunction' cannot be found");
 }
 
 @test:Config {
 }
 public function call_Test4() {
     test:when(mock_intAdd).call("mockIntAdd3");
-    test:assertEquals(intAdd(10, 6), 4);
+    error? err = trap test:assertEquals(intAdd(10, 6), 4);
+    error result = <error>err;
+    test:assertEquals(result.message().toString(), "Return Type of function mockIntAdd3 does not match functionintAdd");
 }
 
 @test:Config {
 }
 public function call_Test5() {
     test:when(mock_intAdd).call("mockIntAdd4");
-    test:assertEquals(intAdd(10, 6), 4);
+    error? err = trap test:assertEquals(intAdd(10, 6), 4);
+    error result = <error>err;
+    test:assertEquals(result.message().toString(), "Parameter types of function mockIntAdd4does not match functionintAdd");
 }
 
 @test:Config {

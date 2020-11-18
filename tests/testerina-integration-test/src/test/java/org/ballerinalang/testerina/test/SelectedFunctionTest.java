@@ -41,11 +41,8 @@ public class SelectedFunctionTest extends BaseTestCase {
 
     @Test
     public void testSingleFunctionExecution() throws BallerinaTestException {
-        String msg = "1 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"--tests", "testFunc", "single-test-execution.bal"},
-                null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+                null, new String[]{}, projectPath);
     }
 
     @Test
