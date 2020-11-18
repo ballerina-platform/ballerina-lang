@@ -41,10 +41,9 @@ public class MultiModuleTestDebugTest extends DebugAdapterBaseTestCase {
     @BeforeClass
     public void setup() {
         testProjectName = "breakpoint-tests";
-        testModuleName = "foo";
         testModuleFileName = "tests" + File.separator + "main_test.bal";
         testProjectPath = testProjectBaseDir.toString() + File.separator + testProjectName;
-        testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
+        testEntryFilePath = Paths.get(testProjectPath, testModuleFileName).toString();
     }
 
     @Test

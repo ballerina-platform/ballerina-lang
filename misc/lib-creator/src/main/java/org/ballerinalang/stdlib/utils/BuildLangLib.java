@@ -32,6 +32,7 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.packerina.utils.FileUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -128,6 +129,12 @@ public class BuildLangLib {
                     .resolve(jarFileName);
             Path targetJarFilePath = targetPath.resolve(jarFileName);
             Files.copy(generatedJarFilePath, targetJarFilePath);
+
+            //Generate docs
+            out.println("Generating docs...");
+            BallerinaDocGenerator.generateAPIDocs(project, targetPath.resolve(ProjectConstants.TARGET_API_DOC_DIRECTORY)
+                    .toString(), false);
+
         } catch (Exception e) {
             out.println("Unknown error building : " + projectDir.toString());
             e.printStackTrace();

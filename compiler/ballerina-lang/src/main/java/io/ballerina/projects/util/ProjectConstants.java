@@ -37,6 +37,7 @@ public class ProjectConstants {
     public static final String SOURCE_DIR_NAME = "src";
     public static final String BIN_DIR_NAME = "bin";
     public static final String TARGET_DIR_NAME = "target";
+    public static final String TARGET_API_DOC_DIRECTORY = "apidocs";
 
     public static final String CACHES_DIR_NAME = "cache";
 
