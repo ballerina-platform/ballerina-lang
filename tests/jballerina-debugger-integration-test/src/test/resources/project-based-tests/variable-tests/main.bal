@@ -80,7 +80,7 @@ type EventType "CURRENT"|"EXPIRED"|"ALL"|"RESET"|"TIMER";
 class OddNumberGenerator {
     int i = 1;
 
-    public function next() returns record {|int value;|}|error? {
+    public isolated function next() returns record {|int value;|}|error? {
         self.i += 2;
         return {value: self.i};
     }

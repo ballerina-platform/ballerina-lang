@@ -129,7 +129,10 @@ public class Names {
     public static final Name CLEAN_UP_TRANSACTION = new Name("cleanupTransactionContext");
     public static final Name CHECK_IF_TRANSACTIONAL = new Name("checkIfTransactional");
 
+    // Names related to streams
     public static final Name CONSTRUCT_STREAM = new Name("construct");
+    public static final Name ABSTRACT_ITERATOR = new Name("_Iterator");
+    public static final Name ABSTRACT_CLOSEABLE_ITERATOR = new Name("_CloseableIterator");
 
     // Module Versions
     public static final Name DEFAULT_VERSION = new Name("0.0.0");

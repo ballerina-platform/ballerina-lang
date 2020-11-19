@@ -1375,8 +1375,7 @@ class JvmValueGen {
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
-            this.createObjectMethods(cw, attachedFuncs, className, objectType,
-                                     asyncDataCollector);
+            this.createObjectMethods(cw, attachedFuncs, className, objectType, asyncDataCollector);
         }
 
         this.createObjectInit(cw, fields, className);
