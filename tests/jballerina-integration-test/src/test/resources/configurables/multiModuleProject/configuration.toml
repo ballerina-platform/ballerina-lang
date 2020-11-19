@@ -1,0 +1,11 @@
+[test-org.pkg.test.main]
+intVar = 42
+floatVar = 3.5
+stringVar = "abc"
+booleanVar = true
+
+[test-org.pkg.foo]
+intVar = 24
+floatVar = 4.8
+stringVar = "world"
+booleanVar = false

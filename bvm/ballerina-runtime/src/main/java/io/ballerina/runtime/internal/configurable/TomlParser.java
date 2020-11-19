@@ -100,7 +100,7 @@ public class TomlParser {
                             key.type.toString()));
             }
         } catch (ClassCastException e) {
-            throw new TomlException(String.format(INVALID_VARIABLE_TYPE, variableName));
+            throw new TomlException(INVALID_TOML_FILE + String.format(INVALID_VARIABLE_TYPE, variableName));
         }
         return value;
     }

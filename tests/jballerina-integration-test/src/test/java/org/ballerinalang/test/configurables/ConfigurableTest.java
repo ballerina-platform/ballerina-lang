@@ -28,6 +28,8 @@ import org.testng.annotations.Test;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
+
 /**
  * Test cases for checking configurable variables in Ballerina.
  */
@@ -35,7 +37,10 @@ public class ConfigurableTest extends BaseTest {
 
     private static final String testFileLocation = Paths.get("src", "test", "resources", "configurables")
             .toAbsolutePath().toString();
+    private static final String negativeTestFileLocation =
+            Paths.get(testFileLocation, "NegativeTests").toAbsolutePath().toString();
     private BMainInstance bMainInstance;
+    private final String errorMsg = "error: Invalid `configuration.toml` file : ";
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
@@ -44,11 +49,77 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testAccessConfigurablePrimitiveVariables() throws BallerinaTestException {
-        Path projectPath = Paths.get(testFileLocation, "configurableProject")
-                .toAbsolutePath();
+        Path projectPath = Paths.get(testFileLocation, "configurableProject").toAbsolutePath();
         LogLeecher runLeecher = new LogLeecher("Tests passed");
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{runLeecher}, projectPath.toString());
         runLeecher.waitForText(5000);
     }
+
+    @Test
+    public void testAccessForImportedModules() throws BallerinaTestException {
+        Path projectPath = Paths.get(testFileLocation, "multiModuleProject").toAbsolutePath();
+        LogLeecher runLeecher = new LogLeecher("Tests passed");
+        bMainInstance.runMain("run", new String[]{"pkg.test.main"}, null, new String[]{},
+                new LogLeecher[]{runLeecher}, projectPath.toString());
+        runLeecher.waitForText(5000);
+    }
+
+    @Test
+    public void testSingleBalFileWithConfigurables() throws BallerinaTestException {
+        Path filePath = Paths.get(testFileLocation, "configTest.bal").toAbsolutePath();
+        LogLeecher runLeecher = new LogLeecher("Tests passed");
+        bMainInstance.runMain("run", new String[]{filePath.toString()}, null, new String[]{},
+                new LogLeecher[]{runLeecher}, testFileLocation);
+        runLeecher.waitForText(5000);
+    }
+
+    /** Negative test cases. */
+    @Test
+    public void testNoConfigFile() throws BallerinaTestException {
+        Path filePath = Paths.get(negativeTestFileLocation, "noConfig.bal").toAbsolutePath();
+        LogLeecher errorLeecher = new LogLeecher("error: Configuration toml file `configuration.toml` is not found",
+                ERROR);
+        bMainInstance.runMain("run", new String[]{filePath.toString()}, null, new String[]{},
+                new LogLeecher[]{errorLeecher}, testFileLocation + "/NegativeTests");
+        errorLeecher.waitForText(5000);
+    }
+
+    @Test
+    public void testInvalidOrganizationName() throws BallerinaTestException {
+        Path projectPath = Paths.get(negativeTestFileLocation, "InvalidOrgName").toAbsolutePath();
+        LogLeecher errorLeecher = new LogLeecher(errorMsg + "Organization name 'test-org' not found.", ERROR);
+        bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
+                new LogLeecher[]{errorLeecher}, projectPath.toString());
+        errorLeecher.waitForText(5000);
+    }
+
+    @Test
+    public void testMultipleOrganizationNames() throws BallerinaTestException {
+        Path projectPath = Paths.get(negativeTestFileLocation, "MultipleOrgNames").toAbsolutePath();
+        LogLeecher errorLeecher = new LogLeecher(errorMsg + "Multiple organization names found.", ERROR);
+        bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
+                new LogLeecher[]{errorLeecher}, projectPath.toString());
+        errorLeecher.waitForText(5000);
+    }
+
+    @Test
+    public void testInvalidType() throws BallerinaTestException {
+        Path projectPath = Paths.get(negativeTestFileLocation, "InvalidType").toAbsolutePath();
+        LogLeecher errorLeecher = new LogLeecher(errorMsg + "invalid type found for variable 'intVar'.", ERROR);
+        bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
+                new LogLeecher[]{errorLeecher}, projectPath.toString());
+        errorLeecher.waitForText(5000);
+    }
+
+    @Test
+    public void testRequiredVariableNotFound() throws BallerinaTestException {
+        Path projectPath = Paths.get(negativeTestFileLocation, "RequiredNegative").toAbsolutePath();
+        LogLeecher errorLeecher =
+                new LogLeecher("Value not provided for required configurable variable 'stringVar'", ERROR);
+        bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
+                new LogLeecher[]{errorLeecher}, projectPath.toString());
+        errorLeecher.waitForText(5000);
+    }
+
 }

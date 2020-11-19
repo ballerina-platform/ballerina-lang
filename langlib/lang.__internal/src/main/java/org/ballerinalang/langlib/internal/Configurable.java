@@ -18,12 +18,14 @@
 
 package org.ballerinalang.langlib.internal;
 
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.configurable.ConfigurableMapHolder;
 import io.ballerina.runtime.internal.configurable.VariableKey;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 
 import java.util.Map;
+
+import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 
 /**
  * Native implementation of lang.internal:configurable.
@@ -47,7 +49,7 @@ public class Configurable {
         if (configMap.containsKey(key)) {
             return configMap.get(key);
         }
-        throw new BLangRuntimeException("Value not found for required configurable variable '" + configVarName +
-                "'");
+        throw createError(StringUtils
+                .fromString("Value not provided for required configurable variable '" + configVarName + "'"));
     }
 }

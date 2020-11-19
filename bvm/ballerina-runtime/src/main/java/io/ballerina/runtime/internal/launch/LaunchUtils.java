@@ -19,7 +19,9 @@
 package io.ballerina.runtime.internal.launch;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.launch.LaunchListener;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.configurable.TomlParser;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.TomlException;
@@ -134,7 +136,11 @@ public class LaunchUtils {
         }
     }
 
-    public static void initConfigurableVariables(Map<Module, VariableKey[]> configurationData) throws TomlException {
-        TomlParser.populateConfigMap(configurationData);
+    public static void initConfigurableVariables(Map<Module, VariableKey[]> configurationData) {
+        try {
+            TomlParser.populateConfigMap(configurationData);
+        } catch (TomlException exception) {
+            throw ErrorCreator.createError(StringUtils.fromString(exception.getMessage()));
+        }
     }
 }

@@ -1,0 +1,12 @@
+[org1.main]
+intVar = 42
+booleanVar = true
+
+[org2.main]
+intVar = 42
+booleanVar = true
+
+
+[org3.main]
+intVar = 42
+booleanVar = true
