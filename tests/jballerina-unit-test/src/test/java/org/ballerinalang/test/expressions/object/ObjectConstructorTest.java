@@ -107,7 +107,8 @@ public class ObjectConstructorTest {
         validateError(negativeResult, index++, "incompatible types: expected 'string[] & readonly', found 'string[]'",
                       84, 22);
         validateError(negativeResult, index++, "incompatible types: expected 'ReadOnlyClass', " +
-                              "found 'object { final int a; final (string[] & readonly) s; } & readonly'", 87, 24);
+                              "found 'isolated object { final int a; final (string[] & readonly) s; } & readonly'",
+                      87, 24);
         validateError(negativeResult, index++, "incompatible types: expected 'string[] & readonly', found 'string[]'",
                       89, 22);
         validateError(negativeResult, index++, "incompatible types: expected 'string[] & readonly', found 'string[]'",
