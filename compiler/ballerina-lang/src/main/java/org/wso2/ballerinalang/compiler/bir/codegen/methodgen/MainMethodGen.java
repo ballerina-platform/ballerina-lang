@@ -18,7 +18,6 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
-import io.ballerina.runtime.internal.IdentifierUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -53,7 +52,6 @@ import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETFIELD;
-import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFNULL;
@@ -63,10 +61,8 @@ import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_ARRAY_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_CONFIG_DATA_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VARIABLE_KEY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE_INIT;
 
 /**
  * Generates Jvm byte code for the main method.
@@ -98,7 +94,7 @@ public class MainMethodGen {
 
         // set system properties
         initConfigurations(mv);
-        initializeConfigVariables(mv, pkg.name, initClass);
+        invokeConfigInit(mv, pkg);
         // start all listeners
         startListeners(mv, serviceEPAvailable);
 
@@ -147,14 +143,10 @@ public class MainMethodGen {
         mv.visitEnd();
     }
 
-    private void initializeConfigVariables(MethodVisitor mv, Name module, String initClass) {
+    private void invokeConfigInit(MethodVisitor mv, BIRNode.BIRPackage module) {
+        String configClass = JvmCodeGenUtil.getModuleLevelClassName(module, CONFIGURATION_CLASS_NAME);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC, initClass, POPULATE_CONFIG_DATA_METHOD, "()V", false);
-        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.value));
-        mv.visitFieldInsn(GETSTATIC, initClass, CONFIGURATION_ARRAY_NAME, "[L" + VARIABLE_KEY + ";");
-        mv.visitMethodInsn(INVOKESTATIC, JvmConstants.LAUNCH_UTILS, "initConfigurableVariables",
-                String.format("(L%s;[L%s;)V", STRING_VALUE, VARIABLE_KEY), false);
-        mv.visitVarInsn(ASTORE, 1);
+        mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT, "()V", false);
     }
 
     private void generateJavaCompatibilityCheck(MethodVisitor mv) {

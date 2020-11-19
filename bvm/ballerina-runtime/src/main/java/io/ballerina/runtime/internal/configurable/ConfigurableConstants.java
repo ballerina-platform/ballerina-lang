@@ -24,10 +24,9 @@ package io.ballerina.runtime.internal.configurable;
  * @since 2.0.0
  */
 public class ConfigurableConstants {
-    public static final String CONFIG_FILE_NAME = "config-variables.toml";
+    public static final String CONFIG_FILE_NAME = "configuration.toml";
     public static final String INVALID_TOML_FILE = "Invalid configuration toml file `" + CONFIG_FILE_NAME + "` : ";
     public static final String INVALID_VARIABLE_TYPE =
             "Invalid value type found for variable '%s' in toml file `" + CONFIG_FILE_NAME + "` ";
-
-
+    public static final String DEFAULT_MODULE = ".";
 }

@@ -28,11 +28,12 @@ import io.ballerina.runtime.internal.values.BmpStringValue;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONFIG_FILE_NAME;
+import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.DEFAULT_MODULE;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_TOML_FILE;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_VARIABLE_TYPE;
 
@@ -52,34 +53,33 @@ public class TomlParser {
         return new Toml().read(CONFIG_FILE_PATH.toFile());
     }
 
-    public static void populateConfigMap(String module, VariableKey[] configurationData) throws TomlException {
+    public static void populateConfigMap(Map<Module, VariableKey[]> configurationData) throws TomlException {
         Map<VariableKey, Object> configurableMap = ConfigurableMapHolder.getConfigurationMap();
-        if (isConfigurationDataEmpty(configurationData)) {
+        if (configurationData.isEmpty()) {
             return;
         }
         Toml toml = getConfigurationData();
-        if (toml != null && !toml.isEmpty()) {
-            String orgName = configurationData[0].module.getOrg();
-            validateOrganizationName(toml, orgName);
-            for (Map.Entry<String, Object> organizaion : toml.entrySet()) {
-                Toml moduleToml = extractModuleTable((Toml) organizaion.getValue(), module);
-                for (VariableKey key : configurationData) {
-                    Object value = validateAndExtractValue(key, moduleToml);
-                    if (value == null) {
-                        //This indicates the value not provided at toml file
-                        break;
-                    }
-                    configurableMap.put(key, value);
+        if (toml.isEmpty()) {
+            //No values provided at toml file
+            return;
+        }
+        Toml orgToml = extractOrganizationTable(toml, configurationData.keySet());
+        for (Map.Entry<Module, VariableKey[]> moduleEntry : configurationData.entrySet()) {
+            String moduleName = moduleEntry.getKey().getName();
+            Toml moduleToml = moduleName.equals(DEFAULT_MODULE) ? orgToml : extractModuleTable(orgToml, moduleName);
+            for (VariableKey key : moduleEntry.getValue()) {
+                if (!moduleToml.contains(key.variable)) {
+                    //It is an optional configurable variable
+                    break;
                 }
+                Object value = validateAndExtractValue(key, moduleToml);
+                configurableMap.put(key, value);
             }
         }
     }
 
     private static Object validateAndExtractValue(VariableKey key, Toml moduleToml) throws TomlException {
         String variableName = key.variable;
-        if (!moduleToml.contains(variableName)) {
-            return null;
-        }
         Object value;
         try {
             switch (key.type.getTag()) {
@@ -100,58 +100,34 @@ public class TomlParser {
                             key.type.toString()));
             }
         } catch (ClassCastException e) {
-            throw new TomlException(String.format(INVALID_VARIABLE_TYPE, key.variable));
+            throw new TomlException(String.format(INVALID_VARIABLE_TYPE, variableName));
         }
         return value;
     }
 
     private static Toml extractModuleTable(Toml modules, String module) {
-
         Toml moduleToml = modules;
-        if (!module.contains(".")) {
+        if (!module.contains(DEFAULT_MODULE)) {
             moduleToml = modules.getTable(module);
         } else {
-            String parent = module.substring(0, module.indexOf('.'));
-            String submodule = module.substring(module.indexOf('.') + 1);
+            String parent = module.substring(0, module.indexOf(DEFAULT_MODULE));
+            String submodule = module.substring(module.indexOf(DEFAULT_MODULE) + 1);
             moduleToml = extractModuleTable(moduleToml.getTable(parent), submodule);
         }
         return moduleToml;
     }
 
-    private static void validateVariableType(VariableKey tomlKey, VariableKey[] configurationData)
-            throws TomlException {
-
-        List<VariableKey> dataList = Arrays.asList(configurationData);
-        boolean moduleFound = false;
-        for (VariableKey variableKey : configurationData) {
-            Module confModule = variableKey.module;
-            moduleFound = confModule.equals(tomlKey.module);
+    private static Toml extractOrganizationTable(Toml toml, Set<Module> moduleSet) throws TomlException {
+        String orgName = moduleSet.iterator().next().getOrg();
+        if (orgName.equals(ANON_ORG)) {
+            return toml;
         }
-
-        if (!moduleFound) {
-            throw new TomlException(INVALID_TOML_FILE + "Module name not found.");
-
-        }
-
-    }
-
-    private static void validateOrganizationName(Toml toml, String orgName) throws TomlException {
         if (toml.entrySet().size() != 1) {
             throw new TomlException(INVALID_TOML_FILE + "Multiple organization names found.");
         }
         if (!toml.contains(orgName)) {
             throw new TomlException(INVALID_TOML_FILE + "Organization name '" + orgName + "' not found.");
         }
-    }
-
-    private static boolean isConfigurationDataEmpty(VariableKey[] configurationData) {
-        boolean empty = true;
-        for (VariableKey variableKey : configurationData) {
-            if (variableKey != null) {
-                empty = false;
-                break;
-            }
-        }
-        return empty;
+        return (Toml) toml.entrySet().iterator().next().getValue();
     }
 }

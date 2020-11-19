@@ -266,7 +266,8 @@ public class JvmConstants {
     public static final String SERVICE_EP_AVAILABLE = "$serviceEPAvailable";
     public static final String LOCK_STORE_VAR_NAME = "$LOCK_STORE";
     public static final String RECORD_INIT_WRAPPER_NAME = "$init";
-    public static final String CONFIGURATION_ARRAY_NAME = "$configuration_data";
+    public static final String CONFIGURE_INIT = "$configureInit";
+    public static final String CONFIGURATION_CLASS_NAME = "$ConfigurationMapper";
     public static final String POPULATE_CONFIG_DATA_METHOD = "$populateConfigurationData";
 
 
