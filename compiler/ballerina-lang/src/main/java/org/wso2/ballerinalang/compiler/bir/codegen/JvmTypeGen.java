@@ -370,7 +370,7 @@ public class JvmTypeGen {
                     mv.visitTypeInsn(CHECKCAST, UNION_TYPE_IMPL);
                     mv.visitInsn(DUP);
 
-                     addCyclicFlag(mv, unionType);
+                    addCyclicFlag(mv, unionType);
 
                     // populate member fields
                     addUnionMembers(mv, unionType);
@@ -913,14 +913,21 @@ public class JvmTypeGen {
         mv.visitTypeInsn(NEW, UNION_TYPE_IMPL);
         mv.visitInsn(DUP);
 
+        boolean nameLoaded = loadUnionName(mv, unionType);
+
         mv.visitLdcInsn(typeFlag(unionType));
 
         loadReadonlyFlag(mv, unionType);
 
         loadCyclicFlag(mv, unionType);
 
-        // initialize the union type using the members array
-        mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, "(IZZ)V", false);
+        // initialize the union type without the members array
+        if (nameLoaded) {
+            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, String.format("(L%s;IZZ)V",
+                    STRING_VALUE), false);
+        } else {
+            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, String.format("(IZZ)V"), false);
+        }
     }
 
     /**
@@ -1281,13 +1288,13 @@ public class JvmTypeGen {
                     loadArrayType(mv, (BArrayType) bType, false);
                     return;
                 case TypeTags.MAP:
-                    loadMapType(mv, (BMapType) bType);
+                    loadMapType(mv, (BMapType) bType, false);
                     return;
                 case TypeTags.STREAM:
                     loadStreamType(mv, (BStreamType) bType);
                     return;
                 case TypeTags.TABLE:
-                    loadTableType(mv, (BTableType) bType);
+                    loadTableType(mv, (BTableType) bType, false);
                     return;
                 case TypeTags.ERROR:
                     loadErrorType(mv, (BErrorType) bType);
@@ -1401,6 +1408,7 @@ public class JvmTypeGen {
      *
      * @param mv    method visitor
      * @param bType array type to load
+     * @param isCyclic indicate cyclic type union loading
      */
     private static void loadArrayType(MethodVisitor mv, BArrayType bType, boolean isCyclic) {
         // Create an new array type
@@ -1446,17 +1454,21 @@ public class JvmTypeGen {
     /**
      * Generate code to load an instance of the given map type
      * to the top of the stack.
-     *
      * @param mv    method visitor
      * @param bType map type to load
+     * @param isCyclic indicate cyclic type union loading
      */
-    private static void loadMapType(MethodVisitor mv, BMapType bType) {
+    private static void loadMapType(MethodVisitor mv, BMapType bType, boolean isCyclic) {
         // Create an new map type
         mv.visitTypeInsn(NEW, MAP_TYPE_IMPL);
         mv.visitInsn(DUP);
 
         // Load the constraint type
-        loadType(mv, bType.constraint);
+        if (!isCyclic) {
+            loadType(mv, bType.constraint);
+        } else {
+            loadUserDefinedType(mv, bType.constraint);
+        }
 
         loadReadonlyFlag(mv, bType);
 
@@ -1496,16 +1508,21 @@ public class JvmTypeGen {
     /**
      * Generate code to load an instance of the given table type
      * to the top of the stack.
-     *
      * @param mv    method visitor
      * @param bType table type to load
+     * @param isCyclic
      */
-    private static void loadTableType(MethodVisitor mv, BTableType bType) {
+    private static void loadTableType(MethodVisitor mv, BTableType bType, boolean isCyclic) {
         // Create an new table type
         mv.visitTypeInsn(NEW, TABLE_TYPE_IMPL);
         mv.visitInsn(DUP);
 
-        loadType(mv, bType.constraint);
+        if (!isCyclic) {
+            loadType(mv, bType.constraint);
+        } else {
+            loadUserDefinedType(mv, bType.constraint);
+        }
+
         if (bType.fieldNameList != null) {
             // Create the field names array
             List<String> fieldNames = bType.fieldNameList;
@@ -1584,6 +1601,8 @@ public class JvmTypeGen {
 
         createMembersArray(mv, unionType);
 
+        boolean nameLoaded = loadUnionName(mv, unionType);
+
         // Load type flags
         mv.visitLdcInsn(typeFlag(unionType));
 
@@ -1592,7 +1611,26 @@ public class JvmTypeGen {
         loadCyclicFlag(mv, unionType);
 
         // initialize the union type using the members array
-        mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, String.format("([L%s;IZZ)V", TYPE), false);
+        if (nameLoaded) {
+            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, String.format("([L%s;L%s;IZZ)V", TYPE,
+                    STRING_VALUE), false);
+        } else {
+            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, String.format("([L%s;IZZ)V", TYPE),
+                    false);
+        }
+    }
+
+    // It does not have to be a cyclic type to have a name but loading name only for cyclic types
+    // as it is not clear to read a cyclic union without its name
+    private static boolean loadUnionName(MethodVisitor mv, BUnionType unionType) {
+        if ((unionType.tsymbol != null) && (unionType.tsymbol.name != null)) {
+            mv.visitLdcInsn(unionType.tsymbol.name.getValue());
+        } else if (unionType.name != null) {
+            mv.visitLdcInsn(unionType.name.getValue());
+        } else {
+            return false;
+        }
+        return true;
     }
 
     private static void loadCyclicFlag(MethodVisitor mv, BUnionType unionType) {
@@ -1603,27 +1641,11 @@ public class JvmTypeGen {
     private static void createMembersArray(MethodVisitor mv, BUnionType unionType) {
         Set<BType> members = unionType.getMemberTypes();
 
-//        boolean cyclic = unionType.isCyclic;
-//        // create a new members array
-//        if (cyclic) {
-//            mv.visitLdcInsn((long) (members.size() + 1));
-//        } else {
-//            mv.visitLdcInsn((long) members.size());
-//        }
         mv.visitLdcInsn((long) members.size());
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, TYPE);
 
         int i = 0;
-//        if (cyclic) {
-//            // send my self
-//            mv.visitInsn(DUP);
-//            mv.visitLdcInsn((long) i);
-//            mv.visitInsn(L2I);
-//            loadType(mv, unionType);
-//            mv.visitInsn(AASTORE);
-//            i += 1;
-//        }
         for (BType memberType : members) {
             mv.visitInsn(DUP);
             mv.visitLdcInsn((long) i);
@@ -1634,6 +1656,22 @@ public class JvmTypeGen {
                 var arrayType = (BArrayType) memberType;
                 if (arrayType.eType == unionType) {
                     loadArrayType(mv, arrayType, true);
+                    cyclicTypeLoaded = true;
+                }
+            }
+
+            if (memberType.tag == TypeTags.MAP) {
+                var mapType = (BMapType) memberType;
+                if (mapType.constraint == unionType) {
+                    loadMapType(mv, mapType, true);
+                    cyclicTypeLoaded = true;
+                }
+            }
+
+            if (memberType.tag == TypeTags.TABLE) {
+                var tableType = (BTableType) memberType;
+                if (tableType.constraint == unionType) {
+                    loadTableType(mv, tableType, true);
                     cyclicTypeLoaded = true;
                 }
             }
