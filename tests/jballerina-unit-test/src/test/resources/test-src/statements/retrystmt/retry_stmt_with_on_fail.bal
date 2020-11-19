@@ -116,6 +116,7 @@ function testNestedRetryWithLessOnFails () returns string|error {
     return str;
 }
 
+function testNestedRetryLessOnFailSuccess () returns string|error {
     string str = "start";
     int count1 = 0;
     error err = error("custom error", message = "error value");
