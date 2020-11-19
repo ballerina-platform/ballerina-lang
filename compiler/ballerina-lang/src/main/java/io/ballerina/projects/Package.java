@@ -49,10 +49,6 @@ public class Package {
         return this.project;
     }
 
-    public Optional<BallerinaToml> ballerinaToml() {
-        return packageContext.ballerinaToml();
-    }
-
     public PackageId packageId() {
         return this.packageContext.packageId();
     }
@@ -69,8 +65,12 @@ public class Package {
         return packageContext.packageVersion();
     }
 
-    public PackageDescriptor packageDescriptor() {
-        return packageContext.packageDescriptor();
+    public PackageDescriptor descriptor() {
+        return packageContext.descriptor();
+    }
+
+    public PackageManifest manifest() {
+        return packageContext.manifest();
     }
 
     public Collection<ModuleId> moduleIds() {
@@ -135,6 +135,10 @@ public class Package {
         return packageContext.compilationOptions();
     }
 
+    public Optional<BallerinaToml> ballerinaToml() {
+        return packageContext.ballerinaToml();
+    }
+
     /**
      * Returns an instance of the Package.Modifier.
      *
@@ -143,8 +147,8 @@ public class Package {
     public Modifier modify() {
         return new Modifier(this);
     }
-
     private static class ModuleIterable implements Iterable {
+
         private final Collection<Module> moduleList;
 
         public ModuleIterable(Collection<Module> moduleList) {
@@ -167,17 +171,19 @@ public class Package {
      */
     public static class Modifier {
         private PackageId packageId;
-        private PackageDescriptor packageDescriptor;
+        private PackageManifest packageManifest;
         private BallerinaToml ballerinaToml;
         private Map<ModuleId, ModuleContext> moduleContextMap;
         private Project project;
+        private final DependencyGraph<PackageDescriptor> pkgDescDependencyGraph;
 
         public Modifier(Package oldPackage) {
             this.packageId = oldPackage.packageId();
-            this.packageDescriptor = oldPackage.packageDescriptor();
+            this.packageManifest = oldPackage.manifest();
             this.ballerinaToml = oldPackage.ballerinaToml().orElse(null);
             this.moduleContextMap = copyModules(oldPackage);
             this.project = oldPackage.project;
+            this.pkgDescDependencyGraph = oldPackage.packageContext().packageDescriptorDependencyGraph();
         }
 
         Modifier updateModule(ModuleContext newModuleContext) {
@@ -228,7 +234,7 @@ public class Package {
 
         private Package createNewPackage() {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId,
-                    this.packageDescriptor, this.ballerinaToml, this.moduleContextMap);
+                    this.packageManifest, this.ballerinaToml, this.moduleContextMap, pkgDescDependencyGraph);
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
             return this.project.currentPackage();
         }

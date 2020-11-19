@@ -19,6 +19,7 @@ package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.ModuleLoadResponse;
@@ -77,8 +78,9 @@ public class LangLibResolver extends PackageResolver {
                 return null;
             }
             PackageVersion latest = findlatest(packageVersions);
-            loadRequest = new PackageLoadRequest(loadRequest.orgName()
-                    .orElse(null), loadRequest.packageName(), latest);
+            loadRequest = PackageLoadRequest.from(
+                    PackageDescriptor.from(loadRequest.packageName(),
+                            loadRequest.orgName().orElse(null), latest));
         }
 
         Optional<Package> packageOptional = distCache.getPackage(loadRequest);

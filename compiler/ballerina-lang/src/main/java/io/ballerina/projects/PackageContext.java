@@ -37,14 +37,18 @@ class PackageContext {
     private final Collection<ModuleId> moduleIds;
     private final Project project;
     private final PackageId packageId;
-    private final PackageDescriptor packageDescriptor;
+    private final PackageManifest packageManifest;
     private final BallerinaToml ballerinaToml;
     private ModuleContext defaultModuleContext;
-    private boolean dependenciesResolved;
+    /**
+     * This variable holds the dependency graph cached in a project.
+     * At the moment, we cache the dependency graph in a balr file.
+     */
+    private final DependencyGraph<PackageDescriptor> pkgDescDependencyGraph;
 
+    private boolean dependenciesResolved;
     private Set<PackageDependency> packageDependencies;
     private DependencyGraph<ModuleId> moduleDependencyGraph;
-
     private PackageCompilation packageCompilation;
 
     // TODO Try to reuse the unaffected compilations if possible
@@ -52,12 +56,13 @@ class PackageContext {
 
     PackageContext(Project project,
                    PackageId packageId,
-                   PackageDescriptor packageDescriptor,
+                   PackageManifest packageManifest,
                    BallerinaToml ballerinaToml,
-                   Map<ModuleId, ModuleContext> moduleContextMap) {
+                   Map<ModuleId, ModuleContext> moduleContextMap,
+                   DependencyGraph<PackageDescriptor> pkgDescDependencyGraph) {
         this.project = project;
         this.packageId = packageId;
-        this.packageDescriptor = packageDescriptor;
+        this.packageManifest = packageManifest;
         this.ballerinaToml = ballerinaToml;
         this.moduleIds = Collections.unmodifiableCollection(moduleContextMap.keySet());
         this.moduleContextMap = moduleContextMap;
@@ -65,6 +70,7 @@ class PackageContext {
         this.moduleCompilationMap = new HashMap<>();
         this.packageDependencies = Collections.emptySet();
         this.moduleDependencyGraph = DependencyGraph.emptyGraph();
+        this.pkgDescDependencyGraph = pkgDescDependencyGraph;
     }
 
     static PackageContext from(Project project, PackageConfig packageConfig) {
@@ -73,9 +79,8 @@ class PackageContext {
             moduleContextMap.put(moduleConfig.moduleId(), ModuleContext.from(project, moduleConfig));
         }
 
-        // Create module dependency graph
-        return new PackageContext(project, packageConfig.packageId(),
-                packageConfig.packageDescriptor(), packageConfig.ballerinaToml(), moduleContextMap);
+        return new PackageContext(project, packageConfig.packageId(), packageConfig.packageManifest(),
+                packageConfig.ballerinaToml(), moduleContextMap, packageConfig.dependencyGraph());
     }
 
     PackageId packageId() {
@@ -83,19 +88,23 @@ class PackageContext {
     }
 
     PackageName packageName() {
-        return packageDescriptor.name();
+        return packageManifest.name();
     }
 
     PackageOrg packageOrg() {
-        return packageDescriptor.org();
+        return packageManifest.org();
     }
 
     PackageVersion packageVersion() {
-        return packageDescriptor.version();
+        return packageManifest.version();
     }
 
-    PackageDescriptor packageDescriptor() {
-        return packageDescriptor;
+    PackageDescriptor descriptor() {
+        return packageManifest.descriptor();
+    }
+
+    PackageManifest manifest() {
+        return packageManifest;
     }
 
     public Optional<BallerinaToml> ballerinaToml() {
@@ -162,6 +171,10 @@ class PackageContext {
         return this.project;
     }
 
+    DependencyGraph<PackageDescriptor> packageDescriptorDependencyGraph() {
+        return pkgDescDependencyGraph;
+    }
+
     void resolveDependencies() {
         // This method mutate the internal state of the moduleContext instance. This is considered as lazy loading
         // TODO Figure out a way to handle concurrent modifications
@@ -176,7 +189,7 @@ class PackageContext {
             populateModuleDependencies(moduleContext, moduleDependencyIdMap, packageDependencies);
         }
 
-        DependencyGraph<ModuleId> moduleDependencyGraph = new DependencyGraph<>(moduleDependencyIdMap);
+        DependencyGraph<ModuleId> moduleDependencyGraph = DependencyGraph.from(moduleDependencyIdMap);
         this.packageDependencies = packageDependencies;
         this.moduleDependencyGraph = moduleDependencyGraph;
         this.dependenciesResolved = true;

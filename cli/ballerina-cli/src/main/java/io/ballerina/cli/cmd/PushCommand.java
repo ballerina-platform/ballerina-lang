@@ -17,7 +17,7 @@
 */
 package io.ballerina.cli.cmd;
 
-import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
@@ -192,7 +192,7 @@ public class PushCommand implements BLauncherCmd {
 //        }
 
         // check if the package is already there in remote repository
-        PackageDescriptor.Dependency pkgAsDependency = new PackageDescriptor.Dependency(pkgName, orgName, version);
+        PackageManifest.Dependency pkgAsDependency = new PackageManifest.Dependency(pkgName, orgName, version);
 
         if (isPackageAvailableInRemote(pkgAsDependency)) {
             throw createLauncherException(
@@ -237,7 +237,7 @@ public class PushCommand implements BLauncherCmd {
      * @param pkg package
      * @return is package available in the remote
      */
-    private static boolean isPackageAvailableInRemote(PackageDescriptor.Dependency pkg) {
+    private static boolean isPackageAvailableInRemote(PackageManifest.Dependency pkg) {
         List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
         supportedPlatforms.add("any");
 

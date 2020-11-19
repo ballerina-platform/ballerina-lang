@@ -22,9 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.PackageDescriptor;
-import io.ballerina.projects.PackageName;
-import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.model.PackageJson;
 import io.ballerina.projects.util.ProjectUtils;
@@ -59,11 +57,11 @@ public class BaloFiles {
     private BaloFiles() {
     }
 
-    static PackageData loadPackageData(Path balrPath, PackageDescriptor packageDescriptor) {
+    static PackageData loadPackageData(Path balrPath, PackageManifest packageManifest) {
         URI zipURI = URI.create("jar:" + balrPath.toUri().toString());
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             // Load default module
-            String pkgName = packageDescriptor.name().toString();
+            String pkgName = packageManifest.name().toString();
             Path defaultModulePathInBalo = zipFileSystem.getPath(MODULES_ROOT, pkgName);
             ModuleData defaultModule = loadModule(defaultModulePathInBalo);
 
@@ -129,7 +127,7 @@ public class BaloFiles {
         }
     }
 
-    public static PackageDescriptor createPackageDescriptor(Path balrPath) {
+    public static PackageManifest createPackageManifest(Path balrPath) {
         URI zipURI = URI.create("jar:" + balrPath.toAbsolutePath().toUri().toString());
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             Path packageJsonPath = zipFileSystem.getPath(PACKAGE_JSON);
@@ -141,7 +139,7 @@ public class BaloFiles {
             PackageJson packageJson = readPackageJson(balrPath, packageJsonPath);
             validatePackageJson(packageJson, balrPath);
             extractPlatformLibraries(zipFileSystem, packageJson, balrPath);
-            return getPackageDescriptor(packageJson);
+            return getPackageManifest(packageJson);
         } catch (IOException e) {
             throw new ProjectException("Failed to read balr file:" + balrPath);
         }
@@ -164,18 +162,17 @@ public class BaloFiles {
         }
     }
 
-    private static PackageDescriptor getPackageDescriptor(PackageJson packageJson) {
-        PackageName packageName = PackageName.from(packageJson.getName());
-        PackageOrg packageOrg = PackageOrg.from(packageJson.getOrganization());
-        PackageVersion packageVersion = PackageVersion.from(packageJson.getVersion());
-        List<PackageDescriptor.Dependency> dependencies;
+    private static PackageManifest getPackageManifest(PackageJson packageJson) {
+        PackageDescriptor pkgDesc = PackageDescriptor.from(packageJson.getName(),
+                packageJson.getOrganization(), packageJson.getVersion());
+        List<PackageManifest.Dependency> dependencies;
         if (packageJson.getDependencies() != null) {
             dependencies = packageJson.getDependencies();
         } else {
             dependencies = Collections.emptyList();
         }
 
-        Map<String, PackageDescriptor.Platform> platforms = new HashMap<>(Collections.emptyMap());
+        Map<String, PackageManifest.Platform> platforms = new HashMap<>(Collections.emptyMap());
         if (packageJson.getPlatformDependencies() != null) {
             List<Map<String, Object>> platformDependencies = new ArrayList<>();
             packageJson.getPlatformDependencies().forEach(dependency -> {
@@ -183,12 +180,11 @@ public class BaloFiles {
                 platformDependencies.add(gson.fromJson(jsonStr, Map.class));
 
             });
-            PackageDescriptor.Platform platform = new PackageDescriptor.Platform(platformDependencies);
+            PackageManifest.Platform platform = new PackageManifest.Platform(platformDependencies);
             platforms.put(packageJson.getPlatform(), platform);
         }
 
-        return PackageDescriptor.from(packageName, packageOrg, packageVersion,
-                dependencies, platforms, Collections.emptyMap());
+        return PackageManifest.from(pkgDesc, dependencies, platforms, Collections.emptyMap());
     }
 
     private static PackageJson readPackageJson(Path balrPath, Path packageJsonPath) {

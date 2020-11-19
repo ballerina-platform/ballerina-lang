@@ -97,7 +97,7 @@ public class JarResolver {
     public Collection<Path> getJarFilePathsRequiredForTestExecution(ModuleName moduleName) {
         Collection<Path> allJarFiles = getJarFilePathsRequiredForExecution();
         Set<Path> allJarFileForTestExec = new HashSet<>(allJarFiles);
-        if (!packageContext.packageDescriptor().org().anonymous()) {
+        if (!packageContext.manifest().org().anonymous()) {
             PlatformLibrary generatedTestJar = jBalBackend.codeGeneratedTestLibrary(
                     packageContext.packageId(), moduleName);
             allJarFileForTestExec.add(generatedTestJar.path());
