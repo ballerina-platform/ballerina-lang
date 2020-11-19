@@ -913,7 +913,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        symbolEnter.defineNode(varNode, env);
+        varNode.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
+            annotationAttachment.accept(this);
+        });
+
+        validateAnnotationAttachmentCount(varNode.annAttachments);
 
         if (varNode.expr == null) {
             // we have no rhs to do type checking
@@ -950,11 +955,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE &&
                 !(this.symbolEnter.checkTypeAndVarCountConsistency(varNode, env))) {
             varNode.type = symTable.semanticError;
-            return;
-        }
-
-        if (varNode.type == symTable.semanticError) {
-            // This will return module tuple variables with type error
             return;
         }
 
@@ -1423,6 +1423,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     analyzeNode(value, env);
                 }
                 continue;
+            }
+
+            int ownerSymTag = env.scope.owner.tag;
+            // If this is a module record variable, symbols of member variables are already entered at symbolEnter.
+            // Since we do not resolve type there we need to update the type of the symbol here.
+            if ((ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE && value.getKind() == NodeKind.VARIABLE) {
+                value.symbol.type = recordVarTypeFields.get((variable.getKey().getValue())).type;
             }
 
             value.type = recordVarTypeFields.get((variable.getKey().getValue())).type;
@@ -3202,7 +3209,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (serviceNode.serviceNameLiteral != null) {
             typeChecker.checkExpr(serviceNode.serviceNameLiteral, env, symTable.stringType);
         }
-        
+
         BType serviceType = serviceNode.type = serviceNode.serviceClass.type;
 
         for (BLangExpression attachExpr : serviceNode.attachedExprs) {

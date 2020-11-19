@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -789,6 +790,12 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangTupleVariable bLangTupleVariable) {
         bLangTupleVariable.expr = rewrite(bLangTupleVariable.expr);
         result = bLangTupleVariable;
+    }
+
+    @Override
+    public void visit(BLangRecordVariable bLangRecordVariable) {
+        bLangRecordVariable.expr = rewrite(bLangRecordVariable.expr);
+        result = bLangRecordVariable;
     }
 
     @Override

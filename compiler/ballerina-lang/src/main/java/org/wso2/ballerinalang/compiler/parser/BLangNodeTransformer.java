@@ -586,9 +586,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         Token variableName;
         String unsupportedBP = null;
         switch (variable.getKind()) { // TODO : Remove this after all binding patterns are implemented
-            case RECORD_VARIABLE:
-                unsupportedBP = "mapping";
-                break;
             case ERROR_VARIABLE:
                 unsupportedBP = "error";
                 break;

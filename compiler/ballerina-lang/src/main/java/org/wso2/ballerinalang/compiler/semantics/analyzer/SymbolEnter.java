@@ -2055,8 +2055,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordVariable varNode) {
-        if (varNode.type == null) {
-            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+        // If this is module level record variable define each member inside here since they are global variables
+        int ownerSymTag = env.scope.owner.tag;
+        if ((ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE) {
+            varNode.variableList.forEach(keyValue -> {
+                defineNode(keyValue.valueBindingPattern, env);
+            });
         }
     }
 
