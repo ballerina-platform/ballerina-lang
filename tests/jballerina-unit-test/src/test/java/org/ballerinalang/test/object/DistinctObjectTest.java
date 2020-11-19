@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
 
 /**
  * Test cases for distinct object type definitions.
@@ -35,7 +35,7 @@ public class DistinctObjectTest {
         CompileResult result = BCompileUtil.compile("test-src/object/distinct_objects_negative.bal");
         int index = 0;
 
-        validateError(result, index++, "incompatible types: expected 'Obj0', found 'Obj2'", 45, 7);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'Obj0', found 'Obj2'", 45, 7);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 }

@@ -19,8 +19,7 @@ import io.ballerina.compiler.syntax.tree.KeySpecifierNode;
 import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -44,13 +43,13 @@ public class TableConstructorExpressionNodeContext extends AbstractCompletionPro
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, TableConstructorExpressionNode node) {
+    public List<LSCompletionItem> getCompletions(CompletionContext context, TableConstructorExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (this.withinKeySpecifier(context, node)) {
             return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_KEY.get()));
         }
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        int cursor = context.getCursorPositionInTree();
         if (node.keySpecifier().isPresent() && node.keySpecifier().get().textRange().endOffset() < cursor) {
             /*
             Covers the following
@@ -61,12 +60,12 @@ public class TableConstructorExpressionNodeContext extends AbstractCompletionPro
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_FROM.get()));
         }
-        
+
         return completionItems;
     }
 
-    private boolean withinKeySpecifier(LSContext context, TableConstructorExpressionNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    private boolean withinKeySpecifier(CompletionContext context, TableConstructorExpressionNode node) {
+        int cursor = context.getCursorPositionInTree();
         Optional<KeySpecifierNode> keySpecifier = node.keySpecifier();
         Token tableKeyword = node.tableKeyword();
 

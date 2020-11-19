@@ -17,9 +17,10 @@
  */
 package org.ballerinalang.test.execution;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BCompileUtil.ExitDetails;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.BRunUtil.ExitDetails;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -32,7 +33,7 @@ public class ModuleExecutionFlowTests {
 
     @Test
     public void testModuleExecutionOrder() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj1", "c", false);
+        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj1");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedString = "Initializing module a\n" +
@@ -51,7 +52,7 @@ public class ModuleExecutionFlowTests {
 
     @Test
     public void testModuleInitReturningError() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj2", "c", false);
+        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj2");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module a\n" +
@@ -63,7 +64,7 @@ public class ModuleExecutionFlowTests {
 
     @Test
     public void testModuleStartReturningError() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj3", "c", false);
+        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj3");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module a\n" +
@@ -82,7 +83,7 @@ public class ModuleExecutionFlowTests {
 
     @Test
     public void testModuleInitPanic() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj4", "c", false);
+        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj4");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module a\n" +
@@ -95,7 +96,7 @@ public class ModuleExecutionFlowTests {
 
     @Test
     public void testModuleStartPanic() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj5", "c", false);
+        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj5");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module a\n" +
@@ -115,7 +116,7 @@ public class ModuleExecutionFlowTests {
 
     @Test
     public void testModuleImmediateStopPanic() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj6", "c", false);
+        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj6");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module a\n" +
@@ -134,7 +135,7 @@ public class ModuleExecutionFlowTests {
 
     @Test
     public void testModuleMainReturnError() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj7", "c", false);
+        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj7");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedString = "Initializing module a\n" +
@@ -148,7 +149,7 @@ public class ModuleExecutionFlowTests {
 
     @Test
     public void testModuleMainPanicError() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj8", "c", false);
+        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj8");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedString = "Initializing module a\n" +
@@ -156,7 +157,7 @@ public class ModuleExecutionFlowTests {
                 "Initializing module c\n" +
                 "Module c main function invoked";
         String expectedErrorString = "error: panicked while executing main method\n" +
-                "\tat unit-tests.c.0_1_0:main(main.bal:12)";
+                "\tat unit_tests.proj8.0_1_0:main(main.bal:12)";
         Assert.assertEquals(output.consoleOutput, expectedString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
@@ -164,7 +165,7 @@ public class ModuleExecutionFlowTests {
     @Test
     public void testModuleStartAndStopPanic() {
         CompileResult compileResult =
-                BCompileUtil.compile("test-src/execution/StartStopFailingProject", "current", false);
+                BCompileUtil.compile("test-src/execution/start_stop_failing_project");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module 'basic'\n" +
@@ -187,7 +188,7 @@ public class ModuleExecutionFlowTests {
     @Test
     public void testModuleStopPanic() {
         CompileResult compileResult =
-                BCompileUtil.compile("test-src/execution/ModuleStopFailingProject", "current", false);
+                BCompileUtil.compile("test-src/execution/module_stop_failing_project");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module 'basic'\n" +
@@ -202,7 +203,7 @@ public class ModuleExecutionFlowTests {
                 "listener __gracefulStop panicked, service name - dependent\n" +
                 "basic:TestListener listener __gracefulStop called, service name - basic";
         String expectedErrorString = "error: panicked while stopping module 'dependent'\n" +
-                "\tat test.basic.0_1_0.TestListener:__gracefulStop(main.bal:44)";
+                "\tat testorg.module_stop_failing_project$0046basic.0_1_0.TestListener:__gracefulStop(main.bal:44)";
 
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
@@ -211,7 +212,7 @@ public class ModuleExecutionFlowTests {
     @Test(description = "Test 'init' is called only once for each module at runtime")
     public void testModuleDependencyChainForInit() {
         CompileResult compileResult =
-                BCompileUtil.compile("test-src/execution/ModuleInitInvocationProject", "current", false);
+                BCompileUtil.compile("test-src/execution/module_invocation_project");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module 'basic'\n" +
@@ -234,7 +235,7 @@ public class ModuleExecutionFlowTests {
     @Test(description = "Test 'start' is called only once for each module at runtime")
     public void testModuleDependencyChainForStart() {
         CompileResult compileResult =
-                BCompileUtil.compile("test-src/execution/ModuleStartInvocationProject", "current", false);
+                BCompileUtil.compile("test-src/execution/module_start_invocation_project");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module 'basic'\n" +
@@ -256,7 +257,7 @@ public class ModuleExecutionFlowTests {
 
     private ExitDetails run(CompileResult compileResult, String[] args) {
         try {
-            return BCompileUtil.run(compileResult, args);
+            return BRunUtil.run(compileResult, args);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }

@@ -79,6 +79,6 @@ public class BLangDiagnostic extends Diagnostic {
     }
 
     public String toString() {
-        return diagnosticInfo.severity() + ": " + location.toString() + ": " + msg;
+        return diagnosticInfo.severity() + " [" + location.lineRange().filePath() + ":" + location + "] " + msg;
     }
 }

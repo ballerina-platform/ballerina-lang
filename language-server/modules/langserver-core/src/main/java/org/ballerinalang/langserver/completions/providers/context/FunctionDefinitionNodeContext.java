@@ -21,11 +21,9 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
@@ -47,7 +45,7 @@ public class FunctionDefinitionNodeContext extends AbstractCompletionProvider<Fu
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, FunctionDefinitionNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, FunctionDefinitionNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
@@ -67,21 +65,21 @@ public class FunctionDefinitionNodeContext extends AbstractCompletionProvider<Fu
         return completionItems;
     }
 
-    private boolean canCheckWithinFunctionSignature(LSContext context, FunctionDefinitionNode node) {
+    private boolean canCheckWithinFunctionSignature(CompletionContext context, FunctionDefinitionNode node) {
         FunctionSignatureNode functionSignatureNode = node.functionSignature();
         if (functionSignatureNode.isMissing()) {
             return false;
         }
         LinePosition signatureEndLine = functionSignatureNode.lineRange().endLine();
-        Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        Position cursor = context.getCursorPosition();
 
         return (signatureEndLine.line() == cursor.getLine() && signatureEndLine.offset() < cursor.getCharacter())
                 || signatureEndLine.line() < cursor.getLine();
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, FunctionDefinitionNode node) {
-        Integer textPosition = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    public boolean onPreValidation(CompletionContext context, FunctionDefinitionNode node) {
+        int textPosition = context.getCursorPositionInTree();
         Token functionKeyword = node.functionKeyword();
         if (functionKeyword.isMissing()) {
             return true;

@@ -21,6 +21,7 @@ package org.ballerinalang.debugger.test.adapter.build;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.debugger.test.DebugAdapterBaseTestCase;
 import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
+import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.testng.Assert;
@@ -44,12 +45,10 @@ public class MultiModuleBuildDebugTest extends DebugAdapterBaseTestCase {
     @BeforeClass
     public void setup() {
         testProjectName = "breakpoint-tests";
-        testModuleName = "foo";
         projectPath = testProjectBaseDir + File.separator + testProjectName;
-
         testModuleFileName = "tests" + File.separator + "main_test.bal";
         testProjectPath = testProjectBaseDir.toString() + File.separator + testProjectName;
-        testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
+        testEntryFilePath = Paths.get(testProjectPath, testModuleFileName).toString();
     }
 
     @Test
@@ -57,7 +56,7 @@ public class MultiModuleBuildDebugTest extends DebugAdapterBaseTestCase {
         int port = findFreePort();
         runDebuggeeProgram(projectPath, port);
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 22));
-        initDebugSession(null, port);
+        initDebugSession(DebugUtils.DebuggeeExecutionKind.BUILD, port);
 
         // Test for debug engage
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(20000);

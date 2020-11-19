@@ -1,5 +1,5 @@
 import testorg/foo;
-import testorg/bar;
+import testorg/foo.bar as bar;
 
 // boolean ---------------------------------------------------
 

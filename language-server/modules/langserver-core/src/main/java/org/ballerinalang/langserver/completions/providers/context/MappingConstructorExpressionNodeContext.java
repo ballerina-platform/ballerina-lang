@@ -40,12 +40,10 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -77,10 +75,10 @@ public class MappingConstructorExpressionNodeContext extends
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, MappingConstructorExpressionNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, MappingConstructorExpressionNode node)
             throws LSCompletionException {
 
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         NonTerminalNode evalNode = (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
                 || nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE)
                 ? nodeAtCursor.parent() : nodeAtCursor;
@@ -118,11 +116,11 @@ public class MappingConstructorExpressionNodeContext extends
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, MappingConstructorExpressionNode node) {
+    public boolean onPreValidation(CompletionContext context, MappingConstructorExpressionNode node) {
         return !node.openBrace().isMissing() && !node.closeBrace().isMissing();
     }
 
-    private boolean withinValueExpression(LSContext context, NonTerminalNode evalNodeAtCursor) {
+    private boolean withinValueExpression(CompletionContext context, NonTerminalNode evalNodeAtCursor) {
         Token colon = null;
 
         if (evalNodeAtCursor.kind() == SyntaxKind.SPECIFIC_FIELD) {
@@ -135,26 +133,27 @@ public class MappingConstructorExpressionNodeContext extends
             return false;
         }
 
-        Integer cursorPosInTree = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        int cursorPosInTree = context.getCursorPositionInTree();
         int colonEnd = colon.textRange().endOffset();
 
         return cursorPosInTree > colonEnd;
     }
 
-    private boolean withinComputedNameContext(LSContext context, NonTerminalNode evalNodeAtCursor) {
+    private boolean withinComputedNameContext(CompletionContext context, NonTerminalNode evalNodeAtCursor) {
         if (evalNodeAtCursor.kind() != SyntaxKind.COMPUTED_NAME_FIELD) {
             return false;
         }
 
         int openBracketEnd = ((ComputedNameFieldNode) evalNodeAtCursor).openBracket().textRange().endOffset();
         int closeBracketStart = ((ComputedNameFieldNode) evalNodeAtCursor).closeBracket().textRange().startOffset();
-        Integer cursorPosInTree = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        int cursorPosInTree = context.getCursorPositionInTree();
 
         return cursorPosInTree >= openBracketEnd && cursorPosInTree <= closeBracketStart;
     }
 
-    private Optional<RecordTypeSymbol> getRecordTypeDesc(LSContext context, MappingConstructorExpressionNode node) {
-        List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+    private Optional<RecordTypeSymbol> getRecordTypeDesc(CompletionContext context,
+                                                         MappingConstructorExpressionNode node) {
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
         NonTerminalNode parent = node.parent();
         if (parent.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             TypeDescriptorNode typeDesc = ((VariableDeclarationNode) parent).typedBindingPattern().typeDescriptor();
@@ -210,10 +209,10 @@ public class MappingConstructorExpressionNodeContext extends
         return Optional.empty();
     }
 
-    private List<LSCompletionItem> getVariableCompletionsForFields(LSContext ctx, List<FieldSymbol> recordFields) {
-        List<Symbol> visibleSymbols = ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+    private List<LSCompletionItem> getVariableCompletionsForFields(CompletionContext ctx, List<FieldSymbol> recFields) {
+        List<Symbol> visibleSymbols = ctx.getVisibleSymbols(ctx.getCursorPosition());
         Map<String, TypeSymbol> fieldTypeMap = new HashMap<>();
-        recordFields.forEach(fieldDesc -> fieldTypeMap.put(fieldDesc.name(), fieldDesc.typeDescriptor()));
+        recFields.forEach(fieldDesc -> fieldTypeMap.put(fieldDesc.name(), fieldDesc.typeDescriptor()));
         List<LSCompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.forEach(symbol -> {
             if (!(symbol instanceof VariableSymbol)) {
@@ -233,7 +232,7 @@ public class MappingConstructorExpressionNodeContext extends
         return completionItems;
     }
 
-    private Optional<RecordTypeSymbol> getRecordSymbolForInnerMapping(LSContext context,
+    private Optional<RecordTypeSymbol> getRecordSymbolForInnerMapping(CompletionContext context,
                                                                       MappingConstructorExpressionNode node) {
         List<String> fieldNames = new ArrayList<>();
         Node evalNode = node;
@@ -275,9 +274,9 @@ public class MappingConstructorExpressionNodeContext extends
         return Optional.ofNullable(recordType);
     }
 
-    private Optional<RecordTypeSymbol> getAnnotationAttachedType(LSContext context, AnnotationNode annotationNode) {
-        List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        Node annotRef = annotationNode.annotReference();
+    private Optional<RecordTypeSymbol> getAnnotationAttachedType(CompletionContext context, AnnotationNode annotNode) {
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        Node annotRef = annotNode.annotReference();
         List<Symbol> searchableEntries;
         String annotationName;
 
@@ -308,8 +307,8 @@ public class MappingConstructorExpressionNodeContext extends
         return Optional.of((RecordTypeSymbol) CommonUtil.getRawType(bTypeSymbol.get()));
     }
 
-    private List<LSCompletionItem> getComputedNameCompletions(LSContext context) {
-        List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+    private List<LSCompletionItem> getComputedNameCompletions(CompletionContext context) {
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
 
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbol -> symbol instanceof VariableSymbol || symbol.kind() == SymbolKind.FUNCTION)
@@ -325,7 +324,7 @@ public class MappingConstructorExpressionNodeContext extends
                 && ((SpecificFieldNode) evalNodeAtCursor).readonlyKeyword().isPresent());
     }
 
-    private List<LSCompletionItem> getExpressionsCompletionsForQNameRef(LSContext context,
+    private List<LSCompletionItem> getExpressionsCompletionsForQNameRef(CompletionContext context,
                                                                         QualifiedNameReferenceNode qNameRef) {
         Predicate<Symbol> filter = symbol -> symbol instanceof VariableSymbol
                 || symbol.kind() == SymbolKind.FUNCTION;

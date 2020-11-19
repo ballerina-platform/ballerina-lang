@@ -15,15 +15,21 @@
  */
 package org.ballerinalang.langserver.hover;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.HoverContext;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.util.TokensUtil;
+import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.MarkupContent;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -38,11 +44,32 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Utility class for Hover functionality of language server.
  */
 public class HoverUtil {
+
+    /**
+     * Get the hover content.
+     *
+     * @param context        Hover operation context
+     * @param cursorPosition Cursor position
+     * @return {@link Hover} Hover content
+     */
+    public static Hover getHover(HoverContext context, Position cursorPosition) throws TokenOrSymbolNotFoundException {
+        Optional<SemanticModel> semanticModel = context.workspace().semanticModel(context.filePath());
+        if (semanticModel.isEmpty()) {
+            return HoverUtil.getDefaultHoverObject();
+        }
+        // TODO: Migrate to the latest
+        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, cursorPosition);
+        context.setTokenAtCursor(tokenAtCursor);
+
+        return HoverUtil.getDefaultHoverObject();
+    }
+
     /**
      * Get Hover from documentation attachment.
      *
