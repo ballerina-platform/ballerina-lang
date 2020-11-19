@@ -19,23 +19,18 @@
 package io.ballerina.semantic.api.test.allreferences;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
-import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.ballerinalang.compiler.CompilerPhase.COMPILER_PLUGIN;
-import static org.ballerinalang.test.util.BCompileUtil.compile;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -50,10 +45,7 @@ public abstract class FindAllReferencesTest {
 
     @BeforeClass
     public void setup() {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = compile(getTestSourcePath(), context, COMPILER_PLUGIN);
-        BLangPackage pkg = (BLangPackage) result.getAST();
-        model = new BallerinaSemanticModel(pkg, context);
+        model = SemanticAPITestUtils.getDefaultModulesSemanticModel(getTestSourcePath());
     }
 
     @Test(dataProvider = "PositionProvider")
