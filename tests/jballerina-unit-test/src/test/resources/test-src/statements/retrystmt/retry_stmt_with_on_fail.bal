@@ -41,6 +41,14 @@ function testRetryStatement() {
          panic error("Expected a  string");
     }
 
+    string|error testNestedRetryLessOnFailSuccessRes = testNestedRetryLessOnFailSuccess();
+     if(testNestedRetryWithLessOnFails2Res is string) {
+         assertEquality("start -> within retry block 1 -> within retry block 2 -> within retry block 3 " +
+         "-> within retry block 3 -> execution completed", testNestedRetryWithLessOnFails2Res);
+    } else {
+         panic error("Expected a  string");
+    }
+
     string|error testRetryReturnValRes = testRetryReturnVal();
     if(testRetryReturnValRes is string) {
          assertEquality("start -> within retry block 1 -> within retry block 2 -> within retry block 2",
@@ -102,6 +110,32 @@ function testNestedRetryWithLessOnFails () returns string|error {
         }
     }
     on fail error e {
+        str += " -> error handled";
+    }
+    str = str + " -> execution completed";
+    return str;
+}
+
+    string str = "start";
+    int count1 = 0;
+    error err = error("custom error", message = "error value");
+    retry<MyRetryManager> (3) {
+        count1 += 1;
+        str = str + " -> within retry block 1";
+        int count2 = 0;
+        retry<MyRetryManager> (1) {
+           count2 += 1;
+           str = str + " -> within retry block 2";
+           int count3 = 0;
+           retry<MyRetryManager> (1) {
+              count3 += 1;
+              str = str + " -> within retry block 3";
+              if(count3 < 2) {
+                  fail err;
+              }
+           }
+        }
+    } on fail error e {
         str += " -> error handled";
     }
     str = str + " -> execution completed";
