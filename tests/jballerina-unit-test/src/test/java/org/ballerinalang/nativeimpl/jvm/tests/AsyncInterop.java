@@ -16,7 +16,7 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import io.ballerina.runtime.scheduling.AsyncUtils;
+import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 
 import java.util.concurrent.CompletableFuture;
 

@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.langlib.internal;
 
-import io.ballerina.runtime.XMLNodeType;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BXML;
-import io.ballerina.runtime.api.values.BXMLItem;
-import io.ballerina.runtime.api.values.BXMLSequence;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlItem;
+import io.ballerina.runtime.api.values.BXmlSequence;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,26 +36,26 @@ import java.util.List;
  */
 public class GetFilteredChildrenFlat {
 
-    public static BXML getFilteredChildrenFlat(BXML xmlVal, long index, BString[] elemNames) {
-        if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
-            BXMLItem element = (BXMLItem) xmlVal;
-            return ValueCreator.createXMLSequence(filterElementChildren(index, elemNames, element));
-        } else if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE) {
-            BXMLSequence sequence = (BXMLSequence) xmlVal;
-            ArrayList<BXML> liftedFilteredChildren = new ArrayList<>();
-            for (BXML child : sequence.getChildrenList()) {
-                if (child.getNodeType() == XMLNodeType.ELEMENT) {
-                    liftedFilteredChildren.addAll(filterElementChildren(index, elemNames, (BXMLItem) child));
+    public static BXml getFilteredChildrenFlat(BXml xmlVal, long index, BString[] elemNames) {
+        if (xmlVal.getNodeType() == XmlNodeType.ELEMENT) {
+            BXmlItem element = (BXmlItem) xmlVal;
+            return ValueCreator.createXmlSequence(filterElementChildren(index, elemNames, element));
+        } else if (xmlVal.getNodeType() == XmlNodeType.SEQUENCE) {
+            BXmlSequence sequence = (BXmlSequence) xmlVal;
+            ArrayList<BXml> liftedFilteredChildren = new ArrayList<>();
+            for (BXml child : sequence.getChildrenList()) {
+                if (child.getNodeType() == XmlNodeType.ELEMENT) {
+                    liftedFilteredChildren.addAll(filterElementChildren(index, elemNames, (BXmlItem) child));
                 }
             }
-            return ValueCreator.createXMLSequence(liftedFilteredChildren);
+            return ValueCreator.createXmlSequence(liftedFilteredChildren);
 
         }
-        return ValueCreator.createXMLSequence();
+        return ValueCreator.createXmlSequence();
     }
 
-    private static List<BXML> filterElementChildren(long index, BString[] elemNames, BXMLItem element) {
-        BXMLSequence elements = (BXMLSequence) GetElements.getElements(element.getChildrenSeq(), elemNames);
+    private static List<BXml> filterElementChildren(long index, BString[] elemNames, BXmlItem element) {
+        BXmlSequence elements = (BXmlSequence) GetElements.getElements(element.getChildrenSeq(), elemNames);
         if (index < 0) {
             // Return all elements
             return elements.getChildrenList();

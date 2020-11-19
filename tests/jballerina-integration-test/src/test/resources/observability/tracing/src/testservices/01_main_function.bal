@@ -14,7 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function main() {
+import ballerina/testobserve;
+
+public function main() returns error? {
     testClient->callAnotherRemoteFunction();
 
     var a = 63;
@@ -38,4 +40,18 @@ public function main() {
         error e = error("Expected error not found");
         panic e;
     }
+
+    service testServiceInMain = service {
+        resource function resourceOne(testobserve:Caller caller, string body) {
+            int numberCount = checkpanic 'int:fromString(body);
+            var sum = 0;
+            foreach var i in 1 ... numberCount {
+                sum = sum + i;
+            }
+            checkpanic caller->respond("Sum of numbers: " + sum.toString());
+        }
+    };
+    var testObserveListener = new testobserve:Listener(9091);
+    check testObserveListener.__attach(testServiceInMain);
+    check testObserveListener.__start();
 }

@@ -34,7 +34,7 @@ public class BObjectType extends BStructureType {
      * @param pkgPath  package of the struct
      * @param flags flags of the object type
      */
-    public BObjectType(String typeName, String pkgPath, int flags) {
+    public BObjectType(String typeName, String pkgPath, long flags) {
         super(typeName, pkgPath, flags, BMap.class);
     }
 

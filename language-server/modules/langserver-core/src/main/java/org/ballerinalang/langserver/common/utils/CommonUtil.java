@@ -72,7 +72,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -97,7 +96,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -143,7 +141,7 @@ public class CommonUtil {
     public static final Path LS_STDLIB_CACHE_DIR = TEMP_DIR.resolve("ls_stdlib_cache").resolve(SDK_VERSION);
 
     public static final Path LS_CONNECTOR_CACHE_DIR = TEMP_DIR.resolve("ls_connector_cache").resolve(SDK_VERSION);
-    
+
     public static final List<String> PRE_DECLARED_LANG_LIBS = Arrays.asList("lang.boolean", "lang.decimal",
             "lang.error", "lang.float", "lang.future", "lang.int", "lang.map", "lang.object", "lang.stream",
             "lang.string", "lang.table", "lang.typedesc", "lang.xml", "lang.annotations");
@@ -169,35 +167,27 @@ public class CommonUtil {
         int startColumn = diagnosticLocation.lineRange().startLine().offset() - 1;
         int endColumn = diagnosticLocation.lineRange().endLine().offset() - 1;
         return new BLangDiagnosticLocation(diagnosticLocation.lineRange().filePath(),
-                                           startLine, endLine, startColumn, endColumn);
+                startLine, endLine, startColumn, endColumn);
     }
 
     /**
-     * Convert the diagnostic range to a zero based positioning diagnostic range.
+     * Convert the syntax-node line range into a lsp4j range.
      *
-     * @param lineRange - diagnostic position to be cloned
-     * @return {@link Range} converted diagnostic position
+     * @param lineRange - line range
+     * @return {@link Range} converted range
      */
     public static Range toRange(LineRange lineRange) {
-        int startLine = lineRange.startLine().line();
-        int endLine = lineRange.endLine().line();
-        int startColumn = lineRange.startLine().offset();
-        int endColumn = lineRange.endLine().offset();
-        return new Range(new Position(startLine, startColumn), new Position(endLine, endColumn));
+        return new Range(toPosition(lineRange.startLine()), toPosition(lineRange.endLine()));
     }
 
     /**
-     * Clone the diagnostic position given.
+     * Converts syntax-node line position into a lsp4j position.
      *
-     * @param diagnosticLocation - diagnostic position to be cloned
-     * @return {@link Location} cloned diagnostic position
+     * @param linePosition - line position
+     * @return {@link Position} converted position
      */
-    public static Location clonePosition(Location diagnosticLocation) {
-        return new BLangDiagnosticLocation(diagnosticLocation.lineRange().filePath(),
-                                           diagnosticLocation.lineRange().startLine().line(),
-                                           diagnosticLocation.lineRange().endLine().line(),
-                                           diagnosticLocation.lineRange().startLine().offset(),
-                                           diagnosticLocation.lineRange().endLine().offset());
+    public static Position toPosition(LinePosition linePosition) {
+        return new Position(linePosition.line(), linePosition.offset());
     }
 
     /**
@@ -241,7 +231,7 @@ public class CommonUtil {
         if (bType == null) {
             return "()";
         }
-        switch (bType.typeKind()) {
+        switch (getRawType(bType).typeKind()) {
             case INT:
                 typeString = Integer.toString(0);
                 break;
@@ -602,7 +592,7 @@ public class CommonUtil {
      * @return {@link String} Insert text
      */
     public static String getRecordFieldCompletionInsertText(FieldSymbol bField, int tabOffset) {
-        TypeSymbol fieldType = bField.typeDescriptor();
+        TypeSymbol fieldType = CommonUtil.getRawType(bField.typeDescriptor());
         StringBuilder insertText = new StringBuilder(bField.name() + ": ");
         if (fieldType.typeKind() == TypeDescKind.RECORD) {
             List<FieldSymbol> requiredFields = getMandatoryRecordFields((RecordTypeSymbol) fieldType);
@@ -611,20 +601,17 @@ public class CommonUtil {
                 return insertText.toString();
             }
             insertText.append("{").append(LINE_SEPARATOR);
-            int tabCount = tabOffset;
             List<String> requiredFieldInsertTexts = new ArrayList<>();
             for (FieldSymbol field : requiredFields) {
-                String fieldText = String.join("", Collections.nCopies(tabCount + 1, "\t")) +
-                        getRecordFieldCompletionInsertText(field, tabCount) +
-                        String.join("", Collections.nCopies(tabCount, "\t"));
+                String fieldText = String.join("", Collections.nCopies(tabOffset + 1, "\t")) +
+                        getRecordFieldCompletionInsertText(field, tabOffset + 1);
                 requiredFieldInsertTexts.add(fieldText);
-                tabCount++;
             }
-            insertText.append(String.join(CommonUtil.LINE_SEPARATOR, requiredFieldInsertTexts));
+            insertText.append(String.join("," + CommonUtil.LINE_SEPARATOR, requiredFieldInsertTexts));
             insertText.append(LINE_SEPARATOR)
                     .append(String.join("", Collections.nCopies(tabOffset, "\t")))
                     .append("}");
-        } else if (fieldType instanceof BArrayType) {
+        } else if (fieldType.typeKind() == TypeDescKind.ARRAY) {
             insertText.append("[").append("${1}").append("]");
         } else if (fieldType.typeKind() == TypeDescKind.STRING) {
             insertText.append("\"").append("${1}").append("\"");
@@ -745,6 +732,41 @@ public class CommonUtil {
     }
 
     /**
+     * Generates a variable name.
+     *
+     * @param symbol {@link Symbol}
+     * @return random argument name
+     */
+    public static String generateVariableName(Symbol symbol, TypeSymbol typeSymbol, Set<String> names) {
+        if (symbol != null) {
+            // Start naming with symbol-name
+            return generateVariableName(1, symbol.name(), names);
+        } else if (typeSymbol != null) {
+            // If symbol is null, try typeSymbol
+            String name;
+            if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE && !typeSymbol.name().startsWith("$")) {
+                name = typeSymbol.name();
+            } else {
+                TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
+                switch (rawType.typeKind()) {
+                    case RECORD:
+                        name = "mappingResult";
+                        break;
+                    case TUPLE:
+                        name = "listResult";
+                        break;
+                    default:
+                        name = rawType.typeKind().getName() + "Result";
+                        break;
+                }
+            }
+            return generateVariableName(1, name, names);
+        } else {
+            return generateName(1, names);
+        }
+    }
+
+    /**
      * Whether the given module is a langlib module.
      *
      * @param moduleID Module ID to evaluate
@@ -756,10 +778,8 @@ public class CommonUtil {
     }
 
     private static String generateVariableName(int suffix, String name, Set<String> names) {
-        name = name.replaceAll(".+[\\:\\.]", "");
-        String newName = generateName(suffix, names);
+        String newName = name.replaceAll(".+[\\:\\.]", "");
         if (suffix == 1 && !name.isEmpty()) {
-            newName = name;
             BiFunction<String, String, String> replacer = (search, text) ->
                     (text.startsWith(search)) ? text.replaceFirst(search, "") : text;
             // Replace common prefixes
@@ -783,33 +803,51 @@ public class CommonUtil {
             }
             // Lower first letter
             newName = newName.substring(0, 1).toLowerCase(Locale.getDefault()) + newName.substring(1);
-            // if already available, try appending 'Result'
-            Iterator<String> iterator = names.iterator();
+            // if already available, try appending 'Result', 'Out', 'Value'
             boolean alreadyExists = false;
-            boolean appendResult = true;
-            boolean appendOut = true;
-            String suffixResult = "Result";
-            String suffixOut = "Out";
-            while (iterator.hasNext()) {
-                String next = iterator.next();
-                if (next.equals(newName)) {
+            String[] specialSuffixes = new String[]{"Result", "Out", "Value"};
+            boolean[] flagSpecialSuffixes = new boolean[specialSuffixes.length];
+            boolean addNoSpecialSuffix = false;
+            // If any of special suffix already found in new-name, don't use any special suffix
+            for (String currentSuffix : specialSuffixes) {
+                if (newName.endsWith(currentSuffix)) {
+                    addNoSpecialSuffix = true;
+                    break;
+                }
+            }
+            for (String nextName : names) {
+                if (nextName.equals(newName)) {
+                    // If new-name already exists
                     alreadyExists = true;
-                } else if (next.equals(newName + suffixResult)) {
-                    appendResult = false;
-                } else if (next.equals(newName + suffixOut)) {
-                    appendOut = false;
+                } else if (!addNoSpecialSuffix) {
+                    // Check a particular special suffix and new-name combination already exists
+                    for (int i = 0; i < specialSuffixes.length; i++) {
+                        String currentSuffix = specialSuffixes[i];
+                        if (nextName.equals(newName + currentSuffix)) {
+                            flagSpecialSuffixes[i] = true;
+                        }
+                    }
                 }
             }
             // if already available, try appending 'Result' or 'Out'
-            if (alreadyExists && appendResult) {
-                newName = newName + suffixResult;
-            } else if (alreadyExists && appendOut) {
-                newName = newName + suffixOut;
+            if (alreadyExists) {
+                if (!addNoSpecialSuffix) {
+                    for (int i = 0; i < flagSpecialSuffixes.length; i++) {
+                        if (!flagSpecialSuffixes[i]) {
+                            newName = newName + specialSuffixes[i];
+                            break;
+                        }
+                    }
+                } else {
+                    return generateVariableName(++suffix, newName, names);
+                }
             }
-            // if still already available, try a random letter
-            while (names.contains(newName)) {
-                newName = generateVariableName(++suffix, name, names);
-            }
+        } else {
+            newName = newName + suffix;
+        }
+        // if still already available, try a random letter
+        while (names.contains(newName)) {
+            newName = generateName(++suffix, names);
         }
         return newName;
     }
@@ -1024,11 +1062,37 @@ public class CommonUtil {
         return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(txtPos, 0));
     }
 
+    public static NonTerminalNode findNode(Position position, SyntaxTree syntaxTree) {
+        TextDocument textDocument = syntaxTree.textDocument();
+        int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
+        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(txtPos, 0));
+    }
+
     public static boolean isWithinLineRange(Position pos, LineRange lineRange) {
         int sLine = lineRange.startLine().line();
         int sCol = lineRange.startLine().offset();
         int eLine = lineRange.endLine().line();
         int eCol = lineRange.endLine().offset();
+        return ((sLine == eLine && pos.getLine() == sLine) &&
+                (pos.getCharacter() >= sCol && pos.getCharacter() <= eCol)
+        ) || ((sLine != eLine) && (pos.getLine() > sLine && pos.getLine() < eLine ||
+                pos.getLine() == eLine && pos.getCharacter() <= eCol ||
+                pos.getLine() == sLine && pos.getCharacter() >= sCol
+        ));
+    }
+
+    /**
+     * Returns whether the position is within the range.
+     *
+     * @param pos   position
+     * @param range range
+     * @return True if within range, False otherwise
+     */
+    public static boolean isWithinRange(Position pos, Range range) {
+        int sLine = range.getStart().getLine();
+        int sCol = range.getStart().getCharacter();
+        int eLine = range.getEnd().getLine();
+        int eCol = range.getEnd().getCharacter();
         return ((sLine == eLine && pos.getLine() == sLine) &&
                 (pos.getCharacter() >= sCol && pos.getCharacter() <= eCol)
         ) || ((sLine != eLine) && (pos.getLine() > sLine && pos.getLine() < eLine ||

@@ -574,7 +574,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        workerSendNode.keyExpr = rewrite(workerSendNode.keyExpr);
         workerSendNode.expr = rewrite(workerSendNode.expr);
         result = workerSendNode;
     }

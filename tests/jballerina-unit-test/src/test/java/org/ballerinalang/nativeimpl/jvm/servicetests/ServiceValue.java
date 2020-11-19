@@ -19,18 +19,18 @@ package org.ballerinalang.nativeimpl.jvm.servicetests;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.ResourceFunctionType;
+import io.ballerina.runtime.api.types.ServiceType;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.types.BServiceType;
-import io.ballerina.runtime.values.ArrayValueImpl;
-import io.ballerina.runtime.values.FutureValue;
-import io.ballerina.runtime.values.MapValueImpl;
-import io.ballerina.runtime.values.ObjectValue;
+
+import java.util.HashMap;
 
 /**
  * Helper methods to test properties of service values.
@@ -42,25 +42,24 @@ public class ServiceValue {
     private static BObject listener;
     private static boolean started;
 
-    public static FutureValue callMethod(Environment env, ObjectValue l, BString name) {
-        FutureValue k = env.getRuntime().invokeMethodAsync(l, name.getValue(), null, null, null, new MapValueImpl<>(),
+    public static BFuture callMethod(Environment env, BObject l, BString name) {
+        BFuture k = env.getRuntime().invokeMethodAsync(l, name.getValue(), null, null, null, new HashMap<>(),
                 PredefinedTypes.TYPE_ANY);
 
         return k;
     }
 
-    public static ArrayValueImpl getParamNames(ObjectValue o, BString methodName) {
+    public static BArray getParamNames(BObject o, BString methodName) {
         ObjectType type = o.getType();
-        if (!(type instanceof BServiceType)) {
+        if (!(type instanceof ServiceType)) {
             return null;
         }
 
-        for (ResourceFunctionType attachedFunction : ((BServiceType) type).getResourceFunctions()) {
+        for (ResourceFunctionType attachedFunction : ((ServiceType) type).getResourceFunctions()) {
             if (attachedFunction.getName().equals(methodName.getValue())) {
                 String[] paramNames = attachedFunction.getParamNames();
-                ArrayValueImpl arrayValue = (ArrayValueImpl)
-                        ValueCreator.createArrayValue(
-                                new BArrayType(PredefinedTypes.TYPE_STRING, paramNames.length), paramNames.length);
+                BArray arrayValue = ValueCreator.createArrayValue(
+                        TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, paramNames.length), paramNames.length);
                 for (int i = 0; i < paramNames.length; i++) {
                     String paramName = paramNames[i];
                     arrayValue.add(i, StringUtils.fromString(paramName));

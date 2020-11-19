@@ -43,8 +43,9 @@ function testServiceObjectValue() {
     var y = wait callMethod(s, "$get$foo$path");
     assertEquality(y, s.message + "foo");
 
-    var z = wait callMethod(s, "$get$.");
-    assertEquality(z, s.message + "dot");
+    // disabled on https://github.com/ballerina-platform/ballerina-lang/issues/27007
+    //var z = wait callMethod(s, "$get$.");
+    //assertEquality(z, s.message + "dot");
 }
 
 

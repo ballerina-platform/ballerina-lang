@@ -19,7 +19,7 @@
 package org.ballerinalang.stdlib.log;
 
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import org.ballerinalang.logging.util.BLogLevel;
 
 /**
