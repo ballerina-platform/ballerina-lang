@@ -186,8 +186,8 @@ public class LangLibTableTest {
                 "found 'record {| string name; int age; |}'", 157, 21);
         validateError(negativeResult, index++, "incompatible types: expected 'Employee', " +
                 "found 'record {| string name; int age; |}'", 166, 21);
-        validateError(negativeResult, index, "cannot update 'table<Person> key(name)' using indexing",
-                177, 5);
+        validateError(negativeResult, index, "cannot update 'table<Person> key(name)' with member " +
+                        "access expression", 177, 5);
     }
 
     @Test
