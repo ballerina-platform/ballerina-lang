@@ -14,12 +14,21 @@ public class MyRetryManager {
 }
 
 function testRetryStatement() {
-    string|error retryErrorRes = retryError();
-    if(retryErrorRes is string) {
-        assertEquality("start attempt 1:error, attempt 2:error, attempt 3:result returned end.", retryErrorRes);
+    string|error retryErrorWithFailRes = retryErrorWithFail();
+    if(retryErrorWithFailRes is string) {
+        assertEquality("start attempt 1:error, attempt 2:error, attempt 3:result returned end.", retryErrorWithFailRes);
     } else {
          panic error("Expected a  string");
     }
+
+    string|error retryErrorWithCheckRes = retryErrorWithCheck();
+    if(retryErrorWithCheckRes is string) {
+        assertEquality("start attempt 1:error, attempt 2:error, attempt 3:error, attempt 4:error,-> error handled",
+        retryErrorWithCheckRes);
+    } else {
+         panic error("Expected a  string");
+    }
+
     string|error testNestedRetryWithLessOnFailsRes = testNestedRetryWithLessOnFails();
      if(testNestedRetryWithLessOnFailsRes is string) {
          assertEquality("start -> within retry block 1 -> within retry block 2 -> within retry block 2 " +
@@ -45,7 +54,7 @@ function testRetryStatement() {
     "-> Error caught: custom error -> Execution continues...", appendOnFailErrorResult);
 }
 
-function retryError() returns string|error {
+function retryErrorWithFail() returns string|error {
     string str = "start";
     int count = 0;
     retry<MyRetryManager> (3) {
@@ -58,6 +67,23 @@ function retryError() returns string|error {
         return str;
     } on fail error e {
         str += "-> error handled";
+    }
+}
+
+function retryErrorWithCheck() returns string|error {
+    string str = "start";
+    int count = 0;
+    retry<MyRetryManager> (3) {
+        count = count+1;
+        if (count < 5) {
+            str += (" attempt " + count.toString() + ":error,");
+            string ignoreString = check trxErrorOrString();
+        }
+        str += (" attempt "+ count.toString() + ":result returned end.");
+        return str;
+    } on fail error e {
+        str += "-> error handled";
+        return str;
     }
 }
 
@@ -121,6 +147,13 @@ function testAppendOnFailError () returns string {
 
 function trxError()  returns error {
     return error("TransactionError");
+}
+
+function trxErrorOrString()  returns string|error {
+    if(true) {
+        return error("TransactionError");
+    }
+    return "Custom String";
 }
 
 type AssertionError error;
