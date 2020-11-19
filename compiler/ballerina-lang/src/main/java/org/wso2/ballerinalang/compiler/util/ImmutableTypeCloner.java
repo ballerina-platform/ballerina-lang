@@ -114,8 +114,8 @@ public class ImmutableTypeCloner {
     }
 
     public static void markFieldsAsImmutable(BLangClassDefinition classDef, SymbolEnv pkgEnv, BObjectType objectType,
-                                      Types types, BLangAnonymousModelHelper anonymousModelHelper,
-                                      SymbolTable symbolTable, Names names, Location pos) {
+                                             Types types, BLangAnonymousModelHelper anonymousModelHelper,
+                                             SymbolTable symbolTable, Names names, Location pos) {
         SymbolEnv typeDefEnv = SymbolEnv.createClassEnv(classDef, objectType.tsymbol.scope, pkgEnv);
 
         Iterator<BField> objectTypeFieldIterator = objectType.fields.values().iterator();
