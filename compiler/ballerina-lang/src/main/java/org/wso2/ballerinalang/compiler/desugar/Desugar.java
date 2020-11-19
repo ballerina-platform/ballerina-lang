@@ -2591,70 +2591,21 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVarRef shouldRetryRef = ASTBuilderUtil.createVariableRef(pos, shouldRetryVarSymbol);
             retryBlockStmt.stmts.add(shouldRetryDef);
 
-            // boolean $forceJump$ = false;
-            BVarSymbol forceJumpVarSymbol = new BVarSymbol(0, names.fromString("$forceJump$"),
-                    env.scope.owner.pkgID, symTable.booleanType, this.env.scope.owner, pos, VIRTUAL);
-            forceJumpVarSymbol.closure = true;
-            BLangSimpleVariable forceJumpVariable = ASTBuilderUtil.createVariable(pos, "$forceJump$",
-                    symTable.booleanType, falseLiteral, forceJumpVarSymbol);
-            retryBlockStmt.scope.define(forceJumpVarSymbol.name, forceJumpVarSymbol);
-            BLangSimpleVariableDef forceJumpDef = ASTBuilderUtil.createVariableDef(pos, forceJumpVariable);
-            BLangSimpleVarRef forceJumpRef = ASTBuilderUtil.createVariableRef(pos, forceJumpVarSymbol);
-            retryBlockStmt.stmts.add(forceJumpDef);
-
-            // boolean $returnErrorResult$ = false;
-            BVarSymbol returnResultSymbol = new BVarSymbol(0, names.fromString("$returnErrorResult$"),
-                    env.scope.owner.pkgID, symTable.booleanType, this.env.scope.owner, pos, VIRTUAL);
-            returnResultSymbol.closure = true;
-            BLangSimpleVariable returnResultVariable = ASTBuilderUtil.createVariable(pos, "$returnErrorResult$",
-                    symTable.booleanType, falseLiteral, returnResultSymbol);
-            retryBlockStmt.scope.define(returnResultSymbol.name, returnResultSymbol);
-            BLangSimpleVariableDef returnResultDef = ASTBuilderUtil.createVariableDef(pos, returnResultVariable);
-            BLangSimpleVarRef returnResultRef = ASTBuilderUtil.createVariableRef(pos, returnResultSymbol);
-            retryBlockStmt.stmts.add(returnResultDef);
-
-            // boolean continueLoop = false;
-            BVarSymbol continueLoopVarSymbol = new BVarSymbol(0, names.fromString("$continueLoop$"),
-                    env.scope.owner.pkgID, symTable.booleanType, this.env.scope.owner, pos, VIRTUAL);
-            continueLoopVarSymbol.closure = true;
-            BLangSimpleVariable continueLoopVariable = ASTBuilderUtil.createVariable(pos, "$continueLoop$",
-                    symTable.booleanType, falseLiteral, continueLoopVarSymbol);
-            retryBlockStmt.scope.define(continueLoopVarSymbol.name, continueLoopVarSymbol);
-            BLangSimpleVariableDef continueLoopDef = ASTBuilderUtil.createVariableDef(pos, continueLoopVariable);
-            BLangSimpleVarRef continueLoopRef = ASTBuilderUtil.createVariableRef(pos, continueLoopVarSymbol);
-            retryBlockStmt.stmts.add(continueLoopDef);
-
-            // on fail error $caughtError$ {
-            //    $retryResult$ = $caughtError$;
-            //    $shouldRetry$ = $retryManager$.shouldRetry();
-            //    if (!$shouldRetry$ || $forceJump$) {
-            //           fail $retryResult$;
-            //    }
-            //    $continueLoop$ = true;
-            //    continue;
-            // }
-            BLangOnFailClause internalOnFail = createInternalOnFail(pos, retryResultRef,
-                    retryManagerRef, shouldRetryRef, forceJumpRef, continueLoopRef, returnResultRef);
-            enclosingForceJump.put(internalOnFail, forceJumpRef);
-//            continueLoopList.put(internalOnFail, continueLoopRef);
-            BLangDo retryDo = wrapStatementWithinDo(pos, retryNode.retryBody, internalOnFail);
-
             //while ((retryRes == ()) || (retryRes is error && shouldRetryRes)) {
             // }
-            BLangWhile whileLoop = createRetryWhileLoop(pos, retryDo, retryResultRef,
-                    shouldRetryRef, continueLoopRef, returnResultRef);
+            BLangWhile whileLoop = createRetryWhileLoop(pos, retryNode.retryBody, retryManagerRef, retryResultRef,
+                    shouldRetryRef);
             retryBlockStmt.stmts.add(whileLoop);
 
             //at this point:
             // RetryManagerType> $retryManager$ = new();
             // error? $retryResult$ = ();
             // boolean $shouldRetry$ = false;
-            // boolean $forceJump$ = false;
-            // boolean $returnErrorResult$ = false;
             // while($retryResult$ == () || ($retryResult$ is error && $shouldRetry$)) {
+            //      boolean $forceJump$ = false;
+            //      boolean $returnErrorResult$ = false;
+            //      boolean $continueLoop$ = false;
             //      $shouldRetry$ = false;
-            //      $returnErrorResult$ = false;
-            //      $continueLoop$ = false;
             //
             //      do {
             //          <"Content in retry block goes here">
@@ -2694,61 +2645,102 @@ public class Desugar extends BLangNodeVisitor {
         swapAndResetEnclosingOnFail(currentOnFailClause, currentOnFailCallDef);
     }
 
-    protected BLangWhile createRetryWhileLoop(DiagnosticPos retryBlockPos,
-                                              BLangStatement retryBody,
+    protected BLangWhile createRetryWhileLoop(DiagnosticPos pos,
+                                              BLangBlockStmt retryBody,
+                                              BLangSimpleVarRef retryManagerRef,
                                               BLangSimpleVarRef retryResultRef,
-                                              BLangSimpleVarRef shouldRetryRef,
-                                              BLangSimpleVarRef continueLoopref,
-                                              BLangSimpleVarRef returnResultRef) {
+                                              BLangSimpleVarRef shouldRetryRef) {
         BLangWhile whileNode = (BLangWhile) TreeBuilder.createWhileNode();
-        whileNode.pos = retryBlockPos;
+        whileNode.pos = pos;
+        BLangBlockStmt whileBody = createBlockStmt(pos);
+        whileBody.scope = new Scope(env.scope.owner);
 
-        BLangTypeTestExpr isErrorCheck = createTypeCheckExpr(retryBlockPos, retryResultRef,
+        BLangLiteral falseLiteral =  createLiteral(pos, symTable.booleanType, false);
+
+        // boolean $forceJump$ = false;
+        BVarSymbol forceJumpVarSymbol = new BVarSymbol(0, names.fromString("$forceJump$"),
+                env.scope.owner.pkgID, symTable.booleanType, this.env.scope.owner, pos, VIRTUAL);
+        forceJumpVarSymbol.closure = true;
+        BLangSimpleVariable forceJumpVariable = createVariable(pos, "$forceJump$",
+                symTable.booleanType, falseLiteral, forceJumpVarSymbol);
+        whileBody.scope.define(forceJumpVarSymbol.name, forceJumpVarSymbol);
+        BLangSimpleVariableDef forceJumpDef = ASTBuilderUtil.createVariableDef(pos, forceJumpVariable);
+        BLangSimpleVarRef forceJumpRef = createVariableRef(pos, forceJumpVarSymbol);
+        whileBody.stmts.add(forceJumpDef);
+
+        // boolean $returnErrorResult$ = false;
+        BVarSymbol returnResultSymbol = new BVarSymbol(0, names.fromString("$returnErrorResult$"),
+                env.scope.owner.pkgID, symTable.booleanType, this.env.scope.owner, pos, VIRTUAL);
+        returnResultSymbol.closure = true;
+        BLangSimpleVariable returnResultVariable = createVariable(pos, "$returnErrorResult$",
+                symTable.booleanType, falseLiteral, returnResultSymbol);
+        whileBody.scope.define(returnResultSymbol.name, returnResultSymbol);
+        BLangSimpleVariableDef returnResultDef = ASTBuilderUtil.createVariableDef(pos, returnResultVariable);
+        BLangSimpleVarRef returnResultRef = createVariableRef(pos, returnResultSymbol);
+        whileBody.stmts.add(returnResultDef);
+
+        // boolean continueLoop = false;
+        BVarSymbol continueLoopVarSymbol = new BVarSymbol(0, names.fromString("$continueLoop$"),
+                env.scope.owner.pkgID, symTable.booleanType, this.env.scope.owner, pos, VIRTUAL);
+        continueLoopVarSymbol.closure = true;
+        BLangSimpleVariable continueLoopVariable = createVariable(pos, "$continueLoop$",
+                symTable.booleanType, falseLiteral, continueLoopVarSymbol);
+        whileBody.scope.define(continueLoopVarSymbol.name, continueLoopVarSymbol);
+        BLangSimpleVariableDef continueLoopDef = ASTBuilderUtil.createVariableDef(pos, continueLoopVariable);
+        BLangSimpleVarRef continueLoopRef = createVariableRef(pos, continueLoopVarSymbol);
+        whileBody.stmts.add(continueLoopDef);
+
+        // on fail error $caughtError$ {
+        //    $retryResult$ = $caughtError$;
+        //    $shouldRetry$ = $retryManager$.shouldRetry();
+        //    if (!$shouldRetry$ || $forceJump$) {
+        //           fail $retryResult$;
+        //    }
+        //    $continueLoop$ = true;
+        //    continue;
+        // }
+        BLangOnFailClause internalOnFail = createInternalOnFail(pos, retryResultRef,
+                retryManagerRef, shouldRetryRef, forceJumpRef, continueLoopRef, returnResultRef);
+        enclosingForceJump.put(internalOnFail, forceJumpRef);
+//            continueLoopList.put(internalOnFail, continueLoopRef);
+
+        BLangDo retryDo = wrapStatementWithinDo(pos, retryBody, internalOnFail);
+
+        BLangTypeTestExpr isErrorCheck = createTypeCheckExpr(pos, retryResultRef,
                 getErrorTypeNode());
-        BLangBinaryExpr shouldRetryCheck = ASTBuilderUtil.createBinaryExpr(retryBlockPos, isErrorCheck, shouldRetryRef,
+        BLangBinaryExpr shouldRetryCheck = ASTBuilderUtil.createBinaryExpr(pos, isErrorCheck, shouldRetryRef,
                 symTable.booleanType, OperatorKind.AND, null);
         BLangGroupExpr rhsCheck =  new BLangGroupExpr();
         rhsCheck.type = symTable.booleanType;
         rhsCheck.expression = shouldRetryCheck;
 
-        BLangLiteral nillLiteral = ASTBuilderUtil.createLiteral(retryBlockPos, symTable.nilType, null);
-        BLangBinaryExpr equalToNullCheck = ASTBuilderUtil.createBinaryExpr(retryBlockPos, retryResultRef, nillLiteral,
+        BLangLiteral nillLiteral = createLiteral(pos, symTable.nilType, null);
+        BLangBinaryExpr equalToNullCheck = ASTBuilderUtil.createBinaryExpr(pos, retryResultRef, nillLiteral,
                 symTable.booleanType, OperatorKind.EQUAL, null);
         BLangGroupExpr lhsCheck =  new BLangGroupExpr();
         lhsCheck.type = symTable.booleanType;
         lhsCheck.expression = equalToNullCheck;
 
         // while($retryResult$ == () ||($retryResult$ is error && $shouldRetry$))
-        whileNode.expr = ASTBuilderUtil.createBinaryExpr(retryBlockPos, lhsCheck, rhsCheck,
+        whileNode.expr = ASTBuilderUtil.createBinaryExpr(pos, lhsCheck, rhsCheck,
                 symTable.booleanType, OperatorKind.OR, null);
-        BLangBlockStmt whileBody = ASTBuilderUtil.createBlockStmt(retryBlockPos);
 
         //$shouldRetry$ = false;
-        BLangAssignment shouldRetryFalse = ASTBuilderUtil.createAssignmentStmt(retryBlockPos, shouldRetryRef,
-                ASTBuilderUtil.createLiteral(retryBlockPos, symTable.booleanType, false));
+        BLangAssignment shouldRetryFalse = ASTBuilderUtil.createAssignmentStmt(pos, shouldRetryRef,
+                createLiteral(pos, symTable.booleanType, false));
         whileBody.stmts.add(shouldRetryFalse);
 
-        //$returnErrorResult$ = false;
-        BLangAssignment returnResultFalse = ASTBuilderUtil.createAssignmentStmt(retryBlockPos, returnResultRef,
-                ASTBuilderUtil.createLiteral(retryBlockPos, symTable.booleanType, false));
-        whileBody.stmts.add(returnResultFalse);
+        whileBody.stmts.add(retryDo);
 
-        //$continueLoop$ = false;
-        BLangAssignment continueFalse = ASTBuilderUtil.createAssignmentStmt(retryBlockPos, continueLoopref,
-                ASTBuilderUtil.createLiteral(retryBlockPos, symTable.booleanType, false));
-        whileBody.stmts.add(continueFalse);
-
-        whileBody.stmts.add(retryBody);
-
-        BLangBlockStmt returnBlock = ASTBuilderUtil.createBlockStmt(retryBlockPos);
-        BLangReturn errorReturn = ASTBuilderUtil.createReturnStmt(retryBlockPos, rewrite(retryResultRef, env));
+        BLangBlockStmt returnBlock = createBlockStmt(pos);
+        BLangReturn errorReturn = ASTBuilderUtil.createReturnStmt(pos, rewrite(retryResultRef, env));
         errorReturn.desugared = true;
         returnBlock.stmts.add(errorReturn);
 
         // if($returnErrorResult$) {
         //      return $retryResult$;
         // }
-        BLangIf exitIf = ASTBuilderUtil.createIfElseStmt(retryBlockPos, returnResultRef, returnBlock, null);
+        BLangIf exitIf = ASTBuilderUtil.createIfElseStmt(pos, returnResultRef, returnBlock, null);
         whileBody.stmts.add(exitIf);
 
         //if(shouldContinue) {
@@ -2756,17 +2748,17 @@ public class Desugar extends BLangNodeVisitor {
         // } else {
         //     break;
         // }
-        BLangBlockStmt shouldContinueBlock = ASTBuilderUtil.createBlockStmt(retryBlockPos);
+        BLangBlockStmt shouldContinueBlock = createBlockStmt(pos);
         BLangContinue loopContinueStmt = (BLangContinue) TreeBuilder.createContinueNode();
-        loopContinueStmt.pos = retryBlockPos;
+        loopContinueStmt.pos = pos;
         shouldContinueBlock.stmts.add(loopContinueStmt);
 
-        BLangBlockStmt elseBlock = ASTBuilderUtil.createBlockStmt(retryBlockPos);
+        BLangBlockStmt elseBlock = createBlockStmt(pos);
         BLangBreak breakStmt = (BLangBreak) TreeBuilder.createBreakNode();
-        breakStmt.pos = retryBlockPos;
+        breakStmt.pos = pos;
         elseBlock.stmts.add(breakStmt);
 
-        BLangIf shouldContinue = ASTBuilderUtil.createIfElseStmt(retryBlockPos, continueLoopref,
+        BLangIf shouldContinue = ASTBuilderUtil.createIfElseStmt(pos, continueLoopRef,
                 shouldContinueBlock, elseBlock);
         whileBody.stmts.add(shouldContinue);
         whileNode.body = whileBody;
@@ -2824,8 +2816,6 @@ public class Desugar extends BLangNodeVisitor {
         BVarSymbol retryMangerSymbol = new BVarSymbol(0, names.fromString("$retryManager$"),
                                                       env.scope.owner.pkgID, retryManagerType, this.env.scope.owner,
                                                       pos, VIRTUAL);
-//        retryMangerSymbol.closure = true;
-//        env.scope.define(retryMangerSymbol.name, retryMangerSymbol);
         BLangTypeInit managerInit = ASTBuilderUtil.createEmptyTypeInit(pos, retryManagerType);
         managerInit.initInvocation.requiredArgs = retrySpec.argExprs;
         BLangSimpleVariable retryManagerVariable = ASTBuilderUtil.createVariable(pos, "$retryManager$",
