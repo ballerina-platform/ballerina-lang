@@ -22,10 +22,12 @@ import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -42,9 +44,9 @@ import java.util.StringJoiner;
 public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements ObjectTypeSymbol {
 
     private List<TypeQualifier> typeQualifiers;
-    // private TypeDescriptor objectTypeReference;
     private List<FieldSymbol> objectFields;
     private List<MethodSymbol> methods;
+    private List<TypeSymbol> typeInclusions;
 
     public BallerinaObjectTypeSymbol(CompilerContext context, ModuleID moduleID, BObjectType objectType) {
         super(context, TypeDescKind.OBJECT, moduleID, objectType);
@@ -100,6 +102,29 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         }
 
         return this.methods;
+    }
+
+    @Override
+    public List<TypeSymbol> typeInclusions() {
+        if (this.typeInclusions == null) {
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            List<BType> inclusions = ((BObjectType) this.getBType()).typeInclusions;
+
+            List<TypeSymbol> typeRefs = new ArrayList<>();
+            for (BType inclusion : inclusions) {
+                TypeSymbol type = typesFactory.getTypeDescriptor(inclusion);
+
+                // If the inclusion was not a type ref, the type would be semantic error and the type factory will
+                // return null. Therefore, skipping them.
+                if (type != null) {
+                    typeRefs.add(type);
+                }
+            }
+
+            this.typeInclusions = Collections.unmodifiableList(typeRefs);
+        }
+
+        return this.typeInclusions;
     }
 
     @Override
