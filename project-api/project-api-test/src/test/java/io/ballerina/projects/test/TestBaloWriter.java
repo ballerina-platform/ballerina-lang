@@ -24,10 +24,14 @@ import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.internal.balo.DependencyGraphJson;
+import io.ballerina.projects.internal.balo.ModuleDependency;
 import io.ballerina.projects.internal.balo.PackageJson;
 import io.ballerina.projects.model.BaloJson;
+import io.ballerina.projects.model.Dependency;
 import io.ballerina.projects.model.Target;
 import io.ballerina.projects.util.ProjectUtils;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -40,7 +44,11 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -57,6 +65,13 @@ public class TestBaloWriter {
     @BeforeMethod
     public void setUp() throws IOException {
         Files.createDirectory(Paths.get(String.valueOf(BALO_PATH)));
+
+        // Here package_a depends on package_b
+        // and package_b depends on package_c
+        // Therefore package_c is transitive dependency of package_a
+        BCompileUtil.compileAndCacheBalo("projects_for_resolution_tests/package_c");
+        BCompileUtil.compileAndCacheBalo("projects_for_resolution_tests/package_b");
+        BCompileUtil.compileAndCacheBalo("projects_for_resolution_tests/package_e");
     }
 
     @Test
@@ -163,6 +178,29 @@ public class TestBaloWriter {
         Path platformDependancy = BALO_PATH.resolve("platform").resolve("java11")
                 .resolve("ballerina-io-1.0.0-java.txt");
         Assert.assertTrue(platformDependancy.toFile().exists());
+
+        // dependencies.json
+        Path dependenciesJsonPath = BALO_PATH.resolve(DEPENDENCY_GRAPH_JSON);
+        Assert.assertTrue(dependenciesJsonPath.toFile().exists());
+
+        try (FileReader reader = new FileReader(String.valueOf(dependenciesJsonPath))) {
+            DependencyGraphJson dependencyGraphJson = gson.fromJson(reader, DependencyGraphJson.class);
+
+            Dependency dependency = dependencyGraphJson.getPackageDependencyGraph().get(0);
+            Assert.assertEquals(dependency.getOrg(), "foo");
+            Assert.assertEquals(dependency.getName(), "winery");
+            Assert.assertEquals(dependency.getVersion(), "0.1.0");
+
+            List<ModuleDependency> moduleDependencyGraph = dependencyGraphJson.getModuleDependencyGraph();
+            Assert.assertEquals(moduleDependencyGraph.size(), 3);
+
+            List<String> moduleNames = new ArrayList<>(Arrays.asList("winery", "winery.services", "winery.storage"));
+            for (ModuleDependency moduleDependency : moduleDependencyGraph) {
+                if (!moduleNames.contains(moduleDependency.getName())) {
+                    Assert.fail("invalid module:" + moduleDependency.getName());
+                }
+            }
+        }
     }
 
     @Test
@@ -222,9 +260,85 @@ public class TestBaloWriter {
         Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("main.bal")).toFile().exists());
     }
 
+    @Test
+    public void testBaloWriterWithTwoDirectDependencies() throws IOException {
+        Gson gson = new Gson();
+        // package_d --> package_b --> package_c
+        // package_d --> package_e
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_resolution_tests").resolve("package_d");
+        BuildProject project = BuildProject.load(projectDirPath);
+
+        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        Target target = new Target(project.sourceRoot());
+        String baloName = ProjectUtils.getBaloName(project.currentPackage().packageOrg().toString(),
+                project.currentPackage().packageName().toString(), project.currentPackage().packageVersion().toString(),
+                null);
+        Path baloPath = target.getBaloPath().resolve(baloName);
+        // balo name
+        Assert.assertEquals(baloName, "samjs-package_d-any-0.1.0.balo");
+        // invoke write balo method
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath);
+
+        // unzip balo
+        TestUtils.unzip(String.valueOf(baloPath), String.valueOf(BALO_PATH));
+
+        // balo.json
+        Path baloJsonPath = BALO_PATH.resolve("balo.json");
+        Assert.assertTrue(baloJsonPath.toFile().exists());
+
+        try (FileReader reader = new FileReader(String.valueOf(baloJsonPath))) {
+            BaloJson baloJson = gson.fromJson(reader, BaloJson.class);
+            Assert.assertEquals(baloJson.getBalo_version(), "2.0.0");
+            Assert.assertEquals(baloJson.getBuilt_by(), "WSO2");
+        }
+
+        // package.json
+        Path packageJsonPath = BALO_PATH.resolve("package.json");
+        Assert.assertTrue(packageJsonPath.toFile().exists());
+
+        try (FileReader reader = new FileReader(String.valueOf(packageJsonPath))) {
+            PackageJson packageJson = gson.fromJson(reader, PackageJson.class);
+            Assert.assertEquals(packageJson.getOrganization(), "samjs");
+            Assert.assertEquals(packageJson.getName(), "package_d");
+            Assert.assertEquals(packageJson.getVersion(), "0.1.0");
+            Assert.assertEquals(packageJson.getPlatform(), "java11");
+        }
+
+        // module sources
+        // default module
+        Path defaultModuleSrcPath = BALO_PATH.resolve("modules").resolve("package_d");
+        Assert.assertTrue(defaultModuleSrcPath.toFile().exists());
+        Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("main.bal")).toFile().exists());
+
+        // dependencies.json
+        Path dependencyGraphJsonPath = BALO_PATH.resolve(DEPENDENCY_GRAPH_JSON);
+        Assert.assertTrue(dependencyGraphJsonPath.toFile().exists());
+
+        try (FileReader reader = new FileReader(String.valueOf(dependencyGraphJsonPath))) {
+            DependencyGraphJson dependencyGraphJson = gson.fromJson(reader, DependencyGraphJson.class);
+
+            List<Dependency> packageDependencyGraph = dependencyGraphJson.getPackageDependencyGraph();
+            Assert.assertEquals(packageDependencyGraph.size(), 3);
+            for (Dependency dependency : packageDependencyGraph) {
+                if (dependency.getName().equals("package_d")) {
+                    Assert.assertEquals(dependency.getDependencies().size(), 2);
+                    for (Dependency dep : dependency.getDependencies()) {
+                        if (!(dep.getName().equals("package_b") || dep.getName().equals("package_e"))) {
+                            Assert.fail("invalid dependency:" + dep.getName());
+                        }
+                    }
+                }
+            }
+
+            List<ModuleDependency> moduleDependencyGraph = dependencyGraphJson.getModuleDependencyGraph();
+            Assert.assertEquals(moduleDependencyGraph.get(0).getName(), "package_d");
+        }
+    }
+
     @Test(enabled = false, expectedExceptions = AccessDeniedException.class,
             expectedExceptionsMessageRegExp = "No write access to create balo:.*")
-    public void testBaloWriterAccessDenied() throws AccessDeniedException {
+    public void testBaloWriterAccessDenied() {
 
         Path baloPath = mock(Path.class);
         File file = mock(File.class);

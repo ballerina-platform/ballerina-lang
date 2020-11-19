@@ -16,44 +16,32 @@
  *  under the License.
  */
 
-package io.ballerina.projects.model;
+package io.ballerina.projects.internal.balo;
 
 import java.util.List;
 
 /**
- * {@code Dependency} Model for Dependency.
+ * {@code Dependency} Model for Module Dependency.
  *
  * @since 2.0.0
  */
-public class Dependency {
-    String org;
-    String name;
-    String version;
-    List<Dependency> dependencies;
+public class ModuleDependency {
+    private String name;
+    private List<ModuleDependency> dependencies;
 
-    public Dependency(String org, String name, String version) {
-        this.org = org;
+    public ModuleDependency(String name) {
         this.name = name;
-        this.version = version;
-    }
-
-    public String getOrg() {
-        return org;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getVersion() {
-        return version;
-    }
-
-    public List<Dependency> getDependencies() {
+    public List<ModuleDependency> getDependencies() {
         return dependencies;
     }
 
-    public void setDependencies(List<Dependency> dependencies) {
+    public void setDependencies(List<ModuleDependency> dependencies) {
         this.dependencies = dependencies;
     }
 }

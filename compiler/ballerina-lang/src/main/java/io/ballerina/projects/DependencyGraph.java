@@ -97,6 +97,10 @@ public class DependencyGraph<T> {
         return topologicallySortedNodes;
     }
 
+    public Map<T, Set<T>> dependencies() {
+        return dependencies;
+    }
+
     public boolean isEmpty() {
         return this == EMPTY_GRAPH;
     }

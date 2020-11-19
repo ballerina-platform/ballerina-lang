@@ -18,6 +18,7 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.projects.BallerinaToml;
+import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.ModuleConfig;
@@ -70,9 +71,12 @@ public class PackageConfigCreator {
     public static PackageConfig createBalrProjectConfig(Path balrPath) {
         ProjectFiles.validateBalrProjectPath(balrPath);
         PackageManifest packageManifest = BaloFiles.createPackageManifest(balrPath);
-
         PackageData packageData = BaloFiles.loadPackageData(balrPath, packageManifest);
-        return createPackageConfig(packageData, packageManifest);
+        BaloFiles.DependencyGraphResult packageDependencyGraph = BaloFiles
+                .createPackageDependencyGraph(balrPath, packageManifest.name().value());
+
+        return createPackageConfig(packageData, packageManifest, null,
+                packageDependencyGraph.getPackageDependencyGraph(), packageDependencyGraph.getModuleDependencyGraph());
     }
 
     public static PackageConfig createPackageConfig(PackageData packageData, PackageManifest packageManifest) {
@@ -82,6 +86,15 @@ public class PackageConfigCreator {
     public static PackageConfig createPackageConfig(PackageData packageData,
                                                     PackageManifest packageManifest,
                                                     BallerinaToml ballerinaToml) {
+        return createPackageConfig(packageData, packageManifest, ballerinaToml, DependencyGraph.emptyGraph(),
+                DependencyGraph.emptyGraph());
+    }
+
+    public static PackageConfig createPackageConfig(PackageData packageData,
+            PackageManifest packageManifest,
+            BallerinaToml ballerinaToml,
+            DependencyGraph<PackageDescriptor> packageDependencyGraph,
+            DependencyGraph<ModuleId> moduleDependencyGraph) {
         // TODO PackageData should contain the packageName. This should come from the Ballerina.toml file.
         // TODO For now, I take the directory name as the project name. I am not handling the case where the
         //  directory name is not a valid Ballerina identifier.
@@ -98,7 +111,7 @@ public class PackageConfigCreator {
         moduleConfigs.add(createDefaultModuleConfig(packageManifest.descriptor(),
                 packageData.defaultModule(), packageId));
         return PackageConfig.from(packageId, packageData.packagePath(),
-                packageManifest, ballerinaToml, moduleConfigs);
+                packageManifest, ballerinaToml, moduleConfigs, packageDependencyGraph, moduleDependencyGraph);
     }
 
     private static ModuleConfig createDefaultModuleConfig(PackageDescriptor pkgDesc,

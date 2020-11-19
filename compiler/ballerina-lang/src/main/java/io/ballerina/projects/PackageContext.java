@@ -59,7 +59,8 @@ class PackageContext {
                    PackageManifest packageManifest,
                    BallerinaToml ballerinaToml,
                    Map<ModuleId, ModuleContext> moduleContextMap,
-                   DependencyGraph<PackageDescriptor> pkgDescDependencyGraph) {
+                   DependencyGraph<PackageDescriptor> pkgDescDependencyGraph,
+                   DependencyGraph<ModuleId> moduleDependencyGraph) {
         this.project = project;
         this.packageId = packageId;
         this.packageManifest = packageManifest;
@@ -69,7 +70,7 @@ class PackageContext {
         // TODO Try to reuse previous unaffected compilations
         this.moduleCompilationMap = new HashMap<>();
         this.packageDependencies = Collections.emptySet();
-        this.moduleDependencyGraph = DependencyGraph.emptyGraph();
+        this.moduleDependencyGraph = moduleDependencyGraph;
         this.pkgDescDependencyGraph = pkgDescDependencyGraph;
     }
 
@@ -80,7 +81,8 @@ class PackageContext {
         }
 
         return new PackageContext(project, packageConfig.packageId(), packageConfig.packageManifest(),
-                packageConfig.ballerinaToml(), moduleContextMap, packageConfig.dependencyGraph());
+                packageConfig.ballerinaToml(), moduleContextMap, packageConfig.packageDescDependencyGraph(),
+                packageConfig.moduleDependencyGraph());
     }
 
     PackageId packageId() {
