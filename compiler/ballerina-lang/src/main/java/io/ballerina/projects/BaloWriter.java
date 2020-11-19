@@ -21,13 +21,14 @@ package io.ballerina.projects;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.internal.balo.BaloJson;
-import io.ballerina.projects.internal.balo.DependenciesJson;
+import io.ballerina.projects.internal.balo.DependencyGraphJson;
 import io.ballerina.projects.internal.balo.PackageJson;
 import io.ballerina.projects.internal.balo.adaptors.JsonCollectionsAdaptor;
 import io.ballerina.projects.internal.balo.adaptors.JsonStringsAdaptor;
 import io.ballerina.projects.model.Dependency;
+import io.ballerina.projects.internal.balo.ModuleDependency;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 
@@ -52,7 +53,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static io.ballerina.projects.util.ProjectConstants.BALO_JSON;
-import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_JSON;
+import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
 
 /**
@@ -256,43 +257,75 @@ public abstract class BaloWriter {
     }
 
     private void addDependenciesJson(ZipOutputStream baloOutputStream, Package pkg) {
-        DependenciesJson dependenciesJson = createDependenciesJson(pkg.getCompilation().packageDependencyGraph(),
-                pkg.packageContext().project().projectEnvironmentContext().getService(PackageResolver.class));
+        List<Dependency> packageDependencyGraph = getPackageDependencies(pkg.getCompilation().packageDependencyGraph(),
+                pkg.packageContext().project().projectEnvironmentContext().getService(PackageCache.class));
+        List<ModuleDependency> moduleDependencyGraph = getModuleDependencies(pkg.moduleDependencyGraph());
+        DependencyGraphJson depGraphJson = new DependencyGraphJson(packageDependencyGraph, moduleDependencyGraph);
+
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         try {
-            putZipEntry(baloOutputStream, Paths.get(DEPENDENCIES_JSON),
-                    new ByteArrayInputStream(gson.toJson(dependenciesJson).getBytes(Charset.defaultCharset())));
+            putZipEntry(baloOutputStream, Paths.get(DEPENDENCY_GRAPH_JSON),
+                    new ByteArrayInputStream(gson.toJson(depGraphJson).getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
-            throw new RuntimeException("Failed to write '" + DEPENDENCIES_JSON + "' file: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to write '" + DEPENDENCY_GRAPH_JSON + "' file: " + e.getMessage(), e);
         }
     }
 
-    private DependenciesJson createDependenciesJson(DependencyGraph<PackageId> packageIdDependencyGraph,
-            PackageResolver packageResolver) {
+    private List<Dependency> getPackageDependencies(DependencyGraph<PackageId> packageIdDependencyGraph,
+            PackageCache packageCache) {
         Map<PackageId, Set<PackageId>> graphDependencies = packageIdDependencyGraph.dependencies();
         List<Dependency> dependencies = new ArrayList<>();
 
         for (Map.Entry<PackageId, Set<PackageId>> dependenciesMap : graphDependencies.entrySet()) {
             PackageId packageId = dependenciesMap.getKey();
-            PackageContext packageContext = packageResolver.getPackage(packageId).packageContext();
-            Dependency dependency = new Dependency(packageContext.packageOrg().toString(),
-                    packageContext.packageName().toString(),
-                    packageContext.packageVersion().toString());
+            Optional<Package> aPackage = packageCache.getPackage(packageId);
 
-            List<Dependency> dependencyList = new ArrayList<>();
-            Set<PackageId> dependencyIds = dependenciesMap.getValue();
-            for (PackageId dependencyPkgId : dependencyIds) {
-                PackageContext dependencyPkgContext = packageResolver.getPackage(dependencyPkgId).packageContext();
-                Dependency dep = new Dependency(dependencyPkgContext.packageOrg().toString(),
-                        dependencyPkgContext.packageName().toString(),
-                        dependencyPkgContext.packageVersion().toString());
-                dependencyList.add(dep);
+            if (aPackage.isPresent()) {
+                PackageContext packageContext = aPackage.get().packageContext();
+                Dependency dependency = new Dependency(packageContext.packageOrg().toString(),
+                        packageContext.packageName().toString(), packageContext.packageVersion().toString());
+
+                List<Dependency> dependencyList = new ArrayList<>();
+                Set<PackageId> dependencyIds = dependenciesMap.getValue();
+                for (PackageId dependencyPkgId : dependencyIds) {
+                    Optional<Package> dependencyPkg = packageCache.getPackage(dependencyPkgId);
+
+                    if (dependencyPkg.isPresent()) {
+                        PackageContext dependencyPkgContext = dependencyPkg.get().packageContext();
+                        Dependency dep = new Dependency(dependencyPkgContext.packageOrg().toString(),
+                                dependencyPkgContext.packageName().toString(),
+                                dependencyPkgContext.packageVersion().toString());
+                        dependencyList.add(dep);
+                    } else {
+                        throw new RuntimeException("Cannot resolve package from package cache:" + packageId.toString());
+                    }
+                }
+                dependency.setDependencies(dependencyList);
+                dependencies.add(dependency);
+            } else {
+                throw new RuntimeException("Cannot resolve package from package cache:" + packageId.toString());
             }
-            dependency.setDependencies(dependencyList);
-            dependencies.add(dependency);
         }
-        return new DependenciesJson(dependencies);
+        return dependencies;
+    }
+
+    private List<ModuleDependency> getModuleDependencies(DependencyGraph<ModuleId> moduleIdDependencyGraph) {
+        Map<ModuleId, Set<ModuleId>> graphDependencies = moduleIdDependencyGraph.dependencies();
+        List<ModuleDependency> moduleDependencies = new ArrayList<>();
+
+        for (Map.Entry<ModuleId, Set<ModuleId>> dependenciesMap : graphDependencies.entrySet()) {
+            ModuleId moduleId = dependenciesMap.getKey();
+            ModuleDependency moduleDependency = new ModuleDependency(moduleId.moduleName());
+
+            List<ModuleDependency> dependencyList = new ArrayList<>();
+            for (ModuleId dependencyModuleId : dependenciesMap.getValue()) {
+                dependencyList.add(new ModuleDependency(dependencyModuleId.moduleName()));
+            }
+            moduleDependency.setDependencies(dependencyList);
+            moduleDependencies.add(moduleDependency);
+        }
+        return moduleDependencies;
     }
 
     protected void putZipEntry(ZipOutputStream baloOutputStream, Path fileName, InputStream in)

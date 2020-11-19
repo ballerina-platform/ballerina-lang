@@ -18,27 +18,30 @@
 
 package io.ballerina.projects.internal.balo;
 
-import io.ballerina.projects.model.Dependency;
-
 import java.util.List;
 
 /**
- * {@code DependenciesJson} Model for Dependencies JSON file.
+ * {@code Dependency} Model for Module Dependency.
  *
  * @since 2.0.0
  */
-public class DependenciesJson {
-    private List<Dependency> dependencies;
+public class ModuleDependency {
+    private String name;
+    private List<ModuleDependency> dependencies;
 
-    public DependenciesJson(List<Dependency> dependencies) {
-        this.dependencies = dependencies;
+    public ModuleDependency(String name) {
+        this.name = name;
     }
 
-    public List<Dependency> getDependencies() {
+    public String getName() {
+        return name;
+    }
+
+    public List<ModuleDependency> getDependencies() {
         return dependencies;
     }
 
-    public void setDependencies(List<Dependency> dependencies) {
+    public void setDependencies(List<ModuleDependency> dependencies) {
         this.dependencies = dependencies;
     }
 }

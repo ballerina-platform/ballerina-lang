@@ -97,7 +97,7 @@ public class DependencyGraph<T> {
         return topologicallySortedNodes;
     }
 
-    Map<T, Set<T>> dependencies() {
+    public Map<T, Set<T>> dependencies() {
         return dependencies;
     }
 

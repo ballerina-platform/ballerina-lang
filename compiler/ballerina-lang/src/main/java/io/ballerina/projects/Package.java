@@ -117,6 +117,10 @@ public class Package {
         return this.packageContext.getPackageCompilation();
     }
 
+    public DependencyGraph<PackageDescriptor> packageDependencyGraph() {
+        return this.packageContext.packageDescriptorDependencyGraph();
+    }
+
     public DependencyGraph<ModuleId> moduleDependencyGraph() {
         // Each Package should know the packages that it depends on and packages that depends on it
         // Each Module should know the modules that it depends on and modules that depends on it
@@ -176,6 +180,7 @@ public class Package {
         private Map<ModuleId, ModuleContext> moduleContextMap;
         private Project project;
         private final DependencyGraph<PackageDescriptor> pkgDescDependencyGraph;
+        private final DependencyGraph<ModuleId> moduleDependencyGraph;
 
         public Modifier(Package oldPackage) {
             this.packageId = oldPackage.packageId();
@@ -184,6 +189,7 @@ public class Package {
             this.moduleContextMap = copyModules(oldPackage);
             this.project = oldPackage.project;
             this.pkgDescDependencyGraph = oldPackage.packageContext().packageDescriptorDependencyGraph();
+            this.moduleDependencyGraph = oldPackage.packageContext().moduleDependencyGraph();
         }
 
         Modifier updateModule(ModuleContext newModuleContext) {
@@ -233,8 +239,8 @@ public class Package {
         }
 
         private Package createNewPackage() {
-            PackageContext newPackageContext = new PackageContext(this.project, this.packageId,
-                    this.packageManifest, this.ballerinaToml, this.moduleContextMap, pkgDescDependencyGraph);
+            PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
+                    this.ballerinaToml, this.moduleContextMap, this.pkgDescDependencyGraph, this.moduleDependencyGraph);
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
             return this.project.currentPackage();
         }
