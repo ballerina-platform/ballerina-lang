@@ -85,6 +85,16 @@ function testInstanceResolve() {
     assertEquals(val, 2);
 }
 
+public function testGetCurrentModule(handle receiver) {
+     string moduleString =  getCurrentModule(receiver, 4);
+     assertEquals(moduleString, "$anon#.#0.0.0#4");
+     // calling overloaded method using self as a parameter.
+     moduleString =  getCurrentModuleAndOverloadParams(receiver, 4);
+     assertEquals(moduleString, "$anon#.#0.0.0#8");
+     moduleString =  getCurrentModuleAndOverloadParamsWithReceiver(receiver, receiver, 4);
+     assertEquals(moduleString, "$anon#.#0.0.0#16");
+}
+
 // Interop functions
 
 public function increaseCounterByOne(handle receiver) = @java:Method{
@@ -178,6 +188,23 @@ public function errorDetail(handle receiver) returns error? = @java:Method{
 
 public function uncheckedErrorDetail(handle receiver) returns int = @java:Method{
     'class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+function getCurrentModule(handle receiver, int a) returns string  = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.InstanceMethods",
+     paramTypes: ["long"]
+} external;
+
+function getCurrentModuleAndOverloadParams(handle receiver, int a) returns string  = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.InstanceMethods",
+     paramTypes: ["long"]
+} external;
+
+function getCurrentModuleAndOverloadParamsWithReceiver(handle receiver, handle receiverParam, int a)
+                                                        returns string  =  @java:Method {
+    name : "getCurrentModuleAndOverloadParams",
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.InstanceMethods",
+    paramTypes: ["org.ballerinalang.nativeimpl.jvm.tests.InstanceMethods", "long"]
 } external;
 
 function hashCode(handle receiver) returns int = @java:Method {

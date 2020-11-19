@@ -3013,21 +3013,30 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (!cIExpr.initInvocation.argExprs.isEmpty()) {
                     BLangExpression iteratorExpr = cIExpr.initInvocation.argExprs.get(0);
                     BType constructType = checkExpr(iteratorExpr, env, symTable.noType);
+                    BUnionType expectedNextReturnType = createNextReturnType(cIExpr.pos, (BStreamType) actualType);
+                    BAttachedFunction closeFunc = types.getAttachedFuncFromObject((BObjectType) constructType,
+                            BLangCompilerConstants.CLOSE_FUNC);
+                    if (closeFunc != null) {
+                        BType closeableIteratorType = symTable.langQueryModuleSymbol.scope
+                                .lookup(Names.ABSTRACT_CLOSEABLE_ITERATOR).symbol.type;
+                        if (!types.isAssignable(constructType, closeableIteratorType)) {
+                            dlog.error(iteratorExpr.pos, DiagnosticCode.INVALID_STREAM_CONSTRUCTOR_CLOSEABLE_ITERATOR,
+                                    expectedNextReturnType, constructType);
+                            resultType = symTable.semanticError;
+                            return;
+                        }
+                    } else {
+                        BType iteratorType = symTable.langQueryModuleSymbol.scope
+                                .lookup(Names.ABSTRACT_ITERATOR).symbol.type;
+                        if (!types.isAssignable(constructType, iteratorType)) {
+                            dlog.error(iteratorExpr.pos, DiagnosticCode.INVALID_STREAM_CONSTRUCTOR_ITERATOR,
+                                    expectedNextReturnType, constructType);
+                            resultType = symTable.semanticError;
+                            return;
+                        }
+                    }
                     BUnionType nextReturnType = types.getVarTypeFromIteratorFuncReturnType(constructType);
-                    BUnionType expectedReturnType = createNextReturnType(cIExpr.pos, (BStreamType) actualType);
-                    if (nextReturnType == null) {
-                        dlog.error(iteratorExpr.pos, DiagnosticCode.MISSING_REQUIRED_METHOD_NEXT,
-                                constructType, expectedReturnType);
-                        resultType = symTable.semanticError;
-                        return;
-                    }
-                    if (types.getErrorType(nextReturnType) == null
-                            && (types.getErrorType(expectedReturnType) != null)) {
-                        dlog.error(iteratorExpr.pos, DiagnosticCode.INVALID_STREAM_CONSTRUCTOR_EXP_TYPE, iteratorExpr);
-                        resultType = symTable.semanticError;
-                        return;
-                    }
-                    types.checkType(iteratorExpr.pos, nextReturnType, expectedReturnType,
+                    types.checkType(iteratorExpr.pos, nextReturnType, expectedNextReturnType,
                             DiagnosticCode.INCOMPATIBLE_TYPES);
                 }
                 resultType = actualType;

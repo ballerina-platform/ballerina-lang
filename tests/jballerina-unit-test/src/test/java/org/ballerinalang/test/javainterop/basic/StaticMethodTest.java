@@ -169,6 +169,6 @@ public class StaticMethodTest {
     public Object[] getFunctionNames() {
         return new String[]{"testBalEnvSlowAsyncVoidSig", "testBalEnvFastAsyncVoidSig", "testBalEnvSlowAsync",
                 "testBalEnvFastAsync", "testReturnNullString", "testReturnNotNullString", "testStaticResolve",
-                "testStringCast"};
+                "testStringCast", "testGetCurrentModule"};
     }
 }
