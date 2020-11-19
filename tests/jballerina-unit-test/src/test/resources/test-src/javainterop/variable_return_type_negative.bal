@@ -127,3 +127,60 @@ function testInvalidFunctionAssignment() {
 }
 
 type customType int|float;
+
+public type OutParameter object {
+    // This is OK, referencing classes/object constructors should have 'external' implementations.
+    public isolated function get(typedesc<anydata> td) returns td|error;
+};
+
+public class OutParameterClass {
+    *OutParameter;
+
+    public isolated function get(typedesc<anydata> td) returns td|error => error("oops!"); // error
+}
+
+var OutParameterObject = object OutParameter {
+    public isolated function get(typedesc<anydata> td) returns td|error => error("oops!"); // error
+};
+
+public class Bar {
+    public function get(typedesc<anydata> td) returns td|error = external;
+}
+
+public class Baz {
+    public function get(typedesc<anydata> td) returns anydata|error = external;
+}
+
+public class Qux {
+    public function get(typedesc<anydata> td) returns td|error = external;
+}
+
+public class Quux {
+    public function get(typedesc<any> td) returns td|error = external;
+}
+
+public class Quuz {
+    public function get(typedesc<int|string> td) returns td|error = external;
+}
+
+class Corge {
+    function get(typedesc<anydata> td, typedesc<anydata> td2) returns td2|error = external;
+}
+
+class Grault {
+    function get(typedesc<anydata> td, typedesc<anydata> td2) returns td|error = external;
+}
+
+public function testSubtypingAgainstConcreteReturnType() {
+    Bar bar = new Baz();
+    Baz baz = new Bar(); // OK
+    Bar bar2 = new Qux(); // OK
+
+    Quux quux = new Qux();
+    Qux qux = new Quux();
+    Baz baz2 = new Quux();
+    Quuz quuz = new Qux();
+
+    Corge corge = new Grault();
+    Grault grault = new Corge();
+}

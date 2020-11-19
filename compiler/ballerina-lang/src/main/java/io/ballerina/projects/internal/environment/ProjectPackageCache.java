@@ -21,8 +21,8 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageId;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.SemanticVersion;
 
 import java.util.List;
 import java.util.Optional;
@@ -68,8 +68,8 @@ public class ProjectPackageCache implements WritablePackageCache {
     @Override
     public Optional<Package> getPackage(PackageOrg packageOrg,
                                         PackageName packageName,
-                                        SemanticVersion semanticVersion) {
-        return globalPackageCache.getPackage(packageOrg, packageName, semanticVersion);
+                                        PackageVersion version) {
+        return globalPackageCache.getPackage(packageOrg, packageName, version);
     }
 
     @Override

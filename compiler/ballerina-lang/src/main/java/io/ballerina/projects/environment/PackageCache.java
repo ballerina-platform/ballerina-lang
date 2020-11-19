@@ -21,7 +21,7 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageId;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.PackageVersion;
 
 import java.util.List;
 import java.util.Optional;
@@ -54,10 +54,10 @@ public interface PackageCache {
      *
      * @param packageOrg      organization name
      * @param packageName     package name
-     * @param semanticVersion package version
+     * @param version package version
      * @return the package with given organization, name and version
      */
-    Optional<Package> getPackage(PackageOrg packageOrg, PackageName packageName, SemanticVersion semanticVersion);
+    Optional<Package> getPackage(PackageOrg packageOrg, PackageName packageName, PackageVersion version);
 
     /**
      * Returns all the package versions with the given org and name.

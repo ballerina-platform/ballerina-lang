@@ -156,7 +156,7 @@ public class JBallerinaBackend extends CompilerBackend {
     @Override
     public Collection<PlatformLibrary> platformLibraryDependencies(PackageId packageId) {
         Package pkg = packageCache.getPackageOrThrow(packageId);
-        PackageDescriptor.Platform javaPlatform = pkg.packageDescriptor().platform(jdkVersion.code());
+        PackageManifest.Platform javaPlatform = pkg.manifest().platform(jdkVersion.code());
         if (javaPlatform == null || javaPlatform.dependencies().isEmpty()) {
             return Collections.emptyList();
         }
@@ -260,7 +260,7 @@ public class JBallerinaBackend extends CompilerBackend {
                 bLangPackage.packageID.orgName.value,
                 bLangPackage.packageID.version.value);
         TesterinaRegistry.getInstance().getTestSuites().put(
-                moduleContext.moduleDescriptor().name().toString(), testSuite);
+                moduleContext.descriptor().name().toString(), testSuite);
 
         // set data
         testSuite.setInitFunctionName(bLangPackage.initFunction.name.value);

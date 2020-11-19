@@ -35,8 +35,8 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageId;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
@@ -466,7 +466,7 @@ public class TestBuildProject {
         Path projectRoot = ProjectUtils.findProjectRoot(filePath);
         BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(projectRoot);
         Package oldPackage = buildProject.currentPackage();
-        PackageDescriptor pkgDesc = oldPackage.packageDescriptor();
+        PackageManifest pkgDesc = oldPackage.manifest();
 
         ModuleId newModuleId = ModuleId.create(filePath.toString(), oldPackage.packageId());
         ModuleName moduleName = ModuleName.from(oldPackage.packageName(), filePath.getFileName().toString());
@@ -508,7 +508,7 @@ public class TestBuildProject {
         Path projectRoot = ProjectUtils.findProjectRoot(filePath);
         BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(projectRoot);
         Package oldPackage = buildProject.currentPackage();
-        PackageDescriptor pkgDesc = oldPackage.packageDescriptor();
+        PackageManifest pkgDesc = oldPackage.manifest();
 
         ModuleId newModuleId = ModuleId.create(filePath.toString(), oldPackage.packageId());
         ModuleName moduleName = ModuleName.from(oldPackage.packageName(), filePath.getFileName().toString());

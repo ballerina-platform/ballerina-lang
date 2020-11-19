@@ -1061,9 +1061,10 @@ public class BIRPackageSymbolEnter {
                     typedescType.flags = flags;
                     return typedescType;
                 case TypeTags.PARAMETERIZED_TYPE:
-                    BParameterizedType type = new BParameterizedType(null, null, null, name);
+                    BParameterizedType type = new BParameterizedType(null, null, null, name, -1);
                     type.paramValueType = readTypeFromCp();
                     type.flags = flags;
+                    type.paramIndex = inputStream.readInt();
                     return type;
                 case TypeTags.STREAM:
                     BStreamType bStreamType = new BStreamType(TypeTags.STREAM, null, null, symTable.streamType.tsymbol);

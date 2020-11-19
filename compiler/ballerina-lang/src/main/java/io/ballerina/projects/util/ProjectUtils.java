@@ -21,7 +21,7 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageManifest;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -175,7 +175,7 @@ public class ProjectUtils {
         return packageName;
     }
 
-    public static String getBaloName(PackageDescriptor pkgDesc) {
+    public static String getBaloName(PackageManifest pkgDesc) {
         return ProjectUtils.getBaloName(pkgDesc.org().toString(),
                 pkgDesc.name().toString(),
                 pkgDesc.version().toString(),
@@ -388,7 +388,7 @@ public class ProjectUtils {
      */
     public static String getJarFileName(Module module) {
         String jarName;
-        if (module.packageInstance().packageDescriptor().org().anonymous()) {
+        if (module.packageInstance().manifest().org().anonymous()) {
             DocumentId documentId = module.documentIds().iterator().next();
             String documentName = module.document(documentId).name();
             jarName = getFileNameWithoutExtension(documentName);

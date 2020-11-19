@@ -19,7 +19,7 @@
 package io.ballerina.projects.test;
 
 import io.ballerina.projects.JdkVersion;
-import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.internal.BallerinaTomlProcessor;
 import io.ballerina.projects.model.BallerinaToml;
 import io.ballerina.projects.model.Package;
@@ -40,16 +40,16 @@ import java.util.Map;
 public class TestBallerinaTomlProcessor {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
 
-    @Test(description = "Test parse `ballerina.toml` file in to `PackageDescriptor` object")
+    @Test(description = "Test parse `ballerina.toml` file in to `PackageManifest` object")
     public void testParse() {
         Path ballerinaTomlPath = RESOURCE_DIRECTORY.resolve("ballerinatoml").resolve("Ballerina.toml");
-        PackageDescriptor packageDescriptor = BallerinaTomlProcessor.parseAsPackageDescriptor(ballerinaTomlPath);
+        PackageManifest packageManifest = BallerinaTomlProcessor.parseAsPackageManifest(ballerinaTomlPath);
 
-        Assert.assertEquals(packageDescriptor.org().value(), "foo");
-        Assert.assertEquals(packageDescriptor.name().value(), "winery");
-        Assert.assertEquals(packageDescriptor.version().toString(), "0.1.0");
+        Assert.assertEquals(packageManifest.org().value(), "foo");
+        Assert.assertEquals(packageManifest.name().value(), "winery");
+        Assert.assertEquals(packageManifest.version().toString(), "0.1.0");
 
-        List<PackageDescriptor.Dependency> dependencyList = packageDescriptor.dependencies();
+        List<PackageManifest.Dependency> dependencyList = packageManifest.dependencies();
         Assert.assertEquals(dependencyList.size(), 2);
         Assert.assertEquals(dependencyList.get(0).org().value(), "wso2");
         Assert.assertEquals(dependencyList.get(0).name().value(), "twitter");
@@ -59,7 +59,7 @@ public class TestBallerinaTomlProcessor {
         Assert.assertEquals(dependencyList.get(1).name().value(), "github");
         Assert.assertEquals(dependencyList.get(1).version().toString(), "1.2.3");
 
-        PackageDescriptor.Platform jvmPlatform = packageDescriptor.platform(JdkVersion.JAVA_11.code());
+        PackageManifest.Platform jvmPlatform = packageManifest.platform(JdkVersion.JAVA_11.code());
         List<Map<String, Object>> platformDependencies = jvmPlatform.dependencies();
         Assert.assertEquals(platformDependencies.size(), 2);
 

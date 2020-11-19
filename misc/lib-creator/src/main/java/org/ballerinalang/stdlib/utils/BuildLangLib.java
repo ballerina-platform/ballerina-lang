@@ -25,7 +25,7 @@ import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
@@ -92,7 +92,7 @@ public class BuildLangLib {
                 System.exit(1);
             }
 
-            PackageDescriptor pkgDesc = pkg.packageDescriptor();
+            PackageManifest pkgDesc = pkg.manifest();
             String baloName = ProjectUtils.getBaloName(pkgDesc);
             Path baloDirPath = pkgTargetPath.resolve("balo");
 
