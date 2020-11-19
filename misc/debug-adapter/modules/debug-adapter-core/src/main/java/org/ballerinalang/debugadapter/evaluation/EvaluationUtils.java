@@ -93,6 +93,7 @@ public class EvaluationUtils {
     private static final String GET_STRING_VALUE_METHOD = "getStringValue";
     // Misc
     public static final String STRAND_VAR_NAME = "__strand";
+    public static final String REST_ARG_IDENTIFIER = "...";
 
     /**
      * Loads and returns Ballerina JVM runtime method instance for a given qualified class name + method name.

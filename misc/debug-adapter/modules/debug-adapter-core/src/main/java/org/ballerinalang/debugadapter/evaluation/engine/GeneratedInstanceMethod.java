@@ -28,6 +28,7 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * JVM generated instance method representation of a ballerina function.
@@ -43,8 +44,8 @@ public class GeneratedInstanceMethod extends JvmMethod {
         this.objectValueRef = objectRef;
     }
 
-    GeneratedInstanceMethod(SuspendedContext context, Value objectRef, Method methodRef, List<Evaluator> argEvaluators,
-                            List<Value> argsList) {
+    GeneratedInstanceMethod(SuspendedContext context, Value objectRef, Method methodRef,
+                            List<Map.Entry<String, Evaluator>> argEvaluators, List<Value> argsList) {
         super(context, methodRef, argEvaluators, argsList);
         this.objectValueRef = objectRef;
     }
@@ -92,8 +93,8 @@ public class GeneratedInstanceMethod extends JvmMethod {
             }
 
             // Evaluates all function argument expressions at first.
-            for (Evaluator argEvaluator : argEvaluators) {
-                argValueList.add(argEvaluator.evaluate().getJdiValue());
+            for (Map.Entry<String, Evaluator> argEvaluator : argEvaluators) {
+                argValueList.add(argEvaluator.getValue().evaluate().getJdiValue());
                 // Assuming all the arguments are positional args.
                 argValueList.add(EvaluationUtils.make(context, true).getJdiValue());
             }

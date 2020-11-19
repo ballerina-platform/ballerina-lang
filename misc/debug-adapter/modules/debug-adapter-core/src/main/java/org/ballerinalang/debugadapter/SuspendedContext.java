@@ -19,7 +19,12 @@ package org.ballerinalang.debugadapter;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassLoaderReference;
 import com.sun.jdi.InvalidStackFrameException;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
@@ -28,7 +33,6 @@ import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
@@ -44,14 +48,15 @@ public class SuspendedContext {
     private final Project project;
     private final String projectRoot;
     private final DebugSourceType sourceType;
-    private final String breakPointSourcePath;
-    private final String fileName;
+
+    private Path breakPointSourcePath;
+    private String fileName;
     private int lineNumber;
+    private Document document;
     private ClassLoaderReference classLoader;
 
     SuspendedContext(Project project, String projectRoot, VirtualMachineProxyImpl vm,
                      ThreadReferenceProxyImpl threadRef, StackFrameProxyImpl frame) {
-
         this.attachedVm = vm;
         this.owningThread = threadRef;
         this.frame = frame;
@@ -112,21 +117,27 @@ public class SuspendedContext {
     }
 
     public Path getBreakPointSourcePath() {
-        return Paths.get(breakPointSourcePath);
+        if (breakPointSourcePath == null) {
+            this.breakPointSourcePath = getSourcePath(frame);
+        }
+        return breakPointSourcePath;
     }
 
-    private String getSourcePath(StackFrameProxyImpl frame) {
+    private Path getSourcePath(StackFrameProxyImpl frame) {
         try {
-            return PackageUtils.getRectifiedSourcePath(frame.location(), project, projectRoot).toString();
+            return PackageUtils.getRectifiedSourcePath(frame.location(), project, projectRoot);
         } catch (AbsentInformationException | InvalidStackFrameException | JdiProxyException e) {
             // Todo - How to handle InvalidStackFrameException?
-            return "";
+            return null;
         } catch (Exception e) {
-            return "";
+            return null;
         }
     }
 
     public String getFileName() {
+        if (fileName == null) {
+            fileName = getFileNameFrom(getBreakPointSourcePath());
+        }
         return fileName;
     }
 
@@ -139,5 +150,25 @@ public class SuspendedContext {
             }
         }
         return lineNumber;
+    }
+
+    public Document getDocument() {
+        if (document == null) {
+            loadDocument();
+        }
+        return document;
+    }
+
+    private void loadDocument() {
+        if (project instanceof BuildProject) {
+            BuildProject prj = (BuildProject) project;
+            Optional<DocumentId> docId = ProjectLoader.getDocumentId(getBreakPointSourcePath(), prj);
+            Module module = prj.currentPackage().module(docId.get().moduleId());
+            document = module.document(docId.get());
+        } else {
+            SingleFileProject prj = (SingleFileProject) project;
+            DocumentId docId = prj.currentPackage().getDefaultModule().documentIds().iterator().next();
+            document = prj.currentPackage().getDefaultModule().document(docId);
+        }
     }
 }
