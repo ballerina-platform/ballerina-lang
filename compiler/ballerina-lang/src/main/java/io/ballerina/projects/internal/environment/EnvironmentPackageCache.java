@@ -56,7 +56,7 @@ public class EnvironmentPackageCache implements WritablePackageCache {
             PackageDescriptor pkgDesc = project.currentPackage().descriptor();
             if (pkgDesc.org().equals(packageOrg) &&
                     pkgDesc.name().equals(packageName) &&
-                    pkgDesc.version().value().equals(version)) {
+                    pkgDesc.version().equals(version)) {
                 return Optional.of(project.currentPackage());
             }
         }
