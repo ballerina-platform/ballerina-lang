@@ -19,12 +19,8 @@
 
 description = 'Lang Library Unit Test Module'
 
-apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
-apply from: "$rootDir/gradle/birTestableProject.gradle"
-
-configurations {
-    balRuntime
-}
+apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 dependencies {
     implementation project(':ballerina-core')
@@ -33,65 +29,15 @@ dependencies {
 
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(path: ':ballerina-runtime')
-    testCompile project(path: ':ballerina-file')
     testCompile 'org.testng:testng'
     testCompile 'com.h2database:h2'
 
-    testRuntime project(':ballerina-lang:annotations')
-    testRuntime project(':ballerina-lang:array')
-    testRuntime project(':ballerina-lang:decimal')
-    testRuntime project(':ballerina-lang:error')
-    testRuntime project(':ballerina-lang:floatingpoint')
-    testRuntime project(':ballerina-lang:future')
-    testRuntime project(':ballerina-lang:integer')
-    testRuntime project(':ballerina-lang:map')
-    testRuntime project(':ballerina-lang:object')
-    testRuntime project(':ballerina-lang:stream')
-    testRuntime project(':ballerina-lang:table')
-    testRuntime project(':ballerina-lang:string')
-    testRuntime project(':ballerina-lang:typedesc')
-    testRuntime project(':ballerina-lang:value')
-    testRuntime project(':ballerina-lang:xml')
-    testRuntime project(':ballerina-lang:bool')
-    testRuntime project(':ballerina-lang:query')
-    testRuntime project(':ballerina-lang:transaction')
-    testRuntime project(':ballerina-lang-test')
-    testRuntime project(':ballerina-runtime')
-    testRuntime project(':ballerina-lang:internal')
     testRuntime 'org.slf4j:slf4j-jdk14'
-
-    baloTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:array', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:decimal', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:error', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:floatingpoint', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:future', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:integer', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:map', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:object', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:stream', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:table', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:typedesc', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:bool', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang-test', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:query', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:transaction', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
-}
-
-task createBre(type: org.gradle.api.tasks.Copy) {
-    from configurations.balRuntime
-    into "$buildDir/bre/lib"
 }
 
 test {
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
-    systemProperty "enableJBallerinaTests", "true"
 
     useTestNG() {
         suites 'src/test/resources/testng.xml'
@@ -100,8 +46,6 @@ test {
     afterSuite { suite, result ->
         result.exception?.printStackTrace()
     }
-
-    dependsOn createBre
 }
 
 configurations {

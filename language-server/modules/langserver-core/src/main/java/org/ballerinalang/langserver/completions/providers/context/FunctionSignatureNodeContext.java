@@ -21,12 +21,10 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
@@ -48,7 +46,7 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, FunctionSignatureNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, FunctionSignatureNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
@@ -67,13 +65,13 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
                 completionItems.addAll(CompletionUtil.route(context, node.returnTypeDesc().get()));
             }
         } else if (this.withinParameterContext(context, node)) {
-            NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+            NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
             // skip the node kind, REQUIRED_PARAM because that maps to the variable name
             if (nodeAtCursor.kind() == SyntaxKind.REQUIRED_PARAM) {
                 return completionItems;
             }
-            
+
             if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 /*
                 Covers the Following
@@ -96,16 +94,16 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
         return completionItems;
     }
 
-    private boolean withinReturnTypeDescContext(LSContext context, FunctionSignatureNode node) {
-        Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+    private boolean withinReturnTypeDescContext(CompletionContext context, FunctionSignatureNode node) {
+        Position cursor = context.getCursorPosition();
         LinePosition closeParanPosition = node.closeParenToken().lineRange().endLine();
 
         return (closeParanPosition.line() == cursor.getLine() && closeParanPosition.offset() < cursor.getCharacter())
                 || closeParanPosition.line() < cursor.getLine();
     }
 
-    private boolean withinParameterContext(LSContext context, FunctionSignatureNode node) {
-        Integer cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    private boolean withinParameterContext(CompletionContext context, FunctionSignatureNode node) {
+        int cursor = context.getCursorPositionInTree();
         int openParan = node.openParenToken().textRange().endOffset();
         int closeParan = node.closeParenToken().textRange().startOffset();
 
@@ -113,7 +111,7 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, FunctionSignatureNode node) {
+    public boolean onPreValidation(CompletionContext context, FunctionSignatureNode node) {
         // If the signature belongs to the function type descriptor, we skip this resolver
         return !node.openParenToken().isMissing() && !node.closeParenToken().isMissing()
                 && node.parent().kind() != SyntaxKind.FUNCTION_TYPE_DESC;

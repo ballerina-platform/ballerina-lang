@@ -51,29 +51,8 @@ dependencies {
     dist project(':ballerina-rt')
     dist project(':ballerina-choreo-extension-rt')
 
-    distBal project(path: ':ballerina-observability', configuration: 'baloImplementation')
 
     // Lang libs
-    distBal project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-lang:array', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-lang:decimal', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-lang:error', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-lang:floatingpoint', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-lang:future', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-lang:integer', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-lang:map', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-lang:object', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-lang:stream', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-lang:table', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-lang:typedesc', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-lang:bool', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-lang:query', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-lang:transaction', configuration: 'baloImplementation')
 
     balSource project(path: ':ballerina-observability', configuration: 'balSource')
 //    balSource project(path: ':ballerina-transactions', configuration: 'balSource')
@@ -162,9 +141,9 @@ task createZip(type: Zip) {
 
 artifacts {
     jar configurations.dist.files
-    balo configurations.distBal.files
-    source configurations.balSource.files
-    sourceBalx configurations.balxSource.files
+//    balo configurations.distBal.files
+//    source configurations.balSource.files
+//    sourceBalx configurations.balxSource.files
     doc configurations.balDoc.files
     bin file('bin')
     staticFiles configurations.staticArtifacts.files

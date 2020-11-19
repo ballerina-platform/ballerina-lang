@@ -23,9 +23,8 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -50,8 +49,8 @@ public class OnClauseNodeContext extends AbstractCompletionProvider<OnClauseNode
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, OnClauseNode node) {
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+    public List<LSCompletionItem> getCompletions(CompletionContext context, OnClauseNode node) {
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (this.onSuggestEqualsKeyword(context, node)) {
             return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_EQUALS.get()));
@@ -78,12 +77,12 @@ public class OnClauseNodeContext extends AbstractCompletionProvider<OnClauseNode
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, OnClauseNode node) {
+    public boolean onPreValidation(CompletionContext context, OnClauseNode node) {
         return !node.onKeyword().isMissing();
     }
 
-    private boolean onSuggestEqualsKeyword(LSContext context, OnClauseNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    private boolean onSuggestEqualsKeyword(CompletionContext context, OnClauseNode node) {
+        int cursor = context.getCursorPositionInTree();
         ExpressionNode lhs = node.lhsExpression();
         ExpressionNode rhs = node.rhsExpression();
         Token equalsKeyword = node.equalsKeyword();

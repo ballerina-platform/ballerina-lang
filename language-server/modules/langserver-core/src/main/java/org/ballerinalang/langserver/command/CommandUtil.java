@@ -16,23 +16,18 @@
 package org.ballerinalang.langserver.command;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
-import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
-import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ResourceOperation;
 import org.eclipse.lsp4j.TextDocumentEdit;
-import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
@@ -47,7 +42,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
 /**
@@ -78,17 +72,9 @@ public class CommandUtil {
      * @param context     {@link LSContext}
      */
     public static void clearDiagnostics(ExtendedLanguageClient client, DiagnosticsHelper diagHelper, String documentUri,
-                                        LSContext context) {
-        context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
-        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        try {
-            LSDocumentIdentifier lsDocument = new LSDocumentIdentifierImpl(documentUri);
-            diagHelper.compileAndSendDiagnostics(client, context, lsDocument, docManager);
-        } catch (CompilationFailedException e) {
-            String msg = "Computing 'diagnostics' failed!";
-            TextDocumentIdentifier identifier = new TextDocumentIdentifier(documentUri);
-            logError(msg, e, identifier, (Position) null);
-        }
+                                        DocumentServiceContext context) {
+//        context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
+        diagHelper.compileAndSendDiagnostics(client, context);
     }
 
     /**
@@ -107,7 +93,7 @@ public class CommandUtil {
         ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams();
         TextEdit textEdit = new TextEdit(range, editText);
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(identifier,
-                                                                 Collections.singletonList(textEdit));
+                Collections.singletonList(textEdit));
         Either<TextDocumentEdit, ResourceOperation> documentChange = Either.forLeft(textDocumentEdit);
         WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(documentChange));
         applyWorkspaceEditParams.setEdit(workspaceEdit);
@@ -137,12 +123,12 @@ public class CommandUtil {
     /**
      * Get content of range of a given file uri.
      *
-     * @param documentManager   document manager
-     * @param uri   file uri
-     * @param range content range
+     * @param documentManager document manager
+     * @param uri             file uri
+     * @param range           content range
      * @return content of range
-     * @throws WorkspaceDocumentException   when file not found
-     * @throws IOException  when I/O error occurs
+     * @throws WorkspaceDocumentException when file not found
+     * @throws IOException                when I/O error occurs
      */
     public static String getContentOfRange(WorkspaceDocumentManager documentManager, String uri, Range range)
             throws WorkspaceDocumentException, IOException {

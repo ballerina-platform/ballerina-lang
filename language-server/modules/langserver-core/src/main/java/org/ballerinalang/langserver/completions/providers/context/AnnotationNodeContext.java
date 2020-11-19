@@ -27,19 +27,17 @@ import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.projects.Module;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSAnnotationCache;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.AnnotationUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -56,7 +54,7 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, AnnotationNode node) {
+    public List<LSCompletionItem> getCompletions(CompletionContext context, AnnotationNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         SyntaxKind attachedNode = this.getParentSyntaxKind(node);
 
@@ -70,10 +68,6 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
             }
         }
 
-        Map<String, String> pkgAliasMap = context.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY).stream()
-                .filter(pkg -> pkg.symbol != null)
-                .collect(Collectors.toMap(pkg -> pkg.symbol.pkgID.toString(), pkg -> pkg.alias.value));
-
         if (this.onQualifiedNameIdentifier(context, node.annotReference())) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.annotReference();
             return this.getAnnotationsInModule(context, qNameRef.modulePrefix().text(), attachedNode);
@@ -83,7 +77,7 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
                 .forEach((key, value) -> value.forEach(annotation -> {
                     LSCompletionItem cItem;
                     if (this.addAlias(context, node, key)) {
-                        cItem = AnnotationUtil.getModuleQualifiedAnnotationItem(key, annotation, context, pkgAliasMap);
+                        cItem = AnnotationUtil.getModuleQualifiedAnnotationItem(key, annotation, context);
                     } else {
                         cItem = AnnotationUtil.getAnnotationItem(annotation, context);
                     }
@@ -94,8 +88,8 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
         return completionItems;
     }
 
-    private List<LSCompletionItem> getCurrentModuleAnnotations(LSContext ctx, SyntaxKind kind) {
-        List<Symbol> visibleSymbols = ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+    private List<LSCompletionItem> getCurrentModuleAnnotations(CompletionContext ctx, SyntaxKind kind) {
+        List<Symbol> visibleSymbols = ctx.getVisibleSymbols(ctx.getCursorPosition());
         return visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.ANNOTATION
                         && this.matchingAnnotation((AnnotationSymbol) symbol, kind)
@@ -104,7 +98,7 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
                 .collect(Collectors.toList());
     }
 
-    private List<LSCompletionItem> getAnnotationsInModule(LSContext context, String alias, SyntaxKind kind) {
+    private List<LSCompletionItem> getAnnotationsInModule(CompletionContext context, String alias, SyntaxKind kind) {
         Optional<ModuleSymbol> moduleEntry = CommonUtil.searchModuleForAlias(context, alias);
         if (moduleEntry.isEmpty()) {
             List<LSCompletionItem> completionItems = new ArrayList<>();
@@ -189,16 +183,19 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, AnnotationNode node) {
+    public boolean onPreValidation(CompletionContext context, AnnotationNode node) {
         return !node.atToken().isMissing();
     }
 
-    private boolean addAlias(LSContext context, AnnotationNode node, ModuleID annotationOwner) {
-        ModuleSymbol currentModule = context.get(DocumentServiceKeys.CURRENT_MODULE_KEY);
+    private boolean addAlias(CompletionContext context, AnnotationNode node, ModuleID annotationOwner) {
+        Optional<Module> currentModule = context.workspace().module(context.filePath());
+        if (currentModule.isEmpty()) {
+            return false;
+        }
         String orgName = annotationOwner.orgName();
         String value = annotationOwner.moduleName();
         return node.annotReference().kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE
-                && !currentModule.moduleID().moduleName().equals(annotationOwner.moduleName())
+                && !currentModule.get().moduleName().moduleNamePart().equals(annotationOwner.moduleName())
                 && !("ballerina".equals(orgName)
                 && "lang.annotations".equals(value));
     }

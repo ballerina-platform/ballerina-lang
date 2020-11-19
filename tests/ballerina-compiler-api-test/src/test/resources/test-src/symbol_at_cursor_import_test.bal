@@ -14,20 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/foo;
+import testorg/testproject;
 
 function testImports() {
-    string s = foo:TRUE;
-    int x = foo:add(10, 20);
+    string s = testproject:TRUE;
+    int x = testproject:add(10, 20);
 
-    foo:Person p = {name: "John Doe", age: 20};
+    testproject:Person p = {name: "John Doe", age: 20};
 }
 
 function area(float radius) returns float {
-    return foo:PI * radius * radius;
+    return testproject:PI * radius * radius;
 }
 
 function testMethodUsage() {
-    foo:PersonObj p = new("John", 20);
+    testproject:PersonObj p = new("John", 20);
     string s = p.getName();
 }

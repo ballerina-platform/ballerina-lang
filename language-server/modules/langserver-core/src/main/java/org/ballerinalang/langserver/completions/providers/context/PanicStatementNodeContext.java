@@ -18,9 +18,8 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.PanicStatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -42,10 +41,10 @@ public class PanicStatementNodeContext extends AbstractCompletionProvider<PanicS
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, PanicStatementNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, PanicStatementNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(SymbolUtil::isError)
                 .collect(Collectors.toList());

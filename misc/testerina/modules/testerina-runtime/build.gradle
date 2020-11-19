@@ -27,8 +27,9 @@ configurations {
 }
 
 dependencies {
+    implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-config')
+    implementation project(':ballerina-tools-api')
     implementation 'com.google.code.gson:gson'
     implementation 'com.google.code.gson:gson:2.7'
     implementation 'org.jacoco:org.jacoco.core:0.8.5'

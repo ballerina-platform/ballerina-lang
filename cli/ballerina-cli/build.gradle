@@ -1,0 +1,94 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    distributionBalo
+    distributionBirJar
+    balRt
+    testRt
+    testCore
+}
+
+dependencies {
+
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-runtime')
+    implementation project(':ballerina-tool')
+    implementation project(':ballerina-tools-api')
+    implementation project(':central-client')
+    implementation 'info.picocli:picocli'
+    implementation 'org.apache.commons:commons-compress:1.18'
+    implementation 'com.google.code.gson:gson:2.7'
+    implementation project(':docerina')
+    implementation project(':testerina:testerina-runtime')
+    testCompile 'org.testng:testng'
+    testCompile 'org.mockito:mockito-all'
+
+    distributionBalo project(path: ':ballerina-langlib:test', configuration: 'distributionBalo')
+    distributionBalo project(path: ':testerina:testerina-core', configuration: 'distributionBalo')
+    distributionBirJar project(path: ':testerina:testerina-core', configuration: 'distributionBirJar')
+
+    testRuntime project(":ballerina-lang-test")
+    balRt project(':ballerina-rt')
+    testRt project(':testerina:testerina-runtime')
+    testCore project(':testerina:testerina-core')
+}
+
+task createTestDistributionCache(type: Copy) {
+    dependsOn configurations.distributionBalo
+    from configurations.distributionBalo
+    into "$buildDir/repo"
+}
+
+task createTestBre(type: Copy) {
+    from configurations.balRt
+    from configurations.testRt
+    from configurations.testCore
+    from configurations.distributionBirJar
+    into "$buildDir/bre/lib"
+}
+
+test {
+    dependsOn createTestDistributionCache
+    dependsOn createTestBre
+
+    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+    systemProperty "ballerina.home", "$buildDir"
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}
+
+description = 'Ballerina - CLI'
+
+ext.moduleName = 'ballerina-cli'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}
