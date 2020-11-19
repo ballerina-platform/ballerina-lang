@@ -283,6 +283,7 @@ import javax.xml.XMLConstants;
 import static io.ballerina.runtime.util.BLangConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.util.BLangCompilerConstants.RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC;
+import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.appendStatement;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createBlockStmt;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createErrorVariableDef;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createExpressionStmt;
@@ -352,6 +353,8 @@ public class Desugar extends BLangNodeVisitor {
     private int transactionBlockCount;
     private BLangLiteral trxBlockId;
     private List<BLangOnFailClause> enclosingOnFailClause = new ArrayList<>();
+    private Map<BLangOnFailClause, BLangSimpleVarRef> enclosingForceJump = new HashMap<>();
+    private Map<BLangOnFailClause, BLangSimpleVarRef> continueLoopList = new HashMap<>();
     private List<BLangSimpleVariableDef> enclosingOnFailCallFunc = new ArrayList<>();
 
     private SymbolEnv env;
@@ -363,7 +366,7 @@ public class Desugar extends BLangNodeVisitor {
     private int indexExprCount = 0;
     private int letCount = 0;
     private int varargCount = 0;
-//    private BVarSymbol managerSym;
+//    private BLangSimpleVarRef forceJumpRef;
 
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
@@ -2543,6 +2546,7 @@ public class Desugar extends BLangNodeVisitor {
             result = rewrite(doStmt, env);
         } else {
             boolean currentReturnToFail = this.visitngTrx;
+//            BLangSimpleVarRef cuurentForceJump = this.forceJumpRef;
             this.visitngTrx = true;
             DiagnosticPos pos = retryNode.retryBody.pos;
             BLangBlockStmt retryBlockStmt = ASTBuilderUtil.createBlockStmt(retryNode.pos);
@@ -2612,21 +2616,45 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVarRef forceJumpRef = ASTBuilderUtil.createVariableRef(pos, forceJumpVarSymbol);
             retryBlockStmt.stmts.add(forceJumpDef);
 
+            // boolean returnResult = false;
+            BVarSymbol returnResultSymbol = new BVarSymbol(0, names.fromString("$returnResult$"),
+                    env.scope.owner.pkgID, symTable.booleanType, this.env.scope.owner, pos, VIRTUAL);
+            returnResultSymbol.closure = true;
+            BLangSimpleVariable returnResultVariable = ASTBuilderUtil.createVariable(pos, "$returnResult$",
+                    symTable.booleanType, falseLiteral, returnResultSymbol);
+            retryBlockStmt.scope.define(returnResultSymbol.name, returnResultSymbol);
+            BLangSimpleVariableDef returnResultDef = ASTBuilderUtil.createVariableDef(pos, returnResultVariable);
+            BLangSimpleVarRef returnResultRef = ASTBuilderUtil.createVariableRef(pos, returnResultSymbol);
+            retryBlockStmt.stmts.add(returnResultDef);
 
+            BVarSymbol continueLoopVarSymbol = new BVarSymbol(0, names.fromString("$continueLoop$"),
+                    env.scope.owner.pkgID, symTable.booleanType, this.env.scope.owner, pos, VIRTUAL);
+            continueLoopVarSymbol.closure = true;
+            BLangSimpleVariable continueLoopVariable = ASTBuilderUtil.createVariable(pos, "$continueLoop$",
+                    symTable.booleanType, falseLiteral, continueLoopVarSymbol);
+            retryBlockStmt.scope.define(continueLoopVarSymbol.name, continueLoopVarSymbol);
+            BLangSimpleVariableDef continueLoopDef = ASTBuilderUtil.createVariableDef(pos, continueLoopVariable);
+            BLangSimpleVarRef continueLoopRef = ASTBuilderUtil.createVariableRef(pos, continueLoopVarSymbol);
+            retryBlockStmt.stmts.add(continueLoopDef);
 
             BLangOnFailClause internalOnFail = createInternalOnFail(pos, retryResultRef,
-                    retryManagerRef,
-                    shouldRetryRef, forceJumpRef);
+                    retryManagerRef, shouldRetryRef, forceJumpRef, continueLoopRef, returnResultRef);
+            enclosingForceJump.put(internalOnFail, forceJumpRef);
+//            continueLoopList.put(internalOnFail, continueLoopRef);
             BLangDo retryDo = wrapStatementWithinDo(pos, retryNode.retryBody, internalOnFail);
+//            BLangBreak breakStatement = (BLangBreak) TreeBuilder.createBreakNode();
+//            breakStatement.pos = pos;
+//            retryDo.body.stmts.add(breakStatement);
 
             //while ((retryRes == ()) || (retryRes is error && shouldRetryRes)) {}
             BLangWhile whileLoop = createRetryWhileLoop(pos, retryDo, retryResultRef,
-                    shouldRetryRef);
+                    shouldRetryRef, continueLoopRef, returnResultRef);
 
             retryBlockStmt.stmts.add(whileLoop);
             result = rewrite(retryBlockStmt, env);
 //            this.visitngTrx = false;
             this.visitngTrx = currentReturnToFail;
+//            this.forceJumpRef = cuurentForceJump;
             //  var $retryFunc$ = function () returns any|error {
             //    <"Content in retry block goes here">
             //  };
@@ -2709,7 +2737,9 @@ public class Desugar extends BLangNodeVisitor {
     protected BLangWhile createRetryWhileLoop(DiagnosticPos retryBlockPos,
                                               BLangStatement retryBody,
                                               BLangSimpleVarRef retryResultRef,
-                                              BLangSimpleVarRef shouldRetryRef) {
+                                              BLangSimpleVarRef shouldRetryRef,
+                                              BLangSimpleVarRef continueLoopref,
+                                              BLangSimpleVarRef returnResultRef) {
         BLangWhile whileNode = (BLangWhile) TreeBuilder.createWhileNode();
         whileNode.pos = retryBlockPos;
         BLangTypeTestExpr isErrorCheck = createTypeCheckExpr(retryBlockPos, retryResultRef,
@@ -2730,8 +2760,57 @@ public class Desugar extends BLangNodeVisitor {
         whileNode.expr = ASTBuilderUtil.createBinaryExpr(retryBlockPos, lhsCheck, rhsCheck,
                 symTable.booleanType, OperatorKind.OR, null);
         BLangBlockStmt whileBlockStmnt = ASTBuilderUtil.createBlockStmt(retryBlockPos);
+
+        BLangAssignment shouldRetryFalse = ASTBuilderUtil.createAssignmentStmt(retryBlockPos, shouldRetryRef,
+                ASTBuilderUtil.createLiteral(retryBlockPos, symTable.booleanType, false));
+        whileBlockStmnt.stmts.add(shouldRetryFalse);
+
+        BLangAssignment returnResultFalse = ASTBuilderUtil.createAssignmentStmt(retryBlockPos, returnResultRef,
+                ASTBuilderUtil.createLiteral(retryBlockPos, symTable.booleanType, false));
+        whileBlockStmnt.stmts.add(returnResultFalse);
+
+//        BLangAssignment resultNill = ASTBuilderUtil.createAssignmentStmt(retryBlockPos, retryResultRef,
+//                ASTBuilderUtil.createLiteral(retryBlockPos, symTable.nilType, null));
+//        whileBlockStmnt.stmts.add(resultNill);
+
+        BLangAssignment continueFalse = ASTBuilderUtil.createAssignmentStmt(retryBlockPos, continueLoopref,
+                ASTBuilderUtil.createLiteral(retryBlockPos, symTable.booleanType, false));
+        whileBlockStmnt.stmts.add(continueFalse);
+
 //        whileBlockStmnt.scope = new Scope(env.scope.owner);
         whileBlockStmnt.stmts.add(retryBody);
+
+        BLangBlockStmt returnBlock = ASTBuilderUtil.createBlockStmt(retryBlockPos);
+//            BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
+//            failStmt.pos = pos;
+//            failStmt.expr = retryResultRef;
+        BLangReturn bLangReturn = ASTBuilderUtil.createReturnStmt(retryBlockPos, rewrite(retryResultRef, env));
+        bLangReturn.desugared = true;
+        returnBlock.stmts.add(bLangReturn);
+
+        BLangIf exitIf = ASTBuilderUtil.createIfElseStmt(retryBlockPos, returnResultRef, returnBlock, null);
+        whileBlockStmnt.stmts.add(exitIf);
+
+
+
+        //if(shouldContinue) {
+        //     continue;
+        // } else {
+        //     break;
+        // }
+        BLangBlockStmt shouldContinueBlock = ASTBuilderUtil.createBlockStmt(retryBlockPos);
+        BLangContinue loopContinueStmt = (BLangContinue) TreeBuilder.createContinueNode();
+        loopContinueStmt.pos = retryBlockPos;
+        shouldContinueBlock.stmts.add(loopContinueStmt);
+
+        BLangBlockStmt elseBlock = ASTBuilderUtil.createBlockStmt(retryBlockPos);
+        BLangBreak breakStmt = (BLangBreak) TreeBuilder.createBreakNode();
+        breakStmt.pos = retryBlockPos;
+        elseBlock.stmts.add(breakStmt);
+
+        BLangIf shouldContinue = ASTBuilderUtil.createIfElseStmt(retryBlockPos, continueLoopref,
+                shouldContinueBlock, elseBlock);
+        whileBlockStmnt.stmts.add(shouldContinue);
         whileNode.body = whileBlockStmnt;
         return whileNode;
     }
@@ -3275,7 +3354,8 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private BLangBlockStmt rewriteNestedOnFail(BLangOnFailClause onFailClause, BLangExpression expression) {
+    private BLangBlockStmt rewriteNestedOnFail(BLangOnFailClause onFailClause, BLangExpression expression,
+                                               boolean shouldAddForceJump) {
         BLangOnFailClause currentOnFail = this.onFailClause;
         BLangSimpleVariableDef currentOnFailDef = this.onFailCallFuncDef;
         BLangBlockStmt onFailBody = onFailClause.body;
@@ -3286,6 +3366,12 @@ public class Desugar extends BLangNodeVisitor {
             onFailBody.stmts.add(0, onFailErrorVariableDef);
             onFailBody.scope.define(onFailErrorVariableDef.var.symbol.name, onFailErrorVariableDef.var.symbol);
         }
+//        if(shouldAddForceJump) {
+//            BLangSimpleVarRef jumpRef = enclosingForceJump.get(this.onFailClause);
+//            BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(onFailClause.pos, jumpRef,
+//                    ASTBuilderUtil.createLiteral(onFailClause.pos,symTable.booleanType, true));
+//            onFailBody.stmts.add(0,rewrite(assignment, env));
+//        }
         int currentOnFailIndex = this.enclosingOnFailClause.indexOf(this.onFailClause);
         int enclosingOnFailIndex = currentOnFailIndex == -1 ? this.enclosingOnFailClause.size() - 1
                 : (currentOnFailIndex - 1);
@@ -3356,7 +3442,7 @@ public class Desugar extends BLangNodeVisitor {
                 resultVariable);
         onFailFuncBlock.stmts.add(trxFuncVarDef);
         if (fail.exprStmt != null) {
-            onFailFuncBlock.stmts.add((BLangStatement) fail.exprStmt);
+            onFailFuncBlock.stmts.add(0, (BLangStatement) fail.exprStmt);
         }
 //        if (this.exisitngFailExprStmt != null) {
 //            onFailFuncBlock.stmts.add((BLangStatement) this.exisitngFailExprStmt);
@@ -3728,7 +3814,9 @@ public class Desugar extends BLangNodeVisitor {
     private BLangOnFailClause createInternalOnFail(DiagnosticPos pos, BLangSimpleVarRef retryResultRef,
                                                    BLangSimpleVarRef retryManagerRef,
                                                    BLangSimpleVarRef shouldRetryRef,
-                                                   BLangSimpleVarRef forceJumpRef) {
+                                                   BLangSimpleVarRef forceJumpRef,
+                                                   BLangSimpleVarRef continueLoopRef,
+                                                   BLangSimpleVarRef returnResult) {
         BLangOnFailClause internalOnFail = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
         internalOnFail.pos = pos;
         internalOnFail.body = ASTBuilderUtil.createBlockStmt(pos);
@@ -3771,11 +3859,42 @@ public class Desugar extends BLangNodeVisitor {
             exitLogicBlock.stmts.add(failStmt);
             internalOnFail.bodyContainsFail = true;
             internalOnFail.body.stmts.add(exitIf);
+            BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(pos, continueLoopRef,
+                    ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true));
+            internalOnFail.body.stmts.add(assignment);
             BLangContinue loopContinueStmt = (BLangContinue) TreeBuilder.createContinueNode();
             loopContinueStmt.pos = pos;
             internalOnFail.body.stmts.add(loopContinueStmt);
         }
+//        BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(pos, resultRef, retryResultRef);
+//        internalOnFail.body.stmts.add(assignment);
 
+//        BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(pos, continueLoopRef,
+//                ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true));
+//        internalOnFail.body.stmts.add(assignment);
+        else {
+//            internalOnFail.statementBlockReturns = true;
+            BLangBlockStmt exitLogicBlock = ASTBuilderUtil.createBlockStmt(pos);
+            BLangIf exitIf = ASTBuilderUtil.createIfElseStmt(pos, exitCheck, exitLogicBlock, null);
+            //adding fail statement to jump to actual on fail clause
+//            BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
+//            failStmt.pos = pos;
+//            failStmt.expr = retryResultRef;
+//            BLangReturn bLangReturn = ASTBuilderUtil.createReturnStmt(pos, rewrite(retryResultRef, env));
+//            bLangReturn.desugared = true;
+//            exitLogicBlock.stmts.add(bLangReturn);
+
+            BLangAssignment assignmentRes = ASTBuilderUtil.createAssignmentStmt(pos, returnResult,
+                    ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true));
+            exitLogicBlock.stmts.add(assignmentRes);
+
+//            internalOnFail.bodyContainsFail = true;
+            internalOnFail.body.stmts.add(exitIf);
+
+            BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(pos, continueLoopRef,
+                    ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true));
+            internalOnFail.body.stmts.add(assignment);
+        }
         return internalOnFail;
     }
 
@@ -5451,10 +5570,20 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangFail failNode) {
         if (this.onFailClause != null) {
             if (this.onFailClause.bodyContainsFail) {
+                BLangAssignment assignment = null;
+//                if(!failNode.desugaredFromReturn && this.visitngTrx) {
+//                    assignment = ASTBuilderUtil.createAssignmentStmt(failNode.pos, forceJumpRef,
+//                            ASTBuilderUtil.createLiteral(failNode.pos,symTable.booleanType, true));
+//                    assignment = rewrite(assignment, env);
+////                    failNode.exprStmt = assignment;
+//                }
                 if (failNode.exprStmt != null) {
                     this.exisitngFailExprStmt = failNode.exprStmt;
                 }
-                result = rewriteNestedOnFail(this.onFailClause, failNode.expr);
+                result = rewriteNestedOnFail(this.onFailClause, failNode.expr, (!failNode.desugaredFromReturn && this.visitngTrx));
+//                if(assignment != null) {
+//                    ((BLangBlockStmt)result).stmts.add(0, rewrite(assignment, env));
+//                }
                 if (failNode.exprStmt != null) {
                     this.exisitngFailExprStmt = null;
                 }
@@ -6529,6 +6658,7 @@ public class Desugar extends BLangNodeVisitor {
         if (!isCheckPanicExpr && (returnOnError || this.onFailClause != null)) {
             //fail e;
             BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
+            failStmt.desugaredFromReturn = returnError;
 //            if (returnError) {
 //                BLangReturn errorReturn = ASTBuilderUtil.createReturnStmt(pos,
 //                        rewrite(patternFailureCaseVarRef, env));
