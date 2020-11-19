@@ -52,7 +52,7 @@ public class RepoUtils {
     private static final String BALLERINA_CLI_WIDTH = "BALLERINA_CLI_WIDTH";
     private static final String PRODUCTION_URL = "https://api.central.ballerina.io/1.0";
     private static final String STAGING_URL = "https://api.staging-central.ballerina.io/1.0";
-    private static final String DEV_URL = "https://api.dev-central.ballerina.io/1.0";
+    private static final String DEV_URL = "https://api.dev-central.ballerina.io/2.0/registry";
 
     private static final String BALLERINA_ORG = "ballerina";
     private static final String BALLERINAX_ORG = "ballerinax";
@@ -243,6 +243,17 @@ public class RepoUtils {
      * @return True if valid package name, else false.
      */
     public static boolean validatePkg(String pkgName) {
+        String validRegex = "^[a-zA-Z0-9_.]*$";
+        return Pattern.matches(validRegex, pkgName);
+    }
+
+    /**
+     * Validates the org-name and package name.
+     *
+     * @param pkgName The package name.
+     * @return True if valid package name, else false.
+     */
+    public static boolean validateModuleName(String pkgName) {
         String validRegex = "^[a-zA-Z0-9_.]*$";
         return Pattern.matches(validRegex, pkgName);
     }

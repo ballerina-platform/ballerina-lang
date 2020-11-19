@@ -20,9 +20,7 @@ import org.apache.commons.io.IOUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
-import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
+import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
@@ -38,7 +36,6 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static org.ballerinalang.langserver.command.CommandUtil.clearDiagnostics;
 import static org.ballerinalang.langserver.command.CommandUtil.notifyClient;
 
 /**
@@ -50,21 +47,24 @@ import static org.ballerinalang.langserver.command.CommandUtil.notifyClient;
 public class PullModuleExecutor implements LSCommandExecutor {
 
     // A newCachedThreadPool with a limited max-threads
-    private static ExecutorService executor = new ThreadPoolExecutor(0, Runtime.getRuntime().availableProcessors(), 60L,
-                                                                     TimeUnit.SECONDS, new SynchronousQueue<>());
+    private static final ExecutorService executor =
+            new ThreadPoolExecutor(0, Runtime.getRuntime().availableProcessors(), 60L, TimeUnit.SECONDS,
+                    new SynchronousQueue<>());
 
     public static final String COMMAND = "PULL_MODULE";
 
     /**
      * {@inheritDoc}
+     *
+     * @param context
      */
     @Override
-    public Object execute(LSContext context) throws LSCommandExecutorException {
+    public Object execute(ExecuteCommandContext context) throws LSCommandExecutorException {
         executor.submit(() -> {
             // Derive module name and document uri
             String moduleName = "";
             String documentUri = "";
-            for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
+            for (Object arg : context.getArguments()) {
                 String argKey = ((JsonObject) arg).get(ARG_KEY).getAsString();
                 String argVal = ((JsonObject) arg).get(ARG_VALUE).getAsString();
                 switch (argKey) {
@@ -83,7 +83,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
             // Execute `ballerina pull` command
             String ballerinaCmd = Paths.get(CommonUtil.BALLERINA_CMD).toString();
             ProcessBuilder processBuilder = new ProcessBuilder(ballerinaCmd, "pull", moduleName);
-            LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
+            LanguageClient client = context.getLanguageClient();
             DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance();
             try {
                 notifyClient(client, MessageType.Info, "Pulling '" + moduleName + "' from the Ballerina Central...");
@@ -100,9 +100,10 @@ public class PullModuleExecutor implements LSCommandExecutor {
 
                 if (error == null || error.isEmpty()) {
                     notifyClient(client, MessageType.Info, "Pulling success for the '" + moduleName + "' module!");
-                    if (client instanceof ExtendedLanguageClient) {
-                        clearDiagnostics((ExtendedLanguageClient) client, diagnosticsHelper, documentUri, context);
-                    }
+                    // TODO: fix
+//                    if (client instanceof ExtendedLanguageClient) {
+//                        clearDiagnostics((ExtendedLanguageClient) client, diagnosticsHelper, documentUri, context);
+//                    }
                 } else {
                     notifyClient(client, MessageType.Error,
                             "Pulling failed for the '" + moduleName + "' module!\n" + error);

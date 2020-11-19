@@ -1,3 +1,10 @@
-[project]
-org-name = "ballerina"
+[package]
+org = "ballerina"
+name = "lang.test"
 version = "1.0.0"
+
+[[platform.java11.dependency]]
+path = "../libs/ballerina-lang-test-2.0.0-Preview6-SNAPSHOT.jar"
+groupId = "ballerina"
+artifactId = "io"
+version = "0.5.0"

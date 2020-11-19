@@ -21,9 +21,8 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
@@ -42,14 +41,14 @@ public class LetVariableDeclarationNodeContext extends AbstractCompletionProvide
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, LetVariableDeclarationNode node) {
+    public List<LSCompletionItem> getCompletions(CompletionContext context, LetVariableDeclarationNode node) {
         /*
         Covers the following context
         eg: let var x = <cursor>
             let var x = h<cursor>
             let var x = mod1:<cursor>
          */
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             /*
@@ -65,8 +64,8 @@ public class LetVariableDeclarationNodeContext extends AbstractCompletionProvide
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, LetVariableDeclarationNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    public boolean onPreValidation(CompletionContext context, LetVariableDeclarationNode node) {
+        int cursor = context.getCursorPositionInTree();
         return !node.equalsToken().isMissing() && node.equalsToken().textRange().startOffset() < cursor;
     }
 }

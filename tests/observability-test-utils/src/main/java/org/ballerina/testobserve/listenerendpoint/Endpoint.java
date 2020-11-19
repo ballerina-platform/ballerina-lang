@@ -67,7 +67,7 @@ public class Endpoint {
             try {
                 webServer.start();
             } catch (Throwable e) {
-                Utils.logError("Error initializing agent server, error - " + e.getMessage());
+                Utils.logError("Error initializing server, error - " + e.getMessage());
             }
         }).start();
     }

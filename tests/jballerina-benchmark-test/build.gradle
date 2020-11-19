@@ -14,9 +14,7 @@
  * limitations under the License.
  *
  */
-
-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
-apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+apply from: "$rootDir/gradle/javaProject.gradle"
 import org.apache.tools.ant.taskdefs.condition.Os
 
 description = 'Ballerina - Performance Tests'
@@ -38,7 +36,6 @@ configurations {
 }
 
 dependencies {
-    baloCreat project(':lib-creator')
     ballerinaTools project(path: ':jballerina-tools', configuration: 'unzipped')
 
     implementation project(':ballerina-lang')
@@ -48,20 +45,29 @@ dependencies {
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
-    testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-core')
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
     testLibs 'com.github.chewiebug:gcviewer:1.36'
 }
 
-createBalo {
-    jvmTarget = 'true'
-}
-
 task copyToLib(type: Copy) {
     into "${buildDir}/libs"
     from configurations.testLibs
+}
+
+compileJava {
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath
+        ]
+        classpath = files()
+    }
+}
+
+jar {
+    // we omit the version since the jar is refered from ballerina.toml
+    archiveName 'jballerina-benchmark-test.jar'
 }
 
 test {

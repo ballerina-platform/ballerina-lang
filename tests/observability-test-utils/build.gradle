@@ -15,9 +15,8 @@
  *
  */
 
-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 apply plugin: 'com.github.johnrengelman.shadow'
-apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
 
 configurations {
     all {
@@ -42,7 +41,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang:java')
 
-    baloImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
+    distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
 
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
@@ -67,12 +66,14 @@ shadowJar {
     }
 }
 
-createBalo {
-    jvmTarget = 'true'
+ballerinaLangLibBuild {
+    pkgName = 'testobserve'
+    dependsOn compileJava
 }
 
 test {
     // make sure ballerina zip is built before test run
+    dependsOn ballerinaLangLibBuild
     dependsOn ':jballerina-tools:build'
     dependsOn shadowJar
     systemProperty 'enableJBallerinaTests', 'true'
@@ -84,7 +85,8 @@ test {
     systemProperty 'java.util.logging.config.file', "$buildDir/resources/test/logging.properties"
     systemProperty 'java.util.logging.manager', 'org.ballerinalang.logging.BLogManager'
     systemProperty 'ballerina.agent.path', configurations.testUtils.asPath
-    systemProperty 'observability-test-natives.jar', tasks.shadowJar.archiveFile.get().asFile
+    systemProperty 'observability.test.utils.dir', "$buildDir/../../observability-test-utils/"
+    systemProperty 'observability.test.utils.jar', tasks.shadowJar.archiveFile.get().asFile
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

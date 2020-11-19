@@ -15,18 +15,14 @@
  *
  */
 
-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/ballerinaModuleToPackage.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibBuild.gradle"
 
 dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
-    baloCreat project(':lib-creator')
-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-}
 
-createBalo {
-    isBuiltin = 'true'
-    jvmTarget = 'true'
+    distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
 }
 
 description = 'ballerina/lang.java - Java Interop Implementation'

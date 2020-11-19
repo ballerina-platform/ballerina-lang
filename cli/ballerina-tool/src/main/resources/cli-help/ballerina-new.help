@@ -17,14 +17,19 @@ DESCRIPTION
             .
             ├── Ballerina.toml
             ├── Ballerina.lock
-            ├── src
-            └── target
+            ├── main.bal
+                └── tests
+                    ├── main_test.bal
+                    ├── resources
+                ├── resources
+                └── Module.md
+                └── Package.md
 
        Any directory becomes a Ballerina project if that directory has a
-       'Ballerina.toml' file. It contains the organization name and the
-       version. It also enables dependency management across the project.
+       'Ballerina.toml' file. It contains the organization name, package name,
+       and the version. It also enables dependency management across the project.
 
-       The 'src' directory contains Ballerina modules. Use
+       The 'modules' directory contains Ballerina modules. Use
        'ballerina add <module-name>' command to create modules.
 
        Both 'target' directory and 'Ballerina.lock' file are created during
@@ -35,4 +40,27 @@ DESCRIPTION
        If the 'Ballerina.lock' file exists the 'ballerina build' command will
        use the specified versions instead of fetching the latest
        versions of modules.
+
+       A template can also be specified when creating a new project.
+              If a template is not specified, this command creates a package
+              with a 'main' template.
+
+             There are three built-in templates named:
+                 1. main
+                 2. service
+                 3. lib
+
+       OPTIONS
+            -t <template-name>, --template <template-name>
+                Create a package using a predefined template.
+
+       EXAMPLES
+            Create a package with a 'main' template.
+               $ ballerina new <package-name>
+
+            Create a package with a Ballerina service.
+               $ ballerina new <package-name> -t service
+
+            Create a package with a Ballerina service.
+               $ ballerina new <package-name> -t lib
 

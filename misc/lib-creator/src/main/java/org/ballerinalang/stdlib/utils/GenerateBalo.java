@@ -21,7 +21,6 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
-import org.ballerinalang.docgen.model.ModuleDoc;
 import org.ballerinalang.packerina.utils.EmptyPrintStream;
 import org.ballerinalang.packerina.writer.JarFileWriter;
 import org.ballerinalang.repository.CompiledPackage;
@@ -42,7 +41,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static org.ballerinalang.compiler.CompilerOptionName.BALO_GENERATION;
@@ -151,18 +149,6 @@ public class GenerateBalo {
             jarFileWriter.write(pkg, jarOutput);
         }
 
-        // Generate api doc
-        genApiDoc(sourceRootDir, docModuleFilter, buildPackages);
-    }
-
-    private static void genApiDoc(String sourceRootDir, Set<String> docModuleFilter, List<BLangPackage> buildPackages)
-            throws IOException {
-        Map<String, ModuleDoc> moduleDocMap =
-                BallerinaDocGenerator.generateModuleDocs(sourceRootDir, buildPackages,
-                                                         docModuleFilter);
-        String apiDocPath = "./build/generated-apidocs/";
-        Files.createDirectories(Paths.get(apiDocPath));
-        BallerinaDocGenerator.writeAPIDocsForModules(moduleDocMap, apiDocPath, false);
     }
 
     private static void printErrors(boolean reportWarnings,
