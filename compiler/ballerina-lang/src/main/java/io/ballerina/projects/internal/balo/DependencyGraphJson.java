@@ -29,10 +29,10 @@ import java.util.List;
  * @since 2.0.0
  */
 public class DependencyGraphJson {
-    private static final String PACKAGE_DEPENDENCY_GRAPH = "package";
+    private static final String PACKAGE_DEPENDENCY_GRAPH = "packages";
     @SerializedName(PACKAGE_DEPENDENCY_GRAPH) private List<Dependency> packageDependencyGraph;
 
-    private static final String MODULE_DEPENDENCY_GRAPH = "module";
+    private static final String MODULE_DEPENDENCY_GRAPH = "modules";
     @SerializedName(MODULE_DEPENDENCY_GRAPH) private List<ModuleDependency> moduleDependencyGraph;
 
     public DependencyGraphJson(List<Dependency> packageDependencyGraph, List<ModuleDependency> moduleDependencyGraph) {
