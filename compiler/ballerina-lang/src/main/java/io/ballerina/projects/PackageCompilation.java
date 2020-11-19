@@ -20,7 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.projects.CompilerBackend.TargetPlatform;
-import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  */
 public class PackageCompilation {
     private final PackageContext packageContext;
-    private final PackageResolver packageResolver;
+    private final PackageCache packageCache;
     private final CompilerContext compilerContext;
 
     private final DependencyGraph<PackageId> dependencyGraph;
@@ -62,7 +62,7 @@ public class PackageCompilation {
         this.packageContext = packageContext;
 
         ProjectEnvironment projectEnvContext = packageContext.project().projectEnvironmentContext();
-        this.packageResolver = projectEnvContext.getService(PackageResolver.class);
+        this.packageCache = projectEnvContext.getService(PackageCache.class);
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
 
         // Resolving the dependencies of this package before the compilation
@@ -80,7 +80,7 @@ public class PackageCompilation {
     }
 
     private void addPackageDependencies(PackageId packageId, Map<PackageId, Set<PackageId>> dependencyIdMap) {
-        Package pkg = packageResolver.getPackage(packageId);
+        Package pkg = packageCache.getPackageOrThrow(packageId);
         Collection<PackageId> directDependencies = pkg.packageDependencies().stream()
                 .map(PackageDependency::packageId)
                 .collect(Collectors.toList());
@@ -102,7 +102,7 @@ public class PackageCompilation {
         // Repeat this for each module in each package in the package dependency graph.
         List<PackageId> sortedPackageIds = dependencyGraph.toTopologicallySortedList();
         for (PackageId packageId : sortedPackageIds) {
-            Package pkg = packageResolver.getPackage(packageId);
+            Package pkg = packageCache.getPackageOrThrow(packageId);
             DependencyGraph<ModuleId> moduleDependencyGraph = pkg.moduleDependencyGraph();
             List<ModuleId> sortedModuleIds = moduleDependencyGraph.toTopologicallySortedList();
             for (ModuleId moduleId : sortedModuleIds) {
