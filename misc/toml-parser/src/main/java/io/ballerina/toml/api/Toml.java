@@ -30,6 +30,8 @@ import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.SyntaxTree;
+import io.ballerina.toml.validator.TomlValidator;
+import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
@@ -80,6 +82,21 @@ public class Toml {
     }
 
     /**
+     * Read TOML File using Path and validate it against a json schema.
+     *
+     * @param path Path of the TOML file
+     * @return TOML Object
+     * @throws IOException if file is not accessible
+     */
+    public static Toml read(Path path, Schema schema) throws IOException {
+        Path fileNamePath = path.getFileName();
+        if (fileNamePath == null) {
+            return null;
+        }
+        return read(Files.readString(path), fileNamePath.toString(), schema);
+    }
+
+    /**
      * Read TOML File using InputStream.
      *
      * @param inputStream InputStream of the TOML file
@@ -88,6 +105,18 @@ public class Toml {
      */
     public static Toml read(InputStream inputStream) throws IOException {
        return read(new String(inputStream.readAllBytes(), StandardCharsets.UTF_8), null);
+    }
+
+    /**
+     * Read TOML File using InputStream and validate against a json schema.
+     *
+     * @param inputStream InputStream of the TOML file
+     * @param rootSchema Root schema of the validator
+     * @return TOML Object
+     * @throws IOException if file is not accessible
+     */
+    public static Toml read(InputStream inputStream, Schema rootSchema) throws IOException {
+        return read(new String(inputStream.readAllBytes(), StandardCharsets.UTF_8), null, rootSchema);
     }
 
     /**
@@ -104,7 +133,26 @@ public class Toml {
         TomlTableNode
                 transformedTable = (TomlTableNode) nodeTransformer.transform((DocumentNode) syntaxTree.rootNode());
         transformedTable.addSyntaxDiagnostics(reportSyntaxDiagnostics(syntaxTree));
+        return new Toml(transformedTable);
+    }
+
+    /**
+     * Parse TOML file using TOML String and validate against a json schema.
+     *
+     * @param content String representation of the TOML file content.
+     * @param filePath path of the TOML file
+     * @return TOML Object
+     */
+    public static Toml read(String content, String filePath, Schema rootSchema) {
+        TextDocument textDocument = TextDocuments.from(content);
+        SyntaxTree syntaxTree = SyntaxTree.from(textDocument, filePath);
+        TomlTransformer nodeTransformer = new TomlTransformer();
+        TomlTableNode
+                transformedTable = (TomlTableNode) nodeTransformer.transform((DocumentNode) syntaxTree.rootNode());
+        transformedTable.addSyntaxDiagnostics(reportSyntaxDiagnostics(syntaxTree));
         Toml toml = new Toml(transformedTable);
+        TomlValidator tomlValidator = new TomlValidator(rootSchema);
+        tomlValidator.validate(toml);
         return toml;
     }
 

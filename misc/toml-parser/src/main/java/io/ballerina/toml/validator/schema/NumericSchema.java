@@ -25,7 +25,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class NumericSchema extends Schema {
+public class NumericSchema extends AbstractSchema {
     private Double minimum;
     private Double maximum;
 
@@ -39,19 +39,11 @@ public class NumericSchema extends Schema {
         this.maximum = maximum;
     }
 
-    public Optional<Double> getMinimum() {
+    public Optional<Double> minimum() {
         return Optional.ofNullable(minimum);
     }
 
-    public Optional<Double> getMaximum() {
+    public Optional<Double> maximum() {
         return Optional.ofNullable(maximum);
-    }
-
-    public void setMinimum(Double minimum) {
-        this.minimum = minimum;
-    }
-
-    public void setMaximum(Double maximum) {
-        this.maximum = maximum;
     }
 }

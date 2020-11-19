@@ -19,23 +19,22 @@
 package io.ballerina.toml.validator.schema;
 
 /**
- * Represents array schema in JSON schema.
+ * Represents the base class for all the sub schemas in json schema.
  *
  * @since 2.0.0
  */
-public class ArraySchema extends AbstractSchema {
-    private AbstractSchema items;
+public abstract class AbstractSchema {
+    private Type type;
 
-    public ArraySchema(Type type) {
-        super(type);
+    public AbstractSchema(Type type) {
+        this.type = type;
     }
 
-    public ArraySchema(Type type, AbstractSchema items) {
-        super(type);
-        this.items = items;
+    public Type type() {
+        return type;
     }
 
-    public AbstractSchema items() {
-        return items;
+    void setType(Type type) {
+        this.type = type;
     }
 }

@@ -23,7 +23,7 @@ package io.ballerina.toml.validator.schema;
  *
  * @since 2.0.0
  */
-public class BooleanSchema extends Schema {
+public class BooleanSchema extends AbstractSchema {
 
     public BooleanSchema(Type type) {
         super(type);

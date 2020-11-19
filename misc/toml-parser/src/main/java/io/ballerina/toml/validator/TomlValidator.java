@@ -20,7 +20,7 @@ package io.ballerina.toml.validator;
 
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
-import io.ballerina.toml.validator.schema.RootSchema;
+import io.ballerina.toml.validator.schema.Schema;
 
 /**
  * Contains the validation logic for AdditionalProperties in the JSON schema.
@@ -29,9 +29,9 @@ import io.ballerina.toml.validator.schema.RootSchema;
  */
 public class TomlValidator {
 
-    private final RootSchema rootSchema;
+    private final Schema rootSchema;
 
-    public TomlValidator(RootSchema rootSchema) {
+    public TomlValidator(Schema rootSchema) {
         this.rootSchema = rootSchema;
     }
 

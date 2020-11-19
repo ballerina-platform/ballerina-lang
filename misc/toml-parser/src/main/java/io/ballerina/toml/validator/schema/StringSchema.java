@@ -25,7 +25,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class StringSchema extends Schema {
+public class StringSchema extends AbstractSchema {
     private String pattern;
 
     public StringSchema(Type type) {
@@ -37,11 +37,7 @@ public class StringSchema extends Schema {
         this.pattern = pattern;
     }
 
-    public Optional<String> getPattern() {
+    public Optional<String> pattern() {
         return Optional.ofNullable(pattern);
-    }
-
-    public void setPattern(String pattern) {
-        this.pattern = pattern;
     }
 }

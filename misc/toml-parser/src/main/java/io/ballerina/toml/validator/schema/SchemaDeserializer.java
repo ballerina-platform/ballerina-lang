@@ -33,11 +33,11 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class SchemaDeserializer implements JsonDeserializer<Schema> {
+public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
 
     @Override
-    public Schema deserialize(JsonElement jsonElement, java.lang.reflect.Type refType,
-                              JsonDeserializationContext jsonDeserializationContext)
+    public AbstractSchema deserialize(JsonElement jsonElement, java.lang.reflect.Type refType,
+                                      JsonDeserializationContext jsonDeserializationContext)
             throws JsonParseException {
         JsonObject jsonObj = jsonElement.getAsJsonObject();
         String type = jsonObj.get("type").getAsString();
@@ -66,19 +66,20 @@ public class SchemaDeserializer implements JsonDeserializer<Schema> {
         boolean additionalProperties = additionalProperty == null || additionalProperty.getAsBoolean();
         JsonObject properties = jsonObj.get("properties").getAsJsonObject();
         Set<Map.Entry<String, JsonElement>> entries = properties.entrySet();
-        Map<String, Schema> propertiesList = new HashMap<>();
+        Map<String, AbstractSchema> propertiesList = new HashMap<>();
         for (Map.Entry<String, JsonElement> entry : entries) {
             String key = entry.getKey();
-            Schema schema = jsonDeserializationContext.deserialize(entry.getValue(), Schema.class);
-            propertiesList.put(key, schema);
+            AbstractSchema
+                    abstractSchema = jsonDeserializationContext.deserialize(entry.getValue(), AbstractSchema.class);
+            propertiesList.put(key, abstractSchema);
         }
         return new ObjectSchema(Type.OBJECT, description, additionalProperties, propertiesList);
     }
 
-    private Schema getArraySchema(JsonDeserializationContext jsonDeserializationContext, JsonObject jsonObj) {
+    private AbstractSchema getArraySchema(JsonDeserializationContext jsonDeserializationContext, JsonObject jsonObj) {
         JsonElement items = jsonObj.get("items").getAsJsonObject();
-        Schema schema = jsonDeserializationContext.deserialize(items, Schema.class);
-        return new ArraySchema(Type.ARRAY, schema);
+        AbstractSchema abstractSchema = jsonDeserializationContext.deserialize(items, AbstractSchema.class);
+        return new ArraySchema(Type.ARRAY, abstractSchema);
     }
 
     private StringSchema getStringSchema(JsonObject jsonObj) {

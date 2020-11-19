@@ -27,10 +27,10 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class ObjectSchema extends Schema {
+public class ObjectSchema extends AbstractSchema {
     private String description;
     private boolean additionalProperties;
-    private Map<String, Schema> properties;
+    private Map<String, AbstractSchema> properties;
 
     public ObjectSchema(Type type) {
         super(type);
@@ -38,29 +38,29 @@ public class ObjectSchema extends Schema {
         this.properties = new HashMap<>();
     }
 
-    public ObjectSchema(Type type, Map<String, Schema> properties) {
+    public ObjectSchema(Type type, Map<String, AbstractSchema> properties) {
         super(type);
         this.additionalProperties = true;
         this.properties = properties;
     }
 
     public ObjectSchema(Type type, String description, boolean additionalProperties,
-                        Map<String, Schema> properties) {
+                        Map<String, AbstractSchema> properties) {
         super(type);
         this.description = description;
         this.additionalProperties = additionalProperties;
         this.properties = properties;
     }
 
-    public Optional<String> getDescription() {
+    public Optional<String> description() {
         return Optional.ofNullable(description);
     }
 
-    public boolean isAdditionalProperties() {
+    public boolean hasAdditionalProperties() {
         return additionalProperties;
     }
 
-    public Map<String, Schema> getProperties() {
+    public Map<String, AbstractSchema> properties() {
         return properties;
     }
 }

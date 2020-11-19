@@ -19,8 +19,7 @@
 package toml.parser.test.validator;
 
 import io.ballerina.toml.api.Toml;
-import io.ballerina.toml.validator.TomlValidator;
-import io.ballerina.toml.validator.schema.RootSchema;
+import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -41,11 +40,9 @@ public class CodeToCloudTest {
     @Test
     public void testClean() throws IOException {
         Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "c2c-schema.json");
-        TomlValidator validator = new TomlValidator(RootSchema.from(resourceDirectory));
-
         Path sampleInput = Paths.get("src", "test", "resources", "validator", "c2c-clean.toml");
-        Toml toml = Toml.read(sampleInput);
-        validator.validate(toml);
+
+        Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
         int diagSize = toml.getDiagnostics().size();
         Assert.assertEquals(diagSize, 0);
@@ -54,11 +51,9 @@ public class CodeToCloudTest {
     @Test
     public void testInvalidType() throws IOException {
         Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "c2c-schema.json");
-        TomlValidator validator = new TomlValidator(RootSchema.from(resourceDirectory));
-
         Path sampleInput = Paths.get("src", "test", "resources", "validator", "c2c-invalid-type.toml");
-        Toml toml = Toml.read(sampleInput);
-        validator.validate(toml);
+
+        Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
         Diagnostic diagnostic = toml.getDiagnostics().iterator().next();
         Assert.assertEquals(diagnostic.message(), "Key \"base\" expects STRING . Found integer");
@@ -67,11 +62,9 @@ public class CodeToCloudTest {
     @Test
     public void testInvalidRegex() throws IOException {
         Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "c2c-schema.json");
-        TomlValidator validator = new TomlValidator(RootSchema.from(resourceDirectory));
-
         Path sampleInput = Paths.get("src", "test", "resources", "validator", "c2c-invalid-regex.toml");
-        Toml toml = Toml.read(sampleInput);
-        validator.validate(toml);
+
+        Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
         Diagnostic diagnostic = toml.getDiagnostics().iterator().next();
         Assert.assertEquals(diagnostic.message(), "Key \"name\" value does not match the Regex provided in Schema " +
@@ -81,11 +74,9 @@ public class CodeToCloudTest {
     @Test
     public void testInvalidMinMax() throws IOException {
         Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "c2c-schema.json");
-        TomlValidator validator = new TomlValidator(RootSchema.from(resourceDirectory));
-
         Path sampleInput = Paths.get("src", "test", "resources", "validator", "c2c-invalid-min-max.toml");
-        Toml toml = Toml.read(sampleInput);
-        validator.validate(toml);
+
+        Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
         Set<Diagnostic> validate = toml.getDiagnostics();
         Iterator<Diagnostic> iterator = validate.iterator();
@@ -100,11 +91,9 @@ public class CodeToCloudTest {
     @Test
     public void testInvalidAdditionalProperty() throws IOException {
         Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "c2c-schema.json");
-        TomlValidator validator = new TomlValidator(RootSchema.from(resourceDirectory));
-
         Path sampleInput = Paths.get("src", "test", "resources", "validator", "c2c-invalid-additional-properties.toml");
-        Toml toml = Toml.read(sampleInput);
-        validator.validate(toml);
+
+        Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
         Diagnostic diagnostic = toml.getDiagnostics().iterator().next();
         Assert.assertEquals(diagnostic.message(), "Unexpected Property \"field\"");
