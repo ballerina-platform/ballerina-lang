@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -306,27 +307,35 @@ public class RunTestsTask implements Task {
             File jsonFile = new File(target.path().resolve(RESULTS_JSON_FILE).toString());
             try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
                 writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-                out.println("\t" + Paths.get("").toAbsolutePath().relativize(jsonFile.toPath()) + "\n");
+                out.println("\t" + Paths.get("").toAbsolutePath().
+                        relativize(Paths.get(jsonFile.getAbsolutePath())) + "\n");
             } catch (IOException e) {
                 throw LauncherUtils.createLauncherException("couldn't read data from the Json file : " + e.toString());
             }
 
-            String content;
-            try {
-                CodeCoverageUtils.unzipReportResources(getClass().getClassLoader().getResourceAsStream(REPORT_ZIP_NAME),
-                        reportDir.toFile());
-
-                content = Files.readString(reportDir.resolve(RESULTS_HTML_FILE));
-                content = content.replace(REPORT_DATA_PLACEHOLDER, json);
-            } catch (IOException e) {
-                throw createLauncherException("error occurred while preparing test report: " + e.toString());
-            }
-            File htmlFile = new File(reportDir.resolve(RESULTS_HTML_FILE).toString());
-            try (Writer writer = new OutputStreamWriter(new FileOutputStream(htmlFile), StandardCharsets.UTF_8)) {
-                writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-                out.println("\tView the test report at: " + FILE_PROTOCOL + htmlFile.getAbsolutePath());
-            } catch (IOException e) {
-                throw createLauncherException("couldn't read data from the Json file : " + e.toString());
+            Path reportZipPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_LIB).
+                    resolve(TesterinaConstants.TOOLS_DIR_NAME).resolve(TesterinaConstants.COVERAGE_DIR).
+                    resolve(REPORT_ZIP_NAME);
+            if (Files.exists(reportZipPath)) {
+                String content;
+                try {
+                    CodeCoverageUtils.unzipReportResources(new FileInputStream(reportZipPath.toFile()),
+                            reportDir.toFile());
+                    content = Files.readString(reportDir.resolve(RESULTS_HTML_FILE));
+                    content = content.replace(REPORT_DATA_PLACEHOLDER, json);
+                } catch (IOException e) {
+                    throw createLauncherException("error occurred while preparing test report: " + e.toString());
+                }
+                File htmlFile = new File(reportDir.resolve(RESULTS_HTML_FILE).toString());
+                try (Writer writer = new OutputStreamWriter(new FileOutputStream(htmlFile), StandardCharsets.UTF_8)) {
+                    writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+                    out.println("\tView the test report at: " + FILE_PROTOCOL + htmlFile.getAbsolutePath());
+                } catch (IOException e) {
+                    throw createLauncherException("couldn't read data from the Json file : " + e.toString());
+                }
+            } else {
+                out.println("warning: Could not find the required HTML report tools for code coverage at "
+                    + Paths.get("").toAbsolutePath().relativize(reportZipPath));
             }
         }
     }
