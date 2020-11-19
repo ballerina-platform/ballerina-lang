@@ -124,7 +124,7 @@ class ModuleContext {
         return this.moduleId;
     }
 
-    ModuleDescriptor moduleDescriptor() {
+    ModuleDescriptor descriptor() {
         return moduleDescriptor;
     }
 
@@ -290,7 +290,7 @@ class ModuleContext {
     }
 
     static void compileInternal(ModuleContext moduleContext, CompilerContext compilerContext) {
-        PackageID moduleCompilationId = moduleContext.moduleDescriptor().moduleCompilationId();
+        PackageID moduleCompilationId = moduleContext.descriptor().moduleCompilationId();
         String bootstrapLangLibName = System.getProperty("BOOTSTRAP_LANG_LIB");
         if (bootstrapLangLibName != null) {
             moduleContext.bootstrap.loadLangLib(compilerContext, moduleCompilationId);
@@ -381,7 +381,7 @@ class ModuleContext {
                 org.wso2.ballerinalang.compiler.PackageCache.getInstance(compilerContext);
         BIRPackageSymbolEnter birPackageSymbolEnter = BIRPackageSymbolEnter.getInstance(compilerContext);
 
-        PackageID moduleCompilationId = moduleContext.moduleDescriptor().moduleCompilationId();
+        PackageID moduleCompilationId = moduleContext.descriptor().moduleCompilationId();
         moduleContext.bPackageSymbol = birPackageSymbolEnter.definePackage(
                 moduleCompilationId, null, moduleContext.birBytes);
         packageCache.putSymbol(moduleCompilationId, moduleContext.bPackageSymbol);

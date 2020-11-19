@@ -1282,9 +1282,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                 BLangFunction func = (BLangFunction) env.node;
                 boolean errored = false;
 
-                if (func.returnTypeNode == null || !func.hasBody() ||
-                        func.body.getKind() != NodeKind.EXTERN_FUNCTION_BODY) {
-                    dlog.error(userDefinedTypeNode.pos, DiagnosticCode.INVALID_USE_OF_TYPEDESC_PARAM);
+                if (func.returnTypeNode == null ||
+                        (func.hasBody() && func.body.getKind() != NodeKind.EXTERN_FUNCTION_BODY)) {
+                    dlog.error(userDefinedTypeNode.pos, DiagnosticCode.INVALID_NON_EXTERNAL_DEPENDENTLY_TYPED_FUNCTION);
                     errored = true;
                 }
 
@@ -1299,7 +1299,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                     return;
                 }
 
-                BType paramValType = getTypedescParamValueType(func.requiredParams, tempSymbol);
+                ParameterizedTypeInfo parameterizedTypeInfo =
+                        getTypedescParamValueType(func.requiredParams, tempSymbol);
+                BType paramValType = parameterizedTypeInfo == null ? null : parameterizedTypeInfo.paramValueType;
 
                 if (paramValType == symTable.semanticError) {
                     this.resultType = symTable.semanticError;
@@ -1311,7 +1313,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                                                           tempSymbol.name, tempSymbol.pkgID, null, func.symbol,
                                                           tempSymbol.pos, VIRTUAL);
                     tSymbol.type = new BParameterizedType(paramValType, (BVarSymbol) tempSymbol,
-                                                          tSymbol, tempSymbol.name);
+                                                          tSymbol, tempSymbol.name, parameterizedTypeInfo.index);
                     tSymbol.type.flags |= Flags.PARAMETERIZED;
 
                     this.resultType = tSymbol.type;
@@ -1338,27 +1340,33 @@ public class SymbolResolver extends BLangNodeVisitor {
         resultType = symbol.type;
     }
 
-    private BType getTypedescParamValueType(List<BLangSimpleVariable> params, BSymbol varSym) {
-        for (BLangSimpleVariable param : params) {
+    private ParameterizedTypeInfo getTypedescParamValueType(List<BLangSimpleVariable> params, BSymbol varSym) {
+        for (int i = 0; i < params.size(); i++) {
+            BLangSimpleVariable param = params.get(i);
+
             if (param.name.value.equals(varSym.name.value)) {
                 if (param.expr == null) {
-                    return ((BTypedescType) varSym.type).constraint;
+                    return new ParameterizedTypeInfo(((BTypedescType) varSym.type).constraint, i);
                 }
 
                 NodeKind defaultValueExprKind = param.expr.getKind();
 
                 if (defaultValueExprKind == NodeKind.TYPEDESC_EXPRESSION) {
-                    return resolveTypeNode(((BLangTypedescExpr) param.expr).typeNode, this.env);
+                    return new ParameterizedTypeInfo(
+                            resolveTypeNode(((BLangTypedescExpr) param.expr).typeNode, this.env), i);
                 }
 
                 if (defaultValueExprKind == NodeKind.SIMPLE_VARIABLE_REF) {
                     Name varName = names.fromIdNode(((BLangSimpleVarRef) param.expr).variableName);
                     BSymbol typeRefSym = lookupSymbolInMainSpace(this.env, varName);
-                    return typeRefSym != symTable.notFoundSymbol ? typeRefSym.type : symTable.semanticError;
+                    if (typeRefSym != symTable.notFoundSymbol) {
+                        return new ParameterizedTypeInfo(typeRefSym.type, i);
+                    }
+                    return new ParameterizedTypeInfo(symTable.semanticError);
                 }
 
                 dlog.error(param.pos, DiagnosticCode.INVALID_TYPEDESC_PARAM);
-                return symTable.semanticError;
+                return new ParameterizedTypeInfo(symTable.semanticError);
             }
         }
 
@@ -1427,7 +1435,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             params.add(symbol);
         }
 
-        BType retType = resolveTypeNode(retTypeVar, this.env);
+        BType retType = resolveTypeNode(retTypeVar, env);
         if (retType == symTable.noType) {
             return symTable.noType;
         }
@@ -1739,5 +1747,19 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         return types.getTypeIntersection(lhsType, rhsType);
+    }
+
+    private static class ParameterizedTypeInfo {
+        BType paramValueType;
+        int index = -1;
+
+        private ParameterizedTypeInfo(BType paramValueType) {
+            this.paramValueType = paramValueType;
+        }
+
+        private ParameterizedTypeInfo(BType paramValueType, int index) {
+            this.paramValueType = paramValueType;
+            this.index = index;
+        }
     }
 }

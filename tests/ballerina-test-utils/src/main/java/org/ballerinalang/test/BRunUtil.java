@@ -18,7 +18,7 @@
 package org.ballerinalang.test;
 
 import io.ballerina.projects.JarResolver;
-import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
@@ -263,10 +263,10 @@ public class BRunUtil {
         }
 
         Object jvmResult;
-        PackageDescriptor packageDescriptor = compileResult.packageDescriptor();
-        String funcClassName = JarResolver.getQualifiedClassName(packageDescriptor.org().toString(),
-                packageDescriptor.name().toString(),
-                packageDescriptor.version().toString(),
+        PackageManifest packageManifest = compileResult.packageManifest();
+        String funcClassName = JarResolver.getQualifiedClassName(packageManifest.org().toString(),
+                packageManifest.name().toString(),
+                packageManifest.version().toString(),
                 getClassName(function.pos.lineRange().filePath()));
 
         try {
@@ -399,10 +399,10 @@ public class BRunUtil {
         }
 
         Object jvmResult;
-        PackageDescriptor packageDescriptor = compileResult.packageDescriptor();
-        String funcClassName = JarResolver.getQualifiedClassName(packageDescriptor.org().toString(),
-                packageDescriptor.name().toString(),
-                packageDescriptor.version().toString(),
+        PackageManifest packageManifest = compileResult.packageManifest();
+        String funcClassName = JarResolver.getQualifiedClassName(packageManifest.org().toString(),
+                packageManifest.name().toString(),
+                packageManifest.version().toString(),
                 getClassName(function.pos.lineRange().filePath()));
 
         try {
@@ -1255,10 +1255,10 @@ public class BRunUtil {
     }
 
     public static ExitDetails run(CompileResult compileResult, String[] args) {
-        PackageDescriptor packageDescriptor = compileResult.packageDescriptor();
-        String initClassName = JarResolver.getQualifiedClassName(packageDescriptor.org().toString(),
-                packageDescriptor.name().toString(),
-                packageDescriptor.version().toString(),
+        PackageManifest packageManifest = compileResult.packageManifest();
+        String initClassName = JarResolver.getQualifiedClassName(packageManifest.org().toString(),
+                packageManifest.name().toString(),
+                packageManifest.version().toString(),
                 MODULE_INIT_CLASS_NAME);
         URLClassLoader classLoader = (URLClassLoader) compileResult.getClassLoader();
 
@@ -1301,10 +1301,10 @@ public class BRunUtil {
 
     public static void runInit(CompileResult compileResult)
             throws ClassNotFoundException {
-        PackageDescriptor packageDescriptor = compileResult.packageDescriptor();
-        String initClassName = JarResolver.getQualifiedClassName(packageDescriptor.org().toString(),
-                packageDescriptor.name().toString(),
-                packageDescriptor.version().toString(),
+        PackageManifest packageManifest = compileResult.packageManifest();
+        String initClassName = JarResolver.getQualifiedClassName(packageManifest.org().toString(),
+                packageManifest.name().toString(),
+                packageManifest.version().toString(),
                 MODULE_INIT_CLASS_NAME);
 
         Class<?> initClazz = compileResult.getClassLoader().loadClass(initClassName);

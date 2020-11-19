@@ -17,7 +17,7 @@
  */
 package io.ballerina.projects.internal;
 
-import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -145,8 +145,8 @@ public class ProjectFiles {
         return DocumentData.from(ProjectConstants.TEST_DIR_NAME + "/" + documentName, content);
     }
 
-    public static PackageDescriptor createPackageDescriptor(Path ballerinaTomlFilePath) {
-        return BallerinaTomlProcessor.parseAsPackageDescriptor(ballerinaTomlFilePath);
+    public static PackageManifest createPackageManifest(Path ballerinaTomlFilePath) {
+        return BallerinaTomlProcessor.parseAsPackageManifest(ballerinaTomlFilePath);
     }
 
     public static void validateBuildProjectDirPath(Path projectDirPath) {

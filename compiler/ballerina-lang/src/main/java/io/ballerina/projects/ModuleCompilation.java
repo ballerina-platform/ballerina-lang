@@ -63,7 +63,7 @@ public class ModuleCompilation {
     private DependencyGraph<ModuleId> buildDependencyGraph() {
         Map<ModuleId, Set<ModuleId>> dependencyIdMap = new HashMap<>();
         addModuleDependencies(moduleContext.moduleId(), dependencyIdMap);
-        return new DependencyGraph<>(dependencyIdMap);
+        return DependencyGraph.from(dependencyIdMap);
     }
 
     private void addModuleDependencies(ModuleId moduleId, Map<ModuleId, Set<ModuleId>> dependencyIdMap) {

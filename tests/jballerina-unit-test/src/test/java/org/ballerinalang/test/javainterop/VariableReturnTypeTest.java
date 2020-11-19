@@ -64,22 +64,39 @@ public class VariableReturnTypeTest {
         validateError(errors, indx++, "invalid error detail type 'detail', expected a subtype of " +
                 "'map<(anydata|readonly)>'", 81, 83);
         validateError(errors, indx++, "unknown type 'detail'", 81, 83);
-        validateError(errors, indx++, "use of 'typedesc' parameters as types only allowed for return types " +
-                "in external functions", 88, 45);
-        validateError(errors, indx++, "use of 'typedesc' parameters as types only allowed for return types " +
-                "in external functions", 88, 67);
+        validateError(errors, indx++,
+                      "a function with a non-'external' function body cannot be a dependently-typed function", 88, 45);
+        validateError(errors, indx++,
+                      "a function with a non-'external' function body cannot be a dependently-typed function", 88, 67);
         validateError(errors, indx++, "default value for a 'typedesc' parameter used in the return type" +
                 " should be a reference to a type", 92, 29);
         validateError(errors, indx++, "unknown type 'NonExistentParam'", 102, 77);
         validateError(errors, indx++, "invalid parameter reference: expected 'typedesc', found 'string'", 108, 54);
+        validateError(errors, indx++,
+                      "a function with a non-'external' function body cannot be a dependently-typed function", 114, 45);
         validateError(errors, indx++, "invalid parameter reference: expected 'typedesc', found 'string'", 114, 45);
-        validateError(errors, indx++, "use of 'typedesc' parameters as types only allowed for return types " +
-                "in external functions", 114, 45);
         validateError(errors, indx++, "incompatible types: expected 'function (typedesc<(string|int)>) returns " +
                 "(string)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 125, 61);
         validateError(errors, indx++, "unknown type 'td'", 126, 48);
         validateError(errors, indx++, "incompatible types: expected 'function (typedesc<(string|int)>) returns " +
                 "(other)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 126, 57);
+        validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
+                "(typedesc<anydata> td) returns (td|error)', found 'public function get(typedesc<anydata> td) returns" +
+                " (other|error)'", 139, 5);
+        validateError(errors, indx++, "a function with a non-'external' function body cannot be a dependently-typed " +
+                "function", 139, 64);
+        validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
+                "(typedesc<anydata> td) returns (td|error)', found 'public function get(typedesc<anydata> td) returns" +
+                " (other|error)'", 143, 5);
+        validateError(errors, indx++, "a function with a non-'external' function body cannot be a dependently-typed " +
+                "function", 143, 64);
+        validateError(errors, indx++, "incompatible types: expected 'Bar', found 'Baz'", 175, 15);
+        validateError(errors, indx++, "incompatible types: expected 'Quux', found 'Qux'", 179, 17);
+        validateError(errors, indx++, "incompatible types: expected 'Qux', found 'Quux'", 180, 15);
+        validateError(errors, indx++, "incompatible types: expected 'Baz', found 'Quux'", 181, 16);
+        validateError(errors, indx++, "incompatible types: expected 'Quuz', found 'Qux'", 182, 17);
+        validateError(errors, indx++, "incompatible types: expected 'Corge', found 'Grault'", 184, 19);
+        validateError(errors, indx++, "incompatible types: expected 'Grault', found 'Corge'", 185, 21);
 
         Assert.assertEquals(errors.getErrorCount(), indx);
     }
@@ -126,7 +143,9 @@ public class VariableReturnTypeTest {
                 {"testTypedesc"},
                 {"testFuture"},
                 {"testComplexTypes"},
-                {"testObjectExternFunctions"}
+                {"testObjectExternFunctions"},
+                {"testDependentlyTypedMethodsWithObjectTypeInclusion"},
+                {"testSubtypingWithDependentlyTypedMethods"}
         };
     }
 }

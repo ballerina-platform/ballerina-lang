@@ -117,6 +117,7 @@ import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarator;
 import io.ballerina.compiler.syntax.tree.NewExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -558,7 +559,31 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ModuleVariableDeclarationNode modVarDeclrNode) {
         TypedBindingPatternNode typedBindingPattern = modVarDeclrNode.typedBindingPattern();
-        CaptureBindingPatternNode bindingPattern = (CaptureBindingPatternNode) typedBindingPattern.bindingPattern();
+        BindingPatternNode bindingPatternNode = typedBindingPattern.bindingPattern();
+
+        Token variableName;
+        String unsupportedBP = null;
+        switch (bindingPatternNode.kind()) { // TODO : Remove this after all binding patterns are implemented
+            case MAPPING_BINDING_PATTERN:
+                unsupportedBP = "mapping";
+                break;
+            case ERROR_BINDING_PATTERN:
+                unsupportedBP = "error";
+                break;
+            case WILDCARD_BINDING_PATTERN:
+                unsupportedBP = "wildcard";
+                break;
+        }
+
+        if (unsupportedBP != null) {
+            Location bindingPatternPos = getPosition(bindingPatternNode);
+            dlog.error(bindingPatternPos, DiagnosticCode.BINDING_PATTERN_NOT_YET_SUPPORTED_IN_MODULE_VAR_DECL,
+                    unsupportedBP);
+            variableName = NodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN,
+                    NodeFactory.createEmptyMinutiaeList(), NodeFactory.createEmptyMinutiaeList());
+        } else {
+            variableName = ((CaptureBindingPatternNode) bindingPatternNode).variableName();
+        }
 
         boolean isFinal = false;
         for (Token qualifier : modVarDeclrNode.qualifiers()) {
@@ -567,8 +592,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         }
 
-        BLangSimpleVariable simpleVar = createSimpleVar(bindingPattern.variableName(),
-                typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer().orElse(null), isFinal, false, null,
+        BLangSimpleVariable simpleVar = createSimpleVar(variableName, typedBindingPattern.typeDescriptor(),
+                modVarDeclrNode.initializer().orElse(null), isFinal, false, null,
                 getAnnotations(modVarDeclrNode.metadata()));
         simpleVar.pos = getPositionWithoutMetadata(modVarDeclrNode);
         simpleVar.markdownDocumentationAttachment =

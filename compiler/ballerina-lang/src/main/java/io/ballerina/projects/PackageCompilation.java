@@ -76,7 +76,7 @@ public class PackageCompilation {
     private DependencyGraph<PackageId> buildDependencyGraph() {
         Map<PackageId, Set<PackageId>> dependencyIdMap = new HashMap<>();
         addPackageDependencies(packageContext.packageId(), dependencyIdMap);
-        return new DependencyGraph<>(dependencyIdMap);
+        return DependencyGraph.from(dependencyIdMap);
     }
 
     private void addPackageDependencies(PackageId packageId, Map<PackageId, Set<PackageId>> dependencyIdMap) {

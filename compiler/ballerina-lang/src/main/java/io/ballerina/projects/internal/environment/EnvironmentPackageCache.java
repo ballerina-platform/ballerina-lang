@@ -3,10 +3,11 @@ package io.ballerina.projects.internal.environment;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageId;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.SemanticVersion;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,13 +50,13 @@ public class EnvironmentPackageCache implements WritablePackageCache {
     @Override
     public Optional<Package> getPackage(PackageOrg packageOrg,
                                         PackageName packageName,
-                                        SemanticVersion semanticVersion) {
+                                        PackageVersion version) {
         // Do we have a need to improve this logic?
         for (Project project : projects.values()) {
-            PackageDescriptor pkgDesc = project.currentPackage().packageDescriptor();
+            PackageDescriptor pkgDesc = project.currentPackage().descriptor();
             if (pkgDesc.org().equals(packageOrg) &&
                     pkgDesc.name().equals(packageName) &&
-                    pkgDesc.version().value().equals(semanticVersion)) {
+                    pkgDesc.version().equals(version)) {
                 return Optional.of(project.currentPackage());
             }
         }
@@ -67,7 +68,7 @@ public class EnvironmentPackageCache implements WritablePackageCache {
         // Do we have a need to improve this logic?
         List<Package> foundList = new ArrayList<>();
         for (Project project : projects.values()) {
-            PackageDescriptor pkgDesc = project.currentPackage().packageDescriptor();
+            PackageManifest pkgDesc = project.currentPackage().manifest();
             if (pkgDesc.org().equals(packageOrg) &&
                     pkgDesc.name().equals(packageName)) {
                 foundList.add(project.currentPackage());
