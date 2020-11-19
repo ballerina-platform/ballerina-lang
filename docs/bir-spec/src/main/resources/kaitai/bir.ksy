@@ -89,7 +89,7 @@ types:
       - id: name_index
         type: s4
       - id: type_flag
-        type: s4
+        type: s8
       - id: type_special_flag
         type: s4
       - id: type_structure
@@ -160,7 +160,7 @@ types:
       - id: name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
       - id: value_space_size
         type: s4
       - id: finite_values
@@ -211,6 +211,8 @@ types:
     seq:
       - id: param_value_type_cp_index
         type: s4
+      - id: param_index
+        type: s4
   type_future:
     seq:
       - id: constraint_type_cp_index
@@ -256,7 +258,7 @@ types:
       - id: name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
       - id: doc
         type: markdown
       - id: type_cp_index
@@ -266,7 +268,7 @@ types:
       - id: name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
       - id: type_cp_index
         type: s4
   type_union:
@@ -352,7 +354,7 @@ types:
       - id: name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
       - id: doc
         type: markdown
       - id: type_cp_index
@@ -362,7 +364,7 @@ types:
       - id: name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
       - id: type_cp_index
         type: s4
   module:
@@ -418,7 +420,7 @@ types:
       - id: name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
       - id: origin
         type: s1
       - id: doc
@@ -432,7 +434,7 @@ types:
       - id: name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
       - id: label
         type: s1
       - id: origin
@@ -460,7 +462,7 @@ types:
       - id: name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
       - id: origin
         type: s1
       - id: position
@@ -486,7 +488,7 @@ types:
       - id: name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
       - id: origin
         type: s1
       - id: position
@@ -603,7 +605,7 @@ types:
       - id: worker_name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
       - id: origin
         type: s1
       - id: type_cp_index
@@ -734,7 +736,7 @@ types:
       - id: param_name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
   reciever:
     seq:
       - id: kind

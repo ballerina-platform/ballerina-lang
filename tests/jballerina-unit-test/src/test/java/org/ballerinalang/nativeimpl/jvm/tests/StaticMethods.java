@@ -489,6 +489,19 @@ public class StaticMethods {
         // TODO: see if we can verify this
     }
 
+    public static BString getCurrentModule(Environment env, long b) {
+        Module callerModule = env.getCurrentModule();
+        return StringUtils.fromString(callerModule.getOrg() + "#" + callerModule.getName() + "#" +
+                                              callerModule.getVersion() + "#" + b);
+    }
+
+    public static BString getCurrentModuleForObject(Environment env, ObjectValue a, long b) {
+        Module callerModule = env.getCurrentModule();
+        return StringUtils.fromString(callerModule.getOrg() + "#" + callerModule.getName() + "#" +
+                                              callerModule.getVersion() + "#" +
+                                              a.get(StringUtils.fromString("age")) + "#" + b);
+    }
+
     private static void sleep() {
         try {
             Thread.sleep(100);

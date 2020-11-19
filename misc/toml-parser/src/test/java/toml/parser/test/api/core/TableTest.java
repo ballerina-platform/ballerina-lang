@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package toml.parser.test.core;
+package toml.parser.test.api.core;
 
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.ast.TomlLongValueNode;
@@ -38,7 +38,7 @@ public class TableTest {
     public void testTable() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("syntax/core/table.toml");
+                .getResourceAsStream("syntax/tables/table.toml");
         Toml read = Toml.read(inputStream);
         Long rootKey = ((TomlLongValueNode) read.get("rootKey")).getValue();
         String dotNotation = ((TomlStringValueNode) read.getTable("first").get("key")).getValue();
@@ -61,7 +61,7 @@ public class TableTest {
     public void testArrayOfTable() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("syntax/core/array-of-tables.toml");
+                .getResourceAsStream("syntax/tables/array-of-tables.toml");
         Toml read = Toml.read(inputStream);
         String valueInTable = ((TomlStringValueNode) read.getTable("products").get("hello1")).getValue();
         Assert.assertEquals(valueInTable, "hi");

@@ -145,6 +145,10 @@ public class CodeGenerator {
 
     private void generate(BPackageSymbol packageSymbol, Set<Path> moduleDependencies) {
 
+        // Desugar BIR to include the observations
+        JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(packageCache, symbolTable);
+        jvmObservabilityGen.instrumentPackage(packageSymbol.bir);
+
         dlog.setCurrentPackageId(packageSymbol.pkgID);
         final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog);
 
