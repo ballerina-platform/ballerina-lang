@@ -42,7 +42,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -988,10 +987,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (Symbols.isFlagOn(symbol.flags, Flags.FINAL) &&
-                (types.isInherentlyImmutableType(accessType) ||
-                         Symbols.isFlagOn(accessType.flags, Flags.READONLY) ||
-                         types.isIsolatedObjectTypes(accessType))) {
+        if (Symbols.isFlagOn(symbol.flags, Flags.FINAL) && types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(accessType)) {
             return;
         }
 
@@ -2051,21 +2047,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isExpectedToBeAPrivateField(BVarSymbol symbol, BType type) {
-        return !Symbols.isFlagOn(symbol.flags, Flags.FINAL) || isNotSubTypeOfReadOnlyOrIsolatedObject(type);
-    }
-
-    private boolean isNotSubTypeOfReadOnlyOrIsolatedObject(BType type) {
-        if (type.tag == TypeTags.UNION) {
-            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                if (isNotSubTypeOfReadOnlyOrIsolatedObject(memberType)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        var flags = type.flags;
-        return !Symbols.isFlagOn(flags, Flags.READONLY) && !types.isIsolatedObjectTypes(type);
+        return !Symbols.isFlagOn(symbol.flags, Flags.FINAL) || !types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(type);
     }
 
     private boolean isIsolatedObjectFieldAccessViaSelf(BLangFieldBasedAccess fieldAccessExpr, boolean ignoreInit) {
@@ -2094,7 +2076,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateIsolatedExpression(BType type, BLangExpression expression) {
-        if (Symbols.isFlagOn(type.flags, Flags.READONLY) || types.isIsolatedObjectTypes(type)) {
+        if (types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(type)) {
             return;
         }
 
@@ -2107,7 +2089,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean isIsolatedExpression(BLangExpression expression, boolean logErrors) {
         BType type = expression.type;
-        if (type != null && (Symbols.isFlagOn(type.flags, Flags.READONLY) || types.isIsolatedObjectTypes(type))) {
+        if (type != null && types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(type)) {
             return true;
         }
 

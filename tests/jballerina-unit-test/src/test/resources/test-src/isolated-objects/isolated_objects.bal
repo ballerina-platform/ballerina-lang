@@ -342,6 +342,23 @@ isolated function outerAdd(anydata val) {
 
 }
 
+isolated class ArrayGen {
+    isolated function getArray() returns int[] => [];
+}
+
+ArrayGen|(int[] & readonly) unionVal = [1, 2, 3];
+
+isolated class IsolatedClassAccessingSubTypeOfReadOnlyOrIsolatedObjectUnion {
+    private int[] a;
+
+    function testAccessingSubTypeOfReadOnlyOrIsolatedObjectUnionInIsolatedClass() {
+        lock {
+            var val = unionVal;
+            self.a = val is ArrayGen ? val.getArray() : val;
+        }
+    }
+}
+
 int[] a = [];
 readonly & int[] b = [];
 final readonly & int[] c = [];
@@ -388,7 +405,7 @@ function testObjectConstrExprImplicitIsolatedness() {
             final int a = 1;
             final readonly & string[] b = [];
         };
-        final IsolatedClassWithPrivateMutableFields z = new ({i: 2}, 3);
+        final (readonly & string[])|IsolatedClassWithPrivateMutableFields z = new IsolatedClassWithPrivateMutableFields({i: 2}, 3);
     };
 
     isolated object {} isolatedOb = ob;
@@ -404,6 +421,17 @@ function testObjectConstrExprImplicitIsolatedness() {
     };
 
     assertFalse(<any> ob2 is isolated object {});
+
+    var ob3 = object {
+        final int[] & readonly x = [];
+        final IsolatedObjectType y = object {
+            final int a = 1;
+            final readonly & string[] b = [];
+        };
+        final string[]|IsolatedClassWithPrivateMutableFields z = new IsolatedClassWithPrivateMutableFields({i: 2}, 3);
+    };
+
+    assertFalse(<any> ob3 is isolated object {});
 }
 
 class NonIsolatedClass {

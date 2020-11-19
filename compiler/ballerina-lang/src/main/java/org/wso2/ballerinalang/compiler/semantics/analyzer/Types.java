@@ -3665,8 +3665,11 @@ public class Types {
         return isSimpleBasicType(type.tag);
     }
 
-    // TODO: 11/18/20 Consider the union
-    public boolean isIsolatedObjectTypes(BType type) {
+    public boolean isSubTypeOfReadOnlyOrIsolatedObjectUnion(BType type) {
+        if (isInherentlyImmutableType(type) || Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+            return true;
+        }
+
         int tag = type.tag;
 
         if (tag == TypeTags.OBJECT) {
@@ -3678,7 +3681,7 @@ public class Types {
         }
 
         for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-            if (!isIsolated(memberType)) {
+            if (!isSubTypeOfReadOnlyOrIsolatedObjectUnion(memberType)) {
                 return false;
             }
         }

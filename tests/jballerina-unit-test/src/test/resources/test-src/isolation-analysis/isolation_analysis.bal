@@ -372,6 +372,14 @@ isolated function testAccessingFinalIsolatedObjectInIsolatedFunction() {
     assertEquality(<int[]> [1, 2, 5], cl.getArray());
 }
 
+final (map<int> & readonly)|isolated object {} unionOne = {a: 1, b: 2};
+final (map<int> & readonly)|IsolatedClass unionTwo = isolatedObject;
+
+isolated function testIsolatedFuncAccessingSubTypeOfReadOnlyOrIsolatedObjectUnion() {
+    var x = unionOne;
+    var y = unionTwo;
+}
+
 isolated function getIntArray() returns int[] => arr;
 
 isolated function getMutableIntArray() returns int[] => [2, 3, 4];
