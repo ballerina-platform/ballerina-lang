@@ -19,9 +19,9 @@ package io.ballerina.projects.internal.repositories;
 
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
-import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.balo.BaloProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageLoadRequest;
@@ -83,7 +83,8 @@ public class FileSystemRepository implements PackageRepository {
         // if version and org name is empty we add empty string so we return empty package anyway
         String packageName = packageLoadRequest.packageName().value();
         String orgName = packageLoadRequest.orgName().map(PackageOrg::value).orElse("");
-        String version = packageLoadRequest.version().orElse(SemanticVersion.from("0.0.0")).toString();
+        String version = packageLoadRequest.version().isPresent() ?
+                packageLoadRequest.version().get().toString() : "0.0.0";
         String baloName = ProjectUtils.getBaloName(orgName, packageName, version, null);
 
         Path baloPath = this.balo.resolve(orgName).resolve(packageName).resolve(version).resolve(baloName);
@@ -100,7 +101,7 @@ public class FileSystemRepository implements PackageRepository {
     }
 
     @Override
-    public List<SemanticVersion> getPackageVersions(PackageLoadRequest packageLoadRequest) {
+    public List<PackageVersion> getPackageVersions(PackageLoadRequest packageLoadRequest) {
         // if version and org name is empty we add empty string so we return empty package anyway
         String packageName = packageLoadRequest.packageName().value();
         String orgName = packageLoadRequest.orgName().map(PackageOrg::value).orElse("");
@@ -166,14 +167,14 @@ public class FileSystemRepository implements PackageRepository {
         return packagesMap;
     }
 
-    private List<SemanticVersion> pathToVersions(List<Path> versions) {
+    private List<PackageVersion> pathToVersions(List<Path> versions) {
         return versions.stream()
                 .map(path -> {
                     String version = Optional.ofNullable(path.getParent())
                             .map(parent -> parent.getFileName())
                             .map(file -> file.toString())
                             .orElse("0.0.0");
-                    return SemanticVersion.from(version);
+                    return PackageVersion.from(version);
                 })
                 .collect(Collectors.toList());
     }

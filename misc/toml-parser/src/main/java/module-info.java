@@ -3,6 +3,5 @@ module io.ballerina.toml {
     exports io.ballerina.toml.syntax.tree;
     exports io.ballerina.toml.semantic;
     exports io.ballerina.toml.semantic.ast;
-    exports io.ballerina.toml.semantic.diagnostics;
     exports io.ballerina.toml.api;
 }

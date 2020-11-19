@@ -143,6 +143,8 @@ ext {
         modName = "test"
     } else if (project.projectDir.name == 'langserver-stdlib'){
         modName = 'module1'
+    } else if (project.projectDir.name == 'observability-test-utils'){
+        modName = 'testobserve'
     } else {
         modName = project.projectDir.name
     }
@@ -155,6 +157,8 @@ task copyBallerinaProject(type: Copy) {
 }
 
 task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
+    standardOutput = System.out
+    errorOutput = System.err
     projectDir = project.buildDir.toString() + "/ballerina-src" // + modName
     distCache = project.buildDir.toString()
     classpath = project.configurations.baloCreat
@@ -165,8 +169,11 @@ task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
     dependsOn copyInteropImports
     dependsOn copyBallerinaProject
     dependsOn createDistributionCache
-    dependsOn compileJava
-    outputs.files("$buildDir/ballerina-src/target/" + modName + ".zip")
+    dependsOn jar
+    inputs.files("src/main/ballerina")
+    outputs.file("$buildDir/ballerina-src/target/" + modName + ".zip")
+    outputs.file("$buildDir/ballerina-src/target/" + modName + ".jar")
+    outputs.cacheIf { true }
     classpath += files(jar.archivePath)
 }
 
