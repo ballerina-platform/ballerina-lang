@@ -24,11 +24,11 @@ import com.google.gson.JsonArray;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.internal.balo.BaloJson;
 import io.ballerina.projects.internal.balo.DependencyGraphJson;
+import io.ballerina.projects.internal.balo.ModuleDependency;
 import io.ballerina.projects.internal.balo.PackageJson;
 import io.ballerina.projects.internal.balo.adaptors.JsonCollectionsAdaptor;
 import io.ballerina.projects.internal.balo.adaptors.JsonStringsAdaptor;
 import io.ballerina.projects.model.Dependency;
-import io.ballerina.projects.internal.balo.ModuleDependency;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 

@@ -232,7 +232,8 @@ public class BaloFiles {
         return packageJson;
     }
 
-    private static DependencyGraph<PackageDescriptor> createPackageDependencyGraph(List<Dependency> packageDependencyGraph) {
+    private static DependencyGraph<PackageDescriptor> createPackageDependencyGraph(
+            List<Dependency> packageDependencyGraph) {
         DependencyGraph.DependencyGraphBuilder<PackageDescriptor> graphBuilder = getBuilder();
 
         for (Dependency dependency : packageDependencyGraph) {
@@ -281,6 +282,9 @@ public class BaloFiles {
         return dependencyGraphJson;
     }
 
+    /**
+     * {@code DependencyGraphResult} contains package and module dependency graphs.
+     */
     public static class DependencyGraphResult {
         private DependencyGraph<PackageDescriptor> packageDependencyGraph;
         private DependencyGraph<ModuleId> moduleDependencyGraph;
