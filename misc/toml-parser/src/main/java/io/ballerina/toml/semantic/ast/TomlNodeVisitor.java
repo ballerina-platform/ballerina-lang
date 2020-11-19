@@ -23,27 +23,49 @@ package io.ballerina.toml.semantic.ast;
  *
  * @since 2.0.0
  */
-public interface TomlNodeVisitor {
+public abstract class TomlNodeVisitor {
 
-    default void visit(TomlTableNode tomlTableNode) {}
+    public void visit(TomlTableNode tomlTableNode) {
+        throw new AssertionError();
+    }
 
-    default void visit(TomlTableArrayNode tomlTableArrayNode) {}
+    public void visit(TomlTableArrayNode tomlTableArrayNode) {
+        throw new AssertionError();
+    }
 
-    default void visit(TomlKeyValueNode keyValue) {}
+    public void visit(TomlKeyValueNode keyValue) {
+        throw new AssertionError();
+    }
 
-    default void visit(TomlKeyNode tomlKeyNode) {}
+    public void visit(TomlKeyNode tomlKeyNode) {
+        throw new AssertionError();
+    }
 
-    default void visit(TomlValueNode tomlValue) {}
+    public void visit(TomlValueNode tomlValue) {
+        throw new AssertionError();
+    }
 
-    default void visit(TomlArrayValueNode tomlArrayValueNode) {}
+    public void visit(TomlArrayValueNode tomlArrayValueNode) {
+        throw new AssertionError();
+    }
 
-    default void visit(TomlKeyEntryNode tomlKeyEntryNode) {}
+    public void visit(TomlKeyEntryNode tomlKeyEntryNode) {
+        throw new AssertionError();
+    }
 
-    default void visit(TomlStringValueNode tomlStringValueNode) {}
+    public void visit(TomlStringValueNode tomlStringValueNode) {
+        throw new AssertionError();
+    }
 
-    default void visit(TomlDoubleValueNodeNode tomlDoubleValueNodeNode) {}
+    public void visit(TomlDoubleValueNodeNode tomlDoubleValueNodeNode) {
+        throw new AssertionError();
+    }
 
-    default void visit(TomlLongValueNode tomlLongValueNode){}
+    public void visit(TomlLongValueNode tomlLongValueNode) {
+        throw new AssertionError();
+    }
 
-    default void visit(TomlBooleanValueNode tomlBooleanValueNode) {}
+    public void visit(TomlBooleanValueNode tomlBooleanValueNode) {
+        throw new AssertionError();
+    }
 }

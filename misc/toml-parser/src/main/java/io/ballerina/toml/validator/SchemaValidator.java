@@ -51,7 +51,7 @@ import java.util.regex.Pattern;
  *
  * @since 2.0.0
  */
-public class SchemaValidator implements TomlNodeVisitor {
+public class SchemaValidator extends TomlNodeVisitor {
 
     private Schema schema;
     private String key;
