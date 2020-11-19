@@ -578,7 +578,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     DISTINCT_TYPING_ONLY_SUPPORT_OBJECTS_AND_ERRORS("BCE3927", "distinct.typing.only.support.objects.and.errors"),
 
-    INVALID_USE_OF_TYPEDESC_PARAM("BCE3928", "invalid.use.of.typedesc.param"),
+    INVALID_NON_EXTERNAL_DEPENDENTLY_TYPED_FUNCTION("BCE3928", "invalid.non.external.dependently.typed.function"),
     INVALID_PARAM_TYPE_FOR_RETURN_TYPE("BCE3929", "invalid.param.type.for.return.type"),
     INVALID_TYPEDESC_PARAM("BCE3930", "invalid.typedesc.param"),
 

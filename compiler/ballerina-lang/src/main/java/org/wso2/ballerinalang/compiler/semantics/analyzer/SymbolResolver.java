@@ -1286,7 +1286,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
                 if (func.returnTypeNode == null ||
                         (func.hasBody() && func.body.getKind() != NodeKind.EXTERN_FUNCTION_BODY)) {
-                    dlog.error(userDefinedTypeNode.pos, DiagnosticCode.INVALID_NON_EXTERNAL_DEPENDENTLY_TYPED_FUNCTION);
+                    dlog.error(userDefinedTypeNode.pos,
+                               DiagnosticErrorCode.INVALID_NON_EXTERNAL_DEPENDENTLY_TYPED_FUNCTION);
                     errored = true;
                 }
 
@@ -1367,7 +1368,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     return new ParameterizedTypeInfo(symTable.semanticError);
                 }
 
-                dlog.error(param.pos, DiagnosticCode.INVALID_TYPEDESC_PARAM);
+                dlog.error(param.pos, DiagnosticErrorCode.INVALID_TYPEDESC_PARAM);
                 return new ParameterizedTypeInfo(symTable.semanticError);
             }
         }

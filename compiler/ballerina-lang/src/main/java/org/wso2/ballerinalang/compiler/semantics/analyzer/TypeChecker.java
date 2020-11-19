@@ -6553,7 +6553,7 @@ public class TypeChecker extends BLangNodeVisitor {
             indexBasedAccessExpr.originalType = actualType;
         } else if (varRefType.tag == TypeTags.TABLE) {
             if (indexBasedAccessExpr.lhsVar) {
-                dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_TABLE_USING_MEMBER_ACCESS,
+                dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_TABLE_USING_MEMBER_ACCESS,
                         varRefType);
                 return symTable.semanticError;
             }
