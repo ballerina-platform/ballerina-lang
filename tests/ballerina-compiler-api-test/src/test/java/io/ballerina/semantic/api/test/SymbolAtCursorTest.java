@@ -142,10 +142,8 @@ public class SymbolAtCursorTest {
 
     @Test(dataProvider = "MissingConstructPosProvider")
     public void testMissingConstructs(int line, int column) {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/symbol_at_cursor_undefined_constructs_test.bal", context);
-        BLangPackage pkg = (BLangPackage) result.getAST();
-        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
+        SemanticModel model = SemanticAPITestUtils
+                .getDefaultModulesSemanticModel("test-src/symbol_at_cursor_undefined_constructs_test.bal");
 
         Optional<Symbol> symbol = model.symbol("symbol_at_cursor_undefined_constructs_test.bal",
                                                LinePosition.from(line, column));
@@ -159,12 +157,5 @@ public class SymbolAtCursorTest {
                 {21, 25},
                 {23, 3},
         };
-    }
-
-    private CompileResult compile(String path, CompilerContext context) {
-        Path sourcePath = Paths.get(path);
-        String packageName = sourcePath.getFileName().toString();
-        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
-        return BCompileUtil.compileOnJBallerina(context, sourceRoot.toString(), packageName, false, true, false);
     }
 }
