@@ -19,7 +19,7 @@
 package io.ballerina.projects.internal.balo;
 
 import com.google.gson.annotations.SerializedName;
-import io.ballerina.projects.model.Dependency;
+import io.ballerina.projects.internal.model.Dependency;
 
 import java.util.List;
 

@@ -43,8 +43,8 @@ checkstyleMain {
     exclude 'org/ballerinalang/toml/model/Balo.java'
     exclude 'org/ballerinalang/toml/model/LockFile.java'
     exclude 'org/ballerinalang/toml/model/LockFileImport.java'
-    exclude 'io/ballerina/projects/model/BaloJson.java'
-    exclude 'io/ballerina/projects/model/PackageJson.java'
+    exclude 'io/ballerina/projects/internal/model/BaloJson.java'
+    exclude 'io/ballerina/projects/internal/model/PackageJson.java'
 }
 
 test {

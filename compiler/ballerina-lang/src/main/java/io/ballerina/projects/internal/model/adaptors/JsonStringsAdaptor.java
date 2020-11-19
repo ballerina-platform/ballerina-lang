@@ -16,30 +16,27 @@
  *  under the License.
  */
 
-package io.ballerina.projects.model;
+package io.ballerina.projects.internal.model.adaptors;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+
+import java.lang.reflect.Type;
 
 /**
- * {@code BaloJson} Model for Balo JSON file.
+ * {@code JsonCollectionsAdaptor} ignores empty strings when serialises to json.
  *
  * @since 2.0.0
  */
-public class BaloJson {
-    private String balo_version = "2.0.0";
-    private String built_by = "WSO2";
+public class JsonStringsAdaptor implements JsonSerializer<String> {
 
-    public String getBalo_version() {
-        return balo_version;
-    }
-
-    public void setBalo_version(String balo_version) {
-        this.balo_version = balo_version;
-    }
-
-    public String getBuilt_by() {
-        return built_by;
-    }
-
-    public void setBuilt_by(String built_by) {
-        this.built_by = built_by;
+    @Override
+    public JsonElement serialize(String src, Type typeOfSrc, JsonSerializationContext context) {
+        if (src == null || src.isEmpty()) { // exclusion is made here
+            return null;
+        }
+        return new JsonPrimitive(src);
     }
 }

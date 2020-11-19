@@ -28,7 +28,7 @@ import io.ballerina.projects.internal.balo.ModuleDependency;
 import io.ballerina.projects.internal.balo.PackageJson;
 import io.ballerina.projects.internal.balo.adaptors.JsonCollectionsAdaptor;
 import io.ballerina.projects.internal.balo.adaptors.JsonStringsAdaptor;
-import io.ballerina.projects.model.Dependency;
+import io.ballerina.projects.internal.model.Dependency;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 
@@ -126,7 +126,7 @@ public abstract class BaloWriter {
 
     private void addPackageJson(ZipOutputStream baloOutputStream,
                                 Package pkg, Optional<JsonArray> platformLibs) {
-        //        io.ballerina.projects.model.Package pkg = ballerinaToml.getPackage();
+        //        io.ballerina.projects.internal.model.Package pkg = ballerinaToml.getPackage();
         PackageJson packageJson = new PackageJson(pkg.packageOrg().toString(), pkg.packageName().toString(),
                 pkg.packageVersion().toString());
 

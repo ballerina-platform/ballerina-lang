@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.projects.model;
+package io.ballerina.projects.internal.model;
 
 import java.util.List;
 

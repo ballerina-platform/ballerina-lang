@@ -29,8 +29,8 @@ import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.balo.DependencyGraphJson;
 import io.ballerina.projects.internal.balo.ModuleDependency;
-import io.ballerina.projects.model.Dependency;
-import io.ballerina.projects.model.PackageJson;
+import io.ballerina.projects.internal.model.Dependency;
+import io.ballerina.projects.internal.model.PackageJson;
 import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.IOException;

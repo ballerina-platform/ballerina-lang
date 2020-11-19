@@ -16,27 +16,33 @@
  *  under the License.
  */
 
-package io.ballerina.projects.model.adaptors;
+package io.ballerina.projects.internal.model.adaptors;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import java.lang.reflect.Type;
+import java.util.Collection;
 
 /**
- * {@code JsonCollectionsAdaptor} ignores empty strings when serialises to json.
+ * {@code JsonCollectionsAdaptor} ignores empty collections when serialises to json.
  *
  * @since 2.0.0
  */
-public class JsonStringsAdaptor implements JsonSerializer<String> {
+public class JsonCollectionsAdaptor implements JsonSerializer<Collection<?>> {
 
     @Override
-    public JsonElement serialize(String src, Type typeOfSrc, JsonSerializationContext context) {
+    public JsonElement serialize(Collection<?> src, Type typeOfSrc, JsonSerializationContext context) {
         if (src == null || src.isEmpty()) { // exclusion is made here
             return null;
         }
-        return new JsonPrimitive(src);
+        JsonArray array = new JsonArray();
+        for (Object child : src) {
+            JsonElement element = context.serialize(child);
+            array.add(element);
+        }
+        return array;
     }
 }

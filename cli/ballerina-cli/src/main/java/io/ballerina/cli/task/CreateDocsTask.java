@@ -18,7 +18,7 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.projects.Project;
-import io.ballerina.projects.model.Target;
+import io.ballerina.projects.internal.model.Target;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 
 import java.io.IOException;

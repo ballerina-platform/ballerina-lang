@@ -24,12 +24,12 @@ import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.internal.balo.BaloJson;
 import io.ballerina.projects.internal.balo.DependencyGraphJson;
 import io.ballerina.projects.internal.balo.ModuleDependency;
 import io.ballerina.projects.internal.balo.PackageJson;
-import io.ballerina.projects.model.BaloJson;
-import io.ballerina.projects.model.Dependency;
-import io.ballerina.projects.model.Target;
+import io.ballerina.projects.internal.model.Dependency;
+import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
@@ -319,7 +319,7 @@ public class TestBaloWriter {
             DependencyGraphJson dependencyGraphJson = gson.fromJson(reader, DependencyGraphJson.class);
 
             List<Dependency> packageDependencyGraph = dependencyGraphJson.getPackageDependencyGraph();
-            Assert.assertEquals(packageDependencyGraph.size(), 3);
+            Assert.assertEquals(packageDependencyGraph.size(), 4);
             for (Dependency dependency : packageDependencyGraph) {
                 if (dependency.getName().equals("package_d")) {
                     Assert.assertEquals(dependency.getDependencies().size(), 2);
