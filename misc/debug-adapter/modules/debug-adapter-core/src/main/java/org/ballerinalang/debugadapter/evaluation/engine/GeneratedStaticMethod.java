@@ -52,6 +52,10 @@ public class GeneratedStaticMethod extends JvmMethod {
         this.classRef = classRef;
     }
 
+    public void setNamedArgValues(Map<String, Value> namedArgValues) {
+        this.namedArgValues = namedArgValues;
+    }
+
     @Override
     public Value invoke() throws EvaluationException {
         try {
@@ -71,10 +75,6 @@ public class GeneratedStaticMethod extends JvmMethod {
             throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR
                     .getString(), methodRef.name()));
         }
-    }
-
-    public void setNamedArgValues(Map<String, Value> namedArgValues) {
-        this.namedArgValues = namedArgValues;
     }
 
     @Override

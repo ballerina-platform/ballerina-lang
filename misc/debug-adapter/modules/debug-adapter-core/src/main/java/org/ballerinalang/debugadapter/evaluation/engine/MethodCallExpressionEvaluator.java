@@ -20,10 +20,7 @@ import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
-import io.ballerina.compiler.syntax.tree.ParameterNode;
-import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -34,9 +31,8 @@ import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import static org.ballerinalang.debugadapter.evaluation.engine.FunctionInvocationExpressionEvaluator.mapArgs;
+import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.validateAndProcessArguments;
 
 /**
  * Evaluator implementation for method call invocation expressions.
@@ -62,7 +58,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
         try {
-            Map<String, Value> argValueMap = validateAndProcessArguments();
+            Map<String, Value> argValueMap = validateAndProcessArguments(context, methodName, argEvaluators);
             BExpressionValue result = objectExpressionEvaluator.evaluate();
             BVariable resultVar = VariableFactory.getVariable(context, result.getJdiValue());
             if (resultVar.getBType() != BVariableType.OBJECT && resultVar.getBType() != BVariableType.INT) {
@@ -70,8 +66,8 @@ public class MethodCallExpressionEvaluator extends Evaluator {
                         " calls are not supported on type '" + resultVar.getBType() + "'."));
             }
             String methodName = syntaxNode.methodName().toString().trim();
-            JvmMethod method = getObjectMethodByName(resultVar.getJvmValue(), methodName);
-            // Todo - IMPORTANT set args
+            GeneratedInstanceMethod method = getObjectMethodByName(resultVar.getJvmValue(), methodName);
+            method.setNamedArgValues(argValueMap);
             Value invocationResult = method.invoke();
             return new BExpressionValue(context, invocationResult);
         } catch (EvaluationException e) {
@@ -82,7 +78,9 @@ public class MethodCallExpressionEvaluator extends Evaluator {
         }
     }
 
-    private JvmMethod getObjectMethodByName(Value objectValueRef, String methodName) throws EvaluationException {
+    private GeneratedInstanceMethod getObjectMethodByName(Value objectValueRef, String methodName)
+            throws EvaluationException {
+
         ReferenceType objectRef = ((ObjectReference) objectValueRef).referenceType();
         List<Method> methods = objectRef.methodsByName(methodName);
         if (methods == null || methods.size() != 1) {
@@ -90,18 +88,5 @@ public class MethodCallExpressionEvaluator extends Evaluator {
                     syntaxNode.methodName().toString().trim()));
         }
         return new GeneratedInstanceMethod(context, objectValueRef, methods.get(0));
-    }
-
-    Map<String, Value> validateAndProcessArguments() throws EvaluationException {
-        Optional<FunctionDefinitionNode>
-                functionDefinition =
-                new FunctionFinder(methodName).searchIn(context.getDocument()
-                        .module());
-        if (functionDefinition.isEmpty()) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_NOT_FOUND.getString(),
-                    methodName));
-        }
-        SeparatedNodeList<ParameterNode> params = functionDefinition.get().functionSignature().parameters();
-        return mapArgs(context, params, argEvaluators);
     }
 }

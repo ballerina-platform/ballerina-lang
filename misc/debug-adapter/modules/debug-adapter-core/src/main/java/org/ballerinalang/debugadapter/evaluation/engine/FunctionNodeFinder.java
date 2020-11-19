@@ -33,12 +33,12 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-class FunctionFinder extends NodeVisitor {
+class FunctionNodeFinder extends NodeVisitor {
 
     private final String functionName;
     private FunctionDefinitionNode result;
 
-    FunctionFinder(String functionName) {
+    FunctionNodeFinder(String functionName) {
         this.functionName = functionName;
     }
 
