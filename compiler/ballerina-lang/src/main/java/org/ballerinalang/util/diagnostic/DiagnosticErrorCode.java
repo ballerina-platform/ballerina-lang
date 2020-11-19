@@ -473,6 +473,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CANNOT_INFER_MEMBER_TYPE_FOR_TABLE("BCE3314", "cannot.infer.member.type.for.table"),
     ON_CONFLICT_ONLY_WORKS_WITH_TABLES_WITH_KEY_SPECIFIER(
             "BCE3315", "on.conflict.only.works.with.tables.with.key.specifier"),
+    CANNOT_UPDATE_TABLE_USING_MEMBER_ACCESS("BCE3316", "cannot.update.table.using.member.access.lvexpr"),
 
 
     // Taint checking related codes
