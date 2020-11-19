@@ -87,8 +87,8 @@ public class Diagnostics {
 //                                      obj.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
 ////
 ////             //This will print nice comparable text in IDE
-//            Assert.assertEquals(responseDiags.toString(), expectedDiags.toString(),
-//                        "Failed Test for: " + configJsonPath);
+            Assert.assertEquals(responseDiags.toString(), expectedDiags.toString(),
+                        "Failed Test for: " + configJsonPath);
             Assert.fail("Failed Test for: " + configJsonPath);
         }
     }
