@@ -152,12 +152,17 @@ class JMethodResolver {
             return true;
         } else if (count == expectedCount + 1) {
             // This is for object interop functions when self is passed as a parameter
+            if (jMethod.isBalEnvAcceptingMethod()) {
+                return true;
+            }
+            jMethod.setReceiverType(jMethodRequest.receiverType);
+            return jMethodRequest.receiverType != null;
+        } else if (count == expectedCount + 2) {
+            // This is for object interop functions when both BalEnv and self is passed as parameters.
             if (jMethodRequest.receiverType != null) {
                 jMethod.setReceiverType(jMethodRequest.receiverType);
-                return true;
-            } else if (jMethod.isStatic()) {
-                return jMethod.isBalEnvAcceptingMethod();
             }
+            return jMethod.isBalEnvAcceptingMethod();
         }
         return false;
     }
@@ -255,8 +260,14 @@ class JMethodResolver {
         int bParamCount = bParamTypes.length;
         int i = 0;
         int j = 0;
+        // Validate receiver type
         if (jMethod.getReceiverType() != null) {
-            Class<?> jParamType = jParamTypes[0];
+            Class<?> jParamType;
+            if (jMethod.isBalEnvAcceptingMethod()) {
+                jParamType = jParamTypes[1];
+            } else {
+                jParamType = jParamTypes[0];
+            }
             BType bParamType = jMethod.getReceiverType();
             if (!isValidParamBType(jParamTypes[0], bParamType, false, jMethodRequest.restParamExist)) {
                 throw getNoSuchMethodError(jMethodRequest.methodName, jParamType, bParamType,
@@ -268,7 +279,11 @@ class JMethodResolver {
 
         if (jMethod.isInstanceMethod()) {
             if (bParamCount != jParamTypes.length + 1) {
-                throw getParamCountMismatchError(jMethodRequest);
+                if (jMethod.isBalEnvAcceptingMethod()) {
+                    j++;
+                } else {
+                    throw getParamCountMismatchError(jMethodRequest);
+                }
             }
 
             BType receiverType = bParamTypes[0];
@@ -279,10 +294,12 @@ class JMethodResolver {
                                            jMethodRequest.declaringClass);
             }
             i++;
-        } else if (jMethod.isBalEnvAcceptingMethod()) {
-            j++;
         } else if (bParamCount != jParamTypes.length) {
-            throw getParamCountMismatchError(jMethodRequest);
+            if (jMethod.isBalEnvAcceptingMethod()) {
+                j++;
+            } else {
+                throw getParamCountMismatchError(jMethodRequest);
+            }
         }
 
         for (int k = j; k < jParamTypes.length; i++, k++) {

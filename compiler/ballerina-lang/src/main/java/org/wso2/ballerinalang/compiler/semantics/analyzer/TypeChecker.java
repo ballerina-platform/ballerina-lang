@@ -6552,6 +6552,11 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = varRefType;
             indexBasedAccessExpr.originalType = actualType;
         } else if (varRefType.tag == TypeTags.TABLE) {
+            if (indexBasedAccessExpr.lhsVar) {
+                dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_TABLE_USING_MEMBER_ACCESS,
+                        varRefType);
+                return symTable.semanticError;
+            }
             BTableType tableType = (BTableType) indexBasedAccessExpr.expr.type;
             BType keyTypeConstraint = tableType.keyTypeConstraint;
             if (tableType.keyTypeConstraint == null) {

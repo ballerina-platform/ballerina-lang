@@ -606,6 +606,10 @@ public class Types {
             return isAssignable(source, ((BIntersectionType) target).effectiveType, unresolvedTypes);
         }
 
+        if (sourceTag == TypeTags.PARAMETERIZED_TYPE) {
+            return isParameterizedTypeAssignable(source, target, unresolvedTypes);
+        }
+
         if (sourceTag == TypeTags.BYTE && targetTag == TypeTags.INT) {
             return true;
         }
@@ -755,13 +759,22 @@ public class Types {
             return isFunctionTypeAssignable((BInvokableType) source, (BInvokableType) target, new HashSet<>());
         }
 
-        if (sourceTag == TypeTags.PARAMETERIZED_TYPE) {
-            BType resolvedType = typeBuilder.build(source);
-            return isAssignable(resolvedType, target, unresolvedTypes);
-        }
-
         return sourceTag == TypeTags.ARRAY && targetTag == TypeTags.ARRAY &&
                 isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes);
+    }
+
+    private boolean isParameterizedTypeAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
+        BType resolvedSourceType = typeBuilder.build(source);
+
+        if (target.tag != TypeTags.PARAMETERIZED_TYPE) {
+            return isAssignable(resolvedSourceType, target, unresolvedTypes);
+        }
+
+        if (((BParameterizedType) source).paramIndex != ((BParameterizedType) target).paramIndex) {
+            return false;
+        }
+
+        return isAssignable(resolvedSourceType, typeBuilder.build(target), unresolvedTypes);
     }
 
     private boolean isAssignableRecordType(BRecordType recordType, BType type, Set<TypePair> unresolvedTypes) {

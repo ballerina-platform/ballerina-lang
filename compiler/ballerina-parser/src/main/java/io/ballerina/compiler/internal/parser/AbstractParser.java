@@ -126,6 +126,10 @@ public abstract class AbstractParser {
         this.errorHandler.endContext();
     }
 
+    protected ParserRuleContext getCurrentContext() {
+        return this.errorHandler.getParentContext();
+    }
+
     /**
      * Switch the current context to the provided one. This will replace the
      * existing context.
