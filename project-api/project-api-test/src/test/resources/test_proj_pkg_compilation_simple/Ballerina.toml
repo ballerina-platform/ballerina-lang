@@ -1,0 +1,10 @@
+[package]
+org = "sameera"
+name = "myproject"
+version = "0.1.0"
+
+[[platform.java11.dependency]]
+path = "/user/foo/libs/toml4j.jar"
+artifactId = "toml4j"
+version = "0.7.2"
+groupId = "com.moandjiezana.toml"

@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.codelenses;
 
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.codelenses.LSCodeLensesProviderException;
 import org.ballerinalang.langserver.commons.codelenses.spi.LSCodeLensesProvider;
 import org.eclipse.lsp4j.CodeLens;
@@ -39,7 +39,7 @@ public class CodeLensUtil {
      * @param codeLensContext LSContext
      * @return a list of code lenses
      */
-    public static List<CodeLens> getCodeLenses(LSContext codeLensContext) {
+    public static List<CodeLens> getCodeLenses(DocumentServiceContext codeLensContext) {
         List<CodeLens> lenses = new ArrayList<>();
         List<LSCodeLensesProvider> providers = LSCodeLensesProviderHolder.getInstance().getProviders();
         for (LSCodeLensesProvider provider : providers) {

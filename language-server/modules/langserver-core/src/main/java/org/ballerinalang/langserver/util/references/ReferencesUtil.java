@@ -16,10 +16,9 @@
 package org.ballerinalang.langserver.util.references;
 
 import io.ballerina.compiler.syntax.tree.Token;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
@@ -27,15 +26,10 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.exception.UserErrorException;
-import org.ballerinalang.langserver.hover.HoverUtil;
-import org.ballerinalang.langserver.util.TokensUtil;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel.Reference;
-import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextDocumentIdentifier;
-import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -70,19 +64,21 @@ public class ReferencesUtil {
      * @throws WorkspaceDocumentException when couldn't find file for uri
      * @throws CompilationFailedException when compilation failed
      */
-    public static Reference getReferenceAtCursor(LSContext context, LSDocumentIdentifier document,
+    @Deprecated
+    public static Reference getReferenceAtCursor(DocumentServiceContext context, LSDocumentIdentifier document,
                                                  Position position)
             throws WorkspaceDocumentException, CompilationFailedException, TokenOrSymbolNotFoundException {
-        TextDocumentIdentifier textDocIdentifier = new TextDocumentIdentifier(document.getURIString());
-        TextDocumentPositionParams pos = new TextDocumentPositionParams(textDocIdentifier, position);
-        context.put(DocumentServiceKeys.POSITION_KEY, pos);
-        context.put(DocumentServiceKeys.FILE_URI_KEY, document.getURIString());
-        context.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, true);
-        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, position);
-        List<BLangPackage> modules = ReferencesUtil.compileModules(context);
-        SymbolReferencesModel referencesModel = findReferencesForCurrentCUnit(tokenAtCursor, modules, context);
-        context.put(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY, modules);
-        return referencesModel.getReferenceAtCursor();
+//        TextDocumentIdentifier textDocIdentifier = new TextDocumentIdentifier(document.getURIString());
+//        TextDocumentPositionParams pos = new TextDocumentPositionParams(textDocIdentifier, position);
+////        context.put(DocumentServiceKeys.POSITION_KEY, pos);
+////        context.put(DocumentServiceKeys.FILE_URI_KEY, document.getURIString());
+////        context.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, true);
+//        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, position);
+//        List<BLangPackage> modules = ReferencesUtil.compileModules(context);
+//        SymbolReferencesModel referencesModel = findReferencesForCurrentCUnit(tokenAtCursor, modules, context);
+////        context.put(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY, modules);
+//        return referencesModel.getReferenceAtCursor();
+        return null;
     }
 
     /**
@@ -97,58 +93,36 @@ public class ReferencesUtil {
      */
     public static WorkspaceEdit getRenameWorkspaceEdits(LSContext context, String newName, Position position)
             throws WorkspaceDocumentException, CompilationFailedException, TokenOrSymbolNotFoundException {
-        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, position);
-        List<BLangPackage> modules = compileModules(context);
-        String nodeName = tokenAtCursor.text();
-        if (CommonKeys.NEW_KEYWORD_KEY.equals(nodeName)) {
-            throw new TokenOrSymbolNotFoundException(
-                    "Symbol at cursor '" + nodeName + "' not supported or could not find!");
-        }
-        SymbolReferencesModel referencesModel = findReferencesForCurrentCUnit(tokenAtCursor, modules, context);
-        SymbolReferencesModel allReferences = fillAllReferences(referencesModel, tokenAtCursor, modules, context);
-        return getWorkspaceEdit(allReferences, context, newName);
+//        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, position);
+//        List<BLangPackage> modules = compileModules(context);
+//        String nodeName = tokenAtCursor.text();
+//        if (CommonKeys.NEW_KEYWORD_KEY.equals(nodeName)) {
+//            throw new TokenOrSymbolNotFoundException(
+//                    "Symbol at cursor '" + nodeName + "' not supported or could not find!");
+//        }
+//        SymbolReferencesModel referencesModel = findReferencesForCurrentCUnit(tokenAtCursor, modules, context);
+//        SymbolReferencesModel allReferences = fillAllReferences(referencesModel, tokenAtCursor, modules, context);
+//        return getWorkspaceEdit(allReferences, context, newName);
+        return null;
     }
 
     public static List<Location> getReferences(LSContext context, boolean includeDeclaration, Position pos)
             throws WorkspaceDocumentException, CompilationFailedException, TokenOrSymbolNotFoundException {
-        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, pos);
-        List<BLangPackage> modules = compileModules(context);
-        SymbolReferencesModel referencesModel = findReferencesForCurrentCUnit(tokenAtCursor, modules, context);
-        SymbolReferencesModel allReferencesModel = fillAllReferences(referencesModel, tokenAtCursor, modules, context);
-        List<Reference> references = new ArrayList<>();
-        if (includeDeclaration) {
-            references.addAll(allReferencesModel.getDefinitions());
-        }
-        references.addAll(allReferencesModel.getReferences());
-        if (!allReferencesModel.getDefinitions().contains(allReferencesModel.getReferenceAtCursor())) {
-            references.add(allReferencesModel.getReferenceAtCursor());
-        }
-
-        return getLocations(references, context.get(DocumentServiceKeys.SOURCE_ROOT_KEY));
-    }
-
-    /**
-     * Get the hover content.
-     *
-     * @param context        Hover operation context
-     * @param cursorPosition Cursor position
-     * @return {@link Hover} Hover content
-     * @throws WorkspaceDocumentException when couldn't find file for uri
-     * @throws CompilationFailedException when compilation failed
-     */
-    public static Hover getHover(LSContext context, Position cursorPosition)
-            throws WorkspaceDocumentException, CompilationFailedException, TokenOrSymbolNotFoundException {
-        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, cursorPosition);
-        context.put(CompletionKeys.TOKEN_AT_CURSOR_KEY, tokenAtCursor);
-        List<BLangPackage> modules = compileModules(context);
-        Reference symbolAtCursor = findReferencesForCurrentCUnit(tokenAtCursor, modules, context)
-                .getReferenceAtCursor();
-
-        // Ignore the optional check since it has been handled during prepareReference and throws exception
-        BSymbol bSymbol = symbolAtCursor.getSymbol();
-        return bSymbol != null
-                ? HoverUtil.getHoverFromDocAttachment(HoverUtil.getMarkdownDocForSymbol(bSymbol), bSymbol, context)
-                : HoverUtil.getDefaultHoverObject();
+//        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, pos);
+//        List<BLangPackage> modules = compileModules(context);
+//        SymbolReferencesModel referencesModel = findReferencesForCurrentCUnit(tokenAtCursor, modules, context);
+//        SymbolReferencesModel allReferencesModel = fillAllReferences(referencesModel, tokenAtCursor, modules,context);
+//        List<Reference> references = new ArrayList<>();
+//        if (includeDeclaration) {
+//            references.addAll(allReferencesModel.getDefinitions());
+//        }
+//        references.addAll(allReferencesModel.getReferences());
+//        if (!allReferencesModel.getDefinitions().contains(allReferencesModel.getReferenceAtCursor())) {
+//            references.add(allReferencesModel.getReferenceAtCursor());
+//        }
+//
+//        return getLocations(references, context.get(DocumentServiceKeys.SOURCE_ROOT_KEY));
+        return null;
     }
 
     public static List<BLangPackage> compileModules(LSContext context) throws CompilationFailedException {
@@ -156,7 +130,7 @@ public class ReferencesUtil {
         WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         Boolean compileProject = context.get(DocumentServiceKeys.COMPILE_FULL_PROJECT);
         Optional<Path> defFilePath = CommonUtil.getPathFromURI(fileUri);
-        if (!defFilePath.isPresent()) {
+        if (defFilePath.isEmpty()) {
             return new ArrayList<>();
         }
         Path compilationPath = getUntitledFilePath(defFilePath.toString()).orElse(defFilePath.get());

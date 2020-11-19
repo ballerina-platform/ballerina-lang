@@ -50,12 +50,13 @@ configurations {
 dependencies {
     highlighterLib project(path: ':composer-library', configuration: 'highlighter')
     docSearchLib project(path: ':composer-library', configuration: 'docsearch')
+    implementation project(':ballerina-tools-api')
+    implementation project(':ballerina-parser')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tool')
     implementation project(':ballerina-lang:annotations')
 //    implementation project(':ballerina-http')
     implementation project(':ballerina-config')
-    implementation project(':ballerina-mime')
     implementation 'info.picocli:picocli'
     implementation 'com.github.jknack:handlebars:4.2.0'
     implementation 'org.antlr:antlr4:4.8'
@@ -103,6 +104,8 @@ shadowJar {
         include(dependency('org.antlr:antlr4:4.8'))
         include(dependency('com.atlassian.commonmark:commonmark'))
         include(dependency('com.atlassian.commonmark:commonmark-ext-gfm-tables'))
+        include(dependency(':ballerina-lang'))
+        include(dependency(':ballerina-parser'))
         exclude('META-INF/*.SF')
         exclude('META-INF/*.DSA')
         exclude('META-INF/*.RSA')

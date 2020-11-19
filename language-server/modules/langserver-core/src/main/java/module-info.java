@@ -1,6 +1,12 @@
 module io.ballerina.language.server.core {
     uses org.ballerinalang.langserver.commons.LanguageExtension;
-    requires gson;
+    exports org.ballerinalang.langserver;
+    exports org.ballerinalang.langserver.util.references;
+    exports org.ballerinalang.langserver.common.utils;
+    exports org.ballerinalang.langserver.common.constants;
+    exports org.ballerinalang.langserver.codeaction.providers;
+    exports org.ballerinalang.langserver.exception;
+    exports org.ballerinalang.langserver.extensions;
     requires io.ballerina.formatter.core;
     requires org.eclipse.lsp4j;
     requires io.ballerina.language.server.compiler;
@@ -23,11 +29,6 @@ module io.ballerina.language.server.core {
     requires io.swagger.v3.oas.models;
     requires swagger.parser.v2.converter;
     requires org.slf4j;
-    exports org.ballerinalang.langserver;
-    exports org.ballerinalang.langserver.util.references;
-    exports org.ballerinalang.langserver.common.utils;
-    exports org.ballerinalang.langserver.common.constants;
-    exports org.ballerinalang.langserver.codeaction.providers;
-    exports org.ballerinalang.langserver.exception;
-    exports org.ballerinalang.langserver.extensions;
+    requires gson;
+    requires com.google.common;
 }
