@@ -38,27 +38,28 @@ public class DiagnosticCodeTest {
 
     @Test
     public void testDiagnosticErrorCodesUniqueness() {
-        validateDiagnosticUniqueness(DiagnosticErrorCode.class);
+        DiagnosticErrorCode[] codes = DiagnosticErrorCode.values();
+        validateDiagnosticUniqueness(codes);
     }
 
     @Test
     public void testDiagnosticWarningCodesUniqueness() {
-        validateDiagnosticUniqueness(DiagnosticWarningCode.class);
+        DiagnosticWarningCode[] codes = DiagnosticWarningCode.values();
+        validateDiagnosticUniqueness(codes);
     }
 
     // helpers
-    private <E extends DiagnosticCode> void validateDiagnosticUniqueness(Class<E> diagnosticCode) {
-        E[] diagCodes = diagnosticCode.getEnumConstants();
+    private void validateDiagnosticUniqueness(DiagnosticCode[] codes) {
         ArrayList<String> duplicateDiagnosticIds = new ArrayList<>();
         ArrayList<String> duplicateDiagnosticMsgKey = new ArrayList<>();
-        for (int i = 0; i < diagCodes.length; i++) {
-            for (int j = i + 1; j < diagCodes.length; j++) {
-                if (diagCodes[i].diagnosticId().equals(diagCodes[j].diagnosticId())) {
-                    duplicateDiagnosticIds.add(diagCodes[i].diagnosticId());
+        for (int i = 0; i < codes.length; i++) {
+            for (int j = i + 1; j < codes.length; j++) {
+                if (codes[i].diagnosticId().equals(codes[j].diagnosticId())) {
+                    duplicateDiagnosticIds.add(codes[i].diagnosticId());
                 }
 
-                if (diagCodes[i].messageKey().equals(diagCodes[j].messageKey())) {
-                    duplicateDiagnosticMsgKey.add(diagCodes[i].messageKey());
+                if (codes[i].messageKey().equals(codes[j].messageKey())) {
+                    duplicateDiagnosticMsgKey.add(codes[i].messageKey());
                 }
             }
         }
