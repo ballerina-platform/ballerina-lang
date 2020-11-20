@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -396,6 +397,12 @@ public class TypeParamAnalyzer {
                 if (actualType.tag == TypeTags.TYPEDESC) {
                     findTypeParam(loc, ((BTypedescType) expType).constraint, ((BTypedescType) actualType).constraint,
                                   env, resolvedTypes, result);
+                }
+                return;
+            case TypeTags.INTERSECTION:
+                if (actualType.tag == TypeTags.INTERSECTION) {
+                    findTypeParam(loc, ((BIntersectionType) expType).effectiveType,
+                            ((BIntersectionType) actualType).effectiveType, env, resolvedTypes, result);
                 }
         }
     }

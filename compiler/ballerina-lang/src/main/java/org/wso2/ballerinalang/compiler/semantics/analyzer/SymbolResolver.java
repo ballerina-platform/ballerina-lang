@@ -116,8 +116,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
@@ -1867,54 +1865,54 @@ public class SymbolResolver extends BLangNodeVisitor {
         return types.getTypeIntersection(lhsType, rhsType);
     }
 
-    public void resolveCyclicUnionType(BUnionType unionType) {
-        var unionsymbolName = unionType.tsymbol.name.getValue();
-
-        for (BType member : unionType.getMemberTypes()) {
-            if (member.tag == TypeTags.ARRAY) {
-                var arrayType = (BArrayType) member;
-                if (arrayType.eType == unionType) {
-                    continue;
-                }
-                if (arrayType.eType.tsymbol.name.getValue().equals(unionsymbolName)) {
-                    arrayType.eType = unionType;
-                    continue;
-                }
-            }
-
-            if (member.tag == TypeTags.MAP) {
-                var mapType = (BMapType) member;
-                if (mapType.constraint == unionType) {
-                    continue;
-                }
-                if (mapType.constraint.tsymbol.name.getValue().equals(unionsymbolName)) {
-                    mapType.constraint = unionType;
-                    continue;
-                }
-            }
-
-            if (member.tag == TypeTags.TABLE) {
-                var tableType = (BTableType) member;
-                if (tableType.constraint == unionType) {
-                    continue;
-                }
-                if (tableType.constraint.tsymbol.name.getValue().equals(unionsymbolName)) {
-                    tableType.constraint = unionType;
-                    continue;
-                }
-                if (tableType.constraint.tag == TypeTags.MAP) {
-                    var mapType = (BMapType) tableType.constraint;
-                    if (mapType.constraint == unionType) {
-                        continue;
-                    }
-                    if (mapType.constraint.tsymbol.name.getValue().equals(unionsymbolName)) {
-                        mapType.constraint = unionType;
-                        continue;
-                    }
-                }
-            }
-        }
-    }
+//    public void resolveCyclicUnionType(BUnionType unionType) {
+//        var unionsymbolName = unionType.tsymbol.name.getValue();
+//
+//        for (BType member : unionType.getMemberTypes()) {
+//            if (member.tag == TypeTags.ARRAY) {
+//                var arrayType = (BArrayType) member;
+//                if (arrayType.eType == unionType) {
+//                    continue;
+//                }
+//                if (arrayType.eType.tsymbol.name.getValue().equals(unionsymbolName)) {
+//                    arrayType.eType = unionType;
+//                    continue;
+//                }
+//            }
+//
+//            if (member.tag == TypeTags.MAP) {
+//                var mapType = (BMapType) member;
+//                if (mapType.constraint == unionType) {
+//                    continue;
+//                }
+//                if (mapType.constraint.tsymbol.name.getValue().equals(unionsymbolName)) {
+//                    mapType.constraint = unionType;
+//                    continue;
+//                }
+//            }
+//
+//            if (member.tag == TypeTags.TABLE) {
+//                var tableType = (BTableType) member;
+//                if (tableType.constraint == unionType) {
+//                    continue;
+//                }
+//                if (tableType.constraint.tsymbol.name.getValue().equals(unionsymbolName)) {
+//                    tableType.constraint = unionType;
+//                    continue;
+//                }
+//                if (tableType.constraint.tag == TypeTags.MAP) {
+//                    var mapType = (BMapType) tableType.constraint;
+//                    if (mapType.constraint == unionType) {
+//                        continue;
+//                    }
+//                    if (mapType.constraint.tsymbol.name.getValue().equals(unionsymbolName)) {
+//                        mapType.constraint = unionType;
+//                        continue;
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     private static class ParameterizedTypeInfo {
         BType paramValueType;
