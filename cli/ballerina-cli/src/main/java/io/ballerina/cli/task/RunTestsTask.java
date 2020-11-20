@@ -62,12 +62,14 @@ import java.util.StringJoiner;
 
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.COVERAGE_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DATA_PLACEHOLDER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_ZIP_NAME;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RERUN_TEST_JSON_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_HTML_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_JSON_FILE;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.TOOLS_DIR_NAME;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
@@ -308,7 +310,7 @@ public class RunTestsTask implements Task {
             try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
                 writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
                 out.println("\t" + Paths.get("").toAbsolutePath().
-                        relativize(Paths.get(jsonFile.getAbsolutePath())) + "\n");
+                        relativize(Paths.get(jsonFile.getCanonicalPath())) + "\n");
             } catch (IOException e) {
                 throw LauncherUtils.createLauncherException("couldn't read data from the Json file : " + e.toString());
             }
@@ -334,8 +336,11 @@ public class RunTestsTask implements Task {
                     throw createLauncherException("couldn't read data from the Json file : " + e.toString());
                 }
             } else {
+                String reportToolsPath = "<" + BALLERINA_HOME + ">" + File.separator + BALLERINA_HOME_LIB +
+                        File.separator + TOOLS_DIR_NAME + File.separator + COVERAGE_DIR + File.separator +
+                        REPORT_ZIP_NAME;
                 out.println("warning: Could not find the required HTML report tools for code coverage at "
-                    + Paths.get("").toAbsolutePath().relativize(reportZipPath));
+                    + reportToolsPath);
             }
         }
     }

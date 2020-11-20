@@ -328,7 +328,8 @@ public class RunTestsTask implements Task {
         File jsonFile = new File(jsonPath.resolve(RESULTS_JSON_FILE).toString());
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
             writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-            out.println("\t" + Paths.get("").toAbsolutePath().relativize(jsonFile.toPath()) + "\n");
+            out.println("\t" + Paths.get("").toAbsolutePath().relativize(Paths.get(jsonFile.getCanonicalPath())) +
+                    "\n");
         } catch (IOException e) {
             throw LauncherUtils.createLauncherException("couldn't read data from the Json file : " + e.toString());
         }
@@ -354,8 +355,10 @@ public class RunTestsTask implements Task {
                 throw LauncherUtils.createLauncherException("couldn't read data from the Json file : " + e.toString());
             }
         } else {
+            String reportToolsPath = "<" + BALLERINA_HOME + ">" + File.separator + BALLERINA_HOME_LIB +
+                    File.separator + TOOLS_DIR_NAME + File.separator + COVERAGE_DIR + File.separator + REPORT_ZIP_NAME;
             out.println("warning: Could not find the required HTML report tools for code coverage at "
-                    + Paths.get("").toAbsolutePath().relativize(reportZipPath));
+                    + reportToolsPath);
         }
     }
 
