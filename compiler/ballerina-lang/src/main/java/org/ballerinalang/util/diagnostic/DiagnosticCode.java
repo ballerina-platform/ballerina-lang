@@ -199,7 +199,6 @@ public enum DiagnosticCode {
     INVALID_INIT_INVOCATION("invalid.init.invocation"),
     INVALID_RESOURCE_FUNCTION_INVOCATION("invalid.resource.function.invocation"),
     INVALID_ACTION_INVOCATION("invalid.action.invocation"),
-    UNDEFINED_ACTION("undefined.action"),
 
     TYPE_CAST_NOT_YET_SUPPORTED("type.cast.not.yet.supported.for.type"),
     EQUALITY_NOT_YET_SUPPORTED("equality.not.yet.supported.for.type"),
@@ -451,10 +450,11 @@ public enum DiagnosticCode {
 
     // Streaming related codes
     INVALID_STREAM_CONSTRUCTOR("invalid.stream.constructor"),
+    INVALID_STREAM_CONSTRUCTOR_ITERATOR("invalid.stream.constructor.iterator"),
+    INVALID_STREAM_CONSTRUCTOR_CLOSEABLE_ITERATOR("invalid.stream.constructor.closeable.iterator"),
     INVALID_STREAM_CONSTRUCTOR_EXP_TYPE("invalid.stream.constructor.expected.type"),
     NOT_ALLOWED_STREAM_USAGE_WITH_FROM("invalid.stream.usage.with.from"),
     ERROR_TYPE_EXPECTED("error.type.expected"),
-    MISSING_REQUIRED_METHOD_NEXT("missing.required.method.next"),
     ORDER_BY_NOT_SUPPORTED("order.by.not.supported"),
 
     // Table related codes
@@ -463,6 +463,7 @@ public enum DiagnosticCode {
     KEY_SPECIFIER_SIZE_MISMATCH_WITH_KEY_CONSTRAINT("key.specifier.size.mismatch.with.key.constraint"),
     KEY_SPECIFIER_MISMATCH_WITH_KEY_CONSTRAINT("key.specifier.mismatch.with.key.constraint"),
     INVALID_KEY_CONSTRAINT_PROVIDED_FOR_ACCESS("invalid.key.constraint.provided.for.access"),
+    CANNOT_UPDATE_TABLE_USING_MEMBER_ACCESS("cannot.update.table.using.member.access.lvexpr"),
     MEMBER_ACCESS_NOT_SUPPORT_FOR_KEYLESS_TABLE("member.access.not.supported.keyless.table"),
     INVALID_FIELD_NAMES_IN_KEY_SPECIFIER("invalid.field.name.in.key.specifier"),
     MULTI_KEY_MEMBER_ACCESS_NOT_SUPPORTED("multi.key.member.access.not.supported"),
@@ -578,7 +579,7 @@ public enum DiagnosticCode {
 
     DISTINCT_TYPING_ONLY_SUPPORT_OBJECTS_AND_ERRORS("distinct.typing.only.support.objects.and.errors"),
 
-    INVALID_USE_OF_TYPEDESC_PARAM("invalid.use.of.typedesc.param"),
+    INVALID_NON_EXTERNAL_DEPENDENTLY_TYPED_FUNCTION("invalid.non.external.dependently.typed.function"),
     INVALID_PARAM_TYPE_FOR_RETURN_TYPE("invalid.param.type.for.return.type"),
     INVALID_TYPEDESC_PARAM("invalid.typedesc.param"),
 
@@ -627,6 +628,7 @@ public enum DiagnosticCode {
     INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_OBJECT_METHOD(
             "invalid.non.isolated.invocation.in.isolated.object.method"),
 
+    BINDING_PATTERN_NOT_YET_SUPPORTED_IN_MODULE_VAR_DECL("binding.pattern.not.yet.supported.in.module.var.decl"),
     COMPILER_PLUGIN_ERROR("compiler.plugin.crashed"),
     ;
     private String value;

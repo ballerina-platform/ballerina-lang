@@ -33,7 +33,7 @@ public abstract class BStructureType extends BType {
     protected BAttachedFunction[] attachedFunctions;
     public BAttachedFunction initializer;
     public BAttachedFunction defaultsValuesInitFunc;
-    public int flags;
+    public long flags;
 
     /**
      * Create a {@code BStructType} which represents the user defined struct type.
@@ -43,7 +43,7 @@ public abstract class BStructureType extends BType {
      * @param flags of the structure type
      * @param valueClass of the structure type
      */
-    public BStructureType(String typeName, String pkgPath, int flags, Class<? extends BValue> valueClass) {
+    public BStructureType(String typeName, String pkgPath, long flags, Class<? extends BValue> valueClass) {
         super(typeName, pkgPath, valueClass);
         this.flags = flags;
     }

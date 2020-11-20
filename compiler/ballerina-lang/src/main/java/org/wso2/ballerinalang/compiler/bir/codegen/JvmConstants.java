@@ -133,11 +133,13 @@ public class JvmConstants {
     public static final String TUPLE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BTupleType";
     public static final String FUNCTION_TYPE_IMPL = "io/ballerina/runtime/internal/types/BFunctionType";
     public static final String TYPEDESC_TYPE_IMPL = "io/ballerina/runtime/internal/types/BTypedescType";
+    public static final String PARAMETERIZED_TYPE_IMPL = "io/ballerina/runtime/internal/types/BParameterizedType";
     public static final String FIELD_IMPL = "io/ballerina/runtime/internal/types/BField";
     public static final String ATTACHED_FUNCTION_IMPL = "io/ballerina/runtime/internal/types/AttachedFunction";
     public static final String FINITE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BFiniteType";
     public static final String FUTURE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BFutureType";
     public static final String MODULE = "io/ballerina/runtime/api/Module";
+    public static final String CURRENT_MODULE_VAR_NAME = "$moduleName";
     public static final String TYPE_ID_SET = "io/ballerina/runtime/internal/types/BTypeIdSet";
     public static final String TYPE_ID = "io/ballerina/runtime/internal/types/BTypeIdSet$TypeId";
 

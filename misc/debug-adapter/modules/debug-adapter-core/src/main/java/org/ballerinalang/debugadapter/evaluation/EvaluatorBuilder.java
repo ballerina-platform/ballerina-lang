@@ -128,15 +128,13 @@ public class EvaluatorBuilder extends NodeVisitor {
     /**
      * Parses a given ballerina expression and transforms into a tree of executable {@link Evaluator} instances.
      *
-     * @param expression Ballerina expression(user input).
+     * @param parsedExpr Parsed Ballerina expression node.
      * @throws EvaluationException If validation/parsing is failed.
      */
-    public Evaluator build(String expression) throws EvaluationException {
-        // Validates and converts the expression into a parsed syntax-tree node.
-        ExpressionNode parsedExpr = DebugExpressionParser.validateAndParse(expression);
-        // Encodes all the identifiers in order to be aligned with identifier representation in the JVM runtime.
+    public Evaluator build(ExpressionNode parsedExpr) throws EvaluationException {
+        clearState();
+        // Uses `ExpressionIdentifierModifier` to modify and encode all the identifiers within the expression.
         parsedExpr = (ExpressionNode) parsedExpr.apply(new ExpressionIdentifierModifier());
-        // transforms the parsed ballerina expression into a java expression using a node transformer implementation.
         parsedExpr.accept(this);
         if (unsupportedSyntaxDetected()) {
             final StringJoiner errors = new StringJoiner(System.lineSeparator());
@@ -585,5 +583,12 @@ public class EvaluatorBuilder extends NodeVisitor {
         supportedSyntax.add(SyntaxKind.IDENTIFIER_TOKEN);
         supportedSyntax.add(SyntaxKind.NONE);
         supportedSyntax.add(SyntaxKind.EOF_TOKEN);
+    }
+
+    private void clearState() {
+        capturedSyntax.clear();
+        unsupportedNodes.clear();
+        result = null;
+        builderException = null;
     }
 }

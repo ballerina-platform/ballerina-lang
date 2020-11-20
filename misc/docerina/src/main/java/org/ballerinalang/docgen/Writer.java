@@ -88,11 +88,6 @@ public class Writer {
                             .map(variable -> getTypeLabel(variable.type, options.context) + " " + variable.name)
                             .collect(Collectors.joining(", "))
             );
-            handlebars.registerHelper("unionTypeSummary", (Helper<List<Type>>)
-                    (typeList, options) -> typeList.stream()
-                            .map(type -> getTypeLabel(type, options.context))
-                            .collect(Collectors.joining(" | "))
-            );
             handlebars.registerHelper("pipeJoin", (Helper<List<String>>)
                     (typeList, options) -> String.join(" | ", typeList)
             );
@@ -105,7 +100,7 @@ public class Writer {
                 Context context = options.context;
                 String root = getRootPath(context);
                 String link = root + type.moduleName + "/" + type.category + "/" + name + ".html";
-                if (type.category.equals("classes") && !name.equals("()")) {
+                if (type.category != null && type.category.equals("classes") && !name.equals("()")) {
                     defaultValue = "<span class=\"default\">(default</span> <span class=\"type\">" +
                             "<a href=\"" + link + "\">" + name + "</a>" + "</span><span class=\"default\">)</span>";
                 } else {
@@ -216,6 +211,10 @@ public class Writer {
             label = type.memberTypes.stream()
                     .map(type1 -> getTypeLabel(type1, context))
                     .collect(Collectors.joining(" | "));
+        } else if (type.isIntersectionType) {
+            label = type.memberTypes.stream()
+                    .map(type1 -> getTypeLabel(type1, context))
+                    .collect(Collectors.joining(" & "));
         } else if (type.isTuple) {
             label = "<span>[</span>" + type.memberTypes.stream()
                     .map(type1 -> getTypeLabel(type1, context))
@@ -268,8 +267,6 @@ public class Writer {
 
     private static String getHtmlLink(Type type, String root) {
         // TODO: Create links to other modules on central if they are not available locally
-        // String orgName = BallerinaDocDataHolder.getInstance().getOrgName();
-        // Map<String, ModuleDoc> packageMap = BallerinaDocDataHolder.getInstance().getPackageMap();
         String link = root + type.moduleName + "/" + type.category + "/" + type.name + ".html";
         if ("types".equals(type.category) || "constants".equals(type.category) || "annotations".equals(type.category)
                 || "errors".equals(type.category)) {

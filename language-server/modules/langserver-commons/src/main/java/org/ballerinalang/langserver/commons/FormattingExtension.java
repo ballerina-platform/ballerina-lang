@@ -28,7 +28,7 @@ import java.util.List;
  * @since 2.0.0
  */
 public interface FormattingExtension
-        extends LanguageExtension<DocumentFormattingParams, List<? extends TextEdit>> {
+        extends LanguageExtension<DocumentFormattingParams, List<? extends TextEdit>, DocumentServiceContext> {
 
     /**
      * {@inheritDoc}

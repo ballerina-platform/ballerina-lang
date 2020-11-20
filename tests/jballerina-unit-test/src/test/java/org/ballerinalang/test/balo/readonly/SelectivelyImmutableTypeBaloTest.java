@@ -17,15 +17,13 @@
 */
 package org.ballerinalang.test.balo.readonly;
 
-import org.ballerinalang.test.balo.BaloCreator;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.testng.annotations.AfterClass;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -40,9 +38,8 @@ public class SelectivelyImmutableTypeBaloTest {
 
     @BeforeClass
     public void setup() {
-        BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "selectively_immutable");
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "records");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_selectively_immutable");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_records");
         result = BCompileUtil.compile("test-src/balo/test_balo/readonly/test_selectively_immutable_type.bal");
     }
 
@@ -87,12 +84,5 @@ public class SelectivelyImmutableTypeBaloTest {
                 ".0:MyConfig'", 88, 5);
 
         assertEquals(result.getErrorCount(), index);
-    }
-
-    @AfterClass
-    public void tearDown() {
-        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg",
-                                               "selectively_immutable");
-        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "records");
     }
 }

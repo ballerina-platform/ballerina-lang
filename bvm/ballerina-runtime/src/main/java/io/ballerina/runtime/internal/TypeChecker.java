@@ -44,6 +44,7 @@ import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BObjectType;
+import io.ballerina.runtime.internal.types.BParameterizedType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStreamType;
 import io.ballerina.runtime.internal.types.BTableType;
@@ -627,6 +628,15 @@ public class TypeChecker {
             return checkIsType(sourceType, ((BIntersectionType) targetType).getEffectiveType(), unresolvedTypes);
         }
 
+        if (sourceTypeTag == TypeTags.PARAMETERIZED_TYPE_TAG) {
+            if (targetTypeTag != TypeTags.PARAMETERIZED_TYPE_TAG) {
+                return checkIsType(((BParameterizedType) sourceType).getParamValueType(), targetType, unresolvedTypes);
+            }
+
+            return checkIsType(((BParameterizedType) sourceType).getParamValueType(),
+                               ((BParameterizedType) targetType).getParamValueType(), unresolvedTypes);
+        }
+
         switch (targetTypeTag) {
             case TypeTags.BYTE_TAG:
             case TypeTags.SIGNED32_INT_TAG:
@@ -1139,7 +1149,7 @@ public class TypeChecker {
         Type constraintType = sourceType.getConstrainedType();
 
         for (Field field : targetType.getFields().values()) {
-            int flags = field.getFlags();
+            var flags = field.getFlags();
             if (!SymbolFlags.isFlagOn(flags, SymbolFlags.OPTIONAL)) {
                 return false;
             }
@@ -1650,7 +1660,8 @@ public class TypeChecker {
         return sourceTypeIdSet.containsAll(targetTypeIdSet);
     }
 
-    private static boolean isInSameVisibilityRegion(String lhsTypePkg, String rhsTypePkg, int lhsFlags, int rhsFlags) {
+    private static boolean isInSameVisibilityRegion(String lhsTypePkg, String rhsTypePkg, long lhsFlags,
+                                                    long rhsFlags) {
         if (SymbolFlags.isFlagOn(lhsFlags, SymbolFlags.PRIVATE)) {
             return lhsTypePkg.equals(rhsTypePkg);
         } else if (SymbolFlags.isFlagOn(lhsFlags, SymbolFlags.PUBLIC)) {
@@ -1731,7 +1742,7 @@ public class TypeChecker {
         }
 
         if (sourceType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            int flags = ((BObjectType) sourceType).flags;
+            var flags = ((BObjectType) sourceType).flags;
             return (flags & SymbolFlags.SERVICE) == SymbolFlags.SERVICE;
         }
 
@@ -1928,6 +1939,17 @@ public class TypeChecker {
         if (targetTypeTag == TypeTags.INTERSECTION_TAG) {
             return checkIsLikeOnValue(sourceValue, sourceType, ((BIntersectionType) targetType).getEffectiveType(),
                                       unresolvedValues, allowNumericConversion);
+        }
+
+        if (sourceTypeTag == TypeTags.PARAMETERIZED_TYPE_TAG) {
+            if (targetTypeTag != TypeTags.PARAMETERIZED_TYPE_TAG) {
+                return checkIsLikeOnValue(sourceValue, ((BParameterizedType) sourceType).getParamValueType(),
+                                          targetType, unresolvedValues, allowNumericConversion);
+            }
+
+            return checkIsLikeOnValue(sourceValue, ((BParameterizedType) sourceType).getParamValueType(),
+                                      ((BParameterizedType) targetType).getParamValueType(), unresolvedValues,
+                                      allowNumericConversion);
         }
 
         switch (targetTypeTag) {

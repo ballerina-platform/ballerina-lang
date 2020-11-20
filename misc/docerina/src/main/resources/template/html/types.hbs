@@ -3,8 +3,8 @@
 {{/partial}}
 
 {{#partial "sidebarLists" }}
-    {{#each module.unionTypes}}
-        <li {{#equals unionTypes.name name}}class="active"{{/equals}}>
+    {{#each module.types}}
+        <li {{#equals bTypes.name name}}class="active"{{/equals}}>
             <a href="#{{name}}" onclick="menuLinkClick()">{{name}}</a>
         </li>
     {{/each}}
@@ -20,11 +20,7 @@
                     <ul>
                         <li id="{{ name }}">
                             <b {{#if isDeprecated}}class="strike"{{/if}}>{{ name }}</b>
-                            {{#if isTuple}}
                                 <span class="type">  {{{ typeName this }}}</span></li>
-                            {{else}}
-                                <span class="type">  {{{ unionTypeSummary memberTypes }}}</span></li>
-                            {{/if}}
                         <li>
                             {{#if isDeprecated}}
                                 <span class="stab">Deprecated</span>

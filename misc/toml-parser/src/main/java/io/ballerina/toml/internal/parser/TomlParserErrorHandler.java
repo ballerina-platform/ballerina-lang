@@ -51,17 +51,37 @@ import java.util.ArrayDeque;
 public class TomlParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE = {ParserRuleContext.EOF,
-            ParserRuleContext.KEY_VALUE_PAIR, ParserRuleContext.TOML_TABLE, ParserRuleContext.TOML_TABLE_ARRAY};
+            ParserRuleContext.NEWLINE,
+            ParserRuleContext.KEY_VALUE_PAIR,
+            ParserRuleContext.TOML_TABLE,
+            ParserRuleContext.TOML_TABLE_ARRAY
+    };
 
-    private static final ParserRuleContext[] VALUE_END = { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.COMMA };
-
-    private static final ParserRuleContext[] VALUE_START =
-            { ParserRuleContext.VALUE, ParserRuleContext.TOML_ARRAY };
+    private static final ParserRuleContext[] ARRAY_VALUE_END = {
+            ParserRuleContext.COMMA,
+            ParserRuleContext.ARRAY_VALUE_LIST_END}; //TODO does the order matter? why and how
 
     private static final ParserRuleContext[] ARRAY_VALUE_START_OR_VALUE_LIST_END =
             { ParserRuleContext.ARRAY_VALUE_LIST_END, ParserRuleContext.ARRAY_VALUE_START };
 
+    private static final ParserRuleContext[] NUMERICAL_LITERAL = {ParserRuleContext.DECIMAL_INTEGER_LITERAL,
+            ParserRuleContext.DECIMAL_FLOATING_POINT_LITERAL};
 
+    private static final ParserRuleContext[] VALUE = {ParserRuleContext.STRING_START,
+            ParserRuleContext.SIGN_TOKEN, ParserRuleContext.NUMERICAL_LITERAL,
+            ParserRuleContext.BOOLEAN_LITERAL,
+//            ParserRuleContext.ARRAY_VALUE_LIST
+    };
+
+    private static final ParserRuleContext[] ARRAY_VALUE_START = VALUE;
+
+    private static final ParserRuleContext[] KEY_START = {ParserRuleContext.IDENTIFIER_LITERAL,
+            ParserRuleContext.NUMERICAL_LITERAL, ParserRuleContext.BOOLEAN_LITERAL, ParserRuleContext.STRING_START};
+
+    private static final ParserRuleContext[] KEY_END = {ParserRuleContext.DOT, ParserRuleContext.KEY_LIST_END};
+
+    private static final ParserRuleContext[] KEY_LIST_END = {
+            ParserRuleContext.ASSIGN_OP, ParserRuleContext.TABLE_END, ParserRuleContext.ARRAY_TABLE_FIRST_END};
 
     public TomlParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -105,14 +125,12 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                 case ASSIGN_OP:
                     hasMatch = nextToken.kind == SyntaxKind.EQUAL_TOKEN;
                     break;
-                case OPEN_BRACKET:
                 case ARRAY_TABLE_FIRST_START:
                 case ARRAY_TABLE_SECOND_START:
                 case TABLE_START:
                 case ARRAY_VALUE_LIST_START:
                     hasMatch = nextToken.kind == SyntaxKind.OPEN_BRACKET_TOKEN;
                     break;
-                case CLOSE_BRACKET:
                 case ARRAY_TABLE_FIRST_END:
                 case ARRAY_TABLE_SECOND_END:
                 case TABLE_END:
@@ -126,26 +144,66 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                 case COMMA:
                     hasMatch = nextToken.kind == SyntaxKind.COMMA_TOKEN;
                     break;
-                case KEY:
-                    hasMatch = TomlParser.isKey(nextToken);
+                case DOT:
+                    hasMatch = nextToken.kind == SyntaxKind.DOT_TOKEN;
                     break;
+                case DECIMAL_INTEGER_LITERAL:
+                    hasMatch = nextToken.kind == SyntaxKind.DECIMAL_INT_TOKEN;
+                    break;
+                case DECIMAL_FLOATING_POINT_LITERAL:
+                    hasMatch = nextToken.kind == SyntaxKind.DECIMAL_FLOAT_TOKEN;
+                    break;
+                case BOOLEAN_LITERAL:
+                    hasMatch = nextToken.kind == SyntaxKind.TRUE_KEYWORD || nextToken.kind == SyntaxKind.FALSE_KEYWORD;
+                    break;
+                case STRING_CONTENT:
+                    hasMatch = nextToken.kind == SyntaxKind.STRING_LITERAL_TOKEN ||
+                            nextToken.kind == SyntaxKind.ML_STRING_LITERAL ||
+                            nextToken.kind == SyntaxKind.IDENTIFIER_LITERAL; //TODO check
+                    break;
+                case IDENTIFIER_LITERAL:
+                    hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_LITERAL;
+                    break;
+                case NEWLINE:
+                    hasMatch = nextToken.kind == SyntaxKind.NEWLINE;
+                    break;
+                case SIGN_TOKEN:
+                    hasMatch = nextToken.kind == SyntaxKind.PLUS_TOKEN || nextToken.kind == SyntaxKind.MINUS_TOKEN;
+                    break;
+                case NUMERICAL_LITERAL:
+                    alternativeRules = NUMERICAL_LITERAL;
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
+                            isEntryPoint);
                 case VALUE:
-                    hasMatch = isBasicLiteral(nextToken.kind);
-                    break;
+                    alternativeRules = VALUE;
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
+                            isEntryPoint);
                 case TOP_LEVEL_NODE:
                     alternativeRules = TOP_LEVEL_NODE;
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
                             isEntryPoint);
                 case ARRAY_VALUE_END:
-                    alternativeRules = VALUE_END;
+                    alternativeRules = ARRAY_VALUE_END;
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
                             isEntryPoint);
                 case ARRAY_VALUE_START:
-                    alternativeRules = VALUE_START;
+                    alternativeRules = ARRAY_VALUE_START;
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
                             isEntryPoint);
                 case ARRAY_VALUE_START_OR_VALUE_LIST_END:
                     alternativeRules = ARRAY_VALUE_START_OR_VALUE_LIST_END;
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
+                            isEntryPoint);
+                case KEY_START:
+                    alternativeRules = KEY_START;
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
+                            isEntryPoint);
+                case KEY_END:
+                    alternativeRules = KEY_END;
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
+                            isEntryPoint);
+                case KEY_LIST_END:
+                    alternativeRules = KEY_LIST_END;
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
                             isEntryPoint);
                 default:
@@ -156,6 +214,7 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
             }
 
             if (!hasMatch) {
+                //If terminal node is not matched.
                 return fixAndContinue(currentCtx, lookahead, currentDepth, matchingRulesCount, isEntryPoint);
             }
 
@@ -174,14 +233,13 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
         return result;
     }
 
-
     private void startContextIfRequired(ParserRuleContext currentCtx) {
         switch (currentCtx) {
             case TOML_TABLE_ARRAY:
             case TOML_TABLE:
             case KEY_VALUE_PAIR:
-            case TOML_ARRAY:
             case ARRAY_VALUE_LIST:
+            case KEY_LIST:
                 startContext(currentCtx);
                 break;
             default:
@@ -205,51 +263,60 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
         switch (currentCtx) {
             case EOF:
                 return ParserRuleContext.EOF;
-            case TOML_ARRAY:
-            case VALUE:
-            case CLOSE_BRACKET:
-            case DOUBLE_CLOSE_BRACKET:
-                return ParserRuleContext.TOP_LEVEL_NODE;
+            case ARRAY_TABLE_SECOND_END:
+            case TABLE_END:
+            case ARRAY_VALUE_LIST_END:
+                endContext();
+                return ParserRuleContext.NEWLINE;
             case ASSIGN_OP:
+                endContext();
                 return ParserRuleContext.VALUE;
+            case NEWLINE:
+                return ParserRuleContext.TOP_LEVEL_NODE;
             case KEY_VALUE_PAIR:
-            case OPEN_BRACKET:
-            case DOUBLE_OPEN_BRACKET:
-                return ParserRuleContext.KEY;
+            case TABLE_START:
+            case ARRAY_TABLE_SECOND_START:
+                return ParserRuleContext.KEY_LIST;
+            case ARRAY_TABLE_FIRST_START:
+                return ParserRuleContext.ARRAY_TABLE_SECOND_START;
+            case ARRAY_TABLE_FIRST_END:
+                return ParserRuleContext.ARRAY_TABLE_SECOND_END;
             case TOML_TABLE:
-                return ParserRuleContext.OPEN_BRACKET;
+                return ParserRuleContext.TABLE_START;
             case TOML_TABLE_ARRAY:
-                return ParserRuleContext.DOUBLE_OPEN_BRACKET;
-            case KEY:
-                return getNextRuleForKey();
+                return ParserRuleContext.ARRAY_TABLE_FIRST_START;
             case COMMA:
-                return ParserRuleContext.CLOSE_BRACKET;
+                return ParserRuleContext.ARRAY_VALUE_START;
+            case SIGN_TOKEN:
+                return ParserRuleContext.NUMERICAL_LITERAL;
+            case DOT:
+            case KEY_LIST:
+                return ParserRuleContext.KEY_START;
             case ARRAY_VALUE_LIST_START:
                 return ParserRuleContext.ARRAY_VALUE_LIST;
             case ARRAY_VALUE_LIST:
                 return ParserRuleContext.ARRAY_VALUE_START_OR_VALUE_LIST_END;
             case STRING_START:
-                return ParserRuleContext.STRING_LITERAL;
-            case STRING_LITERAL:
+                return ParserRuleContext.STRING_CONTENT;
+            case STRING_CONTENT:
                 return ParserRuleContext.STRING_END;
+            case STRING_END:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case DECIMAL_INTEGER_LITERAL:
+            case BOOLEAN_LITERAL:
+                ParserRuleContext parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.ARRAY_VALUE_LIST) {
+                    return ParserRuleContext.ARRAY_VALUE_END;
+                } else if (parentCtx == ParserRuleContext.KEY_LIST) {
+                    return ParserRuleContext.KEY_END;
+                } else {
+                    return ParserRuleContext.NEWLINE;
+                }
+            case IDENTIFIER_LITERAL:
+                return ParserRuleContext.KEY_END;
             default:
                 throw new IllegalStateException("Next rule is not handled " + currentCtx); //use next token and try
 
-        }
-    }
-
-    private ParserRuleContext getNextRuleForKey() {
-        ParserRuleContext parentCtx = getParentContext();
-        switch (parentCtx) {
-            case TOML_TABLE:
-                return ParserRuleContext.CLOSE_BRACKET;
-            case KEY_VALUE_PAIR:
-            case TOP_LEVEL_NODE: //check
-                return ParserRuleContext.ASSIGN_OP;
-            case TOML_TABLE_ARRAY:
-                return ParserRuleContext.DOUBLE_CLOSE_BRACKET;
-            default:
-                throw new IllegalStateException("Parent rule for key cannot be " + parentCtx);
         }
     }
 
@@ -272,50 +339,45 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.KEY_VALUE;
             case ASSIGN_OP:
                 return SyntaxKind.EQUAL_TOKEN;
-            case KEY:
+            case IDENTIFIER_LITERAL:
                 return SyntaxKind.IDENTIFIER_LITERAL;
             case VALUE:
                 return SyntaxKind.FALSE_KEYWORD; //Better handling
             case EOF:
                 return SyntaxKind.EOF_TOKEN;
-            case OPEN_BRACKET:
-                return SyntaxKind.OPEN_BRACKET_TOKEN;
-            case CLOSE_BRACKET:
-                return SyntaxKind.CLOSE_BRACKET_TOKEN;
             case COMMA:
                 return SyntaxKind.COMMA_TOKEN;
             case STRING_START:
             case STRING_END:
                 return SyntaxKind.DOUBLE_QUOTE_TOKEN;
-            case STRING_LITERAL:
-                return SyntaxKind.STRING_LITERAL;
+            case STRING_CONTENT:
+                return SyntaxKind.IDENTIFIER_LITERAL;
             case ARRAY_VALUE_LIST_START:
+            case TABLE_START:
                 return SyntaxKind.OPEN_BRACKET_TOKEN;
             case ARRAY_VALUE_LIST_END:
+            case TABLE_END:
                 return SyntaxKind.CLOSE_BRACKET_TOKEN;
+            case DECIMAL_INTEGER_LITERAL:
+                return SyntaxKind.DECIMAL_INT_TOKEN;
+            case DECIMAL_FLOATING_POINT_LITERAL:
+                return SyntaxKind.DECIMAL_FLOAT_TOKEN;
+            case BOOLEAN_LITERAL:
+                return SyntaxKind.FALSE_KEYWORD; //Better handling
+            case NEWLINE:
+                return SyntaxKind.NEWLINE;
+            case DOT:
+                return SyntaxKind.DOT_TOKEN;
+            case ARRAY_TABLE_FIRST_END:
+            case ARRAY_TABLE_SECOND_END:
+                return SyntaxKind.CLOSE_BRACKET_TOKEN;
+            case ARRAY_TABLE_FIRST_START:
+            case ARRAY_TABLE_SECOND_START:
+                return SyntaxKind.OPEN_BRACKET_TOKEN;
+            case SIGN_TOKEN:
+                return SyntaxKind.PLUS_TOKEN;
             default:
                 return SyntaxKind.NONE;
-        }
-    }
-
-    /**
-     * Check whether a token kind is a basic literal.
-     *
-     * @param kind Token kind to check
-     * @return <code>true</code> if the given token kind belongs to a basic literal.<code>false</code> otherwise
-     */
-    private boolean isBasicLiteral(SyntaxKind kind) {
-        switch (kind) {
-            case DEC_INT:
-            case FLOAT:
-            case STRING_LITERAL:
-            case ML_STRING_LITERAL:
-            case BOOLEAN:
-            case BASIC_LITERAL:
-            case ARRAY:
-                return true;
-            default:
-                return false;
         }
     }
 }

@@ -55,7 +55,7 @@ public class BRecordType extends BStructureType implements RecordType {
      * @param sealed flag indicating the sealed status
      * @param typeFlags flags associated with the type
      */
-    public BRecordType(String typeName, Module pkg, int flags, boolean sealed, int typeFlags) {
+    public BRecordType(String typeName, Module pkg, long flags, boolean sealed, int typeFlags) {
         super(typeName, pkg, flags, MapValueImpl.class);
         this.sealed = sealed;
         this.typeFlags = typeFlags;
@@ -73,7 +73,7 @@ public class BRecordType extends BStructureType implements RecordType {
      * @param sealed flag to indicate whether the record is sealed
      * @param typeFlags flags associated with the type
      */
-    public BRecordType(String typeName, Module pkg, int flags, Map<String, Field> fields, Type restFieldType,
+    public BRecordType(String typeName, Module pkg, long flags, Map<String, Field> fields, Type restFieldType,
                        boolean sealed, int typeFlags) {
         super(typeName, pkg, flags, MapValueImpl.class, fields);
         this.restFieldType = restFieldType;
