@@ -25,7 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
@@ -58,15 +57,14 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
 
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    PositionDetails positionDetails,
                                                     CodeActionContext context) {
         String diagnosticMsg = diagnostic.getMessage().toLowerCase(Locale.ROOT);
         if (!(diagnosticMsg.contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return Collections.emptyList();
         }
 
-        Symbol matchedSymbol = positionDetails.matchedSymbol();
-        TypeSymbol typeDescriptor = positionDetails.matchedSymbolTypeDesc();
+        Symbol matchedSymbol = context.positionDetails().matchedSymbol();
+        TypeSymbol typeDescriptor = context.positionDetails().matchedTypeDesc();
         String uri = context.fileUri();
         if (typeDescriptor == null || typeDescriptor.typeKind() != TypeDescKind.UNION) {
             return Collections.emptyList();
@@ -78,7 +76,7 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
             return Collections.emptyList();
         }
 
-        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(diagnostic, positionDetails, context);
+        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(diagnostic, context);
 
         // Add type guard code action
         String commandTitle = String.format(CommandConstants.TYPE_GUARD_TITLE, matchedSymbol.name());

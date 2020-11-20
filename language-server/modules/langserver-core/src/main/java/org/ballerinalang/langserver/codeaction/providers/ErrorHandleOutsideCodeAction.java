@@ -31,7 +31,6 @@ import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
@@ -65,14 +64,13 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    PositionDetails positionDetails,
                                                     CodeActionContext context) {
         String uri = context.fileUri();
         String diagnosticMsg = diagnostic.getMessage().toLowerCase(Locale.ROOT);
         if (!(diagnosticMsg.contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return Collections.emptyList();
         }
-        TypeSymbol typeSymbol = positionDetails.matchedSymbolTypeDesc();
+        TypeSymbol typeSymbol = context.positionDetails().matchedTypeDesc();
         if (typeSymbol == null || typeSymbol.typeKind() != TypeDescKind.UNION) {
             return Collections.emptyList();
         }
@@ -84,7 +82,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
             return Collections.emptyList();
         }
 
-        Optional<FunctionDefinitionNode> optParentFunction = getParentFunction(positionDetails.matchedNode());
+        Optional<FunctionDefinitionNode> optParentFunction = getParentFunction(context.positionDetails().matchedNode());
         if (optParentFunction.isEmpty()) {
             return Collections.emptyList();
         }
@@ -134,7 +132,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
 
         List<TextEdit> edits = new ArrayList<>();
         // Add create variable edits
-        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(diagnostic, positionDetails, context);
+        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(diagnostic, context);
 
         // Change and add type text edit
         String typeWithError = createVarTextEdits.types.get(0);
@@ -158,7 +156,8 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
             edits.add(new TextEdit(returnRange, returnText));
         }
 
-        String commandTitle = String.format(CommandConstants.ADD_CHECK_TITLE, positionDetails.matchedSymbol().name());
+        String commandTitle = String.format(CommandConstants.ADD_CHECK_TITLE,
+                                            context.positionDetails().matchedSymbol().name());
         return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, uri));
     }
 

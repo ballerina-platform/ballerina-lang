@@ -21,6 +21,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.Module;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -28,8 +29,6 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
-import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
@@ -49,29 +48,24 @@ import java.util.regex.Matcher;
  * @since 1.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class ChangeReturnTypeCodeAction extends AbstractCodeActionProvider {
+public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    PositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, CodeActionContext context) {
         if (!(diagnostic.getMessage().toLowerCase(Locale.ROOT).contains(CommandConstants.INCOMPATIBLE_TYPES))) {
             return Collections.emptyList();
         }
 
-        String diagnosticMessage = diagnostic.getMessage();
-        String uri = context.fileUri();
-        NonTerminalNode matchedNode = positionDetails.matchedNode();
-        if (matchedNode.kind() != SyntaxKind.FUNCTION_DEFINITION) {
+        if (context.positionDetails().matchedNode().kind() != SyntaxKind.RETURN_STATEMENT) {
             return Collections.emptyList();
         }
-        Matcher matcher = CommandConstants.INCOMPATIBLE_TYPE_PATTERN.matcher(diagnosticMessage);
+        Matcher matcher = CommandConstants.INCOMPATIBLE_TYPE_PATTERN.matcher(diagnostic.getMessage());
         if (matcher.find() && matcher.groupCount() > 1) {
             String foundType = matcher.group(2);
-            FunctionDefinitionNode funcDef = (FunctionDefinitionNode) matchedNode;
+            FunctionDefinitionNode funcDef = getFunctionNode(context);
             if (!RuntimeConstants.MAIN_FUNCTION_NAME.equals(funcDef.functionName().text())) {
                 // Process full-qualified BType name  eg. ballerina/http:Client and if required; add
                 // auto-import
@@ -84,28 +78,35 @@ public class ChangeReturnTypeCodeAction extends AbstractCodeActionProvider {
                 Position end;
                 if (funcDef.functionSignature().returnTypeDesc().isEmpty()) {
                     // eg. function test() {...}
-                    LinePosition closeParanPos =
-                            funcDef.functionSignature().closeParenToken().lineRange().startLine();
-                    start = new Position(closeParanPos.line(), closeParanPos.offset() - 1);
-                    end = start;
+                    Position funcBodyStart = CommonUtil.toPosition(funcDef.functionBody().lineRange().startLine());
+                    start = funcBodyStart;
+                    end = funcBodyStart;
                     editText = " returns (" + editText + ")";
                 } else {
                     // eg. function test() returns () {...}
                     ReturnTypeDescriptorNode returnTypeDesc = funcDef.functionSignature().returnTypeDesc().get();
-                    LinePosition retStart = returnTypeDesc.lineRange().startLine();
-                    LinePosition retEnd = returnTypeDesc.lineRange().endLine();
+                    LinePosition retStart = returnTypeDesc.type().lineRange().startLine();
+                    LinePosition retEnd = returnTypeDesc.type().lineRange().endLine();
                     start = new Position(retStart.line(),
-                            retStart.offset());
+                                         retStart.offset());
                     end = new Position(retEnd.line(), retEnd.offset());
                 }
                 edits.add(new TextEdit(new Range(start, end), editText));
 
                 // Add code action
                 String commandTitle = CommandConstants.CHANGE_RETURN_TYPE_TITLE + foundType + "'";
-                return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, uri));
+                return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
             }
         }
         return Collections.emptyList();
+    }
+
+    private FunctionDefinitionNode getFunctionNode(CodeActionContext context) {
+        NonTerminalNode parent = context.positionDetails().matchedNode();
+        while (parent.kind() != SyntaxKind.FUNCTION_DEFINITION) {
+            parent = parent.parent();
+        }
+        return (FunctionDefinitionNode) parent;
     }
 
     private static String extractTypeName(Matcher matcher, CodeActionContext context, String foundType,
@@ -116,11 +117,12 @@ public class ChangeReturnTypeCodeAction extends AbstractCodeActionProvider {
             String moduleName = matcher.group(2);
             String typeName = matcher.group(3);
             String pkgId = orgName + "/" + moduleName;
-            // TODO: Fix the commented
-            PackageID currentPkgId = null;
-//            PackageID currentPkgId = context.get(
-//                    DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).packageID;
-            if (pkgId.equals(currentPkgId.toString())) {
+
+            Module module = context.workspace().module(context.filePath()).orElseThrow();
+            String currentOrg = module.moduleDescriptor().org().value();
+            String currentModule = module.moduleDescriptor().name().packageName().value();
+
+            if (currentOrg.equals(pkgId) && currentModule.equals(moduleName)) {
                 // TODO: Check the validity of this check since currentPkgId.toString() returns version as well.
                 foundType = typeName;
             } else {
