@@ -786,8 +786,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-//        symbolEnter.defineNode(varNode, env);
-
         varNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
             annotationAttachment.accept(this);
