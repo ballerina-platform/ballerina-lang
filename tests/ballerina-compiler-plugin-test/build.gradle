@@ -29,7 +29,6 @@ dependencies {
 
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(path: ':ballerina-runtime')
-    testCompile project(path: ':ballerina-file')
     testCompile 'org.testng:testng'
     testCompile 'com.h2database:h2'
 
@@ -55,25 +54,25 @@ dependencies {
     testRuntime project(':ballerina-lang:transaction')
     testRuntime 'org.slf4j:slf4j-jdk14'
 
-    baloTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:array', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:decimal', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:error', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:floatingpoint', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:future', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:integer', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:map', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:object', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:stream', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:table', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:typedesc', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:bool', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:query', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:transaction', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
+    baloTestImplementation project(path: ':ballerina-lang:array', configuration: 'distributionBalo')
+    baloTestImplementation project(path: ':ballerina-lang:decimal', configuration: 'distributionBalo')
+    baloTestImplementation project(path: ':ballerina-lang:error', configuration: 'distributionBalo')
+    baloTestImplementation project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBalo')
+    baloTestImplementation project(path: ':ballerina-lang:future', configuration: 'distributionBalo')
+    baloTestImplementation project(path: ':ballerina-lang:integer', configuration: 'distributionBalo')
+    baloTestImplementation project(path: ':ballerina-lang:map', configuration: 'distributionBalo')
+    baloTestImplementation project(path: ':ballerina-lang:object', configuration: 'distributionBalo')
+    baloTestImplementation project(path: ':ballerina-lang:stream', configuration: 'distributionBalo')
+    baloTestImplementation project(path: ':ballerina-lang:string', configuration: 'distributionBalo')
+    baloTestImplementation project(path: ':ballerina-lang:table', configuration: 'distributionBalo')
+    baloTestImplementation project(path: ':ballerina-lang:typedesc', configuration: 'distributionBalo')
+    baloTestImplementation project(path: ':ballerina-lang:value', configuration: 'distributionBalo')
+    baloTestImplementation project(path: ':ballerina-lang:xml', configuration: 'distributionBalo')
+    baloTestImplementation project(path: ':ballerina-lang:bool', configuration: 'distributionBalo')
+    baloTestImplementation project(path: ':ballerina-lang:query', configuration: 'distributionBalo')
+    baloTestImplementation project(path: ':ballerina-lang:transaction', configuration: 'distributionBalo')
+    baloTestImplementation project(path: ':ballerina-lang:internal', configuration: 'distributionBalo')
 }
 
 description = 'Ballerina - Compiler plugin tests'

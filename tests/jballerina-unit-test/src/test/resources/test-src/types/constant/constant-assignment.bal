@@ -1,7 +1,6 @@
 import ballerina/lang.'string as strings;
-import ballerina/system;
 
-final string envVar = system:getEnv("env_var");
+final string envVar = "";
 final string varFunc = dummyStringFunction();
 final string str = "ballerina is ";
 final string varNativeFunc = strings:concat(str, "awesome");

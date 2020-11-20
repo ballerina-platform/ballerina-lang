@@ -1,0 +1,5 @@
+[package]
+org = "test_map_type_org"
+name = "map_init"
+version= "0.1.0"
+

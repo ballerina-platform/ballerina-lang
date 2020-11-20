@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.testerina;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -33,7 +33,7 @@ public class TopLevelNodesTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compileWithTests("test-src/testerina/TopLevelNodesDupTest", "duptest");
+        compileResult = BCompileUtil.compile("test-src/testerina/toplevelnodesduptest");
     }
 
     @Test(description = "Test Toplevel nodes duplication")
@@ -41,9 +41,9 @@ public class TopLevelNodesTest {
         Assert.assertEquals(compileResult.getErrorCount(), 4);
 
         int index = 0;
-        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'testDuplicate'", 4, 17);
-        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'Person'", 8, 13);
-        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'testString'", 13, 8);
-        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'Company'", 15, 1);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'testDuplicate'", 1, 17);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'Person'", 4, 13);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'testString'", 9, 8);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'Company'", 11, 1);
     }
 }

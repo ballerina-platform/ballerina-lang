@@ -29,7 +29,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
  */
 public class BServiceSymbol extends BVarSymbol {
 
-    public BServiceSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner, Location pos,
+    public BServiceSymbol(long flags, Name name, PackageID pkgID, BType type, BSymbol owner, Location pos,
                           SymbolOrigin origin) {
         super(flags, name, pkgID, type, owner, pos, origin);
         this.tag = SymTag.SERVICE;

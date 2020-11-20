@@ -169,16 +169,16 @@ public class Toml {
      */
     public List<Toml> getTables(String key) {
         TopLevelNode tableNode = rootNode.children().get(key);
+        List<Toml> tomlList = new ArrayList<>();
         if (tableNode.kind() == TomlType.TABLE_ARRAY) {
             TomlTableArrayNode tomlTableArrayNode = (TomlTableArrayNode) tableNode;
             List<TomlTableNode> childs = tomlTableArrayNode.children();
-            List<Toml> tomlList = new ArrayList<>();
             for (TomlTableNode child : childs) {
                 tomlList.add(new Toml(child));
             }
             return tomlList;
         }
-        return null;
+        return tomlList;
     }
 
     public List<TomlDiagnostic> getDiagnostics() {

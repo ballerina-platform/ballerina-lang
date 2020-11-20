@@ -15,10 +15,8 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
-apply from: "$rootDir/gradle/birTestableProject.gradle"
-apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
-
+apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 configurations {
     testLibs {
@@ -45,18 +43,14 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
-    implementation project(':ballerina-system')
     implementation project(':ballerina-io')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-tool')
 //    implementation project(':ballerina-http')
 //    implementation project(':ballerina-transactions')
     implementation project(':ballerina-packerina')
 //    implementation project(':ballerina-transactions')
-    implementation project(':ballerina-time')
     implementation project(':ballerina-observability')
-    implementation project(':ballerina-stringutils')
     implementation project(':ballerina-lang:java')
     implementation project(':observability-test-utils')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
@@ -69,24 +63,11 @@ dependencies {
 
 //    baloTestImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
 //    baloTestImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':observability-test-utils', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
+    testRuntime project(path: ':ballerina-observability', configuration: 'distributionBirJar')
+    testRuntime project(path: ':ballerina-lang:annotations', configuration: 'distributionBirJar')
+    testRuntime project(path: ':ballerina-io', configuration: 'distributionBirJar')
+    testRuntime project(path: ':observability-test-utils', configuration: 'distributionBirJar')
 
-    testCompile project(':ballerina-mime')
-    testCompile project(':ballerina-runtime')
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'io.netty:netty-transport'
     testCompile 'io.netty:netty-codec-http'
@@ -125,13 +106,13 @@ test {
     maxParallelForks = 1
     systemProperty 'basedir', "$buildDir"
     systemProperty 'libdir', "$buildDir"
-    systemProperty 'observability.test.utils', "$buildDir/../../observability-test-utils/"
     systemProperty 'server.zip', configurations.jballerinaTools.asPath
     systemProperty 'jballerina.server.zip', configurations.jballerinaTools.asPath
     systemProperty 'java.util.logging.config.file', "$buildDir/resources/test/logging.properties"
     systemProperty 'java.util.logging.manager', 'org.ballerinalang.logging.BLogManager'
     systemProperty 'ballerina.agent.path', configurations.testUtils.asPath
-    systemProperty 'observability-test-natives.jar', configurations.observeTestUtils.asPath
+    systemProperty 'observability.test.utils.dir', "$buildDir/../../observability-test-utils/"
+    systemProperty 'observability.test.utils.jar', configurations.observeTestUtils.asPath
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

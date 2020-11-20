@@ -114,7 +114,7 @@ class EmitterUtils {
         }
     }
 
-    static String emitFlags(int flag) {
+    static String emitFlags(long flag) {
 
         if (SymbolFlags.isFlagOn(SymbolFlags.PRIVATE, flag)) {
             return "private";
