@@ -129,7 +129,7 @@ public class AddCommand implements BLauncherCmd {
         if (!matches) {
             CommandUtil.printError(errStream,
                     "Invalid module name : '" + moduleName + "' :\n" +
-                            "Module name can only contain alphanumerics, underscores and periods " +
+                            "Module name can only contain alphanumerics, underscores " +
                             "and the maximum length is 256 characters",
                     null,
                     false);

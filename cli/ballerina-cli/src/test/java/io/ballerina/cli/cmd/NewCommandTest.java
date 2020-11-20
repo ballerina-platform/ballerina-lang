@@ -20,6 +20,7 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.projects.util.ProjectConstants;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import picocli.CommandLine;
 
@@ -34,6 +35,14 @@ import java.nio.file.Path;
  * @since 2.0.0
  */
 public class NewCommandTest extends BaseCommandTest {
+
+    @DataProvider(name = "invalidProjectNames")
+    public Object[][] provideInvalidProjectNames() {
+        return new Object[][] {
+                { "hello-app" },
+                { "my.project" }
+        };
+    }
 
     @Test(description = "Create a new project")
     public void testNewCommand() throws IOException {
@@ -152,10 +161,10 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("Created new Ballerina project at "));
     }
 
-    @Test(description = "Test new command with invalid project name")
-    public void testNewCommandWithInvalidProjectName() throws IOException {
+    @Test(description = "Test new command with invalid project name", dataProvider = "invalidProjectNames")
+    public void testNewCommandWithInvalidProjectName(String projectName) throws IOException {
         // Test if no arguments was passed in
-        String[] args = {"hello-app"};
+        String[] args = { projectName };
         NewCommand newCommand = new NewCommand(tmpDir, printStream);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();

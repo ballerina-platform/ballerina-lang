@@ -235,7 +235,7 @@ public class BallerinaTomlProcessor {
         boolean isValidPkg = ProjectUtils.validatePkgName(pkg);
         if (!isValidPkg) {
             throw new TomlException("invalid Ballerina.toml file: Invalid 'name' under [package]: '" + pkg + "' :\n"
-                    + "'name' can only contain alphanumerics, underscores and periods "
+                    + "'name' can only contain alphanumerics, underscores "
                     + "and the maximum length is 256 characters");
         }
 
