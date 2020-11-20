@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.XMLNamespaceDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Completion provider for {@link XMLNamespaceDeclarationNode} context.
@@ -34,16 +35,16 @@ import java.util.List;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class XMLNSDeclarationNodeContext extends AbstractCompletionProvider<XMLNamespaceDeclarationNode> {
-    
+
     public XMLNSDeclarationNodeContext() {
         super(XMLNamespaceDeclarationNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, XMLNamespaceDeclarationNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, XMLNamespaceDeclarationNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (!node.asKeyword().isPresent() || node.asKeyword().orElse(null).isMissing()) {
+        if (node.asKeyword().isEmpty() || Objects.requireNonNull(node.asKeyword().orElse(null)).isMissing()) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_AS.get()));
         }
 

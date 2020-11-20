@@ -36,7 +36,7 @@ public class GroupingTest extends BaseTestCase {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
-        projectPath = singleFilesProjectPath.resolve("grouping").toString();
+        projectPath = singleFileTestsPath.resolve("grouping").toString();
     }
 
     @Test

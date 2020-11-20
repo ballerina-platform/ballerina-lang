@@ -19,6 +19,8 @@ package org.ballerinalang.debugadapter;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassLoaderReference;
 import com.sun.jdi.InvalidStackFrameException;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.directory.SingleFileProject;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
@@ -29,7 +31,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import static org.ballerinalang.debugadapter.utils.PackageUtils.findProjectRoot;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
 
 /**
@@ -40,29 +41,46 @@ public class SuspendedContext {
     private final VirtualMachineProxyImpl attachedVm;
     private final ThreadReferenceProxyImpl owningThread;
     private final StackFrameProxyImpl frame;
-    private final Path projectRoot;
+    private final Project project;
+    private final String projectRoot;
     private final DebugSourceType sourceType;
     private final String breakPointSourcePath;
     private final String fileName;
+    private int lineNumber;
     private ClassLoaderReference classLoader;
-    private Optional<String> orgName;
-    private Optional<String> moduleName;
-    private Optional<String> version;
 
-    public SuspendedContext(Path projectRoot, VirtualMachineProxyImpl vm, ThreadReferenceProxyImpl threadRef,
-                            StackFrameProxyImpl frame) {
+    SuspendedContext(Project project, String projectRoot, VirtualMachineProxyImpl vm,
+                     ThreadReferenceProxyImpl threadRef, StackFrameProxyImpl frame) {
+
         this.attachedVm = vm;
         this.owningThread = threadRef;
         this.frame = frame;
+        this.project = project;
         this.projectRoot = projectRoot;
-        this.breakPointSourcePath = getSourcePath(frame, projectRoot);
-        this.sourceType = findProjectRoot(Paths.get(breakPointSourcePath)) != null ? DebugSourceType.MODULE :
-                DebugSourceType.SINGLE_FILE;
+        this.breakPointSourcePath = getSourcePath(frame);
+        this.sourceType = (project instanceof SingleFileProject) ? DebugSourceType.SINGLE_FILE :
+                DebugSourceType.PACKAGE;
         this.fileName = getFileNameFrom(this.breakPointSourcePath);
+        this.lineNumber = -1;
+    }
+
+    public Project getProject() {
+        return project;
     }
 
     public VirtualMachineProxyImpl getAttachedVm() {
         return attachedVm;
+    }
+
+    public ClassLoaderReference getDebuggeeClassLoader() {
+        if (classLoader == null) {
+            try {
+                this.classLoader = frame.location().declaringType().classLoader();
+            } catch (JdiProxyException e) {
+                this.classLoader = null;
+            }
+        }
+        return classLoader;
     }
 
     public ThreadReferenceProxyImpl getOwningThread() {
@@ -77,55 +95,49 @@ public class SuspendedContext {
         return sourceType;
     }
 
-    public ClassLoaderReference getClassLoader() {
-        if (classLoader == null) {
-            try {
-                this.classLoader = frame.location().declaringType().classLoader();
-            } catch (JdiProxyException e) {
-                this.classLoader = null;
-            }
-        }
-        return classLoader;
+    public Optional<String> getPackageOrg() {
+        return Optional.ofNullable(project.currentPackage().packageOrg().toString());
     }
 
-    public Optional<String> getOrgName() {
-        if (orgName == null || !orgName.isPresent()) {
-            orgName = this.sourceType == DebugSourceType.MODULE ? Optional.of(PackageUtils.getOrgName(projectRoot)) :
-                    Optional.empty();
-        }
-        return orgName;
+    public Optional<String> getPackageName() {
+        return Optional.ofNullable(project.currentPackage().packageName().toString());
+    }
+
+    public Optional<String> getPackageVersion() {
+        return Optional.ofNullable(project.currentPackage().packageVersion().toString());
     }
 
     public Optional<String> getModuleName() {
-        if (moduleName == null || !moduleName.isPresent()) {
-            moduleName = breakPointSourcePath.isEmpty() ? Optional.empty() : Optional.of(PackageUtils.getModuleName(
-                    breakPointSourcePath));
-        }
-        return moduleName;
+        return Optional.ofNullable(project.currentPackage().getDefaultModule().moduleName().toString());
     }
 
-    public Optional<String> getVersion() {
-        if (version == null || !version.isPresent()) {
-            version = sourceType == DebugSourceType.MODULE ? Optional.of(PackageUtils.getModuleVersion(projectRoot)) :
-                    Optional.empty();
-        }
-        return version;
+    public Path getBreakPointSourcePath() {
+        return Paths.get(breakPointSourcePath);
     }
 
-    public String getBreakPointSourcePath() {
-        return breakPointSourcePath;
-    }
-
-    private String getSourcePath(StackFrameProxyImpl frame, Path projectRoot) {
+    private String getSourcePath(StackFrameProxyImpl frame) {
         try {
-            return PackageUtils.getRectifiedSourcePath(frame.location(), projectRoot);
+            return PackageUtils.getRectifiedSourcePath(frame.location(), project, projectRoot).toString();
         } catch (AbsentInformationException | InvalidStackFrameException | JdiProxyException e) {
             // Todo - How to handle InvalidStackFrameException?
+            return "";
+        } catch (Exception e) {
             return "";
         }
     }
 
     public String getFileName() {
         return fileName;
+    }
+
+    public int getLineNumber() {
+        if (lineNumber < 0) {
+            try {
+                lineNumber = frame.location().lineNumber();
+            } catch (JdiProxyException e) {
+                lineNumber = -1;
+            }
+        }
+        return lineNumber;
     }
 }

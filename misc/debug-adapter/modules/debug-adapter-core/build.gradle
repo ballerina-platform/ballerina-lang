@@ -28,7 +28,7 @@ jar {
     dependsOn(shadowJar { classifier = null })
     manifest {
         attributes(
-                'Main-Class': 'org.ballerinalang.debugadapter.launcher.Launcher'
+                'Main-Class': 'org.ballerinalang.debugadapter.DebugAdapterLauncher'
         )
     }
 }

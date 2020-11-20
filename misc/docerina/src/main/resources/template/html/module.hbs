@@ -215,7 +215,7 @@
     </section>
     {{/if}}
 
-    {{#if module.unionTypes}}
+    {{#if module.types}}
     <section class="method-content" id="types">
         <div class="main-method-title here">
             <a class="url-link" href="#types">
@@ -224,7 +224,7 @@
             <h2> Types </h2>
         </div>
         <table>
-            {{#each module.unionTypes}}
+            {{#each module.types}}
             <tr>
                 <td class="module-title truncate types" id="{{name}}" title="{{name}}">
                     <a class="types {{#if isDeprecated}}strike{{/if}}" href="types.html#{{name}}">{{name}}</a>

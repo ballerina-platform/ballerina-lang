@@ -51,21 +51,21 @@ public class IdentifierLiteralTest  extends BaseTest {
         Path projectPath = Paths.get(testFileLocation, "ModuleNameClashProject")
                 .toAbsolutePath();
         LogLeecher runLeecher = new LogLeecher("1 passing");
-        bMainInstance.runMain("build", new String[]{"main"}, new HashMap<>(), new String[0],
+        bMainInstance.runMain("build", new String[0], new HashMap<>(), new String[0],
                 new LogLeecher[]{runLeecher}, projectPath.toString());
         runLeecher.waitForText(5000);
     }
 
-    @Test(description = "Test clashes in organization and module names that contain '_'")
+    @Test(description = "Test clashes in organization and module names that contain '_'", enabled = false)
     public void testPackageIDClash() throws BallerinaTestException {
         Path projectPath = Paths.get(testFileLocation, "PackageNameClashProject")
                 .toAbsolutePath();
         Path importProjectPath = Paths.get(testFileLocation, "testProject")
                 .toAbsolutePath();
         LogLeecher runLeecher = new LogLeecher("2 passing");
-        bMainInstance.runMain("build", new String[]{"foo"}, new HashMap<>(), new String[0],
+        bMainInstance.runMain("build", new String[0], new HashMap<>(), new String[0],
                 new LogLeecher[]{}, importProjectPath.toString());
-        bMainInstance.runMain("build", new String[]{"main"}, new HashMap<>(), new String[0],
+        bMainInstance.runMain("build", new String[0], new HashMap<>(), new String[0],
                 new LogLeecher[]{runLeecher}, projectPath.toString());
         runLeecher.waitForText(5000);
     }
