@@ -52,7 +52,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
         this.syntaxNode = methodCallExpressionNode;
         this.objectExpressionEvaluator = expression;
         this.argEvaluators = argEvaluators;
-        this.methodName = syntaxNode.methodName().toSourceCode();
+        this.methodName = syntaxNode.methodName().toSourceCode().trim();
     }
 
     @Override

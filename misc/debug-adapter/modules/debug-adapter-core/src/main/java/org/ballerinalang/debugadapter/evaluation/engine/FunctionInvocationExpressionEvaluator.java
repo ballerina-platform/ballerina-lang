@@ -53,7 +53,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
         super(context);
         this.syntaxNode = node;
         this.argEvaluators = argEvaluators;
-        this.functionName = syntaxNode.functionName().toSourceCode();
+        this.functionName = syntaxNode.functionName().toSourceCode().trim();
     }
 
     @Override

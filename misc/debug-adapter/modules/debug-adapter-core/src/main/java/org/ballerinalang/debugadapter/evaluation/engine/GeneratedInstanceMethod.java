@@ -71,7 +71,7 @@ public class GeneratedInstanceMethod extends JvmMethod {
             return ((ObjectReference) objectValueRef).invokeMethod(context.getOwningThread().getThreadReference(),
                     methodRef, argValueList, ObjectReference.INVOKE_SINGLE_THREADED);
         } catch (ClassNotLoadedException e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_NOT_FOUND.getString(),
+            throw new EvaluationException(String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(),
                     methodRef.name()));
         } catch (EvaluationException e) {
             throw e;

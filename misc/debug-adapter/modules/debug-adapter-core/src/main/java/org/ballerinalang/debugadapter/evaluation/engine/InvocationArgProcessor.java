@@ -53,10 +53,11 @@ public class InvocationArgProcessor {
                     functionName));
         }
         SeparatedNodeList<ParameterNode> params = functionDefinition.get().functionSignature().parameters();
-        return generateNamedArgs(context, params, argEvaluators);
+        return generateNamedArgs(context, functionName, params, argEvaluators);
     }
 
-    static Map<String, Value> generateNamedArgs(SuspendedContext context, SeparatedNodeList<ParameterNode> params,
+    static Map<String, Value> generateNamedArgs(SuspendedContext context, String functionName,
+                                                SeparatedNodeList<ParameterNode> params,
                                                 List<Map.Entry<String, Evaluator>> argEvaluators)
             throws EvaluationException {
 
@@ -80,6 +81,10 @@ public class InvocationArgProcessor {
                             "positional args are not allowed after rest args."));
                 }
 
+                if (remainingParams.isEmpty()) {
+                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                            "too many arguments in call to '" + functionName + "'."));
+                }
                 String parameterName = getParameterName(params.get(i));
                 argValues.put(parameterName, arg.getValue().evaluate().getJdiValue());
                 remainingParams.remove(parameterName);
@@ -126,7 +131,7 @@ public class InvocationArgProcessor {
             ParameterType parameterType = getParamType(entry.getValue());
             if (parameterType == ParameterType.REQUIRED) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                        "missing required parameter + '" + paramName + "'."));
+                        "missing required parameter '" + paramName + "'."));
             } else if (parameterType == ParameterType.DEFAULTABLE) {
                 Value defaultValue = new ExpressionEvaluator(context)
                         .evaluate(((DefaultableParameterNode) entry.getValue()).expression()
