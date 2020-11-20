@@ -35,8 +35,6 @@ type Grades record {|
     int maths;
     int physics;
     int chemistry;
-
-    int...;
 |};
 
 type Foo record {
@@ -69,6 +67,12 @@ type KVPairs record {
 	never message?;
 	never level?; 
 };
+
+type Val record {|
+    int a?;
+    int b?;
+    int...;
+|};
 
 function functionOfFunctionTypedParamWithIncludedRecordParam(*NewPerson person) returns string {
     return person.firstName + " " + person.secondName;
@@ -137,6 +141,10 @@ function functionOfFunctionTypedParamWithIncludedRecordParam16(*Bar2 bar2, *Bar 
 
 function functionOfFunctionTypedParamWithIncludedRecordParam17(*Foo2 foo2) returns anydata {
     return foo2["b"];
+}
+
+function functionOfFunctionTypedParamWithIncludedRecordParam18(int a, int b, *Val val) returns int {
+    return a + b + <int> val["c"] + <int> val["d"];
 }
 
 function testFunctionOfFunctionTypedParamWithIncludedRecordParam() {
@@ -234,6 +242,12 @@ function testFunctionOfFunctionTypedParamWithIncludedRecordParam17() {
     anydata val = functionOfFunctionTypedParamWithIncludedRecordParam17(foo);
     assertEquality("ballerina", val);
 }
+
+function testFunctionOfFunctionTypedParamWithIncludedRecordParam18() {
+    int sum = functionOfFunctionTypedParamWithIncludedRecordParam18(a = 10, b = 15, c = 5, d = 20);
+    assertEquality(50, sum);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

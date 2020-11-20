@@ -154,4 +154,9 @@ public class FunctionWithIncludedRecordParam {
     public void testFunctionOfFunctionTypedParamWithIncludedRecordParam17() {
         BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam17");
     }
+
+    @Test
+    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam18() {
+        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam18");
+    }
 }
