@@ -18,7 +18,7 @@
 package org.ballerinalang.langserver.completions;
 
 import org.ballerinalang.langserver.SnippetBlock;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.AbstractLSCompletionItem;
 
 /**
@@ -30,7 +30,7 @@ import org.ballerinalang.langserver.commons.completion.AbstractLSCompletionItem;
 public class SnippetCompletionItem extends AbstractLSCompletionItem {
     private final SnippetBlock.Kind kind;
 
-    public SnippetCompletionItem(LSContext lsContext, SnippetBlock snippetBlock) {
+    public SnippetCompletionItem(CompletionContext lsContext, SnippetBlock snippetBlock) {
         super(lsContext, snippetBlock.build(lsContext));
         this.kind = snippetBlock.kind();
     }

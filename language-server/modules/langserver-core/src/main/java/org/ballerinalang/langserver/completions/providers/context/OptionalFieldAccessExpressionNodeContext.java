@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 
@@ -35,7 +35,7 @@ public class OptionalFieldAccessExpressionNodeContext extends FieldAccessContext
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, OptionalFieldAccessExpressionNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, OptionalFieldAccessExpressionNode node)
             throws LSCompletionException {
         return getEntries(context, node.expression());
     }

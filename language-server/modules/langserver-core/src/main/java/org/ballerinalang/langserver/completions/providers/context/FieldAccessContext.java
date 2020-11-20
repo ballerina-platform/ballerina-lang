@@ -33,10 +33,9 @@ import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.FieldCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -67,7 +66,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
      * @param expr expression node to evaluate
      * @return {@link List} of filtered scope entries
      */
-    protected List<LSCompletionItem> getEntries(LSContext ctx, ExpressionNode expr) {
+    protected List<LSCompletionItem> getEntries(CompletionContext ctx, ExpressionNode expr) {
         Optional<? extends TypeSymbol> typeDesc = this.getTypeDesc(ctx, expr);
         if (typeDesc.isEmpty()) {
             return new ArrayList<>();
@@ -84,7 +83,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
      */
     protected abstract boolean removeOptionalFields();
 
-    private Optional<? extends TypeSymbol> getTypeDesc(LSContext ctx, ExpressionNode expr) {
+    private Optional<? extends TypeSymbol> getTypeDesc(CompletionContext ctx, ExpressionNode expr) {
         switch (expr.kind()) {
             case SIMPLE_NAME_REFERENCE:
                 /*
@@ -130,7 +129,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         }
     }
 
-    private Optional<? extends TypeSymbol> getTypeDescForFieldAccess(LSContext context,
+    private Optional<? extends TypeSymbol> getTypeDescForFieldAccess(CompletionContext context,
                                                                      FieldAccessExpressionNode node) {
         String fieldName = ((SimpleNameReferenceNode) node.fieldName()).name().text();
         ExpressionNode expressionNode = node.expression();
@@ -154,13 +153,13 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                 .findAny();
     }
 
-    private Optional<? extends TypeSymbol> getTypeDescForNameRef(LSContext context,
+    private Optional<? extends TypeSymbol> getTypeDescForNameRef(CompletionContext context,
                                                                  NameReferenceNode referenceNode) {
         if (referenceNode.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
             return Optional.empty();
         }
         String name = ((SimpleNameReferenceNode) referenceNode).name().text();
-        List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
         Optional<Symbol> symbolRef = visibleSymbols.stream()
                 .filter(symbol -> symbol.name().equals(name))
                 .findFirst();
@@ -171,10 +170,10 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         return SymbolUtil.getTypeDescriptor(symbolRef.get());
     }
 
-    private Optional<? extends TypeSymbol> getTypeDescForFunctionCall(LSContext context,
+    private Optional<? extends TypeSymbol> getTypeDescForFunctionCall(CompletionContext context,
                                                                       FunctionCallExpressionNode expr) {
         String fName = ((SimpleNameReferenceNode) expr.functionName()).name().text();
-        List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
         Optional<FunctionSymbol> symbolRef = visibleSymbols.stream()
                 .filter(symbol -> symbol.name().equals(fName) && symbol.kind() == SymbolKind.FUNCTION)
                 .map(symbol -> (FunctionSymbol) symbol)
@@ -186,7 +185,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         return symbolRef.get().typeDescriptor().returnTypeDescriptor();
     }
 
-    private Optional<? extends TypeSymbol> getTypeDescForMethodCall(LSContext context,
+    private Optional<? extends TypeSymbol> getTypeDescForMethodCall(CompletionContext context,
                                                                     MethodCallExpressionNode node) {
         String methodName = ((SimpleNameReferenceNode) node.methodName()).name().text();
 
@@ -211,18 +210,18 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         return filteredMethod.get().typeDescriptor().returnTypeDescriptor();
     }
 
-    private Optional<? extends TypeSymbol> getTypeDescForIndexedExpr(LSContext context, IndexedExpressionNode node) {
+    private Optional<? extends TypeSymbol> getTypeDescForIndexedExpr(CompletionContext context,
+                                                                     IndexedExpressionNode node) {
         Optional<? extends TypeSymbol> typeDesc = getTypeDesc(context, node.containerExpression());
-        
+
         if (typeDesc.isEmpty() || typeDesc.get().typeKind() != TypeDescKind.ARRAY) {
             return Optional.empty();
         }
-        
+
         return Optional.of(((ArrayTypeSymbol) typeDesc.get()).memberTypeDescriptor());
     }
-    
-    private List<LSCompletionItem> getCompletionsForTypeDesc(LSContext context,
-                                                             TypeSymbol typeDescriptor) {
+
+    private List<LSCompletionItem> getCompletionsForTypeDesc(CompletionContext context, TypeSymbol typeDescriptor) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor);
         switch (rawType.typeKind()) {

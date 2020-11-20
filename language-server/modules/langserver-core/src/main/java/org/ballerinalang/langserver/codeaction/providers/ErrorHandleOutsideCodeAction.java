@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -27,21 +26,17 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -71,9 +66,8 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     PositionDetails positionDetails,
-                                                    List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
-                                                    LSContext context) {
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+                                                    CodeActionContext context) {
+        String uri = context.fileUri();
         String diagnosticMsg = diagnostic.getMessage().toLowerCase(Locale.ROOT);
         if (!(diagnosticMsg.contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return Collections.emptyList();
@@ -95,13 +89,14 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
             return Collections.emptyList();
         }
 
-        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        String filePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        SemanticModel semanticModel = new BallerinaSemanticModel(bLangPackage, compilerContext);
+        String filePath = context.filePath().getFileName().toString();
+        Optional<SemanticModel> semanticModel = context.workspace().semanticModel(context.filePath());
+        if (semanticModel.isEmpty()) {
+            return Collections.emptyList();
+        }
         FunctionDefinitionNode parentFunction = optParentFunction.get();
-        Optional<Symbol> optParentFuncSymbol = semanticModel.symbol(filePath, parentFunction.functionName().lineRange()
-                .startLine());
+        Optional<Symbol> optParentFuncSymbol = semanticModel.get()
+                .symbol(filePath, parentFunction.functionName().lineRange().startLine());
         String returnText = "";
         Range returnRange = null;
         if (optParentFuncSymbol.isPresent() && optParentFuncSymbol.get().kind() == SymbolKind.FUNCTION) {

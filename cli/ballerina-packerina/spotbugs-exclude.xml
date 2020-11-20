@@ -26,6 +26,15 @@
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
     </Match>
     <Match>
+        <Class name="org.ballerinalang.packerina.cmd.InitCommand"/>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+    </Match>
+    <!--This should be removed once the addCommand implementation is done-->
+    <Match>
+        <Class name="org.ballerinalang.packerina.cmd.AddCommand"/>
+        <Bug pattern="UPM_UNCALLED_PRIVATE_METHOD"/>
+    </Match>
+    <Match>
         <Class name="org.ballerinalang.packerina.task.RunExecutableTask"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
     </Match>

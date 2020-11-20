@@ -171,7 +171,7 @@ public class EvaluationUtils {
             List<Value> args = new ArrayList<>();
             args.add(evaluationContext.getAttachedVm().mirrorOf(qName));
             args.add(evaluationContext.getAttachedVm().mirrorOf(true));
-            args.add(evaluationContext.getClassLoader());
+            args.add(evaluationContext.getDebuggeeClassLoader());
             Value classReference = classType.invokeMethod(evaluationContext.getOwningThread().getThreadReference(),
                     forNameMethod, args, ObjectReference.INVOKE_SINGLE_THREADED);
             return ((ClassObjectReference) classReference).reflectedType();

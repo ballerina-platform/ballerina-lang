@@ -1,0 +1,94 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+
+configurations {
+    birJar
+    bir
+    birJarCompile { transitive false }
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    distributionBalo
+}
+
+dependencies {
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-runtime')
+    implementation project(':ballerina-tool')
+    implementation 'javax.ws.rs:javax.ws.rs-api'
+    implementation 'me.tongfei:progressbar'
+    implementation 'com.google.code.gson:gson'
+    implementation 'com.google.code.findbugs:jsr305'
+    testCompile 'org.testng:testng'
+    testCompile 'org.awaitility:awaitility'
+    testImplementation 'org.powermock:powermock-mockito-release-full'
+    testImplementation 'org.powermock:powermock-module-testng-common'
+}
+
+task createTestDistributionCache(type: Copy) {
+    dependsOn configurations.distributionBalo
+    from configurations.distributionBalo
+    into "$buildDir/repo"
+}
+
+task createBirCache {
+    dependsOn configurations.bir
+
+    doLast {
+        configurations.bir.each { artifact ->
+            copy {
+                from artifact
+                into "$buildDir/bir-cache/"
+            }
+        }
+    }
+
+    inputs.files configurations.bir
+    outputs.dir "$buildDir/bir-cache"
+    outputs.cacheIf { false }
+}
+
+test {
+    dependsOn createTestDistributionCache
+    dependsOn createBirCache
+    dependsOn configurations.birJar
+    dependsOn configurations.birJarCompile
+
+    systemProperty "ballerina.home", "$buildDir"
+    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}
+
+description = 'Ballerina - Central Client'
+
+
+ext.moduleName = 'ballerina.central.client'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

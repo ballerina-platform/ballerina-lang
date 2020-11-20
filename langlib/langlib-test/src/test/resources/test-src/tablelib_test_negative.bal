@@ -165,3 +165,14 @@ function testAddIncompatibleTypesWithKeyLessTbl()  {
     var person = { name: "Chiran", age: 33 };
     employeeTbl.add(person);
 }
+
+function testTableMemberAccess()  {
+    PersonalTable tab = table [
+      { name: "Chiran", age: 33 },
+      { name: "Mohan", age: 37 },
+      { name: "Granier", age: 34 }
+    ];
+
+    Person person = { name: "Gima", age: 38 };
+    tab["Gima"] = person;
+}

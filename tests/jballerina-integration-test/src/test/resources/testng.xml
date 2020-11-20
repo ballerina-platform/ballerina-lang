@@ -228,18 +228,18 @@
             </run>
         </groups>
         <classes>
-            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>
-            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>
-            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
-            <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>
-            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>
-            <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>
-            <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>
-            <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>
-            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>
-<!--            <class name="org.ballerinalang.test.packaging.MultipleVersionsModuleTestCase"/>-->
-            <class name="org.ballerinalang.test.packaging.DependencyScopeTestCase"/>
-            <class name="org.ballerinalang.test.packaging.MavenTestCase"/>
+<!--            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>-->
+<!--&lt;!&ndash;            <class name="org.ballerinalang.test.packaging.MultipleVersionsModuleTestCase"/>&ndash;&gt;-->
+<!--            <class name="org.ballerinalang.test.packaging.DependencyScopeTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.MavenTestCase"/>-->
         </classes>
     </test>
 

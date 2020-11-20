@@ -190,7 +190,7 @@ function testChangeValueForAGivenKeyWhileIterating() returns boolean {
     var value = itr.next();
     value = itr.next();
     Person p = { name: "Gima", age: 50 };
-    tab["Gima"] = p;
+    tab.put(p);
     value = itr.next();
 
     return value?.value?.age == 50;

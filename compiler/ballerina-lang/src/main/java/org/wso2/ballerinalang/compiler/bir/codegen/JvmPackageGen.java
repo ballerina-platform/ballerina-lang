@@ -21,7 +21,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import io.ballerina.runtime.internal.IdentifierUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.objectweb.asm.ClassTooLargeException;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -789,10 +789,12 @@ public class JvmPackageGen {
         } catch (MethodTooLargeException e) {
             String funcName = e.getMethodName();
             BIRFunction func = findFunction(node, funcName);
-            dlog.error(func.pos, DiagnosticCode.METHOD_TOO_LARGE, IdentifierUtils.decodeIdentifier(func.name.value));
+            dlog.error(func.pos, DiagnosticErrorCode.METHOD_TOO_LARGE,
+                    IdentifierUtils.decodeIdentifier(func.name.value));
             result = new byte[0];
         } catch (ClassTooLargeException e) {
-            dlog.error(node.pos, DiagnosticCode.FILE_TOO_LARGE, IdentifierUtils.decodeIdentifier(e.getClassName()));
+            dlog.error(node.pos, DiagnosticErrorCode.FILE_TOO_LARGE,
+                    IdentifierUtils.decodeIdentifier(e.getClassName()));
             result = new byte[0];
         } catch (Exception e) {
             throw new BLangCompilerException(e.getMessage(), e);

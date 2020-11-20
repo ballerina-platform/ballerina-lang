@@ -1,4 +1,6 @@
-[project]
-# Name of the package
-org-name = "testorg"
-version = "1.0.0"
+[package]
+org= "testorg"
+name="init_order"
+version= "1.0.0"
+
+[dependencies]

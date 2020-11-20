@@ -1,5 +1,4 @@
-[project]
-org-name= "unit-tests"
+[package]
+org = "unit_tests"
+name = "proj7"
 version= "0.1.0"
-
-[dependencies]
