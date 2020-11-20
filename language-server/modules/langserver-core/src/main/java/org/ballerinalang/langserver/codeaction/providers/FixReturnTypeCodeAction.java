@@ -119,8 +119,8 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
             String pkgId = orgName + "/" + moduleName;
 
             Module module = context.workspace().module(context.filePath()).orElseThrow();
-            String currentOrg = module.moduleDescriptor().org().value();
-            String currentModule = module.moduleDescriptor().name().packageName().value();
+            String currentOrg = module.descriptor().org().value();
+            String currentModule = module.descriptor().name().packageName().value();
 
             if (currentOrg.equals(pkgId) && currentModule.equals(moduleName)) {
                 // TODO: Check the validity of this check since currentPkgId.toString() returns version as well.

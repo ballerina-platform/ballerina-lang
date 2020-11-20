@@ -30,7 +30,7 @@ import java.io.IOException;
 public class OptimizeImportsTest extends AbstractCodeActionTest {
     @Override
     public String getResourceDir() {
-        return "optimize-tests";
+        return "optimize-imports";
     }
 
     @Override
