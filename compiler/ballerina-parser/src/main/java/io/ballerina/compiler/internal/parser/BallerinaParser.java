@@ -5876,7 +5876,7 @@ public class BallerinaParser extends AbstractParser {
 
             if (hasRestPram) {
                 updateLastNodeInListWithInvalidNode(validatedList, leadingSlash,
-                        DiagnosticErrorCode.ERROR_RESOURCE_PATH_REST_PARAM_FOLLOWED_BY_RESOURCE_PATH_SEGMENT);
+                        DiagnosticErrorCode.ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH);
                 updateLastNodeInListWithInvalidNode(validatedList, pathSegment, null);
                 continue;
             }

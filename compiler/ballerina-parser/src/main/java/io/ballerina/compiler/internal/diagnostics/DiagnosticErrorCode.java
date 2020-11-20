@@ -303,8 +303,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_PRIVATE_QUALIFIER_IN_OBJECT_MEMBER_DESCRIPTOR("BCE659",
             "error.private.qualifier.in.object.member.descriptor"),
     ERROR_RESOURCE_PATH_IN_FUNCTION_DEFINITION("BCE660", "error.resource.path.in.function.definition"),
-    ERROR_RESOURCE_PATH_REST_PARAM_FOLLOWED_BY_RESOURCE_PATH_SEGMENT("BCE0661",
-            "error.resource.path.rest.param.followed.by.resource.path.segment"),
+    ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH("BCE0661",
+            "error.rest.param.must.be.the.last.segment.of.resource.path"),
     ;
 
     String diagnosticId;
