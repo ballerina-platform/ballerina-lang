@@ -715,6 +715,7 @@ public class CommonUtil {
                         name = "mappingResult";
                         break;
                     case TUPLE:
+                    case ARRAY:
                         name = "listResult";
                         break;
                     default:
