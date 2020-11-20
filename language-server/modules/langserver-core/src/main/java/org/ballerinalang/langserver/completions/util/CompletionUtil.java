@@ -26,7 +26,6 @@ import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.completion.spi.CompletionProvider;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completions.ProviderFactory;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
@@ -48,8 +47,7 @@ public class CompletionUtil {
      * @param ctx Completion context
      * @return {@link List}         List of resolved completion Items
      */
-    public static List<CompletionItem> getCompletionItems(CompletionContext ctx)
-            throws WorkspaceDocumentException, LSCompletionException {
+    public static List<CompletionItem> getCompletionItems(CompletionContext ctx) throws LSCompletionException {
         fillTokenInfoAtCursor(ctx);
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
         List<LSCompletionItem> items = route(ctx, nodeAtCursor);
