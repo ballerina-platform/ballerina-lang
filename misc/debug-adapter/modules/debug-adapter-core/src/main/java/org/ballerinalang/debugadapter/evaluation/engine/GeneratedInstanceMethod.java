@@ -48,6 +48,7 @@ public class GeneratedInstanceMethod extends JvmMethod {
     GeneratedInstanceMethod(SuspendedContext context, Value objectRef, Method methodRef) {
         super(context, methodRef);
         this.objectValueRef = objectRef;
+        this.namedArgValues = null;
     }
 
     GeneratedInstanceMethod(SuspendedContext context, Value objectRef, Method methodRef,

@@ -50,6 +50,7 @@ public class GeneratedStaticMethod extends JvmMethod {
     public GeneratedStaticMethod(SuspendedContext context, ReferenceType classRef, Method methodRef) {
         super(context, methodRef);
         this.classRef = classRef;
+        this.namedArgValues = null;
     }
 
     public void setNamedArgValues(Map<String, Value> namedArgValues) {
