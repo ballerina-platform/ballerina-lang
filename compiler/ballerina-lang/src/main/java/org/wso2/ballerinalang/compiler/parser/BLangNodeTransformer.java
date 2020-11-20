@@ -587,14 +587,22 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         boolean isFinal = false;
+        boolean isolated = false;
         for (Token qualifier : modVarDeclrNode.qualifiers()) {
-            if (qualifier.kind() == SyntaxKind.FINAL_KEYWORD) {
+            SyntaxKind kind = qualifier.kind();
+
+            if (kind == SyntaxKind.FINAL_KEYWORD) {
                 isFinal = true;
+                continue;
+            }
+
+            if (kind == SyntaxKind.ISOLATED_KEYWORD) {
+                isolated = true;
             }
         }
 
         BLangSimpleVariable simpleVar = createSimpleVar(variableName, typedBindingPattern.typeDescriptor(),
-                modVarDeclrNode.initializer().orElse(null), isFinal, false, null,
+                modVarDeclrNode.initializer().orElse(null), isFinal, false, null, isolated,
                 getAnnotations(modVarDeclrNode.metadata()));
         simpleVar.pos = getPositionWithoutMetadata(modVarDeclrNode);
         simpleVar.markdownDocumentationAttachment =
@@ -4382,6 +4390,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private BLangSimpleVariable createSimpleVar(Token name, Node typeName, Node initializer, boolean isFinal,
                                                 boolean isListenerVar, Token visibilityQualifier,
                                                 NodeList<AnnotationNode> annotations) {
+        return createSimpleVar(name, typeName, initializer, isFinal, isListenerVar, visibilityQualifier, false,
+                               annotations);
+    }
+
+    private BLangSimpleVariable createSimpleVar(Token name, Node typeName, Node initializer, boolean isFinal,
+                                                boolean isListenerVar, Token visibilityQualifier, boolean isolated,
+                                                NodeList<AnnotationNode> annotations) {
         BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         bLSimpleVar.setName(this.createIdentifier(name));
         bLSimpleVar.name.pos = getPosition(name);
@@ -4403,6 +4418,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (isFinal) {
             markVariableAsFinal(bLSimpleVar);
         }
+
+        if (isolated) {
+            bLSimpleVar.flagSet.add(Flag.ISOLATED);
+        }
+
         if (initializer != null) {
             bLSimpleVar.setInitialExpression(createExpression(initializer));
         }
