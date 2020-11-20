@@ -1,0 +1,4 @@
+[package]
+org = "intg_tests"
+name = "isolated_functions"
+version = "0.0.0"

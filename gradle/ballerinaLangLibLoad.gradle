@@ -1,0 +1,124 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+description = 'Lang Library Load Project'
+
+configurations {
+    distributionBalo {
+        transitive false
+    }
+}
+
+dependencies {
+
+    testRuntime project(':ballerina-lang:annotations')
+    testRuntime project(':ballerina-lang:java')
+    testRuntime project(':ballerina-lang:internal')
+    testRuntime project(':ballerina-lang:array')
+    testRuntime project(':ballerina-lang:decimal')
+    testRuntime project(':ballerina-lang:error')
+    testRuntime project(':ballerina-lang:floatingpoint')
+    testRuntime project(':ballerina-lang:future')
+    testRuntime project(':ballerina-lang:integer')
+    testRuntime project(':ballerina-lang:map')
+    testRuntime project(':ballerina-lang:object')
+    testRuntime project(':ballerina-lang:stream')
+    testRuntime project(':ballerina-lang:table')
+    testRuntime project(':ballerina-lang:string')
+    testRuntime project(':ballerina-lang:typedesc')
+    testRuntime project(':ballerina-lang:value')
+    testRuntime project(':ballerina-lang:xml')
+    testRuntime project(':ballerina-lang:bool')
+    testRuntime project(':ballerina-lang:query')
+    testRuntime project(':ballerina-lang:transaction')
+    testRuntime project(':ballerina-lang-test')
+    testRuntime project(':ballerina-runtime')
+
+    distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:annotations', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:java', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:internal', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:internal', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:array', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:array', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:decimal', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:decimal', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:error', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:error', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:future', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:future', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:integer', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:integer', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:map', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:map', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:object', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:object', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:stream', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:stream', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:table', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:table', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:string', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:string', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:typedesc', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:typedesc', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:value', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:value', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:xml', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:xml', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:bool', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:bool', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang-test', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang-test', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:query', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:query', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:transaction', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:transaction', configuration: 'distributionBirJar')
+}
+
+task loadDistributionCache() {
+    dependsOn configurations.distributionBalo
+    doLast {
+        configurations.distributionBalo.each { artifact ->
+            copy {
+                from zipTree( artifact.getPath() )
+                into "$buildDir/repo"
+            }
+        }
+    }
+}
+
+test {
+    dependsOn loadDistributionCache
+    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
+    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+    systemProperty "enableJBallerinaTests", "true"
+    systemProperty "ballerina.home", "$buildDir"
+
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+
+    afterSuite { suite, result ->
+        result.exception?.printStackTrace()
+    }
+
+    minHeapSize = "512m"
+    maxHeapSize = "2048m"
+}

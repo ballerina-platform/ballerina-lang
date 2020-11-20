@@ -18,10 +18,10 @@
 package org.ballerinalang.test.balo.listener;
 
 import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.balo.BaloCreator;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -36,8 +36,7 @@ public class ListenerBaloTest {
 
     @BeforeClass
     public void setup() {
-        BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_listener", "listenerProject", "bee");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_listener/listenerproject");
         compileResult = BCompileUtil.compile("test-src/balo/test_balo/listener/external_listener_access.bal");
     }
 

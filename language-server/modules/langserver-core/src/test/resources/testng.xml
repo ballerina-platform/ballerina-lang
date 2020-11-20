@@ -42,7 +42,11 @@ under the License.
 <!--            <package name="org.ballerinalang.langserver.extensions.connector.*"/>-->
             <package name="org.ballerinalang.langserver.codeaction.*"/>
             <package name="org.ballerinalang.langserver.completion.latest.*" />
+            <package name="org.ballerinalang.langserver.diagnostics.*" />
 <!--            <package name="org.ballerinalang.langserver.command.*"/>-->
         </packages>
+        <classes>
+            <class name="org.ballerinalang.langserver.workspace.TestWorkspaceManager"/>
+        </classes>
     </test>
 </suite>

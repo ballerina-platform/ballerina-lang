@@ -27,13 +27,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
-import static org.ballerinalang.mime.util.MimeConstants.UTF_8;
-
 /**
  * Utility class for managing responses.
  */
 public class ResponseReader {
     private static final Logger LOG = LoggerFactory.getLogger(ResponseReader.class);
+    public static final String UTF_8 = "UTF-8";
 
     /**
      * Get the response value from input stream.

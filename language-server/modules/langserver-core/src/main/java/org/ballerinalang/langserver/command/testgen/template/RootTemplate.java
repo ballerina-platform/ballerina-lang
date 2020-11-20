@@ -142,7 +142,8 @@ public class RootTemplate extends AbstractTestTemplate {
                 focusLineAcceptor.accept(null, 1); //Increment focus line by one
             }
         };
-        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context, ifExistCallback);
+//        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context, ifExistCallback);
+        ImportsAcceptor importsAcceptor = null;
 
         // Add imports
         importsAcceptor.getAcceptor().accept("ballerina", "test");

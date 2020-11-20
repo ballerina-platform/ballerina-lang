@@ -22,9 +22,9 @@ import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -38,7 +38,7 @@ public class GlobalVarFunctionWithPkgTest {
     
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(this, "test-src/statements/variabledef/TestProj", "globalvar.pkg.main");
+        result = BCompileUtil.compile("test-src/statements/variabledef/TestGlobaVarProject1");
     }
 
     @Test(description = "Test accessing global variables defined in other packages")
@@ -65,8 +65,7 @@ public class GlobalVarFunctionWithPkgTest {
 
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 165.0);
 
-        CompileResult resultGlobalVar = BCompileUtil.compile(this, "test-src/statements/variabledef/TestProj",
-                "globalvar.pkg.main");
+        CompileResult resultGlobalVar = BCompileUtil.compile("test-src/statements/variabledef/TestGlobaVarProject1");
         BValue[] returnsChanged = BRunUtil.invoke(resultGlobalVar, "getGlobalFloatVar", new BValue[0]);
 
         Assert.assertEquals(returnsChanged.length, 1);
@@ -101,8 +100,7 @@ public class GlobalVarFunctionWithPkgTest {
             "within another package")
     public void testRetrievingVarFromDifferentPkg() {
 
-        CompileResult result = BCompileUtil.compile(this, "test-src/statements/variabledef/TestProj",
-                "globalvar.pkg.abc");
+        CompileResult result = BCompileUtil.compile("test-src/statements/variabledef/TestGlobaVarProject2");
         BValue[] returns = BRunUtil.invoke(result, "getStringInPkg", new BValue[0]);
 
         Assert.assertEquals(returns.length, 1);

@@ -28,4 +28,5 @@ public enum ParserMode {
     DEFAULT,
     STRING,
     LITERAL_STRING,
+    NEW_LINE,
 }

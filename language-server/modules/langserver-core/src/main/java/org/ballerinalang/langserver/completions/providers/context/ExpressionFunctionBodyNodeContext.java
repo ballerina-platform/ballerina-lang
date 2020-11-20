@@ -19,9 +19,8 @@ import io.ballerina.compiler.syntax.tree.ExpressionFunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -40,9 +39,9 @@ public class ExpressionFunctionBodyNodeContext extends AbstractCompletionProvide
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext ctx, ExpressionFunctionBodyNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext ctx, ExpressionFunctionBodyNode node)
             throws LSCompletionException {
-        NonTerminalNode nodeAtCursor = ctx.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
         if (this.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             return this.getCompletionItemList(QNameReferenceUtil.getExpressionContextEntries(ctx, qNameRef), ctx);
@@ -51,11 +50,11 @@ public class ExpressionFunctionBodyNodeContext extends AbstractCompletionProvide
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, ExpressionFunctionBodyNode node) {
+    public boolean onPreValidation(CompletionContext context, ExpressionFunctionBodyNode node) {
         if (node.rightDoubleArrow() == null || node.rightDoubleArrow().isMissing()) {
             return false;
         }
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        int cursor = context.getCursorPositionInTree();
         int rightArrowEnd = node.rightDoubleArrow().textRange().endOffset();
 
         return cursor >= rightArrowEnd;

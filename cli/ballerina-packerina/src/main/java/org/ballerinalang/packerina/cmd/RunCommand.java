@@ -288,7 +288,7 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
                 .addTask(new CreateJarTask())   // create the jar
                 .addTask(new CopyResourcesTask(), isSingleFileBuild)
-                .addTask(new CopyObservabilitySymbolsTask(), isSingleFileBuild)
+                .addTask(new CopyObservabilitySymbolsTask())
                 .addTask(new PrintExecutablePathTask(), isSingleFileBuild)   // print the location of the executable
                 .addTask(new PrintRunningExecutableTask(!isSingleFileBuild))   // print running executables
                 .addTask(new RunExecutableTask(programArgs))

@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Name;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -145,7 +145,7 @@ public class TypeParamAnalyzer {
         return getMatchingBoundType(expType, env);
     }
 
-    public BType getNominalType(BType type, Name name, int flag) {
+    public BType getNominalType(BType type, Name name, long flag) {
         // Only type params has nominal behaviour for now.
         if (name == Names.EMPTY) {
             return type;
@@ -155,7 +155,7 @@ public class TypeParamAnalyzer {
 
     BType createTypeParam(BType type, Name name) {
 
-        int flag = type.flags | Flags.TYPE_PARAM;
+        var flag = type.flags | Flags.TYPE_PARAM;
         return createBuiltInType(type, name, flag);
     }
 
@@ -248,7 +248,7 @@ public class TypeParamAnalyzer {
         }
     }
 
-    private BType createBuiltInType(BType type, Name name, int flag) {
+    private BType createBuiltInType(BType type, Name name, long flag) {
         // Handle built-in types.
         switch (type.tag) {
             case TypeTags.INT:
@@ -289,10 +289,10 @@ public class TypeParamAnalyzer {
 
             if (checkContravariance) {
                 types.checkType(loc, getMatchingBoundType(expType, env, new HashSet<>()), actualType,
-                                DiagnosticCode.INCOMPATIBLE_TYPES);
+                                DiagnosticErrorCode.INCOMPATIBLE_TYPES);
             } else {
                 types.checkType(loc, actualType, getMatchingBoundType(expType, env, new HashSet<>()),
-                                DiagnosticCode.INCOMPATIBLE_TYPES);
+                                DiagnosticErrorCode.INCOMPATIBLE_TYPES);
             }
             return;
         }
@@ -401,7 +401,7 @@ public class TypeParamAnalyzer {
             }
         }
         if (boundType == symTable.noType) {
-            dlog.error(location, DiagnosticCode.CANNOT_INFER_TYPE);
+            dlog.error(location, DiagnosticErrorCode.CANNOT_INFER_TYPE);
             return;
         }
         env.typeParamsEntries.add(new SymbolEnv.TypeParamEntry(typeParamType, boundType));
@@ -690,7 +690,7 @@ public class TypeParamAnalyzer {
                 .map(type -> getMatchingBoundType(type, env, resolvedTypes))
                 .collect(Collectors.toList());
         BType restType = expType.restType;
-        int flags = expType.flags;
+        var flags = expType.flags;
         BInvokableType invokableType = new BInvokableType(paramTypes, restType,
                                                           getMatchingBoundType(expType.retType, env, resolvedTypes),
                                                           Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,

@@ -50,12 +50,19 @@ import java.util.stream.Collectors;
  * Metrics related Test Cases.
  */
 public class MetricsTestCase extends ObservabilityBaseTest {
-    private static final String MODULE_NAME = "testservices";
-    protected static final String MODULE_ID = "ballerina-test/" + MODULE_NAME + ":0.0.1";
+    protected static final String TEST_SRC_PROJECT_NAME = "metrics_tests";
+    private static final String TEST_SRC_ORG_NAME = "intg_tests";
+    protected static final String TEST_SRC_PACKAGE_NAME = "metrics_tests";
+    private static final String MODULE_ID = TEST_SRC_ORG_NAME + "/" + TEST_SRC_PACKAGE_NAME + ":0.0.1";
+
+    protected static final String MOCK_CLIENT_OBJECT_NAME = TEST_SRC_ORG_NAME + "/" + TEST_SRC_PACKAGE_NAME
+            + "/MockClient";
+    protected static final String OBSERVABLE_ADDER_OBJECT_NAME = TEST_SRC_ORG_NAME + "/" + TEST_SRC_PACKAGE_NAME
+            + "/ObservableAdder";
 
     @BeforeClass(alwaysRun = true)
     public void setup() throws Exception {
-        super.setupServer("metrics", MODULE_NAME, new int[] {10090, 10091});
+        super.setupServer(TEST_SRC_PROJECT_NAME, TEST_SRC_PACKAGE_NAME, new int[] {10090, 10091});
     }
 
     @AfterClass(alwaysRun = true)
@@ -301,7 +308,7 @@ public class MetricsTestCase extends ObservabilityBaseTest {
                 Tag.of("src.entry_point.main", "true")
         );
         testFunctionMetrics(metrics, fileName + ":24:24", 1,
-                Tag.of("object_name", "ballerina-test/testservices/ObservableAdder"),
+                Tag.of("object_name", OBSERVABLE_ADDER_OBJECT_NAME),
                 Tag.of("function", "getSum")
         );
         testFunctionMetrics(metrics, fileName + ":38:12", 3,
@@ -343,7 +350,7 @@ public class MetricsTestCase extends ObservabilityBaseTest {
                 Tag.of("service", serviceName),
                 Tag.of("resource", resourceName),
                 Tag.of("error", "true"),
-                Tag.of("connector_name", "ballerina-test/testservices/MockClient"),
+                Tag.of("connector_name", MOCK_CLIENT_OBJECT_NAME),
                 Tag.of("action", "callWithPanic")
         );
         testFunctionMetrics(metrics, fileName + ":29:20", 1,
@@ -351,7 +358,7 @@ public class MetricsTestCase extends ObservabilityBaseTest {
                 Tag.of("service", serviceName),
                 Tag.of("resource", resourceName),
                 Tag.of("error", "true"),
-                Tag.of("connector_name", "ballerina-test/testservices/MockClient"),
+                Tag.of("connector_name", MOCK_CLIENT_OBJECT_NAME),
                 Tag.of("action", "callWithErrorReturn")
         );
     }

@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 function testIntWithoutArgs() returns int {
    int b = 7;
    return b;
@@ -735,7 +733,7 @@ function testTupleArrayTypeToString() {
 function testTypeDescValuePrint() {
 	map<int|string> m1 = { one: 1, two: 2 };
     typedesc<map<anydata>> t1 = typeof m1;
-    io:print(t1);
+    assertEquality("typedesc map<int|string>", t1.toString());
 }
 
 type AssertionError error;

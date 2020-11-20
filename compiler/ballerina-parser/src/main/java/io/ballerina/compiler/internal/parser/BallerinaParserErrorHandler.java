@@ -2745,11 +2745,16 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case STMT_LEVEL_AMBIGUOUS_FUNC_TYPE_DESC_RHS:
                 endContext();
                 // We come here trying to recover statement started with function-keyword,
-                // and trying to match it against a var-decl. Since this wasn't a var-decl
-                // originally, a context for type hasn't started yet. Therefore switch to
-                // var-decl context
-                switchContext(ParserRuleContext.VAR_DECL_STMT);
-                startContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
+                // and trying to match it against a var-decl. Or function keyword inside statement startambiguous
+                // bracketed list.
+
+                // If it is the first case, since this wasn't a var-decl
+                // originally, a context for type hasn't started yet. Therefore switch to var-decl context.
+                // If it is the second case just return TYPEDESC_RHS
+                if (!isInTypeDescContext()) {
+                    switchContext(ParserRuleContext.VAR_DECL_STMT);
+                    startContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
+                }
                 return ParserRuleContext.TYPEDESC_RHS;
             case FUNC_TYPE_DESC_END:
                 endContext();
