@@ -17,11 +17,10 @@
  */
 package org.ballerinalang.test.statements.packageimport;
 
-import org.ballerinalang.test.balo.BaloCreator;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -57,33 +56,32 @@ public class PackageImportTest {
         BAssertUtil.validateError(result, 0, "redeclared symbol 'x'", 2, 1);
     }
 
-
     @Test()
     public void testInvalidImport1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/imports/invalid-import-negative1.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "cannot resolve module 'abcd'", 1, 1);
+        BAssertUtil.validateError(result, 0, "cannot resolve module 'abcd/efgh'", 1, 1);
     }
 
     @Test()
     public void testInvalidImport2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/imports/invalid-import-negative2.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "cannot resolve module 'foo.x as x'", 1, 1);
+        BAssertUtil.validateError(result, 0, "cannot resolve module 'bar/foo.x as x'", 1, 1);
     }
 
     @Test
     public void testImportsPerfile() {
-        CompileResult result = BCompileUtil.compile("test-src/statements/package/sample-project-1", "invalid-imports");
+        CompileResult result = BCompileUtil.compile("test-src/statements/package/sample_project_1");
         Assert.assertEquals(result.getErrorCount(), 6);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "redeclared symbol 'int'", "src/file-negative1.bal", 3,
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'int'", "file-negative1.bal", 3,
                 1);
-        BAssertUtil.validateError(result, i++, "undefined module 'http'", "src/file-negative2.bal", 3, 5);
-        BAssertUtil.validateError(result, i++, "unknown type 'Client'", "src/file-negative2.bal", 3, 5);
-        BAssertUtil.validateError(result, i++, "undefined function 'println'", "src/file-negative2.bal", 4, 5);
-        BAssertUtil.validateError(result, i++, "undefined module 'io'", "src/file-negative2.bal", 4, 5);
-        BAssertUtil.validateError(result, i, "undefined module 'io'", "src/file-negative2.bal", 5, 18);
+        BAssertUtil.validateError(result, i++, "undefined module 'http'", "file-negative2.bal", 3, 5);
+        BAssertUtil.validateError(result, i++, "unknown type 'Client'", "file-negative2.bal", 3, 5);
+        BAssertUtil.validateError(result, i++, "undefined function 'println'", "file-negative2.bal", 4, 5);
+        BAssertUtil.validateError(result, i++, "undefined module 'io'", "file-negative2.bal", 4, 5);
+        BAssertUtil.validateError(result, i, "undefined module 'io'", "file-negative2.bal", 5, 18);
     }
 
     @Test
@@ -91,8 +89,8 @@ public class PackageImportTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/imports/unused-imports-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "unused import module 'ballerina/io'", 1, 1);
-        BAssertUtil.validateError(result, i, "unused import module 'ballerina/io as otherIO'", 2, 1);
+        BAssertUtil.validateError(result, i++, "unused import module 'ballerina/java'", 1, 1);
+        BAssertUtil.validateError(result, i, "unused import module 'ballerina/java as otherJAVA'", 2, 1);
     }
 
     @Test(enabled = false)
@@ -101,8 +99,7 @@ public class PackageImportTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        BaloCreator.cleanCacheDirectories();
-        CompileResult result = BCompileUtil.compile("test-src/statements/package/sample-project-2", "foo");
+        CompileResult result = BCompileUtil.compile("test-src/statements/package/sample-project-2");
         BRunUtil.invoke(result, "runFoo");
 
         System.setOut(out);

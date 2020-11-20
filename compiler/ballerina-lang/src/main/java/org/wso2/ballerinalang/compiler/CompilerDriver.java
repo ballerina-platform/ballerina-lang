@@ -21,7 +21,6 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.BIRGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -98,7 +97,6 @@ public class CompilerDriver {
     private final ObservabilitySymbolCollector observabilitySymbolCollector;
     private final Desugar desugar;
     private final BIRGen birGenerator;
-    private final CodeGenerator codeGenerator;
     private final CompilerPhase compilerPhase;
     private final DataflowAnalyzer dataflowAnalyzer;
     private final IsolationAnalyzer isolationAnalyzer;
@@ -131,7 +129,6 @@ public class CompilerDriver {
         this.observabilitySymbolCollector = ObserverbilitySymbolCollectorRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.birGenerator = BIRGen.getInstance(context);
-        this.codeGenerator = CodeGenerator.getInstance(context);
         this.compilerPhase = this.options.getCompilerPhase();
         this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
         this.isolationAnalyzer = IsolationAnalyzer.getInstance(context);
@@ -156,7 +153,6 @@ public class CompilerDriver {
             symResolver.bootstrapCloneableType();
             symResolver.defineOperators();
             symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
-            symResolver.bootstrapIntRangeType();
             symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
             symbolTable.langDecimalModuleSymbol = pkgLoader.loadPackageSymbol(DECIMAL, null, null);
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
@@ -339,7 +335,8 @@ public class CompilerDriver {
     }
 
     private BLangPackage codeGen(BLangPackage pkgNode) {
-        return this.codeGenerator.generate(pkgNode);
+        // Disable old code generation
+        return null;
     }
 
     private void generateObservabilityData(BLangPackage pkgNode) {

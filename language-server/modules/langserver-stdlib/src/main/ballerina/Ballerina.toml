@@ -1,8 +1,4 @@
-[project]
-org-name= "ballerina"
-version= "0.1.0"
-
-[build-options]
-observability-included=true
-
-[dependencies]
+[package]
+org = "ballerina"
+name = "module1"
+version = "0.1.0"

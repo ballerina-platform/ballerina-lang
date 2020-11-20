@@ -15,20 +15,16 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.model.Whitespace;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 
 import java.util.Collections;
@@ -56,18 +52,17 @@ public class MakeNonAbstractObjectCodeAction extends AbstractCodeActionProvider 
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     PositionDetails positionDetails,
-                                                    List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
-                                                    LSContext context) {
+                                                    CodeActionContext context) {
         if (!(diagnostic.getMessage().startsWith(NO_IMPL_FOUND_FOR_FUNCTION))) {
             return Collections.emptyList();
         }
 
         String diagnosticMessage = diagnostic.getMessage();
         Position position = diagnostic.getRange().getStart();
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+        String uri = context.fileUri();
 
         Optional<BLangTypeDefinition> objType = getObjectTypeDefinition(context, position.getLine(),
-                                                                        position.getCharacter());
+                position.getCharacter());
         if (objType.isEmpty()) {
             return null;
         }
@@ -122,21 +117,25 @@ public class MakeNonAbstractObjectCodeAction extends AbstractCodeActionProvider 
         return simpleObjName;
     }
 
-    private static Optional<BLangTypeDefinition> getObjectTypeDefinition(LSContext context, int line, int column) {
-        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        return bLangPackage.topLevelNodes.stream()
-                .filter(topLevelNode -> {
-                    if (topLevelNode instanceof BLangTypeDefinition) {
-                        Location pos =
-                                topLevelNode.getPosition();
-                        return ((pos.lineRange().startLine().line() == line ||
-                                pos.lineRange().endLine().line() == line ||
-                                (pos.lineRange().startLine().line() < line
-                                        && pos.lineRange().endLine().line() > line)) &&
-                                (pos.lineRange().startLine().offset() <= column
-                                        && pos.lineRange().endLine().offset() <= column));
-                    }
-                    return false;
-                }).findAny().map(t -> (BLangTypeDefinition) t);
+    private static Optional<BLangTypeDefinition> getObjectTypeDefinition(CodeActionContext context, int line,
+                                                                         int column) {
+        // TODO: Fix
+//        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+//        return bLangPackage.topLevelNodes.stream()
+//                .filter(topLevelNode -> {
+//                    if (topLevelNode instanceof BLangTypeDefinition) {
+//                        Location pos =
+//                                topLevelNode.getPosition();
+//                        return ((pos.lineRange().startLine().line() == line ||
+//                                pos.lineRange().endLine().line() == line ||
+//                                (pos.lineRange().startLine().line() < line
+//                                        && pos.lineRange().endLine().line() > line)) &&
+//                                (pos.lineRange().startLine().offset() <= column
+//                                        && pos.lineRange().endLine().offset() <= column));
+//                    }
+//                    return false;
+//                }).findAny().map(t -> (BLangTypeDefinition) t);
+
+        return Optional.empty();
     }
 }

@@ -23,20 +23,19 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -65,21 +64,23 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
      */
     @Override
     public List<CodeAction> getNodeBasedCodeActions(NonTerminalNode matchedNode, CodeActionNodeType matchedNodeType,
-                                                    List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
-                                                    LSContext context) {
+                                                    CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-        NodeList<ImportDeclarationNode> fileImports = ((ModulePartNode) syntaxTree.rootNode()).imports();
+        String uri = context.fileUri();
+        Optional<SyntaxTree> syntaxTree = context.workspace().syntaxTree(context.filePath());
+        if (syntaxTree.isEmpty()) {
+            return Collections.emptyList();
+        }
+        NodeList<ImportDeclarationNode> fileImports = ((ModulePartNode) syntaxTree.get().rootNode()).imports();
 
-        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        if (bLangPackage == null || fileImports == null || fileImports.isEmpty()) {
+        if (fileImports == null || fileImports.isEmpty()) {
             return actions;
         }
 
         List<String[]> toBeRemovedImports = new ArrayList<>();
 
         // Filter unused imports
-        for (Diagnostic diag : allDiagnostics) {
+        for (Diagnostic diag : context.getAllDiagnostics()) {
             if (diag.getMessage().startsWith(UNUSED_IMPORT_MODULE)) {
                 Matcher matcher = CommandConstants.UNUSED_IMPORT_MODULE_PATTERN.matcher(diag.getMessage());
                 if (matcher.find()) {
@@ -120,7 +121,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
 
             // Mark locations of the imports
             Range range = new Range(new Position(pos.startLine().line() - 1, pos.startLine().offset() - 1),
-                                    new Position(pos.endLine().line() - 1, pos.endLine().offset() - 1));
+                    new Position(pos.endLine().line() - 1, pos.endLine().offset() - 1));
             importLines.add(range);
 
             // Remove any matching imports on-the-go
@@ -140,7 +141,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         final List<ImportDeclarationNode> orderedImports = allImports.stream()
                 .sorted(Comparator.comparing((Function<ImportDeclarationNode, String>) o -> o.orgName().isPresent() ?
                         o.orgName().get().orgName().text() : "")
-                                .thenComparing(o -> o.prefix().isPresent() ? o.prefix().get().prefix().text() : ""))
+                        .thenComparing(o -> o.prefix().isPresent() ? o.prefix().get().prefix().text() : ""))
                 .collect(Collectors.toList());
 
         // Mark import removal ranges

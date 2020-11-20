@@ -20,13 +20,11 @@ package org.ballerinalang.test.balo.types;
 
 import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.test.balo.BaloCreator;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -40,8 +38,7 @@ public class ErrorTypeTest {
 
     @BeforeClass
     public void setup() {
-        BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "errors");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_errors");
         result = BCompileUtil.compile("test-src/balo/test_balo/types/error_type_test.bal");
         negativeResult = BCompileUtil.compile("test-src/balo/test_balo/types/error_type_negative_test.bal");
     }
@@ -122,11 +119,5 @@ public class ErrorTypeTest {
                 "incompatible types: expected 'testorg/errors:1.0.0:NewPostDefinedError', " +
                         "found 'testorg/errors:1.0.0:PostDefinedError'", 28, 32);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
-    }
-
-    @AfterClass
-    public void tearDown() {
-        BaloCreator.clearPackageFromRepository(
-                "test-src/balo/test_projects/finite_type_project", "finiteTypeTest", "foo");
     }
 }

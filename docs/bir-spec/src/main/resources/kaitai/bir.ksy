@@ -211,6 +211,8 @@ types:
     seq:
       - id: param_value_type_cp_index
         type: s4
+      - id: param_index
+        type: s4
   type_future:
     seq:
       - id: constraint_type_cp_index

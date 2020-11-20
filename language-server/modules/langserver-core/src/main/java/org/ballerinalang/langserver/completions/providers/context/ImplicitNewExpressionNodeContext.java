@@ -29,11 +29,10 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
@@ -54,7 +53,7 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ImplicitNewExpressionNode node) {
+    public List<LSCompletionItem> getCompletions(CompletionContext context, ImplicitNewExpressionNode node) {
         /*
         Supports the following
         (1) lhs = new <cursor>
@@ -66,7 +65,7 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
         return completionItems;
     }
 
-    private Optional<ObjectTypeSymbol> getObjectTypeDescriptor(LSContext context, Node node) {
+    private Optional<ObjectTypeSymbol> getObjectTypeDescriptor(CompletionContext context, Node node) {
         Node typeDescriptor;
 
         switch (node.parent().kind()) {
@@ -84,7 +83,7 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
         }
 
         Optional<Symbol> nameReferenceSymbol = Optional.empty();
-        List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
         if (this.onQualifiedNameIdentifier(context, typeDescriptor)) {
             QualifiedNameReferenceNode nameReferenceNode = (QualifiedNameReferenceNode) typeDescriptor;
 
@@ -110,8 +109,8 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
         return Optional.of(SymbolUtil.getTypeDescForObjectSymbol(nameReferenceSymbol.get()));
     }
 
-    private Optional<ObjectTypeSymbol> getObjectTypeForVarRef(LSContext context, Node varRefNode) {
-        List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+    private Optional<ObjectTypeSymbol> getObjectTypeForVarRef(CompletionContext context, Node varRefNode) {
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
         if (varRefNode.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
             return Optional.empty();
         }
