@@ -120,6 +120,11 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
         test("service-decl/service_decl_source_15.bal", "service-decl/service_decl_assert_15.json");
     }
 
+    @Test
+    public void testResourcePathParamNegative() {
+        test("service-decl/service_decl_source_17.bal", "service-decl/service_decl_assert_17.json");
+    }
+
     // Service function recovery tests
 
     @Test

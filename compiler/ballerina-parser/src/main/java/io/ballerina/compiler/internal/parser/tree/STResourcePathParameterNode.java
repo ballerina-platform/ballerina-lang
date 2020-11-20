@@ -39,6 +39,7 @@ public class STResourcePathParameterNode extends STNode {
     public final STNode closeBracketToken;
 
     STResourcePathParameterNode(
+            SyntaxKind kind,
             STNode openBracketToken,
             STNode annotations,
             STNode typeDescriptor,
@@ -46,6 +47,7 @@ public class STResourcePathParameterNode extends STNode {
             STNode paramName,
             STNode closeBracketToken) {
         this(
+                kind,
                 openBracketToken,
                 annotations,
                 typeDescriptor,
@@ -56,6 +58,7 @@ public class STResourcePathParameterNode extends STNode {
     }
 
     STResourcePathParameterNode(
+            SyntaxKind kind,
             STNode openBracketToken,
             STNode annotations,
             STNode typeDescriptor,
@@ -63,7 +66,7 @@ public class STResourcePathParameterNode extends STNode {
             STNode paramName,
             STNode closeBracketToken,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.RESOURCE_PATH_PARAM, diagnostics);
+        super(kind, diagnostics);
         this.openBracketToken = openBracketToken;
         this.annotations = annotations;
         this.typeDescriptor = typeDescriptor;
@@ -82,6 +85,7 @@ public class STResourcePathParameterNode extends STNode {
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STResourcePathParameterNode(
+                this.kind,
                 this.openBracketToken,
                 this.annotations,
                 this.typeDescriptor,
@@ -92,6 +96,7 @@ public class STResourcePathParameterNode extends STNode {
     }
 
     public STResourcePathParameterNode modify(
+            SyntaxKind kind,
             STNode openBracketToken,
             STNode annotations,
             STNode typeDescriptor,
@@ -109,6 +114,7 @@ public class STResourcePathParameterNode extends STNode {
         }
 
         return new STResourcePathParameterNode(
+                kind,
                 openBracketToken,
                 annotations,
                 typeDescriptor,

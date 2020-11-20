@@ -4209,7 +4209,6 @@
         {
             "name": "ResourcePathParameterNode",
             "base": "Node",
-            "kind": "RESOURCE_PATH_PARAM",
             "attributes": [
                 {
                     "name": "openBracketToken",

@@ -2485,6 +2485,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode paramName = modifyNode(resourcePathParameterNode.paramName);
         STNode closeBracketToken = modifyNode(resourcePathParameterNode.closeBracketToken);
         return resourcePathParameterNode.modify(
+                resourcePathParameterNode.kind,
                 openBracketToken,
                 annotations,
                 typeDescriptor,

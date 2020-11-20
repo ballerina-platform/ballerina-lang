@@ -3143,6 +3143,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token closeBracketToken =
                 modifyToken(resourcePathParameterNode.closeBracketToken());
         return resourcePathParameterNode.modify(
+                resourcePathParameterNode.kind(),
                 openBracketToken,
                 annotations,
                 typeDescriptor,

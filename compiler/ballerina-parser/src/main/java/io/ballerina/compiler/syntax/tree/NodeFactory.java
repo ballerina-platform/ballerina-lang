@@ -3044,6 +3044,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static ResourcePathParameterNode createResourcePathParameterNode(
+            SyntaxKind kind,
             Token openBracketToken,
             NodeList<AnnotationNode> annotations,
             TypeDescriptorNode typeDescriptor,
@@ -3057,6 +3058,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(closeBracketToken, "closeBracketToken must not be null");
 
         STNode stResourcePathParameterNode = STNodeFactory.createResourcePathParameterNode(
+                kind,
                 openBracketToken.internalNode(),
                 annotations.underlyingListNode().internalNode(),
                 typeDescriptor.internalNode(),

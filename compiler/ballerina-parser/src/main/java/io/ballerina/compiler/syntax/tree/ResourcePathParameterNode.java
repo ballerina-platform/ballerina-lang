@@ -79,6 +79,7 @@ public class ResourcePathParameterNode extends NonTerminalNode {
     }
 
     public ResourcePathParameterNode modify(
+            SyntaxKind kind,
             Token openBracketToken,
             NodeList<AnnotationNode> annotations,
             TypeDescriptorNode typeDescriptor,
@@ -96,6 +97,7 @@ public class ResourcePathParameterNode extends NonTerminalNode {
         }
 
         return NodeFactory.createResourcePathParameterNode(
+                kind,
                 openBracketToken,
                 annotations,
                 typeDescriptor,
@@ -175,6 +177,7 @@ public class ResourcePathParameterNode extends NonTerminalNode {
 
         public ResourcePathParameterNode apply() {
             return oldNode.modify(
+                    oldNode.kind(),
                     openBracketToken,
                     annotations,
                     typeDescriptor,
