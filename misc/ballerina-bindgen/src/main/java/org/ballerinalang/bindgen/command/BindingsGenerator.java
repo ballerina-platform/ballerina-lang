@@ -181,11 +181,7 @@ public class BindingsGenerator {
             }
             userPath = outputPath;
         }
-        // The folder structure of the ballerina bindings is flattened to address the Project API changes.
-        // TODO: Revisit the folder structure.
-//        modulePath = Paths.get(userPath, BALLERINA_BINDINGS_DIR, BINDINGS_DIR);
-//        dependenciesPath = Paths.get(userPath, BALLERINA_BINDINGS_DIR, DEPENDENCIES_DIR);
-//        utilsDirPath = Paths.get(userPath, BALLERINA_BINDINGS_DIR, UTILS_DIR);
+        // The folder structure is flattened to address the Project API changes.
         modulePath = Paths.get(userPath);
         dependenciesPath = Paths.get(userPath);
         utilsDirPath = Paths.get(userPath);
@@ -204,7 +200,6 @@ public class BindingsGenerator {
     private void generateUtilFiles() throws BindgenException {
         String utilsDirStrPath = utilsDirPath.toString();
         createDirectory(utilsDirStrPath);
-//        createDirectory(Paths.get(utilsDirStrPath, ERROR_TYPES_DIR).toString());
 
         // Create the Constants.bal file.
         Path constantsPath = Paths.get(utilsDirPath.toString(), CONSTANTS_FILE_NAME);
@@ -221,8 +216,7 @@ public class BindingsGenerator {
         for (JError jError : exceptionList) {
             jError.setAccessModifier(accessModifier);
             String fileName = jError.getShortExceptionName() + BAL_EXTENSION;
-//            writeOutputFile(jError, DEFAULT_TEMPLATE_DIR, ERROR_TEMPLATE_NAME,
-//                    Paths.get(utilsDirStrPath, ERROR_TYPES_DIR, fileName).toString(), false);
+            // The folder structure is flattened to address the Project API changes.
             writeOutputFile(jError, DEFAULT_TEMPLATE_DIR, ERROR_TEMPLATE_NAME,
                     Paths.get(utilsDirStrPath, fileName).toString(), false);
         }
@@ -251,9 +245,6 @@ public class BindingsGenerator {
                         JClass jClass = new JClass(classInstance);
                         jClass.setAccessModifier(accessModifier);
                         // The folder structure is flattened to address the Project API changes.
-                        // TODO: Revisit the folder structure.
-//                        String outputFile = Paths.get(modulePath.toString(), jClass.getPackageName()).toString();
-//                        createDirectory(outputFile);
                         String filePath = Paths.get(jClass.getShortClassName() + BAL_EXTENSION).toString();
                         writeOutputFile(jClass, DEFAULT_TEMPLATE_DIR, BBGEN_CLASS_TEMPLATE_NAME, filePath, false);
                         outStream.println("\t" + c);

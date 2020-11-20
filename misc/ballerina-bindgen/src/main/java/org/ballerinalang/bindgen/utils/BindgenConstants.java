@@ -76,10 +76,4 @@ public class BindgenConstants {
             "primarykey", "is", "flush", "wait", "default", "from", "select", "where", "limit", "order", "field",
             "let", "Deprecated", "equals", "enum", "readonly", "outer", "conflict", "key", "rollback", "commit",
             "transactional", "distinct", "never", "do"};
-    // TODO: Remove these constants after revisiting the folder structure with Project API changes.
-//    public static final String UTILS_DIR = "utils";
-//    public static final String BALLERINA_BINDINGS_DIR = "ballerina_bindings";
-//    public static final String BINDINGS_DIR = "bindings";
-//    public static final String DEPENDENCIES_DIR = "dependencies";
-//    public static final String ERROR_TYPES_DIR = "error_types";
 }
