@@ -3132,6 +3132,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ResourcePathParameterNode resourcePathParameterNode) {
         Token openBracketToken =
                 modifyToken(resourcePathParameterNode.openBracketToken());
+        NodeList<AnnotationNode> annotations =
+                modifyNodeList(resourcePathParameterNode.annotations());
         TypeDescriptorNode typeDescriptor =
                 modifyNode(resourcePathParameterNode.typeDescriptor());
         Token ellipsisToken =
@@ -3142,6 +3144,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(resourcePathParameterNode.closeBracketToken());
         return resourcePathParameterNode.modify(
                 openBracketToken,
+                annotations,
                 typeDescriptor,
                 ellipsisToken,
                 paramName,

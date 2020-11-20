@@ -4216,6 +4216,11 @@
                     "type": "Token"
                 },
                 {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
                     "name": "typeDescriptor",
                     "type": "TypeDescriptorNode"
                 },

@@ -37,20 +37,24 @@ public class ResourcePathParameterNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
+    public NodeList<AnnotationNode> annotations() {
+        return new NodeList<>(childInBucket(1));
+    }
+
     public TypeDescriptorNode typeDescriptor() {
-        return childInBucket(1);
+        return childInBucket(2);
     }
 
     public Optional<Token> ellipsisToken() {
-        return optionalChildInBucket(2);
+        return optionalChildInBucket(3);
     }
 
     public Token paramName() {
-        return childInBucket(3);
+        return childInBucket(4);
     }
 
     public Token closeBracketToken() {
-        return childInBucket(4);
+        return childInBucket(5);
     }
 
     @Override
@@ -67,6 +71,7 @@ public class ResourcePathParameterNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "openBracketToken",
+                "annotations",
                 "typeDescriptor",
                 "ellipsisToken",
                 "paramName",
@@ -75,12 +80,14 @@ public class ResourcePathParameterNode extends NonTerminalNode {
 
     public ResourcePathParameterNode modify(
             Token openBracketToken,
+            NodeList<AnnotationNode> annotations,
             TypeDescriptorNode typeDescriptor,
             Token ellipsisToken,
             Token paramName,
             Token closeBracketToken) {
         if (checkForReferenceEquality(
                 openBracketToken,
+                annotations.underlyingListNode(),
                 typeDescriptor,
                 ellipsisToken,
                 paramName,
@@ -90,6 +97,7 @@ public class ResourcePathParameterNode extends NonTerminalNode {
 
         return NodeFactory.createResourcePathParameterNode(
                 openBracketToken,
+                annotations,
                 typeDescriptor,
                 ellipsisToken,
                 paramName,
@@ -108,6 +116,7 @@ public class ResourcePathParameterNode extends NonTerminalNode {
     public static class ResourcePathParameterNodeModifier {
         private final ResourcePathParameterNode oldNode;
         private Token openBracketToken;
+        private NodeList<AnnotationNode> annotations;
         private TypeDescriptorNode typeDescriptor;
         private Token ellipsisToken;
         private Token paramName;
@@ -116,6 +125,7 @@ public class ResourcePathParameterNode extends NonTerminalNode {
         public ResourcePathParameterNodeModifier(ResourcePathParameterNode oldNode) {
             this.oldNode = oldNode;
             this.openBracketToken = oldNode.openBracketToken();
+            this.annotations = oldNode.annotations();
             this.typeDescriptor = oldNode.typeDescriptor();
             this.ellipsisToken = oldNode.ellipsisToken().orElse(null);
             this.paramName = oldNode.paramName();
@@ -126,6 +136,13 @@ public class ResourcePathParameterNode extends NonTerminalNode {
                 Token openBracketToken) {
             Objects.requireNonNull(openBracketToken, "openBracketToken must not be null");
             this.openBracketToken = openBracketToken;
+            return this;
+        }
+
+        public ResourcePathParameterNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
+            Objects.requireNonNull(annotations, "annotations must not be null");
+            this.annotations = annotations;
             return this;
         }
 
@@ -159,6 +176,7 @@ public class ResourcePathParameterNode extends NonTerminalNode {
         public ResourcePathParameterNode apply() {
             return oldNode.modify(
                     openBracketToken,
+                    annotations,
                     typeDescriptor,
                     ellipsisToken,
                     paramName,

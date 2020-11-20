@@ -2308,6 +2308,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createResourcePathParameterNode(
             STNode openBracketToken,
+            STNode annotations,
             STNode typeDescriptor,
             STNode ellipsisToken,
             STNode paramName,
@@ -2315,6 +2316,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STResourcePathParameterNode(
                 openBracketToken,
+                annotations,
                 typeDescriptor,
                 ellipsisToken,
                 paramName,

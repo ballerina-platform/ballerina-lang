@@ -32,6 +32,7 @@ import java.util.Collections;
  */
 public class STResourcePathParameterNode extends STNode {
     public final STNode openBracketToken;
+    public final STNode annotations;
     public final STNode typeDescriptor;
     public final STNode ellipsisToken;
     public final STNode paramName;
@@ -39,12 +40,14 @@ public class STResourcePathParameterNode extends STNode {
 
     STResourcePathParameterNode(
             STNode openBracketToken,
+            STNode annotations,
             STNode typeDescriptor,
             STNode ellipsisToken,
             STNode paramName,
             STNode closeBracketToken) {
         this(
                 openBracketToken,
+                annotations,
                 typeDescriptor,
                 ellipsisToken,
                 paramName,
@@ -54,6 +57,7 @@ public class STResourcePathParameterNode extends STNode {
 
     STResourcePathParameterNode(
             STNode openBracketToken,
+            STNode annotations,
             STNode typeDescriptor,
             STNode ellipsisToken,
             STNode paramName,
@@ -61,6 +65,7 @@ public class STResourcePathParameterNode extends STNode {
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.RESOURCE_PATH_PARAM, diagnostics);
         this.openBracketToken = openBracketToken;
+        this.annotations = annotations;
         this.typeDescriptor = typeDescriptor;
         this.ellipsisToken = ellipsisToken;
         this.paramName = paramName;
@@ -68,6 +73,7 @@ public class STResourcePathParameterNode extends STNode {
 
         addChildren(
                 openBracketToken,
+                annotations,
                 typeDescriptor,
                 ellipsisToken,
                 paramName,
@@ -77,6 +83,7 @@ public class STResourcePathParameterNode extends STNode {
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STResourcePathParameterNode(
                 this.openBracketToken,
+                this.annotations,
                 this.typeDescriptor,
                 this.ellipsisToken,
                 this.paramName,
@@ -86,12 +93,14 @@ public class STResourcePathParameterNode extends STNode {
 
     public STResourcePathParameterNode modify(
             STNode openBracketToken,
+            STNode annotations,
             STNode typeDescriptor,
             STNode ellipsisToken,
             STNode paramName,
             STNode closeBracketToken) {
         if (checkForReferenceEquality(
                 openBracketToken,
+                annotations,
                 typeDescriptor,
                 ellipsisToken,
                 paramName,
@@ -101,6 +110,7 @@ public class STResourcePathParameterNode extends STNode {
 
         return new STResourcePathParameterNode(
                 openBracketToken,
+                annotations,
                 typeDescriptor,
                 ellipsisToken,
                 paramName,

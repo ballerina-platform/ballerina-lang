@@ -677,6 +677,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] RESOURCE_PATH_SEGMENT =
             { ParserRuleContext.PATH_SEGMENT_IDENT, ParserRuleContext.RESOURCE_PATH_PARAM };
 
+    private static final ParserRuleContext[] PATH_PARAM_OPTIONAL_ANNOTS =
+            { ParserRuleContext.TYPE_DESC_IN_PATH_PARAM, ParserRuleContext.ANNOTATIONS };
+
     private static final ParserRuleContext[] PATH_PARAM_ELLIPSIS =
             { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.ELLIPSIS };
 
@@ -1470,6 +1473,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RELATIVE_RESOURCE_PATH_START:
             case RELATIVE_RESOURCE_PATH_END:
             case RESOURCE_PATH_SEGMENT:
+            case PATH_PARAM_OPTIONAL_ANNOTS:
             case PATH_PARAM_ELLIPSIS:
                 return true;
             default:
@@ -1710,6 +1714,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case RESOURCE_PATH_SEGMENT:
                 alternativeRules = RESOURCE_PATH_SEGMENT;
+                break;
+            case PATH_PARAM_OPTIONAL_ANNOTS:
+                alternativeRules = PATH_PARAM_OPTIONAL_ANNOTS;
                 break;
             case PATH_PARAM_ELLIPSIS:
                 alternativeRules = PATH_PARAM_ELLIPSIS;
@@ -4025,6 +4032,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TYPE_CAST_PARAM_RHS;
             case ENUM_MEMBER_LIST:
                 return ParserRuleContext.ENUM_MEMBER_NAME;
+            case RELATIVE_RESOURCE_PATH:
+                return ParserRuleContext.TYPE_DESC_IN_PATH_PARAM;
             default:
                 if (isParameter(parentCtx)) {
                     return ParserRuleContext.REQUIRED_PARAM;
@@ -4255,7 +4264,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LIST_MATCH_PATTERN:
                 return ParserRuleContext.LIST_MATCH_PATTERNS_START;
             case RELATIVE_RESOURCE_PATH:
-                return ParserRuleContext.TYPE_DESC_IN_PATH_PARAM;
+                return ParserRuleContext.PATH_PARAM_OPTIONAL_ANNOTS;
             default:
                 if (isInTypeDescContext()) {
                     return ParserRuleContext.TYPE_DESC_IN_TUPLE;

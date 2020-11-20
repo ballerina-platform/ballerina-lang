@@ -5882,17 +5882,19 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse resource path parameter.
      * <p>
-     * <code>resource-path-parameter := "[" type-descriptor [...] param-name "]"</code>
+     * <code>resource-path-parameter := "[" [annots] type-descriptor [...] param-name "]"</code>
      *
      * @return Parsed node
      */
     private STNode parseResourcePathParameter() {
         STNode openBracket = parseOpenBracket();
+        STNode annots = parseOptionalAnnotations();
         STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_PATH_PARAM);
         STNode ellipsis = parseOptionalEllipsis();
         STNode paramName = parseIdentifier(ParserRuleContext.VARIABLE_NAME);
         STNode closeBracket = parseCloseBracket();
-        return STNodeFactory.createResourcePathParameterNode(openBracket, type, ellipsis, paramName, closeBracket);
+        return STNodeFactory
+                .createResourcePathParameterNode(openBracket, annots, type, ellipsis, paramName, closeBracket);
     }
 
     private STNode parseOptionalEllipsis() {

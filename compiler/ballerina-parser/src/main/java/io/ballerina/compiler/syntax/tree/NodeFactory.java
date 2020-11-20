@@ -3045,17 +3045,20 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ResourcePathParameterNode createResourcePathParameterNode(
             Token openBracketToken,
+            NodeList<AnnotationNode> annotations,
             TypeDescriptorNode typeDescriptor,
             Token ellipsisToken,
             Token paramName,
             Token closeBracketToken) {
         Objects.requireNonNull(openBracketToken, "openBracketToken must not be null");
+        Objects.requireNonNull(annotations, "annotations must not be null");
         Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
         Objects.requireNonNull(paramName, "paramName must not be null");
         Objects.requireNonNull(closeBracketToken, "closeBracketToken must not be null");
 
         STNode stResourcePathParameterNode = STNodeFactory.createResourcePathParameterNode(
                 openBracketToken.internalNode(),
+                annotations.underlyingListNode().internalNode(),
                 typeDescriptor.internalNode(),
                 getOptionalSTNode(ellipsisToken),
                 paramName.internalNode(),
