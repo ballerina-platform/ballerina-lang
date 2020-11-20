@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/test;
+import ballerina/lang.test as test;
 
 type FooRec record {|
     function () returns string fn = () => "FOO";
@@ -67,12 +67,12 @@ function assert(anydata expected, anydata actual) {
 function testCast() {
     future<string> fs1 = start getMessage([1,2]);
     string result1 = wait fs1;
-    test:assertEquals(result1, "The value is [1,2]");
+    test:assertValueEqual(result1, "The value is [1,2]");
 
     map<int> marks = {sam: 50, jon: 60};
     future<string> fs2 = start getMessage(marks);
     string result2 = wait fs2;
-    test:assertEquals(result2, "The value is {\"sam\":50,\"jon\":60}");
+    test:assertValueEqual(result2, "The value is {\"sam\":50,\"jon\":60}");
 }
 
 function getMessage(any j) returns string {

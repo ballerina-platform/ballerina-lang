@@ -17,6 +17,7 @@ package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,5 +33,5 @@ public class Project {
     @Expose
     public String description;
     @Expose
-    public List<Module> modules;
+    public List<Module> modules = new ArrayList<>();
 }

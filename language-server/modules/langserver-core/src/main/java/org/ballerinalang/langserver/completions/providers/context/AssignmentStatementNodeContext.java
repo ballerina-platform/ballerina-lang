@@ -25,11 +25,9 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -55,7 +53,7 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, AssignmentStatementNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, AssignmentStatementNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (this.cursorWithinLHS(context, node)) {
@@ -87,13 +85,13 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, AssignmentStatementNode node) {
+    public boolean onPreValidation(CompletionContext context, AssignmentStatementNode node) {
         return !node.equalsToken().isMissing();
     }
 
-    private List<LSCompletionItem> getNewExprCompletionItems(LSContext context, AssignmentStatementNode node) {
+    private List<LSCompletionItem> getNewExprCompletionItems(CompletionContext context, AssignmentStatementNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        ArrayList<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
         Optional<ObjectTypeSymbol> objectType;
         Node varRef = node.varRef();
         if (varRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
@@ -112,9 +110,9 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
         return completionItems;
     }
 
-    private boolean cursorWithinLHS(LSContext context, AssignmentStatementNode node) {
+    private boolean cursorWithinLHS(CompletionContext context, AssignmentStatementNode node) {
         int equalToken = node.equalsToken().textRange().endOffset();
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        int cursor = context.getCursorPositionInTree();
 
         return cursor < equalToken;
     }

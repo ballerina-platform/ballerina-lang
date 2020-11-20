@@ -33,8 +33,8 @@ import java.util.stream.Collectors;
  * @since 1.1.1
  */
 public class CodeActionProvidersHolder {
-    private static Map<CodeActionNodeType, List<LSCodeActionProvider>> nodeBasedProviders = new HashMap<>();
-    private static List<LSCodeActionProvider> diagnosticsBasedProviders = new ArrayList<>();
+    private static final Map<CodeActionNodeType, List<LSCodeActionProvider>> nodeBasedProviders = new HashMap<>();
+    private static final List<LSCodeActionProvider> diagnosticsBasedProviders = new ArrayList<>();
     private static final CodeActionProvidersHolder INSTANCE = new CodeActionProvidersHolder();
 
     /**
