@@ -19,6 +19,8 @@ package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -33,8 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -51,8 +51,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANNOTATION;
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PACKAGE;
 
 /**
  * Semantic model representation of a given syntax tree.
@@ -149,6 +152,24 @@ public class BallerinaSemanticModel implements SemanticModel {
         }
 
         return compiledSymbols;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Location> references(String fileName, Symbol symbol) {
+        Location symbolLocation = symbol.location();
+
+        // Assumption is that the location will be null for regular type symbols
+        if (symbolLocation == null) {
+            return Collections.unmodifiableList(new ArrayList<>());
+        }
+
+        BLangNode node = new NodeFinder().lookupEnclosingContainer(this.bLangPackage, symbolLocation.lineRange());
+
+        ReferenceFinder refFinder = new ReferenceFinder();
+        return refFinder.findReferences(node, getInternalSymbol(symbol));
     }
 
     /**
@@ -256,8 +277,16 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private boolean isTypeSymbol(BSymbol symbol) {
-        return symbol instanceof BTypeSymbol && !(symbol instanceof BPackageSymbol)
-                && !(symbol instanceof BAnnotationSymbol);
+        return symbol instanceof BTypeSymbol && !Symbols.isTagOn(symbol, PACKAGE)
+                && !Symbols.isTagOn(symbol, ANNOTATION);
+    }
+
+    private BSymbol getInternalSymbol(Symbol symbol) {
+        if (symbol.kind() == TYPE) {
+            return ((AbstractTypeSymbol) symbol).getBType().tsymbol;
+        }
+
+        return ((BallerinaSymbol) symbol).getInternalSymbol();
     }
 
     private boolean withinRange(LineRange range, LineRange specifiedRange) {

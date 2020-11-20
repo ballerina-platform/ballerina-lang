@@ -101,15 +101,6 @@ public class BallerinaSymbol implements Symbol {
         return this.position;
     }
 
-    /**
-     * Whether the symbol is a langlib symbol.
-     *
-     * @return {@link Boolean} whether langlib or not
-     */
-    public boolean isLangLib() {
-        return isLangLib;
-    }
-
     public BSymbol getInternalSymbol() {
         return this.internalSymbol;
     }
