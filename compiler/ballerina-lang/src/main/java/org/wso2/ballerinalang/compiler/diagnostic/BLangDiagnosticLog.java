@@ -18,11 +18,11 @@
 package org.wso2.ballerinalang.compiler.diagnostic;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -172,12 +172,12 @@ public class BLangDiagnosticLog implements DiagnosticLog {
     // private helper methods
 
     private String formatMessage(String prefix, DiagnosticCode code, Object[] args) {
-        String msgKey = MESSAGES.getString(prefix + "." + code.getValue());
+        String msgKey = MESSAGES.getString(prefix + "." + code.messageKey());
         return MessageFormat.format(msgKey, args);
     }
 
-    private void reportDiagnostic(PackageID packageID, DiagnosticCode diagnosticCode, Location location, String msg,
-                                  DiagnosticSeverity severity) {
+    private void reportDiagnostic(PackageID packageID, DiagnosticCode diagnosticCode, Location location,
+                                  String msg, DiagnosticSeverity severity) {
         if (severity == DiagnosticSeverity.ERROR) {
             this.errorCount++;
         }
@@ -187,7 +187,8 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         }
 
         // TODO: Add 'code' and 'messageTemplate' to the DiagnosticInfo
-        DiagnosticInfo diagInfo = new DiagnosticInfo(null, msg, severity);
+        DiagnosticInfo diagInfo = new DiagnosticInfo(diagnosticCode.diagnosticId(), diagnosticCode.messageKey(),
+                                                     diagnosticCode.severity());
 
         BLangDiagnostic diagnostic = new BLangDiagnostic(location, msg, diagInfo, diagnosticCode);
         storeDiagnosticInModule(packageID, diagnostic);
@@ -203,8 +204,8 @@ public class BLangDiagnosticLog implements DiagnosticLog {
             return;
         }
 
-        // TODO: Add 'code' and 'messageTemplate' to the DiagnosticInfo
-        DiagnosticInfo diagInfo = new DiagnosticInfo(null, msg, severity);
+        DiagnosticInfo diagInfo = new DiagnosticInfo(diagnosticCode.diagnosticId(), diagnosticCode.messageKey(),
+                                                     severity);
 
         BLangDiagnostic diagnostic = new BLangDiagnostic(location, msg, diagInfo, diagnosticCode);
         storeDiagnosticInModule(currentPackageId, diagnostic);

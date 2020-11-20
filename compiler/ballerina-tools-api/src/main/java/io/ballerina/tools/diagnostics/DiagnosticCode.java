@@ -15,9 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.compiler.internal.diagnostics;
-
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+package io.ballerina.tools.diagnostics;
 
 /**
  * Represents a diagnostic code.
