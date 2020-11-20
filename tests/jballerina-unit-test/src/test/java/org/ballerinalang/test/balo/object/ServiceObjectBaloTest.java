@@ -18,16 +18,12 @@
 
 package org.ballerinalang.test.balo.object;
 
-import org.ballerinalang.nativeimpl.jvm.servicetests.ServiceValue;
-import org.ballerinalang.test.balo.BaloCreator;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.testng.annotations.AfterClass;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
-import static org.testng.Assert.assertEquals;
 
 /**
  * Tests for `service objects` and `service classes`.
@@ -38,21 +34,15 @@ public class ServiceObjectBaloTest {
 
     private CompileResult result;
 
-    @Test
-    public void testReadonlyRecordFields() {
-        BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/service_test_project", "testorg", "serv_classes");
+    @BeforeClass
+    public void setup() {
+        int i = 0;
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/service_test_project");
         result = BCompileUtil.compile("test-src/balo/test_balo/object/test_service_objects.bal");
     }
 
     @Test
-    public void testReadonlyType() {
+    public void testServiceClassBalo() {
         BRunUtil.invoke(result, "testServiceObjectValue");
-    }
-
-    @AfterClass
-    public void tearDown() {
-        ServiceValue.reset();
-        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "serv_classes");
     }
 }
