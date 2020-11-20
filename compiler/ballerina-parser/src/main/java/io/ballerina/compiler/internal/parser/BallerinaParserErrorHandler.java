@@ -249,11 +249,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] IMPORT_VERSION =
             { ParserRuleContext.VERSION_KEYWORD, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
 
-    private static final ParserRuleContext[] IMPORT_DECL_RHS = { ParserRuleContext.SLASH, ParserRuleContext.DOT,
-            ParserRuleContext.VERSION_KEYWORD, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
+    private static final ParserRuleContext[] IMPORT_DECL_RHS =
+            { ParserRuleContext.SLASH, ParserRuleContext.AFTER_IMPORT_MODULE_NAME };
 
-    private static final ParserRuleContext[] AFTER_IMPORT_MODULE_NAME = { ParserRuleContext.DOT,
-            ParserRuleContext.VERSION_KEYWORD, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
+    private static final ParserRuleContext[] AFTER_IMPORT_MODULE_NAME = {
+            ParserRuleContext.AS_KEYWORD, ParserRuleContext.DOT, ParserRuleContext.VERSION_KEYWORD,
+            ParserRuleContext.SEMICOLON };
 
     private static final ParserRuleContext[] MAJOR_MINOR_VERSION_END =
             { ParserRuleContext.DOT, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
@@ -2442,7 +2443,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         ParserRuleContext.LET_CLAUSE_END };
                 break;
             case ORDER_KEY_LIST:
-                alternatives = new ParserRuleContext[] {ParserRuleContext.ORDER_DIRECTION,
+                alternatives = new ParserRuleContext[] { ParserRuleContext.ORDER_DIRECTION,
                         ParserRuleContext.ORDER_KEY_LIST_END, ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
                         ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPTIONAL_CHAINING_TOKEN,
                         ParserRuleContext.CONDITIONAL_EXPRESSION, ParserRuleContext.XML_NAVIGATE_EXPR,
@@ -3486,6 +3487,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case READONLY_KEYWORD:
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.MAPPING_CONSTRUCTOR ||
+                        parentCtx == ParserRuleContext.MAPPING_BP_OR_MAPPING_CONSTRUCTOR ||
                         parentCtx == ParserRuleContext.MAPPING_FIELD) {
                     return ParserRuleContext.SPECIFIC_FIELD;
                 }
