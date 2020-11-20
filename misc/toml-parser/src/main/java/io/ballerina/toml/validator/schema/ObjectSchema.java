@@ -29,26 +29,26 @@ import java.util.Optional;
  */
 public class ObjectSchema extends AbstractSchema {
     private String description;
-    private boolean additionalProperties;
+    private boolean hasAdditionalProperties;
     private Map<String, AbstractSchema> properties;
 
     public ObjectSchema(Type type) {
         super(type);
-        this.additionalProperties = true;
+        this.hasAdditionalProperties = true;
         this.properties = new HashMap<>();
     }
 
     public ObjectSchema(Type type, Map<String, AbstractSchema> properties) {
         super(type);
-        this.additionalProperties = true;
+        this.hasAdditionalProperties = true;
         this.properties = properties;
     }
 
-    public ObjectSchema(Type type, String description, boolean additionalProperties,
+    public ObjectSchema(Type type, String description, boolean hasAdditionalProperties,
                         Map<String, AbstractSchema> properties) {
         super(type);
         this.description = description;
-        this.additionalProperties = additionalProperties;
+        this.hasAdditionalProperties = hasAdditionalProperties;
         this.properties = properties;
     }
 
@@ -57,7 +57,7 @@ public class ObjectSchema extends AbstractSchema {
     }
 
     public boolean hasAdditionalProperties() {
-        return additionalProperties;
+        return hasAdditionalProperties;
     }
 
     public Map<String, AbstractSchema> properties() {

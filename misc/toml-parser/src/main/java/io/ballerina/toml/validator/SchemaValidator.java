@@ -68,27 +68,25 @@ public class SchemaValidator extends TomlNodeVisitor {
                     DiagnosticSeverity.ERROR, String.format("Key \"%s\" expects %s . Found object", this.key,
                             schema.type()));
             tomlTableNode.addDiagnostic(diagnostic);
-        } else {
-            ObjectSchema objectSchema = (ObjectSchema) schema;
-            Map<String, AbstractSchema> properties = objectSchema.properties();
-            Map<String, TopLevelNode> tableChildren = tomlTableNode.children();
-            for (Map.Entry<String, TopLevelNode> propertyEntry : tableChildren.entrySet()) {
-                String key = propertyEntry.getKey();
-                TopLevelNode value = propertyEntry.getValue();
-                AbstractSchema abstractSchema = properties.get(key);
-                if (abstractSchema != null) {
-                    this.schema = abstractSchema;
-                    this.key = key;
-                    lookupNode(value);
-                } else {
-                    if (!objectSchema.hasAdditionalProperties()) {
-                        DiagnosticInfo diagnosticInfo = new DiagnosticInfo("TVE0001", "warn.unexpected.property",
-                                DiagnosticSeverity.WARNING);
-                        TomlDiagnostic diagnostic = new TomlDiagnostic(value.location(), diagnosticInfo,
-                                "Unexpected Property \"" + key + "\"");
-                        tomlTableNode.addDiagnostic(diagnostic);
-                    }
-                }
+            return;
+        }
+        ObjectSchema objectSchema = (ObjectSchema) schema;
+        Map<String, AbstractSchema> properties = objectSchema.properties();
+        Map<String, TopLevelNode> tableEntries = tomlTableNode.entries();
+        for (Map.Entry<String, TopLevelNode> tableEntry : tableEntries.entrySet()) {
+            String key = tableEntry.getKey();
+            TopLevelNode value = tableEntry.getValue();
+            AbstractSchema schema = properties.get(key);
+            if (schema != null) {
+                visitNode(value, schema, key);
+                continue;
+            }
+            if (!objectSchema.hasAdditionalProperties()) {
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo("TVE0001", "warn.unexpected.property",
+                        DiagnosticSeverity.WARNING);
+                TomlDiagnostic diagnostic = new TomlDiagnostic(value.location(), diagnosticInfo,
+                        "Unexpected Property \"" + key + "\"");
+                tomlTableNode.addDiagnostic(diagnostic);
             }
         }
     }
@@ -101,26 +99,25 @@ public class SchemaValidator extends TomlNodeVisitor {
                             DiagnosticSeverity.ERROR, String.format("Key \"%s\" expects %s . Found array", this.key,
                                     schema.type()));
             tomlTableArrayNode.addDiagnostic(diagnostic);
-        } else {
-            ArraySchema arraySchema = (ArraySchema) schema;
-            AbstractSchema items = arraySchema.items();
-            List<TomlTableNode> children = tomlTableArrayNode.children();
-            for (TomlTableNode child : children) {
-                this.schema = items;
-                visit(child);
-            }
+            return;
+        }
+        ArraySchema arraySchema = (ArraySchema) schema;
+        AbstractSchema memberSchema = arraySchema.items();
+        List<TomlTableNode> children = tomlTableArrayNode.children();
+        for (TomlTableNode child : children) {
+            visitNode(child, memberSchema);
         }
     }
 
     @Override
     public void visit(TomlKeyValueNode keyValue) {
         TomlValueNode value = keyValue.value();
-        lookupNode(value);
+        visitNode(value);
     }
 
     @Override
     public void visit(TomlValueNode tomlValue) {
-        lookupNode(tomlValue);
+        visitNode(tomlValue);
     }
 
     @Override
@@ -131,17 +128,17 @@ public class SchemaValidator extends TomlNodeVisitor {
                             DiagnosticSeverity.ERROR,
                             String.format("Key \"%s\" expects %s . Found string", this.key, schema.type()));
             tomlStringValueNode.addDiagnostic(diagnostic);
-        } else {
-            StringSchema stringSchema = (StringSchema) this.schema;
-            if (stringSchema.pattern().isPresent()) {
-                String pattern = stringSchema.pattern().get();
-                if (!Pattern.compile(pattern).matcher(tomlStringValueNode.getValue()).matches()) {
-                    TomlDiagnostic diagnostic = getTomlDiagnostic(tomlStringValueNode.location(), "TVE0003",
-                            "error.regex.mismatch", DiagnosticSeverity.ERROR,
-                            String.format("Key \"%s\" value does not match the Regex provided in Schema %s", this.key,
-                                    pattern));
-                    tomlStringValueNode.addDiagnostic(diagnostic);
-                }
+            return;
+        }
+        StringSchema stringSchema = (StringSchema) this.schema;
+        if (stringSchema.pattern().isPresent()) {
+            String pattern = stringSchema.pattern().get();
+            if (!Pattern.compile(pattern).matcher(tomlStringValueNode.getValue()).matches()) {
+                TomlDiagnostic diagnostic = getTomlDiagnostic(tomlStringValueNode.location(), "TVE0003",
+                        "error.regex.mismatch", DiagnosticSeverity.ERROR,
+                        String.format("Key \"%s\" value does not match the Regex provided in Schema %s", this.key,
+                                pattern));
+                tomlStringValueNode.addDiagnostic(diagnostic);
             }
         }
     }
@@ -153,14 +150,12 @@ public class SchemaValidator extends TomlNodeVisitor {
                     "error.invalid.type", DiagnosticSeverity.ERROR,
                     String.format("Key \"%s\" expects %s . Found number", this.key, schema.type()));
             tomlDoubleValueNodeNode.addDiagnostic(diagnostic);
-        } else {
-            List<Diagnostic> diagnostics =
-                    validateMinMaxValues((NumericSchema) schema, tomlDoubleValueNodeNode.getValue(),
-                            tomlDoubleValueNodeNode.location());
-            for (Diagnostic diagnostic : diagnostics) {
-                tomlDoubleValueNodeNode.addDiagnostic(diagnostic);
-            }
+            return;
         }
+        List<Diagnostic> diagnostics =
+                validateMinMaxValues((NumericSchema) schema, tomlDoubleValueNodeNode.getValue(),
+                        tomlDoubleValueNodeNode.location());
+        tomlDoubleValueNodeNode.addDiagnostics(diagnostics);
     }
 
     @Override
@@ -170,13 +165,13 @@ public class SchemaValidator extends TomlNodeVisitor {
                     "error.invalid.type", DiagnosticSeverity.ERROR,
                     String.format("Key \"%s\" expects %s . Found integer", this.key, schema.type()));
             tomlLongValueNode.addDiagnostic(diagnostic);
-        } else {
-            List<Diagnostic> diagnostics =
-                    validateMinMaxValues((NumericSchema) schema, Double.valueOf(tomlLongValueNode.getValue()),
-                            tomlLongValueNode.location());
-            for (Diagnostic diagnostic : diagnostics) {
-                tomlLongValueNode.addDiagnostic(diagnostic);
-            }
+            return;
+        }
+        List<Diagnostic> diagnostics =
+                validateMinMaxValues((NumericSchema) schema, Double.valueOf(tomlLongValueNode.getValue()),
+                        tomlLongValueNode.location());
+        for (Diagnostic diagnostic : diagnostics) {
+            tomlLongValueNode.addDiagnostic(diagnostic);
         }
     }
 
@@ -216,9 +211,26 @@ public class SchemaValidator extends TomlNodeVisitor {
         }
     }
 
-    private void lookupNode(TomlNode node) {
+    private void visitNode(TomlNode node) {
         AbstractSchema previousSchema = this.schema;
         String previousKey = this.key;
+        node.accept(this);
+        this.schema = previousSchema;
+        this.key = previousKey;
+    }
+
+    private void visitNode(TomlNode node, AbstractSchema schema) {
+        AbstractSchema previousSchema = this.schema;
+        this.schema = schema;
+        node.accept(this);
+        this.schema = previousSchema;
+    }
+
+    private void visitNode(TomlNode node, AbstractSchema schema, String key) {
+        AbstractSchema previousSchema = this.schema;
+        String previousKey = this.key;
+        this.schema = schema;
+        this.key = key;
         node.accept(this);
         this.schema = previousSchema;
         this.key = previousKey;

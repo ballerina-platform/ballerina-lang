@@ -16,28 +16,16 @@
  * under the License.
  */
 
-package io.ballerina.toml.validator;
-
-import io.ballerina.toml.api.Toml;
-import io.ballerina.toml.semantic.ast.TomlTableNode;
-import io.ballerina.toml.validator.schema.Schema;
+package io.ballerina.toml.validator.schema;
 
 /**
- * Contains the validation logic for AdditionalProperties in the JSON schema.
+ * Represents an exception occurs while parsing the json schema defined from the user.
  *
  * @since 2.0.0
  */
-public class TomlValidator {
+public class JsonSchemaException extends RuntimeException {
 
-    private final Schema rootSchema;
-
-    public TomlValidator(Schema rootSchema) {
-        this.rootSchema = rootSchema;
-    }
-
-    public void validate(Toml toml) {
-        SchemaValidator schemaValidator = new SchemaValidator(rootSchema);
-        TomlTableNode rootNode = toml.rootNode();
-        rootNode.accept(schemaValidator);
+    public JsonSchemaException(String message) {
+        super(message);
     }
 }

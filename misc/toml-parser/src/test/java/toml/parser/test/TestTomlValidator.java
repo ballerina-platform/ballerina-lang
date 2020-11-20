@@ -45,7 +45,7 @@ public class TestTomlValidator {
         Toml toml = Toml.read(sampleInput);
         validator.validate(toml);
 
-        for (Diagnostic d: toml.getDiagnostics()) {
+        for (Diagnostic d: toml.diagnostics()) {
             OUT.println(d);
         }
     }

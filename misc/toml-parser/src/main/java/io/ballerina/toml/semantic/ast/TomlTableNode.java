@@ -33,30 +33,30 @@ import java.util.Set;
  */
 public class TomlTableNode extends TopLevelNode {
 
-    private final Map<String, TopLevelNode> children;
+    private final Map<String, TopLevelNode> entries;
     private final boolean generated;
 
     public TomlTableNode(TomlKeyNode key, TomlNodeLocation location) {
         super(key, TomlType.TABLE, location);
-        this.children = new LinkedHashMap<>();
+        this.entries = new LinkedHashMap<>();
         this.generated = false;
     }
 
     public TomlTableNode(TomlKeyNode key, boolean generated, TomlNodeLocation location) {
         super(key, TomlType.TABLE, location);
-        this.children = new LinkedHashMap<>();
+        this.entries = new LinkedHashMap<>();
         this.generated = generated;
     }
 
     public TomlTableNode(TomlKeyNode key, boolean generated, TomlNodeLocation location,
-                         Map<String, TopLevelNode> children) {
+                         Map<String, TopLevelNode> entries) {
         super(key, TomlType.TABLE, location);
-        this.children = children;
+        this.entries = entries;
         this.generated = generated;
     }
 
-    public Map<String, TopLevelNode> children() {
-        return children;
+    public Map<String, TopLevelNode> entries() {
+        return entries;
     }
 
     public boolean generated() {
@@ -66,19 +66,19 @@ public class TomlTableNode extends TopLevelNode {
     @Override
     public Set<Diagnostic> diagnostics() {
         Set<Diagnostic> tomlDiagnostics = diagnostics;
-        for (Map.Entry<String, TopLevelNode> child : children.entrySet()) {
+        for (Map.Entry<String, TopLevelNode> child : entries.entrySet()) {
             tomlDiagnostics.addAll(child.getValue().diagnostics());
         }
         return tomlDiagnostics;
     }
 
     public void replaceGeneratedTable(TomlTableNode tomlTableNode) {
-        TopLevelNode childNode = children.get(tomlTableNode.key().name());
+        TopLevelNode childNode = entries.get(tomlTableNode.key().name());
         if (childNode instanceof TomlTableNode) {
             TomlTableNode childTable = (TomlTableNode) childNode;
             if ((childTable).generated()) {
-                tomlTableNode.children().putAll(childTable.children());
-                children.put(tomlTableNode.key().name(), tomlTableNode);
+                tomlTableNode.entries().putAll(childTable.entries());
+                entries.put(tomlTableNode.key().name(), tomlTableNode);
             }
         }
     }

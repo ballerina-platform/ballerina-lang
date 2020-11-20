@@ -26,8 +26,7 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Test cases for Key Value pair Syntax errors in TOML.
@@ -39,9 +38,9 @@ public class KeyValuePairTest {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("syntax/key-value/missing-equal-negative.toml");
         Toml read = Toml.read(inputStream);
-        Set<Diagnostic> diagnostics = read.getDiagnostics();
+        List<Diagnostic> diagnostics = read.diagnostics();
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 5, 5);
-        Diagnostic actualDiag = diagnostics.iterator().next();
+        Diagnostic actualDiag = diagnostics.get(0);
 
         ErrorTestUtils
                 .validateDiagnostic(actualDiag, expectedLineRange, "missing equal token", DiagnosticSeverity.ERROR);
@@ -53,10 +52,10 @@ public class KeyValuePairTest {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("syntax/key-value/missing-key-negative.toml");
         Toml read = Toml.read(inputStream);
-        Set<Diagnostic> diagnostics = read.getDiagnostics();
+        List<Diagnostic> diagnostics = read.diagnostics();
 
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(1, 1, 1, 1);
-        Diagnostic actualDiag = diagnostics.iterator().next();
+        Diagnostic actualDiag = diagnostics.get(0);
 
         ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange, "missing identifier",
                 DiagnosticSeverity.ERROR);
@@ -68,10 +67,10 @@ public class KeyValuePairTest {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("syntax/key-value/missing-value-negative.toml");
         Toml read = Toml.read(inputStream);
-        Set<Diagnostic> diagnostics = read.getDiagnostics();
+        List<Diagnostic> diagnostics = read.diagnostics();
 
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(18, 18, 1, 1);
-        Diagnostic actualDiag = diagnostics.iterator().next();
+        Diagnostic actualDiag = diagnostics.get(0);
 
         ErrorTestUtils
                 .validateDiagnostic(actualDiag, expectedLineRange, "error missing value", DiagnosticSeverity.ERROR);
@@ -83,23 +82,22 @@ public class KeyValuePairTest {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("syntax/key-value/key-value-multi-negative.toml");
         Toml read = Toml.read(inputStream);
-        Set<Diagnostic> diagnostics = read.getDiagnostics();
-        Iterator<Diagnostic> iterator = diagnostics.iterator();
+        List<Diagnostic> diagnostics = read.diagnostics();
 
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 4, 4);
-        Diagnostic actualDiag = iterator.next();
+        Diagnostic actualDiag = diagnostics.get(0);
 
         ErrorTestUtils
                 .validateDiagnostic(actualDiag, expectedLineRange, "missing equal token", DiagnosticSeverity.ERROR);
 
         LineRange expectedLineRange1 = ErrorTestUtils.toLineRange(20, 20, 1, 1);
-        Diagnostic actualDiag1 = iterator.next();
+        Diagnostic actualDiag1 = diagnostics.get(1);
 
         ErrorTestUtils
                 .validateDiagnostic(actualDiag1, expectedLineRange1, "error missing key", DiagnosticSeverity.ERROR);
 
         LineRange expectedLineRange2 = ErrorTestUtils.toLineRange(26, 26, 1, 1);
-        Diagnostic actualDiag2 = iterator.next();
+        Diagnostic actualDiag2 = diagnostics.get(2);
 
         ErrorTestUtils
                 .validateDiagnostic(actualDiag2, expectedLineRange2, "error missing value", DiagnosticSeverity.ERROR);
@@ -111,10 +109,10 @@ public class KeyValuePairTest {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("syntax/key-value/array-missing-comma-negative.toml");
         Toml read = Toml.read(inputStream);
-        Set<Diagnostic> diagnostics = read.getDiagnostics();
+        List<Diagnostic> diagnostics = read.diagnostics();
 
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 10, 10);
-        Diagnostic actualDiag = diagnostics.iterator().next();
+        Diagnostic actualDiag = diagnostics.get(0);
 
         ErrorTestUtils
                 .validateDiagnostic(actualDiag, expectedLineRange, "missing comma token", DiagnosticSeverity.ERROR);
@@ -126,10 +124,10 @@ public class KeyValuePairTest {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("syntax/key-value/array-missing-value-negative.toml");
         Toml read = Toml.read(inputStream);
-        Set<Diagnostic> diagnostics = read.getDiagnostics();
+        List<Diagnostic> diagnostics = read.diagnostics();
 
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 8, 9);
-        Diagnostic actualDiag = diagnostics.iterator().next();
+        Diagnostic actualDiag = diagnostics.get(0);
 
         ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange,  "invalid token ','",
                 DiagnosticSeverity.ERROR);

@@ -22,6 +22,7 @@ import io.ballerina.toml.semantic.diagnostics.DiagnosticComparator;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -40,7 +41,6 @@ public abstract class TomlNode implements Node {
         this.kind = kind;
         this.location = location;
         diagnostics = new TreeSet<>(new DiagnosticComparator());
-//        copySyntaxDiagnostics();
     }
 
     public abstract void accept(TomlNodeVisitor visitor);
@@ -50,20 +50,16 @@ public abstract class TomlNode implements Node {
     }
 
     public void addDiagnostic(Diagnostic diagnostic) {
-        diagnostics.add(diagnostic);
+        this.diagnostics.add(diagnostic);
+    }
+
+    public void addDiagnostics(List<Diagnostic> diagnostics) {
+        this.diagnostics.addAll(diagnostics);
     }
 
     public TomlNodeLocation location() {
         return location;
     }
-
-//    private void copySyntaxDiagnostics() {
-//        if (stNode != null && stNode.hasDiagnostics()) {
-//            for (Diagnostic diagnostic : stNode.diagnostics()) {
-//                this.addDiagnostic(diagnostic);
-//            }
-//        }
-//    }
 
     @Override
     public TomlType kind() {

@@ -27,15 +27,14 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 
 /**
- * Contains test cases based on Code to Cloud Spec.
+ * Contains test cases to to validate the validate functionality.
  *
  * @since 2.0.0
  */
-public class CodeToCloudTest {
+public class TomlValidateTest {
 
     @Test
     public void testClean() throws IOException {
@@ -44,7 +43,7 @@ public class CodeToCloudTest {
 
         Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
-        int diagSize = toml.getDiagnostics().size();
+        int diagSize = toml.diagnostics().size();
         Assert.assertEquals(diagSize, 0);
     }
 
@@ -55,7 +54,7 @@ public class CodeToCloudTest {
 
         Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
-        Diagnostic diagnostic = toml.getDiagnostics().iterator().next();
+        Diagnostic diagnostic = toml.diagnostics().get(0);
         Assert.assertEquals(diagnostic.message(), "Key \"base\" expects STRING . Found integer");
     }
 
@@ -66,7 +65,7 @@ public class CodeToCloudTest {
 
         Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
-        Diagnostic diagnostic = toml.getDiagnostics().iterator().next();
+        Diagnostic diagnostic = toml.diagnostics().get(0);
         Assert.assertEquals(diagnostic.message(), "Key \"name\" value does not match the Regex provided in Schema " +
                 "[a-zA-Z0-9][a-zA-Z0-9_.-]+");
     }
@@ -78,13 +77,12 @@ public class CodeToCloudTest {
 
         Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
-        Set<Diagnostic> validate = toml.getDiagnostics();
-        Iterator<Diagnostic> iterator = validate.iterator();
+        List<Diagnostic> validate = toml.diagnostics();
 
-        Diagnostic diagnostic = iterator.next();
+        Diagnostic diagnostic = validate.get(0);
         Assert.assertEquals(diagnostic.message(), "Key \"cpu\" value can't be lower than 1.000000");
 
-        Diagnostic diagnostic1 = iterator.next();
+        Diagnostic diagnostic1 = validate.get(1);
         Assert.assertEquals(diagnostic1.message(), "Key \"memory\" value can't be higher than 100.000000");
     }
 
@@ -95,7 +93,7 @@ public class CodeToCloudTest {
 
         Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
-        Diagnostic diagnostic = toml.getDiagnostics().iterator().next();
+        Diagnostic diagnostic = toml.diagnostics().get(0);
         Assert.assertEquals(diagnostic.message(), "Unexpected Property \"field\"");
     }
 }

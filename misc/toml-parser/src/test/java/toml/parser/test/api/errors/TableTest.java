@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Test cases for Table Syntax errors in TOML.
@@ -39,10 +39,10 @@ public class TableTest {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("syntax/tables/empty-table-key-negative.toml");
         Toml read = Toml.read(inputStream);
-        Set<Diagnostic> diagnostics = read.getDiagnostics();
+        List<Diagnostic> diagnostics = read.diagnostics();
 
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 2, 2);
-        Diagnostic actualDiag = diagnostics.iterator().next();
+        Diagnostic actualDiag = diagnostics.get(0);
 
         ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange, "missing identifier",
                 DiagnosticSeverity.ERROR);
@@ -54,10 +54,10 @@ public class TableTest {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("syntax/tables/empty-table-close-negative.toml");
         Toml read = Toml.read(inputStream);
-        Set<Diagnostic> diagnostics = read.getDiagnostics();
+        List<Diagnostic> diagnostics = read.diagnostics();
 
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(18, 18, 1, 1);
-        Diagnostic actualDiag = diagnostics.iterator().next();
+        Diagnostic actualDiag = diagnostics.get(0);
 
         ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange, "missing close bracket token",
                 DiagnosticSeverity.ERROR);
@@ -69,10 +69,10 @@ public class TableTest {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("syntax/tables/wrong-closing-brace-negative.toml");
         Toml read = Toml.read(inputStream);
-        Set<Diagnostic> diagnostics = read.getDiagnostics();
+        List<Diagnostic> diagnostics = read.diagnostics();
 
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(18, 18, 1, 1);
-        Diagnostic actualDiag = diagnostics.iterator().next();
+        Diagnostic actualDiag = diagnostics.get(0);
 
         ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange, "missing close bracket token",
                 DiagnosticSeverity.ERROR);

@@ -26,7 +26,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Test the parser.
@@ -44,7 +44,7 @@ public class TestToml {
         InputStream inputStream = new FileInputStream(path);
         Toml read = Toml.read(inputStream);
 
-        Set<Diagnostic> diagnostics = read.getDiagnostics();
+        List<Diagnostic> diagnostics = read.diagnostics();
         for (Diagnostic diagnostic: diagnostics) {
             OUT.println(diagnostic.location().lineRange());
             OUT.println(diagnostic.message());
