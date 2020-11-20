@@ -29,7 +29,9 @@ import java.util.Objects;
 public class PackageOrg {
     private final String packageOrgStr;
     private static final String BALLERINA_ORG_NAME = "ballerina";
+    private static final String BALLERINA_X_ORG_NAME = "ballerinax";
     public static final PackageOrg BALLERINA_ORG = new PackageOrg(BALLERINA_ORG_NAME);
+    public static final PackageOrg BALLERINA_X_ORG = new PackageOrg(BALLERINA_X_ORG_NAME);
 
     private PackageOrg(String packageOrgStr) {
         this.packageOrgStr = packageOrgStr;
@@ -74,5 +76,13 @@ public class PackageOrg {
 
     public boolean anonymous() {
         return ProjectConstants.ANON_ORG.equals(packageOrgStr);
+    }
+
+    public boolean isBallerinaOrg() {
+        return this == BALLERINA_ORG;
+    }
+
+    public boolean isBallerinaxOrg() {
+        return this == BALLERINA_X_ORG;
     }
 }

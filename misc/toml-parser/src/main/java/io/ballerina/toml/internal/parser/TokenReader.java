@@ -22,7 +22,7 @@ import io.ballerina.toml.internal.parser.tree.STToken;
 /**
  * Reader that can read tokens from a given lexer. Supports k-lookahead
  * of tokens, by buffering the peeked tokens in a ring buffer.
- * 
+ *
  * @since 1.2.0
  */
 public class TokenReader extends AbstractTokenReader {
@@ -33,13 +33,13 @@ public class TokenReader extends AbstractTokenReader {
     private TokenBuffer tokensAhead = new TokenBuffer(BUFFER_SIZE);
     private STToken currentToken = null;
 
-    public TokenReader(AbstractLexer lexer) {
+    TokenReader(AbstractLexer lexer) {
         this.lexer = lexer;
     }
 
     /**
      * Consumes the input and return the next token.
-     * 
+     *
      * @return Next token in the input
      */
     public STToken read() {
@@ -57,7 +57,7 @@ public class TokenReader extends AbstractTokenReader {
     /**
      * Lookahead in the input and returns the next token. This will not consume the input.
      * That means calling this method multiple times will return the same result.
-     * 
+     *
      * @return Next token in the input
      */
     public STToken peek() {
@@ -74,7 +74,7 @@ public class TokenReader extends AbstractTokenReader {
      * Lookahead in the input and returns the token at the k-th position from the current
      * position of the input token stream. This will not consume the input. That means
      * calling this method multiple times will return the same result.
-     * 
+     *
      * @param k Position of the character to peek
      * @return Token at the k-position from the current position
      */
@@ -90,11 +90,27 @@ public class TokenReader extends AbstractTokenReader {
 
     /**
      * Returns the current token. i.e: last consumed token.
-     * 
+     *
      * @return The current token.
      */
     public STToken head() {
         return this.currentToken;
+    }
+
+    /**
+     * Start the given mode of the token reader.
+     *
+     * @param mode Mode to switch on to
+     */
+    public void startMode(ParserMode mode) {
+        this.lexer.startMode(mode);
+    }
+
+    /**
+     * End the mode of the token reader.
+     */
+    public void endMode() {
+        this.lexer.endMode();
     }
 
     /**
@@ -107,7 +123,7 @@ public class TokenReader extends AbstractTokenReader {
 
     /**
      * A ring buffer of tokens.
-     * 
+     *
      * @since 1.2.0
      */
     private static class TokenBuffer {
@@ -125,7 +141,7 @@ public class TokenReader extends AbstractTokenReader {
 
         /**
          * Add a token to the buffer.
-         * 
+         *
          * @param token Token to add
          */
         public void add(STToken token) {
@@ -150,7 +166,7 @@ public class TokenReader extends AbstractTokenReader {
         /**
          * Consume and return the token at the front of the buffer. This will remove the
          * consumed token from the buffer.
-         * 
+         *
          * @return Token at the front of the buffer.
          */
         public STToken consume() {
@@ -167,7 +183,7 @@ public class TokenReader extends AbstractTokenReader {
 
         /**
          * Get the token at the front of the buffer, without removing it.
-         * 
+         *
          * @return Token at the front of the buffer.
          */
         public STToken peek() {
@@ -176,7 +192,7 @@ public class TokenReader extends AbstractTokenReader {
 
         /**
          * Get the token at the k-th position from the front of the buffer, without removing it.
-         * 
+         *
          * @return Token at the k-th position from the front of the buffer.
          */
         public STToken peek(int k) {

@@ -218,6 +218,7 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BParameterizedType type) {
         writeTypeCpIndex(type.paramValueType);
+        buff.writeInt(type.paramIndex);
     }
 
     @Override

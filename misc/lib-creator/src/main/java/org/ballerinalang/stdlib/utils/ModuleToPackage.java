@@ -104,6 +104,8 @@ public class ModuleToPackage {
 
         Files.createDirectories(projectDir);
         createNewToml(defaultModule);
+        copyFilesInProjectRoot(oldProjectPath, projectDir);
+
         copyModule(oldProjectPath.resolve(SOURCE_DIR).resolve(defaultModule), projectDir);
         //Move default module to project
         if (replaceInline) {
@@ -135,6 +137,20 @@ public class ModuleToPackage {
         pkg.put("version", toml.getTable("project").getString("version"));
         map.put("package", pkg);
 
+        Toml oldDependencies = toml.getTable("dependencies");
+        if (oldDependencies != null) {
+            List<Map<String, Object>> dependencies = new ArrayList<>();
+            for (Map.Entry<String, Object> entry : oldDependencies.entrySet()) {
+                Map<String, Object> dependency  = new HashMap<>();
+                String[] strings = entry.getKey().split("/");
+                dependency.put("org", strings[0].replace("\"", ""));
+                dependency.put("name", strings[1].replace("\"", ""));
+                dependency.put("version", entry.getValue());
+                dependencies.add(dependency);
+            }
+            map.put("dependency", dependencies);
+        }
+
         Toml oldPlatform = toml.getTable("platform");
         if (oldPlatform != null) {
             // populate platform libs
@@ -164,6 +180,20 @@ public class ModuleToPackage {
         Files.writeString(newToml, tomlString);
     }
 
+    private static void copyFilesInProjectRoot(Path source, Path target) throws IOException {
+
+        try (Stream<Path> walk = Files.walk(source, 1)) {
+            walk.filter(f -> !f.getFileName().toString().equals("Ballerina.toml") && !Files.isDirectory(f)).forEach(
+                    f -> {
+                        try {
+                            Files.copy(f, target.resolve(f.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+        }
+    }
+
 
     private static void copyModule(Path source, Path target) throws IOException {
         Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
@@ -171,14 +201,29 @@ public class ModuleToPackage {
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
                     throws IOException {
-                Files.createDirectories(target.resolve(source.relativize(dir)));
+                if (dir.getFileName().toString().equals("tests") || dir.getFileName().toString().equals("resources")) {
+                    Files.createDirectories(target.resolve(source.relativize(dir)));
+                }
                 return FileVisitResult.CONTINUE;
             }
 
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
                     throws IOException {
-                Files.copy(file, target.resolve(source.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+                Path targetFile;
+                if ("Module.md".equals(file.getFileName().toString())) {
+                    targetFile = target.resolve("Package.md");
+                } else if (source.relativize(file).startsWith("resources")
+                        || source.relativize(file).startsWith("tests" + File.separator +"resources")
+                        || !file.getFileName().toString().endsWith(".bal")) {
+                    targetFile = target.resolve(source.relativize(file));
+                    Files.createDirectories(targetFile.getParent());
+                } else if (source.relativize(file).startsWith("tests")) {
+                    targetFile = target.resolve("tests").resolve(file.getFileName());
+                } else {
+                    targetFile = target.resolve(file.getFileName());
+                }
+                Files.copy(file, targetFile, StandardCopyOption.REPLACE_EXISTING);
                 return FileVisitResult.CONTINUE;
             }
         });

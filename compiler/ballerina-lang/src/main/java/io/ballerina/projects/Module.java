@@ -17,7 +17,6 @@
  */
 package io.ballerina.projects;
 
-import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -66,8 +65,8 @@ public class Module {
         return this.moduleContext.moduleName();
     }
 
-    public ModuleDescriptor moduleDescriptor() {
-        return moduleContext.moduleDescriptor();
+    public ModuleDescriptor descriptor() {
+        return moduleContext.descriptor();
     }
 
     public Collection<DocumentId> documentIds() {
@@ -123,10 +122,6 @@ public class Module {
         return moduleContext;
     }
 
-    public HashSet<Path> getNativeDependancies() {
-        return new HashSet<>();
-    }
-
     private static class DocumentIterable implements Iterable {
         private final Collection<Document> documentList;
 
@@ -161,7 +156,7 @@ public class Module {
 
         private Modifier(Module oldModule) {
             moduleId = oldModule.moduleId();
-            moduleDescriptor = oldModule.moduleDescriptor();
+            moduleDescriptor = oldModule.descriptor();
             srcDocContextMap = copySrcDocs(oldModule);
             testDocContextMap = copyTestDocs(oldModule);
             isDefaultModule = oldModule.isDefaultModule();

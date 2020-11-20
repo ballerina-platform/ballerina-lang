@@ -24,7 +24,7 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.tree.PackageNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -95,7 +95,7 @@ public class CompileResult {
         return packageCompilation.defaultModuleBLangPackage().symbol.bir;
     }
 
-    PackageDescriptor packageDescriptor() {
-        return this.pkg.packageDescriptor();
+    PackageManifest packageManifest() {
+        return this.pkg.manifest();
     }
 }

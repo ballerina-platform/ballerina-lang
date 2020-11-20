@@ -19,9 +19,9 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.ModuleLoadResponse;
+import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.PackageResolver;
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -60,10 +60,12 @@ import static org.ballerinalang.model.elements.PackageID.XML;
 public class Bootstrap {
 
     private final PackageResolver packageResolver;
+    private final PackageCache packageCache;
     private boolean langLibLoaded = false;
 
-    public Bootstrap(PackageResolver packageResolver) {
+    public Bootstrap(PackageResolver packageResolver, PackageCache packageCache) {
         this.packageResolver = packageResolver;
+        this.packageCache = packageCache;
     }
 
     void loadLangLib(CompilerContext compilerContext, PackageID langLib) {
@@ -161,12 +163,13 @@ public class Bootstrap {
     }
 
     private void loadLangLibFromBalr(ModuleLoadRequest lib) {
-        Collection<ModuleLoadResponse> modules = packageResolver.loadPackages(Collections.singletonList(lib));
-        modules.forEach(module -> {
-            Package pkg = packageResolver.getPackage(module.packageId());
+        Collection<ModuleLoadResponse> moduleLoadResponses = packageResolver.loadPackages(
+                Collections.singletonList(lib));
+        moduleLoadResponses.forEach(moduleLoadResp -> {
+            Package pkg = packageCache.getPackageOrThrow(moduleLoadResp.packageId());
             PackageCompilation compilation = pkg.getCompilation();
             if (compilation.diagnosticResult().hasErrors()) {
-                throw new RuntimeException("Error while bootstrapping :" + pkg.packageId().toString() +
+                throw new ProjectException("Error while bootstrapping :" + pkg.packageId().toString() +
                         " diagnostics: " + compilation.diagnosticResult());
             }
         });
@@ -175,13 +178,14 @@ public class Bootstrap {
     private ModuleLoadRequest toModuleRequest(PackageID packageID) {
         PackageName packageName = PackageName.from(packageID.name.getValue());
         ModuleName moduleName = ModuleName.from(packageName);
-        SemanticVersion version = SemanticVersion.from(packageID.getPackageVersion().toString());
+        PackageVersion version = PackageVersion.from(packageID.getPackageVersion().toString());
         return new ModuleLoadRequest(PackageOrg.from(packageID.orgName.getValue()),
                 packageName, moduleName, version);
     }
 
     private BPackageSymbol getSymbolFromCache(CompilerContext context, PackageID packageID) {
-        PackageCache pkgCache = PackageCache.getInstance(context);
+        org.wso2.ballerinalang.compiler.PackageCache pkgCache =
+                org.wso2.ballerinalang.compiler.PackageCache.getInstance(context);
         BLangPackage bLangPackage = pkgCache.get(packageID);
         if (bLangPackage != null) {
             return bLangPackage.symbol;

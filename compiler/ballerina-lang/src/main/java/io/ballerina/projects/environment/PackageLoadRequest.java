@@ -18,69 +18,64 @@
 
 package io.ballerina.projects.environment;
 
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.PackageVersion;
 
 import java.util.Objects;
 import java.util.Optional;
 
 /**
- * {@code PackageLoadRequest} is ised to load package using repository.
+ * {@code PackageLoadRequest} is used to load package using repository.
  *
  * @since 2.0.0
  */
-public class PackageLoadRequest {
-    private final PackageOrg orgName;
-    private final PackageName packageName;
-    private final SemanticVersion version;
+public final class PackageLoadRequest {
+    private final PackageDescriptor packageDesc;
 
-    public PackageLoadRequest(PackageOrg orgName, PackageName packageName, SemanticVersion version) {
-        if (orgName != null && orgName.value().isEmpty()) {
-            throw new IllegalArgumentException("The orgName cannot be an empty string. " +
-                    "It should be either null or a non-empty string value");
-        }
-        this.orgName = orgName;
-        this.packageName = packageName;
-        this.version = version;
+    private PackageLoadRequest(PackageDescriptor packageDescriptor) {
+        this.packageDesc = packageDescriptor;
     }
 
     public static PackageLoadRequest from(ModuleLoadRequest moduleLoadRequest) {
-        return new PackageLoadRequest(moduleLoadRequest.orgName().orElse(null),
-                moduleLoadRequest.packageName(),
-                moduleLoadRequest.version().orElse(null));
+        return new PackageLoadRequest(PackageDescriptor.from(moduleLoadRequest.packageName(),
+                moduleLoadRequest.orgName().orElse(null),
+                moduleLoadRequest.version().orElse(null)));
+    }
+
+    public static PackageLoadRequest from(PackageDescriptor packageDescriptor) {
+        return new PackageLoadRequest(packageDescriptor);
     }
 
     public Optional<PackageOrg> orgName() {
-        return Optional.of(orgName);
+        return Optional.of(packageDesc.org());
     }
 
     public PackageName packageName() {
-        return packageName;
+        return packageDesc.name();
     }
 
-    public Optional<SemanticVersion> version() {
-        return Optional.ofNullable(version);
+    public Optional<PackageVersion> version() {
+        return Optional.ofNullable(packageDesc.version());
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(Object other) {
+        if (this == other) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (other == null || getClass() != other.getClass()) {
             return false;
         }
 
-        PackageLoadRequest that = (PackageLoadRequest) o;
-        return Objects.equals(orgName, that.orgName) &&
-                packageName.equals(that.packageName) &&
-                Objects.equals(version, that.version);
+        PackageLoadRequest that = (PackageLoadRequest) other;
+        return Objects.equals(packageDesc, that.packageDesc);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(orgName, packageName, version);
+        return Objects.hash(packageDesc);
     }
 }

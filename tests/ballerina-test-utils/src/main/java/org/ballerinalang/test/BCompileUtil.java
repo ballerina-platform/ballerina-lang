@@ -22,14 +22,18 @@ import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 
@@ -42,6 +46,7 @@ public class BCompileUtil {
 
     private static final Path testSourcesDirectory = Paths.get("src/test/resources").toAbsolutePath().normalize();
     private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath().normalize();
+    public static final String TEST_COMPILATION_CACHE_DIR_NAME = "test_compilation_cache";
 
     public static Project loadProject(String sourceFilePath) {
         Path sourcePath = Paths.get(sourceFilePath);
@@ -82,7 +87,7 @@ public class BCompileUtil {
         Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
 
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
-        Project project = ProjectLoader.loadProject(projectPath);
+        Project project = ProjectLoader.loadProject(projectPath, projectEnvironmentBuilder());
 
         if (isSingleFileProject(project)) {
             throw new RuntimeException("single file project is given for compilation at " + project.sourceRoot());
@@ -119,20 +124,42 @@ public class BCompileUtil {
         return project instanceof SingleFileProject;
     }
 
+    private static ProjectEnvironmentBuilder projectEnvironmentBuilder() {
+        ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getBuilder(
+                EnvironmentBuilder.buildDefault());
+        return environmentBuilder.addCompilationCacheFactory(TestCompilationCache::from);
+    }
+
     private static Path baloCachePath(Package pkg) {
         try {
             Path distributionCache = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
             Path balos = distributionCache.resolve("balo")
                     .resolve(pkg.packageOrg().toString())
                     .resolve(pkg.packageName().value())
-                    .resolve(pkg.packageVersion().version().toString());
+                    .resolve(pkg.packageVersion().value().toString());
             Files.createDirectories(balos);
 
-            String baloName = ProjectUtils.getBaloName(pkg.packageDescriptor());
+            String baloName = ProjectUtils.getBaloName(pkg.manifest());
             return balos.resolve(baloName);
         } catch (IOException e) {
             throw new RuntimeException("error while creating the balo distribution cache directory at " +
                     testBuildDirectory, e);
+        }
+    }
+
+    /**
+     * Compilation cache that dumps bir and jars inside the build directory.
+     */
+    private static class TestCompilationCache extends FileSystemCache {
+
+        private TestCompilationCache(Project project, Path cacheDirPath) {
+            super(project, cacheDirPath);
+        }
+
+        private static TestCompilationCache from(Project project) {
+            Path testCompilationCachePath = testBuildDirectory.resolve(TEST_COMPILATION_CACHE_DIR_NAME).
+                    resolve(UUID.randomUUID().toString());
+            return new TestCompilationCache(project, testCompilationCachePath);
         }
     }
 }

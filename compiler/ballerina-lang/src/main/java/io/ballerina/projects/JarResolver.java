@@ -17,7 +17,7 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.util.ProjectUtils;
 
@@ -50,7 +50,7 @@ public class JarResolver {
     private final JBallerinaBackend jBalBackend;
     private final PackageCompilation pkgCompilation;
     private final PackageContext packageContext;
-    private final PackageResolver packageResolver;
+    private final PackageCache packageCache;
 
     private List<Path> allJarFilePaths;
     private ClassLoader classLoaderWithAllJars;
@@ -60,7 +60,7 @@ public class JarResolver {
         this.pkgCompilation = pkgCompilation;
         this.packageContext = pkgCompilation.packageContext();
         ProjectEnvironment projectEnvContext = packageContext.project().projectEnvironmentContext();
-        this.packageResolver = projectEnvContext.getService(PackageResolver.class);
+        this.packageCache = projectEnvContext.getService(PackageCache.class);
     }
 
     // TODO These method names are too long. Refactor them soon
@@ -72,7 +72,8 @@ public class JarResolver {
         allJarFilePaths = new ArrayList<>();
         List<PackageId> sortedPackageIds = pkgCompilation.packageDependencyGraph().toTopologicallySortedList();
         for (PackageId packageId : sortedPackageIds) {
-            PackageContext packageContext = packageResolver.getPackage(packageId).packageContext();
+            Package pkg = packageCache.getPackageOrThrow(packageId);
+            PackageContext packageContext = pkg.packageContext();
             for (ModuleId moduleId : packageContext.moduleIds()) {
                 ModuleContext moduleContext = packageContext.moduleContext(moduleId);
                 PlatformLibrary generatedJarLibrary = jBalBackend.codeGeneratedLibrary(
@@ -96,7 +97,7 @@ public class JarResolver {
     public Collection<Path> getJarFilePathsRequiredForTestExecution(ModuleName moduleName) {
         Collection<Path> allJarFiles = getJarFilePathsRequiredForExecution();
         Set<Path> allJarFileForTestExec = new HashSet<>(allJarFiles);
-        if (!packageContext.packageDescriptor().org().anonymous()) {
+        if (!packageContext.manifest().org().anonymous()) {
             PlatformLibrary generatedTestJar = jBalBackend.codeGeneratedTestLibrary(
                     packageContext.packageId(), moduleName);
             allJarFileForTestExec.add(generatedTestJar.path());

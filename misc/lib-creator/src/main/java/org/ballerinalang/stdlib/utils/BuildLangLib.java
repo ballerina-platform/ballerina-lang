@@ -25,7 +25,7 @@ import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
@@ -33,14 +33,16 @@ import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
-import org.ballerinalang.packerina.utils.FileUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -90,7 +92,7 @@ public class BuildLangLib {
                 System.exit(1);
             }
 
-            PackageDescriptor pkgDesc = pkg.packageDescriptor();
+            PackageManifest pkgDesc = pkg.manifest();
             String baloName = ProjectUtils.getBaloName(pkgDesc);
             Path baloDirPath = pkgTargetPath.resolve("balo");
 
@@ -144,7 +146,7 @@ public class BuildLangLib {
 
     private static void clearTarget(Path targetPath) throws IOException {
         if (Files.exists(targetPath)) {
-            FileUtils.deleteDirectory(targetPath);
+            deleteDirectory(targetPath);
         }
     }
 
@@ -178,5 +180,27 @@ public class BuildLangLib {
         });
 
         return environmentBuilder;
+    }
+
+    /**
+     * Iterate and delete all files and subdirectories of a given path.
+     *
+     * @param directory Directory path.
+     * @throws IOException Exception when walking the file tree.
+     */
+    public static void deleteDirectory(Path directory) throws IOException {
+        Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                Files.delete(dir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 }

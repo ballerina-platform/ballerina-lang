@@ -19,7 +19,7 @@ package io.ballerina.projects;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
-import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -39,7 +39,7 @@ import java.util.Set;
 public class ModuleCompilation {
     private final ModuleContext moduleContext;
     private final PackageContext packageContext;
-    private final PackageResolver packageResolver;
+    private final PackageCache packageCache;
     private final CompilerContext compilerContext;
 
     private final DependencyGraph<ModuleId> dependencyGraph;
@@ -54,7 +54,7 @@ public class ModuleCompilation {
 
         // TODO Figure out a better way to handle this
         ProjectEnvironment projectEnvContext = packageContext.project().projectEnvironmentContext();
-        this.packageResolver = projectEnvContext.getService(PackageResolver.class);
+        this.packageCache = projectEnvContext.getService(PackageCache.class);
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
         this.dependencyGraph = buildDependencyGraph();
         compile();
@@ -63,11 +63,11 @@ public class ModuleCompilation {
     private DependencyGraph<ModuleId> buildDependencyGraph() {
         Map<ModuleId, Set<ModuleId>> dependencyIdMap = new HashMap<>();
         addModuleDependencies(moduleContext.moduleId(), dependencyIdMap);
-        return new DependencyGraph<>(dependencyIdMap);
+        return DependencyGraph.from(dependencyIdMap);
     }
 
     private void addModuleDependencies(ModuleId moduleId, Map<ModuleId, Set<ModuleId>> dependencyIdMap) {
-        Package pkg = packageResolver.getPackage(moduleId.packageId());
+        Package pkg = packageCache.getPackageOrThrow(moduleId.packageId());
         Collection<ModuleId> directDependencies = new HashSet<>(pkg.moduleDependencyGraph().
                 getDirectDependencies(moduleId));
 
@@ -93,7 +93,7 @@ public class ModuleCompilation {
         List<Diagnostic> diagnostics = new ArrayList<>();
         List<ModuleId> sortedModuleIds = dependencyGraph.toTopologicallySortedList();
         for (ModuleId sortedModuleId : sortedModuleIds) {
-            Package pkg = packageResolver.getPackage(sortedModuleId.packageId());
+            Package pkg = packageCache.getPackageOrThrow(sortedModuleId.packageId());
             ModuleContext moduleContext = pkg.module(sortedModuleId).moduleContext();
             moduleContext.compile(compilerContext);
             diagnostics.addAll(moduleContext.diagnostics());

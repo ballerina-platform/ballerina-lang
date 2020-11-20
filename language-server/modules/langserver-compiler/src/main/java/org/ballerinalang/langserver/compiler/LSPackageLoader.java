@@ -16,9 +16,10 @@
 package org.ballerinalang.langserver.compiler;
 
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.environment.PackageLoadRequest;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.internal.environment.BallerinaDistribution;
@@ -208,8 +209,9 @@ public class LSPackageLoader {
             String version = components[1];
             PackageOrg packageOrg = PackageOrg.from(key);
             PackageName packageName = PackageName.from(nameComponent);
-            SemanticVersion semVer = SemanticVersion.from(version);
-            PackageLoadRequest request = new PackageLoadRequest(packageOrg, packageName, semVer);
+            PackageVersion pkgVersion = PackageVersion.from(version);
+            PackageDescriptor pkdDesc = PackageDescriptor.from(packageName, packageOrg, pkgVersion);
+            PackageLoadRequest request = PackageLoadRequest.from(pkdDesc);
 
             Optional<Package> repoPackage = packageRepository.getPackage(request);
             repoPackage.ifPresent(packages::add);

@@ -48,7 +48,7 @@ public class JBallerinaBaloWriter extends BaloWriter {
             throws IOException {
         Path sourceRoot = pkg.project().sourceRoot();
         //If platform libs are defined add them to balo
-        PackageDescriptor.Platform platform = pkg.packageDescriptor().platform(target);
+        PackageManifest.Platform platform = pkg.manifest().platform(target);
         if (platform == null) {
             return Optional.empty();
         }
@@ -79,7 +79,7 @@ public class JBallerinaBaloWriter extends BaloWriter {
                     .resolve(target)
                     .resolve(fileName);
             // create a zip entry for each file
-            putZipEntry(baloOutputStream, entryPath.toString(), new FileInputStream(libPath.toString()));
+            putZipEntry(baloOutputStream, entryPath, new FileInputStream(libPath.toString()));
 
             // Create the Package.json entry
             Gson gson = new Gson();

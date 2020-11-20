@@ -85,6 +85,7 @@ test {
     systemProperty 'java.util.logging.config.file', "$buildDir/resources/test/logging.properties"
     systemProperty 'java.util.logging.manager', 'org.ballerinalang.logging.BLogManager'
     systemProperty 'ballerina.agent.path', configurations.testUtils.asPath
+    systemProperty 'observability.test.utils.dir', "$buildDir/../../observability-test-utils/"
     systemProperty 'observability.test.utils.jar', tasks.shadowJar.archiveFile.get().asFile
     useTestNG() {
         suites 'src/test/resources/testng.xml'

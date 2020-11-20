@@ -22,7 +22,7 @@ import io.ballerina.projects.CompilationCacheFactory;
 import io.ballerina.projects.CompilerBackend;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.FileUtils;
@@ -149,7 +149,7 @@ public class FileSystemCache extends CompilationCache {
 
         // TODO Update the following logic to support singleBalFileCase
         Package currentPkg = project.currentPackage();
-        PackageDescriptor pkgDescriptor = currentPkg.packageDescriptor();
+        PackageManifest pkgDescriptor = currentPkg.manifest();
         packageCacheDirPath = cacheDirPath.resolve(pkgDescriptor.org().value())
                 .resolve(pkgDescriptor.name().value())
                 .resolve(pkgDescriptor.version().toString());

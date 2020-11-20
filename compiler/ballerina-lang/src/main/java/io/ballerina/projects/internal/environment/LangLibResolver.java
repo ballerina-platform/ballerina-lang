@@ -19,11 +19,11 @@ package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageId;
-import io.ballerina.projects.SemanticVersion;
-import io.ballerina.projects.environment.GlobalPackageCache;
+import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.ModuleLoadResponse;
+import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.PackageLoadRequest;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.PackageResolver;
@@ -40,11 +40,11 @@ import java.util.Optional;
  */
 public class LangLibResolver extends PackageResolver {
     private final PackageRepository distCache;
-    private final GlobalPackageCache globalPackageCache;
+    private final WritablePackageCache globalPackageCache;
 
-    public LangLibResolver(PackageRepository distCache, GlobalPackageCache globalPackageCache) {
+    public LangLibResolver(PackageRepository distCache, PackageCache globalPackageCache) {
         this.distCache = distCache;
-        this.globalPackageCache = globalPackageCache;
+        this.globalPackageCache = (WritablePackageCache) globalPackageCache;
     }
 
     @Override
@@ -66,50 +66,48 @@ public class LangLibResolver extends PackageResolver {
         return modLoadResponses;
     }
 
-    @Override
-    public Package getPackage(PackageId packageId) {
-        return globalPackageCache.get(packageId);
-    }
-
     private Module loadFromDistributionCache(ModuleLoadRequest modLoadRequest) {
         // If version is null load the latest package
         PackageLoadRequest loadRequest = PackageLoadRequest.from(modLoadRequest);
         if (loadRequest.version().isEmpty()) {
             // find the latest version
-            List<SemanticVersion> packageVersions = distCache.getPackageVersions(loadRequest);
+            List<PackageVersion> packageVersions = distCache.getPackageVersions(loadRequest);
             if (packageVersions.isEmpty()) {
                 // no versions found.
                 // todo handle package not found with exception
                 return null;
             }
-            SemanticVersion latest = findlatest(packageVersions);
-            loadRequest = new PackageLoadRequest(loadRequest.orgName()
-                    .orElse(null), loadRequest.packageName(), latest);
+            PackageVersion latest = findlatest(packageVersions);
+            loadRequest = PackageLoadRequest.from(
+                    PackageDescriptor.from(loadRequest.packageName(),
+                            loadRequest.orgName().orElse(null), latest));
         }
 
         Optional<Package> packageOptional = distCache.getPackage(loadRequest);
 
         return packageOptional.map(pkg -> {
             pkg.resolveDependencies();
-            globalPackageCache.put(pkg);
+            globalPackageCache.cache(pkg);
             // todo fetch the correct module and return
             return pkg.getDefaultModule();
         }).orElse(null);
     }
 
-    private SemanticVersion findlatest(List<SemanticVersion> packageVersions) {
+    private PackageVersion findlatest(List<PackageVersion> packageVersions) {
         // todo Fix me
         return packageVersions.get(0);
     }
 
     private Module loadFromCache(ModuleLoadRequest modLoadRequest) {
         // TODO improve the logic
-        for (Package pkg : globalPackageCache.values()) {
-            // TODO this logic is wrong. We need to take org name into the equation
-            if (pkg.packageName().equals(modLoadRequest.packageName())) {
-                return pkg.module(modLoadRequest.moduleName());
-            }
+        List<Package> packageList = globalPackageCache.getPackages(
+                modLoadRequest.orgName().orElse(null), modLoadRequest.packageName());
+
+        if (packageList.isEmpty()) {
+            return null;
         }
-        return null;
+
+        Package pkg = packageList.get(0);
+        return pkg.module(modLoadRequest.moduleName());
     }
 }
