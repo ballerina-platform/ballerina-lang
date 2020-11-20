@@ -30,7 +30,10 @@ configurations {
     testUtils {
         transitive false
     }
-    observeTestUtils {
+    observeTestUtilsBalo {
+        transitive false
+    }
+    observeTestUtilsJar {
         transitive false
     }
     launchListenerTestUtils {
@@ -83,7 +86,8 @@ dependencies {
 
     testUtils project(path: ':ballerina-test-utils', configuration: 'shadow')
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
-    observeTestUtils project(path: ':observability-test-utils', configuration: 'shadow')
+    observeTestUtilsBalo project(path: ':observability-test-utils', configuration: 'distributionBalo')
+    observeTestUtilsJar project(path: ':observability-test-utils', configuration: 'shadow')
 
     launchListenerTestUtils project(':test-launch-listener-01')
     launchListenerTestUtils project(':test-launch-listener-02')
@@ -111,8 +115,8 @@ test {
     systemProperty 'java.util.logging.config.file', "$buildDir/resources/test/logging.properties"
     systemProperty 'java.util.logging.manager', 'org.ballerinalang.logging.BLogManager'
     systemProperty 'ballerina.agent.path', configurations.testUtils.asPath
-    systemProperty 'observability.test.utils.dir', "$buildDir/../../observability-test-utils/"
-    systemProperty 'observability.test.utils.jar', configurations.observeTestUtils.asPath
+    systemProperty 'observability.test.utils.balo', configurations.observeTestUtilsBalo.asPath
+    systemProperty 'observability.test.utils.jar', configurations.observeTestUtilsJar.asPath
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
