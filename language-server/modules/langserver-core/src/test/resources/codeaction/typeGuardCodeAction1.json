@@ -2,7 +2,7 @@
     "line": 3,
     "character": 6,
     "expected": {
-        "title": "Type Guard 'foo'",
+        "title": "Create Variable",
         "edits": [
             {
                 "range": {
@@ -12,10 +12,10 @@
                     },
                     "end": {
                         "line": 3,
-                        "character": 10
+                        "character": 4
                     }
                 },
-                "newText": "(int|string|error) fooResult \u003d foo();\n\t\t\t\tif (fooResult is int) {\n\n\t\t\t\t} else if (fooResult is string) {\n\n\t\t\t\t} else {\n\n\t\t\t\t}"
+                "newText": "int|string|error fooResult \u003d "
             }
         ]
     }

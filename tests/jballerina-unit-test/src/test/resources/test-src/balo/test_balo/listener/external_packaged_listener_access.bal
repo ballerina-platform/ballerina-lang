@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import listenerProject/ext;
+import listenerproject/test_listener.ext;
 
 public listener ext:ABCD ep = new ext:ABCD();
 public listener ep1 = new ext:ABCD();

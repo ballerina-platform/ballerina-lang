@@ -21,12 +21,12 @@ import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -53,7 +53,7 @@ public class InitFunctionTest {
 
     @Test
     public void testMainFunctionWithImportsWithUserDefinedInit() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src/functions/TestProjWithInitFuncs", "a.b");
+        CompileResult compileResult = BCompileUtil.compile("test-src/functions/test_proj_with_init_funcs");
         BValue[] result = BRunUtil.invoke(compileResult, "main");
 
         assertEquals(result.length, 1);

@@ -2,7 +2,7 @@
     "line": 7,
     "character": 4,
     "expected": {
-        "title": "Create Local Variable with 'int[][]'",
+        "title": "Create Variable with 'int[][]'",
         "edits": [
             {
                 "range": {
@@ -15,7 +15,7 @@
                         "character": 4
                     }
                 },
-                "newText": "int[][] a = "
+                "newText": "int[][] listResult = "
             }
         ]
     }

@@ -1,13 +1,10 @@
-[project]
-org-name = "ballerina"
+[package]
+org = "ballerina"
+name = "io"
 version = "0.5.0"
 
-[platform]
-target = "java11"
-
-    [[platform.libraries]]
-    artifactId = "io"
-    version = "0.5.0"
-    path = "./lib/ballerina-io-0.5.0-java.jar"
-    groupId = "ballerina"
-    modules = ["io"]
+[[platform.java11.dependency]]
+path = "../libs/ballerina-io-2.0.0-Preview6-SNAPSHOT.jar"
+groupId = "ballerina"
+artifactId = "io"
+version = "0.5.0"

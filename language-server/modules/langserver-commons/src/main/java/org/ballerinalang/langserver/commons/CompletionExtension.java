@@ -27,7 +27,8 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public interface CompletionExtension extends LanguageExtension<CompletionParams, List<CompletionItem>> {
+public interface CompletionExtension
+        extends LanguageExtension<CompletionParams, List<CompletionItem>, CompletionContext> {
 
     /**
      * {@inheritDoc}

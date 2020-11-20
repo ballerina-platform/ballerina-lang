@@ -30,7 +30,7 @@ import io.ballerina.runtime.internal.values.MapValue;
  */
 public class BServiceType extends BObjectType implements ServiceType {
 
-    public BServiceType(String typeName, Module pkg, int flags) {
+    public BServiceType(String typeName, Module pkg, long flags) {
         super(typeName, pkg, flags);
     }
 

@@ -36,7 +36,7 @@ public class SelectedFunctionTest extends BaseTestCase {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
-        projectPath = singleFilesProjectPath.resolve("single-test-execution").toString();
+        projectPath = singleFileTestsPath.resolve("single-test-execution").toString();
     }
 
     @Test

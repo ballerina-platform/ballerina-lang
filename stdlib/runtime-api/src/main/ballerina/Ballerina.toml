@@ -1,13 +1,10 @@
-[project]
-org-name = "ballerina"
+[package]
+org = "ballerina"
+name = "runtime"
 version = "0.5.0"
 
-[platform]
-target = "java11"
-
-    [[platform.libraries]]
-    artifactId = "runtime"
-    version = "0.5.0"
-    path = "./lib/ballerina-runtime-0.5.0-java.jar"
-    groupId = "ballerina"
-    modules = ["runtime-api"]
+[[platform.java11.dependency]]
+path = "../libs/ballerina-runtime-api-2.0.0-Preview6-SNAPSHOT.jar"
+groupId = "ballerina"
+artifactId = "runtime"
+version = "0.5.0"

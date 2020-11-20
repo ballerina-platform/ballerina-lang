@@ -1,0 +1,4 @@
+[package]
+org = "test_global_var_org2"
+name = "globalvarpkg"
+version = "1.0.0"

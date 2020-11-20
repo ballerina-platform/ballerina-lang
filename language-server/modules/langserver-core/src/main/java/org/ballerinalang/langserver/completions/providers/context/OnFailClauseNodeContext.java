@@ -23,12 +23,10 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
@@ -50,9 +48,9 @@ public class OnFailClauseNodeContext extends AbstractCompletionProvider<OnFailCl
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, OnFailClauseNode node) {
+    public List<LSCompletionItem> getCompletions(CompletionContext context, OnFailClauseNode node) {
         if (this.onSuggestTypeDescriptors(context, node)) {
-            NonTerminalNode symbolAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+            NonTerminalNode symbolAtCursor = context.getNodeAtCursor();
             Predicate<Symbol> errorPredicate = SymbolUtil::isError;
             if (symbolAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
                 QualifiedNameReferenceNode qRef = (QualifiedNameReferenceNode) symbolAtCursor;
@@ -60,7 +58,7 @@ public class OnFailClauseNodeContext extends AbstractCompletionProvider<OnFailCl
                         context);
             }
 
-            List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+            List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
             List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
             List<Symbol> errEntries = visibleSymbols.stream()
                     .filter(errorPredicate)
@@ -75,12 +73,12 @@ public class OnFailClauseNodeContext extends AbstractCompletionProvider<OnFailCl
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, OnFailClauseNode node) {
+    public boolean onPreValidation(CompletionContext context, OnFailClauseNode node) {
         return !node.onKeyword().isMissing();
     }
 
-    private boolean onSuggestTypeDescriptors(LSContext context, OnFailClauseNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    private boolean onSuggestTypeDescriptors(CompletionContext context, OnFailClauseNode node) {
+        int cursor = context.getCursorPositionInTree();
         BlockStatementNode blockStatement = node.blockStatement();
         Token failKeyword = node.failKeyword();
 

@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.AnnotatableType;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
@@ -45,6 +46,6 @@ public abstract class BAnnotatableType extends BType implements AnnotatableType 
     }
 
     public Object getAnnotation(BString pkg, BString annotName) {
-        return this.annotations.get(pkg + ":" + annotName);
+        return this.annotations.get(StringUtils.fromString(pkg.getValue() + ":" + annotName.getValue()));
     }
 }

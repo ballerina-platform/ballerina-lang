@@ -34,8 +34,15 @@ public class Environment {
 
     private Strand strand;
 
+    private Module currentModule;
+
     public Environment(Strand strand) {
         this.strand = strand;
+    }
+
+    public Environment(Strand strand, Module currentModule) {
+        this.strand = strand;
+        this.currentModule = currentModule;
     }
 
     /**
@@ -54,6 +61,15 @@ public class Environment {
 
     public Runtime getRuntime() {
         return new Runtime(strand.scheduler);
+    }
+
+    /**
+     * Gets current module @{@link Module}.
+     *
+     * @return module of the environment.
+     */
+    public Module getCurrentModule() {
+        return currentModule;
     }
 
     /**

@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.runtime.internal.IdentifierUtils;
 import io.ballerina.tools.diagnostics.Location;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -46,6 +47,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -95,6 +97,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
 public class JvmCodeGenUtil {
     public static final ResolvedTypeBuilder TYPE_BUILDER = new ResolvedTypeBuilder();
     public static final String INITIAL_METHOD_DESC = String.format("(L%s;", STRAND_CLASS);
+    private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[\\.:/<>]");
     public static final String SCOPE_PREFIX = "_SCOPE_";
 
     static void visitInvokeDynamic(MethodVisitor mv, String currentClass, String lambdaName, int size) {
@@ -580,6 +583,11 @@ public class JvmCodeGenUtil {
     public static boolean isBuiltInPackage(PackageID packageID) {
         packageID = cleanupPackageID(packageID);
         return BALLERINA.equals(packageID.orgName.value) && BUILT_IN_PACKAGE_NAME.equals(packageID.name.value);
+    }
+
+    public static String cleanupFunctionName(String functionName) {
+        return StringUtils.containsAny(functionName, "\\.:/<>") ?
+                "$" + JVM_RESERVED_CHAR_SET.matcher(functionName).replaceAll("_") : functionName;
     }
 
     private JvmCodeGenUtil() {

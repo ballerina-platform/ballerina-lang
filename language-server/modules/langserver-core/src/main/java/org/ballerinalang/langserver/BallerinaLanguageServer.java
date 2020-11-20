@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClientAware;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
@@ -44,6 +45,7 @@ import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceSe
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.traces.Listener;
 import org.ballerinalang.langserver.extensions.ballerina.traces.ProviderOptions;
+import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
 import org.eclipse.lsp4j.InitializeParams;
@@ -97,9 +99,10 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         lsGlobalContext.put(LSGlobalContextKeys.LANGUAGE_SERVER_KEY, this);
         lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, documentManager);
         lsGlobalContext.put(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY, DiagnosticsHelper.getInstance());
+        WorkspaceManager workspaceManager = new BallerinaWorkspaceManager();
 
-        this.textService = new BallerinaTextDocumentService(lsGlobalContext);
-        this.workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
+        this.textService = new BallerinaTextDocumentService(lsGlobalContext, workspaceManager);
+        this.workspaceService = new BallerinaWorkspaceService(this, workspaceManager);
         this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(lsGlobalContext);
         this.ballerinaConnectorService = new BallerinaConnectorServiceImpl(lsGlobalContext);
         this.ballerinaProjectService = new BallerinaProjectServiceImpl(lsGlobalContext);

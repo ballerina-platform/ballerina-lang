@@ -24,11 +24,9 @@ import io.ballerina.compiler.syntax.tree.ErrorTypeParamsNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -51,7 +49,7 @@ public class ErrorTypeParamsNodeContext extends AbstractCompletionProvider<Error
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ErrorTypeParamsNode node) {
+    public List<LSCompletionItem> getCompletions(CompletionContext context, ErrorTypeParamsNode node) {
         /*
         Covers the following cases
         (1) error< <cursor> >
@@ -59,7 +57,7 @@ public class ErrorTypeParamsNodeContext extends AbstractCompletionProvider<Error
         (3) error< module:<cursor> >
         (4) error< module:t<cursor> >
          */
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         Predicate<Symbol> predicate = symbol -> {
             if (symbol.kind() != SymbolKind.TYPE) {
@@ -76,7 +74,7 @@ public class ErrorTypeParamsNodeContext extends AbstractCompletionProvider<Error
             return this.getCompletionItemList(mappingTypes, context);
         }
 
-        List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
         mappingTypes = visibleSymbols.stream().filter(predicate).collect(Collectors.toList());
         List<LSCompletionItem> completionItems = this.getCompletionItemList(mappingTypes, context);
         completionItems.addAll(this.getModuleCompletionItems(context));
