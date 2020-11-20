@@ -30,7 +30,6 @@ import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY
 import static io.ballerina.runtime.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP;
 
-
 /**
  * Observe the runtime and collect measurements.
  */
