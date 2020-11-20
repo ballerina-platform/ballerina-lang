@@ -44,11 +44,10 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
-        testProjectName = "basic-project";
-        testModuleName = "advanced";
+        testProjectName = "variable-tests";
         testModuleFileName = "main.bal";
         testProjectPath = testProjectBaseDir.toString() + File.separator + testProjectName;
-        testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
+        testEntryFilePath = Paths.get(testProjectPath, testModuleFileName).toString();
 
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 182));
         initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);

@@ -1,0 +1,9 @@
+[package]
+org= "balerinals"
+name= "ls_project"
+version= "0.1.0"
+
+[build-options]
+observability-included=true
+
+[dependencies]

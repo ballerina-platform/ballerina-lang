@@ -31,45 +31,55 @@ import java.util.Collections;
  * @since 2.0.0
  */
 public class STNumericLiteralNode extends STValueNode {
+    public final STNode sign;
     public final STNode value;
 
     STNumericLiteralNode(
             SyntaxKind kind,
+            STNode sign,
             STNode value) {
         this(
                 kind,
+                sign,
                 value,
                 Collections.emptyList());
     }
 
     STNumericLiteralNode(
             SyntaxKind kind,
+            STNode sign,
             STNode value,
             Collection<STNodeDiagnostic> diagnostics) {
         super(kind, diagnostics);
+        this.sign = sign;
         this.value = value;
 
         addChildren(
+                sign,
                 value);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STNumericLiteralNode(
                 this.kind,
+                this.sign,
                 this.value,
                 diagnostics);
     }
 
     public STNumericLiteralNode modify(
             SyntaxKind kind,
+            STNode sign,
             STNode value) {
         if (checkForReferenceEquality(
+                sign,
                 value)) {
             return this;
         }
 
         return new STNumericLiteralNode(
                 kind,
+                sign,
                 value,
                 diagnostics);
     }

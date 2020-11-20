@@ -133,10 +133,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public NumericLiteralNode transform(
             NumericLiteralNode numericLiteralNode) {
+        Token sign =
+                modifyToken(numericLiteralNode.sign().orElse(null));
         Token value =
                 modifyToken(numericLiteralNode.value());
         return numericLiteralNode.modify(
                 numericLiteralNode.kind(),
+                sign,
                 value);
     }
 

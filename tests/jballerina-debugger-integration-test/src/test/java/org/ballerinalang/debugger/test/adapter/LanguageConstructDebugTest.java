@@ -40,11 +40,10 @@ public class LanguageConstructDebugTest extends DebugAdapterBaseTestCase {
 
     @BeforeClass
     public void setup() {
-        testProjectName = "breakpoint-tests";
-        testModuleName = "languageConstruct";
-        testModuleFileName = "mainLangConstruct.bal";
+        testProjectName = "language-construct-tests";
+        testModuleFileName = "main.bal";
         testProjectPath = Paths.get(testProjectBaseDir.toString(), testProjectName).toString();
-        testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
+        testEntryFilePath = Paths.get(testProjectPath, testModuleFileName).toString();
     }
 
     @Test

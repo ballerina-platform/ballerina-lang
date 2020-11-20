@@ -1,4 +1,4 @@
-import testorg/foo;
+import testorg/foo as foo;
 
 function testInvokeFunctionInMixOrder1() returns [int, float, string, int, string, int[]] {
     return foo:functionWithAllTypesParams(10, e="Bob", 20.0, c="Alex", 40, 50);

@@ -18,7 +18,6 @@
 
 package org.ballerina.testobserve;
 
-import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BalServer;
 import org.ballerinalang.test.util.HttpClientRequest;
@@ -30,7 +29,10 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 
@@ -41,8 +43,10 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  */
 @Test(groups = "mock-listener-tests")
 public class ListenerEndpointTest {
-    private static final String TEST_OBSERVE_JAR = "ballerina-testobserve-0.0.0.jar";
-    private static final String TEST_NATIVES_JAR = "observability-test-natives.jar";
+    private static final String TESTOBSERVE_MODULE_ZIP_NAME = "testobserve.zip";
+    private static final String OBESERVABILITY_TEST_UTILS_DIR = System.getProperty("observability.test.utils.dir");
+    private static final String TEST_NATIVES_JAR = System.getProperty("observability.test.utils.jar");
+    private static final String BALLERINA_TOML_TEST_NATIVES_JAR_NAME = "observability-test-utils.jar";
 
     private static BalServer balServer;
     private static BServerInstance servicesServerInstance;
@@ -51,36 +55,26 @@ public class ListenerEndpointTest {
     private void setup() throws Exception {
         balServer = new BalServer();
         final String serverHome = balServer.getServerHome();
+        final Path testUtilsJar = Paths.get(TEST_NATIVES_JAR);
 
-        // Copy for Ballerina.toml reference to natives Jar
-        copyFile(new File(System.getProperty(TEST_NATIVES_JAR)),
-                Paths.get(Paths.get(System.getProperty(TEST_NATIVES_JAR)).getParent().toString(), TEST_NATIVES_JAR)
-                        .toFile());
+        // Copy jar for Ballerina.toml reference to natives Jar
+        copyFile(testUtilsJar, Paths.get(Paths.get(TEST_NATIVES_JAR).getParent().toString(),
+                BALLERINA_TOML_TEST_NATIVES_JAR_NAME));
 
-        // Copy to bre/libs
-        copyFile(new File(System.getProperty(TEST_NATIVES_JAR)),
-                Paths.get(serverHome, "bre", "lib", TEST_NATIVES_JAR).toFile());
-        copyFile(Paths.get("build", "generated-bir-jar", TEST_OBSERVE_JAR).toFile(),
-                Paths.get(serverHome, "bre", "lib", TEST_OBSERVE_JAR).toFile());
+        // Copy jar for bre/libs
+        copyFile(testUtilsJar, Paths.get(serverHome, "bre", "lib", testUtilsJar.getFileName().toString()));
 
-        // Copy to lib/repo
-        File observeTestBaloFile =
-                Paths.get("build", "generated-balo", "repo", "ballerina", "testobserve").toFile();
-        FileUtils.copyDirectoryToDirectory(observeTestBaloFile,
-                Paths.get(serverHome, "lib", "repo", "ballerina").toFile());
-
-        // Copy to bir-cache
-        FileUtils.copyDirectoryToDirectory(observeTestBaloFile,
-                Paths.get(serverHome, "bir-cache", "ballerina").toFile());
-        FileUtils.copyDirectoryToDirectory(
-                Paths.get("build", "generated-bir", "ballerina", "testobserve").toFile(),
-                Paths.get(serverHome, "bir-cache", "ballerina").toFile());
+        // Copy caches
+        Path cacheZip = Paths.get(OBESERVABILITY_TEST_UTILS_DIR, "build", "ballerina-src", "target",
+                                  TESTOBSERVE_MODULE_ZIP_NAME);
+        FileSystem fs = FileSystems.newFileSystem(cacheZip, ListenerEndpointTest.class.getClassLoader());
+        copyDir(fs.getPath("/"), Paths.get(serverHome, "repo"));
 
         // Don't use 9898 port here. It is used in metrics test cases.
         servicesServerInstance = new BServerInstance(balServer);
-        String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                "listener").getAbsolutePath();
-        servicesServerInstance.startServer(basePath, "testservice", null, new String[0], new int[]{9091});
+        String sourcesDir = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
+                "listener_tests").getAbsolutePath();
+        servicesServerInstance.startServer(sourcesDir, "listener_tests", null, new String[0], new int[]{9091});
     }
 
     @AfterGroups(value = "mock-listener-tests", alwaysRun = true)
@@ -122,7 +116,20 @@ public class ListenerEndpointTest {
         Assert.assertEquals(httpResponse.getData(), "Test Error");
     }
 
-    private void copyFile(File source, File dest) throws IOException {
-        Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
+    private void copyDir(Path source, Path dest) throws IOException {
+        Files.walk(source).forEach(sourcePath -> {
+            try {
+                Path targetPath = dest.resolve(source.relativize(sourcePath).toString());
+                if (!targetPath.toFile().isDirectory() || !targetPath.toFile().exists()) {
+                    copyFile(sourcePath, targetPath);
+                }
+            } catch (IOException ex) {
+                Assert.fail("Failed to copy directory " + source.toString() + " to " + dest.toString(), ex);
+            }
+        });
+    }
+
+    private void copyFile(Path source, Path dest) throws IOException {
+        Files.copy(source, dest, REPLACE_EXISTING);
     }
 }

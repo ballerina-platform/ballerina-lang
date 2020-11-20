@@ -26,11 +26,10 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
@@ -52,12 +51,12 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ExplicitNewExpressionNode node) {
+    public List<LSCompletionItem> getCompletions(CompletionContext context, ExplicitNewExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         TypeDescriptorNode typeDescriptor = node.typeDescriptor();
 
         if (typeDescriptor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+            List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
             /*
             Supports the following
             (1) public listener mod:Listener test = new <cursor>

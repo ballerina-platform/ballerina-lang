@@ -1,5 +1,5 @@
 class Iterable {
-    public function __iterator() returns object {public function next() returns record {|int value;|}?;
+    public function __iterator() returns object {public isolated function next() returns record {|int value;|}?;
     } {
         InternalIterable sample = new;
         return sample;
@@ -19,7 +19,7 @@ public function testIterableObject() returns int[] {
 class InternalIterable {
    int[] integers = [12, 34, 56, 34, 78, 21, 90];
    int cursorIndex = 0;
-   public function next() returns
+   public isolated function next() returns
    record {|
        int value;
    |}? {
@@ -35,7 +35,7 @@ class InternalIterable {
 }
 
 class AnotherIterable {
-    public function __iterator() returns object {public function next() returns record {|Iterable value;|}?;
+    public function __iterator() returns object {public isolated function next() returns record {|Iterable value;|}?;
     } {
         AnotherInternalIterable sample = new;
         return sample;
@@ -44,7 +44,7 @@ class AnotherIterable {
 
 class AnotherInternalIterable {
     int cursorIndex = 0;
-    public function next() returns
+    public isolated function next() returns
     record {|
         Iterable value;
     |}? {

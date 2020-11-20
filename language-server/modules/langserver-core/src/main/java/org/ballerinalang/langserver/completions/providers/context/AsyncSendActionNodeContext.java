@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.AsyncSendActionNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 
@@ -36,7 +36,7 @@ public class AsyncSendActionNodeContext extends RightArrowActionNodeContext<Asyn
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, AsyncSendActionNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, AsyncSendActionNode node)
             throws LSCompletionException {
         return this.getFilteredItems(context, node.expression());
     }

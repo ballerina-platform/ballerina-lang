@@ -16,35 +16,41 @@
 package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
-import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
-import org.ballerinalang.model.elements.Flag;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.util.Flags;
+import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.api.symbols.Qualifiable;
+import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.SimpleTypeSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SingletonTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.StreamTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.StreamTypeParamsNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
+import io.ballerina.tools.text.LinePosition;
+import org.ballerinalang.docgen.Generator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -70,6 +76,8 @@ public class Type {
     @Expose
     public boolean isTuple;
     @Expose
+    public boolean isIntersectionType;
+    @Expose
     public boolean isRestParam;
     @Expose
     public boolean isLambda;
@@ -93,50 +101,164 @@ public class Type {
     private Type() {
     }
 
-    public Type(BType type) {
-        this.name = type.tsymbol.name != null ? type.tsymbol.name.value : null;
-        this.orgName = type.tsymbol.pkgID.orgName.value;
-        this.moduleName = type.tsymbol.pkgID.name.value;
-        setCategory(type);
-    }
-
-    public Type(BLangType type, String currentModule) {
-        BTypeSymbol typeSymbol = type.type.tsymbol;
-        if (typeSymbol != null && !typeSymbol.name.value.equals("")) {
-            if (type instanceof BLangUserDefinedType) {
-                BLangUserDefinedType userDefinedType = (BLangUserDefinedType) type;
-                this.name = userDefinedType.typeName.value;
-            } else {
-                this.name = typeSymbol.name.value;
+    public static Type fromNode(Node node, BallerinaSemanticModel semanticModel, String fileName) {
+        Type type = new Type();
+        if (node instanceof SimpleNameReferenceNode) {
+            SimpleNameReferenceNode simpleNameReferenceNode = (SimpleNameReferenceNode) node;
+            type.name = simpleNameReferenceNode.name().text();
+            type.category = "reference";
+            Optional<Symbol> symbol = null;
+            try {
+                symbol = semanticModel.symbol(fileName,
+                        LinePosition.from(node.lineRange().startLine().line(),
+                                node.lineRange().startLine().offset()));
+            } catch (NullPointerException nullException) {
+                System.out.print(Arrays.toString(nullException.getStackTrace()));
             }
-            this.orgName = typeSymbol.pkgID.orgName.value;
-            this.moduleName = typeSymbol.pkgID.name.value;
-        } else {
-            if (type.type instanceof BUnionType) {
-                if (type instanceof BLangUserDefinedType) {
-                    BLangUserDefinedType userDefinedType = (BLangUserDefinedType) type;
-                    this.name = userDefinedType.typeName.value;
-                    if (userDefinedType.pkgAlias.value.equals("")) {
-                        this.orgName = BallerinaDocDataHolder.getInstance().getOrgName();
-                        this.moduleName = ".";
-                    } else {
-                        this.moduleName = userDefinedType.pkgAlias.value;
-                    }
-                } else if (type instanceof BLangUnionTypeNode) {
-                    this.isAnonymousUnionType = true;
-                    ((BLangUnionTypeNode) type).memberTypeNodes.forEach(memberType -> {
-                        this.memberTypes.add(Type.fromTypeNode(memberType, currentModule));
-                    });
-                    if (typeSymbol != null) {
-                        this.orgName = typeSymbol.pkgID.orgName.value;
-                        this.moduleName = typeSymbol.pkgID.name.value;
-                    }
-                } else {
-                    this.name = type.type.toString();
+            if (symbol != null && symbol.isPresent()) {
+                resolveSymbol(type, symbol.get());
+            }
+        } else if (node instanceof QualifiedNameReferenceNode) {
+            QualifiedNameReferenceNode qualifiedNameReferenceNode = (QualifiedNameReferenceNode) node;
+            type.moduleName = qualifiedNameReferenceNode.modulePrefix().text();
+            type.category = "reference";
+            type.name = qualifiedNameReferenceNode.identifier().text();
+            Optional<Symbol> symbol = null;
+            try {
+                    symbol = semanticModel.symbol(fileName,
+                            LinePosition.from(qualifiedNameReferenceNode.parent().children().get(1).lineRange()
+                                            .startLine().line(),
+                                    qualifiedNameReferenceNode.parent().children().get(1).lineRange().startLine()
+                                            .offset()));
+
+            } catch (NullPointerException nullException) {
+                System.out.print(Arrays.toString(nullException.getStackTrace()));
+            }
+            if (symbol != null && symbol.isPresent()) {
+                resolveSymbol(type, symbol.get());
+            }
+        } else if (node instanceof BuiltinSimpleNameReferenceNode) {
+            BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode = (BuiltinSimpleNameReferenceNode) node;
+            type.name = builtinSimpleNameReferenceNode.name().text();
+            type.category = "builtin";
+        } else if (node instanceof ArrayTypeDescriptorNode) {
+            ArrayTypeDescriptorNode arrayTypeDescriptorNode = (ArrayTypeDescriptorNode) node;
+            type.isArrayType = true;
+            type.arrayDimensions = 1;
+            type.elementType = fromNode(arrayTypeDescriptorNode.memberTypeDesc(), semanticModel, fileName);
+        } else if (node instanceof OptionalTypeDescriptorNode) {
+            OptionalTypeDescriptorNode optionalTypeDescriptorNode = (OptionalTypeDescriptorNode) node;
+            type = fromNode(optionalTypeDescriptorNode.typeDescriptor(), semanticModel, fileName);
+            type.isNullable = true;
+        } else if (node instanceof UnionTypeDescriptorNode) {
+            type.isAnonymousUnionType = true;
+            Node unionTypeNode = node;
+            while (unionTypeNode instanceof UnionTypeDescriptorNode) {
+                UnionTypeDescriptorNode unionType = (UnionTypeDescriptorNode) unionTypeNode;
+                type.memberTypes.add(fromNode(unionType.leftTypeDesc(), semanticModel, fileName));
+                unionTypeNode = unionType.rightTypeDesc();
+            }
+            type.memberTypes.add(fromNode(unionTypeNode, semanticModel, fileName));
+        } else if (node instanceof RecordTypeDescriptorNode) {
+            type.name = node.toString();
+            type.generateUserDefinedTypeLink = false;
+        } else if (node instanceof StreamTypeDescriptorNode) {
+            StreamTypeDescriptorNode streamNode = (StreamTypeDescriptorNode) node;
+            StreamTypeParamsNode streamParams = streamNode.streamTypeParamsNode().isPresent() ?
+                    (StreamTypeParamsNode) streamNode.streamTypeParamsNode().get() : null;
+            type.name = streamNode.streamKeywordToken().text();
+            type.category = "stream";
+            if (streamParams != null) {
+                type.memberTypes.add(fromNode(streamParams.leftTypeDescNode(), semanticModel, fileName));
+                if (streamParams.rightTypeDescNode().isPresent()) {
+                    type.memberTypes.add(fromNode(streamParams.rightTypeDescNode().get(), semanticModel, fileName));
                 }
             }
+        } else if (node instanceof FunctionTypeDescriptorNode) {
+            type.isLambda = true;
+            FunctionTypeDescriptorNode functionDescNode = (FunctionTypeDescriptorNode) node;
+            FunctionSignatureNode functionSignature = functionDescNode.functionSignature();
+            List<DefaultableVariable> variables =
+                    Generator.getDefaultableVariableList(functionSignature.parameters(), Optional.empty(),
+                            semanticModel, fileName);
+            type.paramTypes.addAll(variables.stream().map((defaultableVariable) -> defaultableVariable.type)
+                    .collect(Collectors.toList()));
+            if (functionSignature.returnTypeDesc().isPresent()) {
+                ReturnTypeDescriptorNode returnType = functionSignature.returnTypeDesc().get();
+                type.returnType = Type.fromNode(returnType.type(), semanticModel, fileName);
+            }
+        } else if (node instanceof ParameterizedTypeDescriptorNode) {
+            ParameterizedTypeDescriptorNode parameterizedNode = (ParameterizedTypeDescriptorNode) node;
+            if (parameterizedNode.parameterizedType().kind().equals(SyntaxKind.MAP_KEYWORD)) {
+                type.name = "map";
+                type.category = "map";
+                type.constraint = fromNode(parameterizedNode.typeParameter().typeNode(), semanticModel, fileName);
+            }
+        } else if (node instanceof ErrorTypeDescriptorNode) {
+            ErrorTypeDescriptorNode errorType = (ErrorTypeDescriptorNode) node;
+            type.name = errorType.errorKeywordToken().text();
+            type.category = "builtin";
+        } else if (node instanceof ObjectTypeDescriptorNode) {
+            ObjectTypeDescriptorNode objectType = (ObjectTypeDescriptorNode) node;
+            type.name = objectType.toString();
+            type.category = "builtin";
+        } else if (node instanceof SingletonTypeDescriptorNode) {
+            SingletonTypeDescriptorNode singletonTypeDesc = (SingletonTypeDescriptorNode) node;
+            type.name = singletonTypeDesc.simpleContExprNode().toString();
+            type.category = "builtin";
+        } else {
+            type.category = "UNKNOWN";
         }
-        setCategory(type.type);
+        return type;
+    }
+
+    public static void resolveSymbol(Type type, Symbol symbol) {
+        if (symbol instanceof TypeReferenceTypeSymbol) {
+            TypeReferenceTypeSymbol typeSymbol = (TypeReferenceTypeSymbol) symbol;
+            type.moduleName = typeSymbol.moduleID().moduleName();
+            if (typeSymbol.typeDescriptor() != null) {
+                type.category = getTypeCategory(typeSymbol.typeDescriptor());
+            }
+        } else if (symbol instanceof VariableSymbol) {
+            VariableSymbol variableSymbol = (VariableSymbol) symbol;
+            if (variableSymbol.typeDescriptor() != null) {
+                type.category = getTypeCategory(variableSymbol.typeDescriptor());
+            }
+        }
+    }
+
+    public static String getTypeCategory(TypeSymbol typeDescriptor) {
+        if (typeDescriptor.kind().equals(SymbolKind.TYPE)) {
+            if (typeDescriptor.typeKind().equals(TypeDescKind.RECORD)) {
+                return "records";
+            } else if (typeDescriptor.typeKind().equals(TypeDescKind.OBJECT)) {
+                return "abstractobjects";
+            } else if (typeDescriptor.typeKind().equals(TypeDescKind.ERROR)) {
+                return "errors";
+            } else if (typeDescriptor.typeKind().equals(TypeDescKind.UNION)) {
+                return "types";
+            } else if (typeDescriptor.typeKind().equals(TypeDescKind.TYPE_REFERENCE)) {
+                return getTypeCategory(((TypeReferenceTypeSymbol) typeDescriptor).typeDescriptor());
+            }
+        } else if (typeDescriptor.kind().equals(SymbolKind.CLASS)) {
+            Qualifiable classSymbol = (Qualifiable) typeDescriptor;
+            if (classSymbol.qualifiers().contains(Qualifier.CLIENT)) {
+                return "clients";
+            } else if (classSymbol.qualifiers().contains(Qualifier.LISTENER) ||
+                    typeDescriptor.name().equals("Listener")) {
+                return "listeners";
+            } else {
+                return "classes";
+            }
+        } else if (typeDescriptor instanceof SimpleTypeSymbol && typeDescriptor.signature().equals("finite")) {
+            return "types";
+        }
+        return "not_found";
+    }
+
+    public Type(String name) {
+        this.name = name;
+        this.category = "builtin";
     }
 
     public Type(String name, String description, boolean isDeprecated) {
@@ -145,167 +267,4 @@ public class Type {
         this.isDeprecated = isDeprecated;
     }
 
-    public static Type fromTypeNode(BLangType type, BType bType, String currentModule) {
-        if (type == null) {
-            return new Type(bType);
-        }
-        return fromTypeNode(type, currentModule);
-    }
-
-    public static Type fromTypeNode(BLangType type, String currentModule) {
-        Type typeModel = null;
-        if (type instanceof BLangFunctionTypeNode) {
-            typeModel = new Type();
-            typeModel.isLambda = true;
-            typeModel.paramTypes = ((BLangFunctionTypeNode) type).params.stream()
-                    .map((p) -> Type.fromTypeNode(p.typeNode, currentModule))
-                    .collect(Collectors.toList());
-            typeModel.returnType = Type.fromTypeNode(((BLangFunctionTypeNode) type).returnTypeNode, currentModule);
-        } else if (type instanceof BLangFiniteTypeNode) {
-            List<BLangExpression> valueSpace = ((BLangFiniteTypeNode) type).valueSpace;
-            if (valueSpace.size() == 1) {
-                typeModel = new Type(valueSpace.get(0).type);
-            }
-        } else if (type instanceof BLangArrayType) {
-            BLangType elemtype = ((BLangArrayType) type).elemtype;
-            String moduleName = elemtype.type.tsymbol == null ? type.type.tsymbol.pkgID.name.toString() :
-                    elemtype.type.tsymbol.pkgID.name.toString();
-            Type elementType = fromTypeNode(elemtype, moduleName);
-            typeModel = new Type(type, currentModule);
-            typeModel.elementType = elementType;
-            typeModel.arrayDimensions = ((BLangArrayType) type).dimensions;
-            typeModel.isArrayType = true;
-            if (moduleName.equals(currentModule) && elemtype instanceof BLangUserDefinedType
-                    && !((BLangUserDefinedType) elemtype).flagSet.contains(Flag.PUBLIC)) {
-                typeModel.generateUserDefinedTypeLink = false;
-            }
-        } else if (type instanceof BLangTupleTypeNode) {
-            List<BLangType> memberTypeNodes = ((BLangTupleTypeNode) type).memberTypeNodes;
-            typeModel = new Type(type, currentModule);
-            typeModel.isTuple = true;
-            typeModel.memberTypes = memberTypeNodes.stream()
-                                    .map(typeVal -> Type.fromTypeNode(typeVal, currentModule))
-                                    .collect(Collectors.toList());
-        } else if (type.nullable && type instanceof BLangUnionTypeNode
-                && ((BLangUnionTypeNode) type).getMemberTypeNodes().size() == 2) {
-            BLangUnionTypeNode unionType = (BLangUnionTypeNode) type;
-            typeModel = fromTypeNode((BLangType) unionType.getMemberTypeNodes().toArray()[0], currentModule);
-        } else if (type instanceof BLangConstrainedType) {
-            typeModel = new Type(type, currentModule);
-            typeModel.constraint = Type.fromTypeNode(((BLangConstrainedType) type).constraint, currentModule);
-        } else if (type instanceof BLangStreamType) {
-            typeModel = new Type(type, currentModule);
-            List<Type> memberTypeNodes = new ArrayList<>();
-            memberTypeNodes.add(Type.fromTypeNode(((BLangStreamType) type).constraint, currentModule));
-            if (((BLangStreamType) type).error != null) {
-                memberTypeNodes.add(Type.fromTypeNode(((BLangStreamType) type).error, currentModule));
-            }
-            typeModel.memberTypes = memberTypeNodes;
-        }
-        if (typeModel == null) {
-            typeModel = new Type(type, currentModule);
-            if (type.type.tsymbol != null && type.type.tsymbol.pkgID.name.toString().equals(currentModule)
-                    && type instanceof BLangUserDefinedType
-                    && (type.type.tsymbol.flags & Flags.PUBLIC) != Flags.PUBLIC) {
-                typeModel.generateUserDefinedTypeLink = false;
-            }
-        }
-        typeModel.isNullable = type.nullable;
-        if (type.type instanceof BNilType) {
-            typeModel.name = "()";
-        }
-        // If anonymous type substitute the name
-        if (typeModel.name != null && typeModel.name.contains("$anonType$")) {
-            // if anonymous empty record
-            if (type.type instanceof BRecordType && ((BRecordType) type.type).fields.isEmpty() &&
-                    type.type.isAnydata()) {
-                typeModel.name = "record {}";
-            } else {
-                typeModel.name = type.type.toString();
-            }
-            typeModel.generateUserDefinedTypeLink = false;
-        }
-        return typeModel;
-    }
-
-    private void setCategory(BType type) {
-        if (type.getClass().equals(BObjectType.class)) {
-            BObjectTypeSymbol objSymbol = (BObjectTypeSymbol) type.tsymbol;
-            if (objSymbol.getFlags().contains(Flag.CLIENT)) {
-                this.category = "clients";
-            } else if (objSymbol.getFlags().contains(Flag.LISTENER) || isListenerObject(objSymbol)) {
-                this.category = "listeners";
-            } else if (objSymbol instanceof BClassSymbol) {
-                this.category = "classes";
-            } else {
-                this.category = "abstractobjects";
-            }
-        } else {
-            switch (type.tag) {
-                case TypeTags
-                        .ANNOTATION: this.category = "annotations"; break;
-                case TypeTags
-                        .RECORD: this.category = "records"; break;
-                case TypeTags
-                        .UNION:
-                case TypeTags
-                        .FINITE:
-                        if (type instanceof BFiniteType) {
-                            Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
-                            if (valueSpace.size() == 1 && valueSpace.toArray()[0] instanceof BLangLiteral) {
-                                BLangLiteral literal = (BLangLiteral) valueSpace.toArray()[0];
-                                if (literal.isConstant) {
-                                    this.category = "constants";
-                                    break;
-                                }
-                            }
-                        }
-                        this.category = "types"; break;
-                case TypeTags
-                        .ERROR: this.category = "errors"; break;
-                case TypeTags
-                        .MAP: this.category = "map"; break;
-                case TypeTags
-                        .TUPLE: this.category = "types"; break;
-                case TypeTags.INT:
-                case TypeTags.BYTE:
-                case TypeTags.FLOAT:
-                case TypeTags.DECIMAL:
-                case TypeTags.STRING:
-                case TypeTags.BOOLEAN:
-                case TypeTags.JSON:
-                case TypeTags.XML:
-                case TypeTags.NIL:
-                case TypeTags.ANY:
-                case TypeTags.ANYDATA:
-                case TypeTags.XMLNS:
-                case TypeTags.FUTURE:
-                case TypeTags.HANDLE:
-                    this.category = "builtin"; break;
-                case TypeTags.STREAM:
-                    this.category = "stream"; break;
-                default:
-                    this.category = "UNKNOWN";
-            }
-
-        }
-
-    }
-
-    /**
-     * Check whether the symbol is a listener bClass.
-     *
-     * @param bSymbol Symbol to evaluate
-     * @return {@link Boolean}  whether listener or not
-     */
-    private static boolean isListenerObject(BSymbol bSymbol) {
-        if (!(bSymbol instanceof BObjectTypeSymbol)) {
-            return false;
-        }
-        List<String> attachedFunctions = ((BObjectTypeSymbol) bSymbol).attachedFuncs.stream()
-                .map(function -> function.funcName.getValue())
-                .collect(Collectors.toList());
-        return attachedFunctions.contains("__start") && attachedFunctions.contains("__immediateStop")
-                && attachedFunctions.contains("__attach");
-    }
 }
