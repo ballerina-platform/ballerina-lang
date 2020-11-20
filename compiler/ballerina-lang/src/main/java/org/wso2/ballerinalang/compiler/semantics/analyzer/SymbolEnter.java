@@ -2348,7 +2348,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         boolean foundDefaultableParam = false;
         List<BVarSymbol> paramSymbols = new ArrayList<>();
         List<BVarSymbol> includedRecordParams = new ArrayList<>();
-        List<BVarSymbol> inclusiveIncludedRecordParams = new ArrayList<>();
+        List<BVarSymbol> openIncludedRecordParams = new ArrayList<>();
         Set<String> requiredParamNames = new HashSet<>();
         invokableNode.clonedEnv = invokableEnv.shallowClone();
         for (BLangSimpleVariable varNode : invokableNode.requiredParams) {
@@ -2366,8 +2366,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             if (varNode.flagSet.contains(Flag.INCLUDED) && varNode.type.getKind() == TypeKind.RECORD) {
                 symbol.flags |= Flags.INCLUDED;
-                if (!((BRecordType) varNode.type).sealed) {
-                    inclusiveIncludedRecordParams.add(symbol);
+                if (((BRecordType) varNode.type).restFieldType != symTable.noType) {
+                    openIncludedRecordParams.add(symbol);
                 }
                 LinkedHashMap<String, BField> fields = ((BRecordType) varNode.type).fields;
                 for (String field : fields.keySet()) {
@@ -2383,8 +2383,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             paramSymbols.add(symbol);
         }
-        if (hasIncRecordParamAllowAdditionalFields(inclusiveIncludedRecordParams, requiredParamNames)) {
-            invokableSymbol.incRecordParamAllowAdditionalFields = inclusiveIncludedRecordParams.get(0);
+        if (isIncRecordParamAllowAdditionalFields(openIncludedRecordParams, requiredParamNames)) {
+            invokableSymbol.incRecordParamAllowAdditionalFields = openIncludedRecordParams.get(0);
         }
 
         if (!invokableNode.desugaredReturnType) {
@@ -2426,8 +2426,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private boolean hasIncRecordParamAllowAdditionalFields(List<BVarSymbol> inclusiveIncludedRecordParams,
-                                                           Set<String> requiredParamNames) {
+    private boolean isIncRecordParamAllowAdditionalFields(List<BVarSymbol> inclusiveIncludedRecordParams,
+                                                          Set<String> requiredParamNames) {
         if (inclusiveIncludedRecordParams.size() != 1) {
             return false;
         }

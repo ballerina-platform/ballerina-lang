@@ -5383,8 +5383,8 @@ public class TypeChecker extends BLangNodeVisitor {
             if (arg.getKind() == NodeKind.NAMED_ARGS_EXPR) {
                 // if arg is named, function should have a parameter with this name.
                 BLangIdentifier argName = ((NamedArgNode) arg).getName();
-                BVarSymbol varSym = checkParameterNameForDefaultArgument(argName, nonRestParams, includedRecordParams,
-                                                                        incRecordParamAllowAdditionalFields);
+                BVarSymbol varSym = checkParameterNameForDefaultArgument(argName, ((BLangNamedArgsExpression) arg).expr,
+                                            nonRestParams, includedRecordParams, incRecordParamAllowAdditionalFields);
 
                 if (varSym == null) {
                     dlog.error(arg.pos, DiagnosticCode.UNDEFINED_PARAMETER, argName);
@@ -5579,8 +5579,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private BVarSymbol checkParameterNameForDefaultArgument(BLangIdentifier argName, List<BVarSymbol> nonRestParams,
-                                List<BVarSymbol> includedRecordParams, BVarSymbol incRecordParamAllowAdditionalFields) {
+    private BVarSymbol checkParameterNameForDefaultArgument(BLangIdentifier argName,
+                       BLangExpression expr, List<BVarSymbol> nonRestParams, List<BVarSymbol> includedRecordParams,
+                                                            BVarSymbol incRecordParamAllowAdditionalFields) {
         for (BVarSymbol nonRestParam : nonRestParams) {
             if (nonRestParam.getName().value.equals(argName.value)) {
                 return nonRestParam;
@@ -5592,8 +5593,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 return includedRecordParam;
             }
         }
-        if (incRecordParamAllowAdditionalFields != null) {
-            return new BVarSymbol(0, names.fromIdNode(argName), null, symTable.noType, null, argName.pos, VIRTUAL);
+        if (incRecordParamAllowAdditionalFields != null &&
+                types.isAssignable(expr.type, ((BRecordType) incRecordParamAllowAdditionalFields.type).restFieldType)) {
+            return new BVarSymbol(0, names.fromIdNode(argName),
+                            null, symTable.noType, null, argName.pos, VIRTUAL);
         }
         return null;
     }
