@@ -450,17 +450,16 @@ public class CodeActionUtil {
                                                                                         semanticModel, relPath);
         Symbol matchedSymbol;
         NonTerminalNode matchedNode;
-        Optional<TypeSymbol> typeSymbol;
+        Optional<TypeSymbol> matchedExprTypeSymbol;
         if (nodeAndSymbol.isPresent()) {
             matchedNode = nodeAndSymbol.get().getLeft();
             matchedSymbol = nodeAndSymbol.get().getRight();
-            typeSymbol = getTypeDescriptor(matchedSymbol);
         } else {
             matchedNode = cursorNode;
             matchedSymbol = null;
-            typeSymbol = semanticModel.getType(relPath, largestExpressionNode(cursorNode, range).lineRange());
         }
-        return PositionDetailsImpl.from(matchedNode, matchedSymbol, typeSymbol.orElse(null));
+        matchedExprTypeSymbol = semanticModel.getType(relPath, largestExpressionNode(cursorNode, range).lineRange());
+        return PositionDetailsImpl.from(matchedNode, matchedSymbol, matchedExprTypeSymbol.orElse(null));
     }
 
     /**

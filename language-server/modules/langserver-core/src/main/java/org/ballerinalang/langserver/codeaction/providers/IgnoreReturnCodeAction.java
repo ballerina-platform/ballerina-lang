@@ -51,7 +51,7 @@ public class IgnoreReturnCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        TypeSymbol typeDescriptor = context.positionDetails().matchedTypeDesc();
+        TypeSymbol typeDescriptor = context.positionDetails().matchedExprType();
         if (typeDescriptor == null) {
             return Collections.emptyList();
         }

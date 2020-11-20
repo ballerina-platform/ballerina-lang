@@ -44,5 +44,5 @@ public interface PositionDetails {
      *
      * @return {@link TypeSymbol}
      */
-    TypeSymbol matchedTypeDesc();
+    TypeSymbol matchedExprType();
 }

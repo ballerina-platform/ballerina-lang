@@ -64,7 +64,7 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
         }
 
         Symbol matchedSymbol = context.positionDetails().matchedSymbol();
-        TypeSymbol typeDescriptor = context.positionDetails().matchedTypeDesc();
+        TypeSymbol typeDescriptor = context.positionDetails().matchedExprType();
         String uri = context.fileUri();
         if (typeDescriptor == null || typeDescriptor.typeKind() != TypeDescKind.UNION) {
             return Collections.emptyList();

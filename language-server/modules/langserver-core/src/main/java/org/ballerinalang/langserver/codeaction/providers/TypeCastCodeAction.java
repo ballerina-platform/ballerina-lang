@@ -61,7 +61,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
         Position editPos = CommonUtil.toPosition(initializer.get().lineRange().startLine());
-        String editText = "<" + positionDetails.matchedTypeDesc().signature() + "> ";
+        String editText = "<" + positionDetails.matchedExprType().signature() + "> ";
         List<TextEdit> edits = new ArrayList<>();
         edits.add(new TextEdit(new Range(editPos, editPos), editText));
         String commandTitle = CommandConstants.ADD_TYPE_CAST_TITLE;

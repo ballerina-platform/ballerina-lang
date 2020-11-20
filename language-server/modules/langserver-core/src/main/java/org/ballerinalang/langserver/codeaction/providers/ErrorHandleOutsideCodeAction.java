@@ -70,7 +70,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         if (!(diagnosticMsg.contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return Collections.emptyList();
         }
-        TypeSymbol typeSymbol = context.positionDetails().matchedTypeDesc();
+        TypeSymbol typeSymbol = context.positionDetails().matchedExprType();
         if (typeSymbol == null || typeSymbol.typeKind() != TypeDescKind.UNION) {
             return Collections.emptyList();
         }

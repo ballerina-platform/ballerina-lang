@@ -60,7 +60,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         if (!(diagnosticMsg.contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return actions;
         }
-        if (context.positionDetails().matchedTypeDesc() == null) {
+        if (context.positionDetails().matchedExprType() == null) {
             return actions;
         }
 
@@ -87,7 +87,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
     CreateVariableOut getCreateVariableTextEdits(Diagnostic diagnostic,
                                                  CodeActionContext context) {
         Symbol matchedSymbol = context.positionDetails().matchedSymbol();
-        TypeSymbol typeDescriptor = context.positionDetails().matchedTypeDesc();
+        TypeSymbol typeDescriptor = context.positionDetails().matchedExprType();
 
         Position position = CommonUtil.toPosition(context.positionDetails().matchedNode().lineRange().startLine());
         Set<String> allNameEntries = context.getVisibleSymbols(position).stream()

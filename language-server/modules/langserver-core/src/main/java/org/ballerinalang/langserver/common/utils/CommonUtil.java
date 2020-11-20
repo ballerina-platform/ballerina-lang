@@ -835,13 +835,16 @@ public class CommonUtil {
     public static String getModulePrefix(ImportsAcceptor importsAcceptor, ModuleID currentModuleId,
                                          ModuleID moduleID, DocumentServiceContext context) {
         String pkgPrefix = "";
-        if (!moduleID.equals(currentModuleId) && !BUILT_IN_PACKAGE_PREFIX.equals(moduleID.moduleName())) {
+        if (!moduleID.equals(currentModuleId)) {
+            boolean preDeclaredLangLib = moduleID.orgName().equals("ballerina") && PRE_DECLARED_LANG_LIBS.contains(
+                    moduleID.moduleName());
             String moduleName = escapeModuleName(context, moduleID.orgName() + "/" + moduleID.moduleName());
             String[] moduleParts = moduleName.split("/");
             String orgName = moduleParts[0];
             String alias = moduleParts[1];
             pkgPrefix = alias.replaceAll(".*\\.", "") + ":";
-            if (importsAcceptor != null) {
+            pkgPrefix = (preDeclaredLangLib) ? "'" + pkgPrefix : pkgPrefix;
+            if (importsAcceptor != null && !preDeclaredLangLib) {
                 importsAcceptor.getAcceptor().accept(orgName, alias);
             }
         }
