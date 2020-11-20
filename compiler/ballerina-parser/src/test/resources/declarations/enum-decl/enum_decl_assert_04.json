@@ -245,7 +245,6 @@
                 },
                 {
                   "kind": "ENUM_MEMBER",
-                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
@@ -262,31 +261,32 @@
                           "value": " "
                         }
                       ]
-                    },
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_COMMA_TOKEN"
+                  ]
+                },
+                {
+                  "kind": "ENUM_MEMBER",
+                  "children": [
                     {
-                      "kind": "EQUAL_TOKEN",
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_INVALID_TOKEN"
-                      ],
-                      "leadingMinutiae": [
-                        {
-                          "kind": "INVALID_NODE_MINUTIAE",
-                          "invalidNode": {
-                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "children": [
-                              {
-                                "kind": "IDENTIFIER_TOKEN",
-                                "value": "value"
-                              }
-                            ]
-                          }
-                        },
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "value",
+                      "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
                           "value": " "
                         }
-                      ],
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
