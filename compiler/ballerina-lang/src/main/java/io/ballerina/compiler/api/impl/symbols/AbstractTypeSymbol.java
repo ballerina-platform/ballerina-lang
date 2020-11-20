@@ -46,12 +46,14 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     private final ModuleID moduleID;
     private final BType bType;
     private List<FunctionSymbol> langLibFunctions;
+    private final Documentation docAttachment;
 
     public AbstractTypeSymbol(CompilerContext context, TypeDescKind typeDescKind, ModuleID moduleID, BType bType) {
         this.context = context;
         this.typeDescKind = typeDescKind;
         this.moduleID = moduleID;
         this.bType = bType;
+        this.docAttachment = getDocAttachment(bType);
     }
 
     @Override
@@ -79,7 +81,7 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
 
     @Override
     public Optional<Documentation> docAttachment() {
-        return Optional.empty();
+        return Optional.ofNullable(this.docAttachment);
     }
 
     @Override
@@ -122,5 +124,10 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
         }
 
         return filteredFunctions;
+    }
+
+    private Documentation getDocAttachment(BType bType) {
+        return (bType == null || bType.tsymbol == null) ? null
+                : new BallerinaDocumentation(bType.tsymbol.markdownDocumentation);
     }
 }
