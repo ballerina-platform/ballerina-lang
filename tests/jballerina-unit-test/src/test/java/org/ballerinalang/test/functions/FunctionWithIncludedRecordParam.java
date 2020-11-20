@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.functions;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -29,8 +29,7 @@ import org.testng.annotations.Test;
  * Test function signatures and calling with included record params.
  */
 public class FunctionWithIncludedRecordParam {
-    CompileResult result;
-    CompileResult pkgResult;
+    private CompileResult result;
 
     @BeforeClass
     public void setup() {

@@ -66,6 +66,7 @@ public class Flags {
     public static final long CLASS = DISTINCT << 1;                             //  28
     public static final long ISOLATED = CLASS << 1;                             //  29
     public static final long ISOLATED_PARAM = ISOLATED << 1;                    //  30
+    public static final long INCLUDED = ISOLATED_PARAM << 1;                    //  31
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -155,6 +156,9 @@ public class Flags {
                 case ISOLATED:
                     mask |= ISOLATED;
                     break;
+                case INCLUDED:
+                    mask |= INCLUDED;
+                    break;
             }
         }
         return mask;
@@ -242,6 +246,9 @@ public class Flags {
                     break;
                 case ISOLATED:
                     flagVal = ISOLATED;
+                    break;
+                case INCLUDED:
+                    flagVal = INCLUDED;
                     break;
                 default:
                     continue;
