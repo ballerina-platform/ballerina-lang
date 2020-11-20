@@ -71,7 +71,6 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
                 || position.getLine() > lineRange.endLine().line();
     }
 
-
     private boolean withinInitializerContext(CompletionContext context, ModuleVariableDeclarationNode node) {
         if (node.equalsToken().isEmpty()) {
             return false;
