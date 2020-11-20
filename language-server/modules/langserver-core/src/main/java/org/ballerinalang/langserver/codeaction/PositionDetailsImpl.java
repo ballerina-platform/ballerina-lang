@@ -64,7 +64,7 @@ public class PositionDetailsImpl implements PositionDetails {
      * {@inheritDoc}
      */
     @Override
-    public TypeSymbol matchedSymbolTypeDesc() {
+    public TypeSymbol matchedTypeDesc() {
         return matchedTypeDesc;
     }
 }
