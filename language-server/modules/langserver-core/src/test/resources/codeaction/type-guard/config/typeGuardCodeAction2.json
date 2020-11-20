@@ -1,0 +1,37 @@
+{
+    "line": 4,
+    "character": 6,
+    "expected": [
+        {
+            "title": "Create Variable and Type Guard",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 4,
+                            "character": 13
+                        },
+                        "end": {
+                            "line": 4,
+                        "character": 13
+                    }
+                },
+                "newText": "\n    if (bar is error) {\n\n    }\n"
+            },
+            {
+                "range": {
+                    "start": {
+                        "line": 4,
+                        "character": 4
+                    },
+                    "end": {
+                        "line": 4,
+                        "character": 4
+                    }
+                },
+                "newText": "error? bar \u003d "
+            }
+            ]
+        }
+    ]
+}
