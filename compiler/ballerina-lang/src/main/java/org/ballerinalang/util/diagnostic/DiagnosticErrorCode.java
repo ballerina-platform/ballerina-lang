@@ -620,24 +620,30 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE3952", "invalid.mutable.field.access.in.isolated.object.outside.lock"),
     INVALID_REFERENCE_TO_SELF_IN_ISOLATED_OBJECT_OUTSIDE_LOCK(
             "BCE3953", "invalid.reference.to.self.in.isolated.object.outside.lock"),
-    INVALID_NON_UNIQUE_EXPRESSION_AS_INITIAL_VALUE_IN_ISOLATED_OBJECT(
-            "BCE3954", "invalid.non.unique.expression.as.initial.value.in.isolated.object"),
-    INVALID_COPY_OUT_OF_MUTABLE_VALUE_FROM_ISOLATED_OBJECT(
-            "BCE3955", "invalid.copy.out.of.mutable.value.from.isolated.object"),
-    INVALID_COPY_IN_OF_MUTABLE_VALUE_INTO_ISOLATED_OBJECT(
-            "BCE3956", "invalid.copy.in.of.mutable.value.into.isolated.object"),
-    INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_OBJECT_METHOD(
-            "BCE3957", "invalid.non.isolated.invocation.in.isolated.object.method"),
+    INVALID_NON_ISOLATED_EXPRESSION_AS_INITIAL_VALUE("BCE3954", "invalid.non.isolated.expression.as.initial.value"),
+    INVALID_TRANSFER_OUT_OF_LOCK_WITH_RESTRICTED_VAR_USAGE(
+            "BCE3955", "invalid.transfer.out.of.lock.with.restricted.var.usage"),
+    INVALID_TRANSFER_INTO_LOCK_WITH_RESTRICTED_VAR_USAGE(
+            "BCE3956", "invalid.transfer.into.lock.with.restricted.var.usage"),
+    INVALID_NON_ISOLATED_INVOCATION_IN_LOCK_WITH_RESTRICTED_VAR_USAGE(
+            "BCE3957", "invalid.non.isolated.invocation.in.lock.with.restricted.var.usage"),
+    INVALID_ISOLATED_VARIABLE_ACCESS_OUTSIDE_LOCK("BCE3958", "invalid.isolated.variable.access.outside.lock"),
+    INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE(
+            "BCE3959", "invalid.assignment.in.lock.with.restricted.var.usage"),
+    INVALID_USAGE_OF_MULTIPLE_RESTRICTED_VARS_IN_LOCK("BCE3960", "invalid.usage.of.multiple.restricted.vars.in.lock"),
+
+    INVALID_ISOLATED_QUALIFIER_ON_MODULE_NO_INIT_VAR_DECL(
+            "BCE3961", "invalid.isolated.qualifier.on.module.no.init.var.decl"),
 
     BINDING_PATTERN_NOT_YET_SUPPORTED_IN_MODULE_VAR_DECL(
-            "BCE3958", "binding.pattern.not.yet.supported.in.module.var.decl"),
+            "BCE3962", "binding.pattern.not.yet.supported.in.module.var.decl"),
 
     // Configurable var related error codes
-    CONFIGURABLE_VARIABLE_CANNOT_BE_DECLARED_WITH_VAR("BCE3959",
+    CONFIGURABLE_VARIABLE_CANNOT_BE_DECLARED_WITH_VAR("BCE3963",
             "configurable.variable.cannot.be.declared.with.var"),
-    CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA_AND_READONLY("BCE3960",
+    CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA_AND_READONLY("BCE3964",
             "configurable.variable.must.be.anydata.and.readonly"),
-    ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_CONFIGURABLE("BCE3961",
+    ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_CONFIGURABLE("BCE3965",
             "only.simple.variables.are.allowed.to.be.configurable"),
     ;
 
