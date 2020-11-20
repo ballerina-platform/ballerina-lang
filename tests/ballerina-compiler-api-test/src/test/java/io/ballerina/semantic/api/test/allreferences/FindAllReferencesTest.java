@@ -19,6 +19,7 @@
 package io.ballerina.semantic.api.test.allreferences;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -30,8 +31,10 @@ import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for the find all references API.
@@ -49,8 +52,21 @@ public abstract class FindAllReferencesTest {
     }
 
     @Test(dataProvider = "PositionProvider")
-    public void testFindAllReferences(int line, int col, List<Location> expLocations) {
+    public void testFindAllReferencesUsingLocation(int line, int col, List<Location> expLocations) {
         List<Location> locations = model.references(getFileName(), LinePosition.from(line, col));
+        assertLocations(locations, expLocations);
+    }
+
+    @Test(dataProvider = "PositionProvider")
+    public void testFindAllReferencesUsingSymbol(int line, int col, List<Location> expLocations) {
+        Optional<Symbol> symbol = model.symbol(getFileName(), LinePosition.from(line, col));
+
+        if (expLocations.isEmpty()) {
+            assertTrue(symbol.isEmpty());
+            return;
+        }
+
+        List<Location> locations = model.references(getFileName(), symbol.get());
         assertLocations(locations, expLocations);
     }
 

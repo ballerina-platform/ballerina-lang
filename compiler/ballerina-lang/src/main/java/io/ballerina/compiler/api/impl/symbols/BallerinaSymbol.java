@@ -26,7 +26,6 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.util.Flags;
 
 import java.util.Optional;
 
@@ -41,7 +40,6 @@ public class BallerinaSymbol implements Symbol {
     private final PackageID moduleID;
     private final SymbolKind symbolKind;
     private final Documentation docAttachment;
-    private final boolean isLangLib;
     private final Location position;
     private final BSymbol internalSymbol;
 
@@ -56,7 +54,6 @@ public class BallerinaSymbol implements Symbol {
         }
 
         this.internalSymbol = symbol;
-        this.isLangLib = (symbol.flags & Flags.LANG_LIB) == Flags.LANG_LIB;
         this.position = new BLangDiagnosticLocation(symbol.pos.lineRange().filePath(),
                                                     symbol.pos.lineRange().startLine().line(),
                                                     symbol.pos.lineRange().endLine().line(),

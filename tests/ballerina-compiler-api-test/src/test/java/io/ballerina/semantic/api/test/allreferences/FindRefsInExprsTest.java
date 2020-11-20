@@ -98,7 +98,9 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                                 location(96, 15, 21),
                                 location(98, 19, 25))
                 },
-                {98, 26, EMPTY_LIST},
+                {98, 26, List.of(location(92, 15, 19),
+                                 location(95, 18, 22))
+                },
         };
     }
 
