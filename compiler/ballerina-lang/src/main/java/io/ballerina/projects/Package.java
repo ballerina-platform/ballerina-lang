@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -16,7 +17,7 @@ import java.util.function.Function;
  * @since 2.0.0
  */
 public class Package {
-    private Project project;
+    private final Project project;
     private final PackageContext packageContext;
     private final Map<ModuleId, Module> moduleMap;
     private final Function<ModuleId, Module> populateModuleFunc;
@@ -64,8 +65,12 @@ public class Package {
         return packageContext.packageVersion();
     }
 
-    public PackageDescriptor packageDescriptor() {
-        return packageContext.packageDescriptor();
+    public PackageDescriptor descriptor() {
+        return packageContext.descriptor();
+    }
+
+    public PackageManifest manifest() {
+        return packageContext.manifest();
     }
 
     public Collection<ModuleId> moduleIds() {
@@ -108,7 +113,6 @@ public class Package {
         return module(this.packageContext.defaultModuleContext().moduleId());
     }
 
-    // PackageCompilation has the emit method
     public PackageCompilation getCompilation() {
         return this.packageContext.getPackageCompilation();
     }
@@ -131,6 +135,10 @@ public class Package {
         return packageContext.compilationOptions();
     }
 
+    public Optional<BallerinaToml> ballerinaToml() {
+        return packageContext.ballerinaToml();
+    }
+
     /**
      * Returns an instance of the Package.Modifier.
      *
@@ -139,8 +147,8 @@ public class Package {
     public Modifier modify() {
         return new Modifier(this);
     }
-
     private static class ModuleIterable implements Iterable {
+
         private final Collection<Module> moduleList;
 
         public ModuleIterable(Collection<Module> moduleList) {
@@ -163,15 +171,19 @@ public class Package {
      */
     public static class Modifier {
         private PackageId packageId;
-        private PackageDescriptor packageDescriptor;
+        private PackageManifest packageManifest;
+        private BallerinaToml ballerinaToml;
         private Map<ModuleId, ModuleContext> moduleContextMap;
         private Project project;
+        private final DependencyGraph<PackageDescriptor> pkgDescDependencyGraph;
 
         public Modifier(Package oldPackage) {
             this.packageId = oldPackage.packageId();
-            this.packageDescriptor = oldPackage.packageDescriptor();
+            this.packageManifest = oldPackage.manifest();
+            this.ballerinaToml = oldPackage.ballerinaToml().orElse(null);
             this.moduleContextMap = copyModules(oldPackage);
             this.project = oldPackage.project;
+            this.pkgDescDependencyGraph = oldPackage.packageContext().packageDescriptorDependencyGraph();
         }
 
         Modifier updateModule(ModuleContext newModuleContext) {
@@ -222,7 +234,7 @@ public class Package {
 
         private Package createNewPackage() {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId,
-                    this.packageDescriptor, this.moduleContextMap);
+                    this.packageManifest, this.ballerinaToml, this.moduleContextMap, pkgDescDependencyGraph);
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
             return this.project.currentPackage();
         }

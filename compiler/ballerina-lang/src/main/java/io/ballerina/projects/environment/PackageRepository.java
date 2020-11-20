@@ -19,7 +19,7 @@
 package io.ballerina.projects.environment;
 
 import io.ballerina.projects.Package;
-import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.PackageVersion;
 
 import java.util.List;
 import java.util.Map;
@@ -34,7 +34,7 @@ public interface PackageRepository {
 
     Optional<Package> getPackage(PackageLoadRequest packageLoadRequest);
 
-    List<SemanticVersion> getPackageVersions(PackageLoadRequest packageLoadRequest);
+    List<PackageVersion> getPackageVersions(PackageLoadRequest packageLoadRequest);
 
     Map<String, List<String>> getPackages();
 }

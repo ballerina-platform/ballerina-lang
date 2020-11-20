@@ -41,7 +41,7 @@ public class PackageVersion {
         return new PackageVersion(version);
     }
 
-    public SemanticVersion version() {
+    public SemanticVersion value() {
         return this.version;
     }
 

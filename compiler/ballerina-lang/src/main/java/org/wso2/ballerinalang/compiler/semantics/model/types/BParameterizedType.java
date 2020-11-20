@@ -35,12 +35,14 @@ public class BParameterizedType extends BType {
 
     public BVarSymbol paramSymbol;
     public BType paramValueType;
+    public int paramIndex;
 
-    public BParameterizedType(BType valueType, BVarSymbol paramSymbol, BTypeSymbol tSymbol, Name name) {
+    public BParameterizedType(BType valueType, BVarSymbol paramSymbol, BTypeSymbol tSymbol, Name name, int paramIndex) {
         super(TypeTags.PARAMETERIZED_TYPE, tSymbol);
         this.paramSymbol = paramSymbol;
         this.paramValueType = valueType;
         this.name = name;
+        this.paramIndex = paramIndex;
     }
 
     @Override

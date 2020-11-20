@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.internal;
 
+import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.ModuleConfig;
@@ -26,9 +27,8 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageId;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
-import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
@@ -45,63 +45,74 @@ public class PackageConfigCreator {
     public static PackageConfig createBuildProjectConfig(Path projectDirPath) {
         ProjectFiles.validateBuildProjectDirPath(projectDirPath);
 
-        PackageDescriptor packageDescriptor = ProjectFiles.createPackageDescriptor(
-                projectDirPath.resolve(ProjectConstants.BALLERINA_TOML));
+        Path balTomlFilePath = projectDirPath.resolve(ProjectConstants.BALLERINA_TOML);
+        BallerinaToml ballerinaToml = BallerinaToml.from(balTomlFilePath);
+        // TODO Create the PackageManifest from the BallerinaToml file
+        // TODO Validate the ballerinaToml content inside the Ballerina toml file
+        PackageManifest packageManifest = ProjectFiles.createPackageManifest(
+                balTomlFilePath);
         PackageData packageData = ProjectFiles.loadBuildProjectPackageData(projectDirPath);
-        return createPackageConfig(packageData, packageDescriptor);
+        return createPackageConfig(packageData, packageManifest, ballerinaToml);
     }
 
     public static PackageConfig createSingleFileProjectConfig(Path filePath) {
         ProjectFiles.validateSingleFileProjectFilePath(filePath);
 
-        // Create a PackageDescriptor instance
-        PackageName packageName = PackageName.from(ProjectConstants.DOT);
-        PackageOrg packageOrg = PackageOrg.from(ProjectConstants.ANON_ORG);
-        PackageVersion packageVersion = PackageVersion.from(ProjectConstants.DEFAULT_VERSION);
-        PackageDescriptor packageDescriptor = PackageDescriptor.from(packageName, packageOrg, packageVersion);
+        // Create a PackageManifest instance
+        PackageDescriptor packageDesc = PackageDescriptor.from(ProjectConstants.DOT, ProjectConstants.ANON_ORG,
+                ProjectConstants.DEFAULT_VERSION);
+        PackageManifest packageManifest = PackageManifest.from(packageDesc);
 
         PackageData packageData = ProjectFiles.loadSingleFileProjectPackageData(filePath);
-        return createPackageConfig(packageData, packageDescriptor);
+        return createPackageConfig(packageData, packageManifest);
     }
 
     public static PackageConfig createBalrProjectConfig(Path balrPath) {
         ProjectFiles.validateBalrProjectPath(balrPath);
-        PackageDescriptor packageDescriptor = BaloFiles.createPackageDescriptor(balrPath);
+        PackageManifest packageManifest = BaloFiles.createPackageManifest(balrPath);
 
-        PackageData packageData = BaloFiles.loadPackageData(balrPath, packageDescriptor);
-        return createPackageConfig(packageData, packageDescriptor);
+        PackageData packageData = BaloFiles.loadPackageData(balrPath, packageManifest);
+        return createPackageConfig(packageData, packageManifest);
     }
 
-    public static PackageConfig createPackageConfig(PackageData packageData, PackageDescriptor packageDescriptor) {
+    public static PackageConfig createPackageConfig(PackageData packageData, PackageManifest packageManifest) {
+        return createPackageConfig(packageData, packageManifest, null);
+    }
+
+    public static PackageConfig createPackageConfig(PackageData packageData,
+                                                    PackageManifest packageManifest,
+                                                    BallerinaToml ballerinaToml) {
         // TODO PackageData should contain the packageName. This should come from the Ballerina.toml file.
         // TODO For now, I take the directory name as the project name. I am not handling the case where the
         //  directory name is not a valid Ballerina identifier.
 
         // TODO: Should replace with Ballerina Toml parser generic model.
 
-        PackageName packageName = packageDescriptor.name();
+        PackageName packageName = packageManifest.name();
         PackageId packageId = PackageId.create(packageName.value());
 
         List<ModuleConfig> moduleConfigs = packageData.otherModules()
                 .stream()
-                .map(moduleData -> createModuleConfig(packageDescriptor, moduleData, packageId))
+                .map(moduleData -> createModuleConfig(packageManifest.descriptor(), moduleData, packageId))
                 .collect(Collectors.toList());
-        moduleConfigs.add(createDefaultModuleData(packageDescriptor, packageData.defaultModule(), packageId));
-        return PackageConfig.from(packageId, packageData.packagePath(), packageDescriptor, moduleConfigs);
+        moduleConfigs.add(createDefaultModuleConfig(packageManifest.descriptor(),
+                packageData.defaultModule(), packageId));
+        return PackageConfig.from(packageId, packageData.packagePath(),
+                packageManifest, ballerinaToml, moduleConfigs);
     }
 
-    private static ModuleConfig createDefaultModuleData(PackageDescriptor pkgDescriptor,
-                                                        ModuleData moduleData,
-                                                        PackageId packageId) {
-        ModuleName moduleName = ModuleName.from(pkgDescriptor.name());
-        return createModuleConfig(createModuleDescriptor(pkgDescriptor, moduleName), moduleData, packageId);
+    private static ModuleConfig createDefaultModuleConfig(PackageDescriptor pkgDesc,
+                                                          ModuleData moduleData,
+                                                          PackageId packageId) {
+        ModuleName moduleName = ModuleName.from(pkgDesc.name());
+        return createModuleConfig(createModuleDescriptor(pkgDesc, moduleName), moduleData, packageId);
     }
 
     private static ModuleDescriptor createModuleDescriptor(PackageDescriptor pkgDesc, ModuleName moduleName) {
         return ModuleDescriptor.from(pkgDesc.name(), pkgDesc.org(), pkgDesc.version(), moduleName);
     }
 
-    private static ModuleConfig createModuleConfig(PackageDescriptor pkgDescriptor,
+    private static ModuleConfig createModuleConfig(PackageDescriptor pkgDesc,
                                                    ModuleData moduleData,
                                                    PackageId packageId) {
         Path fileName = moduleData.moduleDirectoryPath().getFileName();
@@ -109,8 +120,8 @@ public class PackageConfigCreator {
             // TODO Proper error handling
             throw new IllegalStateException("This branch cannot be reached");
         }
-        ModuleName moduleName = ModuleName.from(pkgDescriptor.name(), moduleData.moduleName());
-        return createModuleConfig(createModuleDescriptor(pkgDescriptor, moduleName), moduleData, packageId);
+        ModuleName moduleName = ModuleName.from(pkgDesc.name(), moduleData.moduleName());
+        return createModuleConfig(createModuleDescriptor(pkgDesc, moduleName), moduleData, packageId);
     }
 
     private static ModuleConfig createModuleConfig(ModuleDescriptor moduleDescriptor,

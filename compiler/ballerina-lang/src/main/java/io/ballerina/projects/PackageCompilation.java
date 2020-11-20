@@ -20,7 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.projects.CompilerBackend.TargetPlatform;
-import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -47,7 +48,7 @@ import java.util.stream.Collectors;
  */
 public class PackageCompilation {
     private final PackageContext packageContext;
-    private final PackageResolver packageResolver;
+    private final PackageCache packageCache;
     private final CompilerContext compilerContext;
 
     private final DependencyGraph<PackageId> dependencyGraph;
@@ -61,7 +62,7 @@ public class PackageCompilation {
         this.packageContext = packageContext;
 
         ProjectEnvironment projectEnvContext = packageContext.project().projectEnvironmentContext();
-        this.packageResolver = projectEnvContext.getService(PackageResolver.class);
+        this.packageCache = projectEnvContext.getService(PackageCache.class);
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
 
         // Resolving the dependencies of this package before the compilation
@@ -75,11 +76,11 @@ public class PackageCompilation {
     private DependencyGraph<PackageId> buildDependencyGraph() {
         Map<PackageId, Set<PackageId>> dependencyIdMap = new HashMap<>();
         addPackageDependencies(packageContext.packageId(), dependencyIdMap);
-        return new DependencyGraph<>(dependencyIdMap);
+        return DependencyGraph.from(dependencyIdMap);
     }
 
     private void addPackageDependencies(PackageId packageId, Map<PackageId, Set<PackageId>> dependencyIdMap) {
-        Package pkg = packageResolver.getPackage(packageId);
+        Package pkg = packageCache.getPackageOrThrow(packageId);
         Collection<PackageId> directDependencies = pkg.packageDependencies().stream()
                 .map(PackageDependency::packageId)
                 .collect(Collectors.toList());
@@ -101,7 +102,7 @@ public class PackageCompilation {
         // Repeat this for each module in each package in the package dependency graph.
         List<PackageId> sortedPackageIds = dependencyGraph.toTopologicallySortedList();
         for (PackageId packageId : sortedPackageIds) {
-            Package pkg = packageResolver.getPackage(packageId);
+            Package pkg = packageCache.getPackageOrThrow(packageId);
             DependencyGraph<ModuleId> moduleDependencyGraph = pkg.moduleDependencyGraph();
             List<ModuleId> sortedModuleIds = moduleDependencyGraph.toTopologicallySortedList();
             for (ModuleId moduleId : sortedModuleIds) {
@@ -122,6 +123,8 @@ public class PackageCompilation {
             moduleContext.compile(compilerContext);
             diagnostics.addAll(moduleContext.diagnostics());
         }
+
+        addOtherDiagnostics(diagnostics);
         diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         compiled = true;
     }
@@ -169,5 +172,15 @@ public class PackageCompilation {
     <T extends CompilerBackend> T getCompilerBackend(TargetPlatform targetPlatform,
                                                      Function<TargetPlatform, T> backendCreator) {
         return (T) compilerBackends.computeIfAbsent(targetPlatform, backendCreator);
+    }
+
+    private void addOtherDiagnostics(List<Diagnostic> diagnostics) {
+        Optional<BallerinaToml> ballerinaTomlOptional = packageContext.ballerinaToml();
+        if (ballerinaTomlOptional.isEmpty()) {
+            return;
+        }
+
+        BallerinaToml ballerinaToml = ballerinaTomlOptional.get();
+        diagnostics.addAll(ballerinaToml.diagnostics().allDiagnostics);
     }
 }
