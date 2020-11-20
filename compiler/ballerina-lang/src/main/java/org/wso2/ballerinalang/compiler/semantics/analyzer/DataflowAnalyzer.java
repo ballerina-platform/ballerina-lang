@@ -357,6 +357,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 case TUPLE_VARIABLE:
                     checkForUninitializedGlobalVars(((BLangTupleVariable) globalVar).memberVariables);
                     break;
+                case RECORD_VARIABLE:
+                    BLangRecordVariable recordVariable = (BLangRecordVariable) globalVar;
+                    List<BLangVariable> memberVariables = new ArrayList<>();
+                    recordVariable.variableList.forEach(memberKeyValue -> {
+                        memberVariables.add(memberKeyValue.valueBindingPattern);
+                    });
+                    checkForUninitializedGlobalVars(memberVariables);
+                    break;
             }
         }
     }
@@ -1698,14 +1706,19 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
         analyzeNode(bLangRecordVariable.typeNode, env);
+        if (bLangRecordVariable.expr != null) {
+            analyzeNode(bLangRecordVariable.expr, env);
+        } else {
+            bLangRecordVariable.variableList.forEach(memberKeyValue -> {
+                analyzeNode(memberKeyValue.valueBindingPattern, env);
+            });
+        }
     }
 
     @Override
     public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
         BLangVariable var = bLangRecordVariableDef.var;
-        if (var.expr == null) {
-            addUninitializedVar(var);
-        }
+        analyzeNode(var, env);
     }
 
     @Override
