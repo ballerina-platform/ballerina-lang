@@ -35,13 +35,15 @@ import static org.testng.Assert.assertFalse;
  */
 public class ModuleVariableTest {
 
-    private CompileResult compileResult, compileResultNegative, recordVarCompileResult;
+    private CompileResult compileResult, compileResultNegative, recordVarCompileResult, recordVarCompileResultNegetive;
 
     @BeforeClass
     public void setup() {
 //        compileResult = BCompileUtil.compile("test-src/statements/vardeclr/module_tuple_var_decl.bal");
 //        compileResultNegative = BCompileUtil.compile("test-src/statements/vardeclr/module_tuple_var_decl_negetive.bal");
-        recordVarCompileResult = BCompileUtil.compile("test-src/statements/vardeclr/module_record_var_decl.bal");
+//        recordVarCompileResult = BCompileUtil.compile("test-src/statements/vardeclr/module_record_var_decl.bal");
+        recordVarCompileResultNegetive =
+                BCompileUtil.compile("test-src/statements/vardeclr/module_record_var_decl_negetive.bal");
     }
 
     @Test
@@ -135,5 +137,13 @@ public class ModuleVariableTest {
         assertEquals(returns[index++].stringValue(), "Y");
         assertFalse(((BBoolean) returns[index++]).booleanValue());
         assertEquals(returns.length, index++);
+    }
+
+    @Test
+    public void testModuleLevelRecordVarDeclNegetive() {
+        int index = 0;
+        validateError(recordVarCompileResultNegetive, index++, "redeclared symbol 'Fname'", 19, 23);
+        validateError(recordVarCompileResultNegetive, index++, "invalid record binding pattern; unknown field 'age' in record type 'Person'", 20, 7);
+        assertEquals(compileResultNegative.getErrorCount(), index++);
     }
 }
