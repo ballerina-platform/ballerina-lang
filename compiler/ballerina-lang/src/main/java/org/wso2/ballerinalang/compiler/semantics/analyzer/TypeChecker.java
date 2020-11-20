@@ -5274,11 +5274,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
         BType actualType = checkInvocationParam(iExpr);
-        if (actualType.tag == symTable.xmlTextType.tag &&
-                ((String) ((BLangLiteral) iExpr.argExprs.get(0)).value).isEmpty()) {
-            resultType = types.checkType(iExpr, symTable.xmlNeverType, this.expType);
-            return;
-        }
         resultType = types.checkType(iExpr, actualType, this.expType);
     }
 

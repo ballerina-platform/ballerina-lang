@@ -70,7 +70,7 @@ function testExclusiveRecord() {
 function testXMLWithNeverType() {
     xml<never> x = <xml<never>> 'xml:concat();  //generates an empty XML sequence and assign it to XML<never>
     xml<never> a = xml ``;
-    xml<never> b = 'xml:createText("");
+    xml<never> b = <xml<never>> 'xml:createText("");
     xml c = xml ``;
     'xml:Text d = xml ``;
     xml<'xml:Text> e = a;
