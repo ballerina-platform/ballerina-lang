@@ -25,6 +25,8 @@ import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertFalse;
 
 /**
  * Class to test module level variable declaration for all binding patterns.
@@ -110,13 +112,28 @@ public class ModuleVariableTest {
     }
 
     @Test
-    public void testBasicModuleLevelRecordVarDecl() {
+    public void testModuleLevelRecordVarDecl() {
 
         BValue[] returns = BRunUtil.invoke(recordVarCompileResult, "testBasic");
-
         int index = 0;
         assertEquals(returns[index++].stringValue(), "Jhone");
         assertTrue(((BBoolean) returns[index++]).booleanValue());
+        assertEquals(returns.length, index++);
+
+        returns = BRunUtil.invoke(recordVarCompileResult, "recordVarInRecordVar");
+        index = 0;
+        assertEquals(returns[index++].stringValue(), "Peter");
+        assertEquals(((BInteger) returns[index++]).intValue(), 29);
+        assertEquals(returns[index++].stringValue(), "Y");
+        assertTrue(((BBoolean) returns[index++]).booleanValue());
+        assertEquals(returns.length, index++);
+
+        returns = BRunUtil.invoke(recordVarCompileResult, "tupleVarInRecordVar");
+        index = 0;
+        assertEquals(returns[index++].stringValue(), "Mac");
+        assertEquals(((BInteger) returns[index++]).intValue(), 21);
+        assertEquals(returns[index++].stringValue(), "Y");
+        assertFalse(((BBoolean) returns[index++]).booleanValue());
         assertEquals(returns.length, index++);
     }
 }

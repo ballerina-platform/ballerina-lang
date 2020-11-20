@@ -57,12 +57,12 @@ type PersonWithAge2 record {
 };
 PersonWithAge2 {name: fName2, age: [age2, format2], married:married2} = getPersonWithAge2();
 
-function recordVarInRecordVar2() returns [string, int, string, boolean] {
+function tupleVarInRecordVar() returns [string, int, string, boolean] {
     return [fName2, age2, format2, married2];
 }
 
 function getPersonWithAge2() returns PersonWithAge2 {
-    return { name: "Peter", age:[29, "Y"], married: true};
+    return { name: "Mac", age:[21, "Y"], married: false};
 }
 // ------------------------------------------------------------------------------------------------
 
