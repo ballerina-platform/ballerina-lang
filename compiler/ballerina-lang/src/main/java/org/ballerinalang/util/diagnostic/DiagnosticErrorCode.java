@@ -187,6 +187,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     SERVICE_FUNCTION_INVALID_MODIFIER("BCE2402", "service.function.invalid.modifier"),
     SERVICE_FUNCTION_INVALID_INVOCATION("BCE2403", "service.function.invalid.invocation"),
     SERVICE_SERVICE_TYPE_REQUIRED_ANONYMOUS("BCE2404", "service.service.type.required.anonymous"),
+
     ENDPOINT_OBJECT_TYPE_REQUIRED("BCE2405", "endpoint.object.type.required"),
     ENDPOINT_OBJECT_NEW_HAS_PARAM("BCE2406", "endpoint.object.new.has.param"),
     ENDPOINT_INVALID_TYPE("BCE2407", "endpoint.invalid.type"),
@@ -403,6 +404,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     MATCH_STMT_UNMATCHED_PATTERN("BCE2902", "match.stmt.unmatched.pattern"),
     MATCH_STMT_PATTERN_ALWAYS_MATCHES("BCE2903", "match.stmt.pattern.always.matches"),
     MATCH_STMT_PATTERN_UNREACHABLE("BCE2904", "match.stmt.unreachable.pattern.available"),
+
     MATCH_PATTERN_NOT_SUPPORTED("BCE2905", "match.pattern.not.supported"),
     MATCH_PATTERNS_SHOULD_CONTAIN_SAME_SET_OF_VARIABLES(
             "BCE2906", "match.patterns.should.contain.same.set.of.variables"),
