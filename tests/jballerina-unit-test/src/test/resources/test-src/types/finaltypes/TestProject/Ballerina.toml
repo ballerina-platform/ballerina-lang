@@ -1,3 +1,4 @@
-[project]
-org-name = "final-types"
+[package]
+org = "test_org"
+name = "final_types"
 version = "1.0.0"

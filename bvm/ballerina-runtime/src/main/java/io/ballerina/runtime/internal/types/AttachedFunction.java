@@ -35,7 +35,7 @@ public class AttachedFunction extends BFunctionType implements AttachedFunctionT
     public BFunctionType type;
     public BObjectType parentObjectType;
 
-    public AttachedFunction(String funcName, BObjectType parent, BFunctionType type, int flags) {
+    public AttachedFunction(String funcName, BObjectType parent, BFunctionType type, long flags) {
         this.funcName = funcName;
         this.type = type;
         this.parentObjectType = parent;

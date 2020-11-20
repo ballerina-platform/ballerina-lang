@@ -29,9 +29,9 @@ public class BField implements Field {
 
     public Type type;
     public String name;
-    public int flags;
+    public long flags;
 
-    public BField(Type fieldType, String fieldName, int flags) {
+    public BField(Type fieldType, String fieldName, long flags) {
         this.type = fieldType;
         this.name = fieldName;
         this.flags = flags;
@@ -45,7 +45,7 @@ public class BField implements Field {
         return name;
     }
 
-    public int getFlags() {
+    public long getFlags() {
         return flags;
     }
 }

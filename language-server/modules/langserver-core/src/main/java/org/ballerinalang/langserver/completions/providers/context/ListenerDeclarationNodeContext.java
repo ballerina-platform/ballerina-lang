@@ -32,15 +32,12 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -72,7 +69,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ListenerDeclarationNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, ListenerDeclarationNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
@@ -92,7 +89,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
     }
 
     @Override
-    public void sort(LSContext context, ListenerDeclarationNode node, List<LSCompletionItem> completionItems,
+    public void sort(CompletionContext context, ListenerDeclarationNode node, List<LSCompletionItem> completionItems,
                      Object... metaData) {
         super.sort(context, node, completionItems, metaData);
         if (metaData.length < 1 || !(metaData[0] instanceof ContextScope)) {
@@ -131,14 +128,14 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         }
     }
 
-    private List<LSCompletionItem> typeDescriptorContextItems(LSContext context) {
+    private List<LSCompletionItem> typeDescriptorContextItems(CompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         /*
         Type descriptor is null in the following use-case
         (1) public listener ht<cursor>
         because the type descriptor is optional as per the grammar
          */
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             String modulePrefix = QNameReferenceUtil.getAlias((QualifiedNameReferenceNode) nodeAtCursor);
             completionItems.addAll(listenersInModule(context, modulePrefix));
@@ -148,9 +145,9 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         return completionItems;
     }
 
-    private List<LSCompletionItem> listenersAndPackagesItems(LSContext context) {
+    private List<LSCompletionItem> listenersAndPackagesItems(CompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
-        List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
         List<Symbol> listeners = visibleSymbols.stream()
                 .filter(SymbolUtil::isListener)
                 .collect(Collectors.toList());
@@ -159,9 +156,9 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         return completionItems;
     }
 
-    private List<LSCompletionItem> listenersInModule(LSContext context, String modulePrefix) {
+    private List<LSCompletionItem> listenersInModule(CompletionContext context, String modulePrefix) {
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
         Optional<ModuleSymbol> moduleSymbol = visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == MODULE && symbol.name().equals(modulePrefix))
                 .map(symbol -> (ModuleSymbol) symbol)
@@ -181,9 +178,9 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         return completionItems;
     }
 
-    private List<LSCompletionItem> initializerItems(LSContext context, ListenerDeclarationNode listenerNode) {
+    private List<LSCompletionItem> initializerItems(CompletionContext context, ListenerDeclarationNode listenerNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
         
         /*
         Supports the following
@@ -202,8 +199,8 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         return completionItems;
     }
 
-    private Optional<ListenerDeclarationNode> listenerNode(LSContext context) {
-        NonTerminalNode node = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+    private Optional<ListenerDeclarationNode> listenerNode(CompletionContext context) {
+        NonTerminalNode node = context.getNodeAtCursor();
         while (node.kind() != SyntaxKind.LISTENER_DECLARATION && node.kind() != SyntaxKind.MODULE_PART) {
             node = node.parent();
         }
@@ -215,8 +212,8 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         return Optional.empty();
     }
 
-    private boolean withinTypeDescContext(LSContext context, ListenerDeclarationNode node) {
-        Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+    private boolean withinTypeDescContext(CompletionContext context, ListenerDeclarationNode node) {
+        Position position = context.getCursorPosition();
         Token varName = node.variableName();
         Token listenerKW = node.listenerKeyword();
 
@@ -235,22 +232,22 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                 && node.typeDescriptor() == null));
     }
 
-    private boolean withinInitializerContext(LSContext context, ListenerDeclarationNode node) {
+    private boolean withinInitializerContext(CompletionContext context, ListenerDeclarationNode node) {
         Node equalsToken = node.equalsToken();
         if (equalsToken.isMissing()) {
             return false;
         }
-        Position cursorPos = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        Position cursorPos = context.getCursorPosition();
         LineRange lineRange = equalsToken.lineRange();
         return (cursorPos.getLine() == lineRange.startLine().line()
                 && cursorPos.getCharacter() > lineRange.startLine().offset())
                 || (cursorPos.getLine() > lineRange.startLine().line());
     }
 
-    private Optional<ObjectTypeSymbol> getListenerTypeDesc(LSContext context, ListenerDeclarationNode node) {
+    private Optional<ObjectTypeSymbol> getListenerTypeDesc(CompletionContext context, ListenerDeclarationNode node) {
         Node typeDescriptor = node.typeDescriptor();
         Optional<ObjectTypeSymbol> typeSymbol = Optional.empty();
-        List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
         if (typeDescriptor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode nameReferenceNode = (QualifiedNameReferenceNode) typeDescriptor;
             Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context,

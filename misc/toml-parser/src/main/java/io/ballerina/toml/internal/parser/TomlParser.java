@@ -33,7 +33,6 @@ import static io.ballerina.toml.syntax.tree.SyntaxKind.EQUAL_TOKEN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.FLOAT;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.OPEN_BRACKET_TOKEN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.SINGLE_QUOTE_TOKEN;
-import static io.ballerina.toml.syntax.tree.SyntaxKind.STRING_LITERAL;
 
 /**
  * A LL(k) recursive-descent parser for TOML.
@@ -82,8 +81,14 @@ public class TomlParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
                 return null;
+            case NEWLINE:
+                consume(); //New line is only used for validations. Should be ignored
+                return parseTopLevelNode();
             case OPEN_BRACKET_TOKEN:
-                return parseTableOrArrays();
+                if (peek(2).kind == OPEN_BRACKET_TOKEN) {
+                    return parseArrayOfTables();
+                }
+                return parseTable();
             case IDENTIFIER_LITERAL:
             case SINGLE_QUOTE_TOKEN:
             case DOUBLE_QUOTE_TOKEN:
@@ -91,12 +96,28 @@ public class TomlParser extends AbstractParser {
             case FALSE_KEYWORD:
             case DECIMAL_INT_TOKEN:
             case DECIMAL_FLOAT_TOKEN:
+                int lookahead = 1;
+                STToken peekToken = peek(lookahead);
+                while (!isEndOfStatement(peekToken)) {
+                    if (peekToken.kind == CLOSE_BRACKET_TOKEN) {
+                        if (peek(lookahead + 1).kind == CLOSE_BRACKET_TOKEN) {
+                            return parseArrayOfTables();
+                        }
+                        return parseTable();
+                    }
+                    lookahead += 1;
+                    peekToken = peek(lookahead);
+                }
                 return parseKeyValue();
             default:
                 recover(nextToken, ParserRuleContext.TOP_LEVEL_NODE);
-
                 return parseTopLevelNode();
         }
+    }
+
+    private boolean isEndOfStatement(STToken nextToken) {
+        return nextToken.kind == SyntaxKind.EQUAL_TOKEN || nextToken.kind == SyntaxKind.NEWLINE
+                || nextToken.kind == EOF_TOKEN;
     }
 
     /**
@@ -112,19 +133,14 @@ public class TomlParser extends AbstractParser {
         STNode identifierToken = parseKeys();
         STNode firstCloseBracket = parseCloseBracket(ParserRuleContext.ARRAY_TABLE_FIRST_END);
         STNode secondCloesBracket = parseCloseBracket(ParserRuleContext.ARRAY_TABLE_SECOND_END);
+        STNode newline = parseNewlines();
+        if (newline.hasDiagnostics()) {
+            secondCloesBracket = SyntaxErrors.addSyntaxDiagnostics(secondCloesBracket, newline.diagnostics());
+        }
         List<STNode> fields = parseTableEntries();
         endContext();
         return STNodeFactory.createTableArrayNode(firstOpenBracket, secondOpenBracket,
                 identifierToken, firstCloseBracket, secondCloesBracket, STNodeFactory.createNodeList(fields));
-    }
-
-    private STNode parseTableOrArrays() {
-        STToken token = peek(2);
-        if (token.kind == OPEN_BRACKET_TOKEN) {
-            return parseArrayOfTables();
-        } else {
-            return parseTable();
-        }
     }
 
     /**
@@ -138,6 +154,10 @@ public class TomlParser extends AbstractParser {
         STNode openBracket = parseOpenBracket(ParserRuleContext.TABLE_START);
         STNode identifierToken = parseKeys();
         STNode closedBracket = parseCloseBracket(ParserRuleContext.TABLE_END);
+        STNode newLine = parseNewlines();
+        if (newLine.hasDiagnostics()) {
+            closedBracket = SyntaxErrors.addSyntaxDiagnostics(closedBracket, newLine.diagnostics());
+        }
         List<STNode> fields = parseTableEntries();
         endContext();
         return STNodeFactory.createTableNode(openBracket, identifierToken, closedBracket,
@@ -191,27 +211,46 @@ public class TomlParser extends AbstractParser {
         STNode identifier = parseKeys();
         STNode equals = parseEquals();
         STNode value = parseValue();
+        STNode newLine = parseNewlines();
+        if (newLine.hasDiagnostics()) {
+            value = SyntaxErrors.addSyntaxDiagnostics(value, newLine.diagnostics());
+        }
         endContext();
         return STNodeFactory.createKeyValueNode(identifier, equals, value);
+    }
+
+    /**
+     * Pares new lines.
+     * New lines are appended to trivia from lexer. These tokens are only used for validations purposes.
+     */
+    private STNode parseNewlines() {
+        STToken token = peek();
+        if (!isNewline(token.kind)) {
+            recover(peek(), ParserRuleContext.NEWLINE);
+            return parseNewlines();
+        }
+        STToken recentNewline = null;
+        while (isNewline(token.kind)) {
+            recentNewline = consume();
+            token = peek();
+        }
+        return recentNewline;
+    }
+
+    private boolean isNewline(SyntaxKind kind) {
+        return kind == SyntaxKind.NEWLINE;
     }
 
     /**
      * Parses Key Node. A Key Node can be either one or many the following forms
      * UNQUOTED_KEY_TOKEN (Regular Keys) |
      * TRUE/FALSE KEYWORD |
-     * STRING_LITERAL (Quoted Keys)
+     * STRING_LITERAL_TOKEN (Quoted Keys)
      *
      * @return KeyNodeList
      */
     private STNode parseKeys() {
         startContext(ParserRuleContext.KEY_LIST);
-        STToken token = peek();
-
-        if (isEndOfKeyList(token)) {
-            STNode values = STNodeFactory.createEmptyNodeList();
-            endContext();
-            return values;
-        }
 
         STNode firstKey = parseSingleKey();
         if (firstKey == null) {
@@ -225,18 +264,27 @@ public class TomlParser extends AbstractParser {
         return token.kind == EQUAL_TOKEN || token.kind == EOF_TOKEN || token.kind == CLOSE_BRACKET_TOKEN; //TODO revisit
     }
 
+    private STNode parseIdentifierLiteral() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.IDENTIFIER_LITERAL) {
+            return STNodeFactory.createIdentifierLiteralNode(consume());
+        } else {
+            recover(token, ParserRuleContext.IDENTIFIER_LITERAL);
+            return parseIdentifierLiteral();
+        }
+    }
+
     private STNode parseSingleKey() {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case DECIMAL_INT_TOKEN:
-                return STNodeFactory.createNumericLiteralNode(DEC_INT, consume());
-            case DECIMAL_FLOAT_TOKEN: //TODO signed numeric
-                return STNodeFactory.createNumericLiteralNode(FLOAT, consume());
+            case DECIMAL_FLOAT_TOKEN:
+                return parseNumericalNode();
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
-                return STNodeFactory.createBoolLiteralNode(consume());
+                return parseBoolean();
             case IDENTIFIER_LITERAL:
-                return STNodeFactory.createIdentifierLiteralNode(consume());
+                return parseIdentifierLiteral();
             case DOUBLE_QUOTE_TOKEN:
             case TRIPLE_DOUBLE_QUOTE_TOKEN:
             case SINGLE_QUOTE_TOKEN:
@@ -244,7 +292,7 @@ public class TomlParser extends AbstractParser {
             case EQUAL_TOKEN:
                 return null;
             default:
-                recover(peek(), ParserRuleContext.KEY_ENTRY);
+                recover(peek(), ParserRuleContext.KEY_START);
                 return parseSingleKey();
         }
     }
@@ -274,35 +322,18 @@ public class TomlParser extends AbstractParser {
     }
 
     private STNode parseKeyEnd() {
-        switch (peek().kind) {
+        STToken token = peek();
+        switch (token.kind) {
             case DOT_TOKEN:
-                return parseDot();
-            case DOUBLE_QUOTE_TOKEN:
-            case SINGLE_QUOTE_TOKEN:
+                return consume();
+            case EQUAL_TOKEN:
+            case CLOSE_BRACKET_TOKEN:
                 // null marks the end of values
                 return null;
             default:
-                recover(peek(), ParserRuleContext.KEYS_END);
-                return parseValueEnd();
+                recover(token, ParserRuleContext.KEY_END);
+                return parseKeyEnd();
         }
-    }
-
-    public static boolean isKey(STToken token) { //change in error handler
-        switch (token.kind) {
-            case IDENTIFIER_LITERAL:
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-                return true;
-            default:
-                return isNumberValidKey(token);
-        }
-    }
-
-    public static boolean isNumberValidKey(STToken token) {
-        if (token.kind == SyntaxKind.DECIMAL_INT_TOKEN || token.kind == SyntaxKind.DECIMAL_FLOAT_TOKEN) {
-            return !(token.text().startsWith("+") || token.text().startsWith("-"));
-        }
-        return false;
     }
 
     private STNode parseEquals() {
@@ -318,8 +349,8 @@ public class TomlParser extends AbstractParser {
     /**
      * Parses Value Node. A Value Node can be either one of the following forms
      * Basic Values
-     * STRING_LITERAL (Single Line String) |
-     * ML_STRING_LITERAL (Multiline String) |
+     * STRING_LITERAL_TOKEN (Single Line String) |
+     * ML_STRING_LITERAL_TOKEN (Multiline String) |
      * DECIMAL_INT_TOKEN (Decimal Integer) |
      * DECIMAL_FLOAT_TOKEN (Float) |
      * BOOLEAN |
@@ -335,17 +366,70 @@ public class TomlParser extends AbstractParser {
             case TRIPLE_DOUBLE_QUOTE_TOKEN:
                 return parseStringValue();
             case DECIMAL_INT_TOKEN:
-                return STNodeFactory.createNumericLiteralNode(DEC_INT, consume());
             case DECIMAL_FLOAT_TOKEN:
-                return STNodeFactory.createNumericLiteralNode(FLOAT, consume());
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+                return parseNumericalNode();
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
-                return STNodeFactory.createBoolLiteralNode(consume());
+                return parseBoolean();
             case OPEN_BRACKET_TOKEN:
                 return parseArray();
             default:
                 recover(token, ParserRuleContext.VALUE);
                 return parseValue();
+        }
+    }
+
+    private STNode parseNumericalNode() {
+        STNode sign = parseSign();
+        STNode token = parseNumericalToken();
+        SyntaxKind kind;
+        if (token.kind == SyntaxKind.DECIMAL_INT_TOKEN) {
+            kind = DEC_INT;
+        } else {
+            kind = FLOAT;
+        }
+        return STNodeFactory.createNumericLiteralNode(kind, sign, token);
+    }
+
+    private STNode parseNumericalToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.DECIMAL_INT_TOKEN) {
+            return consume();
+        } else if (token.kind == SyntaxKind.DECIMAL_FLOAT_TOKEN) {
+            return consume();
+        } else {
+            recover(token, ParserRuleContext.NUMERICAL_LITERAL);
+            return parseNumericalToken();
+        }
+    }
+
+    private STNode parseSign() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.MINUS_TOKEN || token.kind == SyntaxKind.PLUS_TOKEN) {
+            return consume();
+        }
+        return STNodeFactory.createEmptyNode();
+    }
+
+    private STNode parseFloatToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.DECIMAL_FLOAT_TOKEN) {
+            return consume();
+        } else {
+            recover(token, ParserRuleContext.DECIMAL_FLOATING_POINT_LITERAL);
+            return parseFloatToken();
+        }
+    }
+
+    private STNode parseBoolean() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.TRUE_KEYWORD || token.kind == SyntaxKind.FALSE_KEYWORD) {
+            return STNodeFactory.createBoolLiteralNode(consume());
+        } else {
+            recover(token, ParserRuleContext.BOOLEAN_LITERAL);
+            return parseBoolean();
         }
     }
 
@@ -379,20 +463,19 @@ public class TomlParser extends AbstractParser {
 
     private STNode parseStringContent() {
         STToken nextToken = peek();
-        if (nextToken.kind == STRING_LITERAL) {
-          return consume();
+        if (nextToken.kind == SyntaxKind.IDENTIFIER_LITERAL) {
+            return consume();
         } else {
-            recover(nextToken, ParserRuleContext.STRING_LITERAL);
+            recover(nextToken, ParserRuleContext.STRING_CONTENT);
             return parseStringContent();
         }
     }
 
-
     /**
      * Parsing Array Value. Array is surrounded by Single brackets.Array can contains any basic values and other arrays.
      * * Basic Values
-     * * STRING_LITERAL (Single Line String) |
-     * * ML_STRING_LITERAL (Multiline String) |
+     * * STRING_LITERAL_TOKEN (Single Line String) |
+     * * ML_STRING_LITERAL_TOKEN (Multiline String) |
      * * DECIMAL_INT_TOKEN (Decimal Integer) |
      * * DECIMAL_FLOAT_TOKEN (Float) |
      * * TRUE/FALSE KEYWORD |
@@ -402,11 +485,9 @@ public class TomlParser extends AbstractParser {
      * @return ArrayNode
      */
     private STNode parseArray() {
-        startContext(ParserRuleContext.TOML_ARRAY);
         STNode openBracket = parseOpenBracket(ParserRuleContext.ARRAY_VALUE_LIST_START);
         STNode values = parseArrayValues();
         STNode closeBracket = parseCloseBracket(ParserRuleContext.ARRAY_VALUE_LIST_END);
-        endContext();
         return STNodeFactory.createArrayNode(openBracket, values, closeBracket);
     }
 
@@ -459,7 +540,7 @@ public class TomlParser extends AbstractParser {
     private STNode parseValueEnd() {
         switch (peek().kind) {
             case COMMA_TOKEN:
-                return parseComma();
+                return consume();
             case CLOSE_BRACKET_TOKEN:
                 // null marks the end of values
                 return null;
@@ -482,26 +563,6 @@ public class TomlParser extends AbstractParser {
         } else {
             recover(peek(), ParserRuleContext.ARRAY_VALUE_START);
             return parseArrayValue();
-        }
-    }
-
-    private STNode parseDot() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.DOT_TOKEN) {
-            return consume();
-        } else {
-            recover(token, ParserRuleContext.DOT);
-            return parseDot();
-        }
-    }
-
-    private STNode parseComma() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.COMMA_TOKEN) {
-            return consume();
-        } else {
-            recover(token, ParserRuleContext.COMMA);
-            return parseComma();
         }
     }
 

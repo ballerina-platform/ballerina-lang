@@ -108,9 +108,11 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STNumericLiteralNode transform(
             STNumericLiteralNode numericLiteralNode) {
+        STNode sign = modifyNode(numericLiteralNode.sign);
         STNode value = modifyNode(numericLiteralNode.value);
         return numericLiteralNode.modify(
                 numericLiteralNode.kind,
+                sign,
                 value);
     }
 

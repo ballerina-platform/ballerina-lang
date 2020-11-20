@@ -51,7 +51,7 @@ public class BType implements ValueType {
     // sometimes we loose type param information down the line. which is a problem.
     // TODO: Refactor this after JBallerina 1.0.
     public Name name;
-    public int flags;
+    public long flags;
 
     public BType(int tag, BTypeSymbol tsymbol) {
         this.tag = tag;
@@ -60,14 +60,14 @@ public class BType implements ValueType {
         this.flags = 0;
     }
 
-    public BType(int tag, BTypeSymbol tsymbol, int flags) {
+    public BType(int tag, BTypeSymbol tsymbol, long flags) {
         this.tag = tag;
         this.tsymbol = tsymbol;
         this.name = Names.EMPTY;
         this.flags = flags;
     }
 
-    public BType(int tag, BTypeSymbol tsymbol, Name name, int flags) {
+    public BType(int tag, BTypeSymbol tsymbol, Name name, long flags) {
         this.tag = tag;
         this.tsymbol = tsymbol;
         this.name = name;

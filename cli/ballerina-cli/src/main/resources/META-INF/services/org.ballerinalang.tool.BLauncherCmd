@@ -1,0 +1,10 @@
+io.ballerina.cli.cmd.BuildCommand
+io.ballerina.cli.cmd.DocCommand
+io.ballerina.cli.cmd.RunCommand
+io.ballerina.cli.cmd.TestCommand
+io.ballerina.cli.cmd.InitCommand
+io.ballerina.cli.cmd.NewCommand
+io.ballerina.cli.cmd.PullCommand
+io.ballerina.cli.cmd.PushCommand
+io.ballerina.cli.cmd.SearchCommand
+io.ballerina.cli.cmd.AddCommand

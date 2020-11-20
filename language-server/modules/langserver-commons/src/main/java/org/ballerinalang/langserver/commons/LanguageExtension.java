@@ -22,9 +22,10 @@ package org.ballerinalang.langserver.commons;
  *
  * @param <I> Input parameter type
  * @param <O> output parameter type
+ * @param <C> execution context parameter type
  * @since 2.0.0
  */
-public interface LanguageExtension<I, O> {
+public interface LanguageExtension<I, O, C extends DocumentServiceContext> {
 
     /**
      * Get the language feature kind which the particular extension caters.
@@ -46,9 +47,10 @@ public interface LanguageExtension<I, O> {
      * Execute the operation and output the result.
      *
      * @param inputParams input params for the opration
+     * @param context language server context
      * @return {@link O} output of the operation
      * @throws Throwable while executing. Here we throw the Throwable rather than a narrower exception since the
      *                   executor has to handle the exceptions accordingly.
      */
-    O execute(I inputParams, LSContext context) throws Throwable;
+    O execute(I inputParams, C context) throws Throwable;
 }

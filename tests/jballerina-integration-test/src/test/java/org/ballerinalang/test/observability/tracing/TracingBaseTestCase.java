@@ -41,13 +41,24 @@ import java.util.stream.Stream;
  */
 @Test(groups = "tracing-test")
 public class TracingBaseTestCase extends ObservabilityBaseTest {
-    private static final String MODULE_NAME = "testservices";
-    protected static final String MODULE_ID = "ballerina-test/" + MODULE_NAME + ":0.0.1";
-    protected static final String COMMONS_FILE_NAME = "commons.bal";
+    protected static final String TEST_SRC_PROJECT_NAME = "tracing_tests";
+    protected static final String TEST_SRC_ORG_NAME = "intg_tests";
+    protected static final String TEST_SRC_PACKAGE_NAME = "tracing_tests";
+    protected static final String TEST_SRC_UTILS_MODULE_NAME = TEST_SRC_PACKAGE_NAME + ".utils";
+
+    protected static final String DEFAULT_MODULE_ID = TEST_SRC_ORG_NAME + "/" + TEST_SRC_PACKAGE_NAME + ":0.0.1";
+    protected static final String UTILS_MODULE_ID = TEST_SRC_ORG_NAME + "/" + TEST_SRC_UTILS_MODULE_NAME + ":0.0.1";
+
+    protected static final String MOCK_CLIENT_FILE_NAME = "mock_client_endpoint.bal";
+
+    protected static final String MOCK_CLIENT_OBJECT_NAME = TEST_SRC_ORG_NAME + "/" + TEST_SRC_UTILS_MODULE_NAME
+            + "/MockClient";
+    protected static final String OBSERVABLE_ADDER_OBJECT_NAME = TEST_SRC_ORG_NAME + "/" + TEST_SRC_UTILS_MODULE_NAME
+            + "/ObservableAdder";
 
     @BeforeGroups(value = "tracing-test", alwaysRun = true)
     public void setup() throws Exception {
-        super.setupServer("tracing", MODULE_NAME, new int[] {9090, 9091, 9092, 9093, 9094, 9095});
+        super.setupServer(TEST_SRC_PROJECT_NAME, TEST_SRC_PACKAGE_NAME, new int[] {9090, 9091, 9092, 9093, 9094, 9095});
     }
 
     @AfterGroups(value = "tracing-test", alwaysRun = true)

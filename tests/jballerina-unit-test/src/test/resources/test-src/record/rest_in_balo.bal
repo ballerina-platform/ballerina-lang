@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/records;
+import testorg/foo.records;
 
 function testORRestFieldInOR() returns records:OpenFoo {
     records:OpenBar ob = {x:1.0};

@@ -18,7 +18,7 @@
 package org.ballerinalang.langserver.completions;
 
 import io.ballerina.compiler.api.symbols.FieldSymbol;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.AbstractLSCompletionItem;
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -30,7 +30,7 @@ import org.eclipse.lsp4j.CompletionItem;
 public class FieldCompletionItem extends AbstractLSCompletionItem {
     private final FieldSymbol fieldSymbol;
 
-    public FieldCompletionItem(LSContext lsContext, FieldSymbol fieldSymbol, CompletionItem completionItem) {
+    public FieldCompletionItem(CompletionContext lsContext, FieldSymbol fieldSymbol, CompletionItem completionItem) {
         super(lsContext, completionItem);
         this.fieldSymbol = fieldSymbol;
     }

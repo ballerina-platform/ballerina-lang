@@ -35,7 +35,7 @@ function testIterator() returns string[] {
     string str = "Foo Bar";
 
     object {
-         public function next() returns record {| string value; |}?;
+         public isolated function next() returns record {| string value; |}?;
     } itr = str.iterator();
 
     string[] chars = [];

@@ -18,6 +18,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.PackageLoader;
@@ -315,14 +316,15 @@ public class TransactionDesugar extends BLangNodeVisitor {
     private BLangInvocation createStartTransactionInvocation(Location location,
                                                              BLangLiteral transactionBlockIDLiteral,
                                                              BLangSimpleVarRef prevAttempt) {
+        BInvokableSymbol startTransactionInvokableSymbol =
+                (BInvokableSymbol) getInternalTransactionModuleInvokableSymbol(START_TRANSACTION);
+
         // Include transaction-internal module as an import if not included
         if (!transactionInternalModuleIncluded) {
             desugar.addTransactionInternalModuleImport();
             transactionInternalModuleIncluded = true;
         }
 
-        BInvokableSymbol startTransactionInvokableSymbol =
-                (BInvokableSymbol) getInternalTransactionModuleInvokableSymbol(START_TRANSACTION);
         List<BLangExpression> args = new ArrayList<>();
         args.add(transactionBlockIDLiteral);
         args.add(prevAttempt);
@@ -333,14 +335,15 @@ public class TransactionDesugar extends BLangNodeVisitor {
     }
 
     public BLangInvocation createTransactionalCheckInvocation(Location pos) {
+        BInvokableSymbol startTransactionInvokableSymbol =
+                (BInvokableSymbol) getInternalTransactionModuleInvokableSymbol(CHECK_IF_TRANSACTIONAL);
+
         // Include transaction-internal module as an import if not included
         if (!transactionInternalModuleIncluded) {
             desugar.addTransactionInternalModuleImport();
             transactionInternalModuleIncluded = true;
         }
 
-        BInvokableSymbol startTransactionInvokableSymbol =
-                (BInvokableSymbol) getInternalTransactionModuleInvokableSymbol(CHECK_IF_TRANSACTIONAL);
         List<BLangExpression> args = new ArrayList<>();
         BLangInvocation startTransactionInvocation = ASTBuilderUtil.
                 createInvocationExprForMethod(pos, startTransactionInvokableSymbol, args, symResolver);
@@ -612,6 +615,10 @@ public class TransactionDesugar extends BLangNodeVisitor {
      * @return symbol for the function.
      */
     public BSymbol getInternalTransactionModuleInvokableSymbol(Name name) {
+        if (symTable.internalTransactionModuleSymbol == null) {
+            symTable.internalTransactionModuleSymbol =
+                    pkgLoader.loadPackageSymbol(PackageID.TRANSACTION_INTERNAL, null, null);
+        }
         return symTable.internalTransactionModuleSymbol.scope.lookup(name).symbol;
     }
 }
