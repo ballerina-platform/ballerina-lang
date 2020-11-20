@@ -247,26 +247,35 @@ function decimalParamAndReturn(decimal a1) returns decimal = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
- public function addTwoNumbersSlowAsyncVoidSig(int a, int b) returns int = @java:Method {
+public function addTwoNumbersSlowAsyncVoidSig(int a, int b) returns int = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
- public function addTwoNumbersFastAsyncVoidSig(int a, int b) returns int = @java:Method {
+public function addTwoNumbersFastAsyncVoidSig(int a, int b) returns int = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
- public function addTwoNumbersSlowAsync(int a, int b) returns int = @java:Method {
+public function addTwoNumbersSlowAsync(int a, int b) returns int = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
     paramTypes: ["long" ,"long"]
 } external;
 
- public function addTwoNumbersFastAsync(int a, int b) returns int = @java:Method {
+public function addTwoNumbersFastAsync(int a, int b) returns int = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
- public function returnNullString(boolean nullVal) returns string? = @java:Method {
+function getCurrentModule(int a) returns string  = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function returnNullString(boolean nullVal) returns string? = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
+
+public function testGetCurrentModule() {
+     string moduleString =  getCurrentModule(4);
+     test:assertEquals(moduleString, "$anon#.#0.0.0#4");
+}
 
 function hashCode(int receiver) returns int = @java:Method {
     name: "hashCode",

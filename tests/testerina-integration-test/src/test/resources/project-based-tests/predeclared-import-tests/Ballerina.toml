@@ -1,3 +1,4 @@
-[project]
-org-name= "import-test"
-version= "0.1.0"
+[package]
+org = "intg_tests"
+name = "pre_declared_imports"
+version = "0.0.0"

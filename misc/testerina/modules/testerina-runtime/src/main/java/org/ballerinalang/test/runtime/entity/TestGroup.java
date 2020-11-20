@@ -22,7 +22,10 @@ import java.util.List;
 
 /**
  * Represents a test group in the test suite.
+ *
+ * @deprecated Use {@link io.ballerina.projects.testsuite.TestGroup} instead.
  */
+@Deprecated
 public class TestGroup {
     private int testCount;
     private int executedCount;

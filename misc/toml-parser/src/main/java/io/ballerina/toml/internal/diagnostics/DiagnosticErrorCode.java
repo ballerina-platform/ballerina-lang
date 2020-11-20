@@ -33,12 +33,12 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     // Tokens
     ERROR_MISSING_TOKEN("BCE0001", "error.missing.token"),
-    ERROR_MISSING_CLOSE_BRACE_TOKEN("BCE0007", "error.missing.close.brace.token"),
     ERROR_MISSING_OPEN_BRACKET_TOKEN("BCE0008", "error.missing.open.bracket.token"),
     ERROR_MISSING_CLOSE_BRACKET_TOKEN("BCE0009", "error.missing.close.bracket.token"),
     ERROR_MISSING_EQUAL_TOKEN("BCE0010", "error.missing.equal.token"),
     ERROR_MISSING_COMMA_TOKEN("BCE00011", "error.missing.comma.token"),
     ERROR_MISSING_PLUS_TOKEN("BCE00012", "error.missing.plus.token"),
+    ERROR_MISSING_NEW_LINE("BCE00013", "error.missing.new.line"),
 
     ERROR_MISSING_DOUBLE_QUOTE_TOKEN("BCE00023", "error.missing.double.quote.token"),
     ERROR_MISSING_DOT_TOKEN("BCE00029", "error.missing.dot.token"),
@@ -85,6 +85,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     ERROR_EXISTING_NODE("BCE1504", "error.existing.node"),
     ERROR_EMPTY_QUOTED_STRING("BCE1505", "error.empty.quoted.string");
+
     String diagnosticId;
     String messageKey;
 

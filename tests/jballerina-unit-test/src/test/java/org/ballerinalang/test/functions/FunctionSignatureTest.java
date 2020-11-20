@@ -26,9 +26,9 @@ import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -45,7 +45,8 @@ public class FunctionSignatureTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/functions/different-function-signatures.bal");
-        pkgResult = BCompileUtil.compile(this, "test-src/functions/TestProj", "a.b");
+//        pkgResult = BCompileUtil.compile("test-src/functions/TestProj", "a.b");
+        pkgResult = BCompileUtil.compile("test-src/functions/testproj");
     }
 
     @Test
@@ -381,7 +382,8 @@ public class FunctionSignatureTest {
 
     @Test()
     public void testOptionalArgsInNativeFunc() {
-        CompileResult result = BCompileUtil.compile(this, "test-src/functions/TestProj", "foo.bar");
+//        CompileResult result = BCompileUtil.compile("test-src/functions/TestProj", "foo.bar");
+        CompileResult result = BCompileUtil.compile("test-src/functions/testproj/foo.bar");
         BValue[] returns = BRunUtil.invoke(result, "testOptionalArgsInNativeFunc");
 
         Assert.assertTrue(returns[0] instanceof BInteger);

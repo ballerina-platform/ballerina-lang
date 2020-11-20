@@ -19,8 +19,8 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -41,7 +41,7 @@ public class ReturnStatementNodeContext extends AbstractCompletionProvider<Retur
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ReturnStatementNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, ReturnStatementNode node)
             throws LSCompletionException {
         if (node.expression().isPresent() && this.onQualifiedNameIdentifier(context, node.expression().get())) {
             List<Symbol> entries = QNameReferenceUtil.getExpressionContextEntries(context,

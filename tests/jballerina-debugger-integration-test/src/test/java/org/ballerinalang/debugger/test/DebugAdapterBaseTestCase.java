@@ -89,7 +89,7 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
         String msg = "Listening for transport dt_socket at address: " + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient = new BMainInstance(balServer);
-        debuggeeProcess = balClient.debugMain("build", new String[]{"--debug", String.valueOf(port), testModuleName},
+        debuggeeProcess = balClient.debugMain("build", new String[]{"--debug", String.valueOf(port)},
                 null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath, 20, true);
         clientLeecher.waitForText(20000);
     }
@@ -155,10 +155,10 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
 
         setBreakpoints(testBreakpoints);
 
-        if (executionKind != null) {
-            launchDebuggee(executionKind);
-        } else {
+        if (executionKind == DebugUtils.DebuggeeExecutionKind.BUILD) {
             attachToDebuggee();
+        } else {
+            launchDebuggee(executionKind);
         }
     }
 

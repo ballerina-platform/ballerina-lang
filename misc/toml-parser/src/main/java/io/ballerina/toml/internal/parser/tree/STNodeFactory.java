@@ -110,10 +110,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createNumericLiteralNode(
             SyntaxKind kind,
+            STNode sign,
             STNode value) {
 
         return new STNumericLiteralNode(
                 kind,
+                sign,
                 value);
     }
 

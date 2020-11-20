@@ -47,3 +47,6 @@ gradle-app.setting
 .project
 .settings
 .vscode
+
+# java packages
+!/compiler/ballerina-lang/src/main/java/io/ballerina/build

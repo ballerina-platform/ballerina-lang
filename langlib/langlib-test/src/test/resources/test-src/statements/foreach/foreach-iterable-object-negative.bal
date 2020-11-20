@@ -1,10 +1,10 @@
 class Iterable1 {
-    public function __iterator() returns object {public function next() returns record {int value;}?;
+    public function __iterator() returns object {public isolated function next() returns record {int value;}?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
             int cursorIndex = 0;
-            public function next() returns
+            public isolated function next() returns
             record {|
                 int value;
             |}? {
@@ -22,12 +22,12 @@ class Iterable1 {
 }
 
 class Iterable2 {
-    public function __iterator() returns object {public function next() returns record {|int value;|};
+    public function __iterator() returns object {public isolated function next() returns record {|int value;|};
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
             int cursorIndex = 0;
-            public function next() returns
+            public isolated function next() returns
             record {|
                 int value;
             |} {
@@ -41,12 +41,12 @@ class Iterable2 {
 }
 
 class Iterable3 {
-    public function __iterator() returns object {public function next() returns record {|int x;|}?;
+    public function __iterator() returns object {public isolated function next() returns record {|int x;|}?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
             int cursorIndex = 0;
-            public function next() returns
+            public isolated function next() returns
             record {|
                 int x;
             |} {
@@ -83,12 +83,12 @@ class Iterable4 {
 }
 
 class Iterable5 {
-    public function _iterator() returns object {public function next() returns record {|int value;|}?;
+    public function _iterator() returns object {public isolated function next() returns record {|int value;|}?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
             int cursorIndex = 0;
-            public function next() returns
+            public isolated function next() returns
             record {|
                 int value;
             |}? {
@@ -115,12 +115,12 @@ type CustomErrorData record {
 type CustomError error<CustomErrorData>;
 
 class Iterable6 {
-    public function __iterator() returns object {public function next() returns record {|int value;|}?;
+    public function __iterator() returns object {public isolated function next() returns record {|int value;|}?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
             int cursorIndex = 0;
-            public function next() returns
+            public isolated function next() returns
             record {|
                 int value;
             |}|CustomError? {
@@ -138,12 +138,12 @@ class Iterable6 {
 }
 
 class Iterable7 {
-    public function __iterator() returns object {public function next() returns record {|int value;|}|CustomError?;
+    public function __iterator() returns object {public isolated function next() returns record {|int value;|}|CustomError?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
             int cursorIndex = 0;
-            public function next() returns
+            public isolated function next() returns
             record {|
                 int value;
             |}? {
@@ -161,12 +161,12 @@ class Iterable7 {
 }
 
 class Iterable8 {
-    public function __iterator() returns object {public function next() returns record {|int value;|}|error?;
+    public function __iterator() returns object {public isolated function next() returns record {|int value;|}|error?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
             int cursorIndex = 0;
-            public function next() returns
+            public isolated function next() returns
             record {|
                 int value;
             |}|error? {
@@ -184,12 +184,12 @@ class Iterable8 {
 }
 
 class Iterable9 {
-    public function __iterator() returns object {public function next() returns record {|int value;|}|CustomError?;
+    public function __iterator() returns object {public isolated function next() returns record {|int value;|}|CustomError?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
             int cursorIndex = 0;
-            public function next() returns
+            public isolated function next() returns
             record {|
                 int value;
             |}|CustomError? {

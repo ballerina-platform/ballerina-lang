@@ -28,15 +28,13 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
@@ -91,7 +89,7 @@ public class SortingUtil {
      * @param item    completion item to evaluate
      * @return {@link String} rank assigned to the completion item
      */
-    public static String genSortTextForModule(LSContext context, LSCompletionItem item) {
+    public static String genSortTextForModule(CompletionContext context, LSCompletionItem item) {
         /*
         Sorting order is defined as follows,
         (1) Current project's modules
@@ -100,26 +98,26 @@ public class SortingUtil {
         (4) Standard libraries
         (5) Other modules 
          */
-        PackageID currentModule = context.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
-        String orgName = currentModule.orgName.getValue();
-        String label = item.getCompletionItem().getLabel();
-        if (item instanceof StaticCompletionItem && label.startsWith(orgName + "/")) {
-            // Modules in the current project
-            return genSortText(1);
-        }
-        if (item instanceof SymbolCompletionItem
-                && ((SymbolCompletionItem) item).getSymbol().kind() == SymbolKind.MODULE && !label.contains("/")) {
-            // Modules which have been imported already
-            return genSortText(2);
-        }
-        if (label.startsWith("ballerina/lang.")) {
-            // Langlib modules
-            return genSortText(3);
-        }
-        if (label.startsWith("ballerina/")) {
-            // Standard libraries modules
-            return genSortText(4);
-        }
+//        PackageID currentModule = context.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
+//        String orgName = currentModule.orgName.getValue();
+//        String label = item.getCompletionItem().getLabel();
+//        if (item instanceof StaticCompletionItem && label.startsWith(orgName + "/")) {
+//            // Modules in the current project
+//            return genSortText(1);
+//        }
+//        if (item instanceof SymbolCompletionItem
+//                && ((SymbolCompletionItem) item).getSymbol().kind() == SymbolKind.MODULE && !label.contains("/")) {
+//            // Modules which have been imported already
+//            return genSortText(2);
+//        }
+//        if (label.startsWith("ballerina/lang.")) {
+//            // Langlib modules
+//            return genSortText(3);
+//        }
+//        if (label.startsWith("ballerina/")) {
+//            // Standard libraries modules
+//            return genSortText(4);
+//        }
 
         return genSortText(5);
     }
@@ -132,7 +130,7 @@ public class SortingUtil {
      * @param assignableType assignable type (derived from the LHS)
      * @return {@link String} generated sort text
      */
-    public static String genSortTextForInitContextItem(LSContext context, LSCompletionItem item,
+    public static String genSortTextForInitContextItem(DocumentServiceContext context, LSCompletionItem item,
                                                        TypeDescKind assignableType) {
         // TODO: Revamp should carry out after fixing the type reference issue in semantic model is fixed 
         /*
@@ -205,7 +203,7 @@ public class SortingUtil {
      * @param owner   Owner node to extract the assignable type
      * @return {@link Optional} assignable type
      */
-    public static Optional<TypeSymbol> getAssignableType(LSContext context, Node owner) {
+    public static Optional<TypeSymbol> getAssignableType(CompletionContext context, Node owner) {
         Optional<Node> typeDesc;
         switch (owner.kind()) {
             case LISTENER_DECLARATION:
@@ -227,7 +225,7 @@ public class SortingUtil {
             return Optional.empty();
         }
 
-        List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
         if (typeDesc.get().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) typeDesc.get();
             String alias = QNameReferenceUtil.getAlias(qNameRef);

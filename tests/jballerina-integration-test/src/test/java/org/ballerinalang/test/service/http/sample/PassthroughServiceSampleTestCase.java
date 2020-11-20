@@ -19,7 +19,6 @@ package org.ballerinalang.test.service.http.sample;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.StringUtil;
-import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.test.service.http.HttpBaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
@@ -29,10 +28,10 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import javax.activation.MimeTypeParseException;
 
-import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_FORM_DATA;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -43,6 +42,7 @@ import static org.testng.Assert.assertTrue;
 @Test(groups = "http-test")
 public class PassthroughServiceSampleTestCase extends HttpBaseTest {
     private final String responseMessage = "{\"exchange\":\"nyse\", \"name\":\"IBM\", \"value\":\"127.50\"}";
+    public static final String MULTIPART_FORM_DATA = "multipart/form-data";
 
     @Test(description = "Test Passthrough sample test case invoking base path")
     public void testPassthroughServiceByBasePath() throws IOException {
@@ -53,9 +53,14 @@ public class PassthroughServiceSampleTestCase extends HttpBaseTest {
         assertEquals(response.getData(), responseMessage, "Message content mismatched");
     }
 
+    private static String getNewMultipartDelimiter() {
+        Random random = new Random();
+        return Long.toHexString(random.nextLong());
+    }
+
     @Test(description = "Test passthrough with a multipart request")
     public void testPassthroughWithMultiparts() throws IOException, MimeTypeParseException {
-        String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
+        String multipartDataBoundary = getNewMultipartDelimiter();
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-data; boundary=" + multipartDataBoundary);
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +

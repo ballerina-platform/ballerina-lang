@@ -42,7 +42,6 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
         testProjectName = "basic-project";
-        testModuleName = "hello-world";
         projectPath = testProjectBaseDir + File.separator + testProjectName;
         singleFilePath = Paths.get(testSingleFileBaseDir.toString(), testSingleFileName).toString();
     }
@@ -52,7 +51,7 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
         int port = findFreePort();
         String msg = "Listening for transport dt_socket at address: " + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.debugMain("run", new String[]{"--debug", String.valueOf(port), testModuleName}, null,
+        balClient.debugMain("run", new String[]{"--debug", String.valueOf(port)}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher}, projectPath, 10);
         clientLeecher.waitForText(20000);
     }

@@ -305,7 +305,7 @@ public function functionWithQueryExpression() {
 class OddNumberGenerator {
     int i = 1;
 
-    public function next() returns record {|int value;|}|error? {
+    public isolated function next() returns record {|int value;|}|error? {
         self.i += 2;
         return {value: self.i};
     }
@@ -731,3 +731,5 @@ function functionWithUnaryOps() {
     a = -b;
     c = ~b;
 }
+
+function dependentlyTypedFunction(typedesc<anydata> td, string[] arr) returns td = external;
