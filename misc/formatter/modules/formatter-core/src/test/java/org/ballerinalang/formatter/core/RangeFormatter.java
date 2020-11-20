@@ -41,22 +41,6 @@ public abstract class RangeFormatter {
     private static final String ASSERT_DIR = "assert";
     private static final String SOURCE_DIR = "source";
 
-    /*@Test(dataProvider = "test-file-provider")
-    public void test(String source, String sourcePath, LinePosition startPos, LinePosition endPos)
-            throws IOException, FormatterException {
-        Path assertFilePath = Paths.get(resourceDirectory.toString(), sourcePath, ASSERT_DIR, source);
-        Path sourceFilePath = Paths.get(resourceDirectory.toString(), sourcePath, SOURCE_DIR, source);
-
-        String content = getSourceText(sourceFilePath);
-        TextDocument textDocument = TextDocuments.from(content);
-        SyntaxTree syntaxTree = SyntaxTree.from(textDocument, sourceFilePath.toString());
-        LineRange lineRange = LineRange.from(syntaxTree.filePath(), startPos, endPos);
-        // linerange = floor(sqrt(no_of_lines_remaining))
-        // TextDocuments.from(newSyntaxTree.toSourceCode())
-        SyntaxTree newSyntaxTree = Formatter.format(syntaxTree, lineRange);
-        Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
-    }*/
-
     @Test(dataProvider = "test-file-provider")
     public void test(String[] sourceData, int[][] positions)
             throws IOException, FormatterException {
@@ -66,17 +50,13 @@ public abstract class RangeFormatter {
         String content = getSourceText(sourceFilePath);
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument, sourceFilePath.toString());
-        SyntaxTree newSyntaxTree = syntaxTree;
         for (int[] position : positions) {
             LinePosition startPos = LinePosition.from(position[0], position[1]);
             LinePosition endPos = LinePosition.from(position[2], position[3]);
-            LineRange lineRange = LineRange.from(syntaxTree.filePath(), startPos, endPos);
-            newSyntaxTree = Formatter.format(newSyntaxTree, lineRange);
+            LineRange lineRange = LineRange.from(null, startPos, endPos);
+            syntaxTree = Formatter.format(syntaxTree, lineRange);
         }
-        // linerange = floor(sqrt(no_of_lines_remaining))
-        // TextDocuments.from(newSyntaxTree.toSourceCode())
-//        SyntaxTree newSyntaxTree = Formatter.format(syntaxTree, lineRange);
-        Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
+        Assert.assertEquals(syntaxTree.toSourceCode(), getSourceText(assertFilePath));
     }
 
     /**
