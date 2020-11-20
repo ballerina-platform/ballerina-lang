@@ -6552,9 +6552,8 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseConstantDeclaration(STNode metadata, STNode qualifier) {
         startContext(ParserRuleContext.CONSTANT_DECL);
         STNode constKeyword = parseConstantKeyword();
-        STNode constDecl = parseConstDecl(metadata, qualifier, constKeyword);
-        endContext();
-        return constDecl;
+        // context ends inside the method
+        return parseConstDecl(metadata, qualifier, constKeyword);
     }
 
     /**
@@ -6569,9 +6568,13 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case ANNOTATION_KEYWORD:
+                endContext();
                 return parseAnnotationDeclaration(metadata, qualifier, constKeyword);
             case IDENTIFIER_TOKEN:
-                return parseConstantOrListenerDeclWithOptionalType(metadata, qualifier, constKeyword, false);
+                STNode constantDecl =
+                        parseConstantOrListenerDeclWithOptionalType(metadata, qualifier, constKeyword, false);
+                endContext();
+                return constantDecl;
             default:
                 if (isTypeStartingToken(nextToken.kind)) {
                     break;
@@ -6586,6 +6589,7 @@ public class BallerinaParser extends AbstractParser {
         STNode equalsToken = parseAssignOp();
         STNode initializer = parseExpression();
         STNode semicolonToken = parseSemicolon();
+        endContext();
         return STNodeFactory.createConstantDeclarationNode(metadata, qualifier, constKeyword, typeDesc, variableName,
                 equalsToken, initializer, semicolonToken);
     }
@@ -6593,9 +6597,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseConstantOrListenerDeclWithOptionalType(STNode metadata, STNode qualifier, STNode constKeyword,
                                                                boolean isListener) {
         STNode varNameOrTypeName = parseStatementStartIdentifier();
-        STNode constDecl =
-                parseConstantOrListenerDeclRhs(metadata, qualifier, constKeyword, varNameOrTypeName, isListener);
-        return constDecl;
+        return parseConstantOrListenerDeclRhs(metadata, qualifier, constKeyword, varNameOrTypeName, isListener);
     }
 
     /**
