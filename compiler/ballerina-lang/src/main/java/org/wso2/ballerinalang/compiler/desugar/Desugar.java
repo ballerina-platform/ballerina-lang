@@ -384,6 +384,7 @@ public class Desugar extends BLangNodeVisitor {
     private int letCount = 0;
     private int varargCount = 0;
     private int tupleVarCount = 0;
+    private int recordVarCount = 0;
 
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
@@ -1392,9 +1393,10 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordVariable varNode) {
         final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varNode.pos);
+        String name = String.format("$map$_%d$", recordVarCount++);
         final BLangSimpleVariable mapVariable =
-                ASTBuilderUtil.createVariable(varNode.pos, "$map$_0", symTable.mapAllType, null,
-                                              new BVarSymbol(0, names.fromString("$map$_0"), this.env.scope.owner.pkgID,
+                ASTBuilderUtil.createVariable(varNode.pos, name, symTable.mapAllType, null,
+                                              new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID,
                                                              symTable.mapAllType, this.env.scope.owner, varNode.pos,
                                                              VIRTUAL));
         mapVariable.expr = varNode.expr;

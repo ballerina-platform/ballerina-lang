@@ -33,12 +33,13 @@ import static org.testng.Assert.assertEquals;
  */
 public class ModuleVariableTest {
 
-    private CompileResult compileResult, compileResultNegative;
+    private CompileResult compileResult, compileResultNegative, recordVarCompileResult;
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/statements/vardeclr/module_tuple_var_decl.bal");
-        compileResultNegative = BCompileUtil.compile("test-src/statements/vardeclr/module_tuple_var_decl_negetive.bal");
+//        compileResult = BCompileUtil.compile("test-src/statements/vardeclr/module_tuple_var_decl.bal");
+//        compileResultNegative = BCompileUtil.compile("test-src/statements/vardeclr/module_tuple_var_decl_negetive.bal");
+        recordVarCompileResult = BCompileUtil.compile("test-src/statements/vardeclr/module_record_var_decl.bal");
     }
 
     @Test
@@ -106,5 +107,16 @@ public class ModuleVariableTest {
         validateError(compileResult, index++, "uninitialized variable 'b'", 17, 16);
         validateError(compileResult, index++, "variable 'a' is not initialized", 20, 13);
         assertEquals(compileResult.getErrorCount(), index);
+    }
+
+    @Test
+    public void testBasicModuleLevelRecordVarDecl() {
+
+        BValue[] returns = BRunUtil.invoke(recordVarCompileResult, "testBasic");
+
+        int index = 0;
+        assertEquals(returns[index++].stringValue(), "Jhone");
+        assertTrue(((BBoolean) returns[index++]).booleanValue());
+        assertEquals(returns.length, index++);
     }
 }
