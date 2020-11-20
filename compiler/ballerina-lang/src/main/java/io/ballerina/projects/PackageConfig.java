@@ -19,6 +19,9 @@ package io.ballerina.projects;
 
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * {@code PackageConfig} contains necessary configuration elements required to
@@ -35,7 +38,7 @@ public class PackageConfig {
     private final BallerinaToml ballerinaToml;
     private final Path packagePath;
     private final DependencyGraph<PackageDescriptor> packageDescDependencyGraph;
-    private final DependencyGraph<ModuleId> moduleDependencyGraph;
+    private final Map<ModuleDescriptor, List<ModuleDescriptor>> moduleDependencyGraph;
     private final Collection<ModuleConfig> otherModules;
 
     private PackageConfig(PackageId packageId,
@@ -44,14 +47,14 @@ public class PackageConfig {
                           BallerinaToml ballerinaToml,
                           Collection<ModuleConfig> moduleConfigs,
                           DependencyGraph<PackageDescriptor> packageDescDependencyGraph,
-                          DependencyGraph<ModuleId> moduleDescDependencyGraph) {
+                          Map<ModuleDescriptor, List<ModuleDescriptor>> moduleDependencyGraph) {
         this.packageId = packageId;
         this.packagePath = packagePath;
         this.packageManifest = packageManifest;
         this.ballerinaToml = ballerinaToml;
         this.otherModules = moduleConfigs;
         this.packageDescDependencyGraph = packageDescDependencyGraph;
-        this.moduleDependencyGraph = moduleDescDependencyGraph;
+        this.moduleDependencyGraph = moduleDependencyGraph;
     }
 
     public static PackageConfig from(PackageId packageId,
@@ -60,7 +63,7 @@ public class PackageConfig {
                                      BallerinaToml ballerinaToml,
                                      Collection<ModuleConfig> moduleConfigs) {
         return new PackageConfig(packageId, packagePath, packageManifest, ballerinaToml,
-                moduleConfigs, DependencyGraph.emptyGraph(), DependencyGraph.emptyGraph());
+                moduleConfigs, DependencyGraph.emptyGraph(), Collections.emptyMap());
     }
 
     public static PackageConfig from(PackageId packageId,
@@ -69,7 +72,7 @@ public class PackageConfig {
                                      BallerinaToml ballerinaToml,
                                      Collection<ModuleConfig> moduleConfigs,
                                      DependencyGraph<PackageDescriptor> packageDescDependencyGraph,
-                                     DependencyGraph<ModuleId> moduleDependencyGraph) {
+                                     Map<ModuleDescriptor, List<ModuleDescriptor>> moduleDependencyGraph) {
         return new PackageConfig(packageId, packagePath, packageManifest, ballerinaToml,
                 moduleConfigs, packageDescDependencyGraph, moduleDependencyGraph);
     }
@@ -106,7 +109,7 @@ public class PackageConfig {
         return packageDescDependencyGraph;
     }
 
-    public DependencyGraph<ModuleId> moduleDependencyGraph() {
+    public Map<ModuleDescriptor, List<ModuleDescriptor>> moduleDependencyGraph() {
         return moduleDependencyGraph;
     }
 

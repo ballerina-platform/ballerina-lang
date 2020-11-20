@@ -22,9 +22,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.DependencyGraph;
-import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.ModuleDescriptor;
+import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageDescriptor;
-import io.ballerina.projects.PackageId;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.balo.DependencyGraphJson;
@@ -168,10 +168,10 @@ public class BaloFiles {
 
             DependencyGraph<PackageDescriptor> packageDependencyGraph = createPackageDependencyGraph(
                     dependencyGraphJson.getPackageDependencyGraph());
-            DependencyGraph<ModuleId> moduleDependencyGraph = createModuleDependencyGraph(
-                    dependencyGraphJson.getModuleDependencyGraph(), packageName);
+            Map<ModuleDescriptor, List<ModuleDescriptor>> moduleDescriptorListMap = createModuleDescDependencies(
+                    dependencyGraphJson.getModuleDependencies());
 
-            return new DependencyGraphResult(packageDependencyGraph, moduleDependencyGraph);
+            return new DependencyGraphResult(packageDependencyGraph, moduleDescriptorListMap);
 
         } catch (IOException e) {
             throw new ProjectException("Failed to read balr file:" + balrPath);
@@ -243,8 +243,8 @@ public class BaloFiles {
             Set<PackageDescriptor> dependentPackages = new HashSet<>();
             for (Dependency dependencyPkg : dependency.getDependencies()) {
                 dependentPackages.add(PackageDescriptor.from(dependencyPkg.getName(),
-                                                             dependencyPkg.getOrg(),
-                                                             dependencyPkg.getVersion()));
+                        dependencyPkg.getOrg(),
+                        dependencyPkg.getVersion()));
             }
             graphBuilder.addDependencies(pkg, dependentPackages);
         }
@@ -252,21 +252,24 @@ public class BaloFiles {
         return graphBuilder.build();
     }
 
-    private static DependencyGraph<ModuleId> createModuleDependencyGraph(List<ModuleDependency> moduleDependencyGraph,
-            String packageName) {
-        DependencyGraph.DependencyGraphBuilder<ModuleId> graphBuilder = getBuilder();
-        PackageId packageId = PackageId.create(packageName);
+    private static Map<ModuleDescriptor, List<ModuleDescriptor>> createModuleDescDependencies(
+            List<ModuleDependency> modDepEntries) {
+        return modDepEntries.stream()
+                .collect(Collectors.toMap(BaloFiles::getModuleDescriptorFromDependencyEntry,
+                        modDepEntry -> createModDescriptorList(modDepEntry.getDependencies())));
+    }
 
-        for (ModuleDependency dependency : moduleDependencyGraph) {
-            ModuleId moduleId = ModuleId.create(dependency.getName(), packageId);
-            Set<ModuleId> dependentModules = new HashSet<>();
-            for (ModuleDependency dependentModule : dependency.getDependencies()) {
-                dependentModules.add(ModuleId.create(dependentModule.getName(), packageId));
-            }
-            graphBuilder.addDependencies(moduleId, dependentModules);
-        }
+    private static ModuleDescriptor getModuleDescriptorFromDependencyEntry(ModuleDependency modDepEntry) {
+        PackageDescriptor pkgDesc = PackageDescriptor.from(modDepEntry.getPackageName(),
+                modDepEntry.getOrg(), modDepEntry.getVersion());
+        final ModuleName moduleName = ModuleName.from(modDepEntry.getModuleName(), pkgDesc.org());
+        return ModuleDescriptor.from(moduleName, pkgDesc);
+    }
 
-        return graphBuilder.build();
+    private static List<ModuleDescriptor> createModDescriptorList(List<ModuleDependency> modDepEntries) {
+        return modDepEntries.stream()
+                .map(BaloFiles::getModuleDescriptorFromDependencyEntry)
+                .collect(Collectors.toList());
     }
 
     private static DependencyGraphJson readDependencyGraphJson(Path balrPath, Path dependencyGraphJsonPath) {
@@ -286,21 +289,21 @@ public class BaloFiles {
      * {@code DependencyGraphResult} contains package and module dependency graphs.
      */
     public static class DependencyGraphResult {
-        private DependencyGraph<PackageDescriptor> packageDependencyGraph;
-        private DependencyGraph<ModuleId> moduleDependencyGraph;
+        private final DependencyGraph<PackageDescriptor> packageDependencyGraph;
+        private final Map<ModuleDescriptor, List<ModuleDescriptor>> moduleDependencies;
 
         DependencyGraphResult(DependencyGraph<PackageDescriptor> packageDependencyGraph,
-                DependencyGraph<ModuleId> moduleDependencyGraph) {
+                              Map<ModuleDescriptor, List<ModuleDescriptor>> moduleDependencies) {
             this.packageDependencyGraph = packageDependencyGraph;
-            this.moduleDependencyGraph = moduleDependencyGraph;
+            this.moduleDependencies = moduleDependencies;
         }
 
-        DependencyGraph<PackageDescriptor> getPackageDependencyGraph() {
+        DependencyGraph<PackageDescriptor> packageDependencyGraph() {
             return packageDependencyGraph;
         }
 
-        public DependencyGraph<ModuleId> getModuleDependencyGraph() {
-            return moduleDependencyGraph;
+        public Map<ModuleDescriptor, List<ModuleDescriptor>> moduleDependencies() {
+            return moduleDependencies;
         }
     }
 }

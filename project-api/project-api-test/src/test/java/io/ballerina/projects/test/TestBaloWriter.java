@@ -191,13 +191,13 @@ public class TestBaloWriter {
             Assert.assertEquals(dependency.getName(), "winery");
             Assert.assertEquals(dependency.getVersion(), "0.1.0");
 
-            List<ModuleDependency> moduleDependencyGraph = dependencyGraphJson.getModuleDependencyGraph();
+            List<ModuleDependency> moduleDependencyGraph = dependencyGraphJson.getModuleDependencies();
             Assert.assertEquals(moduleDependencyGraph.size(), 3);
 
             List<String> moduleNames = new ArrayList<>(Arrays.asList("winery", "winery.services", "winery.storage"));
             for (ModuleDependency moduleDependency : moduleDependencyGraph) {
-                if (!moduleNames.contains(moduleDependency.getName())) {
-                    Assert.fail("invalid module:" + moduleDependency.getName());
+                if (!moduleNames.contains(moduleDependency.getModuleName())) {
+                    Assert.fail("invalid module:" + moduleDependency.getModuleName());
                 }
             }
         }
@@ -331,8 +331,8 @@ public class TestBaloWriter {
                 }
             }
 
-            List<ModuleDependency> moduleDependencyGraph = dependencyGraphJson.getModuleDependencyGraph();
-            Assert.assertEquals(moduleDependencyGraph.get(0).getName(), "package_d");
+            List<ModuleDependency> moduleDependencyGraph = dependencyGraphJson.getModuleDependencies();
+            Assert.assertEquals(moduleDependencyGraph.get(0).getModuleName(), "package_d");
         }
     }
 

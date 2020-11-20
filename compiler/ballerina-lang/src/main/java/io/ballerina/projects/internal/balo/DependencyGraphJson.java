@@ -33,11 +33,11 @@ public class DependencyGraphJson {
     @SerializedName(PACKAGE_DEPENDENCY_GRAPH) private List<Dependency> packageDependencyGraph;
 
     private static final String MODULE_DEPENDENCY_GRAPH = "modules";
-    @SerializedName(MODULE_DEPENDENCY_GRAPH) private List<ModuleDependency> moduleDependencyGraph;
+    @SerializedName(MODULE_DEPENDENCY_GRAPH) private List<ModuleDependency> moduleDependencies;
 
-    public DependencyGraphJson(List<Dependency> packageDependencyGraph, List<ModuleDependency> moduleDependencyGraph) {
+    public DependencyGraphJson(List<Dependency> packageDependencyGraph, List<ModuleDependency> moduleDependencies) {
         this.packageDependencyGraph = packageDependencyGraph;
-        this.moduleDependencyGraph = moduleDependencyGraph;
+        this.moduleDependencies = moduleDependencies;
     }
 
     public List<Dependency> getPackageDependencyGraph() {
@@ -48,11 +48,11 @@ public class DependencyGraphJson {
         this.packageDependencyGraph = packageDependencyGraph;
     }
 
-    public List<ModuleDependency> getModuleDependencyGraph() {
-        return moduleDependencyGraph;
+    public List<ModuleDependency> getModuleDependencies() {
+        return moduleDependencies;
     }
 
-    public void setModuleDependencyGraph(List<ModuleDependency> moduleDependencyGraph) {
-        this.moduleDependencyGraph = moduleDependencyGraph;
+    public void setModuleDependencies(List<ModuleDependency> moduleDependencies) {
+        this.moduleDependencies = moduleDependencies;
     }
 }

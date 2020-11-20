@@ -18,6 +18,9 @@
 
 package io.ballerina.projects.internal.balo;
 
+import com.google.gson.annotations.SerializedName;
+
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -26,22 +29,57 @@ import java.util.List;
  * @since 2.0.0
  */
 public class ModuleDependency {
-    private String name;
-    private List<ModuleDependency> dependencies;
+    private static final String PACKAGE_NAME_FIELD = "package_name";
+    private static final String MODULE_NAME_FIELD = "module_name";
 
-    public ModuleDependency(String name) {
-        this.name = name;
+    private final String org;
+    @SerializedName(PACKAGE_NAME_FIELD)
+    private final String packageName;
+    private final String version;
+    @SerializedName(MODULE_NAME_FIELD)
+    private final String moduleName;
+    private final List<ModuleDependency> dependencies;
+
+    public ModuleDependency(String org,
+                            String packageName,
+                            String version,
+                            String moduleName,
+                            List<ModuleDependency> dependencies) {
+        this.org = org;
+        this.packageName = packageName;
+        this.version = version;
+        this.moduleName = moduleName;
+        this.dependencies = dependencies;
     }
 
-    public String getName() {
-        return name;
+    public ModuleDependency(String org,
+                            String packageName,
+                            String version,
+                            String moduleName) {
+        this.org = org;
+        this.packageName = packageName;
+        this.version = version;
+        this.moduleName = moduleName;
+        this.dependencies = Collections.emptyList();
+    }
+
+    public String getOrg() {
+        return org;
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public String getModuleName() {
+        return moduleName;
     }
 
     public List<ModuleDependency> getDependencies() {
         return dependencies;
-    }
-
-    public void setDependencies(List<ModuleDependency> dependencies) {
-        this.dependencies = dependencies;
     }
 }

@@ -33,7 +33,9 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -76,7 +78,7 @@ public class PackageConfigCreator {
                 .createPackageDependencyGraph(balrPath, packageManifest.name().value());
 
         return createPackageConfig(packageData, packageManifest, null,
-                packageDependencyGraph.getPackageDependencyGraph(), packageDependencyGraph.getModuleDependencyGraph());
+                packageDependencyGraph.packageDependencyGraph(), packageDependencyGraph.moduleDependencies());
     }
 
     public static PackageConfig createPackageConfig(PackageData packageData, PackageManifest packageManifest) {
@@ -87,14 +89,15 @@ public class PackageConfigCreator {
                                                     PackageManifest packageManifest,
                                                     BallerinaToml ballerinaToml) {
         return createPackageConfig(packageData, packageManifest, ballerinaToml, DependencyGraph.emptyGraph(),
-                DependencyGraph.emptyGraph());
+                Collections.emptyMap());
     }
 
     public static PackageConfig createPackageConfig(PackageData packageData,
-            PackageManifest packageManifest,
-            BallerinaToml ballerinaToml,
-            DependencyGraph<PackageDescriptor> packageDependencyGraph,
-            DependencyGraph<ModuleId> moduleDependencyGraph) {
+                                                    PackageManifest packageManifest,
+                                                    BallerinaToml ballerinaToml,
+                                                    DependencyGraph<PackageDescriptor> packageDependencyGraph,
+                                                    Map<ModuleDescriptor, List<ModuleDescriptor>>
+                                                            moduleDependencyGraph) {
         // TODO PackageData should contain the packageName. This should come from the Ballerina.toml file.
         // TODO For now, I take the directory name as the project name. I am not handling the case where the
         //  directory name is not a valid Ballerina identifier.

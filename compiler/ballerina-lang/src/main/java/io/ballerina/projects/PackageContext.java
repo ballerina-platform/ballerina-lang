@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -45,6 +46,7 @@ class PackageContext {
      * At the moment, we cache the dependency graph in a balr file.
      */
     private final DependencyGraph<PackageDescriptor> pkgDescDependencyGraph;
+    private final Map<ModuleDescriptor, List<ModuleDescriptor>> moduleDescDependencyGraph;
 
     private boolean dependenciesResolved;
     private Set<PackageDependency> packageDependencies;
@@ -60,7 +62,7 @@ class PackageContext {
                    BallerinaToml ballerinaToml,
                    Map<ModuleId, ModuleContext> moduleContextMap,
                    DependencyGraph<PackageDescriptor> pkgDescDependencyGraph,
-                   DependencyGraph<ModuleId> moduleDependencyGraph) {
+                   Map<ModuleDescriptor, List<ModuleDescriptor>> moduleDescDependencyGraph) {
         this.project = project;
         this.packageId = packageId;
         this.packageManifest = packageManifest;
@@ -70,7 +72,7 @@ class PackageContext {
         // TODO Try to reuse previous unaffected compilations
         this.moduleCompilationMap = new HashMap<>();
         this.packageDependencies = Collections.emptySet();
-        this.moduleDependencyGraph = moduleDependencyGraph;
+        this.moduleDescDependencyGraph = moduleDescDependencyGraph;
         this.pkgDescDependencyGraph = pkgDescDependencyGraph;
     }
 
@@ -175,6 +177,10 @@ class PackageContext {
 
     DependencyGraph<PackageDescriptor> packageDescriptorDependencyGraph() {
         return pkgDescDependencyGraph;
+    }
+
+    Map<ModuleDescriptor, List<ModuleDescriptor>> moduleDescDependencyGraph() {
+        return moduleDescDependencyGraph;
     }
 
     void resolveDependencies() {

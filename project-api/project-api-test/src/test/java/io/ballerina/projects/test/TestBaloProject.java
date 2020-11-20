@@ -46,7 +46,7 @@ public class TestBaloProject {
 
     private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
 
-    @Test(description = "tests loading a valid balo project")
+    @Test(description = "tests loading a valid balo project", enabled = false)
     public void testBaloProjectAPI() {
         Path baloPath = RESOURCE_DIRECTORY.resolve("baloloader").resolve("foo-winery-any-0.1.0.balo");
         // 1) Initialize the project instance

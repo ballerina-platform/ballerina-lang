@@ -45,6 +45,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -257,9 +258,10 @@ public abstract class BaloWriter {
     }
 
     private void addDependenciesJson(ZipOutputStream baloOutputStream, Package pkg) {
+        PackageCache packageCache = pkg.project().projectEnvironmentContext().getService(PackageCache.class);
         List<Dependency> packageDependencyGraph = getPackageDependencies(pkg.getCompilation().packageDependencyGraph(),
-                pkg.packageContext().project().projectEnvironmentContext().getService(PackageCache.class));
-        List<ModuleDependency> moduleDependencyGraph = getModuleDependencies(pkg.moduleDependencyGraph());
+                packageCache);
+        List<ModuleDependency> moduleDependencyGraph = getModuleDependencies(pkg, packageCache);
         DependencyGraphJson depGraphJson = new DependencyGraphJson(packageDependencyGraph, moduleDependencyGraph);
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -310,22 +312,28 @@ public abstract class BaloWriter {
         return dependencies;
     }
 
-    private List<ModuleDependency> getModuleDependencies(DependencyGraph<ModuleId> moduleIdDependencyGraph) {
-        Map<ModuleId, Set<ModuleId>> graphDependencies = moduleIdDependencyGraph.dependencies();
-        List<ModuleDependency> moduleDependencies = new ArrayList<>();
-
-        for (Map.Entry<ModuleId, Set<ModuleId>> dependenciesMap : graphDependencies.entrySet()) {
-            ModuleId moduleId = dependenciesMap.getKey();
-            ModuleDependency moduleDependency = new ModuleDependency(moduleId.moduleName());
-
-            List<ModuleDependency> dependencyList = new ArrayList<>();
-            for (ModuleId dependencyModuleId : dependenciesMap.getValue()) {
-                dependencyList.add(new ModuleDependency(dependencyModuleId.moduleName()));
+    private List<ModuleDependency> getModuleDependencies(Package pkg, PackageCache packageCache) {
+        List<ModuleDependency> modules = new ArrayList<>();
+        for (ModuleId moduleId : pkg.moduleIds()) {
+            Module module = pkg.module(moduleId);
+            List<ModuleDependency> moduleDependencies = new ArrayList<>();
+            for (io.ballerina.projects.ModuleDependency moduleDependency : module.moduleDependencies()) {
+                Package pkgDependency = packageCache.getPackageOrThrow(
+                        moduleDependency.packageDependency().packageId());
+                Module moduleInPkgDependency = pkgDependency.module(moduleDependency.moduleId());
+                moduleDependencies.add(createModuleDependencyEntry(pkgDependency, moduleInPkgDependency,
+                        Collections.emptyList()));
             }
-            moduleDependency.setDependencies(dependencyList);
-            moduleDependencies.add(moduleDependency);
+            modules.add(createModuleDependencyEntry(pkg, module, moduleDependencies));
         }
-        return moduleDependencies;
+        return modules;
+    }
+
+    private ModuleDependency createModuleDependencyEntry(Package pkg,
+                                                         Module module,
+                                                         List<ModuleDependency> moduleDependencies) {
+        return new ModuleDependency(pkg.packageOrg().value(), pkg.packageName().value(),
+                pkg.packageVersion().toString(), module.moduleName().toString(), moduleDependencies);
     }
 
     protected void putZipEntry(ZipOutputStream baloOutputStream, Path fileName, InputStream in)
