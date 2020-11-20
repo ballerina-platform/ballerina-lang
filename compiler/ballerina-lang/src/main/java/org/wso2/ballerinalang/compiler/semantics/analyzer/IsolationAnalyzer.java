@@ -26,7 +26,8 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -337,7 +338,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (isBallerinaModule(env.enclPkg) && !isIsolated(funcNode.symbol.flags) &&
                 this.inferredIsolated && !Symbols.isFlagOn(funcNode.symbol.flags, Flags.WORKER)) {
-            dlog.warning(funcNode.pos, DiagnosticCode.FUNCTION_CAN_BE_MARKED_ISOLATED, funcNode.name);
+            dlog.warning(funcNode.pos, DiagnosticWarningCode.FUNCTION_CAN_BE_MARKED_ISOLATED, funcNode.name);
         }
 
         this.inferredIsolated = this.inferredIsolated && prevInferredIsolated;
@@ -402,7 +403,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (isolatedClassField && isExpectedToBeAPrivateField(symbol, fieldType) &&
                 !Symbols.isFlagOn(flags, Flags.PRIVATE)) {
-            dlog.error(varNode.pos, DiagnosticCode.INVALID_NON_PRIVATE_MUTABLE_FIELD_IN_ISOLATED_OBJECT);
+            dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_NON_PRIVATE_MUTABLE_FIELD_IN_ISOLATED_OBJECT);
         }
 
         if (expr == null) {
@@ -424,7 +425,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             inferredIsolated = false;
 
             if (isInIsolatedFunction(env.enclInvokable)) {
-                dlog.error(varNode.pos, DiagnosticCode.INVALID_WORKER_DECLARATION_IN_ISOLATED_FUNCTION);
+                dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_WORKER_DECLARATION_IN_ISOLATED_FUNCTION);
             }
         }
     }
@@ -737,26 +738,26 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             if (accessedRestrictedVarKeys.size() > 1) {
                 for (BSymbol accessedRestrictedVarKey : accessedRestrictedVarKeys) {
                     for (BLangSimpleVarRef varRef : accessedRestrictedVars.get(accessedRestrictedVarKey)) {
-                        dlog.error(varRef.pos, DiagnosticCode.INVALID_USAGE_OF_MULTIPLE_RESTRICTED_VARS_IN_LOCK);
+                        dlog.error(varRef.pos, DiagnosticErrorCode.INVALID_USAGE_OF_MULTIPLE_RESTRICTED_VARS_IN_LOCK);
                     }
                 }
             }
 
             for (BLangSimpleVarRef varRef : copyInLockInfo.nonCaptureBindingPatternVarRefsOnLhs) {
-                dlog.error(varRef.pos, DiagnosticCode.INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE);
+                dlog.error(varRef.pos, DiagnosticErrorCode.INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE);
             }
 
             for (BLangSimpleVarRef varRef : copyInLockInfo.copyInVarRefs) {
-                dlog.error(varRef.pos, DiagnosticCode.INVALID_TRANSFER_INTO_LOCK_WITH_RESTRICTED_VAR_USAGE);
+                dlog.error(varRef.pos, DiagnosticErrorCode.INVALID_TRANSFER_INTO_LOCK_WITH_RESTRICTED_VAR_USAGE);
             }
 
             for (BLangSimpleVarRef varRef : copyInLockInfo.copyOutVarRefs) {
-                dlog.error(varRef.pos, DiagnosticCode.INVALID_TRANSFER_OUT_OF_LOCK_WITH_RESTRICTED_VAR_USAGE);
+                dlog.error(varRef.pos, DiagnosticErrorCode.INVALID_TRANSFER_OUT_OF_LOCK_WITH_RESTRICTED_VAR_USAGE);
             }
 
             for (BLangInvocation invocation : copyInLockInfo.nonIsolatedInvocations) {
                 dlog.error(invocation.pos,
-                           DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_IN_LOCK_WITH_RESTRICTED_VAR_USAGE);
+                           DiagnosticErrorCode.INVALID_NON_ISOLATED_INVOCATION_IN_LOCK_WITH_RESTRICTED_VAR_USAGE);
             }
         }
 
@@ -831,7 +832,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         inferredIsolated = false;
 
         if (isInIsolatedFunction(env.enclInvokable)) {
-            dlog.error(forkJoin.pos, DiagnosticCode.INVALID_FORK_STATEMENT_IN_ISOLATED_FUNCTION);
+            dlog.error(forkJoin.pos, DiagnosticErrorCode.INVALID_FORK_STATEMENT_IN_ISOLATED_FUNCTION);
         }
     }
 
@@ -959,7 +960,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 exprInfo.copyOutVarRefs.add(varRefExpr);
             }
         } else if (isMethodCallOnSelfInIsolatedObject(varRefExpr, parent)) {
-            dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_REFERENCE_TO_SELF_IN_ISOLATED_OBJECT_OUTSIDE_LOCK);
+            dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_REFERENCE_TO_SELF_IN_ISOLATED_OBJECT_OUTSIDE_LOCK);
         }
 
         boolean inIsolatedFunction = isInIsolatedFunction(enclInvokable);
@@ -1013,27 +1014,27 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (isolatedModuleVariableReference) {
             if (!inLockStatement) {
-                dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_ISOLATED_VARIABLE_ACCESS_OUTSIDE_LOCK);
+                dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_ISOLATED_VARIABLE_ACCESS_OUTSIDE_LOCK);
             }
             return;
         }
 
         if (inIsolatedFunction) {
-            dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_MUTABLE_ACCESS_IN_ISOLATED_FUNCTION);
+            dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_MUTABLE_ACCESS_IN_ISOLATED_FUNCTION);
             return;
         }
 
         if (recordFieldDefaultValue) {
             if (isBallerinaModule(env.enclPkg)) {
                 // TODO: 9/13/20 remove this error once stdlibs are migrated
-                dlog.warning(varRefExpr.pos, DiagnosticCode.WARNING_INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
+                dlog.warning(varRefExpr.pos, DiagnosticWarningCode.WARNING_INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
             } else {
-                dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
+                dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
             }
         }
 
         if (objectFieldDefaultValue) {
-            dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_MUTABLE_ACCESS_AS_OBJECT_DEFAULT);
+            dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_MUTABLE_ACCESS_AS_OBJECT_DEFAULT);
         }
     }
 
@@ -1051,7 +1052,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        dlog.error(fieldAccessExpr.pos, DiagnosticCode.INVALID_MUTABLE_FIELD_ACCESS_IN_ISOLATED_OBJECT_OUTSIDE_LOCK);
+        dlog.error(fieldAccessExpr.pos,
+                   DiagnosticErrorCode.INVALID_MUTABLE_FIELD_ACCESS_IN_ISOLATED_OBJECT_OUTSIDE_LOCK);
     }
 
     @Override
@@ -1079,7 +1081,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (isInIsolatedFunction(env.enclInvokable)) {
-            dlog.error(actionInvocationExpr.pos, DiagnosticCode.INVALID_ASYNC_INVOCATION_IN_ISOLATED_FUNCTION);
+            dlog.error(actionInvocationExpr.pos, DiagnosticErrorCode.INVALID_ASYNC_INVOCATION_IN_ISOLATED_FUNCTION);
         }
     }
 
@@ -1090,19 +1092,21 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             inferredIsolated = false;
 
             if (isInIsolatedFunction(env.enclInvokable)) {
-                dlog.error(typeInitExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INIT_EXPRESSION_IN_ISOLATED_FUNCTION);
+                dlog.error(typeInitExpr.pos,
+                           DiagnosticErrorCode.INVALID_NON_ISOLATED_INIT_EXPRESSION_IN_ISOLATED_FUNCTION);
             } else if (isRecordFieldDefaultValue(env.enclType)) {
                 if (isBallerinaModule(env.enclPkg)) {
                     // TODO: 9/16/20 remove this once stdlibs are migrated
                     dlog.warning(typeInitExpr.pos,
-                                 DiagnosticCode.WARNING_INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT);
+                            DiagnosticWarningCode.WARNING_INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT);
                 } else {
                     dlog.error(typeInitExpr.pos,
-                               DiagnosticCode.INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT);
+                               DiagnosticErrorCode.INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT);
                 }
 
             } else if (isObjectFieldDefaultValueRequiringIsolation(env)) {
-                dlog.error(typeInitExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_OBJECT_DEFAULT);
+                dlog.error(typeInitExpr.pos,
+                           DiagnosticErrorCode.INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_OBJECT_DEFAULT);
             }
         }
 
@@ -1649,7 +1653,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         inferredIsolated = false;
 
         if (inIsolatedFunction) {
-            dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_FUNCTION);
+            dlog.error(invocationExpr.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_FUNCTION);
             return;
         }
 
@@ -1657,14 +1661,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             if (isBallerinaModule(env.enclPkg)) {
                 // TODO: 9/13/20 remove this once stdlibs are migrated
                 dlog.warning(invocationExpr.pos,
-                             DiagnosticCode.WARNING_INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
+                        DiagnosticWarningCode.WARNING_INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
             } else {
-                dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
+                dlog.error(invocationExpr.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
             }
         }
 
         if (objectFieldDefaultValueRequiringIsolation) {
-            dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_AS_OBJECT_DEFAULT);
+            dlog.error(invocationExpr.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_INVOCATION_AS_OBJECT_DEFAULT);
         }
     }
 
@@ -1746,7 +1750,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
 
                     if (!Symbols.isFlagOn(arg.type.flags, Flags.ISOLATED)) {
-                        dlog.error(arg.pos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+                        dlog.error(arg.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
                     }
 
                     continue;
@@ -1768,7 +1772,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
 
                     if (!Symbols.isFlagOn(arg.type.flags, Flags.ISOLATED)) {
-                        dlog.error(arg.pos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+                        dlog.error(arg.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
                     }
                 }
             }
@@ -1791,7 +1795,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
 
             if (!Symbols.isFlagOn(arg.type.flags, Flags.ISOLATED)) {
-                dlog.error(arg.pos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+                dlog.error(arg.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
             }
         }
 
@@ -1850,7 +1854,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     }
 
                     if (!Symbols.isFlagOn(type.flags, Flags.ISOLATED)) {
-                        dlog.error(varArgPos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+                        dlog.error(varArgPos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
                     }
                     tupleIndex++;
                 }
@@ -1884,7 +1888,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                         }
 
                         if (!Symbols.isFlagOn(type.flags, Flags.ISOLATED)) {
-                            dlog.error(varArgPos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+                            dlog.error(varArgPos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
                         }
                     }
                 }
@@ -1896,7 +1900,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                         analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
 
                         if (!Symbols.isFlagOn(arg.type.flags, Flags.ISOLATED)) {
-                            dlog.error(varArgPos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+                            dlog.error(varArgPos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
                         }
                     }
                     return;
@@ -1908,7 +1912,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 }
 
                 if (!Symbols.isFlagOn(tupleRestType.flags, Flags.ISOLATED)) {
-                    dlog.error(varArgPos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+                    dlog.error(varArgPos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
                 }
 
                 return;
@@ -1946,7 +1950,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         for (int i = 0; i < (lastArgIsVarArg ? size - 1 : size); i++) {
             BLangExpression arg = restArgs.get(i);
             if (!Symbols.isFlagOn(arg.type.flags, Flags.ISOLATED)) {
-                dlog.error(arg.pos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+                dlog.error(arg.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
             }
         }
 
@@ -1962,7 +1966,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 analyzeAndSetArrowFuncFlagForIsolatedParamArg(expression);
 
                 if (!Symbols.isFlagOn(expression.type.flags, Flags.ISOLATED)) {
-                    dlog.error(pos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+                    dlog.error(pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
                 }
             }
             return;
@@ -1971,7 +1975,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         BType varArgType = restArgsExpression.type;
         if (varArgType.tag == TypeTags.ARRAY) {
             if (!Symbols.isFlagOn(((BArrayType) varArgType).eType.flags, Flags.ISOLATED)) {
-                dlog.error(pos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+                dlog.error(pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
             }
             return;
         }
@@ -1980,13 +1984,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         for (BType type : tupleType.tupleTypes) {
             if (!Symbols.isFlagOn(type.flags, Flags.ISOLATED)) {
-                dlog.error(pos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+                dlog.error(pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
             }
         }
 
         BType restType = tupleType.restType;
         if (restType != null && !Symbols.isFlagOn(restType.flags, Flags.ISOLATED)) {
-            dlog.error(pos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+            dlog.error(pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
         }
     }
 
@@ -2381,7 +2385,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (logErrors) {
-            dlog.error(expression.pos, DiagnosticCode.INVALID_NON_ISOLATED_EXPRESSION_AS_INITIAL_VALUE);
+            dlog.error(expression.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_EXPRESSION_AS_INITIAL_VALUE);
         }
 
         return false;

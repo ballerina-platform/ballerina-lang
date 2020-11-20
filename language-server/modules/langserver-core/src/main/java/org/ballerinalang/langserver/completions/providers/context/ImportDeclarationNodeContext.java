@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.projects.Package;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -32,11 +33,12 @@ import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
-import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortText;
 
@@ -82,9 +84,12 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         ContextScope contextScope;
         List<Package> packagesList = new ArrayList<>(LSPackageLoader.getDistributionRepoPackages());
 
-        if (withinVersionAndPrefix(ctx, node)) {
+        if (this.onPrefixContext(ctx, node)) {
+            return Collections.emptyList();
+        }
+
+        if (onSuggestAsKeyword(ctx, node)) {
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_AS.get()));
-            completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_VERSION.get()));
             contextScope = ContextScope.SCOPE1;
         } else if (node.orgName().isPresent()) {
             /*
@@ -259,23 +264,27 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         return new StaticCompletionItem(context, item, StaticCompletionItem.Kind.MODULE);
     }
 
-    private static boolean withinVersionAndPrefix(CompletionContext context, ImportDeclarationNode node) {
+    private boolean onSuggestAsKeyword(CompletionContext context, ImportDeclarationNode node) {
         SeparatedNodeList<IdentifierToken> moduleName = node.moduleName();
-        if (moduleName.isEmpty()) {
-            return false;
-        }
-        Position cursor = context.getCursorPosition();
-        IdentifierToken endModuleNameComponent;
-        if (moduleName.separatorSize() > 0 && moduleName.getSeparator(moduleName.separatorSize() - 1).isMissing()) {
-            endModuleNameComponent = moduleName.get(moduleName.size() - 2);
-        } else if (moduleName.separatorSize() == 0) {
-            endModuleNameComponent = moduleName.get(moduleName.size() - 1);
-        } else {
-            return false;
-        }
 
-        return !endModuleNameComponent.isMissing()
-                && endModuleNameComponent.lineRange().endLine().offset() < cursor.getCharacter();
+        if (moduleName.isEmpty() || moduleName.get(moduleName.size() - 1).isMissing()) {
+            /*
+            Is missing part added in order to avoid falsely identifying the following as true within this method
+            import <cursor>
+             */
+            return false;
+        }
+        int moduleNameEnd = moduleName.get(moduleName.size() - 1).lineRange().endLine().offset();
+        int cursor = context.getCursorPositionInTree();
+
+        return node.prefix().isEmpty() && cursor > moduleNameEnd;
+    }
+
+    private boolean onPrefixContext(CompletionContext context, ImportDeclarationNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Optional<ImportPrefixNode> prefix = node.prefix();
+
+        return prefix.isPresent() && cursor > prefix.get().asKeyword().lineRange().endLine().offset();
     }
 
     private enum ContextScope {

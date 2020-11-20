@@ -55,15 +55,6 @@ public class SyntaxTree {
                 textDocument, filePath, false);
     }
 
-//    public static SyntaxTree from(
-//            SyntaxTree oldTree, TextDocumentChange textDocumentChange) {
-//        // TODO Improve the logic behind the creation of the new document
-//        TextDocument newTextDocument = oldTree.textDocument().apply(textDocumentChange);
-//        TomlParser parser = ParserFactory.getParser(oldTree, newTextDocument, textDocumentChange);
-//        return new SyntaxTree(parser.parse().createUnlinkedFacade(),
-//                newTextDocument, oldTree.filePath(), false);
-//    }
-
     public TextDocument textDocument() {
         if (textDocument != null) {
             return textDocument;
