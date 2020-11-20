@@ -35,18 +35,13 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.commons.SignatureContext;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.Position;
@@ -55,7 +50,6 @@ import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.Tuple;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -80,8 +74,7 @@ public class SignatureHelpUtil {
      * @param context Lang Server Signature Help Context
      * @return {@link SignatureInformation}     Signature information for the function
      */
-    public static Optional<SignatureInformation> getSignatureInformation(LSContext context)
-            throws WorkspaceDocumentException {
+    public static Optional<SignatureInformation> getSignatureInformation(SignatureContext context) {
         Optional<FunctionSymbol> functionSymbol = getFunctionSymbol(context);
         if (functionSymbol.isEmpty()) {
             return Optional.empty();
@@ -134,7 +127,7 @@ public class SignatureHelpUtil {
      * @param context        Lang Server Signature Help Context
      * @return {@link SignatureInfoModel}       SignatureInfoModel containing signature information
      */
-    private static SignatureInfoModel getSignatureInfoModel(FunctionSymbol functionSymbol, LSContext context) {
+    private static SignatureInfoModel getSignatureInfoModel(FunctionSymbol functionSymbol, SignatureContext context) {
         Map<String, String> paramToDesc = new HashMap<>();
         SignatureInfoModel signatureInfoModel = new SignatureInfoModel();
         List<ParameterInfoModel> paramModels = new ArrayList<>();
@@ -288,9 +281,8 @@ public class SignatureHelpUtil {
             this.parameterInfoModels = parameterInfoModels;
         }
 
-        void setSignatureDescription(String signatureDescription, LSContext signatureContext) {
-            SignatureInformationCapabilities capabilities = signatureContext
-                    .get(SignatureKeys.SIGNATURE_HELP_CAPABILITIES_KEY).getSignatureInformation();
+        void setSignatureDescription(String signatureDescription, SignatureContext signatureContext) {
+            SignatureInformationCapabilities capabilities = signatureContext.capabilities().getSignatureInformation();
             List<String> documentationFormat = capabilities != null ? capabilities.getDocumentationFormat()
                     : new ArrayList<>();
             if (documentationFormat != null
@@ -310,23 +302,19 @@ public class SignatureHelpUtil {
 
     /**
      * Find the token at cursor.
-     *
-     * @throws WorkspaceDocumentException while retrieving the syntax tree from the document manager
      */
-    private static Optional<NonTerminalNode> getTokenInfoAtCursor(LSContext context) throws WorkspaceDocumentException {
-        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        Optional<Path> filePath = CommonUtil.getPathFromURI(context.get(DocumentServiceKeys.FILE_URI_KEY));
-        if (filePath.isEmpty()) {
+    private static Optional<NonTerminalNode> getTokenInfoAtCursor(SignatureContext context) {
+        Optional<Document> document = context.workspace().document(context.filePath());
+        if (document.isEmpty()) {
             return Optional.empty();
         }
-        SyntaxTree syntaxTree = docManager.getTree(filePath.get());
-        TextDocument textDocument = syntaxTree.textDocument();
+        TextDocument textDocument = document.get().textDocument();
 
-        Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        Position position = context.getPosition();
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
-        context.put(CompletionKeys.TEXT_POSITION_IN_TREE, txtPos);
+        context.setCursorPositionInTree(txtPos);
         TextRange range = TextRange.from(txtPos, 0);
-        NonTerminalNode nonTerminalNode = ((ModulePartNode) syntaxTree.rootNode()).findNode(range);
+        NonTerminalNode nonTerminalNode = ((ModulePartNode) document.get().syntaxTree().rootNode()).findNode(range);
 
         while (true) {
             if (!withinTextRange(txtPos, nonTerminalNode) || (nonTerminalNode.kind() != SyntaxKind.FUNCTION_CALL
@@ -349,7 +337,7 @@ public class SignatureHelpUtil {
         return leadingMinutiaeRange.endOffset() <= position;
     }
 
-    public static Optional<FunctionSymbol> getFunctionSymbol(LSContext context) throws WorkspaceDocumentException {
+    public static Optional<FunctionSymbol> getFunctionSymbol(SignatureContext context) {
         Optional<NonTerminalNode> tokenAtCursor = getTokenInfoAtCursor(context);
         if (tokenAtCursor.isEmpty()) {
             return Optional.empty();
@@ -358,7 +346,7 @@ public class SignatureHelpUtil {
         if (tokenAtCursor.get().kind() == SyntaxKind.FUNCTION_CALL) {
             String funcName = ((SimpleNameReferenceNode) ((FunctionCallExpressionNode) tokenAtCursor.get())
                     .functionName()).name().text();
-            List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+            List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getPosition());
             return visibleSymbols.stream().filter(symbol -> symbol.kind() == FUNCTION && symbol.name().equals(funcName))
                     .map(symbol -> (FunctionSymbol) symbol)
                     .findAny();
@@ -386,7 +374,7 @@ public class SignatureHelpUtil {
                 .findAny();
     }
 
-    private static Optional<? extends TypeSymbol> getTypeDesc(LSContext ctx, ExpressionNode expr) {
+    private static Optional<? extends TypeSymbol> getTypeDesc(SignatureContext ctx, ExpressionNode expr) {
         switch (expr.kind()) {
             case SIMPLE_NAME_REFERENCE:
                 /*
@@ -421,7 +409,7 @@ public class SignatureHelpUtil {
     }
 
     private static Optional<? extends TypeSymbol> getTypeDescForFieldAccess(
-            LSContext context, FieldAccessExpressionNode node) {
+            SignatureContext context, FieldAccessExpressionNode node) {
         String fieldName = ((SimpleNameReferenceNode) node.fieldName()).name().text();
         ExpressionNode expressionNode = node.expression();
         Optional<? extends TypeSymbol> typeDescriptor = getTypeDesc(context, expressionNode);
@@ -446,13 +434,13 @@ public class SignatureHelpUtil {
                 .findAny();
     }
 
-    private static Optional<? extends TypeSymbol> getTypeDescForNameRef(LSContext context,
+    private static Optional<? extends TypeSymbol> getTypeDescForNameRef(SignatureContext context,
                                                                         NameReferenceNode referenceNode) {
         if (referenceNode.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
             return Optional.empty();
         }
         String name = ((SimpleNameReferenceNode) referenceNode).name().text();
-        List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getPosition());
         Optional<Symbol> symbolRef = visibleSymbols.stream()
                 .filter(symbol -> symbol.name().equals(name))
                 .findFirst();
@@ -464,9 +452,9 @@ public class SignatureHelpUtil {
     }
 
     private static Optional<? extends TypeSymbol> getTypeDescForFunctionCall(
-            LSContext context, FunctionCallExpressionNode expr) {
+            SignatureContext context, FunctionCallExpressionNode expr) {
         String fName = ((SimpleNameReferenceNode) expr.functionName()).name().text();
-        List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getPosition());
         Optional<FunctionSymbol> symbolRef = visibleSymbols.stream()
                 .filter(symbol -> symbol.name().equals(fName) && symbol.kind() == SymbolKind.FUNCTION)
                 .map(symbol -> (FunctionSymbol) symbol)
@@ -479,7 +467,7 @@ public class SignatureHelpUtil {
     }
 
     private static Optional<? extends TypeSymbol> getTypeDescForMethodCall(
-            LSContext context, MethodCallExpressionNode node) {
+            SignatureContext context, MethodCallExpressionNode node) {
         String methodName = ((SimpleNameReferenceNode) node.methodName()).name().text();
 
         Optional<? extends TypeSymbol> fieldTypeDesc = getTypeDesc(context, node.expression());

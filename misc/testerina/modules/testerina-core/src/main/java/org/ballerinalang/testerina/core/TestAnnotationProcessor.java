@@ -65,7 +65,10 @@ import java.util.stream.Collectors;
  * Responsible of processing testerina annotations. This class is an implementation of the
  * {@link org.ballerinalang.compiler.plugins.CompilerPlugin}. Lifetime of an instance of this class will end upon the
  * completion of processing a ballerina package.
+ *
+ * @deprecated Use {@link io.ballerina.projects.TestAnnotationProcessor} instead.
  */
+@Deprecated
 @SupportedAnnotationPackages(
         value = "ballerina/test"
 )

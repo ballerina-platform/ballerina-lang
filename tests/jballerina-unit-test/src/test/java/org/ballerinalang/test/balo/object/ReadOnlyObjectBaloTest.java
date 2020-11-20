@@ -18,14 +18,12 @@
 
 package org.ballerinalang.test.balo.object;
 
-import org.ballerinalang.test.balo.BaloCreator;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.testng.annotations.AfterClass;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -40,8 +38,7 @@ public class ReadOnlyObjectBaloTest {
 
     @Test
     public void testReadonlyRecordFields() {
-        BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "readonly_objects");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_readonly_obj");
         result = BCompileUtil.compile("test-src/balo/test_balo/object/test_readonly_objects.bal");
     }
 
@@ -59,11 +56,5 @@ public class ReadOnlyObjectBaloTest {
         validateError(result, index++, "invalid intersection type: cannot have a 'readonly' intersection with a " +
                 "'readonly object'", 20, 5);
         assertEquals(result.getErrorCount(), index);
-    }
-
-    @AfterClass
-    public void tearDown() {
-        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg",
-                                               "readonly_objects");
     }
 }

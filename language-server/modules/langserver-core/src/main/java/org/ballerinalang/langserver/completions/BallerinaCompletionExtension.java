@@ -18,8 +18,8 @@
 package org.ballerinalang.langserver.completions;
 
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.CompletionExtension;
-import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionParams;
@@ -40,9 +40,8 @@ public class BallerinaCompletionExtension implements CompletionExtension {
     }
 
     @Override
-    public List<CompletionItem> execute(CompletionParams inputParams, LSContext context)
+    public List<CompletionItem> execute(CompletionParams inputParams, CompletionContext context)
             throws Throwable {
-        CompletionUtil.resolveSymbols(context);
         return CompletionUtil.getCompletionItems(context);
     }
 }

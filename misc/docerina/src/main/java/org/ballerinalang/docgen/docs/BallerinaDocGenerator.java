@@ -20,6 +20,10 @@ package org.ballerinalang.docgen.docs;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.Writer;
@@ -38,21 +42,18 @@ import org.ballerinalang.docgen.generator.model.FunctionsPageContext;
 import org.ballerinalang.docgen.generator.model.Listener;
 import org.ballerinalang.docgen.generator.model.ListenerPageContext;
 import org.ballerinalang.docgen.generator.model.Module;
+import org.ballerinalang.docgen.generator.model.ModuleDoc;
 import org.ballerinalang.docgen.generator.model.ModulePageContext;
 import org.ballerinalang.docgen.generator.model.Project;
 import org.ballerinalang.docgen.generator.model.ProjectPageContext;
 import org.ballerinalang.docgen.generator.model.Record;
 import org.ballerinalang.docgen.generator.model.RecordPageContext;
 import org.ballerinalang.docgen.generator.model.TypesPageContext;
-import org.ballerinalang.docgen.model.ModuleDoc;
-import org.ballerinalang.docgen.model.search.ConstructSearchJson;
-import org.ballerinalang.docgen.model.search.ModuleSearchJson;
-import org.ballerinalang.docgen.model.search.SearchJson;
+import org.ballerinalang.docgen.generator.model.search.ConstructSearchJson;
+import org.ballerinalang.docgen.generator.model.search.ModuleSearchJson;
+import org.ballerinalang.docgen.generator.model.search.SearchJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -66,12 +67,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -144,47 +143,24 @@ public class BallerinaDocGenerator {
         }
     }
 
-    public static void writeAPIDocsToJSON(Map<String, ModuleDoc> docsMap, String output) {
-        // Sort modules by module path
-        List<ModuleDoc> moduleDocList = new ArrayList<>(docsMap.values());
-        moduleDocList.sort(Comparator.comparing(pkg -> pkg.bLangPackage.packageID.toString()));
-
-        // Generate project model
-        Project project = getDocsGenModel(moduleDocList);
-        File jsonFile = new File(output + File.separator + DOC_JSON);
-        try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
-            String json = gson.toJson(project);
-            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            out.println(String.format("docerina: failed to create the " + DOC_JSON + ". Cause: %s", e.getMessage()));
-            log.error("Failed to create " + DOC_JSON + " file.", e);
+    /**
+     * API to generate API docs using a Project to a given folder.
+     *  @param project Ballerina project
+     *  @param output Output path as a string
+     *  @param excludeIndex weather to exclude the index page
+     */
+    public static void generateAPIDocs(io.ballerina.projects.Project project, String output, boolean excludeIndex)
+            throws IOException {
+        Map<String, ModuleDoc> moduleDocMap = generateModuleDocMap(project);
+        Project docerinaProject = getDocsGenModel(moduleDocMap, project.currentPackage().packageOrg().toString(),
+                project.currentPackage().packageVersion().toString());
+        Path packageMdPath = project.sourceRoot().resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
+        if (packageMdPath.toFile().exists()) {
+            String mdContent = new String(Files.readAllBytes(packageMdPath), "UTF-8");
+            docerinaProject.description = BallerinaDocUtils.mdToHtml(mdContent, true);
         }
-    }
-
-    public static void writeAPIDocsForModulesFromJson(Path jsonpath, String output, boolean excludeIndex) {
-        if (jsonpath.toFile().exists()) {
-            try (BufferedReader br = Files.newBufferedReader(jsonpath, StandardCharsets.UTF_8)) {
-                Project project = gson.fromJson(br, Project.class);
-                writeAPIDocs(project, output, excludeIndex);
-            } catch (IOException e) {
-                String errorMsg = String.format("API documentation generation failed. Cause: %s",
-                        e.getMessage());
-                out.println(errorMsg);
-                log.error(errorMsg, e);
-                return;
-            }
-        }
-    }
-
-    public static void writeAPIDocsForModules(Map<String, ModuleDoc> docsMap, String output, boolean excludeIndex) {
-        // Sort modules by module path
-        List<ModuleDoc> moduleDocList = new ArrayList<>(docsMap.values());
-        moduleDocList.sort(Comparator.comparing(pkg -> pkg.bLangPackage.packageID.toString()));
-
-        // Generate project model
-        Project project = getDocsGenModel(moduleDocList);
-        if (!project.modules.isEmpty()) {
-            writeAPIDocs(project, output, excludeIndex);
+        if (!docerinaProject.modules.isEmpty()) {
+            writeAPIDocs(docerinaProject, output, excludeIndex);
         }
     }
 
@@ -315,9 +291,9 @@ public class BallerinaDocGenerator {
                 }
 
                 // Create pages for types
-                if (!(module.unionTypes.isEmpty() && module.finiteTypes.isEmpty())) {
+                if (!module.types.isEmpty()) {
                     String typesFile = modDir + File.separator + "types" + HTML;
-                    TypesPageContext typesPageContext = new TypesPageContext(module.unionTypes, module, project,
+                    TypesPageContext typesPageContext = new TypesPageContext(module.types, module, project,
                             rootPathModuleLevel, "API Docs - Types : " + module.id, excludeIndex);
                     Writer.writeHtmlDocument(typesPageContext, typesTemplateName, typesFile);
                 }
@@ -486,13 +462,9 @@ public class BallerinaDocGenerator {
         module.errors.forEach((error) ->
                 searchErrors.add(new ConstructSearchJson(error.name, module.id, getFirstLine(error.description))));
 
-        module.unionTypes.forEach((unionType) ->
+        module.types.forEach((unionType) ->
                 searchTypes.add(new ConstructSearchJson(unionType.name, module.id,
                         getFirstLine(unionType.description))));
-
-        module.finiteTypes.forEach((finiteType) ->
-                searchTypes.add(new ConstructSearchJson(finiteType.name, module.id,
-                        getFirstLine(finiteType.description))));
 
         module.annotations.forEach((annotation) ->
                 searchAnnotations.add(new ConstructSearchJson(annotation.name, module.id,
@@ -581,36 +553,38 @@ public class BallerinaDocGenerator {
         }
     }
 
-    public static Map<String, ModuleDoc> generateModuleDocs(String sourceRoot,
-                                                            List<BLangPackage> modules) throws IOException {
+    /**
+     * Generates a map of module names and their ModuleDoc.
+     *  @param project Ballerina project.
+     *  @return a map of module names and their ModuleDoc.
+     */
+    public static Map<String, ModuleDoc> generateModuleDocMap(io.ballerina.projects.Project project)
+            throws IOException {
         Map<String, ModuleDoc> moduleDocMap = new HashMap<>();
-        for (BLangPackage bLangPackage : modules) {
-            moduleDocMap.put(bLangPackage.packageID.name.toString(), generateModuleDoc(sourceRoot, bLangPackage));
-        }
-        return moduleDocMap;
-    }
-
-    public static Map<String, ModuleDoc> generateModuleDocs(String sourceRoot, List<BLangPackage> modules,
-                                                            Set<String> moduleFilter) throws IOException {
-        Map<String, ModuleDoc> moduleDocMap = new HashMap<>();
-        for (BLangPackage bLangPackage : modules) {
-            String moduleName = bLangPackage.packageID.name.toString();
-            if (moduleFilter.contains(moduleName)) {
-                continue;
+        for (io.ballerina.projects.Module module : project.currentPackage().modules()) {
+            String moduleName;
+            Path modulePath;
+            if (module.isDefaultModule()) {
+                moduleName = module.moduleName().packageName().toString();
+                modulePath = project.sourceRoot();
+            } else {
+                moduleName = module.moduleName().moduleNamePart();
+                modulePath = project.sourceRoot().resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName);
             }
-            moduleDocMap.put(moduleName, generateModuleDoc(sourceRoot, bLangPackage));
+            // find the Module.md file
+            Path moduleMd = getModuleDocPath(modulePath);
+            // find the resources of the package
+            List<Path> resources = getResourcePaths(modulePath);
+            Map<String, SyntaxTree> syntaxTreeMap = new HashMap<>();
+            module.documentIds().forEach(documentId -> {
+                Document document = module.document(documentId);
+                syntaxTreeMap.put(document.name(), document.syntaxTree());
+            });
+            ModuleDoc moduleDoc = new ModuleDoc(moduleMd == null ? null : moduleMd.toAbsolutePath(), resources,
+                    syntaxTreeMap, (BallerinaSemanticModel) module.getCompilation().getSemanticModel());
+            moduleDocMap.put(moduleName, moduleDoc);
         }
         return moduleDocMap;
-    }
-
-    public static ModuleDoc generateModuleDoc(String sourceRoot, BLangPackage bLangPackage) throws IOException {
-        String moduleName = bLangPackage.packageID.name.toString();
-        Path absolutePkgPath = getAbsoluteModulePath(sourceRoot, Paths.get(moduleName));
-        // find the Module.md file
-        Path packageMd = getModuleDocPath(absolutePkgPath);
-        // find the resources of the package
-        List<Path> resources = getResourcePaths(absolutePkgPath);
-        return new ModuleDoc(packageMd == null ? null : packageMd.toAbsolutePath(), resources, bLangPackage);
     }
 
     public static void setPrintStream(PrintStream out) {
@@ -620,55 +594,45 @@ public class BallerinaDocGenerator {
     /**
      * Generate docs generator model.
      *
-     * @param moduleDocList moduleDocList modules list whose docs to be generated
-     * @return docs generator model of the project
+     * @param docsMap moduleDocList modules list whose docs to be generated.
+     * @param orgName organization name.
+     * @param version project version.
+     * @return docs generator model of the project.
      */
-    public static Project getDocsGenModel(List<ModuleDoc> moduleDocList) {
+    public static Project getDocsGenModel(Map<String, ModuleDoc> docsMap, String orgName, String version) {
         Project project = new Project();
-        project.isSingleFile =
-                moduleDocList.size() == 1 && moduleDocList.get(0).bLangPackage.packageID.name.value.equals(".");
-        if (project.isSingleFile) {
-            project.sourceFileName = moduleDocList.get(0).bLangPackage.packageID.sourceFileName.value;
-        }
         project.name = "";
         project.description = "";
 
         List<Module> moduleDocs = new ArrayList<>();
-        for (ModuleDoc moduleDoc : moduleDocList) {
-            // Generate module models
+        for (Map.Entry<String, ModuleDoc> moduleDoc : docsMap.entrySet()) {
+            BallerinaSemanticModel model = moduleDoc.getValue().semanticModel;
             Module module = new Module();
-            module.id = moduleDoc.bLangPackage.packageID.name.toString();
-            module.orgName = moduleDoc.bLangPackage.packageID.orgName.toString();
-            String moduleVersion = moduleDoc.bLangPackage.packageID.version.toString();
+            module.id = moduleDoc.getKey();
+            module.orgName = orgName;
+            String moduleVersion = version;
             // get version from system property if not found in bLangPackage
             module.version = moduleVersion.equals("") ?
                     System.getProperty(BallerinaDocConstants.VERSION) :
                     moduleVersion;
-            module.summary = moduleDoc.summary;
-            module.description = moduleDoc.description;
-
-            // populate module constructs
-            sortModuleConstructs(moduleDoc.bLangPackage);
-            boolean hasPublicConstructs = Generator.generateModuleConstructs(module, moduleDoc.bLangPackage);
+            module.summary = moduleDoc.getValue().summary;
+            module.description = moduleDoc.getValue().description;
 
             // collect module's doc resources
+            module.resources.addAll(moduleDoc.getValue().resources);
+
+            boolean hasPublicConstructs = false;
+            // Loop through bal files
+            for (Map.Entry<String, SyntaxTree> syntaxTreeMapEntry : moduleDoc.getValue().syntaxTreeMap.entrySet()) {
+                hasPublicConstructs = Generator.setModuleFromSyntaxTree(module, syntaxTreeMapEntry.getValue(), model,
+                        syntaxTreeMapEntry.getKey());
+            }
             if (hasPublicConstructs) {
-                module.resources.addAll(moduleDoc.resources);
                 moduleDocs.add(module);
             }
         }
         project.modules = moduleDocs;
         return project;
-    }
-
-    private static void sortModuleConstructs(BLangPackage bLangPackage) {
-        bLangPackage.getFunctions().sort(Comparator.comparing(f -> (f.getReceiver() == null ? "" : f
-                .getReceiver().getName()) + f.getName().getValue()));
-        bLangPackage.getAnnotations().sort(Comparator.comparing(a -> a.getName().getValue()));
-        bLangPackage.getTypeDefinitions()
-                .sort(Comparator.comparing(a -> a.getName() == null ? "" : a.getName().getValue()));
-        bLangPackage.getGlobalVariables().sort(Comparator.comparing(a ->
-                ((BLangSimpleVariable) a).getName().getValue()));
     }
 
     private static List<Path> getResourcePaths(Path absolutePkgPath) throws IOException {
@@ -693,10 +657,5 @@ public class BallerinaDocGenerator {
 
         packageMd = o.isPresent() ? o.get() : null;
         return packageMd;
-    }
-
-    private static Path getAbsoluteModulePath(String sourceRoot, Path modulePath) {
-        return Paths.get(sourceRoot).resolve(ProjectDirConstants.SOURCE_DIR_NAME)
-                               .resolve(modulePath);
     }
 }

@@ -20,9 +20,8 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.WaitActionNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -45,7 +44,7 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, WaitActionNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, WaitActionNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
@@ -54,7 +53,7 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
             Covers the following,
             (1) wait fs1|f<cursor>
              */
-            ArrayList<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+            List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
             List<Symbol> filteredSymbols = visibleSymbols.stream().filter(symbol -> {
                 Optional<TypeDescKind> typeDescKind = SymbolUtil.getTypeKind(symbol);
                 return typeDescKind.isPresent() && typeDescKind.get() == TypeDescKind.FUTURE;
@@ -65,7 +64,7 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
             completionItems.addAll(this.actionKWCompletions(context));
             completionItems.addAll(this.expressionCompletions(context));
         }
-        
+
         return completionItems;
     }
 }

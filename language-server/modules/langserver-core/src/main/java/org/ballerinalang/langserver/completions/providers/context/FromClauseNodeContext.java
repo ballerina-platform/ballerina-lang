@@ -25,9 +25,8 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -50,7 +49,7 @@ public class FromClauseNodeContext extends AbstractCompletionProvider<FromClause
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, FromClauseNode node) {
+    public List<LSCompletionItem> getCompletions(CompletionContext context, FromClauseNode node) {
 
         if (this.onBindingPatternContext(context, node)) {
             /*
@@ -63,7 +62,7 @@ public class FromClauseNodeContext extends AbstractCompletionProvider<FromClause
             return new ArrayList<>();
         }
 
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (this.onTypedBindingPatternContext(context, node)) {
             /*
@@ -104,12 +103,12 @@ public class FromClauseNodeContext extends AbstractCompletionProvider<FromClause
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, FromClauseNode node) {
+    public boolean onPreValidation(CompletionContext context, FromClauseNode node) {
         return !node.fromKeyword().isMissing();
     }
 
-    private boolean onTypedBindingPatternContext(LSContext context, FromClauseNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    private boolean onTypedBindingPatternContext(CompletionContext context, FromClauseNode node) {
+        int cursor = context.getCursorPositionInTree();
         Token fromKeyword = node.fromKeyword();
         Token inKeyword = node.inKeyword();
         TypedBindingPatternNode typedBindingPattern = node.typedBindingPattern();
@@ -119,14 +118,14 @@ public class FromClauseNodeContext extends AbstractCompletionProvider<FromClause
                 && (typedBindingPattern.isMissing() || typedBindingPattern.textRange().endOffset() >= cursor);
     }
 
-    private boolean onBindingPatternContext(LSContext context, FromClauseNode node) {
+    private boolean onBindingPatternContext(CompletionContext context, FromClauseNode node) {
         TypedBindingPatternNode typedBindingPattern = node.typedBindingPattern();
 
         if (typedBindingPattern == null || typedBindingPattern.isMissing()) {
             return false;
         }
 
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        int cursor = context.getCursorPositionInTree();
         Token inKeyword = node.inKeyword();
         TypeDescriptorNode typeDescriptor = typedBindingPattern.typeDescriptor();
         BindingPatternNode bindingPattern = typedBindingPattern.bindingPattern();
