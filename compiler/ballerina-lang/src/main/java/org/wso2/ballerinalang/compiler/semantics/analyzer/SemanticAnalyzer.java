@@ -677,7 +677,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (configurable && varNode.typeNode != null) {
             if (!(types.isAssignable(lhsType, symTable.anydataType) &&
                     types.isAssignable(lhsType, symTable.readonlyType))) {
-                dlog.error(varNode.typeNode.pos, DiagnosticErrorCode.CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA_AND_READONLY);
+                dlog.error(varNode.typeNode.pos,
+                        DiagnosticErrorCode.CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA_AND_READONLY);
             }
         }
         // Analyze the init expression
