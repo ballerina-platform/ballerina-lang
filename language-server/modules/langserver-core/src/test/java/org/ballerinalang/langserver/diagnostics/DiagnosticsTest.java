@@ -46,10 +46,10 @@ import java.util.Optional;
 
 /**
  * Diagnostics tests are covered here.
- * 
+ *
  * @since 2.0.0
  */
-public class Diagnostics {
+public class DiagnosticsTest {
 
     private Endpoint serviceEndpoint;
 
