@@ -1,12 +1,17 @@
-[project]
-org-name = "ballerina"
+[package]
+org = "ballerina"
+name = "test"
 version = "0.0.0"
 
-[platform]
-target = "java11"
+[[platform.java11.dependency]]
+path = "../libs/testerina-core-2.0.0-Preview6-SNAPSHOT.jar"
+groupId = "ballerina"
+artifactId = "mock"
+version = "0.0.0"
 
-    [[platform.libraries]]
-        artifactId = "mock"
-        version = "0.0.0"
-        path = "./lib/testerina-core-2.0.0-Preview6-SNAPSHOT.jar"
-        groupId = "ballerina"
+
+[[platform.java11.dependency]]
+path = "../libs/java-diff-utils-4.5.jar"
+groupId = "io.github.java-diff-utils"
+artifactId = "java-diff-utils"
+version = "4.5.0"

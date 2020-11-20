@@ -26,7 +26,7 @@ function testTableMemberAccessStore() returns boolean {
       { m: {"BBB":"DDDD"}, age: 34 }
     ];
 
-    tab[{"CCC":"EEEE"}] = { m: {"CCC":"EEEE"}, age: 34 };
+    tab.add({ m: {"CCC":"EEEE"}, age: 34 });
     return tab.toString() == "[{\"m\":{\"AAA\":\"DDDD\"},\"age\":31},{\"m\":{\"BBB\":\"DDDD\"},\"age\":34},{\"m\":{\"CCC\":\"EEEE\"},\"age\":34}]";
 }
 

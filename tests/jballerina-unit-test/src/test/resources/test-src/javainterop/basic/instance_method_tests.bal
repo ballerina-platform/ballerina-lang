@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/java;
-import ballerina/test;
 
 function testAcceptNothingAndReturnNothing(handle receiver) {
     increaseCounterByOne(receiver);
@@ -83,17 +82,17 @@ function testUnionWithErrorReturnHandle(handle receiver) returns error|int|boole
 
 function testInstanceResolve() {
     int val = hashCode(newByte(2));
-    test:assertEquals(val, 2);
+    assertEquals(val, 2);
 }
 
 public function testGetCurrentModule(handle receiver) {
      string moduleString =  getCurrentModule(receiver, 4);
-     test:assertEquals(moduleString, "$anon#.#0.0.0#4");
+     assertEquals(moduleString, "$anon#.#0.0.0#4");
      // calling overloaded method using self as a parameter.
      moduleString =  getCurrentModuleAndOverloadParams(receiver, 4);
-     test:assertEquals(moduleString, "$anon#.#0.0.0#8");
+     assertEquals(moduleString, "$anon#.#0.0.0#8");
      moduleString =  getCurrentModuleAndOverloadParamsWithReceiver(receiver, receiver, 4);
-     test:assertEquals(moduleString, "$anon#.#0.0.0#16");
+     assertEquals(moduleString, "$anon#.#0.0.0#16");
 }
 
 // Interop functions
@@ -217,3 +216,11 @@ function hashCode(handle receiver) returns int = @java:Method {
 function newByte(int val) returns handle = @java:Constructor {
    'class: "java.lang.Byte"
 } external;
+
+function assertEquals(anydata|error expected, anydata|error actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

@@ -20,7 +20,6 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
-
 /**
  * Represents A Long Value in Toml AST.
  *
@@ -28,6 +27,11 @@ import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
  */
 public class TomlLongValueNode extends TomlBasicValueNode<Long> {
     public TomlLongValueNode(Long value, TomlNodeLocation location) {
-        super(value, TomlType.LONG, location);
+        super(value, TomlType.INTEGER, location);
+    }
+
+    @Override
+    public void accept(TomlNodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

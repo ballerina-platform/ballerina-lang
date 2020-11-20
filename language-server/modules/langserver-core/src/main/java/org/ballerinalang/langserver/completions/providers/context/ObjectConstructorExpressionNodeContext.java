@@ -23,11 +23,9 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -53,7 +51,7 @@ public class ObjectConstructorExpressionNodeContext
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ObjectConstructorExpressionNode node) {
+    public List<LSCompletionItem> getCompletions(CompletionContext context, ObjectConstructorExpressionNode node) {
         if (this.onSuggestObjectOnly(context, node)) {
             return Arrays.asList(
                     new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()),
@@ -67,14 +65,14 @@ public class ObjectConstructorExpressionNodeContext
         return this.getConstructorBodyCompletions(context);
     }
 
-    private List<LSCompletionItem> getTypeReferenceCompletions(LSContext ctx) {
-        NonTerminalNode nodeAtCursor = ctx.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+    private List<LSCompletionItem> getTypeReferenceCompletions(CompletionContext ctx) {
+        NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
         if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             Predicate<Symbol> predicate = SymbolUtil::isObject;
             return this.getCompletionItemList(QNameReferenceUtil.getModuleContent(ctx, qNameRef, predicate), ctx);
         }
-        List<Symbol> visibleSymbols = ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<Symbol> visibleSymbols = ctx.getVisibleSymbols(ctx.getCursorPosition());
         List<Symbol> objectEntries = visibleSymbols.stream()
                 .filter(SymbolUtil::isObject)
                 .collect(Collectors.toList());
@@ -85,7 +83,7 @@ public class ObjectConstructorExpressionNodeContext
         return completionItems;
     }
 
-    private List<LSCompletionItem> getConstructorBodyCompletions(LSContext context) {
+    private List<LSCompletionItem> getConstructorBodyCompletions(CompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PRIVATE.get()));
@@ -101,8 +99,8 @@ public class ObjectConstructorExpressionNodeContext
         return completionItems;
     }
 
-    private boolean onSuggestObjectOnly(LSContext context, ObjectConstructorExpressionNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    private boolean onSuggestObjectOnly(CompletionContext context, ObjectConstructorExpressionNode node) {
+        int cursor = context.getCursorPositionInTree();
         NodeList<Token> qualifiers = node.objectTypeQualifiers();
 
         if (qualifiers.isEmpty()) {
@@ -115,8 +113,8 @@ public class ObjectConstructorExpressionNodeContext
                 && (objectKeyword.isMissing() || cursor < objectKeyword.textRange().startOffset());
     }
 
-    private boolean onSuggestTypeReferences(LSContext context, ObjectConstructorExpressionNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    private boolean onSuggestTypeReferences(CompletionContext context, ObjectConstructorExpressionNode node) {
+        int cursor = context.getCursorPositionInTree();
         Token objectKeyword = node.objectKeyword();
         Token openBrace = node.openBraceToken();
 

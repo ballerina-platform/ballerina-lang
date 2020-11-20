@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.codeaction;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
@@ -27,6 +28,7 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,26 +45,25 @@ public class CodeActionRouter {
     /**
      * Returns a list of supported code actions.
      *
-     * @param syntaxTree        code action node type
-     * @param cursorDiagnostics list of diagnostics of the cursor position
-     * @param allDiagnostics    list of all diagnostics
-     * @param ctx               {@link LSContext}
+     * @param ctx {@link LSContext}
      * @return list of code actions
      */
-    public static List<CodeAction> getAvailableCodeActions(SyntaxTree syntaxTree,
-                                                           List<Diagnostic> cursorDiagnostics,
-                                                           List<Diagnostic> allDiagnostics, LSContext ctx) {
+    public static List<CodeAction> getAvailableCodeActions(CodeActionContext ctx) {
+        Optional<SyntaxTree> syntaxTree = ctx.workspace().syntaxTree(ctx.filePath());
+        if (syntaxTree.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         List<CodeAction> codeActions = new ArrayList<>();
         CodeActionProvidersHolder codeActionProvidersHolder = CodeActionProvidersHolder.getInstance();
         // Get available node-type based code-actions
-        Optional<Pair<CodeActionNodeType, NonTerminalNode>> nodeTypeAndNode = codeActionNodeType(syntaxTree, ctx);
+        Optional<Pair<CodeActionNodeType, NonTerminalNode>> nodeTypeAndNode = codeActionNodeType(ctx);
         if (nodeTypeAndNode.isPresent()) {
             CodeActionNodeType nodeType = nodeTypeAndNode.get().getLeft();
             NonTerminalNode node = nodeTypeAndNode.get().getRight();
             codeActionProvidersHolder.getActiveNodeBasedProviders(nodeType).forEach(provider -> {
                 try {
-                    List<CodeAction> codeActionsOut = provider.getNodeBasedCodeActions(node, nodeType, allDiagnostics,
-                                                                                       syntaxTree, ctx);
+                    List<CodeAction> codeActionsOut = provider.getNodeBasedCodeActions(node, nodeType, ctx);
                     if (codeActionsOut != null) {
                         codeActions.addAll(codeActionsOut);
                     }
@@ -73,14 +74,13 @@ public class CodeActionRouter {
             });
         }
         // Get available diagnostics based code-actions
+        List<Diagnostic> cursorDiagnostics = ctx.getCursorDiagnostics();
         if (cursorDiagnostics != null && !cursorDiagnostics.isEmpty()) {
             for (Diagnostic diagnostic : cursorDiagnostics) {
-                PositionDetails positionDetails = findCursorDetails(diagnostic.getRange(), syntaxTree, ctx);
+                PositionDetails posDetails = findCursorDetails(diagnostic.getRange(), syntaxTree.get(), ctx);
                 codeActionProvidersHolder.getActiveDiagnosticsBasedProviders().forEach(provider -> {
                     try {
-                        List<CodeAction> codeActionsOut = provider.getDiagBasedCodeActions(diagnostic, positionDetails,
-                                                                                           allDiagnostics, syntaxTree,
-                                                                                           ctx);
+                        List<CodeAction> codeActionsOut = provider.getDiagBasedCodeActions(diagnostic, posDetails, ctx);
                         if (codeActionsOut != null) {
                             codeActions.addAll(codeActionsOut);
                         }

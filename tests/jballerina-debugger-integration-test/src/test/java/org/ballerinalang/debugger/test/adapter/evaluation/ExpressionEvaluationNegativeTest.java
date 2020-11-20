@@ -145,7 +145,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void unaryExpressionEvaluationTest() throws BallerinaTestException {
         assertEvaluationError(context, String.format("+%s", STRING_VAR), "operator '+' not defined for 'string'");
         assertEvaluationError(context, String.format("-%s", STRING_VAR), "operator '-' not defined for 'string'");
@@ -154,7 +154,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void multiplicativeExpressionEvaluationTest() throws BallerinaTestException {
         // semantically incorrect expressions (multiplication between int and string)
         assertEvaluationError(context, String.format("%s * %s", INT_VAR, STRING_VAR), "operator '*' not defined for "
@@ -164,7 +164,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void additiveExpressionEvaluationTest() throws BallerinaTestException {
         // semantically incorrect expressions (addition between int and string)
         assertEvaluationError(context, String.format("%s + %s", INT_VAR, STRING_VAR), "operator '+' not defined for "
@@ -172,7 +172,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void shiftExpressionEvaluationTest() throws BallerinaTestException {
         // left shift
         assertEvaluationError(context, String.format("%s << %s", INT_VAR, STRING_VAR), "operator '<<' not defined for "
@@ -192,7 +192,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void comparisonEvaluationTest() throws BallerinaTestException {
         // semantically incorrect expressions (multiplication between int and string)
         assertEvaluationError(context, String.format("%s < %s", INT_VAR, STRING_VAR), "operator '<' not defined for "
@@ -212,7 +212,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void binaryBitwiseEvaluationTest() throws BallerinaTestException {
         // bitwise AND
         assertEvaluationError(context, String.format("%s & %s", INT_VAR, STRING_VAR), "operator '&' not defined for "
@@ -226,7 +226,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void logicalEvaluationTest() throws BallerinaTestException {
         // Logical AND
         assertEvaluationError(context, String.format("%s && %s", INT_VAR, STRING_VAR), "operator '&&' not defined for "

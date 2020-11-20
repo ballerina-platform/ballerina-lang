@@ -19,8 +19,7 @@ import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -41,10 +40,10 @@ public class FunctionBodyBlockNodeContext extends BlockNodeContextProvider<Funct
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, FunctionBodyBlockNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, FunctionBodyBlockNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>(super.getCompletions(context, node));
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         if (nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_WORKER.get()));
         }
@@ -53,8 +52,8 @@ public class FunctionBodyBlockNodeContext extends BlockNodeContextProvider<Funct
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, FunctionBodyBlockNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    public boolean onPreValidation(CompletionContext context, FunctionBodyBlockNode node) {
+        int cursor = context.getCursorPositionInTree();
         return !node.openBraceToken().isMissing() && !node.closeBraceToken().isMissing()
                 && node.closeBraceToken().textRange().startOffset() >= cursor
                 && node.openBraceToken().textRange().endOffset() <= cursor;

@@ -19,7 +19,7 @@
 package toml.parser.test.api.errors;
 
 import io.ballerina.toml.api.Toml;
-import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.text.LineRange;
 import org.testng.annotations.Test;
@@ -39,10 +39,10 @@ public class TableTest {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("syntax/tables/empty-table-key-negative.toml");
         Toml read = Toml.read(inputStream);
-        List<TomlDiagnostic> diagnostics = read.getDiagnostics();
+        List<Diagnostic> diagnostics = read.diagnostics();
 
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 2, 2);
-        TomlDiagnostic actualDiag = diagnostics.get(0);
+        Diagnostic actualDiag = diagnostics.get(0);
 
         ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange, "missing identifier",
                 DiagnosticSeverity.ERROR);
@@ -54,10 +54,10 @@ public class TableTest {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("syntax/tables/empty-table-close-negative.toml");
         Toml read = Toml.read(inputStream);
-        List<TomlDiagnostic> diagnostics = read.getDiagnostics();
+        List<Diagnostic> diagnostics = read.diagnostics();
 
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(18, 18, 1, 1);
-        TomlDiagnostic actualDiag = diagnostics.get(0);
+        Diagnostic actualDiag = diagnostics.get(0);
 
         ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange, "missing close bracket token",
                 DiagnosticSeverity.ERROR);
@@ -69,10 +69,10 @@ public class TableTest {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("syntax/tables/wrong-closing-brace-negative.toml");
         Toml read = Toml.read(inputStream);
-        List<TomlDiagnostic> diagnostics = read.getDiagnostics();
+        List<Diagnostic> diagnostics = read.diagnostics();
 
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(18, 18, 1, 1);
-        TomlDiagnostic actualDiag = diagnostics.get(0);
+        Diagnostic actualDiag = diagnostics.get(0);
 
         ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange, "missing close bracket token",
                 DiagnosticSeverity.ERROR);

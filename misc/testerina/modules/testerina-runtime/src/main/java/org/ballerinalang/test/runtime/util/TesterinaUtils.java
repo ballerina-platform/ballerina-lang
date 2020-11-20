@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.runtime.util;
 
+import io.ballerina.projects.testsuite.Test;
+import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.test.runtime.BTestRunner;
-import org.ballerinalang.test.runtime.entity.Test;
-import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;
 
 import java.io.File;
@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -210,6 +211,11 @@ public class TesterinaUtils {
             }
         }
         return updatedTestList;
+    }
+
+    public static List<org.ballerinalang.test.runtime.entity.Test> getSingleExecutionTestsOld(
+            List<org.ballerinalang.test.runtime.entity.Test> currentTests, List<String> functions) {
+        return Collections.emptyList();
     }
 
 }
