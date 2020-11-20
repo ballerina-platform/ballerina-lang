@@ -27,13 +27,9 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
+import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.services.LanguageClient;
@@ -57,20 +53,21 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
 
     /**
      * {@inheritDoc}
+     *
+     * @param ctx
      */
     @Override
-    public Object execute(LSContext ctx) throws LSCommandExecutorException {
+    public Object execute(ExecuteCommandContext ctx) throws LSCommandExecutorException {
         String documentUri = "";
         int line = 0;
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
-        for (Object arg : ctx.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
+        for (Object arg : ctx.getArguments()) {
             String argKey = ((JsonObject) arg).get(ARG_KEY).getAsString();
             String argVal = ((JsonObject) arg).get(ARG_VALUE).getAsString();
             switch (argKey) {
                 case CommandConstants.ARG_KEY_DOC_URI:
                     documentUri = argVal;
                     textDocumentIdentifier.setUri(documentUri);
-                    ctx.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
                     break;
                 case CommandConstants.ARG_KEY_NODE_LINE:
                     line = Integer.parseInt(argVal);
@@ -80,28 +77,27 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
             }
         }
 
-        try {
-            Optional<Path> filePath = CommonUtil.getPathFromURI(documentUri);
-            if (!filePath.isPresent()) {
-                return Collections.emptyList();
-            }
-            WorkspaceDocumentManager documentManager = ctx.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-            SyntaxTree syntaxTree = documentManager.getTree(filePath.get());
-            TextDocument textDocument = syntaxTree.textDocument();
-            int txtPos = textDocument.textPositionFrom(LinePosition.from(line, 1));
-            NonTerminalNode node = ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(txtPos, 0));
-            Optional<DocAttachmentInfo> docAttachmentInfo = getDocumentationEditForNode(getDocumentableNode(node),
-                                                                                        false);
-            if (docAttachmentInfo.isPresent()) {
-                DocAttachmentInfo docs = docAttachmentInfo.get();
-                Range range = new Range(docs.getDocStartPos(), docs.getDocStartPos());
-                LanguageClient languageClient = ctx.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
-                return applySingleTextEdit(docs.getDocAttachment(), range, textDocumentIdentifier, languageClient);
-            }
+        Optional<Path> filePath = CommonUtil.getPathFromURI(documentUri);
+        if (filePath.isEmpty()) {
             return Collections.emptyList();
-        } catch (WorkspaceDocumentException e) {
-            throw new LSCommandExecutorException("Error when executing the 'add documentation' code action", e);
         }
+        Optional<SyntaxTree> syntaxTree = ctx.workspace().syntaxTree(filePath.get());
+        if (syntaxTree.isEmpty()) {
+            return Collections.emptyList();
+        }
+        TextDocument textDocument = syntaxTree.get().textDocument();
+        int txtPos = textDocument.textPositionFrom(LinePosition.from(line, 1));
+        NonTerminalNode node = ((ModulePartNode) syntaxTree.get().rootNode()).findNode(TextRange.from(txtPos, 0));
+        Optional<DocAttachmentInfo> docAttachmentInfo = getDocumentationEditForNode(getDocumentableNode(node),
+                false);
+        if (docAttachmentInfo.isPresent()) {
+            DocAttachmentInfo docs = docAttachmentInfo.get();
+            Range range = new Range(docs.getDocStartPos(), docs.getDocStartPos());
+            LanguageClient languageClient = ctx.getLanguageClient();
+            return applySingleTextEdit(docs.getDocAttachment(), range, textDocumentIdentifier, languageClient);
+        }
+        
+        return Collections.emptyList();
     }
 
     private NonTerminalNode getDocumentableNode(NonTerminalNode node) {

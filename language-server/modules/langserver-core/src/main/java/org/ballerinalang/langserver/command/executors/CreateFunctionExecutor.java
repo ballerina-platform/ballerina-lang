@@ -18,11 +18,9 @@ package org.ballerinalang.langserver.command.executors;
 import com.google.gson.JsonObject;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
+import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
@@ -49,9 +47,11 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
 
     /**
      * {@inheritDoc}
+     *
+     * @param context
      */
     @Override
-    public Object execute(LSContext context) throws LSCommandExecutorException {
+    public Object execute(ExecuteCommandContext context) throws LSCommandExecutorException {
         String uri = null;
 //        String returnType;
 //        String returnValue;
@@ -61,14 +61,13 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         int line = -1;
         int column = -1;
 
-        for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
+        for (Object arg : context.getArguments()) {
             String argKey = ((JsonObject) arg).get(ARG_KEY).getAsString();
             String argVal = ((JsonObject) arg).get(ARG_VALUE).getAsString();
             switch (argKey) {
                 case CommandConstants.ARG_KEY_DOC_URI:
                     uri = argVal;
                     textDocumentIdentifier.setUri(uri);
-                    context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
                     break;
                 case CommandConstants.ARG_KEY_NODE_LINE:
                     line = Integer.parseInt(argVal);
@@ -133,7 +132,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
 //        } else {
 //            throw new LSCommandExecutorException("Error occurred when retrieving function node!");
 //        }
-        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
+        LanguageClient client = context.getLanguageClient();
 //        String modifiers = "";
 //        boolean prependLineFeed = true;
 //        String padding = "";

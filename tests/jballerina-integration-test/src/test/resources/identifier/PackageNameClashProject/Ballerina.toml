@@ -1,6 +1,7 @@
-[project]
-org-name= "a"
-version= "0.1.0"
+[package]
+org = "a"
+name = "main"
+version = "0.1.0"
 
 [dependencies]
 "a_b/foo" = { path = "../testProject/target/balo/foo-2020r2-any-0.1.0.balo", version = "0.1.0"}

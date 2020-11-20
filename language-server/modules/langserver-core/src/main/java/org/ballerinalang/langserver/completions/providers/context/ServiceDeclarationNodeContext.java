@@ -21,11 +21,9 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -48,18 +46,18 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ServiceDeclarationNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, ServiceDeclarationNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         Token onKeyword = node.onKeyword();
-        Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        Position cursor = context.getCursorPosition();
         if (!onKeyword.isMissing() && cursor.getCharacter() > onKeyword.lineRange().endLine().offset()) {
             /*
             Covers the following case
             (1) service testService on <cursor>
             (2) service testService on l<cursor>
              */
-            List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+            List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
             List<Symbol> listeners = visibleSymbols.stream()
                     .filter(symbol -> symbol instanceof VariableSymbol
                             && ((VariableSymbol) symbol).qualifiers().contains(Qualifier.LISTENER))

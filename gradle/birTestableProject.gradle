@@ -4,25 +4,6 @@ configurations {
 }
 
 
-task configured {
-    configurations.baloImplementation.allDependencies.withType(ProjectDependency) {
-        def path = it.getDependencyProject().path
-        // TODO: remove if check when transactions stdlib is migrated
-        if (path != 'ballerina-transactions') {
-            dependencies.add("bir", dependencies.project(path: path, configuration: 'bir'))
-            dependencies.add("birJar", dependencies.project(path: path, configuration: 'birJar'))
-        }
-    }
-
-    configurations.baloTestImplementation.allDependencies.withType(ProjectDependency) {
-        def path = it.getDependencyProject().path
-        if (path != 'ballerina-transactions') {
-            dependencies.add("bir", dependencies.project(path: path, configuration: 'bir'))
-            dependencies.add("birJar", dependencies.project(path: path, configuration: 'birJar'))
-        }
-    }
-}
-
 
 task createBirCache {
     dependsOn configurations.bir

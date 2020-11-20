@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.ForkStatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -39,7 +39,7 @@ public class ForkStatementNodeContext extends AbstractCompletionProvider<ForkSta
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ForkStatementNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, ForkStatementNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_WORKER.get()));

@@ -20,30 +20,32 @@ import io.ballerina.compiler.api.symbols.AnnotationAttachPoint;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
-import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
+import io.ballerina.projects.Module;
 import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
+import static org.ballerinalang.langserver.common.utils.CommonUtil.getPackageNameComponentsCombined;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.getRecordFieldCompletionInsertText;
 
 /**
@@ -62,31 +64,33 @@ public class AnnotationUtil {
      * @param moduleID         Module ID of the annotation
      * @param annotationSymbol Annotation Symbol to extract the completion Item
      * @param ctx              LS Service operation context, in this case completion context
-     * @param pkgAliasMap      Package alias map for the file
      * @return {@link CompletionItem} Completion item for the annotation
      */
     public static LSCompletionItem getModuleQualifiedAnnotationItem(ModuleID moduleID,
                                                                     AnnotationSymbol annotationSymbol,
-                                                                    LSContext ctx,
-                                                                    Map<String, String> pkgAliasMap) {
-        ModuleSymbol currentModule = ctx.get(DocumentServiceKeys.CURRENT_MODULE_KEY);
-        String currentProjectOrgName = currentModule.moduleID().orgName();
+                                                                    CompletionContext ctx) {
+        Optional<Module> currentModule = ctx.workspace().module(ctx.filePath());
+        if (currentModule.isEmpty()) {
+            throw new RuntimeException("Cannot find a valid module");
+        }
+        String currentProjectOrgName = currentModule.get().project().currentPackage().packageOrg().value();
 
         String alias;
-        if (pkgAliasMap.containsKey(moduleID.toString())) {
-            alias = pkgAliasMap.get(moduleID.toString());
-        } else {
-            alias = moduleID.modulePrefix();
-        }
+        Optional<String> importedAlias = getAlias(ctx, moduleID);
+        alias = importedAlias.orElseGet(moduleID::modulePrefix);
         String label = getAnnotationLabel(alias, annotationSymbol);
         String insertText = getAnnotationInsertText(alias, annotationSymbol);
 
-        List<BLangImportPackage> imports = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY);
-        Optional<BLangImportPackage> pkgImport = imports.stream()
+        List<ImportDeclarationNode> imports = ctx.getCurrentDocImports();
+        Optional<ImportDeclarationNode> pkgImport = imports.stream()
                 .filter(bLangImportPackage -> {
-                    String orgName = bLangImportPackage.orgName.value;
+                    Optional<ImportOrgNameNode> importOrgNameNode = bLangImportPackage.orgName();
+                    if (importOrgNameNode.isEmpty()) {
+                        return false;
+                    }
+                    String orgName = importOrgNameNode.get().orgName().text();
                     String importPkgName = (orgName.equals("") ? currentProjectOrgName : orgName) + "/"
-                            + CommonUtil.getPackageNameComponentsCombined(bLangImportPackage);
+                            + getPackageNameComponentsCombined(bLangImportPackage);
                     String annotationPkgOrgName = moduleID.orgName();
                     String annotationPkgName = annotationPkgOrgName + "/" + moduleID.moduleName();
                     return importPkgName.equals(annotationPkgName);
@@ -110,7 +114,7 @@ public class AnnotationUtil {
      * @param ctx              Language server context
      * @return {@link LSCompletionItem} generated for the annotation symbol
      */
-    public static LSCompletionItem getAnnotationItem(AnnotationSymbol annotationSymbol, LSContext ctx) {
+    public static LSCompletionItem getAnnotationItem(AnnotationSymbol annotationSymbol, CompletionContext ctx) {
         String label = getAnnotationLabel(annotationSymbol);
         String insertText = getAnnotationInsertText(annotationSymbol);
         CompletionItem completionItem = prepareCompletionItem(label, insertText, new ArrayList<>());
@@ -125,16 +129,21 @@ public class AnnotationUtil {
      * @param moduleID module id
      * @return {@link List} of text edits
      */
-    public static List<TextEdit> getAdditionalTextEdits(LSContext context, ModuleID moduleID) {
-        ModuleSymbol currentModule = context.get(DocumentServiceKeys.CURRENT_MODULE_KEY);
-        ModuleID currentModuleId = currentModule.moduleID();
-        String currentProjectOrgName = currentModuleId.orgName();
-        List<BLangImportPackage> imports = context.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY);
-        Optional<BLangImportPackage> pkgImport = imports.stream()
-                .filter(bLangImportPackage -> {
-                    String orgName = bLangImportPackage.orgName.value;
+    public static List<TextEdit> getAdditionalTextEdits(DocumentServiceContext context, ModuleID moduleID) {
+        Optional<Module> currentModule = context.workspace().module(context.filePath());
+        if (currentModule.isEmpty()) {
+            return Collections.emptyList();
+        }
+        String currentProjectOrgName = currentModule.get().project().currentPackage().packageOrg().value();
+        List<ImportDeclarationNode> imports = context.getCurrentDocImports();
+        Optional<ImportDeclarationNode> pkgImport = imports.stream()
+                .filter(importNode -> {
+                    if (importNode.orgName().isEmpty()) {
+                        return false;
+                    }
+                    String orgName = importNode.orgName().get().orgName().text();
                     String importPkgName = (orgName.equals("") ? currentProjectOrgName : orgName) + "/"
-                            + CommonUtil.getPackageNameComponentsCombined(bLangImportPackage);
+                            + getPackageNameComponentsCombined(importNode);
                     String annotationPkgOrgName = moduleID.orgName();
                     String annotationPkgName = annotationPkgOrgName + "/" + moduleID.moduleName();
                     return importPkgName.equals(annotationPkgName);
@@ -249,5 +258,20 @@ public class AnnotationUtil {
         annotationItem.setAdditionalTextEdits(textEdits);
 
         return annotationItem;
+    }
+
+    private static Optional<String> getAlias(CompletionContext context, ModuleID moduleID) {
+        return context.getCurrentDocImports().stream().filter(importNode -> {
+            Optional<ImportOrgNameNode> orgName = importNode.orgName();
+            StringBuilder nodeName = new StringBuilder();
+            orgName.ifPresent(importOrgNameNode -> nodeName.append(importOrgNameNode.orgName().text()));
+            nodeName.append(getPackageNameComponentsCombined(importNode));
+            return moduleID.toString().equals(nodeName.toString());
+        }).map(importNode -> {
+            if (importNode.prefix().isEmpty()) {
+                return importNode.moduleName().get(importNode.moduleName().size() - 1).text();
+            }
+            return importNode.prefix().get().prefix().text();
+        }).findFirst();
     }
 }

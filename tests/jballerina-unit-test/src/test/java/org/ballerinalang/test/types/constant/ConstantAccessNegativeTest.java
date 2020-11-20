@@ -18,9 +18,9 @@
 
 package org.ballerinalang.test.types.constant;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -31,7 +31,7 @@ public class ConstantAccessNegativeTest {
 
     @Test
     public void accessPublicConstantFromOtherPackage() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src/types/constant/access", "main2");
+        CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/AccessProjectNegative");
         Assert.assertEquals(compileResult.getErrorCount(), 5);
         BAssertUtil.validateError(compileResult, 0, "attempt to refer to non-accessible symbol 'address'", 5, 16);
         BAssertUtil.validateError(compileResult, 1, "undefined symbol 'address'", 5, 16);

@@ -13342,10 +13342,13 @@ public class BallerinaParser extends AbstractParser {
         STNode funcSignature = parseFuncSignature(true);
         endContext();
 
+        ParserRuleContext currentCtx = getCurrentContext();
         switch (peek().kind) {
             case OPEN_BRACE_TOKEN:
             case RIGHT_DOUBLE_ARROW_TOKEN:
-                switchContext(ParserRuleContext.EXPRESSION_STATEMENT);
+                if (currentCtx != ParserRuleContext.STMT_START_BRACKETED_LIST) {
+                    switchContext(ParserRuleContext.EXPRESSION_STATEMENT);
+                }
                 startContext(ParserRuleContext.ANON_FUNC_EXPRESSION);
                 // Anon function cannot have missing param-names. So validate it.
                 funcSignature = validateAndGetFuncParams((STFunctionSignatureNode) funcSignature);
@@ -13357,11 +13360,15 @@ public class BallerinaParser extends AbstractParser {
                 return parseExpressionRhs(DEFAULT_OP_PRECEDENCE, anonFunc, false, true);
             case IDENTIFIER_TOKEN:
             default:
-                switchContext(ParserRuleContext.VAR_DECL_STMT);
                 STNode funcTypeDesc = STNodeFactory.createFunctionTypeDescriptorNode(qualifierList, functionKeyword,
                         funcSignature);
-                return parseComplexTypeDescriptor(funcTypeDesc, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN,
-                        true);
+                if (currentCtx != ParserRuleContext.STMT_START_BRACKETED_LIST) {
+                    switchContext(ParserRuleContext.VAR_DECL_STMT);
+                    return parseComplexTypeDescriptor(funcTypeDesc, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN,
+                            true);
+                }
+                return parseComplexTypeDescriptor(funcTypeDesc, ParserRuleContext.TYPE_DESC_IN_TUPLE,
+                        false);
         }
     }
 
