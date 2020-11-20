@@ -14,4 +14,8 @@
 # specific language governing permissions and limitations
 # under the License.
 
-key = "hello"
+[cloud.deployment.autoscaling]
+min_replicas = 2
+max_replicas = 5
+cpu = -10
+memory = 120

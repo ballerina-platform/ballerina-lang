@@ -19,40 +19,34 @@
 package toml.parser.test;
 
 import io.ballerina.toml.api.Toml;
-import io.ballerina.toml.semantic.ast.TomlLongValueNode;
+import io.ballerina.toml.validator.TomlValidator;
+import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.List;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
- * Test the parser.
+ * A test class that prints results based on a schema and sample toml file.
+ *
+ * @since 2.0.0
  */
-public class TestToml {
-
+public class TestTomlValidator {
     private static final PrintStream OUT = System.out;
 
-    public static void main(String[] args) throws IOException {
-        String path = "src/test/resources/basic-toml.toml";
-        testAPI(path);
-    }
+    public static void main(String [] args) throws IOException {
+        Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "c2c-schema.json");
+        TomlValidator validator = new TomlValidator(Schema.from(resourceDirectory));
 
-    private static void testAPI(String path) throws IOException {
-        InputStream inputStream = new FileInputStream(path);
-        Toml read = Toml.read(inputStream);
+        Path sampleInput = Paths.get("src", "test", "resources", "validator", "sample.toml");
 
-        List<Diagnostic> diagnostics = read.diagnostics();
-        for (Diagnostic diagnostic: diagnostics) {
-            OUT.println(diagnostic.location().lineRange());
-            OUT.println(diagnostic.message());
+        Toml toml = Toml.read(sampleInput);
+        validator.validate(toml);
+
+        for (Diagnostic d: toml.diagnostics()) {
+            OUT.println(d);
         }
-
-        TomlLongValueNode key1 = read.get("key1");
-        TomlLongValueNode key2 = read.get("key2");
-        OUT.println(key1.getValue());
-        OUT.println(key2.getValue());
     }
 }
