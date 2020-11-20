@@ -17,8 +17,8 @@
  */
 package io.ballerina.compiler.internal.parser.tree;
 
-import io.ballerina.compiler.internal.diagnostics.DiagnosticCode;
 import io.ballerina.compiler.internal.diagnostics.IRDiagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 
 /**
  * Internal representation of diagnostic that is related to an internal syntax node.

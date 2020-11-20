@@ -15,22 +15,16 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.toml.model.Dependency;
-import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,14 +43,14 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
 
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    PositionDetails positionDetails, List<Diagnostic> allDiagnostics,
-                                                    SyntaxTree syntaxTree, LSContext context) {
+                                                    PositionDetails positionDetails,
+                                                    CodeActionContext context) {
         if (!(diagnostic.getMessage().startsWith(UNRESOLVED_MODULE))) {
             return Collections.emptyList();
         }
 
         String diagnosticMessage = diagnostic.getMessage();
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+        String uri = context.fileUri();
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
         List<Diagnostic> diagnostics = new ArrayList<>();
 
@@ -80,22 +74,25 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
         return Collections.emptyList();
     }
 
-    private static String getVersion(LSContext context, String pkgName, Matcher matcher) {
-        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        String version = matcher.groupCount() > 1 && matcher.group(2) != null ? ":" + matcher.group(2) : "";
-        int aliasIndex = version.indexOf(" as ");
-        if (aliasIndex > 0) {
-            version = version.substring(0, aliasIndex);
-        }
-        if (compilerContext != null && version.isEmpty()) {
-            // If no version in source, try reading Ballerina.toml dependencies
-            ManifestProcessor manifestProcessor = ManifestProcessor.getInstance(compilerContext);
-            Manifest manifest = manifestProcessor.getManifest();
-            List<Dependency> dependencies = manifest.getDependencies();
-            version = dependencies.stream()
-                    .filter(d -> d.getModuleID().equals(pkgName))
-                    .findAny().map(d -> ":" + d.getMetadata().getVersion()).orElse(version);
-        }
-        return version;
+    private static String getVersion(CodeActionContext context, String pkgName, Matcher matcher) {
+        // TODO: Fix
+//        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+//        String version = matcher.groupCount() > 1 && matcher.group(2) != null ? ":" + matcher.group(2) : "";
+//        int aliasIndex = version.indexOf(" as ");
+//        if (aliasIndex > 0) {
+//            version = version.substring(0, aliasIndex);
+//        }
+//        if (compilerContext != null && version.isEmpty()) {
+//            // If no version in source, try reading Ballerina.toml dependencies
+//            ManifestProcessor manifestProcessor = ManifestProcessor.getInstance(compilerContext);
+//            Manifest manifest = manifestProcessor.getManifest();
+//            List<Dependency> dependencies = manifest.getDependencies();
+//            version = dependencies.stream()
+//                    .filter(d -> d.getModuleID().equals(pkgName))
+//                    .findAny().map(d -> ":" + d.getMetadata().getVersion()).orElse(version);
+//        }
+//        return version;
+
+        return "";
     }
 }

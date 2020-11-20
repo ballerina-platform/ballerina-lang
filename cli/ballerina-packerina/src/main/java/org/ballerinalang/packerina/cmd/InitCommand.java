@@ -18,16 +18,18 @@
 
 package org.ballerinalang.packerina.cmd;
 
-
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.tool.BLauncherCmd;
-import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static org.ballerinalang.packerina.cmd.Constants.INIT_COMMAND;
 
@@ -43,14 +45,22 @@ public class InitCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
+    @CommandLine.Parameters
+    private List<String> argList;
+
+    @CommandLine.Option(names = {"--template", "-t"}, description = "Acceptable values: [main, service, lib]")
+    private String template = "";
+
     public InitCommand() {
-        userDir = Paths.get(System.getProperty("user.dir"));
+        userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         errStream = System.err;
+        CommandUtil.initJarFs();
     }
 
     public InitCommand(Path userDir, PrintStream errStream) {
         this.userDir = userDir;
         this.errStream = errStream;
+        CommandUtil.initJarFs();
     }
 
     @Override
@@ -63,7 +73,7 @@ public class InitCommand implements BLauncherCmd {
         }
 
         // If the current directory is a ballerina project ignore.
-        if (ProjectDirs.isProject(this.userDir)) {
+        if (ProjectUtils.isBallerinaProject(this.userDir)) {
             CommandUtil.printError(errStream,
                     "Directory is already a ballerina project",
                     null,
@@ -71,30 +81,72 @@ public class InitCommand implements BLauncherCmd {
             return;
         }
 
+        // Check if one argument is given and not more than one argument.
+        if (argList != null && !(1 == argList.size())) {
+            CommandUtil.printError(errStream,
+                    "too many arguments.",
+                    "ballerina init <project-name>",
+                    true);
+            return;
+        }
+
         // Check if there is a ballerina project in sub level.
 
         // Check if the command is executed inside a ballerina project
-        Path projectRoot = ProjectDirs.findProjectRoot(this.userDir);
+        Path projectRoot = ProjectUtils.findProjectRoot(this.userDir);
         if (projectRoot != null) {
             CommandUtil.printError(errStream,
-                    "Directory is already within a ballerina project :" + projectRoot.toString(),
+                    "Directory is already within a ballerina project :" +
+                            projectRoot.resolve(ProjectConstants.BALLERINA_TOML).toString(),
                     null,
                     false);
             return;
         }
 
+        // Check if the template exists
+        if (!template.equals("") && !CommandUtil.getTemplates().contains(template)) {
+            CommandUtil.printError(errStream,
+                    "Template not found, use `ballerina init --help` to view available templates.",
+                    null,
+                    false);
+            return;
+        }
+
+        String packageName = this.userDir.getFileName().toString();
+        if (argList != null && argList.size() > 0) {
+            packageName = argList.get(0);
+            if (!ProjectUtils.validatePkgName(packageName)) {
+                CommandUtil.printError(errStream,
+                        "Invalid package name : '" + packageName + "' :\n" +
+                                "Package name can only contain alphanumerics, underscores and periods " +
+                                "and the maximum length is 256 characters",
+                        null,
+                        false);
+                return;
+            }
+        }
+
+        if (!ProjectUtils.validatePkgName(packageName)) {
+            errStream.println("warning: invalid package name. Modified package name : " +
+                    ProjectUtils.guessPkgName(packageName));
+        }
+
         try {
-            CommandUtil.initProject(this.userDir);
+            if (template.equals("")) {
+                CommandUtil.initProject(userDir, packageName);
+            } else {
+                CommandUtil.initProjectByTemplate(userDir, packageName, template);
+            }
         } catch (AccessDeniedException e) {
-            errStream.println("error: Error occurred while initializing project : " + "Access Denied");
-        } catch (IOException e) {
+            errStream.println("error: Error occurred while initializing project : " + " Access Denied : " +
+                    e.getMessage());
+            return;
+        } catch (IOException | URISyntaxException e) {
             errStream.println("error: Error occurred while initializing project : " + e.getMessage());
             return;
         }
         errStream.println("Ballerina project initialised ");
         errStream.println();
-        errStream.println("Next:");
-        errStream.println("    Use `ballerina create` to create a ballerina module.");
     }
 
     @Override

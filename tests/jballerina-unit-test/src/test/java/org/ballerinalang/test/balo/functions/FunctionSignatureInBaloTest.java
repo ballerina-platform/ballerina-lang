@@ -22,18 +22,16 @@ import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.balo.BaloCreator;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * Test function signatures and calling with optional and named params.
@@ -46,9 +44,8 @@ public class FunctionSignatureInBaloTest {
     private CompileResult resultNegative;
 
     @BeforeClass
-    public void setup() throws IOException {
-        BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
+    public void setup() {
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project");
         result = BCompileUtil.compile("test-src/balo/test_balo/functions/test_different_function_signatures.bal");
         resultNegative = BCompileUtil
                 .compile("test-src/balo/test_balo/functions/test_different_function_signatures_negative.bal");

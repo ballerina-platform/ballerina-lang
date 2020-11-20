@@ -23,9 +23,8 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -47,8 +46,8 @@ public class OrderByClauseNodeContext extends AbstractCompletionProvider<OrderBy
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, OrderByClauseNode node) {
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+    public List<LSCompletionItem> getCompletions(CompletionContext context, OrderByClauseNode node) {
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (onSuggestDirectionKeywords(context, node)) {
             return Arrays.asList(
@@ -70,14 +69,14 @@ public class OrderByClauseNodeContext extends AbstractCompletionProvider<OrderBy
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, OrderByClauseNode node) {
+    public boolean onPreValidation(CompletionContext context, OrderByClauseNode node) {
         return !node.orderKeyword().isMissing();
     }
 
-    private boolean onSuggestDirectionKeywords(LSContext context, OrderByClauseNode node) {
+    private boolean onSuggestDirectionKeywords(CompletionContext context, OrderByClauseNode node) {
         SeparatedNodeList<OrderKeyNode> orderKeyNodes = node.orderKey();
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        int cursor = context.getCursorPositionInTree();
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (orderKeyNodes.isEmpty() || nodeAtCursor.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
             return false;

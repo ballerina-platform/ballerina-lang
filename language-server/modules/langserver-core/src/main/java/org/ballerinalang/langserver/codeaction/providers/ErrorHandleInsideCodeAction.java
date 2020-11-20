@@ -21,13 +21,11 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
@@ -60,8 +58,8 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
 
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    PositionDetails positionDetails, List<Diagnostic> allDiagnostics,
-                                                    SyntaxTree syntaxTree, LSContext context) {
+                                                    PositionDetails positionDetails,
+                                                    CodeActionContext context) {
         String diagnosticMsg = diagnostic.getMessage().toLowerCase(Locale.ROOT);
         if (!(diagnosticMsg.contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return Collections.emptyList();
@@ -69,7 +67,7 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
 
         Symbol matchedSymbol = positionDetails.matchedSymbol();
         TypeSymbol typeDescriptor = positionDetails.matchedSymbolTypeDesc();
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+        String uri = context.fileUri();
         if (typeDescriptor == null || typeDescriptor.typeKind() != TypeDescKind.UNION) {
             return Collections.emptyList();
         }
@@ -124,14 +122,14 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
                 if (bType.typeKind() == TypeDescKind.NIL) {
                     // if (foo() is error) {...}
                     String newText = String.format("%s%sif (%s is error) {%s}%s", LINE_SEPARATOR, spaces,
-                                                   varName,
-                                                   padding, LINE_SEPARATOR);
+                            varName,
+                            padding, LINE_SEPARATOR);
                     edits.add(new TextEdit(newTextRange, newText));
                 } else {
                     // if (foo() is int) {...} else {...}
                     String type = bType.signature();
                     String newText = String.format("%s%sif (%s is %s) {%s} else {%s}%s", LINE_SEPARATOR, spaces,
-                                                   varName, type, padding, padding, LINE_SEPARATOR);
+                            varName, type, padding, padding, LINE_SEPARATOR);
                     edits.add(new TextEdit(newTextRange, newText));
                 }
             });
@@ -156,7 +154,7 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
 
             String newText = spaces + IntStream.range(0, memberTypes.size() - 1)
                     .mapToObj(value -> String.format("%sif (%s is %s) {%s}", LINE_SEPARATOR, varName,
-                                                     memberTypes.get(value), padding))
+                            memberTypes.get(value), padding))
                     .collect(Collectors.joining(" else "));
             newText += String.format(" else {%s}%s", padding, LINE_SEPARATOR);
             edits.add(new TextEdit(newTextRange, newText));

@@ -1,7 +1,3 @@
-configurable int a = 5;
-configurable string b = "Dulmina";
-// configurable declaration with required expression
-configurable string c = ?;
-configurable int d = e + f;
+isolated int[] val;
 
-final configurable isolated int g = h;
+final isolated int[] val;

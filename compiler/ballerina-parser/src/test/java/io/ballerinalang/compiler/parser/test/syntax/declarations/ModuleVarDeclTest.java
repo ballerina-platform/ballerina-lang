@@ -45,7 +45,7 @@ public class ModuleVarDeclTest extends AbstractDeclarationTest {
 
     @Test
     public void testConfigurableVarDecl() {
-        testFile("module-var-decl/module_var_decl_source_12.bal", "module-var-decl/module_var_decl_assert_12.json");
+        testFile("module-var-decl/module_var_decl_source_13.bal", "module-var-decl/module_var_decl_assert_13.json");
     }
 
     // Recovery tests
@@ -91,7 +91,12 @@ public class ModuleVarDeclTest extends AbstractDeclarationTest {
     }
 
     @Test
-    public void testIsolatedVarDeclRecovery() {
-        testFile("module-var-decl/module_var_decl_source_13.bal", "module-var-decl/module_var_decl_assert_13.json");
+    public void testModuleNoInitVarDeclWithIsolated() {
+        testFile("module-var-decl/module_var_decl_source_12.bal", "module-var-decl/module_var_decl_assert_12.json");
+    }
+
+    @Test
+    public void testConfigurableVarDeclRecovery() {
+        testFile("module-var-decl/module_var_decl_source_14.bal", "module-var-decl/module_var_decl_assert_14.json");
     }
 }

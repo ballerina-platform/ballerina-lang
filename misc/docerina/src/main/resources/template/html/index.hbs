@@ -15,6 +15,7 @@
     <div class="main-wrapper">
       <div id="search-impl" class="search-bar"></div>
       <div id="main">
+          {{#if project.description}}{{{project.description}}}{{/if}}
         <h1>
           <a class="breadcrumb-home" href="{{ rootPath }}index.html">
             <img class="breadcrumb-home-icon" src="{{ rootPath }}html-template-resources/images/home.svg">

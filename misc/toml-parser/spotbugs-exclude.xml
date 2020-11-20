@@ -22,4 +22,8 @@
     <Match>
         <Package name="io.ballerina.toml.syntax.tree" />
     </Match>
+    <Match>
+        <Class name="io.ballerina.toml.semantic.diagnostics.DiagnosticComparator"/>
+        <Bug pattern="SE_COMPARATOR_SHOULD_BE_SERIALIZABLE"/>
+    </Match>
 </FindBugsFilter>
