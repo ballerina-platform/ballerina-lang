@@ -20,7 +20,7 @@ package toml.parser.test;
 
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.ast.TomlLongValueNode;
-import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
+import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -44,8 +44,8 @@ public class TestToml {
         InputStream inputStream = new FileInputStream(path);
         Toml read = Toml.read(inputStream);
 
-        List<TomlDiagnostic> diagnostics = read.getDiagnostics();
-        for (TomlDiagnostic diagnostic: diagnostics) {
+        List<Diagnostic> diagnostics = read.diagnostics();
+        for (Diagnostic diagnostic: diagnostics) {
             OUT.println(diagnostic.location().lineRange());
             OUT.println(diagnostic.message());
         }

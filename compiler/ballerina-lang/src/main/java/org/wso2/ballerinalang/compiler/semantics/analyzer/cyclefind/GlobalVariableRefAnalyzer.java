@@ -21,7 +21,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -509,7 +509,7 @@ public class GlobalVariableRefAnalyzer {
 
         if (firstNode.isPresent()) {
             List<BLangIdentifier> names = secondSubList.stream().map(this::getNodeName).collect(Collectors.toList());
-            dlog.error(firstNode.get().pos, DiagnosticCode.GLOBAL_VARIABLE_CYCLIC_DEFINITION, names);
+            dlog.error(firstNode.get().pos, DiagnosticErrorCode.GLOBAL_VARIABLE_CYCLIC_DEFINITION, names);
         }
     }
 

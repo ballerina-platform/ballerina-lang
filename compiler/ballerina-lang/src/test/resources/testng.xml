@@ -36,4 +36,9 @@ under the License.
             <package name="org.wso2.ballerinalang.compiler.util"/>
         </packages>
     </test>
+    <test name="ballerina-diagnostic-code-test-suite" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.util.*"/>
+        </packages>
+    </test>
 </suite>
