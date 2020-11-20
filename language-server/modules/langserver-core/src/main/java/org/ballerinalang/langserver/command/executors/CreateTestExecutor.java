@@ -21,26 +21,14 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.BallerinaWorkspaceService;
-import org.ballerinalang.langserver.command.testgen.TestGenerator;
-import org.ballerinalang.langserver.command.testgen.TestGeneratorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
-import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
-import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
-import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.util.references.ReferencesKeys;
-import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
-import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.CreateFile;
 import org.eclipse.lsp4j.Location;
@@ -57,7 +45,6 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.File;
@@ -137,20 +124,21 @@ public class CreateTestExecutor implements LSCommandExecutor {
 
     /**
      * {@inheritDoc}
+     *
+     * @param context
      */
     @Override
-    public Object execute(LSContext context) throws LSCommandExecutorException {
+    public Object execute(ExecuteCommandContext context) throws LSCommandExecutorException {
         String docUri = null;
         int line = -1;
         int column = -1;
 
-        for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
+        for (Object arg : context.getArguments()) {
             String argKey = ((JsonObject) arg).get(ARG_KEY).getAsString();
             String argVal = ((JsonObject) arg).get(ARG_VALUE).getAsString();
             switch (argKey) {
                 case CommandConstants.ARG_KEY_DOC_URI:
                     docUri = argVal;
-                    context.put(DocumentServiceKeys.FILE_URI_KEY, docUri);
                     break;
                 case CommandConstants.ARG_KEY_NODE_LINE:
                     line = Integer.parseInt(argVal);
@@ -166,94 +154,79 @@ public class CreateTestExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Invalid parameters received for the create test command!");
         }
 
-        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-
-        // Compile the source file
-        BLangPackage builtSourceFile;
-        try {
-            builtSourceFile = LSModuleCompiler.getBLangPackage(context, docManager, false, false);
-        } catch (CompilationFailedException e) {
-            throw new LSCommandExecutorException("Couldn't compile the source", e);
-        }
-
         // Generate test file and notify Client
-        LanguageServer languageServer = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY);
+        LanguageServer languageServer = context.getLanguageServer();
         BallerinaWorkspaceService workspace = null;
         if (languageServer instanceof BallerinaLanguageServer) {
             BallerinaLanguageServer ballerinaLanguageServer = (BallerinaLanguageServer) languageServer;
             workspace = (BallerinaWorkspaceService) ballerinaLanguageServer.getWorkspaceService();
         }
-        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
-        try {
-            if (builtSourceFile == null || builtSourceFile.hasErrors()) {
-                String message = "Test generation failed due to compilation errors!";
-                if (client != null) {
-                    client.showMessage(new MessageParams(MessageType.Error, message));
-                }
-                throw new LSCommandExecutorException(message);
+        LanguageClient client = context.getLanguageClient();
+        //            if (builtSourceFile == null || builtSourceFile.hasErrors()) {
+//                String message = "Test generation failed due to compilation errors!";
+//                if (client != null) {
+//                    client.showMessage(new MessageParams(MessageType.Error, message));
+//                }
+//                throw new LSCommandExecutorException(message);
+//            }
+
+        // Check for tests folder, if not exists create a new folder
+        Path filePath = Paths.get(URI.create(docUri));
+        ImmutablePair<Path, Path> testDirs = createTestFolderIfNotExists(filePath);
+        File testsDir = testDirs.getRight().toFile();
+
+        // Generate a unique name for the tests file
+        File testFile = testsDir.toPath().resolve(generateTestFileName(filePath)).toFile();
+
+        // Generate test content edits
+        String pkgRelativeSourceFilePath = testDirs.getLeft().relativize(filePath).toString();
+
+//            LSDocumentIdentifier lsDocument = docManager.getLSDocument(filePath);
+//            Position pos = new Position(line, column + 1);
+//            context.put(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST, true);
+//            SymbolReferencesModel.Reference refAtCursor
+//            = ReferencesUtil.getReferenceAtCursor(context, lsDocument, pos);
+        SymbolReferencesModel.Reference refAtCursor = null;
+        BLangNode bLangNode = refAtCursor.getbLangNode();
+
+        Position position = new Position(0, 0);
+        Range focus = new Range(position, position);
+        BiConsumer<Integer, Integer> focusLineAcceptor = (focusLine, incrementer) -> {
+            if (focusLine != null) {
+                position.setLine(focusLine);
             }
+            position.setLine(position.getLine() + incrementer);
+        };
+//            List<TextEdit> content = TestGenerator.generate(docManager, bLangNode, focusLineAcceptor, builtSourceFile,
+//                    pkgRelativeSourceFilePath, testFile, context);
+        List<TextEdit> content = null;
 
-            // Check for tests folder, if not exists create a new folder
-            Path filePath = Paths.get(URI.create(docUri));
-            ImmutablePair<Path, Path> testDirs = createTestFolderIfNotExists(filePath);
-            File testsDir = testDirs.getRight().toFile();
-
-            // Generate a unique name for the tests file
-            File testFile = testsDir.toPath().resolve(generateTestFileName(filePath)).toFile();
-
-            // Generate test content edits
-            String pkgRelativeSourceFilePath = testDirs.getLeft().relativize(filePath).toString();
-
-            LSDocumentIdentifier lsDocument = docManager.getLSDocument(filePath);
-            Position pos = new Position(line, column + 1);
-            context.put(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST, true);
-            SymbolReferencesModel.Reference refAtCursor = ReferencesUtil.getReferenceAtCursor(context, lsDocument, pos);
-            BLangNode bLangNode = refAtCursor.getbLangNode();
-
-            Position position = new Position(0, 0);
-            Range focus = new Range(position, position);
-            BiConsumer<Integer, Integer> focusLineAcceptor = (focusLine, incrementer) -> {
-                if (focusLine != null) {
-                    position.setLine(focusLine);
-                }
-                position.setLine(position.getLine() + incrementer);
-            };
-            List<TextEdit> content = TestGenerator.generate(docManager, bLangNode, focusLineAcceptor, builtSourceFile,
-                                                            pkgRelativeSourceFilePath, testFile, context);
-
-            // If not exists, create a new test file
-            List<Either<TextDocumentEdit, ResourceOperation>> edits = new ArrayList<>();
-            if (!testFile.exists()) {
-                edits.add(Either.forRight(new CreateFile(testFile.toPath().toUri().toString())));
-            }
-
-            // Send edits
-            VersionedTextDocumentIdentifier identifier = new VersionedTextDocumentIdentifier();
-            identifier.setUri(testFile.toPath().toUri().toString());
-
-            TextDocumentEdit textEdit = new TextDocumentEdit(identifier, content);
-            edits.add(Either.forLeft(textEdit));
-
-            WorkspaceEdit workspaceEdit = new WorkspaceEdit(edits);
-            ApplyWorkspaceEditParams editParams = new ApplyWorkspaceEditParams(workspaceEdit);
-            if (client != null) {
-                client.applyEdit(editParams);
-                String message = "Tests generated into the file:" + testFile.toString();
-                client.showMessage(new MessageParams(MessageType.Info, message));
-                LSClientCapabilities clientCapabilities = context.get(ExecuteCommandKeys.LS_CLIENT_CAPABILITIES_KEY);
-                if (clientCapabilities.getExperimentalCapabilities().isShowTextDocumentEnabled()) {
-                    showTextDocument(workspace, client, focus, identifier);
-                }
-            }
-            return editParams;
-        } catch (WorkspaceDocumentException | CompilationFailedException | TokenOrSymbolNotFoundException
-                | TestGeneratorException e) {
-            String message = "Test generation failed!: " + e.getMessage();
-            if (client != null) {
-                client.showMessage(new MessageParams(MessageType.Error, message));
-            }
-            throw new LSCommandExecutorException(message, e);
+        // If not exists, create a new test file
+        List<Either<TextDocumentEdit, ResourceOperation>> edits = new ArrayList<>();
+        if (!testFile.exists()) {
+            edits.add(Either.forRight(new CreateFile(testFile.toPath().toUri().toString())));
         }
+
+        // Send edits
+        VersionedTextDocumentIdentifier identifier = new VersionedTextDocumentIdentifier();
+        identifier.setUri(testFile.toPath().toUri().toString());
+
+        TextDocumentEdit textEdit = new TextDocumentEdit(identifier, content);
+        edits.add(Either.forLeft(textEdit));
+
+        WorkspaceEdit workspaceEdit = new WorkspaceEdit(edits);
+        ApplyWorkspaceEditParams editParams = new ApplyWorkspaceEditParams(workspaceEdit);
+        if (client != null) {
+            client.applyEdit(editParams);
+            String message = "Tests generated into the file:" + testFile.toString();
+            client.showMessage(new MessageParams(MessageType.Info, message));
+            LSClientCapabilities clientCapabilities = context.getClientCapabilities();
+            if (clientCapabilities.getExperimentalCapabilities().isShowTextDocumentEnabled()) {
+                showTextDocument(workspace, client, focus, identifier);
+            }
+        }
+        
+        return editParams;
     }
 
     private void showTextDocument(BallerinaWorkspaceService workspace, LanguageClient client, Range focus,

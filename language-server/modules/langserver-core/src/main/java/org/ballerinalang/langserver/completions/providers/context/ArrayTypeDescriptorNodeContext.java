@@ -24,10 +24,9 @@ import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
@@ -49,8 +48,8 @@ public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<A
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ArrayTypeDescriptorNode node) {
-        List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+    public List<LSCompletionItem> getCompletions(CompletionContext context, ArrayTypeDescriptorNode node) {
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
         Optional<Node> arrayLength = node.arrayLength();
 
         if (arrayLength.isPresent() && this.onQualifiedNameIdentifier(context, arrayLength.get())) {

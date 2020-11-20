@@ -14,9 +14,8 @@
  * limitations under the License.
  *
  */
- 
-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
-apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+
+apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
 
 configurations.testCompileClasspath {
     resolutionStrategy {
@@ -25,35 +24,30 @@ configurations.testCompileClasspath {
 }
 
 dependencies {
-    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
-    
 
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-logging')
-    implementation project(':ballerina-runtime-api')
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
-    testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-core')
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'commons-codec:commons-codec'
     testCompile 'org.apache.ws.commons.axiom:axiom-dom'
     testCompile 'com.h2database:h2'
-    testCompile project(':ballerina-file')
 
-    bir project(path: ':ballerina-time', configuration: 'bir')
-}
-
-createBalo {
-    jvmTarget = 'true'
 }
 
 description = 'Ballerina - I/O'
+
+ballerinaLangLibBuild {
+    skipBootstrap = 'true'
+    minHeapSize = "512m"
+    maxHeapSize = "2048m"
+}
 
 configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
@@ -63,6 +57,14 @@ configurations {
 
 configurations.all {
     resolutionStrategy.preferProjectModules()
+}
+
+task updateVersion {
+    ant.replaceregexp(
+            file: "${projectDir}/src/main/ballerina/Ballerina.toml",
+            match: "${project.name}-(.*).jar",
+            replace: "${project.name}-${project.version}.jar"
+    )
 }
 
 //ext.moduleName = 'io'

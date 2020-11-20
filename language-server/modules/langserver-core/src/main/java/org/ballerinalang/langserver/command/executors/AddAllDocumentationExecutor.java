@@ -22,13 +22,8 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
-import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
+import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
@@ -57,38 +52,39 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
 
     /**
      * {@inheritDoc}
+     *
+     * @param context
      */
     @Override
-    public Object execute(LSContext context) throws LSCommandExecutorException {
+    public Object execute(ExecuteCommandContext context) {
         String documentUri = "";
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
 
-        for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
+        for (Object arg : context.getArguments()) {
             if (((JsonObject) arg).get(ARG_KEY).getAsString().equals(CommandConstants.ARG_KEY_DOC_URI)) {
                 documentUri = ((JsonObject) arg).get(ARG_VALUE).getAsString();
                 textDocumentIdentifier.setUri(documentUri);
-                context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
             }
         }
 
-        try {
-            Optional<Path> filePath = CommonUtil.getPathFromURI(documentUri);
-            if (!filePath.isPresent()) {
-                return new ArrayList<>();
-            }
-            WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-            SyntaxTree syntaxTree = documentManager.getTree(filePath.get());
-
-            List<TextEdit> textEdits = new ArrayList<>();
-            ((ModulePartNode) syntaxTree.rootNode()).members().forEach(member -> {
-                getDocumentationEditForNode(member, true).ifPresent(docs -> textEdits.add(getTextEdit(docs)));
-            });
-            TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, textEdits);
-            LanguageClient languageClient = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
-            return applyWorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)), languageClient);
-        } catch (WorkspaceDocumentException e) {
-            throw  new LSCommandExecutorException("Error when executing the 'add all documentation' code action", e);
+        Optional<Path> filePath = CommonUtil.getPathFromURI(documentUri);
+        if (filePath.isEmpty()) {
+            return Collections.emptyList();
         }
+        Optional<SyntaxTree> syntaxTree = context.workspace().syntaxTree(filePath.get());
+
+        if (syntaxTree.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<TextEdit> textEdits = new ArrayList<>();
+        ((ModulePartNode) syntaxTree.get().rootNode()).members()
+                .forEach(member ->
+                        getDocumentationEditForNode(member, true).ifPresent(docs -> textEdits.add(getTextEdit(docs))));
+        TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, textEdits);
+        LanguageClient languageClient = context.getLanguageClient();
+
+        return applyWorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)), languageClient);
     }
 
     /**

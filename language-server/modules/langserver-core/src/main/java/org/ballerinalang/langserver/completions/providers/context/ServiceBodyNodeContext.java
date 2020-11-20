@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -39,7 +39,8 @@ public class ServiceBodyNodeContext extends AbstractCompletionProvider<ServiceBo
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ServiceBodyNode node) throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(CompletionContext context, ServiceBodyNode node)
+            throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_RESOURCE.get()));

@@ -21,31 +21,24 @@ package org.ballerinalang.test.documentation;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.generator.model.Annotation;
 import org.ballerinalang.docgen.generator.model.BClass;
+import org.ballerinalang.docgen.generator.model.BType;
 import org.ballerinalang.docgen.generator.model.Constant;
 import org.ballerinalang.docgen.generator.model.Construct;
 import org.ballerinalang.docgen.generator.model.DefaultableVariable;
 import org.ballerinalang.docgen.generator.model.Error;
-import org.ballerinalang.docgen.generator.model.FiniteType;
 import org.ballerinalang.docgen.generator.model.Function;
 import org.ballerinalang.docgen.generator.model.Module;
+import org.ballerinalang.docgen.generator.model.ModuleDoc;
 import org.ballerinalang.docgen.generator.model.Project;
 import org.ballerinalang.docgen.generator.model.Record;
-import org.ballerinalang.docgen.generator.model.UnionType;
 import org.ballerinalang.docgen.generator.model.Variable;
-import org.ballerinalang.docgen.model.ModuleDoc;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -60,53 +53,47 @@ public class DeprecatedAnnotationTest {
     public void setup() throws IOException {
         String sourceRoot =
                 "test-src" + File.separator + "documentation" + File.separator + "deprecated_annotation_project";
-        CompileResult result = BCompileUtil.compile(sourceRoot, "test_module");
-
-        List<BLangPackage> modules = new LinkedList<>();
-        modules.add((BLangPackage) result.getAST());
-        Map<String, ModuleDoc> docsMap = BallerinaDocGenerator.generateModuleDocs(
-                Paths.get("src/test/resources", sourceRoot).toAbsolutePath().toString(), modules);
-        List<ModuleDoc> moduleDocList = new ArrayList<>(docsMap.values());
-        moduleDocList.sort(Comparator.comparing(pkg -> pkg.bLangPackage.packageID.toString()));
-
-        Project project = BallerinaDocGenerator.getDocsGenModel(moduleDocList);
-        testModule = project.modules.get(0);
+        io.ballerina.projects.Project project = BCompileUtil.getProject(sourceRoot);
+        Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator.generateModuleDocMap(project);
+        Project docerinaProject = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
+                        .packageOrg().toString(), project.currentPackage().packageVersion().toString());
+        testModule = docerinaProject.modules.get(0);
     }
 
     @Test(description = "Test @deprecated annotation for module-level union type definitions")
     public void testDeprecatedUnionTypeDef() {
-        List<UnionType> unionTypes = testModule.unionTypes;
-        UnionType depUnionType = null;
-        UnionType nonDepUnionType = null;
+        List<BType> bTypes = testModule.types;
+        BType depBType = null;
+        BType nonDepBType = null;
 
-        for (UnionType type : unionTypes) {
+        for (BType type : bTypes) {
             String typeName = type.name;
             if ("CountryCode".equals(typeName)) {
-                depUnionType = type;
+                depBType = type;
             } else if ("NewCountryCode".equals(typeName)) {
-                nonDepUnionType = type;
+                nonDepBType = type;
             }
         }
 
-        Assert.assertNotNull(depUnionType);
-        Assert.assertTrue(depUnionType.isDeprecated);
+        Assert.assertNotNull(depBType);
+        Assert.assertTrue(depBType.isDeprecated);
 
-        Assert.assertNotNull(nonDepUnionType);
-        Assert.assertFalse(nonDepUnionType.isDeprecated);
+        Assert.assertNotNull(nonDepBType);
+        Assert.assertFalse(nonDepBType.isDeprecated);
     }
 
     @Test(description = "Test @deprecated annotation for module-level finite type definitions")
     public void testDeprecatedFiniteTypeDef() {
-        List<FiniteType> finiteTypes = testModule.finiteTypes;
-        FiniteType depFiniteType = null;
-        FiniteType nonDepFiniteType = null;
+        List<BType> bTypes = testModule.types;
+        BType depFiniteType = null;
+        BType nonDepFiniteType = null;
 
-        for (FiniteType finiteType : finiteTypes) {
-            String fTypeName = finiteType.name;
+        for (BType bType : bTypes) {
+            String fTypeName = bType.name;
             if ("State".equals(fTypeName)) {
-                depFiniteType = finiteType;
+                depFiniteType = bType;
             } else if ("NewState".equals(fTypeName)) {
-                nonDepFiniteType = finiteType;
+                nonDepFiniteType = bType;
             }
         }
 
@@ -243,6 +230,7 @@ public class DeprecatedAnnotationTest {
         for (Function function : functions) {
             if ("getFullName".equals(function.name)) {
                 getFullNameFunc = function;
+                break;
             }
         }
 

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -35,6 +36,7 @@ import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
@@ -127,6 +129,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -202,8 +205,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final TypeParamAnalyzer typeParamAnalyzer;
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
+    private PackageCache packageCache;
 
     private SymbolEnv env;
+    private final boolean projectAPIInitiatedCompilation;
 
     private static final String DEPRECATION_ANNOTATION = "deprecated";
 
@@ -231,6 +236,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.importedPackages = new ArrayList<>();
         this.unknownTypeRefs = new HashSet<>();
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
+        this.packageCache = PackageCache.getInstance(context);
+
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        projectAPIInitiatedCompilation = Boolean.parseBoolean(
+                options.get(CompilerOptionName.PROJECT_API_INITIATED_COMPILATION));
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
@@ -728,14 +738,19 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (!isNullOrEmpty(importPkgNode.version.value)) {
                 version = names.fromIdNode(importPkgNode.version);
             } else {
-                String pkgName = importPkgNode.getPackageName().stream()
-                        .map(id -> id.value)
-                        .collect(Collectors.joining("."));
-                if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)
-                        && orgName.value.equals(enclPackageID.orgName.value)) {
-                    version = enclPackageID.version;
-                } else {
+                // TODO We are removing the version in the import declaration anyway
+                if (projectAPIInitiatedCompilation) {
                     version = Names.EMPTY;
+                } else {
+                    String pkgName = importPkgNode.getPackageName().stream()
+                            .map(id -> id.value)
+                            .collect(Collectors.joining("."));
+                    if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)
+                            && orgName.value.equals(enclPackageID.orgName.value)) {
+                        version = enclPackageID.version;
+                    } else {
+                        version = Names.EMPTY;
+                    }
                 }
             }
         } else {
@@ -802,7 +817,13 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        BPackageSymbol pkgSymbol = pkgLoader.loadPackageSymbol(pkgId, enclPackageID, this.env.enclPkg.repos);
+        BPackageSymbol pkgSymbol;
+        if (projectAPIInitiatedCompilation) {
+            pkgSymbol = packageCache.getSymbol(pkgId);
+        } else {
+            pkgSymbol = pkgLoader.loadPackageSymbol(pkgId, enclPackageID, this.env.enclPkg.repos);
+        }
+
         if (pkgSymbol == null) {
             dlog.error(importPkgNode.pos, DiagnosticCode.MODULE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());
@@ -1314,11 +1335,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     // so that we can bitwise and it with any flag and the original flag will not change.
     // If the type is not a public type then return a mask where public flag is set to zero and all others are set
     // to 1 so that we can perform bitwise and operation to remove the public flag from given flag.
-    private int getPublicFlagResetingMask(Set<Flag> flagSet, BLangType typeNode) {
+    private long getPublicFlagResetingMask(Set<Flag> flagSet, BLangType typeNode) {
         boolean isAnonType =
                 typeNode instanceof BLangStructureTypeNode && ((BLangStructureTypeNode) typeNode).isAnonymous;
         if (flagSet.contains(Flag.PUBLIC) || isAnonType) {
-            return Integer.MAX_VALUE;
+            return Long.MAX_VALUE;
         } else {
             return ~Flags.PUBLIC;
         }
@@ -2502,7 +2523,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return createVarSymbol(Flags.asMask(flagSet), varType, varName, env, pos, isInternal);
     }
 
-    public BVarSymbol createVarSymbol(int flags, BType varType, Name varName, SymbolEnv env,
+    public BVarSymbol createVarSymbol(long flags, BType varType, Name varName, SymbolEnv env,
                                       Location location, boolean isInternal) {
         BType safeType = types.getSafeType(varType, true, false);
         BVarSymbol varSymbol;
@@ -2896,8 +2917,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         return referencedFuncSym.restParam == null && attachedFuncSym.restParam == null;
     }
 
-    private boolean hasSameVisibilityModifier(int flags1, int flags2) {
-        int xorOfFlags = flags1 ^ flags2;
+    private boolean hasSameVisibilityModifier(long flags1, long flags2) {
+        var xorOfFlags = flags1 ^ flags2;
         return ((xorOfFlags & Flags.PUBLIC) != Flags.PUBLIC) && ((xorOfFlags & Flags.PRIVATE) != Flags.PRIVATE);
     }
 

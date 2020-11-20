@@ -48,12 +48,16 @@ public class TomlLexer extends AbstractLexer {
         STToken token;
         switch (this.mode) {
             case STRING:
-                this.leadingTriviaList = new ArrayList<>(0);
                 token = readStringToken();
                 break;
             case LITERAL_STRING:
-                this.leadingTriviaList = new ArrayList<>(0);
                 token = readLiteralStringToken();
+                break;
+            case NEW_LINE:
+                token = readNewlineToken();
+                if (token == null) {
+                    token = nextToken();
+                }
                 break;
             case DEFAULT:
             default:
@@ -78,7 +82,10 @@ public class TomlLexer extends AbstractLexer {
         reader.advance();
         STToken token;
         switch (c) {
-            // Separators
+            case LexerTerminals.NEWLINE:
+            case LexerTerminals.CARRIAGE_RETURN:
+                token = getNewlineToken();
+                break;
             case LexerTerminals.OPEN_BRACKET:
                 token = getSyntaxToken(SyntaxKind.OPEN_BRACKET_TOKEN);
                 break;
@@ -104,6 +111,12 @@ public class TomlLexer extends AbstractLexer {
             case LexerTerminals.DOT:
                 token = getSyntaxToken(SyntaxKind.DOT_TOKEN);
                 break;
+            case LexerTerminals.PLUS:
+                token = getSyntaxToken(SyntaxKind.PLUS_TOKEN);
+                break;
+            case LexerTerminals.MINUS:
+                token = getSyntaxToken(SyntaxKind.MINUS_TOKEN);
+                break;
             case LexerTerminals.DOUBLE_QUOTE:
                 if (this.reader.peek(1) == LexerTerminals.DOUBLE_QUOTE) {
                     this.reader.advance(2);
@@ -125,9 +138,6 @@ public class TomlLexer extends AbstractLexer {
             case '7':
             case '8':
             case '9':
-
-            case '+':
-            case '-':
                 token = processNumericLiteral(c);
                 break;
 
@@ -191,13 +201,26 @@ public class TomlLexer extends AbstractLexer {
             default:
                 // Process invalid token as trivia, and continue to next token
                 processInvalidToken();
-
                 // Use the internal method to use the already captured trivia.
                 token = nextToken();
                 break;
         }
 
         return token;
+    }
+
+    private STToken readNewlineToken() {
+        reader.mark();
+        if (reader.isEOF()) {
+            return getSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+        int c = reader.peek();
+        endMode();
+        if (c == LexerTerminals.NEWLINE || c == LexerTerminals.CARRIAGE_RETURN) {
+            reader.advance();
+            return getNewlineToken();
+        }
+        return null;
     }
 
     private STToken readStringToken() {
@@ -228,7 +251,7 @@ public class TomlLexer extends AbstractLexer {
             }
         }
 
-        return getLiteral(SyntaxKind.STRING_LITERAL);
+        return getUnquotedKey();
     }
 
     private STToken readLiteralStringToken() {
@@ -259,31 +282,37 @@ public class TomlLexer extends AbstractLexer {
             }
         }
 
-        return getLiteral(SyntaxKind.STRING_LITERAL);
+        return getUnquotedKey();
+    }
+
+    private STToken getNewlineToken() {
+        STNode leadingTrivia = STNodeFactory.createEmptyNodeList();
+        STNode trailingTrivia = STNodeFactory.createEmptyNodeList();
+        return STNodeFactory.createToken(SyntaxKind.NEWLINE, leadingTrivia, trailingTrivia);
     }
 
     private STToken getSyntaxToken(SyntaxKind kind) {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode leadingTrivia = getLeadingTrivia();
         STNode trailingTrivia = processTrailingTrivia();
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
     private STToken getUnquotedKey() {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode leadingTrivia = getLeadingTrivia();
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
         return STNodeFactory.createIdentifierToken(lexeme, leadingTrivia, trailingTrivia);
     }
 
     private STToken getLiteral(SyntaxKind kind) {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode leadingTrivia = getLeadingTrivia();
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
         return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
     }
 
     private STToken getDoubleQuoteToken(SyntaxKind kind) {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode leadingTrivia = getLeadingTrivia();
         // Trivia after the back-tick including whitespace belongs to the content of the back-tick.
         // Therefore do not process trailing trivia for starting back-tick. We reach here only for
         // starting back-tick. Ending back-tick is processed by the template mode.
@@ -295,7 +324,6 @@ public class TomlLexer extends AbstractLexer {
      * Process leading trivia.
      */
     private void processLeadingTrivia() {
-        this.leadingTriviaList = new ArrayList<>(10);
         processSyntaxTrivia(this.leadingTriviaList, true);
     }
 
@@ -305,7 +333,7 @@ public class TomlLexer extends AbstractLexer {
      * @return Trailing trivia
      */
     private STNode processTrailingTrivia() {
-        List<STNode> triviaList = new ArrayList<>(10);
+        List<STNode> triviaList = new ArrayList<>(INITIAL_TRIVIA_CAPACITY);
         processSyntaxTrivia(triviaList, false);
         return STNodeFactory.createNodeList(triviaList);
     }
@@ -330,10 +358,10 @@ public class TomlLexer extends AbstractLexer {
                     break;
                 case LexerTerminals.CARRIAGE_RETURN:
                 case LexerTerminals.NEWLINE:
-                    triviaList.add(processEndOfLine());
-                    if (isLeading) {
-                        break;
+                    if (!isLeading) {
+                        startMode(ParserMode.NEW_LINE);
                     }
+                    triviaList.add(processEndOfLine());
                     return;
                 case LexerTerminals.HASH:
                     triviaList.add(processComment());
@@ -383,14 +411,12 @@ public class TomlLexer extends AbstractLexer {
         char c = reader.peek();
         switch (c) {
             case LexerTerminals.NEWLINE:
-                reader.advance();
-                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme());
+                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, "\n");
             case LexerTerminals.CARRIAGE_RETURN:
-                reader.advance();
-                if (reader.peek() == LexerTerminals.NEWLINE) {
+                if (reader.peek(1) == LexerTerminals.NEWLINE) {
                     reader.advance();
                 }
-                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme());
+                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, "\r\n");
             default:
                 throw new IllegalStateException();
         }
@@ -401,14 +427,13 @@ public class TomlLexer extends AbstractLexer {
      * Process a comment, and add it to trivia list.
      * </p>
      * <code>
-     * Comment := // AnyCharButNewline*
+     * Comment := #AnyCharButNewline*
      * <br/><br/>
      * AnyCharButNewline := ^ 0xA
      * </code>
      */
     private STNode processComment() {
-        // We reach here after verifying up to 2 code-points ahead. Hence advance(2).
-        reader.advance(2);
+        reader.advance();
         int nextToken = peek();
         while (!reader.isEOF()) {
             switch (nextToken) {
@@ -448,9 +473,7 @@ public class TomlLexer extends AbstractLexer {
      */
     private STToken processNumericLiteral(int startChar) {
         int nextChar = peek();
-        boolean isSigned = false;
         if (nextChar == '+' || nextChar == '-') {
-            isSigned = true;
             reader.advance();
             nextChar = peek();
         }
@@ -473,7 +496,7 @@ public class TomlLexer extends AbstractLexer {
             break;
         }
         if (isString) {
-            type = SyntaxKind.IDENTIFIER_LITERAL; //TODO change to identiifer
+            type = SyntaxKind.IDENTIFIER_LITERAL;
         }
         // Integer cannot have a leading zero
         if (startChar == '0' && len > 1) {
@@ -579,7 +602,7 @@ public class TomlLexer extends AbstractLexer {
             return true;
         }
 
-        if (c == '_' ||  c == '-') {
+        if (c == '_' || c == '-') {
             return true;
         }
 

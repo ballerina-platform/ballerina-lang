@@ -1,4 +1,5 @@
 module io.ballerina.packerina {
+    exports org.ballerinalang.packerina;
     requires io.ballerina.lang;
     requires io.ballerina.cli.module;
     requires io.ballerina.tool;
@@ -12,5 +13,4 @@ module io.ballerina.packerina {
     requires io.ballerina.testerina.runtime;
     requires io.ballerina.testerina.core;
     requires gson;
-    requires io.ballerina.maven.resolver;
 }

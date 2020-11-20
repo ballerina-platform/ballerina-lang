@@ -2,7 +2,7 @@
     "line": 6,
     "character": 4,
     "expected": {
-        "title": "Create Local Variable with 'record {| string a; int b; |}'",
+        "title": "Create Variable with 'record {| string a; int b; |}'",
         "edits": [
             {
                 "range": {
@@ -15,7 +15,7 @@
                         "character": 4
                     }
                 },
-                "newText": "record {| string a; int b; |} a = "
+                "newText": "record {| string a; int b; |} mappingResult = "
             }
         ]
     }

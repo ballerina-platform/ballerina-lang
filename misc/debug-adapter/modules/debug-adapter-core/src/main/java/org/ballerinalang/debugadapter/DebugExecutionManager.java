@@ -17,15 +17,10 @@
 package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.Bootstrap;
-import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.AttachingConnector;
 import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.EvaluatorBuilder;
-import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,22 +74,5 @@ public class DebugExecutionManager {
         LOGGER.info(String.format("Debugger is attaching to: %s:%s", hostName, port));
         attachedVm = socketAttachingConnector.attach(connectorArgs);
         return attachedVm;
-    }
-
-    /**
-     * Evaluates a given ballerina expression w.r.t. the provided debug state(stack frame).
-     */
-    public Value evaluate(SuspendedContext context, String expression) {
-        try {
-            EvaluatorBuilder evalBuilder = new EvaluatorBuilder(context);
-            Evaluator evaluator = evalBuilder.build(expression);
-            return evaluator.evaluate().getJdiValue();
-        } catch (EvaluationException e) {
-            return attachedVm.mirrorOf(e.getMessage());
-        } catch (Exception e) {
-            String message = EvaluationExceptionKind.PREFIX + "internal error";
-            LOGGER.error(message, e);
-            return attachedVm.mirrorOf(message);
-        }
     }
 }

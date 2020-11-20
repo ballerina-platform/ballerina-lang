@@ -16,6 +16,12 @@
  */
 
 
+configurations {
+    distributionBalo {
+        transitive false
+    }
+}
+
 dependencies {
     // lang lib dependencies
     implementation project(':ballerina-lang:annotations')
@@ -38,24 +44,24 @@ dependencies {
     implementation project(':ballerina-lang:internal')
     implementation project(':ballerina-lang:query')
     implementation project(':ballerina-lang:transaction')
-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:array', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:decimal', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:error', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:floatingpoint', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:future', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:integer', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:map', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:object', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:stream', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:table', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:typedesc', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:bool', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:query', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:transaction', configuration: 'baloImplementation')
+    distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:array', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:decimal', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:error', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:future', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:integer', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:map', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:object', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:stream', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:table', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:string', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:typedesc', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:value', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:xml', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:bool', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:internal', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:query', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:transaction', configuration: 'distributionBalo')
 }

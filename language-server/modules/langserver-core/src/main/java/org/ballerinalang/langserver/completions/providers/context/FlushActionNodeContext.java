@@ -19,8 +19,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.FlushActionNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -43,10 +42,10 @@ public class FlushActionNodeContext extends AbstractCompletionProvider<FlushActi
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, FlushActionNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, FlushActionNode node)
             throws LSCompletionException {
         // TODO: Following logic can be generalized
-        ArrayList<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
         List<Symbol> filteredWorkers = visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.WORKER)
                 .collect(Collectors.toList());

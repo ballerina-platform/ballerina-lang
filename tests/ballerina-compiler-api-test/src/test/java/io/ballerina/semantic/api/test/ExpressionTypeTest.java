@@ -18,21 +18,18 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
-import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.List;
 
@@ -53,8 +50,6 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
-import static org.ballerinalang.compiler.CompilerPhase.COMPILER_PLUGIN;
-import static org.ballerinalang.test.util.BCompileUtil.compile;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -64,14 +59,11 @@ import static org.testng.Assert.assertEquals;
  */
 public class ExpressionTypeTest {
 
-    SemanticModel model;
+    private SemanticModel model;
 
     @BeforeClass
     public void setup() {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/expressions_test.bal", context, COMPILER_PLUGIN);
-        BLangPackage pkg = (BLangPackage) result.getAST();
-        model = new BallerinaSemanticModel(pkg, context);
+        model = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/expressions_test.bal");
     }
 
     @Test(dataProvider = "LiteralPosProvider")
@@ -169,10 +161,7 @@ public class ExpressionTypeTest {
     @Test
     public void testInferredMappingConstructorType() {
         TypeSymbol type = getExprType(35, 13, 35, 43);
-        assertEquals(type.typeKind(), TYPE_REFERENCE);
-
-        TypeSymbol referredType = ((TypeReferenceTypeSymbol) type).typeDescriptor();
-        assertEquals(referredType.typeKind(), RECORD);
+        assertEquals(type.typeKind(), RECORD);
 
         assertType(35, 14, 35, 20, STRING);
         assertType(35, 22, 35, 31, STRING);
@@ -303,6 +292,10 @@ public class ExpressionTypeTest {
         };
     }
 
+    @Test
+    public void testInferredRecordTypeForInvalidExprs() {
+        assertType(97, 5, 97, 20, RECORD);
+    }
 
     private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
         TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);

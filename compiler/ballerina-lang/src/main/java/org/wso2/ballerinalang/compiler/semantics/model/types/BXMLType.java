@@ -39,7 +39,7 @@ public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableRef
         this.constraint = constraint;
     }
 
-    public BXMLType(BType constraint, BTypeSymbol tsymbol, int flags) {
+    public BXMLType(BType constraint, BTypeSymbol tsymbol, long flags) {
         super(TypeTags.XML, tsymbol, flags);
         this.constraint = constraint;
     }

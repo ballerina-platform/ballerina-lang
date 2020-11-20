@@ -437,7 +437,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         BVarSymbol symbol = varNode.symbol;
-        int flags = symbol.flags;
+        var flags = symbol.flags;
 
         BLangExpression expr = varNode.expr;
 
@@ -1639,6 +1639,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             copyInLockInfoStack.peek().invocations.add(invocationExpr);
         }
 
+        if (Symbols.isFlagOn(symbol.flags, Flags.ISOLATED_PARAM)) {
+            return;
+        }
+
         inferredIsolated = false;
 
         if (inIsolatedFunction) {
@@ -2034,7 +2038,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 Symbols.isTagOn(symbol, SymTag.FUNCTION);
     }
 
-    private boolean isIsolated(int flags) {
+    private boolean isIsolated(long flags) {
         return Symbols.isFlagOn(flags, Flags.ISOLATED);
     }
 
@@ -2057,7 +2061,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
-        int flags = type.flags;
+        var flags = type.flags;
         return !Symbols.isFlagOn(flags, Flags.READONLY) && !isIsolatedObjectTypes(type);
     }
 
